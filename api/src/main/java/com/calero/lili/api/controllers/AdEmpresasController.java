@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/empresas")
+@RequestMapping("api/v1.0/empresas")
 @RequiredArgsConstructor
 public class AdEmpresasController {
 
@@ -19,7 +19,7 @@ public class AdEmpresasController {
         return ResponseEntity.ok(adEmpresasService.findById(idData, idEmpresa));
     }
 
-    @GetMapping("/{idData}")
+    @GetMapping("")
     public ResponseEntity<PaginatedDto<AdEmpresaGetListDto>> findAll(
             @PathVariable Long idData,
             AdEmpresaListFilterDto filters,
@@ -27,19 +27,16 @@ public class AdEmpresasController {
         return ResponseEntity.ok(adEmpresasService.findAllPaginate(idData, filters, pageable));
     }
 
-    @PostMapping("/{idData}")
-    public ResponseEntity<AdEmpresaCreationResponseDto> create(
-            @PathVariable Long idData,
-            @RequestBody AdEmpresaRequestDto request) {
-        return ResponseEntity.ok(adEmpresasService.create(idData, request));
+    @PostMapping("")
+    public ResponseEntity<AdEmpresaCreationResponseDto> create(@RequestBody AdEmpresaRequestDto request) {
+        return ResponseEntity.ok(adEmpresasService.create(1L, request));
     }
 
-    @PutMapping("/{idData}/{idEmpresa}")
+    @PutMapping("{idEmpresa}")
     public ResponseEntity<AdEmpresaCreationResponseDto> update(
-            @PathVariable Long idData,
             @PathVariable Long idEmpresa,
             @RequestBody AdEmpresaRequestDto request) {
-        return ResponseEntity.ok(adEmpresasService.update(idData, idEmpresa, request));
+        return ResponseEntity.ok(adEmpresasService.update(1L, idEmpresa, request));
     }
 
     @GetMapping("/ruc/{ruc}")
