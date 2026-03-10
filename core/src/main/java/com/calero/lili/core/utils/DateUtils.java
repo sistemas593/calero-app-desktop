@@ -1,6 +1,6 @@
 package com.calero.lili.core.utils;
 
-import com.calero.lili.core.errors.GeneralException;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -34,6 +34,7 @@ public class DateUtils {
     public static LocalDate toLocalDateOffsetTime(String dateOffsetTime) {
         OffsetDateTime offsetDateTime = OffsetDateTime.parse(dateOffsetTime, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
         return offsetDateTime.toLocalDate();
+
     }
 
     public static String obtenerFormatoFechaLetras(LocalDate fechaAsiento) {
@@ -72,8 +73,11 @@ public class DateUtils {
             throw new GeneralException("La fecha inicial no puede ser menor que la fecha final");
         }
 
+
         if (fechaEmisionHasta.isBefore(fechaEmisionDesde)) {
             throw new GeneralException("La fecha final no puede ser menor que la fecha inicial");
         }
     }
+
+
 }

@@ -33,6 +33,10 @@ dependencyManagement {
 }
 
 dependencies {
+
+    //validaciones
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+
     // Spring Boot (sin web, solo JPA + core)
     api("org.springframework.boot:spring-boot-starter-data-jpa")
 

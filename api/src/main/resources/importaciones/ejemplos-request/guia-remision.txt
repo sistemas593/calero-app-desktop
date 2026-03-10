@@ -1,0 +1,56 @@
+{
+    "sucursal": "001",
+    "formatoDocumento": "E",
+    "ambiente": 2,
+    "serie": "001001",
+    "secuencial": "000000009",
+    "numeroAutorizacion": "121212121200009",
+    "fechaEmision": "08/12/2025",
+    "fechaIniTransporte": "10/12/2025",
+    "fechaFinTransporte": "05/12/2025",
+    "idTransportista": "0cbc324b-a959-47a8-95b6-c014f436e9d4",
+    "motivoTraslado": "Entrega Mercaderia",
+    "docAduaneroUnico": "78945613",
+    "codEstabDestino": "001",
+    "dirPartida": "24 de julio y 17 de septiembre",
+    "ruta": "QUITO-OTAVALO",
+    "numeroItems": 1,
+    "anulada": false,
+    "impresa": false,
+    "idDestinatario": "df4b6bfd-75ce-4db6-9db7-c0e74e326002",
+    "informacionAdicional": [
+        {
+            "nombre": "Producto",
+            "valor": "Laptop Gamer HP Victus 15"
+        },
+        {
+            "nombre": "Complemento",
+            "valor": "Cargador de laptop"
+        }
+    ],
+    "detalle": [
+        {
+            "idItem": "714791e9-f937-4ae5-a9c2-87986d91ea08",
+            "itemOrden": 1,
+            "codigoPrincipal": "HPVictus001",
+            "codigoBarras": "15784946454610578080",
+            "descripcion": "Laptop Gamer Hp Victus 15",
+            "unidadMedida": "KG",
+            "cantidad": 1,
+            "detAdicional": [
+                {
+                    "nombre": "Destino",
+                    "valor": "24 de julio E1-196 y 17 de septimebre Llano Chico"
+                }
+            ]
+        }
+    ],
+    "codDocSustento": "123",
+    "documentoSustento": {
+        "serieDocSustento": "001",
+        "secuencialDocSustento": "0000007",
+        "numAutDocSustento": "13154878978878974510001",
+        "fechaEmisionDocSustento": "08/12/2025"
+    }
+    
+}

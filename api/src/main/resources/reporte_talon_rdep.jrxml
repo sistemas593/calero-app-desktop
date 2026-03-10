@@ -1,0 +1,635 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio 6.21.5 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports
+              http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="ResumenRetencionesSRI"
+              pageWidth="595"
+              pageHeight="1100"
+              columnWidth="555"
+              leftMargin="20"
+              rightMargin="20"
+              topMargin="20"
+              bottomMargin="20"
+              whenNoDataType="AllSectionsNoDetail">
+
+    <!-- ================= FIELDS ================= -->
+    <field name="razonSocial" class="java.lang.String"/>
+    <field name="numRuc" class="java.lang.String"/>
+    <field name="anio" class="java.lang.String"/>
+    <field name="fechaCarga" class="java.lang.String"/>
+    <field name="numeroRegistros" class="java.lang.String"/>
+
+    <field name="suelSal" class="java.lang.String"/>
+    <field name="sobSuelComRemu" class="java.lang.String"/>
+    <field name="partUtil" class="java.lang.String"/>
+    <field name="intGrabGen" class="java.lang.String"/>
+    <field name="impRentEmpl" class="java.lang.String"/>
+    <field name="decimTer" class="java.lang.String"/>
+    <field name="decimCuar" class="java.lang.String"/>
+    <field name="fondoReserva" class="java.lang.String"/>
+    <field name="salarioDigno" class="java.lang.String"/>
+    <field name="otrosIngRenGrav" class="java.lang.String"/>
+    <field name="ingGravConEsteEmpl" class="java.lang.String"/>
+    <field name="apoPerIess" class="java.lang.String"/>
+    <field name="aporPerIessConOtrosEmpls" class="java.lang.String"/>
+
+    <field name="deducVivienda" class="java.lang.String"/>
+    <field name="deducSalud" class="java.lang.String"/>
+    <field name="deducEducartcult" class="java.lang.String"/>
+    <field name="deducAliement" class="java.lang.String"/>
+    <field name="deducVestim" class="java.lang.String"/>
+    <field name="deduccionTurismo" class="java.lang.String"/>
+
+    <field name="exoDiscap" class="java.lang.String"/>
+    <field name="exoTerEd" class="java.lang.String"/>
+    <field name="basImp" class="java.lang.String"/>
+    <field name="impRentCaus" class="java.lang.String"/>
+    <field name="rebajaGastosPersonales" class="java.lang.String"/>
+    <field name="impuestoRentaRebajaGastosPersonales" class="java.lang.String"/>
+    <field name="valRetAsuOtrosEmpls" class="java.lang.String"/>
+    <field name="valImpAsuEsteEmpl" class="java.lang.String"/>
+    <field name="valRet" class="java.lang.String"/>
+    <field name="otrosIngRenNoGrav" class="java.lang.String"/>
+
+    <field name="numIdentificacionContador" class="java.lang.String"/>
+    <field name="numIdentificacionRepLegal" class="java.lang.String"/>
+
+    <!-- ================= TITLE ================= -->
+    <title>
+        <band height="60">
+            <frame>
+                <reportElement x="0" y="0" width="535" height="50" backcolor="#0066CC" mode="Opaque"/>
+                <staticText>
+                    <reportElement x="0" y="5" width="535" height="55" forecolor="#FFFFFF"/>
+                    <textElement textAlignment="Center">
+                        <font size="14" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[TALON RESUMEN DE RETENCIONES EN LA FUENTE DE IMPUESTO
+                     A LA RENTA BAJO RELACION DE DEPENDENCIA SERVICIO DE RENTAS INTERNAS]]></text>
+                </staticText>
+            </frame>
+        </band>
+    </title>
+
+    <!-- ================= SUMMARY ================= -->
+    <summary>
+        <band height="980">
+
+            <!-- DATOS GENERALES -->
+            <staticText>
+                <reportElement x="20" y="0" width="200" height="15"/>
+                <text><![CDATA[RAZÓN SOCIAL:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="20" y="15" width="300" height="15"/>
+                <textFieldExpression><![CDATA[$F{razonSocial}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="20" y="35" width="60" height="15"/>
+                <text><![CDATA[RUC:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="20" y="50" width="150" height="15"/>
+                <textFieldExpression><![CDATA[$F{numRuc}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="220" y="35" width="80" height="15"/>
+                <text><![CDATA[PERÍODO:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="220" y="50" width="120" height="15"/>
+                <textFieldExpression><![CDATA[$F{anio}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="380" y="35" width="120" height="15"/>
+                <text><![CDATA[FECHA:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="380" y="50" width="120" height="15"/>
+                <textFieldExpression><![CDATA[$F{fechaCarga}]]></textFieldExpression>
+            </textField>
+
+            <!-- ================= TEXTO CERTIFICACION ================= -->
+            <staticText>
+                <reportElement x="10" y="80" width="515" height="45"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="9"/>
+                </textElement>
+                <text><![CDATA[
+Certifico que la información contenida en el medio magnético adjunto sobre la Retención en la fuente de impuesto a la Renta
+bajo Relación de Dependencia realizadas durante el año indicado, es el fiel reflejo de lo registrado en este anexo:
+    ]]></text>
+            </staticText>
+
+
+            <!-- ================= TABLA ================= -->
+            <frame>
+                <reportElement x="0" y="80" width="535" height="620"/>
+                <box>
+                    <pen lineWidth="0.5"/>
+                </box>
+
+                <!-- CABECERA -->
+                <staticText>
+                    <reportElement x="0" y="0" width="535" height="20" backcolor="#0066CC" forecolor="#FFFFFF" mode="Opaque"/>
+
+                    <textElement textAlignment="Center">
+                        <font size="15" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[INFORMACIÓN ORIGINAL]]></text>
+                </staticText>
+
+                <line>
+                    <reportElement x="350" y="20" width="1" height="600"/>
+                </line>
+
+                <line>
+                    <reportElement x="0" y="40" width="535" height="1"/>
+                </line>
+
+                <staticText>
+                    <reportElement x="0" y="20" width="350" height="20" backcolor="#3C3C3C" forecolor="#FFFFFF" mode="Opaque"/>
+                    <textElement textAlignment="Left">
+                        <font size="13" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[Descripción]]></text>
+                </staticText>
+
+                <staticText>
+                    <reportElement x="350" y="20" width="185" height="20" backcolor="#3C3C3C" forecolor="#FFFFFF" mode="Opaque"/>
+                    <textElement textAlignment="Right">
+                        <font size="13" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[Valor]]></text>
+                </staticText>
+
+                <!-- FILAS (ORDEN PDF) -->
+                <!-- Número de registros -->
+                <staticText>
+                    <reportElement x="0" y="40" width="350" height="20"/>
+                    <text><![CDATA[Número de Registros]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="350" y="40" width="185" height="20"/>
+                    <textElement textAlignment="Right"/>
+                    <textFieldExpression><![CDATA[$F{numeroRegistros}]]></textFieldExpression>
+                </textField>
+
+                <line>
+                    <reportElement x="0" y="60" width="535" height="1"/>
+                </line>
+
+                <staticText>
+                    <reportElement x="0" y="60" width="350" height="20"/>
+                    <text><![CDATA[Sueldos, salarios y otros ingresos gravados de impuesto a la renta (materia gravada de la seguridad social)]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="350" y="60" width="185" height="20"/>
+                    <textElement textAlignment="Right"/>
+                    <textFieldExpression><![CDATA[$F{suelSal}]]></textFieldExpression>
+                </textField>
+
+                <line>
+                    <reportElement x="0" y="80" width="535" height="1"/>
+                </line>
+
+                <staticText>
+                    <reportElement x="0" y="80" width="350" height="20"/>
+                    <text><![CDATA[Otros ingresos gravados de impuesto a la renta (materia no gravada de la seguridad social)]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="350" y="80" width="185" height="20"/>
+                    <textElement textAlignment="Right"/>
+                    <textFieldExpression><![CDATA[$F{otrosIngRenNoGrav}]]></textFieldExpression>
+                </textField>
+
+                <line>
+                    <reportElement x="0" y="100" width="535" height="1"/>
+                </line>
+
+                <staticText>
+                    <reportElement x="0" y="100" width="350" height="20"/>
+                    <text><![CDATA[Participación utilidades]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="350" y="100" width="185" height="20"/>
+                    <textElement textAlignment="Right"/>
+                    <textFieldExpression><![CDATA[$F{partUtil}]]></textFieldExpression>
+                </textField>
+
+                <line>
+                    <reportElement x="0" y="120" width="535" height="1"/>
+                </line>
+
+                <staticText>
+                    <reportElement x="0" y="120" width="350" height="20"/>
+                    <text><![CDATA[Ingresos gravados generados con otros empleadores]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="350" y="120" width="185" height="20"/>
+                    <textElement textAlignment="Right"/>
+                    <textFieldExpression><![CDATA[$F{intGrabGen}]]></textFieldExpression>
+                </textField>
+
+                <line>
+                    <reportElement x="0" y="140" width="535" height="1"/>
+                </line>
+
+                <staticText>
+                    <reportElement x="0" y="140" width="350" height="20"/>
+                    <text><![CDATA[Impuesto a la Renta asumido por este empleador]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="350" y="140" width="185" height="20"/>
+                    <textElement textAlignment="Right"/>
+                    <textFieldExpression><![CDATA[$F{impRentEmpl}]]></textFieldExpression>
+                </textField>
+
+                <line>
+                    <reportElement x="0" y="160" width="535" height="1"/>
+                </line>
+
+                <staticText>
+                    <reportElement x="0" y="160" width="350" height="20"/>
+                    <text><![CDATA[Décimo tercer sueldo]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="350" y="160" width="185" height="20"/>
+                    <textElement textAlignment="Right"/>
+                    <textFieldExpression><![CDATA[$F{decimTer}]]></textFieldExpression>
+                </textField>
+
+                <line>
+                    <reportElement x="0" y="180" width="535" height="1"/>
+                </line>
+
+                <staticText>
+                    <reportElement x="0" y="180" width="350" height="20"/>
+                    <text><![CDATA[Décimo cuarto sueldo]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="350" y="180" width="185" height="20"/>
+                    <textElement textAlignment="Right"/>
+                    <textFieldExpression><![CDATA[$F{decimCuar}]]></textFieldExpression>
+                </textField>
+
+                <line>
+                    <reportElement x="0" y="200" width="535" height="1"/>
+                </line>
+
+                <staticText>
+                    <reportElement x="0" y="200" width="350" height="20"/>
+                    <text><![CDATA[Fondos de reserva]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="350" y="200" width="185" height="20"/>
+                    <textElement textAlignment="Right"/>
+                    <textFieldExpression><![CDATA[$F{fondoReserva}]]></textFieldExpression>
+                </textField>
+
+                <line>
+                    <reportElement x="0" y="220" width="535" height="1"/>
+                </line>
+
+                <staticText>
+                    <reportElement x="0" y="220" width="350" height="20"/>
+                    <text><![CDATA[Compensación económica salario digno]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="350" y="220" width="185" height="20"/>
+                    <textElement textAlignment="Right"/>
+                    <textFieldExpression><![CDATA[$F{salarioDigno}]]></textFieldExpression>
+                </textField>
+
+                <line>
+                    <reportElement x="0" y="240" width="535" height="1"/>
+                </line>
+
+                <staticText>
+                    <reportElement x="0" y="240" width="350" height="20"/>
+                    <text><![CDATA[Otros ingresos en relación de dependencia que no constituyen materia gravada de impuesto a la renta]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="350" y="240" width="185" height="20"/>
+                    <textElement textAlignment="Right"/>
+                    <textFieldExpression><![CDATA[$F{otrosIngRenGrav}]]></textFieldExpression>
+                </textField>
+
+                <line>
+                    <reportElement x="0" y="260" width="535" height="1"/>
+                </line>
+
+                <staticText>
+                    <reportElement x="0" y="260" width="350" height="20"/>
+                    <text><![CDATA[Ingresos gravados con este empleador]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="350" y="260" width="185" height="20"/>
+                    <textElement textAlignment="Right"/>
+                    <textFieldExpression><![CDATA[$F{ingGravConEsteEmpl}]]></textFieldExpression>
+                </textField>
+
+                <line>
+                    <reportElement x="0" y="280" width="535" height="1"/>
+                </line>
+
+                <staticText>
+                    <reportElement x="0" y="280" width="350" height="20"/>
+                    <text><![CDATA[Aporte personal IESS con este empleador]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="350" y="280" width="185" height="20"/>
+                    <textElement textAlignment="Right"/>
+                    <textFieldExpression><![CDATA[$F{apoPerIess}]]></textFieldExpression>
+                </textField>
+
+                <line>
+                    <reportElement x="0" y="300" width="535" height="1"/>
+                </line>
+
+                <staticText>
+                    <reportElement x="0" y="300" width="350" height="20"/>
+                    <text><![CDATA[Aporte personal IESS con otros empleadores]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="350" y="300" width="185" height="20"/>
+                    <textElement textAlignment="Right"/>
+                    <textFieldExpression><![CDATA[$F{aporPerIessConOtrosEmpls}]]></textFieldExpression>
+                </textField>
+
+                <line>
+                    <reportElement x="0" y="320" width="535" height="1"/>
+                </line>
+
+                <staticText>
+                    <reportElement x="0" y="320" width="350" height="20"/>
+                    <text><![CDATA[Gastos Personales - Vivienda Informativo]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="350" y="320" width="185" height="20"/>
+                    <textElement textAlignment="Right"/>
+                    <textFieldExpression><![CDATA[$F{deducVivienda}]]></textFieldExpression>
+                </textField>
+
+                <line>
+                    <reportElement x="0" y="340" width="535" height="1"/>
+                </line>
+
+                <staticText>
+                    <reportElement x="0" y="340" width="350" height="20"/>
+                    <text><![CDATA[Gastos Personales - Salud Informativo]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="350" y="340" width="185" height="20"/>
+                    <textElement textAlignment="Right"/>
+                    <textFieldExpression><![CDATA[$F{deducSalud}]]></textFieldExpression>
+                </textField>
+
+                <line>
+                    <reportElement x="0" y="360" width="535" height="1"/>
+                </line>
+
+                <staticText>
+                    <reportElement x="0" y="360" width="350" height="20"/>
+                    <text><![CDATA[Gastos Personales - Educación - Arte y Cultura Informativo]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="350" y="360" width="185" height="20"/>
+                    <textElement textAlignment="Right"/>
+                    <textFieldExpression><![CDATA[$F{deducEducartcult}]]></textFieldExpression>
+                </textField>
+
+                <line>
+                    <reportElement x="0" y="380" width="535" height="1"/>
+                </line>
+
+                <staticText>
+                    <reportElement x="0" y="380" width="350" height="20"/>
+                    <text><![CDATA[Gastos Personales - Alimentación Informativo ]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="350" y="380" width="185" height="20"/>
+                    <textElement textAlignment="Right"/>
+                    <textFieldExpression><![CDATA[$F{deducAliement}]]></textFieldExpression>
+                </textField>
+
+                <line>
+                    <reportElement x="0" y="400" width="535" height="1"/>
+                </line>
+
+                <staticText>
+                    <reportElement x="0" y="400" width="350" height="20"/>
+                    <text><![CDATA[Gastos Personales - Vestimenta Informativo]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="350" y="400" width="185" height="20"/>
+                    <textElement textAlignment="Right"/>
+                    <textFieldExpression><![CDATA[$F{deducVestim}]]></textFieldExpression>
+                </textField>
+
+                <line>
+                    <reportElement x="0" y="420" width="535" height="1"/>
+                </line>
+
+                <staticText>
+                    <reportElement x="0" y="420" width="350" height="20"/>
+                    <text><![CDATA[Gastos Personales - Turismo Informativo]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="350" y="420" width="185" height="20"/>
+                    <textElement textAlignment="Right"/>
+                    <textFieldExpression><![CDATA[$F{deduccionTurismo}]]></textFieldExpression>
+                </textField>
+
+                <line>
+                    <reportElement x="0" y="440" width="535" height="1"/>
+                </line>
+
+                <staticText>
+                    <reportElement x="0" y="440" width="350" height="20"/>
+                    <text><![CDATA[Exoneración por Discapacidad]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="350" y="440" width="185" height="20"/>
+                    <textElement textAlignment="Right"/>
+                    <textFieldExpression><![CDATA[$F{exoDiscap}]]></textFieldExpression>
+                </textField>
+
+                <line>
+                    <reportElement x="0" y="460" width="535" height="1"/>
+                </line>
+
+                <staticText>
+                    <reportElement x="0" y="460" width="350" height="20"/>
+                    <text><![CDATA[Exoneración por Tercera Edad]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="350" y="460" width="185" height="20"/>
+                    <textElement textAlignment="Right"/>
+                    <textFieldExpression><![CDATA[$F{exoTerEd}]]></textFieldExpression>
+                </textField>
+
+                <line>
+                    <reportElement x="0" y="480" width="535" height="1"/>
+                </line>
+
+                <staticText>
+                    <reportElement x="0" y="480" width="350" height="20"/>
+                    <text><![CDATA[Base imponible gravada]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="350" y="480" width="185" height="20"/>
+                    <textElement textAlignment="Right"/>
+                    <textFieldExpression><![CDATA[$F{basImp}]]></textFieldExpression>
+                </textField>
+
+                <line>
+                    <reportElement x="0" y="500" width="535" height="1"/>
+                </line>
+
+                <staticText>
+                    <reportElement x="0" y="500" width="350" height="20"/>
+                    <text><![CDATA[Impuesto a la Renta causado]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="350" y="500" width="185" height="20"/>
+                    <textElement textAlignment="Right"/>
+                    <textFieldExpression><![CDATA[$F{impRentCaus}]]></textFieldExpression>
+                </textField>
+
+                <line>
+                    <reportElement x="0" y="520" width="535" height="1"/>
+                </line>
+
+                <staticText>
+                    <reportElement x="0" y="520" width="350" height="20"/>
+                    <text><![CDATA[Rebaja por gastos personales]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="350" y="520" width="185" height="20"/>
+                    <textElement textAlignment="Right"/>
+                    <textFieldExpression><![CDATA[$F{rebajaGastosPersonales}]]></textFieldExpression>
+                </textField>
+
+                <line>
+                    <reportElement x="0" y="540" width="535" height="1"/>
+                </line>
+                <staticText>
+                    <reportElement x="0" y="540" width="350" height="20"/>
+                    <text><![CDATA[Impuesto a la renta después de la rebaja]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="350" y="540" width="185" height="20"/>
+                    <textElement textAlignment="Right"/>
+                    <textFieldExpression><![CDATA[$F{impuestoRentaRebajaGastosPersonales}]]></textFieldExpression>
+                </textField>
+
+                <line>
+                    <reportElement x="0" y="560" width="535" height="1"/>
+                </line>
+
+                <staticText>
+                    <reportElement x="0" y="560" width="350" height="20"/>
+                    <text><![CDATA[Valor del impuesto retenido y asumido por otros empleadores durante el periodo declarado]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="350" y="560" width="185" height="20"/>
+                    <textElement textAlignment="Right"/>
+                    <textFieldExpression><![CDATA[$F{valRetAsuOtrosEmpls}]]></textFieldExpression>
+                </textField>
+
+                <line>
+                    <reportElement x="0" y="580" width="535" height="1"/>
+                </line>
+
+                <staticText>
+                    <reportElement x="0" y="580" width="350" height="20"/>
+                    <text><![CDATA[Valor impuesto asumido por este empleador]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="350" y="580" width="185" height="20"/>
+                    <textElement textAlignment="Right"/>
+                    <textFieldExpression><![CDATA[$F{valImpAsuEsteEmpl}]]></textFieldExpression>
+                </textField>
+
+                <line>
+                    <reportElement x="0" y="600" width="535" height="1"/>
+                </line>
+
+                <staticText>
+                    <reportElement x="0" y="600" width="350" height="20"/>
+                    <text><![CDATA[Valor del impuesto retenido al trabajador por este empleador]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="350" y="600" width="185" height="20"/>
+                    <textElement textAlignment="Right"/>
+                    <textFieldExpression><![CDATA[$F{valRet}]]></textFieldExpression>
+                </textField>
+
+                <line>
+                    <reportElement x="0" y="620" width="535" height="1"/>
+                </line>
+
+            </frame>
+
+            <!-- DECLARACIÓN -->
+            <staticText>
+                <reportElement x="0" y="720" width="535" height="40"/>
+                <textElement textAlignment="Center">
+                    <font size="8"/>
+                </textElement>
+                <text>
+                    <![CDATA[Declaro que los datos proporcionados en este anexo son verdaderos, por lo que asumo la responsabilidad correspondiente, de acuerdo a lo establecido
+en el Art. 101 de la codificación de la Ley de Régimen Tributario Interno]]></text>
+            </staticText>
+
+            <!-- FIRMAS -->
+            <staticText>
+                <reportElement x="30" y="780" width="200" height="15"/>
+                <textElement textAlignment="Center"/>
+                <text><![CDATA[________________________________________]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="30" y="795" width="200" height="15"/>
+                <textElement textAlignment="Center">
+                    <font size="10"/>
+                </textElement>
+                <text><![CDATA[Firma del Contador]]></text>
+            </staticText>
+
+            <textField>
+                <reportElement x="30" y="810" width="200" height="15"/>
+                <textElement textAlignment="Center"/>
+                <textFieldExpression><![CDATA[$F{numIdentificacionContador}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="305" y="780" width="200" height="15"/>
+                <textElement textAlignment="Center"/>
+                <text><![CDATA[________________________________________]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="305" y="795" width="200" height="15"/>
+                <textElement textAlignment="Center">
+                    <font size="10"/>
+                </textElement>
+                <text><![CDATA[Firma del Representante Legal]]></text>
+            </staticText>
+
+            <textField>
+                <reportElement x="305" y="810" width="200" height="15"/>
+                <textElement textAlignment="Center"/>
+                <textFieldExpression><![CDATA[$F{numIdentificacionRepLegal}]]></textFieldExpression>
+            </textField>
+
+        </band>
+    </summary>
+
+</jasperReport>

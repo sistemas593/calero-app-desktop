@@ -1,9 +1,9 @@
 package com.calero.lili.desktop.ui
 
 import com.calero.lili.core.dtos.Paginator
-import com.calero.lili.core.dtos.AdEmpresaGetListDto
-import com.calero.lili.core.dtos.AdEmpresaListFilterDto
-import com.calero.lili.core.services.AdEmpresasServiceImpl
+import com.calero.lili.core.modAdminEmpresas.dto.AdEmpresaGetListDto
+import com.calero.lili.core.modAdminEmpresas.dto.AdEmpresaListFilterDto
+import com.calero.lili.core.modAdminEmpresas.AdEmpresasServiceImpl
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob

@@ -1,0 +1,105 @@
+package com.calero.lili.api.modComprasItemsCategorias;
+
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.Paginator;
+import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.api.modComprasItemsCategorias.builder.GeItemsCategoriaBuilder;
+import com.calero.lili.api.modComprasItemsCategorias.dto.GeItemCategoriaCreationResponseDto;
+import com.calero.lili.api.modComprasItemsCategorias.dto.GeItemCategoriaReportDto;
+import com.calero.lili.api.modComprasItemsCategorias.dto.GeItemMedidaListFilterDto;
+import com.calero.lili.api.modComprasItemsCategorias.dto.GeItemsCategoriaCreationRequestDto;
+import com.calero.lili.api.modComprasItemsMedidas.dto.GeItemMedidaReportDto;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import java.text.MessageFormat;
+import java.time.LocalDateTime;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class GeItemsCategoriaServiceImpl {
+
+    private final GeItemsCategoriaRepository geItemsCategoriaRepository;
+    private final GeItemsCategoriaBuilder geItemsCategoriaBuilder;
+    private final AuditorAware<String> auditorAware;
+
+
+    public GeItemCategoriaCreationResponseDto create(Long idData, GeItemsCategoriaCreationRequestDto request) {
+        GeItemsCategoriaEntity createdDto = geItemsCategoriaRepository.save(geItemsCategoriaBuilder
+                .builderEntity(request, idData));
+        return geItemsCategoriaBuilder.builderResponse(createdDto);
+    }
+
+    public GeItemCategoriaCreationResponseDto update(Long idData, UUID id, GeItemsCategoriaCreationRequestDto request) {
+
+
+        GeItemsCategoriaEntity entidad = geItemsCategoriaRepository.findById(idData, id);
+        if (Objects.isNull(entidad)) {
+            throw new GeneralException(MessageFormat.format("Id {0} no existe", id));
+        }
+
+        GeItemsCategoriaEntity update = geItemsCategoriaBuilder.builderUpdateEntity(request, entidad);
+
+        update.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        update.setModifiedDate(LocalDateTime.now());
+
+        geItemsCategoriaRepository.save(update);
+        return geItemsCategoriaBuilder.builderResponse(update);
+    }
+
+    public void delete(Long idData, UUID id) {
+
+        GeItemsCategoriaEntity entidad = geItemsCategoriaRepository.findById(idData, id);
+        if (Objects.isNull(entidad)) {
+            throw new GeneralException(MessageFormat.format("Id {0} no existe", id));
+        }
+
+        entidad.setDelete(Boolean.TRUE);
+        entidad.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        entidad.setDeletedDate(LocalDateTime.now());
+
+        geItemsCategoriaRepository.save(entidad);
+
+    }
+
+    public GeItemCategoriaCreationResponseDto findFirstById(Long idData, UUID id) {
+
+
+        GeItemsCategoriaEntity entidad = geItemsCategoriaRepository.findById(idData, id);
+        if (entidad == null) {
+            throw new GeneralException(MessageFormat.format("Id {0} no existe", id));
+        }
+        return geItemsCategoriaBuilder.builderResponse(entidad);
+    }
+
+    public PaginatedDto<GeItemCategoriaReportDto> findAllPaginate(Long idData, GeItemMedidaListFilterDto filters, Pageable pageable) {
+
+        Page<GeItemsCategoriaEntity> page = geItemsCategoriaRepository.findAllPaginate(idData, filters.getFilter(), (filters.getFilter() != null) ? filters.getFilter() : "", pageable);
+        PaginatedDto paginatedDto = new PaginatedDto<GeItemMedidaReportDto>();
+        paginatedDto.setContent(page.getContent()
+                .stream()
+                .map(geItemsCategoriaBuilder::builderListDto)
+                .collect(Collectors.toList()));
+
+        Paginator paginated = new Paginator();
+        paginated.setTotalElements(page.getTotalElements());
+        paginated.setTotalPages(page.getTotalPages());
+        paginated.setNumberOfElements(page.getNumberOfElements());
+        paginated.setSize(page.getSize());
+        paginated.setFirst(page.isFirst());
+        paginated.setLast(page.isLast());
+        paginated.setPageNumber(page.getPageable().getPageNumber());
+        paginated.setPageSize(page.getPageable().getPageSize());
+        paginated.setEmpty(page.isEmpty());
+        paginated.setNumber(page.getNumber());
+        paginatedDto.setPaginator(paginated);
+        return paginatedDto;
+    }
+
+}

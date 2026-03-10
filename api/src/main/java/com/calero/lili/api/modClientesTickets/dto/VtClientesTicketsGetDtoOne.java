@@ -1,0 +1,19 @@
+package com.calero.lili.api.modClientesTickets.dto;
+
+import lombok.Builder;
+import lombok.Data;
+
+import java.util.UUID;
+
+@Data
+@Builder
+public class VtClientesTicketsGetDtoOne {
+
+    private UUID idTicket;
+    private String asunto;
+    private String contacto;
+    private String detalle;
+    private String respaldo;
+    private String fecha;
+    private String estado;
+}

@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports
+              http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="PagosEmpleados"
+              pageWidth="1500"
+              pageHeight="595"
+              orientation="Landscape"
+              columnWidth="1460"
+              leftMargin="20"
+              rightMargin="20"
+              topMargin="20"
+              bottomMargin="20"
+              whenNoDataType="AllSectionsNoDetail">
+
+    <!-- ===================== PARAMETERS ===================== -->
+    <parameter name="empresa" class="java.lang.String"/>
+    <parameter name="total_general_sueldo" class="java.lang.String"/>
+    <parameter name="total_general_sobreSueldos" class="java.lang.String"/>
+    <parameter name="total_general_otros" class="java.lang.String"/>
+    <parameter name="total_general_decimoTercero" class="java.lang.String"/>
+    <parameter name="total_general_decimoCuarto" class="java.lang.String"/>
+    <parameter name="total_general_fondos" class="java.lang.String"/>
+    <parameter name="total_general_utilidades" class="java.lang.String"/>
+    <parameter name="total_general_iessPersonal" class="java.lang.String"/>
+    <parameter name="total_general_gastosPersonales" class="java.lang.String"/>
+    <parameter name="total_general_terceraEdadYDiscapacitados" class="java.lang.String"/>
+    <parameter name="total_general_ingresosOtrosEmpleadores" class="java.lang.String"/>
+    <parameter name="total_general_iessOtrosEmpleadores" class="java.lang.String"/>
+    <parameter name="total_general_baseImponible" class="java.lang.String"/>
+    <parameter name="total_general_retenidoEsteEmpleador" class="java.lang.String"/>
+    <parameter name="total_general_retenidoOtrosEmpleador" class="java.lang.String"/>
+
+    <parameter name="total_asumido" class="java.lang.String"/>
+    <parameter name="total_ingresos_no_gravados" class="java.lang.String"/>
+    <parameter name="total_salario_digno" class="java.lang.String"/>
+
+
+
+    <!-- ===================== FIELDS ===================== -->
+    <field name="numeroIdentificacion" class="java.lang.String"/>
+    <field name="trabajador" class="java.lang.String"/>
+    <field name="sueldo" class="java.lang.String"/>
+    <field name="sobreSueldos" class="java.lang.String"/>
+    <field name="decimoTercero" class="java.lang.String"/>
+    <field name="decimoCuarto" class="java.lang.String"/>
+    <field name="fondos" class="java.lang.String"/>
+    <field name="utilidades" class="java.lang.String"/>
+    <field name="iessPersonal" class="java.lang.String"/>
+    <field name="gastosPersonales" class="java.lang.String"/>
+    <field name="terceraEdadYDiscapacitados" class="java.lang.String"/>
+    <field name="ingresosOtrosEmpleadores" class="java.lang.String"/>
+    <field name="iessOtrosEmpleadores" class="java.lang.String"/>
+    <field name="baseImponible" class="java.lang.String"/>
+    <field name="retenidoEsteEmpleador" class="java.lang.String"/>
+    <field name="retenidoOtrosEmpleador" class="java.lang.String"/>
+    <field name="totalSueldo" class="java.lang.String"/>
+    <field name="totalSobreSueldos" class="java.lang.String"/>
+    <field name="totalOtros" class="java.lang.String"/>
+    <field name="totalDecimoTercero" class="java.lang.String"/>
+    <field name="totalDecimoCuarto" class="java.lang.String"/>
+    <field name="totalFondos" class="java.lang.String"/>
+    <field name="totalUtilidades" class="java.lang.String"/>
+    <field name="totalIessPersonal" class="java.lang.String"/>
+    <field name="totalGastosPersonales" class="java.lang.String"/>
+    <field name="totalTerceraEdadYDiscapacitados" class="java.lang.String"/>
+    <field name="totalIngresosOtrosEmpleadores" class="java.lang.String"/>
+    <field name="totalIessOtrosEmpleadores" class="java.lang.String"/>
+    <field name="totalBaseImponible" class="java.lang.String"/>
+    <field name="totalRetenidoEsteEmpleador" class="java.lang.String"/>
+    <field name="totalRetenidoOtrosEmpleador" class="java.lang.String"/>
+
+
+    <group name="grupoTotales">
+        <groupExpression><![CDATA[$F{numeroIdentificacion}]]></groupExpression>
+        <groupFooter>
+            <band height="20"> <!-- Texto TOTAL -->
+
+                <line>
+                    <reportElement
+                            x="0"
+                            y="0"
+                            width="1460"
+                            height="1"
+                            forecolor="#000000"/>
+                </line>
+
+                <staticText>
+                    <reportElement x="90" y="0" width="70" height="16"/>
+                    <text><![CDATA[Total:]]></text>
+                </staticText> <!-- Sueldos -->
+                <textField>
+                    <reportElement x="240" y="0" width="80" height="16"/>
+                    <textFieldExpression><![CDATA[$F{totalSueldo}]]></textFieldExpression>
+                </textField> <!-- Sobresueldos -->
+                <textField>
+                    <reportElement x="310" y="2" width="80" height="16"/>
+                    <textFieldExpression><![CDATA[$F{totalSobreSueldos}]]></textFieldExpression>
+                </textField> <!-- Otros -->
+                <textField>
+                    <reportElement x="380" y="2" width="80" height="16"/>
+                    <textFieldExpression><![CDATA[$F{totalOtros}]]></textFieldExpression>
+                </textField> <!-- Décimo Tercero -->
+                <textField>
+                    <reportElement x="450" y="2" width="80" height="16"/>
+                    <textFieldExpression><![CDATA[$F{totalDecimoTercero}]]></textFieldExpression>
+                </textField> <!-- Décimo Cuarto -->
+                <textField>
+                    <reportElement x="520" y="2" width="80" height="16"/>
+                    <textFieldExpression><![CDATA[$F{totalDecimoCuarto}]]></textFieldExpression>
+                </textField> <!-- Fondos -->
+                <textField>
+                    <reportElement x="590" y="2" width="80" height="16"/>
+                    <textFieldExpression><![CDATA[$F{totalFondos}]]></textFieldExpression>
+                </textField> <!-- Utilidades -->
+                <textField>
+                    <reportElement x="660" y="2" width="80" height="16"/>
+                    <textFieldExpression><![CDATA[$F{totalUtilidades}]]></textFieldExpression>
+                </textField> <!-- IESS Personal -->
+                <textField>
+                    <reportElement x="730" y="2" width="80" height="16"/>
+                    <textFieldExpression><![CDATA[$F{totalIessPersonal}]]></textFieldExpression>
+                </textField> <!-- Gastos Personales -->
+                <textField>
+                    <reportElement x="800" y="2" width="80" height="16"/>
+                    <textFieldExpression><![CDATA[$F{totalGastosPersonales}]]></textFieldExpression>
+                </textField> <!-- Tercera Edad / Discapacidad -->
+                <textField>
+                    <reportElement x="870" y="2" width="80" height="16"/>
+                    <textFieldExpression><![CDATA[$F{totalTerceraEdadYDiscapacitados}]]></textFieldExpression>
+                </textField> <!-- Ingresos Otros Empleadores -->
+                <textField>
+                    <reportElement x="870" y="2" width="80" height="16"/>
+                    <textFieldExpression><![CDATA[$F{totalIngresosOtrosEmpleadores}]]></textFieldExpression>
+                </textField> <!-- IESS Otros Empleadores -->
+                <textField>
+                    <reportElement x="940" y="2" width="80" height="16"/>
+                    <textFieldExpression><![CDATA[$F{totalIessOtrosEmpleadores}]]></textFieldExpression>
+                </textField> <!-- Base Imponible -->
+                <textField>
+                    <reportElement x="1010" y="2" width="80" height="16"/>
+                    <textFieldExpression><![CDATA[$F{totalBaseImponible}]]></textFieldExpression>
+                </textField> <!-- Retenido este empleador -->
+                <textField>
+                    <reportElement x="1090" y="2" width="80" height="16"/>
+                    <textFieldExpression><![CDATA[$F{totalRetenidoEsteEmpleador}]]></textFieldExpression>
+                </textField> <!-- Retenido otros empleadores -->
+                <textField>
+                    <reportElement x="1170" y="2" width="80" height="16"/>
+                    <textFieldExpression><![CDATA[$F{totalRetenidoOtrosEmpleador}]]></textFieldExpression>
+                </textField>
+            </band>
+        </groupFooter>
+    </group>
+
+
+    <!-- ===================== TITLE ===================== -->
+    <pageHeader>
+        <band height="45">
+
+            <textField>
+                <reportElement x="0" y="0" width="1460" height="18"/>
+                <textElement textAlignment="Left">
+                </textElement>
+                <textFieldExpression><![CDATA[$P{empresa}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="0" y="25" width="1460" height="15"/>
+                <text><![CDATA[Pagos a empleados]]></text>
+            </staticText>
+
+            <textField>
+                <reportElement x="0" y="0" width="1460" height="18"/>
+                <textElement textAlignment="Left">
+                    <font size="16" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{empresa}]]></textFieldExpression>
+            </textField>
+
+        </band>
+    </pageHeader>
+
+    <!-- ===================== COLUMN HEADER ===================== -->
+    <columnHeader>
+        <band height="22">
+            <!-- headers -->
+            <staticText>
+                <reportElement x="0" y="0" width="90" height="18"/>
+                <text><![CDATA[Ident.Empleado]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="90" y="0" width="150" height="18"/>
+                <text><![CDATA[Empleado]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="240" y="0" width="70" height="18"/>
+                <text><![CDATA[Sueldo]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="310" y="0" width="70" height="18"/>
+                <text><![CDATA[Sobre sueldos]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="380" y="0" width="70" height="18"/>
+                <text><![CDATA[Decimo.3ro]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="450" y="0" width="70" height="18"/>
+                <text><![CDATA[Decimo.4to]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="520" y="0" width="70" height="18"/>
+                <text><![CDATA[Fondos]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="590" y="0" width="70" height="18"/>
+                <text><![CDATA[Utilid.]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="660" y="0" width="70" height="18"/>
+                <text><![CDATA[IESS Personal]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="730" y="0" width="70" height="18"/>
+                <text><![CDATA[Gastos Persona.]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="800" y="0" width="70" height="18"/>
+                <text><![CDATA[Tercera Edad y Discap.]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="870" y="0" width="70" height="18"/>
+                <text><![CDATA[Ingresos. Otr. Empleadores]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="940" y="0" width="70" height="18"/>
+                <text><![CDATA[IESS Otrs. Empleadores]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="1010" y="0" width="80" height="18"/>
+                <text><![CDATA[Base Imponible.]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="1090" y="0" width="80" height="18"/>
+                <text><![CDATA[Ret. este Empleador]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="1170" y="0" width="80" height="18"/>
+                <text><![CDATA[Ret. Otr Empleadores]]></text>
+            </staticText>
+            <line>
+                <reportElement x="0" y="18" width="1460" height="1"/>
+            </line>
+            <line>
+                <reportElement x="0" y="20" width="1460" height="1"/>
+            </line>
+
+        </band>
+    </columnHeader>
+
+    <!-- ===================== DETAIL ===================== -->
+    <detail>
+        <band height="22">
+            <textField>
+                <reportElement x="0" y="0" width="90" height="18"/>
+                <textFieldExpression><![CDATA[$F{numeroIdentificacion}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="90" y="0" width="150" height="18"/>
+                <textFieldExpression><![CDATA[$F{trabajador}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="240" y="0" width="70" height="18"/>
+                <textFieldExpression><![CDATA[$F{sueldo}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="310" y="0" width="70" height="18"/>
+                <textFieldExpression><![CDATA[$F{sobreSueldos}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="380" y="0" width="70" height="18"/>
+                <textFieldExpression><![CDATA[$F{decimoTercero}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="450" y="0" width="70" height="18"/>
+                <textFieldExpression><![CDATA[$F{decimoCuarto}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="520" y="0" width="70" height="18"/>
+                <textFieldExpression><![CDATA[$F{fondos}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="590" y="0" width="70" height="18"/>
+                <textFieldExpression><![CDATA[$F{utilidades}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="660" y="0" width="70" height="18"/>
+                <textFieldExpression><![CDATA[$F{iessPersonal}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="730" y="0" width="70" height="18"/>
+                <textFieldExpression><![CDATA[$F{gastosPersonales}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="800" y="0" width="70" height="18"/>
+                <textFieldExpression><![CDATA[$F{terceraEdadYDiscapacitados}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="870" y="0" width="70" height="18"/>
+                <textFieldExpression><![CDATA[$F{ingresosOtrosEmpleadores}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="940" y="0" width="70" height="18"/>
+                <textFieldExpression><![CDATA[$F{iessOtrosEmpleadores}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="1010" y="0" width="80" height="18"/>
+                <textFieldExpression><![CDATA[$F{baseImponible}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="1090" y="0" width="80" height="18"/>
+                <textFieldExpression><![CDATA[$F{retenidoEsteEmpleador}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="1170" y="0" width="80" height="18"/>
+                <textFieldExpression><![CDATA[$F{retenidoOtrosEmpleador}]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+
+    <!-- ===================== SUMMARY ===================== -->
+    <summary>
+        <band height="64" splitType="Prevent">
+
+            <!-- Líneas separadoras -->
+            <line>
+                <reportElement x="0" y="0" width="1460" height="1"/>
+            </line>
+            <line>
+                <reportElement x="0" y="2" width="1460" height="1"/>
+            </line>
+
+            <!-- Totales -->
+            <staticText>
+                <reportElement x="6" y="6" width="200" height="18"/>
+                <text><![CDATA[Totales:]]></text>
+            </staticText>
+
+            <textField><reportElement x="240" y="6" width="70" height="18"/><textFieldExpression><![CDATA[$P{total_general_sueldo}]]></textFieldExpression></textField>
+            <textField><reportElement x="310" y="6" width="70" height="18"/><textFieldExpression><![CDATA[$P{total_general_sobreSueldos}]]></textFieldExpression></textField>
+            <textField><reportElement x="380" y="6" width="70" height="18"/><textFieldExpression><![CDATA[$P{total_general_decimoTercero}]]></textFieldExpression></textField>
+            <textField><reportElement x="450" y="6" width="70" height="18"/><textFieldExpression><![CDATA[$P{total_general_decimoCuarto}]]></textFieldExpression></textField>
+            <textField><reportElement x="520" y="6" width="70" height="18"/><textFieldExpression><![CDATA[$P{total_general_fondos}]]></textFieldExpression></textField>
+            <textField><reportElement x="590" y="6" width="70" height="18"/><textFieldExpression><![CDATA[$P{total_general_utilidades}]]></textFieldExpression></textField>
+            <textField><reportElement x="660" y="6" width="70" height="18"/><textFieldExpression><![CDATA[$P{total_general_iessPersonal}]]></textFieldExpression></textField>
+            <textField><reportElement x="730" y="6" width="70" height="18"/><textFieldExpression><![CDATA[$P{total_general_gastosPersonales}]]></textFieldExpression></textField>
+            <textField><reportElement x="800" y="6" width="70" height="18"/><textFieldExpression><![CDATA[$P{total_general_terceraEdadYDiscapacitados}]]></textFieldExpression></textField>
+            <textField><reportElement x="870" y="6" width="70" height="18"/><textFieldExpression><![CDATA[$P{total_general_ingresosOtrosEmpleadores}]]></textFieldExpression></textField>
+            <textField><reportElement x="940" y="6" width="70" height="18"/><textFieldExpression><![CDATA[$P{total_general_iessOtrosEmpleadores}]]></textFieldExpression></textField>
+            <textField><reportElement x="1010" y="6" width="80" height="18"/><textFieldExpression><![CDATA[$P{total_general_baseImponible}]]></textFieldExpression></textField>
+            <textField><reportElement x="1090" y="6" width="80" height="18"/><textFieldExpression><![CDATA[$P{total_general_retenidoEsteEmpleador}]]></textFieldExpression></textField>
+            <textField><reportElement x="1170" y="6" width="80" height="18"/><textFieldExpression><![CDATA[$P{total_general_retenidoOtrosEmpleador}]]></textFieldExpression></textField>
+
+            <!-- Asumido -->
+            <staticText>
+                <reportElement x="6" y="30" width="120" height="16"/>
+                <text><![CDATA[Asumido:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="130" y="30" width="80" height="16"/>
+                <textFieldExpression><![CDATA[$P{total_asumido}]]></textFieldExpression>
+            </textField>
+
+            <!-- Ingresos no Gravados -->
+            <staticText>
+                <reportElement x="260" y="30" width="280" height="16"/>
+                <text><![CDATA[Ingresos no Gravados de I. Renta:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="540" y="30" width="80" height="16"/>
+                <textFieldExpression><![CDATA[$P{total_ingresos_no_gravados}]]></textFieldExpression>
+            </textField>
+
+            <!-- Salario digno -->
+            <staticText>
+                <reportElement x="6" y="48" width="120" height="16"/>
+                <text><![CDATA[Salario digno:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="130" y="48" width="80" height="16"/>
+                <textFieldExpression><![CDATA[$P{total_salario_digno}]]></textFieldExpression>
+            </textField>
+
+        </band>
+    </summary>
+
+</jasperReport>

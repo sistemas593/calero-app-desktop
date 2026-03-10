@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+</head>
+
+<body style="width: 100%; display: flex; justify-content: start; align-items: start; margin: 0; padding: 0;">
+<div style="width: 100%; text-align: center; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+    <div style="width: 100%; background-color: #373CEF; padding-inline: 1rem; padding-block: 2rem;">
+        <h1 style="margin: 0; color: #FFFFFF; font-size: 3rem;">Adjunto documento electronico</h1>
+    </div>
+    <div style="color: #333333; display: flex; flex-direction: column; gap: 0.5rem; margin-top: 2rem;">
+        <p style="font-size: 1rem; margin: 0; padding-inline: 1rem;">Si desea puede responder al remitente:</p>
+        <p style="margin: 0; color: #000000; font-weight: 600; padding-inline: 1rem;"><a href="[[${mailFrom}]]" style="color: #333333;">[[${mailFrom}]]</a></p>
+        <p style="margin: 0; margin-top: 1rem; padding-inline: 1rem;">De: <span style="text-transform: uppercase; color: #000000; font-weight: 600;">[[${nombreEmisor}]]</span></p>
+        <p style="margin: 0; padding-inline: 1rem;">Para: <span style="text-transform: uppercase; color: #000000; font-weight: 600;">[[${nombreReceptor}]]</span></p>
+        <p style="margin: 0; margin-top: 1rem; padding-inline: 1rem;">Tipo documento: <span style="text-transform: uppercase; color: #000000; font-weight: 600;">[[${nombreDocumento}]]</span></p>
+        <p style="margin: 0; padding-inline: 1rem;">Serie: <span style="text-transform: uppercase; color: #000000; font-weight: 600;">[[${serie}]]</span></p>
+        <p style="margin: 0; padding-inline: 1rem;">Secuencia: <span style="text-transform: uppercase; color: #000000; font-weight: 600;">[[${secuencia}]]</span></p>
+        <p style="margin: 0; padding-inline: 1rem;">Fecha emision <small style="font-size: 0.9rem; font-weight: 100;">(aaaa/mm/dd)</small>: <span style="text-transform: uppercase; color: #000000; font-weight: 600;">[[${fechaEmision}]]</span></p>
+        <p style="margin: 0; padding-inline: 1rem;">Clave de acceso: <span style="text-transform: uppercase; color: #000000; font-weight: 600; font-size: 0.7rem; display: block;">[[${claveAcceso}]]</span></p>
+        <div style="margin: 0; margin-top: 4rem; text-align: center;">
+            <a href="https://api.whatsapp.com/send?phone=593996036189&text=Hola%20Software%20Ecuador" target="_blank">
+                <button type="button" style="background-color: #FFFFFF; border-radius: 999999px; padding-block: 1rem; padding-inline: 2rem; border: 2px solid #00000070; font-size: 24px; color: #00000070; cursor: pointer;">
+                    <img src="https://png.pngtree.com/png-vector/20221018/ourmid/pngtree-whatsapp-mobile-software-icon-png-image_6315991.png" alt="Enviar mensaje por WhatsApp" style="width: 25px; height: 25px; object-fit: contain; position: relative; top: 4px;">
+                    Enviar mensaje
+                </button>
+            </a>
+        </div>
+        <div style="width: 90%; height: 1px; background-color: #333333; margin: auto; margin-top: 6rem; opacity: 0.3;"></div>
+        <p style="margin: 0; margin-top: 2rem; font-size: 0.9rem; font-weight: 100; padding-inline: 1rem;">Factura electronica por: www.software.com.ec</p>
+        <p style="margin: 0; font-size: 0.8rem; font-weight: 100; opacity: 0.7; padding-inline: 1rem;">No responder a este mail</p>
+        <p style="margin: 0; font-size: 0.8rem; font-weight: 100; opacity: 0.7; padding-inline: 1rem;">Si no desea recibir correos de Software.com.ec puede darse de baja haciendo clic aqui</p>
+
+        <p style="margin: 0; font-size: 0.8rem; font-weight: 100; opacity: 0.7; padding-inline: 1rem;">Usted está recibiendo este correo electrónico porque se ha registrado en nuestra base de datos, si considera que esto fue un error le pedimos disculpas y respetaremos su privacidad mediante la opción de Cancelar la suscripción de manera definitiva e inmediata, así dejará de recibir nuestros boletines informativos y demás información de nuestros Socios.</p>
+        <p style="margin: 0; font-size: 0.8rem; font-weight: 100; opacity: 0.7; padding-inline: 1rem;">Este correo ha sido enviado cumpliendo la Ley de Comercio Electrónico del Ecuador y su Reglamento publicado en el Registro Oficial 735 del 31 de diciembre de 2002, Decreto No.3496, Artículo 22.</p>
+        <p style="margin: 0; font-size: 0.8rem; font-weight: 100; opacity: 0.7; padding-inline: 1rem;"><a href="www.google.com" target="_blank" style="color: #333333;">Cancelar suscripción</a></p>
+    </div>
+</div>
+
+</body>
+
+</html>

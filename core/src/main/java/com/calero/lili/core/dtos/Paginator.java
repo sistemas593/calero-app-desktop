@@ -8,10 +8,12 @@ public class Paginator {
     private int totalPages;
     private int numberOfElements;
     private int size;
+
     private Boolean first;
     private Boolean last;
     private int pageNumber;
     private int pageSize;
+
     private Boolean empty;
     private int number;
 }

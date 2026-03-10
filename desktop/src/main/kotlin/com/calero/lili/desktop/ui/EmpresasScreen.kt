@@ -17,7 +17,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.calero.lili.core.dtos.AdEmpresaGetListDto
+import com.calero.lili.core.modAdminEmpresas.dto.AdEmpresaGetListDto
 
 private val COL_NUM        = 50.dp
 private val COL_RUC        = 140.dp

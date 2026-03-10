@@ -8,7 +8,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
-import com.calero.lili.core.services.AdEmpresasServiceImpl
+import com.calero.lili.core.modAdminEmpresas.AdEmpresasServiceImpl
 import com.calero.lili.desktop.ui.EmpresasScreen
 import com.calero.lili.desktop.ui.EmpresasViewModel
 import org.springframework.boot.SpringApplication

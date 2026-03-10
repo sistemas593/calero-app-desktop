@@ -1,28 +1,62 @@
 package com.calero.lili.api.controllers;
 
-import com.calero.lili.core.dtos.AdDatasDto;
 import com.calero.lili.core.dtos.FilterDto;
 import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.services.AdDatasServiceImpl;
+import com.calero.lili.core.dtos.ResponseDto;
+import com.calero.lili.core.modAdminDatas.AdDatasServiceImpl;
+import com.calero.lili.core.modAdminDatas.dto.AdDatasCreationRequestDto;
+import com.calero.lili.core.modAdminDatas.dto.AdDatasDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/datas")
 @RequiredArgsConstructor
+@RequestMapping("api/v1.0/datas")
+@CrossOrigin(originPatterns = "*")
+
 public class AdDatasController {
 
     private final AdDatasServiceImpl adDatasService;
 
-    @GetMapping("/{idData}")
-    public ResponseEntity<AdDatasDto> findById(@PathVariable Long idData) {
-        return ResponseEntity.ok(adDatasService.findByIdData(idData));
+    @PostMapping()
+    @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAuthority('CF_DT_CR')")
+    public ResponseDto create(@RequestBody AdDatasCreationRequestDto request) {
+        return adDatasService.create(request);
     }
 
-    @GetMapping
-    public ResponseEntity<PaginatedDto<AdDatasDto>> findAll(FilterDto filters, Pageable pageable) {
-        return ResponseEntity.ok(adDatasService.findAllPaginate(filters, pageable));
+    @PutMapping("{idData}")
+    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAuthority('CF_DT_MO')")
+    public ResponseDto update(@PathVariable("idData") Long idData,
+                              @RequestBody AdDatasCreationRequestDto request) {
+        return adDatasService.update(idData, request);
     }
+
+    @GetMapping("{idData}")
+    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAuthority('CF_DT_VR')")
+    public AdDatasDto findById(@PathVariable("idData") Long idData) {
+        return adDatasService.findByIdData(idData);
+    }
+
+    @GetMapping("listar")
+    @ResponseStatus(code = HttpStatus.OK)
+    @PreAuthorize("hasAuthority('CF_DT_VR')")
+    public PaginatedDto<AdDatasDto> findAllPaginate(FilterDto filters,
+                                                    Pageable pageable) {
+        return adDatasService.findAllPaginate(filters, pageable);
+    }
+
 }

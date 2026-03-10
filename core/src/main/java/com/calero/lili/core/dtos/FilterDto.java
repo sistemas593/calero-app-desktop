@@ -6,5 +6,7 @@ import lombok.ToString;
 @Data
 @ToString
 public class FilterDto {
+
     private String filter;
+
 }

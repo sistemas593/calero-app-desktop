@@ -1,0 +1,30 @@
+package com.calero.lili.core.modAdminDatas;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
+
+@Data
+@Builder
+@Entity
+@Table(name = "ad_datas")
+@AllArgsConstructor
+@NoArgsConstructor
+public class AdDataEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idData;
+    private String data;
+    private LocalDate fechaCreacion;
+    private Long siguienteIdEmpresa;
+
+}

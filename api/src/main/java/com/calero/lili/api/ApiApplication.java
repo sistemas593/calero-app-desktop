@@ -7,8 +7,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication(scanBasePackages = {"com.calero.lili.core", "com.calero.lili.api"})
-@EnableJpaRepositories(basePackages = "com.calero.lili.core.repositories")
-@EntityScan(basePackages = "com.calero.lili.core.entities")
+@EnableJpaRepositories(basePackages = {"com.calero.lili.core", "com.calero.lili.api"})
+@EntityScan(basePackages = {"com.calero.lili.core", "com.calero.lili.api"})
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider")
 public class ApiApplication {
 

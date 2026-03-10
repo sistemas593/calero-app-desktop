@@ -1,0 +1,29 @@
+package com.calero.lili.api.modVentasRetenciones.dto;
+
+import com.calero.lili.core.dtos.Paginator;
+import com.calero.lili.api.modVentasRetenciones.projection.TotalesProjection;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+@Data
+public class GetListDtoTotalizado<T> {
+
+    private List<T> content;
+
+    private Paginator paginated;
+
+    private Totales totales;
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class Totales {
+        private List<TotalesProjection> valoresTotales;
+    }
+
+}

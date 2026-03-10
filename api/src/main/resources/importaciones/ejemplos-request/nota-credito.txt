@@ -1,0 +1,79 @@
+{
+    "sucursal": "001",
+    "formatoDocumento": "E",
+    "ambiente": 2,
+    "serie": "001001",
+    "secuencial": "000000032",
+    "numeroAutorizacion": "000000000000000000000032",
+    "fechaEmision": "08/10/2025",
+    "idTercero": "b7f9f94a-32fc-467d-81b7-3e0ebe51991b",
+    "codigoDocumento": "04",
+    "tipoIngreso": "RG",
+    "liquidar": "S",
+    "terceroNombre": "Pamela Egas",
+    "tipoIdentificacion": "R",
+    "numeroIdentificacion": "1717740441001",
+    "email": "pamelaegas@correo.com",
+    "tipoCliente": "01",
+    "relacionado": "N",
+    "terceroDatos": {
+        "direccion": "La Pinta y Amazonas",
+        "ciudad": "QUITO",
+        "telefonos": "0996036189"
+    },
+    "valores": [
+        {
+            "codigo": "2",
+            "codigoPorcentaje": "0",
+            "tarifa": 0.00,
+            "baseImponible": -1.30,
+            "valor": 0.00
+        }
+    ],
+    "subtotal": -100,
+    "totalDescuento": 0,
+    "total": -105.00,
+    "numeroItems": 1,
+    "formaPago": "DB",
+    "diasCredito": 0,
+    "cuotas": 0,
+    "czona": 0,
+    "anulada": false,
+    "impresa": false,
+    "concepto": "NOTA DE CREDITO",
+    "modCodigoDocumento": "001",
+    "modSerie": "001001",
+    "modSecuencial": "00000001",
+    "modFechaEmision": "28/07/2025",
+    "detalle": [
+        {
+            "idItem": "934fc655-490d-41f9-b0ee-8c4bde2ec804",
+            "itemOrden": 1,
+            "codigoPrincipal": "A123465",
+            "codigoAuxiliar": "A123456",
+            "codigoBarras": "4516484651308808405610",
+            "descripcion": "CELLAR INFINIX HOT 50",
+            "unidadMedida": "KG",
+            "precioUnitario": 100,
+            "cantidad": -1,
+            "dsctoItem": 0,
+            "descuento": 0,
+            "subtotalItem": 0,
+            "impuesto": [
+                {
+                    "codigo": "2",
+                    "codigoPorcentaje": "0",
+                    "tarifa": 0.00,
+                    "baseImponible": -1.30,
+                    "valor": 0.00
+                }
+            ],
+            "detAdicional": [
+                {
+                    "nombre": "MARCA",
+                    "valor": "INFINIX HOT 50"
+                }
+            ]
+        }
+    ]
+}

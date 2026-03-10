@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports
+              http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="balance_comprobacion"
+              pageWidth="595" pageHeight="842"
+              columnWidth="555"
+              leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20"
+              uuid="12345678-aaaa-bbbb-cccc-999999999999">
+
+    <!-- ====================== ESTILOS ====================== -->
+    <style name="estiloDetalle" fontSize="9"/>
+    <style name="estiloTitulo" fontSize="12" isBold="true"/>
+    <style name="estiloTotal" fontSize="9" isBold="true"/>
+
+    <!-- ====================== PARAMETROS ====================== -->
+    <parameter name="empresa" class="java.lang.String"/>
+    <parameter name="sucursal" class="java.lang.String"/>
+    <parameter name="fechaDesde" class="java.lang.String"/>
+    <parameter name="fechaHasta" class="java.lang.String"/>
+    <parameter name="fechaActual" class="java.lang.String"/>
+    <parameter name="cuentaDesde" class="java.lang.String"/>
+    <parameter name="cuentaHasta" class="java.lang.String"/>
+    <parameter name="gerente" class="java.lang.String"/>
+    <parameter name="contador" class="java.lang.String"/>
+    <parameter name="idenGerente" class="java.lang.String"/>
+    <parameter name="idenContador" class="java.lang.String"/>
+
+
+    <!-- ====================== CAMPOS ====================== -->
+    <field name="codigoCuenta" class="java.lang.String"/>
+    <field name="cuenta" class="java.lang.String"/>
+    <field name="saldoInicial" class="java.lang.String"/>
+    <field name="debe" class="java.lang.String"/>
+    <field name="haber" class="java.lang.String"/>
+    <field name="saldoFinal" class="java.lang.String"/>
+
+    <!-- ====================== TITLE ====================== -->
+    <title>
+        <band height="80" splitType="Stretch">
+
+            <textField>
+                <reportElement x="0" y="0" width="500" height="20"/>
+                <textElement>
+                    <font isBold="true" size="15"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{empresa}]]></textFieldExpression>
+            </textField>
+
+            <textField>
+                <reportElement x="0" y="20" width="500" height="20"/>
+                <textElement>
+                    <font size="13"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Balance de Comprobación"]]></textFieldExpression>
+            </textField>
+
+            <textField>
+                <reportElement x="0" y="40" width="500" height="20"/>
+                <textElement>
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[
+                    "Sucursal: " + $P{sucursal}
+                    + " / Desde: " + $P{fechaDesde}
+                    + " Hasta: " + $P{fechaHasta}
+                    + (
+                        ($P{cuentaDesde} != null || $P{cuentaHasta} != null)
+                        ? (
+                            " / Cuenta "
+                            + ($P{cuentaDesde} != null ? "Desde: " + $P{cuentaDesde} + " " : "")
+                            + ($P{cuentaHasta} != null ? "Hasta: " + $P{cuentaHasta} : "")
+                          )
+                        : ""
+                      )
+                ]]></textFieldExpression>
+            </textField>
+
+            <textField>
+                <reportElement x="390" y="15" width="150" height="20"/>
+                <textElement>
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{fechaActual}]]></textFieldExpression>
+            </textField>
+
+        </band>
+    </title>
+
+    <!-- ====================== ENCABEZADOS ====================== -->
+    <columnHeader>
+        <band height="30">
+
+            <staticText>
+                <reportElement x="0" y="0" width="80" height="20"/>
+                <textElement>
+                    <font size="8"/>
+                </textElement>
+                <text><![CDATA[Código]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="70" y="0" width="230" height="20"/>
+                <textElement>
+                    <font size="8"/>
+                </textElement>
+                <text><![CDATA[Cuenta]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="300" y="0" width="70" height="20"/>
+                <textElement textAlignment="Right">
+                    <font size="8"/>
+                </textElement>
+                <text><![CDATA[Saldo Ant.]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="360" y="0" width="70" height="20"/>
+                <textElement textAlignment="Right">
+                    <font size="8"/>
+                </textElement>
+                <text><![CDATA[Debe]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="420" y="0" width="70" height="20"/>
+                <textElement textAlignment="Right">
+                    <font size="8"/>
+                </textElement>
+                <text><![CDATA[Haber]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="480" y="0" width="70" height="20"/>
+                <textElement textAlignment="Right">
+                    <font size="8"/>
+                </textElement>
+                <text><![CDATA[Saldo Act.]]></text>
+            </staticText>
+
+            <!-- Líneas debajo de los títulos -->
+            <line>
+                <reportElement x="0" y="23" width="555" height="1"/>
+            </line>
+
+            <line>
+                <reportElement x="0" y="26" width="555" height="1"/>
+            </line>
+
+        </band>
+    </columnHeader>
+
+    <!-- ====================== DETALLE ====================== -->
+    <detail>
+        <band height="26" splitType="Stretch">
+
+            <!-- Línea separadora SOLO para Total General -->
+            <line>
+                <reportElement x="0" y="0" width="555" height="1">
+                    <printWhenExpression><![CDATA[$F{cuenta}.equals("Total general:")]]></printWhenExpression>
+                </reportElement>
+            </line>
+
+            <!-- Código de cuenta (oculto en total) -->
+            <textField>
+                <reportElement x="0" y="0" width="90" height="20">
+                    <printWhenExpression><![CDATA[
+                        !$F{cuenta}.equals("Total general:")
+                    ]]></printWhenExpression>
+                </reportElement>
+                <textElement>
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{codigoCuenta}]]></textFieldExpression>
+            </textField>
+
+            <!-- Cuenta -->
+            <textField isStretchWithOverflow="true">
+                <reportElement x="70" y="0" width="230" height="20"/>
+                <textElement>
+                    <font size="8" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{cuenta}]]></textFieldExpression>
+            </textField>
+
+            <!-- Saldo Inicial -->
+            <textField pattern="#,##0.00">
+                <reportElement x="300" y="0" width="70" height="20"/>
+                <textElement textAlignment="Right">
+                    <font size="8" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{saldoInicial}]]></textFieldExpression>
+            </textField>
+
+            <!-- Debe -->
+            <textField pattern="#,##0.00">
+                <reportElement x="360" y="0" width="70" height="20"/>
+                <textElement textAlignment="Right">
+                    <font size="8" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{debe}]]></textFieldExpression>
+            </textField>
+
+            <!-- Haber -->
+            <textField pattern="#,##0.00">
+                <reportElement x="420" y="0" width="70" height="20"/>
+                <textElement textAlignment="Right">
+                    <font size="8" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{haber}]]></textFieldExpression>
+            </textField>
+
+            <!-- Saldo Final -->
+            <textField pattern="#,##0.00">
+                <reportElement x="480" y="0" width="70" height="20"/>
+                <textElement textAlignment="Right">
+                    <font size="8" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{saldoFinal}]]></textFieldExpression>
+            </textField>
+
+            <line>
+                <reportElement x="0" y="21" width="555" height="1">
+                    <printWhenExpression><![CDATA[
+                    $F{cuenta}.equals("Total general:")
+                ]]></printWhenExpression>
+                </reportElement>
+            </line>
+
+            <line>
+                <reportElement x="0" y="24" width="555" height="1">
+                    <printWhenExpression><![CDATA[
+                    $F{cuenta}.equals("Total general:")
+                ]]></printWhenExpression>
+                </reportElement>
+            </line>
+
+
+        </band>
+    </detail>
+
+    <!-- ====================== FIRMAS ====================== -->
+    <summary>
+        <band height="250">
+
+            <staticText>
+                <reportElement x="70" y="170" width="200" height="20"/>
+                <textElement textAlignment="Center"/>
+                <text><![CDATA[_________________________]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="70" y="195" width="200" height="20"/>
+                <textElement textAlignment="Center"/>
+                <text><![CDATA[Gerente]]></text>
+            </staticText>
+
+            <textField>
+                <reportElement x="70" y="210" width="200" height="20"/>
+                <textElement textAlignment="Center"/>
+                <textFieldExpression><![CDATA[$P{gerente}]]></textFieldExpression>
+            </textField>
+
+            <textField>
+                <reportElement x="70" y="225" width="200" height="20"/>
+                <textElement textAlignment="Center"/>
+                <textFieldExpression><![CDATA[$P{idenGerente}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="320" y="170" width="200" height="20"/>
+                <textElement textAlignment="Center"/>
+                <text><![CDATA[_________________________]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="320" y="195" width="200" height="20"/>
+                <textElement textAlignment="Center"/>
+                <text><![CDATA[Contador]]></text>
+            </staticText>
+
+            <textField>
+                <reportElement x="320" y="210" width="200" height="20"/>
+                <textElement textAlignment="Center"/>
+                <textFieldExpression><![CDATA[$P{contador}]]></textFieldExpression>
+            </textField>
+
+            <textField>
+                <reportElement x="320" y="225" width="200" height="20"/>
+                <textElement textAlignment="Center"/>
+                <textFieldExpression><![CDATA[$P{idenContador}]]></textFieldExpression>
+            </textField>
+
+        </band>
+    </summary>
+
+</jasperReport>
