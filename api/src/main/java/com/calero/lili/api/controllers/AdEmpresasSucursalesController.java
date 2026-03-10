@@ -1,5 +1,6 @@
 package com.calero.lili.api.controllers;
 
+import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.api.utils.IdDataServiceImpl;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.ResponseDto;
@@ -35,13 +36,15 @@ public class AdEmpresasSucursalesController {
 
     private final AdEmpresasSucursalesServiceImpl adEmpresasSucursalesService;
     private final IdDataServiceImpl idDataService;
+    private final AuditorAwareImpl auditorAware;
 
     @PostMapping("{idEmpresa}")
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('AD_SU_CR')")
     public ResponseDto create(@PathVariable("idEmpresa") Long idEmpresa,
                               @RequestBody AdEmpresaSucursalCreationRequestDto request) {
-        return adEmpresasSucursalesService.create(idDataService.getIdData(), idEmpresa, request);
+        return adEmpresasSucursalesService.create(idDataService.getIdData(), idEmpresa, request,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idEmpresa}/{idSucursal}")
@@ -50,7 +53,8 @@ public class AdEmpresasSucursalesController {
     public ResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                               @PathVariable("idSucursal") UUID idSucursal,
                               @RequestBody AdEmpresaSucursalCreationRequestDto request) {
-        return adEmpresasSucursalesService.update(idDataService.getIdData(), idEmpresa, idSucursal, request);
+        return adEmpresasSucursalesService.update(idDataService.getIdData(), idEmpresa, idSucursal, request,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("{idEmpresa}/{idSucursal}")
@@ -58,7 +62,8 @@ public class AdEmpresasSucursalesController {
     @PreAuthorize("hasAuthority('AD_SU_EL')")
     public void delete(@PathVariable("idEmpresa") Long idEmpresa,
                        @PathVariable("idSucursal") UUID idSucursal) {
-        adEmpresasSucursalesService.delete(idDataService.getIdData(), idEmpresa, idSucursal);
+        adEmpresasSucursalesService.delete(idDataService.getIdData(), idEmpresa, idSucursal,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{idEmpresa}/{idSucursal}")

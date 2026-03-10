@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -16,9 +17,10 @@ public interface AdEmpresasRepository extends JpaRepository<AdEmpresaEntity, Lon
 
     @Query(value = "SELECT entity " +
             "FROM AdEmpresaEntity entity " +
-            "where entity.idData = ?1 and " +
-            "entity.idEmpresa = ?2 ")
-    Optional<AdEmpresaEntity> findById(Long idData, Long idEmpresa);
+            "where entity.idData = :idData and " +
+            "entity.idEmpresa = :idEmpresa")
+    Optional<AdEmpresaEntity> findById(@Param("idData") Long idData,
+                                       @Param("idEmpresa") Long idEmpresa);
 
     @Query(
             value = "SELECT entity " +
@@ -35,11 +37,14 @@ public interface AdEmpresasRepository extends JpaRepository<AdEmpresaEntity, Lon
                     "(:filter IS NULL OR LOWER(entity.ruc) LIKE LOWER(CONCAT('%', :filterContent, '%')) ) AND " +
                     "(:estado IS NULL OR entity.estado = :estado ) "
     )
-    Page<AdEmpresaEntity> findAllPaginate(Long idData, String filter, String filterContent, Integer estado, Pageable pageable);
+    Page<AdEmpresaEntity> findAllPaginate(@Param("idData") Long idData,
+                                          @Param("filter") String filter,
+                                          @Param("filterContent") String filterContent,
+                                          @Param("estado") Integer estado, Pageable pageable);
 
     @Query(value = "SELECT entity " +
             "FROM AdEmpresaEntity entity " +
             "WHERE entity.ruc = :ruc ")
-    Optional<AdEmpresaEntity> findByRuc(String ruc);
+    Optional<AdEmpresaEntity> findByRuc(@Param("ruc") String ruc);
 
 }

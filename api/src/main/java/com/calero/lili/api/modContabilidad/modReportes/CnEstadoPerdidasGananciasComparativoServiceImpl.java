@@ -11,7 +11,7 @@ import com.calero.lili.api.modContabilidad.modReportes.projection.BalanceValores
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
-import com.calero.lili.core.utils.ConstanteReportes;
+import com.calero.lili.api.utils.ConstanteReportes;
 import com.calero.lili.core.utils.DateUtils;
 import lombok.AllArgsConstructor;
 import net.sf.jasperreports.engine.JasperCompileManager;

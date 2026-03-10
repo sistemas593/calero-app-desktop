@@ -1,5 +1,6 @@
 package com.calero.lili.core.modAdminEmpresas;
 
+import com.calero.lili.core.Auditable;
 import com.calero.lili.core.enums.TipoContribuyente;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,7 +24,7 @@ import java.util.UUID;
 @Builder
 @Table(name = "ad_empresas")
 @Where(clause = "deleted = false")
-public class AdEmpresaEntity {
+public class AdEmpresaEntity extends Auditable {
 
     private Long idData;
 

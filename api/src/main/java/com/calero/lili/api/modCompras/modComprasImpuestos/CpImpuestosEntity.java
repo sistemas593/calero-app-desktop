@@ -2,7 +2,7 @@ package com.calero.lili.api.modCompras.modComprasImpuestos;
 
 import com.calero.lili.core.dtos.FormasPagoSri;
 import com.calero.lili.core.dtos.Mensajes;
-import com.calero.lili.api.modAuditoria.Auditable;
+import com.calero.lili.core.Auditable;
 import com.calero.lili.api.modCompras.modComprasImpuestos.dto.PagoExterior;
 import com.calero.lili.api.modCompras.modComprasRetenciones.CpRetencionesEntity;
 import com.calero.lili.api.modTerceros.GeTerceroEntity;

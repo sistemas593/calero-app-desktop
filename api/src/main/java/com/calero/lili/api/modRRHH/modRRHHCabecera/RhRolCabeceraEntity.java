@@ -1,7 +1,7 @@
 package com.calero.lili.api.modRRHH.modRRHHCabecera;
 
 
-import com.calero.lili.api.modAuditoria.Auditable;
+import com.calero.lili.core.Auditable;
 import com.calero.lili.api.modRRHH.RhPeriodosEntity;
 import com.calero.lili.api.modTerceros.GeTerceroEntity;
 import jakarta.persistence.CascadeType;

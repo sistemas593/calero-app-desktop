@@ -1,6 +1,6 @@
 package com.calero.lili.api.modTesoreria.modTesoreriaEntidadesMovimientos;
 
-import com.calero.lili.api.modAuditoria.Auditable;
+import com.calero.lili.core.Auditable;
 import com.calero.lili.api.modTerceros.GeTerceroEntity;
 import com.calero.lili.api.modTesoreria.modTesoreriaEntidadesFinancieras.TsEntidadEntity;
 import jakarta.persistence.Column;

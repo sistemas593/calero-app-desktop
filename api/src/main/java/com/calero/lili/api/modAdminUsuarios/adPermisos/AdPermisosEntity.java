@@ -1,6 +1,6 @@
 package com.calero.lili.api.modAdminUsuarios.adPermisos;
 
-import com.calero.lili.api.modAuditoria.Auditable;
+import com.calero.lili.core.Auditable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;

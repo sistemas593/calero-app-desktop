@@ -1,6 +1,6 @@
 package com.calero.lili.api.modCxP.XpPagos;
 
-import com.calero.lili.api.modAuditoria.Auditable;
+import com.calero.lili.core.Auditable;
 import com.calero.lili.api.modCxP.XpFacturas.XpFacturasEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

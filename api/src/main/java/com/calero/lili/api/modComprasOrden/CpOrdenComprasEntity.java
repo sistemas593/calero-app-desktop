@@ -1,6 +1,6 @@
 package com.calero.lili.api.modComprasOrden;
 
-import com.calero.lili.api.modAuditoria.Auditable;
+import com.calero.lili.core.Auditable;
 import com.calero.lili.api.modTerceros.GeTerceroEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

@@ -1,4 +1,4 @@
-package com.calero.lili.desktop.ui
+package com.calero.lili.desktop.ui.empresas
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -36,7 +36,10 @@ private val ColorTexto      = Color(0xFF1A1A2E)
 private val ColorTextoSub   = Color(0xFF555577)
 
 @Composable
-fun EmpresasScreen(viewModel: EmpresasViewModel) {
+fun EmpresasScreen(
+    viewModel: EmpresasViewModel,
+    onNuevaEmpresa: () -> Unit
+) {
     val state by viewModel.state.collectAsState()
 
     Column(
@@ -64,7 +67,20 @@ fun EmpresasScreen(viewModel: EmpresasViewModel) {
             onBuscar        = viewModel::buscar
         )
 
-        Spacer(Modifier.height(12.dp))
+        // ── Botón Nueva Empresa
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+            horizontalArrangement = Arrangement.End
+        ) {
+            Button(
+                onClick = onNuevaEmpresa,
+                colors  = ButtonDefaults.buttonColors(containerColor = Color(0xFF1565C0))
+            ) {
+                Text("+ Nueva Empresa")
+            }
+        }
+
+        Spacer(Modifier.height(4.dp))
 
         // ── Mensaje de error
         state.errorMessage?.let { msg ->

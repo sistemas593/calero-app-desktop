@@ -1,4 +1,4 @@
-package com.calero.lili.core.utils;
+package com.calero.lili.api.utils;
 
 public abstract class ConstanteReportes {
 

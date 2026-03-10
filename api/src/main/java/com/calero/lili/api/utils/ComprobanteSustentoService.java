@@ -1,4 +1,4 @@
-package com.calero.lili.core.utils;
+package com.calero.lili.api.utils;
 
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;

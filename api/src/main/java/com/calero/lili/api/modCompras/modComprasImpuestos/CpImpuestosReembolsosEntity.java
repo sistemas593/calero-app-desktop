@@ -1,6 +1,6 @@
 package com.calero.lili.api.modCompras.modComprasImpuestos;
 
-import com.calero.lili.api.modAuditoria.Auditable;
+import com.calero.lili.core.Auditable;
 import com.calero.lili.api.tablas.tbPaises.TbPaisEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

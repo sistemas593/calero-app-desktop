@@ -11,7 +11,6 @@ import com.calero.lili.core.modAdminEmpresasSucursales.dto.AdEmpresaSucursalGetL
 import com.calero.lili.core.modAdminEmpresasSucursales.dto.AdEmpresaSucursalGetOneDto;
 import com.calero.lili.core.modAdminEmpresasSucursales.dto.AdEmpresaSucursalListFilterDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -29,25 +28,26 @@ public class AdEmpresasSucursalesServiceImpl {
     private final AdEmpresasSucursalesRepository adEmpresasSucursalesRepository;
     private final AdEmpresasSucursalesBuilder adEmpresasSucursalesBuilder;
     private final ResponseApiBuilder responseApiBuilder;
-    private final AuditorAware<String> auditorAware;
 
-    public ResponseDto create(Long idData, Long idEmpresa, AdEmpresaSucursalCreationRequestDto request) {
 
-        AdEmpresasSucursalesEntity createdDto = adEmpresasSucursalesRepository.save(adEmpresasSucursalesBuilder
-                .builderCreateEntity(request, idData, idEmpresa));
-
-        return responseApiBuilder.builderResponse(createdDto.getSucursal());
+    public ResponseDto create(Long idData, Long idEmpresa, AdEmpresaSucursalCreationRequestDto request, String usuario) {
+        AdEmpresasSucursalesEntity sucursal = adEmpresasSucursalesBuilder.builderCreateEntity(request, idData, idEmpresa);
+        sucursal.setCreatedBy(usuario);
+        sucursal.setCreatedDate(LocalDateTime.now());
+        AdEmpresasSucursalesEntity saved = adEmpresasSucursalesRepository.save(sucursal);
+        return responseApiBuilder.builderResponse(saved.getSucursal());
     }
 
-    public ResponseDto update(Long idData, Long idEmpresa, UUID idSucursal, AdEmpresaSucursalCreationRequestDto request) {
+    public ResponseDto update(Long idData, Long idEmpresa, UUID idSucursal,
+                              AdEmpresaSucursalCreationRequestDto request, String usuario) {
 
         AdEmpresasSucursalesEntity entidad = adEmpresasSucursalesRepository.findById(idData, idEmpresa, idSucursal)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("id {0} no existe", idSucursal)));
 
         AdEmpresasSucursalesEntity update = adEmpresasSucursalesBuilder.builderUpdateEntity(request, entidad);
 
-       /* update.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
-        update.setModifiedDate(LocalDateTime.now());*/
+        update.setModifiedBy(usuario);
+        update.setModifiedDate(LocalDateTime.now());
 
         adEmpresasSucursalesRepository.save(update);
 
@@ -55,14 +55,14 @@ public class AdEmpresasSucursalesServiceImpl {
 
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID idSucursal) {
+    public void delete(Long idData, Long idEmpresa, UUID idSucursal, String usuario) {
 
         AdEmpresasSucursalesEntity sucursal = adEmpresasSucursalesRepository.findById(idData, idEmpresa, idSucursal)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("id {0} no existe", idSucursal)));
 
-       /* sucursal.setDelete(Boolean.TRUE);
-        sucursal.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
-        sucursal.setDeletedDate(LocalDateTime.now());*/
+        sucursal.setDelete(Boolean.TRUE);
+        sucursal.setDeletedBy(usuario);
+        sucursal.setDeletedDate(LocalDateTime.now());
 
         adEmpresasSucursalesRepository.save(sucursal);
 

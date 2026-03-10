@@ -1,6 +1,6 @@
 package com.calero.lili.api.modComprasItems;
 
-import com.calero.lili.api.modAuditoria.Auditable;
+import com.calero.lili.core.Auditable;
 import com.calero.lili.api.modComprasItemsCategorias.GeItemsCategoriaEntity;
 import com.calero.lili.api.modComprasItemsGrupos.GeItemGrupoEntity;
 import com.calero.lili.api.modComprasItemsMarcas.GeItemsMarcasEntity;

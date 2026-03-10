@@ -1,4 +1,4 @@
-package com.calero.lili.desktop.ui
+package com.calero.lili.desktop.ui.empresas
 
 import com.calero.lili.core.dtos.Paginator
 import com.calero.lili.core.modAdminEmpresas.dto.AdEmpresaGetListDto
@@ -24,7 +24,9 @@ data class EmpresasUiState(
     val estadoFiltro: Int? = null,
     val currentPage: Int = 0,
     val pageSize: Int = 10,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val showForm: Boolean = false,
+    val editingId: Long? = null
 )
 
 class EmpresasViewModel(private val service: AdEmpresasServiceImpl) {
@@ -96,6 +98,15 @@ class EmpresasViewModel(private val service: AdEmpresasServiceImpl) {
 
     fun irAPagina(pagina: Int) {
         _state.update { it.copy(currentPage = pagina) }
+        cargar()
+    }
+
+    fun abrirFormulario(idEmpresa: Long? = null) {
+        _state.update { it.copy(showForm = true, editingId = idEmpresa) }
+    }
+
+    fun cerrarFormulario() {
+        _state.update { it.copy(showForm = false, editingId = null) }
         cargar()
     }
 

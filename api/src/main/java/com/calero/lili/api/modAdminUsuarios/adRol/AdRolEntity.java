@@ -1,7 +1,7 @@
 package com.calero.lili.api.modAdminUsuarios.adRol;
 
 import com.calero.lili.api.modAdminUsuarios.adGrupos.AdGruposEntity;
-import com.calero.lili.api.modAuditoria.Auditable;
+import com.calero.lili.core.Auditable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

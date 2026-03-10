@@ -23,7 +23,7 @@ import com.calero.lili.api.modCompras.modComprasImpuestos.projection.OneProjecti
 import com.calero.lili.api.modCompras.modComprasImpuestos.projection.TotalesProjection;
 import com.calero.lili.api.modCompras.modComprasRetenciones.CpRetencionesEntity;
 import com.calero.lili.api.utils.validaciones.ValidarValoresComprobantesPdf;
-import com.calero.lili.core.utils.ComprobanteSustentoService;
+import com.calero.lili.api.utils.ComprobanteSustentoService;
 import com.calero.lili.core.utils.DateUtils;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;

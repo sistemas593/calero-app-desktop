@@ -4,7 +4,7 @@ import com.calero.lili.core.dtos.InformacionAdicional;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.TipoIdentificacion;
-import com.calero.lili.api.modAuditoria.Auditable;
+import com.calero.lili.core.Auditable;
 import com.calero.lili.api.modTerceros.GeTerceroEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

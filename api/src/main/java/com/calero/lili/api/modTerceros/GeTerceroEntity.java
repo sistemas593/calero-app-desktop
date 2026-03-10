@@ -1,6 +1,6 @@
 package com.calero.lili.api.modTerceros;
 
-import com.calero.lili.api.modAuditoria.Auditable;
+import com.calero.lili.core.Auditable;
 import com.calero.lili.api.modClientesConfiguraciones.VtClientesConfiguracionesEntity;
 import com.calero.lili.api.modCompras.modComprasLiquidaciones.CpLiquidacionesEntity;
 import com.calero.lili.api.modVentas.VtVentaEntity;

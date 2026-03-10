@@ -1,6 +1,7 @@
 package com.calero.lili.api.controllers;
 
 
+import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.api.utils.IdDataServiceImpl;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasServiceImpl;
@@ -34,12 +35,14 @@ public class AdEmpresasController {
 
     private final AdEmpresasServiceImpl adEmpresasService;
     private final IdDataServiceImpl idDataService;
+    private final AuditorAwareImpl auditorAware;
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAuthority('AD_EM_CR15')")
+    @PreAuthorize("hasAuthority('AD_EM_CR')")
     public AdEmpresaCreationResponseDto create(@RequestBody AdEmpresaRequestDto request) {
-        return adEmpresasService.create(idDataService.getIdData(), request);
+        return adEmpresasService.create(idDataService.getIdData(), request,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idEmpresa}")
@@ -47,7 +50,8 @@ public class AdEmpresasController {
     @PreAuthorize("hasAuthority('AD_EM_MO')")
     public AdEmpresaCreationResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                                                @RequestBody AdEmpresaRequestDto request) {
-        return adEmpresasService.update(idDataService.getIdData(), idEmpresa, request);
+        return adEmpresasService.update(idDataService.getIdData(), idEmpresa, request,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{idEmpresa}")

@@ -2,7 +2,7 @@ package com.calero.lili.api.modContabilidad.modAsientos;
 
 import com.calero.lili.api.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.enums.TipoAsiento;
-import com.calero.lili.api.modAuditoria.Auditable;
+import com.calero.lili.core.Auditable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

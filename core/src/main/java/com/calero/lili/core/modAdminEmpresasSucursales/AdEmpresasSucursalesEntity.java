@@ -1,5 +1,6 @@
 package com.calero.lili.core.modAdminEmpresasSucursales;
 
+import com.calero.lili.core.Auditable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -18,7 +19,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "ad_empresas_sucursales")
 @Where(clause = "deleted = false")
-public class AdEmpresasSucursalesEntity {
+public class AdEmpresasSucursalesEntity extends Auditable {
          
     private Long idData;
     private Long idEmpresa;

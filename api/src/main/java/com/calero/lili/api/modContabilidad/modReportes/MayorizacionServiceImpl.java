@@ -5,7 +5,7 @@ import com.calero.lili.api.modContabilidad.modReportes.dto.BalanceValoresDto;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.errors.exceptions.GeneralException;
-import com.calero.lili.core.utils.ConstanteReportes;
+import com.calero.lili.api.utils.ConstanteReportes;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;

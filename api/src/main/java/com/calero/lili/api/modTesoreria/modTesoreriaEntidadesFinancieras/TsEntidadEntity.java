@@ -1,6 +1,6 @@
 package com.calero.lili.api.modTesoreria.modTesoreriaEntidadesFinancieras;
 
-import com.calero.lili.api.modAuditoria.Auditable;
+import com.calero.lili.core.Auditable;
 import com.calero.lili.api.modContabilidad.modPlanCuentas.CnPlanCuentaEntity;
 import com.calero.lili.api.modTesoreria.modTesoreriaEstadosCuenta.TsEstadosCuentaEntity;
 import jakarta.persistence.CascadeType;

@@ -13,7 +13,7 @@ import com.calero.lili.api.modContabilidad.modReportes.dto.EstadoFinancieroPdfDt
 import com.calero.lili.api.modContabilidad.modReportes.projection.BalanceValoresProjection;
 import com.calero.lili.api.modContabilidad.modReportes.projection.ResultadosProjection;
 import com.calero.lili.api.modContabilidad.modReportes.projection.SaldoInicialBCProjection;
-import com.calero.lili.core.utils.ConstanteReportes;
+import com.calero.lili.api.utils.ConstanteReportes;
 import com.calero.lili.core.utils.DateUtils;
 import lombok.AllArgsConstructor;
 import net.sf.jasperreports.engine.JasperCompileManager;

@@ -7,7 +7,7 @@ import com.calero.lili.core.enums.ComercioExterior;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormaPago;
 import com.calero.lili.core.enums.FormatoDocumento;
-import com.calero.lili.api.modAuditoria.Auditable;
+import com.calero.lili.core.Auditable;
 import com.calero.lili.api.modTerceros.GeTerceroEntity;
 import com.calero.lili.api.modVentas.reembolsos.VtVentaReembolsosEntity;
 import com.calero.lili.api.modVentasVendedores.VtVendedorEntity;

@@ -18,7 +18,6 @@ import com.calero.lili.core.modAdminEmpresasSucursales.builder.AdEmpresasSucursa
 import com.calero.lili.core.utils.AESUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -39,10 +38,10 @@ public class AdEmpresasServiceImpl {
     private final AdEmpresaBuilder adEmpresaBuilder;
     private final AdEmpresasSucursalesBuilder adEmpresasSucursalesBuilder;
     private final AdDataBuilder adDataBuilder;
-    private final AuditorAware<String> auditorAware;
+
 
     @Transactional
-    public AdEmpresaCreationResponseDto create(Long idData, AdEmpresaRequestDto request) {
+    public AdEmpresaCreationResponseDto create(Long idData, AdEmpresaRequestDto request, String usuario) {
 
 
         validacionRucEmpresa(request);
@@ -58,6 +57,10 @@ public class AdEmpresasServiceImpl {
         entidad.setContraseniaFirma(Objects.nonNull(request.getContraseniaFirma())
                 ? AESUtils.encrypt(request.getContraseniaFirma())
                 : "");
+
+        entidad.setCreatedBy(usuario);
+        entidad.setCreatedDate(LocalDateTime.now());
+
         entidad = adEmpresasRepository.save(entidad);
 
         adEmpresasSucursalesRepository.save(adEmpresasSucursalesBuilder.builderEmpresaSucursal(entidad));
@@ -75,7 +78,7 @@ public class AdEmpresasServiceImpl {
 
     }
 
-    public AdEmpresaCreationResponseDto update(Long idData, Long idEmpresa, AdEmpresaRequestDto request) {
+    public AdEmpresaCreationResponseDto update(Long idData, Long idEmpresa, AdEmpresaRequestDto request, String usuario) {
 
         AdEmpresaEntity existente = adEmpresasRepository.findById(idData, idEmpresa).orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", idEmpresa)));
 
@@ -84,8 +87,8 @@ public class AdEmpresasServiceImpl {
         }
 
         AdEmpresaEntity actualizar = adEmpresaBuilder.builderUpdateEntity(request, existente);
-       /* actualizar.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
-        actualizar.setModifiedDate(LocalDateTime.now());*/
+        actualizar.setModifiedBy(usuario);
+        actualizar.setModifiedDate(LocalDateTime.now());
 
         actualizar.setContraseniaFirma(Objects.nonNull(request.getContraseniaFirma())
                 ? AESUtils.encrypt(request.getContraseniaFirma())

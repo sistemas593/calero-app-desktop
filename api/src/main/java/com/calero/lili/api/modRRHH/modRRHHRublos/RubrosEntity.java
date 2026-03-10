@@ -2,7 +2,7 @@ package com.calero.lili.api.modRRHH.modRRHHRublos;
 
 
 import com.calero.lili.core.enums.TipoRubro;
-import com.calero.lili.api.modAuditoria.Auditable;
+import com.calero.lili.core.Auditable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

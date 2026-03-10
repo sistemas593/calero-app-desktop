@@ -1,10 +1,8 @@
-package com.calero.lili.api.modAuditoria;
+package com.calero.lili.core;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
@@ -13,11 +11,11 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 public abstract class Auditable {
 
-    @CreatedBy
+
     @Column(updatable = false)
     private String createdBy;
 
-    @CreatedDate
+
     @Column(updatable = false)
     private LocalDateTime createdDate;
 
