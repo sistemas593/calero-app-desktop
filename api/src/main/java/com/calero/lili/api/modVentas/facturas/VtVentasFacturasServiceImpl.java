@@ -56,7 +56,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -99,12 +98,11 @@ public class VtVentasFacturasServiceImpl {
     private final GeTercerosRepository geTercerosRepository;
     private final TbPaisesRepository tbPaisesRepository;
     private final GeItemsRepository geItemsRepository;
-    private final AuditorAware<String> auditorAware;
     private final CnCentroCostosRepository cnCentroCostosRepository;
     private final CnAsientosRepository cnAsientosRepository;
     private final GenerarAsientoServiceImpl generarAsientoService;
 
-    public ResponseDto create(Long idData, Long idEmpresa, CreationFacturaRequestDto request) {
+    public ResponseDto create(Long idData, Long idEmpresa, CreationFacturaRequestDto request, String usuario) {
 
         ValidarCampoAscii.validarStrings(request);
 
@@ -126,6 +124,10 @@ public class VtVentasFacturasServiceImpl {
         validarCentroCostos(request, idData, idEmpresa);
 
         VtVentaEntity vtVentaEntity = vtFacturasBuilder.builderEntity(request, idData, idEmpresa);
+
+        vtVentaEntity.setCreatedBy(usuario);
+        vtVentaEntity.setCreatedDate(LocalDateTime.now());
+
         vtVentaEntity.setTercero(tercero);
         vtVentaEntity.setEmail(tercero.getEmail());
         vtVentaEntity.setTerceroNombre(tercero.getTercero());
@@ -160,7 +162,7 @@ public class VtVentasFacturasServiceImpl {
 
 
     @Transactional
-    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationFacturaRequestDto request) {
+    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationFacturaRequestDto request, String usuario) {
 
         ValidarCampoAscii.validarStrings(request);
 
@@ -186,7 +188,7 @@ public class VtVentasFacturasServiceImpl {
         validarCentroCostos(request, idData, idEmpresa);
 
         VtVentaEntity update = vtFacturasBuilder.builderUpdateEntity(request, vtVentaEntity);
-        update.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        update.setModifiedBy(usuario);
         update.setModifiedDate(LocalDateTime.now());
 
         update.setTercero(tercero);
@@ -298,14 +300,14 @@ public class VtVentasFacturasServiceImpl {
         }
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID idVenta) {
+    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario) {
 
         VtVentaEntity venta = vtVentaRepository.findByIdEntity(idData, idEmpresa, idVenta)
                 .orElseThrow(() -> new NotFoundException(MessageFormat.format("La factura con ID {0} no existe", idVenta)));
 
 
         venta.setDelete(Boolean.TRUE);
-        venta.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        venta.setDeletedBy(usuario);
         venta.setDeletedDate(LocalDateTime.now());
 
         vtVentaRepository.save(venta);
@@ -349,7 +351,7 @@ public class VtVentasFacturasServiceImpl {
 
 
     public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa,
-                                                    FilterListDto filters, Pageable pageable, String tipoBusqueda) {
+                                                    FilterListDto filters, Pageable pageable, String tipoBusqueda, String usuario) {
 
 
         Page<VtVentaEntity> page = null;
@@ -372,9 +374,9 @@ public class VtVentasFacturasServiceImpl {
 
         if (Objects.equals(tipoBusqueda, "PROPIAS")) {
 
-            page = vtVentaRepository.findAllPaginateUsuario(idData, idEmpresa, auditorAware.getCurrentAuditor().orElse("SYSTEM"),
-                    filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(),
-                    filters.getNumeroIdentificacion(), filters.getTipoVenta(), filters.getSerie(), filters.getSecuencial(),
+            page = vtVentaRepository.findAllPaginateUsuario(idData, idEmpresa, usuario, filters.getSucursal(),
+                    filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(),
+                    filters.getTipoVenta(), filters.getSerie(), filters.getSecuencial(),
                     filters.getNumeroAutorizacion(), pageable);
         }
 

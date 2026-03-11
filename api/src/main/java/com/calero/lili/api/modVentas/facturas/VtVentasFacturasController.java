@@ -1,15 +1,15 @@
 package com.calero.lili.api.modVentas.facturas;
 
 import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
-import com.calero.lili.core.dtos.Mensajes;
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.api.modVentas.dto.GetListDto;
 import com.calero.lili.api.modVentas.dto.GetListDtoTotalizado;
 import com.calero.lili.api.modVentas.facturas.dto.CreationFacturaRequestDto;
 import com.calero.lili.api.modVentas.facturas.dto.FilterListDto;
 import com.calero.lili.api.modVentas.facturas.dto.GetFacturaDto;
 import com.calero.lili.api.utils.IdDataServiceImpl;
+import com.calero.lili.core.dtos.Mensajes;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.ResponseDto;
 import com.lowagie.text.DocumentException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -54,7 +54,7 @@ public class VtVentasFacturasController {
     public ResponseDto create(
             @PathVariable("idEmpresa") Long idEmpresa,
             @Valid @RequestBody CreationFacturaRequestDto request) {
-        return vtVentasService.create(idDataService.getIdData(), idEmpresa, request);
+        return vtVentasService.create(idDataService.getIdData(), idEmpresa, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("facturas/{idEmpresa}/{idVenta}")
@@ -63,7 +63,7 @@ public class VtVentasFacturasController {
     public ResponseDto updateFactura(@PathVariable("idEmpresa") Long idEmpresa,
                                      @PathVariable("idVenta") UUID idVenta,
                                      @RequestBody CreationFacturaRequestDto request) {
-        return vtVentasService.update(idDataService.getIdData(), idEmpresa, idVenta, request);
+        return vtVentasService.update(idDataService.getIdData(), idEmpresa, idVenta, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("facturas/{idEmpresa}/{idVenta}")
@@ -71,7 +71,7 @@ public class VtVentasFacturasController {
     @PreAuthorize("hasAuthority('VT_FC_EL')")
     public void deleteFactura(@PathVariable("idEmpresa") Long idEmpresa,
                               @PathVariable("idVenta") UUID idVenta) {
-        vtVentasService.delete(idDataService.getIdData(), idEmpresa, idVenta);
+        vtVentasService.delete(idDataService.getIdData(), idEmpresa, idVenta, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("facturas/{idEmpresa}/{idVenta}")
@@ -98,7 +98,8 @@ public class VtVentasFacturasController {
     public PaginatedDto<GetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
                                                     FilterListDto filters,
                                                     Pageable pageable) {
-        return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable, auditorAware.getTipoPermisoVerFacturas());
+        return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable,
+                auditorAware.getTipoPermisoVerFacturas(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("facturas/reportes/{idEmpresa}")
