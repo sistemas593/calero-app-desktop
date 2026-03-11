@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -82,7 +83,56 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
                     "(:numeroAutorizacion IS NULL OR vtVentasEntity.numeroAutorizacion = :numeroAutorizacion ) AND " +
                     "( cast(:fechaEmisionDesde as date) is null OR vtVentasEntity.fechaEmision >= :fechaEmisionDesde ) AND " +
                     "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmision <= :fechaEmisionHasta ) ")
-    Page<VtVentaEntity> findAllPaginate(Long idData, Long idEmpresa, String sucursal, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta, String numeroIdentificacion, String tipoVenta, String serie, String secuencial, String numeroAutorizacion, Pageable pageable);
+    Page<VtVentaEntity> findAllPaginate(@Param("idData") Long idData,
+                                        @Param("idEmpresa") Long idEmpresa,
+                                        @Param("sucursal") String sucursal,
+                                        @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
+                                        @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
+                                        @Param("numeroIdentificacion") String numeroIdentificacion,
+                                        @Param("tipoVenta") String tipoVenta,
+                                        @Param("serie") String serie,
+                                        @Param("secuencial") String secuencial,
+                                        @Param("numeroAutorizacion") String numeroAutorizacion, Pageable pageable);
+
+
+    @Query(value = "SELECT vtVentasEntity " +
+            "FROM VtVentaEntity vtVentasEntity " +
+            "WHERE vtVentasEntity.idData = :idData  AND " +
+            "vtVentasEntity.idEmpresa = :idEmpresa AND " +
+            "vtVentasEntity.createdBy = :usuario AND" +
+            "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
+            "(:tipoVenta IS NULL OR vtVentasEntity.tipoVenta = :tipoVenta) AND " +
+            "(:numeroIdentificacion IS NULL OR vtVentasEntity.numeroIdentificacion = :numeroIdentificacion ) AND " +
+            "(:serie IS NULL OR vtVentasEntity.serie = :serie) AND " +
+            "(:secuencial IS NULL OR vtVentasEntity.secuencial = :secuencial) AND " +
+            "(:numeroAutorizacion IS NULL OR vtVentasEntity.numeroAutorizacion = :numeroAutorizacion ) AND " +
+            "( cast(:fechaEmisionDesde as date) is null OR vtVentasEntity.fechaEmision >= :fechaEmisionDesde ) AND " +
+            "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmision <= :fechaEmisionHasta )"
+            ,
+            countQuery = "SELECT COUNT(1) " +
+                    "FROM VtVentaEntity vtVentasEntity " +
+                    "WHERE ( vtVentasEntity.idData = :idData)  AND " +
+                    "(vtVentasEntity.idEmpresa = :idEmpresa) AND " +
+                    "vtVentasEntity.createdBy =  :usuario AND " +
+                    "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
+                    "(:tipoVenta IS NULL OR vtVentasEntity.tipoVenta = :tipoVenta) AND " +
+                    "(:numeroIdentificacion IS NULL OR vtVentasEntity.numeroIdentificacion = :numeroIdentificacion ) AND " +
+                    "(:serie IS NULL OR vtVentasEntity.serie = :serie ) AND " +
+                    "(:secuencial IS NULL OR vtVentasEntity.secuencial = :secuencial ) AND " +
+                    "(:numeroAutorizacion IS NULL OR vtVentasEntity.numeroAutorizacion = :numeroAutorizacion ) AND " +
+                    "( cast(:fechaEmisionDesde as date) is null OR vtVentasEntity.fechaEmision >= :fechaEmisionDesde ) AND " +
+                    "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmision <= :fechaEmisionHasta ) ")
+    Page<VtVentaEntity> findAllPaginateUsuario(@Param("idData") Long idData,
+                                               @Param("idEmpresa") Long idEmpresa,
+                                               @Param("usuario") String usuario,
+                                               @Param("sucursal") String sucursal,
+                                               @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
+                                               @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
+                                               @Param("numeroIdentificacion") String numeroIdentificacion,
+                                               @Param("tipoVenta") String tipoVenta,
+                                               @Param("serie") String serie,
+                                               @Param("secuencial") String secuencial,
+                                               @Param("numeroAutorizacion") String numeroAutorizacion, Pageable pageable);
 
     @Query(
             value = "SELECT " +

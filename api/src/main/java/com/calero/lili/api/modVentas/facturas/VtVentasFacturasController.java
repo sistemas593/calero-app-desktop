@@ -1,5 +1,6 @@
 package com.calero.lili.api.modVentas.facturas;
 
+import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.core.dtos.Mensajes;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.ResponseDto;
@@ -45,6 +46,7 @@ public class VtVentasFacturasController {
     private final VtVentasFacturasServiceImpl vtVentasService;
     private final IdDataServiceImpl idDataService;
     private final VtVentasFacturasExcelService vtVentasFacturasExcelService;
+    private final AuditorAwareImpl auditorAware;
 
     @PostMapping("facturas/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.CREATED)
@@ -92,11 +94,11 @@ public class VtVentasFacturasController {
 
     @GetMapping("facturas/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('VT_FC_VR')")
+    @PreAuthorize("hasAnyAuthority('VT_FC_VR_PR','VT_FC_VR_SC','VT_FC_VR_TD')")
     public PaginatedDto<GetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
                                                     FilterListDto filters,
                                                     Pageable pageable) {
-        return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable);
+        return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable, auditorAware.getTipoPermisoVerFacturas());
     }
 
     @GetMapping("facturas/reportes/{idEmpresa}")
@@ -147,7 +149,7 @@ public class VtVentasFacturasController {
     @PostMapping("facturas/asiento/{idEmpresa}/{idVenta}")
     @PreAuthorize("hasAuthority('VT_FC_CR')")
     public ResponseDto createAsientoVenta(@PathVariable("idEmpresa") Long idEmpresa,
-                                     @PathVariable("idVenta") UUID idVenta) {
+                                          @PathVariable("idVenta") UUID idVenta) {
         return vtVentasService.createAsientoVenta(idDataService.getIdData(), idEmpresa, idVenta);
     }
 

@@ -82,7 +82,7 @@ public class CpImpuestosServiceImpl {
     private final ValidarValoresComprobantesPdf validarValoresComprobantesPdf;
     private final AdEmpresasRepository adEmpresasRepository;
     private final AuditorAware<String> auditorAware;
-    private ComprobanteSustentoService comprobanteSustentoService;
+    private final ComprobanteSustentoService comprobanteSustentoService;
 
     public ResponseDto create(Long idData, Long idEmpresa, CreationCompraImpuestoRequestDto request) {
 

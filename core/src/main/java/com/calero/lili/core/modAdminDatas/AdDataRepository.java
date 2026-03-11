@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,8 +16,8 @@ import java.util.Optional;
 public interface AdDataRepository extends JpaRepository<AdDataEntity, Long> {
     @Transactional
     @Modifying
-    @Query("DELETE FROM AdDataEntity e WHERE e.idData = ?1 ")
-    void deleteByIdData(Long idData);
+    @Query("DELETE FROM AdDataEntity e WHERE e.idData = :idData ")
+    void deleteByIdData(@Param("idData") Long idData);
 
     Optional<AdDataEntity> findByIdData(Long idData);
 
@@ -34,14 +35,14 @@ public interface AdDataRepository extends JpaRepository<AdDataEntity, Long> {
     // buscar registros por filtros para devolver al usuario
     @Query(
             value = "SELECT entity " +
-                    "FROM AdDataEntity entity "+
+                    "FROM AdDataEntity entity " +
                     "WHERE " +
                     "(:filter IS NULL OR LOWER(entity.data) LIKE LOWER(CONCAT('%', :filterContent, '%')) ) "
-           ,
-            countQuery = "SELECT COUNT(1) "+
+            ,
+            countQuery = "SELECT COUNT(1) " +
                     "FROM AdDataEntity entity " +
                     "WHERE " +
                     "(:filter IS NULL OR LOWER(entity.data) LIKE LOWER(CONCAT('%', :filterContent, '%')) ) "
     )
-    Page<AdDataEntity> findAllPaginate(String filter, String filterContent, Pageable pageable);
+    Page<AdDataEntity> findAllPaginate(@Param("filter") String filter, @Param("filterContent") String filterContent, Pageable pageable);
 }

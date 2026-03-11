@@ -1,18 +1,6 @@
 package com.calero.lili.api.modVentas.facturas;
 
-import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.api.comprobantes.services.ComprobanteServiceImpl;
-import com.calero.lili.core.dtos.Mensajes;
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.Paginator;
-import com.calero.lili.core.dtos.ResponseDto;
-import com.calero.lili.core.enums.EstadoDocumento;
-import com.calero.lili.core.enums.FormatoDocumento;
-import com.calero.lili.core.enums.TipoEmision;
-import com.calero.lili.core.enums.TipoIngreso;
-import com.calero.lili.core.enums.TipoVenta;
-import com.calero.lili.core.errors.exceptions.GeneralException;
-import com.calero.lili.core.errors.exceptions.NotFoundException;
 import com.calero.lili.api.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosEntity;
 import com.calero.lili.api.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosRepository;
 import com.calero.lili.api.modComprasItems.GeItemsRepository;
@@ -43,6 +31,18 @@ import com.calero.lili.api.modVentas.reembolsos.VtVentasReembolsoRepository;
 import com.calero.lili.api.tablas.tbPaises.TbPaisEntity;
 import com.calero.lili.api.tablas.tbPaises.TbPaisesRepository;
 import com.calero.lili.api.utils.validaciones.ValidarCampoAscii;
+import com.calero.lili.core.builder.ResponseApiBuilder;
+import com.calero.lili.core.dtos.Mensajes;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.Paginator;
+import com.calero.lili.core.dtos.ResponseDto;
+import com.calero.lili.core.enums.EstadoDocumento;
+import com.calero.lili.core.enums.FormatoDocumento;
+import com.calero.lili.core.enums.TipoEmision;
+import com.calero.lili.core.enums.TipoIngreso;
+import com.calero.lili.core.enums.TipoVenta;
+import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.core.errors.exceptions.NotFoundException;
 import com.calero.lili.core.utils.DateUtils;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -103,7 +103,6 @@ public class VtVentasFacturasServiceImpl {
     private final CnCentroCostosRepository cnCentroCostosRepository;
     private final CnAsientosRepository cnAsientosRepository;
     private final GenerarAsientoServiceImpl generarAsientoService;
-
 
     public ResponseDto create(Long idData, Long idEmpresa, CreationFacturaRequestDto request) {
 
@@ -349,9 +348,36 @@ public class VtVentasFacturasServiceImpl {
     }
 
 
-    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable) {
+    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa,
+                                                    FilterListDto filters, Pageable pageable, String tipoBusqueda) {
 
-        Page<VtVentaEntity> page = vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getTipoVenta(), filters.getSerie(), filters.getSecuencial(), filters.getNumeroAutorizacion(), pageable);
+
+        Page<VtVentaEntity> page = null;
+
+        if (Objects.equals(tipoBusqueda, "TODAS")) {
+            page = vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
+                    filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getTipoVenta(), filters.getSerie(),
+                    filters.getSecuencial(), filters.getNumeroAutorizacion(), pageable);
+        }
+
+        if (Objects.equals(tipoBusqueda, "SUCURSAL")) {
+            if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
+                page = vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
+                        filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getTipoVenta(), filters.getSerie(),
+                        filters.getSecuencial(), filters.getNumeroAutorizacion(), pageable);
+            } else {
+                throw new GeneralException("Es requerido el parametro de la sucursal");
+            }
+        }
+
+        if (Objects.equals(tipoBusqueda, "PROPIAS")) {
+
+            page = vtVentaRepository.findAllPaginateUsuario(idData, idEmpresa, auditorAware.getCurrentAuditor().orElse("SYSTEM"),
+                    filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(),
+                    filters.getNumeroIdentificacion(), filters.getTipoVenta(), filters.getSerie(), filters.getSecuencial(),
+                    filters.getNumeroAutorizacion(), pageable);
+        }
+
 
         List<GetListDto> dtoList = page.stream().map(item -> {
             if (item.getAnulada()) {
