@@ -11,7 +11,6 @@ import com.calero.lili.api.modTesoreria.modTesoreriaEntidadesFinancieras.dto.BcE
 import com.calero.lili.api.modTesoreria.modTesoreriaEntidadesFinancieras.dto.BcEntidadReportDto;
 import com.calero.lili.api.modTesoreria.modTesoreriaEntidadesFinancieras.dto.BcEntidadesListFilterDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -29,39 +28,40 @@ public class BcEntidadServiceImpl {
     private final BcEntidadesRepository bcEntidadesRepository;
     private final ResponseApiBuilder responseApiBuilder;
     private final TsEntidadBuilder tsEntidadBuilder;
-    private final AuditorAware<String> auditorAware;
 
-    public ResponseDto create(Long idData, Long idEmpresa, BcEntidadCreationRequestDto request) {
+    public ResponseDto create(Long idData, Long idEmpresa, BcEntidadCreationRequestDto request, String usuario) {
 
-        TsEntidadEntity entidad = bcEntidadesRepository.save(tsEntidadBuilder
-                .builderEntity(request, idData, idEmpresa));
-        return responseApiBuilder.builderResponse(entidad.getIdEntidad().toString());
+        TsEntidadEntity entidad = tsEntidadBuilder.builderEntity(request, idData, idEmpresa);
+        entidad.setCreatedBy(usuario);
+        entidad.setCreatedDate(LocalDateTime.now());
+        TsEntidadEntity saved = bcEntidadesRepository.save(entidad);
+        return responseApiBuilder.builderResponse(saved.getIdEntidad().toString());
     }
 
-    public ResponseDto update(Long idData, Long idEmpresa, UUID id, BcEntidadCreationRequestDto request) {
+    public ResponseDto update(Long idData, Long idEmpresa, UUID id, BcEntidadCreationRequestDto request, String usuario) {
 
         TsEntidadEntity entidad = bcEntidadesRepository.findByIdDataAndIdEmpresaAndIdEntidad(idData, idEmpresa, id);
         if (Objects.isNull(entidad)) {
             throw new GeneralException(MessageFormat.format("Id {0} no existe", id));
         }
         TsEntidadEntity update = tsEntidadBuilder.builderUpdateEntity(request, entidad);
-        update.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        update.setModifiedBy(usuario);
         update.setModifiedDate(LocalDateTime.now());
 
         bcEntidadesRepository.save(update);
         return responseApiBuilder.builderResponse(entidad.getIdEntidad().toString());
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID id) {
+    public void delete(Long idData, Long idEmpresa, UUID id, String usuario) {
 
         TsEntidadEntity entidad = bcEntidadesRepository.findByIdDataAndIdEmpresaAndIdEntidad(idData, idEmpresa, id);
         if (Objects.isNull(entidad)) {
             throw new GeneralException(MessageFormat.format("Id {0} no existe", id));
         }
 
-        entidad.setDelete(Boolean.TRUE);
-        entidad.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        entidad.setDeletedBy(usuario);
         entidad.setDeletedDate(LocalDateTime.now());
+        entidad.setDelete(Boolean.TRUE);
 
         bcEntidadesRepository.save(entidad);
 

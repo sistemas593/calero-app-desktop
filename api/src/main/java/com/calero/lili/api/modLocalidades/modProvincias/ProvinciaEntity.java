@@ -1,5 +1,6 @@
 package com.calero.lili.api.modLocalidades.modProvincias;
 
+import com.calero.lili.core.Auditable;
 import com.calero.lili.api.modLocalidades.modCantones.CantonEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Where;
 
 import java.util.List;
 
@@ -20,7 +22,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "tb_provincias")
-public class ProvinciaEntity {
+@Where(clause = "deleted = false")
+public class ProvinciaEntity extends Auditable {
 
     @Id
     @Column(name = "codigo_provincia",unique = true, updatable = false, nullable = false)

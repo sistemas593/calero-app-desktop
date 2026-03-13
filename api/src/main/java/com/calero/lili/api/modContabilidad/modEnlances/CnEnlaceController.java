@@ -6,6 +6,7 @@ import com.calero.lili.api.modContabilidad.modEnlances.dto.CnEnlaceResponseDto;
 import com.calero.lili.api.modContabilidad.modEnlances.dto.EnlaceFilterDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -28,12 +29,13 @@ import java.util.UUID;
 public class CnEnlaceController {
 
     private final CnEnlaceServiceImpl cnEnlaceService;
+    private final AuditorAware<String> auditorAware;
 
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     public CnEnlaceResponseDto create(@RequestBody @Valid CnEnlaceRequestDto request) {
-        return cnEnlaceService.create(request);
+        return cnEnlaceService.create(request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idEnlace}")
@@ -41,7 +43,7 @@ public class CnEnlaceController {
     public CnEnlaceResponseDto update(@PathVariable("idEnlace") UUID idEnlace,
                                       @RequestBody @Valid CnEnlaceRequestDto request) {
 
-        return cnEnlaceService.update(idEnlace, request);
+        return cnEnlaceService.update(idEnlace, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{idEnlace}")
@@ -61,7 +63,7 @@ public class CnEnlaceController {
     @DeleteMapping("{idEnlace}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("idEnlace") UUID idEnlace) {
-        cnEnlaceService.delete(idEnlace);
+        cnEnlaceService.delete(idEnlace, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
 }

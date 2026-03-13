@@ -11,7 +11,6 @@ import com.calero.lili.api.modContabilidad.modPlanCuentas.dto.CnPlanCuentaGetLis
 import com.calero.lili.api.modContabilidad.modPlanCuentas.dto.CnPlanCuentaGetOneDto;
 import com.calero.lili.api.modContabilidad.modPlanCuentas.dto.CnPlanCuentaListFilterDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -29,10 +28,9 @@ public class CnPlanCuentasServiceImpl {
     private final CnPlanCuentasRepository cnPlanCuentasRepository;
     private final ResponseApiBuilder responseApiBuilder;
     private final CnPlanCuentaBuilder cnPlanCuentaBuilder;
-    private final AuditorAware<String> auditorAware;
 
 
-    public ResponseDto create(Long idData, Long idEmpresa, CnPlanCuentaCreationRequestDto request) {
+    public ResponseDto create(Long idData, Long idEmpresa, CnPlanCuentaCreationRequestDto request, String usuario) {
 
         Optional<CnPlanCuentaEntity> existe = cnPlanCuentasRepository.findByCodigoCuenta(idData, idEmpresa, request.getCodigoCuenta());
         if (existe.isPresent()) {
@@ -45,6 +43,8 @@ public class CnPlanCuentasServiceImpl {
 
         saved.setNivel(getNivel(saved.getCodigoCuentaOriginal(), saved.getMayor()));
         saved.setGrupo(validarNumeroGrupo(request));
+        saved.setCreatedBy(usuario);
+        saved.setCreatedDate(LocalDateTime.now());
         CnPlanCuentaEntity entidad = cnPlanCuentasRepository.save(saved);
 
         return responseApiBuilder.builderResponse(entidad.getIdCuenta().toString());
@@ -52,14 +52,14 @@ public class CnPlanCuentasServiceImpl {
     }
 
 
-    public ResponseDto update(Long idData, Long idEmpresa, UUID id, CnPlanCuentaCreationRequestDto request) {
+    public ResponseDto update(Long idData, Long idEmpresa, UUID id, CnPlanCuentaCreationRequestDto request, String usuario) {
 
         CnPlanCuentaEntity existe = cnPlanCuentasRepository.findByIdCuenta(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Cuenta con id {0} no existe", id)));
 
         CnPlanCuentaEntity updated = cnPlanCuentaBuilder.builderUpdateEntity(request, existe);
 
-        updated.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        updated.setModifiedBy(usuario);
         updated.setModifiedDate(LocalDateTime.now());
 
         updated.setGrupo(validarNumeroGrupo(request));
@@ -68,13 +68,13 @@ public class CnPlanCuentasServiceImpl {
         return responseApiBuilder.builderResponse(entidad.getIdCuenta().toString());
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID id) {
+    public void delete(Long idData, Long idEmpresa, UUID id, String usuario) {
         CnPlanCuentaEntity planCuenta = cnPlanCuentasRepository.findByIdCuenta(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Cuenta con id {0} no existe", id)));
 
 
         planCuenta.setDelete(Boolean.TRUE);
-        planCuenta.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        planCuenta.setDeletedBy(usuario);
         planCuenta.setDeletedDate(LocalDateTime.now());
 
         cnPlanCuentasRepository.delete(planCuenta);

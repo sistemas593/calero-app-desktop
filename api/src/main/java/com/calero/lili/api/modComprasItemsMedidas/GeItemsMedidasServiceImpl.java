@@ -1,15 +1,14 @@
 package com.calero.lili.api.modComprasItemsMedidas;
 
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.Paginator;
-import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.api.modComprasItemsMedidas.builder.GetItemsMedidasBuilder;
 import com.calero.lili.api.modComprasItemsMedidas.dto.GeItemMedidaCreationRequestDto;
 import com.calero.lili.api.modComprasItemsMedidas.dto.GeItemMedidaCreationResponseDto;
 import com.calero.lili.api.modComprasItemsMedidas.dto.GeItemMedidaListFilterDto;
 import com.calero.lili.api.modComprasItemsMedidas.dto.GeItemMedidaReportDto;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.Paginator;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,16 +26,18 @@ public class GeItemsMedidasServiceImpl {
 
     private final GeItemsMedidasRepository geItemsMedidasRepository;
     private final GetItemsMedidasBuilder getItemsMedidasBuilder;
-    private final AuditorAware<String> auditorAware;
 
-    public GeItemMedidaCreationResponseDto create(Long idData, GeItemMedidaCreationRequestDto request) {
 
-        GeItemsMedidasEntity createdDto = geItemsMedidasRepository.save(getItemsMedidasBuilder
-                .builderEntity(request, idData));
+    public GeItemMedidaCreationResponseDto create(Long idData, GeItemMedidaCreationRequestDto request, String usuario) {
+
+        GeItemsMedidasEntity entity = getItemsMedidasBuilder.builderEntity(request, idData);
+        entity.setCreatedBy(usuario);
+        entity.setCreatedDate(LocalDateTime.now());
+        GeItemsMedidasEntity createdDto = geItemsMedidasRepository.save(entity);
         return getItemsMedidasBuilder.builderResponse(createdDto);
     }
 
-    public GeItemMedidaCreationResponseDto update(Long idData, UUID id, GeItemMedidaCreationRequestDto request) {
+    public GeItemMedidaCreationResponseDto update(Long idData, UUID id, GeItemMedidaCreationRequestDto request, String usuario) {
 
         GeItemsMedidasEntity entidad = geItemsMedidasRepository.findById(idData, id);
         if (Objects.isNull(entidad)) {
@@ -44,14 +45,23 @@ public class GeItemsMedidasServiceImpl {
         }
 
         GeItemsMedidasEntity update = getItemsMedidasBuilder.builderUpdateEntity(request, entidad);
-        update.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        update.setModifiedBy(usuario);
         update.setModifiedDate(LocalDateTime.now());
         geItemsMedidasRepository.save(update);
         return getItemsMedidasBuilder.builderResponse(update);
     }
 
-    public void delete(Long idData, UUID id) {
-        geItemsMedidasRepository.deleteByMedida(idData, id);
+    public void delete(Long idData, UUID id, String usuario) {
+        GeItemsMedidasEntity entidad = geItemsMedidasRepository.findById(idData, id);
+        if (Objects.isNull(entidad)) {
+            throw new GeneralException(MessageFormat.format("Id {0} no existe", id));
+        }
+
+        entidad.setDelete(Boolean.TRUE);
+        entidad.setDeletedBy(usuario);
+        entidad.setDeletedDate(LocalDateTime.now());
+
+        geItemsMedidasRepository.save(entidad);
     }
 
     public GeItemMedidaCreationResponseDto findFirstById(Long idData, UUID id) {

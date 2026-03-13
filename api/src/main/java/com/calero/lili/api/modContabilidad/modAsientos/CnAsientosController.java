@@ -10,6 +10,7 @@ import com.calero.lili.api.utils.IdDataServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,6 +37,7 @@ public class CnAsientosController {
 
     private final CnAsientosServiceImpl vtVentasService;
     private final IdDataServiceImpl idDataService;
+    private final AuditorAware<String> auditorAware;
 
 
     @PostMapping("{idEmpresa}")
@@ -44,7 +46,7 @@ public class CnAsientosController {
     public ResponseDto create(
             @PathVariable("idEmpresa") Long idEmpresa,
             @Valid @RequestBody CreationAsientosRequestDto request) {
-        return vtVentasService.create(idDataService.getIdData(), idEmpresa, request);
+        return vtVentasService.create(idDataService.getIdData(), idEmpresa, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idEmpresa}/{idAsiento}")
@@ -54,7 +56,7 @@ public class CnAsientosController {
             @PathVariable("idEmpresa") Long idEmpresa,
             @PathVariable("idAsiento") UUID idAsiento,
             @RequestBody CreationAsientosRequestDto request) {
-        return vtVentasService.update(idDataService.getIdData(), idEmpresa, idAsiento, request);
+        return vtVentasService.update(idDataService.getIdData(), idEmpresa, idAsiento, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("{idEmpresa}/{idAsiento}")
@@ -62,7 +64,7 @@ public class CnAsientosController {
     @PreAuthorize("hasAuthority('CN_AS_EL')")
     public void delete(@PathVariable("idEmpresa") Long idEmpresa,
                        @PathVariable("idAsiento") UUID idAsiento) {
-        vtVentasService.delete(idDataService.getIdData(), idEmpresa, idAsiento);
+        vtVentasService.delete(idDataService.getIdData(), idEmpresa, idAsiento, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{idEmpresa}/{idAsiento}")

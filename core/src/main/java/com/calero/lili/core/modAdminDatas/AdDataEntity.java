@@ -1,5 +1,6 @@
 package com.calero.lili.core.modAdminDatas;
 
+import com.calero.lili.core.Auditable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,7 +19,7 @@ import java.time.LocalDate;
 @Table(name = "ad_datas")
 @AllArgsConstructor
 @NoArgsConstructor
-public class AdDataEntity {
+public class AdDataEntity extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

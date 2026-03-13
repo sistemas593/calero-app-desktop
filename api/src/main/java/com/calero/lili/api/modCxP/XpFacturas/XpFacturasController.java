@@ -9,6 +9,7 @@ import com.calero.lili.api.utils.IdDataServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -32,13 +33,14 @@ public class XpFacturasController {
 
     private final XpFacturaServiceImpl xpFacturaService;
     private final IdDataServiceImpl idDataService;
+    private final AuditorAware<String> auditorAware;
 
 
     @PostMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.CREATED)
     public ResponseDto create(@PathVariable("idEmpresa") Long idEmpresa,
                               @Valid @RequestBody XpFacturasRequestDto request) {
-        return xpFacturaService.create(idDataService.getIdData(), idEmpresa, request);
+        return xpFacturaService.create(idDataService.getIdData(), idEmpresa, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idEmpresa}/{idFactura}")
@@ -46,13 +48,13 @@ public class XpFacturasController {
     public ResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                               @PathVariable("idFactura") UUID idFactura,
                               @Valid @RequestBody XpFacturasRequestDto request) {
-        return xpFacturaService.update(idDataService.getIdData(), idEmpresa, idFactura, request);
+        return xpFacturaService.update(idDataService.getIdData(), idEmpresa, idFactura, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("delete/{idFactura}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("idFactura") UUID idFactura) {
-        xpFacturaService.delete(idFactura);
+        xpFacturaService.delete(idFactura, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("findById/{idFactura}")

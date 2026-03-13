@@ -11,7 +11,6 @@ import com.calero.lili.api.modCxC.XcFacturas.dto.FilterXcFacturaDto;
 import com.calero.lili.api.modCxC.XcFacturas.dto.RequestXcFacturasDto;
 import com.calero.lili.api.modCxC.XcFacturas.dto.ResponseXcFacturasDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -31,11 +30,10 @@ public class XcFacturaServiceImpl {
     private final XcFacturasRepository xcFacturasRepository;
     private final XcFacturasBuilder xcFacturasBuilder;
     private final ResponseApiBuilder responseApiBuilder;
-    private final AuditorAware<String> auditorAware;
 
 
     @Transactional
-    public ResponseDto create(Long idData, Long idEmpresa, RequestXcFacturasDto request, UUID idFactura) {
+    public ResponseDto create(Long idData, Long idEmpresa, RequestXcFacturasDto request, UUID idFactura, String usuario) {
 
         Optional<XcFacturasEntity> existFactura = xcFacturasRepository
                 .findByExistFactura(idData, idEmpresa, request.getTipoDocumento().name(), request.getSerie(), request.getSecuencial());
@@ -48,15 +46,16 @@ public class XcFacturaServiceImpl {
 
 
         validarSaldoValor(request);
-        XcFacturasEntity entidad = xcFacturasRepository.save(xcFacturasBuilder
-                .builderEntity(request, idData, idEmpresa, idFactura));
+        XcFacturasEntity entidad = xcFacturasBuilder.builderEntity(request, idData, idEmpresa, idFactura);
+        entidad.setCreatedBy(usuario);
+        entidad.setCreatedDate(LocalDateTime.now());
 
-        return responseApiBuilder.builderResponse(entidad.getIdFactura().toString());
+        return responseApiBuilder.builderResponse(xcFacturasRepository.save(entidad).getIdFactura().toString());
     }
 
 
     @Transactional
-    public ResponseDto update(Long idData, Long idEmpresa, UUID idComprobante, RequestXcFacturasDto request) {
+    public ResponseDto update(Long idData, Long idEmpresa, UUID idComprobante, RequestXcFacturasDto request, String usuario) {
 
         XcFacturasEntity existFactura = xcFacturasRepository
                 .getForFindByIdAndIdDataAndIdEmpresa(idComprobante, idData, idEmpresa)
@@ -67,7 +66,7 @@ public class XcFacturaServiceImpl {
         validarRegistroAplicados(existFactura);
 
         XcFacturasEntity update = xcFacturasBuilder.builderUpdateEntity(request, existFactura);
-        update.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        update.setModifiedBy(usuario);
         update.setModifiedDate(LocalDateTime.now());
 
 
@@ -78,12 +77,12 @@ public class XcFacturaServiceImpl {
     }
 
 
-    public void delete(UUID idComprobante) {
+    public void delete(UUID idComprobante, String usuario) {
         XcFacturasEntity existFactura = xcFacturasRepository
                 .getForFindById(idComprobante).orElseThrow(() -> new GeneralException(MessageFormat.format("La factura no existe Secuencia: {0}", idComprobante)));
 
         existFactura.setDelete(Boolean.TRUE);
-        existFactura.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        existFactura.setDeletedBy(usuario);
         existFactura.setDeletedDate(LocalDateTime.now());
 
         xcFacturasRepository.save(existFactura);

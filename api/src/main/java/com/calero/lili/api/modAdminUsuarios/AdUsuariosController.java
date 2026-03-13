@@ -4,6 +4,7 @@ import com.calero.lili.api.modAdminUsuarios.dto.AdUsuarioCreationResponseDto;
 import com.calero.lili.api.modAdminUsuarios.dto.AdUsuarioListFilterDto;
 import com.calero.lili.api.modAdminUsuarios.dto.AdUsuarioReportDto;
 import com.calero.lili.api.modAdminUsuarios.dto.AdUsuarioRequestDto;
+import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.core.dtos.PaginatedDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -27,12 +28,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class AdUsuariosController {
 
     private final AdUsuarioServiceImpl adUsuarioService;
+    private final AuditorAwareImpl auditorAware;
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('US_US_CR')")
     public AdUsuarioCreationResponseDto create(@RequestBody AdUsuarioRequestDto request) {
-        return adUsuarioService.create(request);
+        return adUsuarioService.create(request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idUsuario}")
@@ -41,7 +43,7 @@ public class AdUsuariosController {
     public AdUsuarioCreationResponseDto update(@PathVariable("idUsuario") Long idUsuario,
                                                @RequestBody AdUsuarioRequestDto request) {
 
-        return adUsuarioService.update(idUsuario, request);
+        return adUsuarioService.update(idUsuario, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{idUsuario}")

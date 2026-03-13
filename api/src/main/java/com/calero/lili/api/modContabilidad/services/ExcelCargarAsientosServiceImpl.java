@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
@@ -52,7 +53,7 @@ public class ExcelCargarAsientosServiceImpl {
     private final AdEmpresasSucursalesRepository adEmpresasSucursalesRepository;
 
 
-    public void cargarAsientos(Long idData, Long idEmpresa, MultipartFile file, FilterListDto request) throws IOException {
+    public void cargarAsientos(Long idData, Long idEmpresa, MultipartFile file, FilterListDto request, String usuario) throws IOException {
 
 
         List<DetalleError> detalleErrores = new ArrayList<>();
@@ -94,6 +95,8 @@ public class ExcelCargarAsientosServiceImpl {
                 item.setIdAsiento(UUID.randomUUID());
                 item.setIdData(idData);
                 item.setIdEmpresa(idEmpresa);
+                item.setCreatedBy(usuario);
+                item.setCreatedDate(LocalDateTime.now());
 
 
                 item.setSucursal(sucursales.getSucursal());

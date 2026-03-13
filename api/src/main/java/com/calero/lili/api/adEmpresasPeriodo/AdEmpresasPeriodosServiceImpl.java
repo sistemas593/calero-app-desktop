@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -24,28 +25,37 @@ public class AdEmpresasPeriodosServiceImpl {
     private final AdEmpresasPeriodoBuilder adEmpresasPeriodoBuilder;
 
     public AdEmpresaPeriodoCreationResponseDto create(Long idData,
-                                                      Long idEmpresa, AdEmpresaPeriodoCreationRequestDto request) {
-        return adEmpresasPeriodoBuilder
-                .builderResponse(adEmpresasPeriodoBuilder.builderEntity(request, idData, idEmpresa));
+                                                      Long idEmpresa, AdEmpresaPeriodoCreationRequestDto request, String usuario) {
+        AdEmpresaPeriodoEntity entity = adEmpresasPeriodoBuilder.builderEntity(request, idData, idEmpresa);
+        entity.setCreatedBy(usuario);
+        entity.setCreatedDate(LocalDateTime.now());
+        adEmpresasPeriodosRepository.save(entity);
+        return adEmpresasPeriodoBuilder.builderResponse(entity);
     }
 
     public AdEmpresaPeriodoCreationResponseDto update(Long idData, Long idEmpresa,
-                                                      UUID idPeriodo, AdEmpresaPeriodoCreationRequestDto request) {
+                                                      UUID idPeriodo, AdEmpresaPeriodoCreationRequestDto request, String usuario) {
 
         AdEmpresaPeriodoEntity entidad = adEmpresasPeriodosRepository
                 .findIdPeriodoAndIdDataAndIdEmpresa(idPeriodo, idData, idEmpresa)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", idPeriodo)));
 
-        return adEmpresasPeriodoBuilder
-                .builderResponse(adEmpresasPeriodoBuilder.builderUpdateEntity(request, entidad));
+        AdEmpresaPeriodoEntity update = adEmpresasPeriodoBuilder.builderUpdateEntity(request, entidad);
+        update.setModifiedBy(usuario);
+        update.setModifiedDate(LocalDateTime.now());
+        adEmpresasPeriodosRepository.save(update);
+        return adEmpresasPeriodoBuilder.builderResponse(update);
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID idPeriodo) {
+    public void delete(Long idData, Long idEmpresa, UUID idPeriodo, String usuario) {
         AdEmpresaPeriodoEntity entidad = adEmpresasPeriodosRepository
                 .findIdPeriodoAndIdDataAndIdEmpresa(idPeriodo, idData, idEmpresa)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", idPeriodo)));
 
-        adEmpresasPeriodosRepository.delete(entidad);
+        entidad.setDeletedBy(usuario);
+        entidad.setDeletedDate(LocalDateTime.now());
+        entidad.setDelete(Boolean.TRUE);
+        adEmpresasPeriodosRepository.save(entidad);
     }
 
     public AdEmpresaPeriodoCreationResponseDto findFirstById(UUID idPeriodo) {

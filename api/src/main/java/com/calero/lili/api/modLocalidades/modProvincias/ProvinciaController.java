@@ -5,6 +5,7 @@ import com.calero.lili.api.modLocalidades.modProvincias.dto.ProvinceListFiltersD
 import com.calero.lili.api.modLocalidades.modProvincias.dto.RequestProvinciaDto;
 import com.calero.lili.api.modLocalidades.modProvincias.dto.ResponseProvinciaDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -25,12 +26,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProvinciaController {
 
     private final ProvinciaServiceImpl provinciaService;
+    private final AuditorAware<String> auditorAware;
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseProvinciaDto create(
             @RequestBody RequestProvinciaDto request) {
-        return provinciaService.create(request);
+        return provinciaService.create(request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{id}")
@@ -38,13 +40,13 @@ public class ProvinciaController {
     public ResponseProvinciaDto update(
             @PathVariable("id") String id,
             @RequestBody RequestProvinciaDto request) {
-        return provinciaService.update(id, request);
+        return provinciaService.update(id, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("id") String id) {
-        provinciaService.delete(id);
+        provinciaService.delete(id, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{id}")

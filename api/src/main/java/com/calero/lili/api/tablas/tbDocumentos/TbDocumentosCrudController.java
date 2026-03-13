@@ -1,5 +1,6 @@
 package com.calero.lili.api.tablas.tbDocumentos;
 
+import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.core.dtos.FilterDto;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.ResponseDto;
@@ -25,12 +26,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class TbDocumentosCrudController {
 
     private final TbDocumentosServiceImpl tbService;
+    private final AuditorAwareImpl auditorAware;
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseDto create(
             @RequestBody TbDocumentosCreationRequestDto request) {
-        return tbService.create(request);
+        return tbService.create(request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{id}")
@@ -38,14 +40,14 @@ public class TbDocumentosCrudController {
     public ResponseDto update(
             @PathVariable("id") String id,
             @RequestBody TbDocumentosCreationRequestDto request) {
-        return tbService.update(id, request);
+        return tbService.update(id, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(
             @PathVariable("id") String id) {
-        tbService.delete(id);
+        tbService.delete(id, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{id}")

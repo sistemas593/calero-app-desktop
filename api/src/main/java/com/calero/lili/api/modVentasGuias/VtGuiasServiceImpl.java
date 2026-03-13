@@ -72,9 +72,9 @@ public class VtGuiasServiceImpl {
     private final AdEmpresasSeriesDocumentosRepository adEmpresasSeriesDocumentosRepository;
     private final GeTercerosRepository geTercerosRepository;
     private final GeItemsRepository geItemsRepository;
-    private final AuditorAware<String> auditorAware;
 
-    public ResponseDto create(Long idData, Long idEmpresa, CreationRequestGuiaRemisionDto request) {
+
+    public ResponseDto create(Long idData, Long idEmpresa, CreationRequestGuiaRemisionDto request, String usuario) {
 
         Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData, idEmpresa, request.getSerie(), request.getSecuencial());
 
@@ -103,7 +103,8 @@ public class VtGuiasServiceImpl {
         vtGuiaEntity.setDestinatario(destinatario);
         vtGuiaEntity.setTipoEmision(getTipoEmision(request));
         vtGuiaEntity.setEmail(destinatario.getEmail());
-
+        vtGuiaEntity.setCreatedBy(usuario);
+        vtGuiaEntity.setCreatedDate(LocalDateTime.now());
 
         comprobanteService.getComprobanteXmlGuiaRemision(idData, idEmpresa, vtGuiaEntity);
         VtGuiaEntity saved = vtVentaRepository.save(vtGuiaEntity);
@@ -119,7 +120,7 @@ public class VtGuiasServiceImpl {
 
 
     @Transactional
-    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationRequestGuiaRemisionDto request) {
+    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationRequestGuiaRemisionDto request, String usuario) {
 
         VtGuiaEntity vtGuiaEntity = vtVentaRepository
                 .findByIdEntity(idData, idEmpresa, idVenta)
@@ -148,7 +149,7 @@ public class VtGuiasServiceImpl {
         VtGuiaEntity update = vtGuiaBuilder.builderUpdateEntity(request, vtGuiaEntity);
         update.setTipoEmision(getTipoEmision(request));
 
-        update.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        update.setModifiedBy(usuario);
         update.setModifiedDate(LocalDateTime.now());
 
         update.setTransportista(transportista);
@@ -166,14 +167,14 @@ public class VtGuiasServiceImpl {
         }
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID idVenta) {
+    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario) {
 
         VtGuiaEntity vtGuiaEntity = vtVentaRepository
                 .findByIdEntity(idData, idEmpresa, idVenta)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("idVenta {0} no existe", idVenta)));
 
         vtGuiaEntity.setDelete(Boolean.TRUE);
-        vtGuiaEntity.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        vtGuiaEntity.setDeletedBy(usuario);
         vtGuiaEntity.setDeletedDate(LocalDateTime.now());
 
         vtVentaRepository.save(vtGuiaEntity);

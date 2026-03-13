@@ -26,13 +26,13 @@ public class TsCajasTpvServiceImpl {
     private final TsCajasTpvBuilder tsCajasTpvBuilder;
 
 
-    public BcCajaTpvCreationResponseDto create(Long idData, Long idEmpresa, BcCajaTpvCreationRequestDto request) {
+    public BcCajaTpvCreationResponseDto create(Long idData, Long idEmpresa, BcCajaTpvCreationRequestDto request, String usuario) {
 
         return tsCajasTpvBuilder.builderResponse(bcCajasTpvRepository.save(tsCajasTpvBuilder
                 .builderEntity(request, idData, idEmpresa)));
     }
 
-    public BcCajaTpvCreationResponseDto update(Long idData, Long idEmpresa, UUID id, BcCajaTpvCreationRequestDto request) {
+    public BcCajaTpvCreationResponseDto update(Long idData, Long idEmpresa, UUID id, BcCajaTpvCreationRequestDto request, String usuario) {
 
         TsCajasTpvEntity entidad = bcCajasTpvRepository.findByIdCajaTpv(idData, idEmpresa, id);
         if (Objects.isNull(entidad)) {
@@ -43,7 +43,7 @@ public class TsCajasTpvServiceImpl {
                 .builderUpdateEntity(request, entidad)));
     }
 
-    public void delete(Long idData, Long idEmpresa, Long id) {
+    public void delete(Long idData, Long idEmpresa, Long id, String usuario) {
 
         bcCajasTpvRepository.deleteByIdDataAndEmpresaAndidCajaTpv(idData, idEmpresa, id);
     }

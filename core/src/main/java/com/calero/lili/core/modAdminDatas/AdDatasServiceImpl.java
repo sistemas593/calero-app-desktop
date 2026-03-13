@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,16 +26,22 @@ public class AdDatasServiceImpl {
     private final ResponseApiBuilder responseApiBuilder;
     private final AdDataBuilder adDataBuilder;
 
-    public ResponseDto create(AdDatasCreationRequestDto request) {
-        AdDataEntity entidad = adDataRepository.save(adDataBuilder.builderEntity(request));
+    public ResponseDto create(AdDatasCreationRequestDto request, String usuario) {
+        AdDataEntity entidad = adDataBuilder.builderEntity(request);
+        entidad.setCreatedBy(usuario);
+        entidad.setCreatedDate(LocalDateTime.now());
+        adDataRepository.save(entidad);
         return responseApiBuilder.builderResponse(entidad.getIdData().toString());
     }
 
-    public ResponseDto update(Long idData, AdDatasCreationRequestDto request) {
+    public ResponseDto update(Long idData, AdDatasCreationRequestDto request, String usuario) {
         AdDataEntity entidad = adDataRepository.findByIdData(idData).
                 orElseThrow(() -> new GeneralException(MessageFormat.format("Data {0} no exists", idData)));
 
-        AdDataEntity update = adDataRepository.save(adDataBuilder.builderUpdateEntity(request, entidad));
+        AdDataEntity update = adDataBuilder.builderUpdateEntity(request, entidad);
+        update.setModifiedBy(usuario);
+        update.setModifiedDate(LocalDateTime.now());
+        adDataRepository.save(update);
         return responseApiBuilder.builderResponse(update.getIdData().toString());
     }
 

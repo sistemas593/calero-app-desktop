@@ -1,16 +1,15 @@
 package com.calero.lili.api.modComprasItemsCategorias;
 
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.Paginator;
-import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.api.modComprasItemsCategorias.builder.GeItemsCategoriaBuilder;
 import com.calero.lili.api.modComprasItemsCategorias.dto.GeItemCategoriaCreationResponseDto;
 import com.calero.lili.api.modComprasItemsCategorias.dto.GeItemCategoriaReportDto;
 import com.calero.lili.api.modComprasItemsCategorias.dto.GeItemMedidaListFilterDto;
 import com.calero.lili.api.modComprasItemsCategorias.dto.GeItemsCategoriaCreationRequestDto;
 import com.calero.lili.api.modComprasItemsMedidas.dto.GeItemMedidaReportDto;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.Paginator;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,16 +26,19 @@ public class GeItemsCategoriaServiceImpl {
 
     private final GeItemsCategoriaRepository geItemsCategoriaRepository;
     private final GeItemsCategoriaBuilder geItemsCategoriaBuilder;
-    private final AuditorAware<String> auditorAware;
 
 
-    public GeItemCategoriaCreationResponseDto create(Long idData, GeItemsCategoriaCreationRequestDto request) {
-        GeItemsCategoriaEntity createdDto = geItemsCategoriaRepository.save(geItemsCategoriaBuilder
-                .builderEntity(request, idData));
-        return geItemsCategoriaBuilder.builderResponse(createdDto);
+
+    public GeItemCategoriaCreationResponseDto create(Long idData, GeItemsCategoriaCreationRequestDto request, String usuario) {
+        GeItemsCategoriaEntity categoria = geItemsCategoriaBuilder.builderEntity(request, idData);
+        categoria.setCreatedBy(usuario);
+        categoria.setCreatedDate(LocalDateTime.now());
+        geItemsCategoriaRepository.save(categoria);
+        return geItemsCategoriaBuilder.builderResponse(categoria);
     }
 
-    public GeItemCategoriaCreationResponseDto update(Long idData, UUID id, GeItemsCategoriaCreationRequestDto request) {
+    public GeItemCategoriaCreationResponseDto update(Long idData, UUID id,
+                                                     GeItemsCategoriaCreationRequestDto request, String usuario) {
 
 
         GeItemsCategoriaEntity entidad = geItemsCategoriaRepository.findById(idData, id);
@@ -46,14 +48,14 @@ public class GeItemsCategoriaServiceImpl {
 
         GeItemsCategoriaEntity update = geItemsCategoriaBuilder.builderUpdateEntity(request, entidad);
 
-        update.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        update.setModifiedBy(usuario);
         update.setModifiedDate(LocalDateTime.now());
 
         geItemsCategoriaRepository.save(update);
         return geItemsCategoriaBuilder.builderResponse(update);
     }
 
-    public void delete(Long idData, UUID id) {
+    public void delete(Long idData, UUID id,String usuario) {
 
         GeItemsCategoriaEntity entidad = geItemsCategoriaRepository.findById(idData, id);
         if (Objects.isNull(entidad)) {
@@ -61,7 +63,7 @@ public class GeItemsCategoriaServiceImpl {
         }
 
         entidad.setDelete(Boolean.TRUE);
-        entidad.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        entidad.setDeletedBy(usuario);
         entidad.setDeletedDate(LocalDateTime.now());
 
         geItemsCategoriaRepository.save(entidad);

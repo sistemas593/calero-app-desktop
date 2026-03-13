@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.MessageFormat;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,21 +32,24 @@ public class XpPagoServiceImpl {
 
 
     @Transactional
-    public ResponseDto create(Long idData, Long idEmpresa, RequestPagoXpDto request) {
+    public ResponseDto create(Long idData, Long idEmpresa, RequestPagoXpDto request, String usuario) {
 
         UUID idPagoGrupo = UUID.randomUUID();
 
-        List<XpPagosEntity> pagosEntities = xpPagosRepository.saveAll(xpPagosBuilder
-                .builderListEntity(request, idPagoGrupo, idData, idEmpresa));
-
+        List<XpPagosEntity> entidades = xpPagosBuilder.builderListEntity(request, idPagoGrupo, idData, idEmpresa);
+        entidades.forEach(e -> {
+            e.setCreatedBy(usuario);
+            e.setCreatedDate(LocalDateTime.now());
+        });
+        List<XpPagosEntity> pagosEntities = xpPagosRepository.saveAll(entidades);
         actualizarCamposFactura(request.getIdFactura(), pagosEntities);
-        tsComprobanteEgresoService.create(idData, idEmpresa, idPagoGrupo, request.getComprobantesEgreso());
+        tsComprobanteEgresoService.create(idData, idEmpresa, idPagoGrupo, request.getComprobantesEgreso(), usuario);
         return responseApiBuilder.builderResponse(idPagoGrupo.toString());
     }
 
 
     @Transactional
-    public ResponseDto update(Long idData, UUID idPagoGrupo, Long idEmpresa, RequestPagoXpDto request) {
+    public ResponseDto update(Long idData, UUID idPagoGrupo, Long idEmpresa, RequestPagoXpDto request, String usuario) {
 
 
         List<XpPagosEntity> list = xpPagosRepository.getAllForFindByIdPagoGrupo(idPagoGrupo);
@@ -54,10 +58,14 @@ public class XpPagoServiceImpl {
 
             validarValoresFactura(request.getIdFactura(), list);
             xpPagosRepository.deleteAll(list);
-            List<XpPagosEntity> pagosEntities = xpPagosRepository
-                    .saveAll(xpPagosBuilder.builderListEntity(request, idPagoGrupo, idData, idEmpresa));
+            List<XpPagosEntity> nuevasEntidades = xpPagosBuilder.builderListEntity(request, idPagoGrupo, idData, idEmpresa);
+            nuevasEntidades.forEach(e -> {
+                e.setModifiedBy(usuario);
+                e.setModifiedDate(LocalDateTime.now());
+            });
+            List<XpPagosEntity> pagosEntities = xpPagosRepository.saveAll(nuevasEntidades);
             actualizarCamposFactura(request.getIdFactura(), pagosEntities);
-            tsComprobanteEgresoService.update(idData, idEmpresa, idPagoGrupo, request.getComprobantesEgreso());
+            tsComprobanteEgresoService.update(idData, idEmpresa, idPagoGrupo, request.getComprobantesEgreso(), usuario);
             return responseApiBuilder.builderResponse(idPagoGrupo.toString());
         } else {
             throw new GeneralException(MessageFormat.format("No existe lista de pagos del id grupo:  {0}",
@@ -67,10 +75,16 @@ public class XpPagoServiceImpl {
     }
 
 
-    public void delete(UUID idPagoGrupo) {
+    public void delete(UUID idPagoGrupo, String usuario) {
         List<XpPagosEntity> list = xpPagosRepository.getAllForFindByIdPagoGrupo(idPagoGrupo);
         if (!list.isEmpty()) {
             validarValoresFactura(list.getFirst().getFactura().getIdFactura(), list);
+            list.forEach(e -> {
+                e.setDeletedBy(usuario);
+                e.setDeletedDate(LocalDateTime.now());
+                e.setDelete(Boolean.TRUE);
+                xpPagosRepository.save(e);
+            });
             xpPagosRepository.deleteAll(list);
         } else {
             throw new GeneralException(MessageFormat.format("No existe lista de pagos del id grupo:  {0}",

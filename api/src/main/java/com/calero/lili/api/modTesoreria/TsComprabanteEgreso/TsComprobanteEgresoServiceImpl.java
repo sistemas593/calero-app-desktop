@@ -39,6 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.MessageFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -59,7 +60,7 @@ public class TsComprobanteEgresoServiceImpl {
 
 
     @Transactional
-    public ResponseDto create(Long idData, Long idEmpresa, UUID idComprobanteEgreso, RequestComprobantesEgresoDto request) {
+    public ResponseDto create(Long idData, Long idEmpresa, UUID idComprobanteEgreso, RequestComprobantesEgresoDto request, String usuario) {
 
 
         Optional<CnAsientosEntity> existeComprobante = cnAsientosRepository
@@ -77,6 +78,8 @@ public class TsComprobanteEgresoServiceImpl {
         CnAsientosEntity cnAsientos = tsComprobanteEgresoBuilder
                 .builderEgresoEntity(request, idData, idEmpresa, idComprobanteEgreso);
         cnAsientos.setTercero(tercero);
+        cnAsientos.setCreatedBy(usuario);
+        cnAsientos.setCreatedDate(LocalDateTime.now());
         CnAsientosEntity entidad = cnAsientosRepository.save(cnAsientos);
 
 
@@ -85,7 +88,7 @@ public class TsComprobanteEgresoServiceImpl {
 
 
     @Transactional
-    public ResponseDto update(Long idData, Long idEmpresa, UUID idComprobante, RequestComprobantesEgresoDto request) {
+    public ResponseDto update(Long idData, Long idEmpresa, UUID idComprobante, RequestComprobantesEgresoDto request, String usuario) {
 
 
         CnAsientosEntity entity = cnAsientosRepository.findByIdEntity(idData, idEmpresa, idComprobante)
@@ -106,18 +109,23 @@ public class TsComprobanteEgresoServiceImpl {
         entity.setObservaciones(request.getObservaciones());
         entity.setNombre(request.getNombre());
         entity.setTercero(tercero);
+        entity.setModifiedBy(usuario);
+        entity.setModifiedDate(LocalDateTime.now());
 
         return responseApiBuilder.builderResponse(cnAsientosRepository
                 .save(entity).getIdAsiento().toString());
 
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID idComprobante) {
+    public void delete(Long idData, Long idEmpresa, UUID idComprobante, String usuario) {
         CnAsientosEntity existeComprobante = cnAsientosRepository.findByIdEntity(idData, idEmpresa, idComprobante)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("El comprobante no existe: {0}",
                         idComprobante)));
 
-        cnAsientosRepository.delete(existeComprobante);
+        existeComprobante.setDeletedBy(usuario);
+        existeComprobante.setDeletedDate(LocalDateTime.now());
+        existeComprobante.setDelete(Boolean.TRUE);
+        cnAsientosRepository.save(existeComprobante);
     }
 
 

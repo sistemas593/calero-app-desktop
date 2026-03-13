@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,12 +34,13 @@ public class TsComprobanteEgresoController {
 
     private final TsComprobanteEgresoServiceImpl tsComprobanteEgresoService;
     private final IdDataServiceImpl idDataService;
+    private final AuditorAware<String> auditorAware;
 
     @PostMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.CREATED)
     public ResponseDto create(@PathVariable("idEmpresa") Long idEmpresa,
                               @Valid @RequestBody RequestComprobantesEgresoDto request) {
-        return tsComprobanteEgresoService.create(idDataService.getIdData(), idEmpresa, UUID.randomUUID(), request);
+        return tsComprobanteEgresoService.create(idDataService.getIdData(), idEmpresa, UUID.randomUUID(), request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idEmpresa}/{idComprobante}")
@@ -46,14 +48,14 @@ public class TsComprobanteEgresoController {
     public ResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                               @PathVariable("idComprobante") UUID idComprobante,
                               @RequestBody RequestComprobantesEgresoDto request) {
-        return tsComprobanteEgresoService.update(idDataService.getIdData(), idEmpresa, idComprobante, request);
+        return tsComprobanteEgresoService.update(idDataService.getIdData(), idEmpresa, idComprobante, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("{idEmpresa}/{idComprobante}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("idEmpresa") Long idEmpresa,
                        @PathVariable("idComprobante") UUID idComprobante) {
-        tsComprobanteEgresoService.delete(idDataService.getIdData(), idEmpresa, idComprobante);
+        tsComprobanteEgresoService.delete(idDataService.getIdData(), idEmpresa, idComprobante, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{idEmpresa}/{idComprobante}")

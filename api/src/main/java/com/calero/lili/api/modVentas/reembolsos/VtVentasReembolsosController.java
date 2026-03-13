@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,12 +42,13 @@ public class VtVentasReembolsosController {
 
     private final VtVentasReembolsoServiceImpl vtVentasReembolsoService;
     private final VentasReembolsoRecibidosServiceImpl ventasReembolsoRecibidosService;
+    private final AuditorAware<String> auditorAware;
 
     @PostMapping("")
     @ResponseStatus(code = HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('VT_RB_CR')")
     public ResponseDto create(@Valid @RequestBody CreationRequestReembolsoDto request) {
-        return vtVentasReembolsoService.create(request);
+        return vtVentasReembolsoService.create(request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idReembolso}")
@@ -54,14 +56,14 @@ public class VtVentasReembolsosController {
     @PreAuthorize("hasAuthority('VT_RB_MO')")
     public ResponseDto update(@PathVariable("idReembolso") UUID idReembolso,
                               @RequestBody CreationRequestReembolsoDto request) {
-        return vtVentasReembolsoService.update(idReembolso, request);
+        return vtVentasReembolsoService.update(idReembolso, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("{idReembolso}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasAuthority('VT_RB_EL')")
     public void delete(@PathVariable("idReembolso") UUID idReembolso) {
-        vtVentasReembolsoService.delete(idReembolso);
+        vtVentasReembolsoService.delete(idReembolso, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{idReembolso}")

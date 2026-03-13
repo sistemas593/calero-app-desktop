@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.MessageFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -41,7 +42,7 @@ public class AdUsuarioServiceImpl {
 
     @Transactional
     // ESTA INCORRECTO ESTOY RECIBIENTO DIRECTAMENTE LA ENTIDAD, CAMBIAR Y RECIBIR DTO
-    public AdUsuarioCreationResponseDto create(AdUsuarioRequestDto request) {
+    public AdUsuarioCreationResponseDto create(AdUsuarioRequestDto request, String usuario) {
 
         AdUsuarioEntity adUsuarioExist = adUsuarioRepository.findByUsername(request.getUsername());
         if (adUsuarioExist != null) {
@@ -60,6 +61,8 @@ public class AdUsuarioServiceImpl {
         adUsuario = toEntity(request, adUsuario);
         adUsuario.setUsername(request.getUsername());
         adUsuario.setPassword(passwordEncoder.encode(request.getPassword()));
+        adUsuario.setCreatedBy(usuario);
+        adUsuario.setCreatedDate(LocalDateTime.now());
 
 //        List<AdRolEntity> rolesNuevosEntity = request
 //                .getRoles()
@@ -107,10 +110,12 @@ public class AdUsuarioServiceImpl {
 //        return rol;
 //    }
 
-    public AdUsuarioCreationResponseDto update(Long id, AdUsuarioRequestDto request) {
+    public AdUsuarioCreationResponseDto update(Long id, AdUsuarioRequestDto request, String usuario) {
         AdUsuarioEntity entidad = adUsuarioRepository.findByIdUsuario(id);
         if (entidad != null) {
             AdUsuarioEntity entity = toEntity(request, entidad);
+            entity.setModifiedBy(usuario);
+            entity.setModifiedDate(LocalDateTime.now());
             try {
                 entidad = adUsuarioRepository.save(entity);
 

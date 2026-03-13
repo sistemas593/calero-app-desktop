@@ -1,11 +1,10 @@
 package com.calero.lili.api.modRRHH.modRRHHRublos;
 
-import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.api.modRRHH.modRRHHRublos.builder.RubroBuilder;
 import com.calero.lili.api.modRRHH.modRRHHRublos.dto.RubroRequestDto;
 import com.calero.lili.api.modRRHH.modRRHHRublos.dto.RubroResponseDto;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -19,20 +18,22 @@ public class RubroServiceImpl {
 
     private final RubrosRepository rubrosRepository;
     private final RubroBuilder rubroBuilder;
-    private final AuditorAware<String> auditorAware;
 
 
-    public RubroResponseDto create(Long idData, Long idEmpresa, RubroRequestDto request) {
-        return rubroBuilder.builderResponse(rubrosRepository.save(rubroBuilder.builderEntity(request, idEmpresa, idData)));
+    public RubroResponseDto create(Long idData, Long idEmpresa, RubroRequestDto request, String usuario) {
+        RubrosEntity newEntity = rubroBuilder.builderEntity(request, idEmpresa, idData);
+        newEntity.setCreatedBy(usuario);
+        newEntity.setCreatedDate(LocalDateTime.now());
+        return rubroBuilder.builderResponse(rubrosRepository.save(newEntity));
     }
 
-    public RubroResponseDto update(UUID id, Long idData, Long idEmpresa, RubroRequestDto request) {
+    public RubroResponseDto update(UUID id, Long idData, Long idEmpresa, RubroRequestDto request,String usuario) {
 
         RubrosEntity entidad = rubrosRepository.getForFindById(id, idEmpresa, idData)
                 .orElseThrow(() -> new GeneralException("El rubro no existe"));
 
         RubrosEntity update = rubroBuilder.builderUpdateEntity(request, entidad);
-        update.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        update.setModifiedBy(usuario);
         update.setModifiedDate(LocalDateTime.now());
 
         return rubroBuilder.builderResponse(rubrosRepository.save(update));
@@ -43,12 +44,12 @@ public class RubroServiceImpl {
                 .orElseThrow(() -> new GeneralException("El rubro no existe")));
     }
 
-    public void delete(UUID id, Long idData, Long idEmpresa) {
+    public void delete(UUID id, Long idData, Long idEmpresa, String usuario) {
         RubrosEntity entidad = rubrosRepository.getForFindById(id, idEmpresa, idData)
                 .orElseThrow(() -> new GeneralException("El rubro no existe"));
 
         entidad.setDelete(Boolean.TRUE);
-        entidad.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        entidad.setDeletedBy(usuario);
         entidad.setDeletedDate(LocalDateTime.now());
 
         rubrosRepository.save(entidad);

@@ -18,7 +18,6 @@ import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -40,9 +39,9 @@ public class GeItemsServiceImpl {
     private final AdEmpresasRepository adEmpresasRepository;
     private final GetItemBuilder getItemBuilder;
     private final GeItemsMedidasRepository geItemsMedidasRepository;
-    private final AuditorAware<String> auditorAware;
 
-    public GeItemGetListDto create(Long idData, Long idEmpresa, GeItemRequestDto request) {
+
+    public GeItemGetListDto create(Long idData, Long idEmpresa, GeItemRequestDto request, String usuario) {
 
         ValidarCampoAscii.validarStrings(request);
         adEmpresasRepository
@@ -54,13 +53,15 @@ public class GeItemsServiceImpl {
             throw new GeneralException(MessageFormat.format("El item con codigo {0} ya existe", request.getCodigoPrincipal()));
         }
 
-        GeItemEntity entity = geItemsRepository.save(getItemBuilder.builderEntity(request, idData, idEmpresa));
-        return getItemBuilder.builderListResponse(entity);
+        GeItemEntity entity = getItemBuilder.builderEntity(request, idData, idEmpresa);
+        entity.setCreatedBy(usuario);
+        entity.setCreatedDate(LocalDateTime.now());
+        return getItemBuilder.builderListResponse(geItemsRepository.save(entity));
 
     }
 
 
-    public ListCreationResponseDto createListItems(Long idData, Long idEmpresa, GeItemRequestListDto request) {
+    public ListCreationResponseDto createListItems(Long idData, Long idEmpresa, GeItemRequestListDto request, String usuario) {
 
         AdEmpresaEntity empresasEntity = adEmpresasRepository
                 .findById(idData, idEmpresa)
@@ -114,6 +115,8 @@ public class GeItemsServiceImpl {
                             geItemsNew.setCodigoPrincipal(requestDto.getCodigoPrincipal());
                             geItemsNew.setCodigoBarras(requestDto.getCodigoBarras());
                             geItemsNew.setDescripcion(requestDto.getDescripcion());
+                            geItemsNew.setCreatedBy(usuario);
+                            geItemsNew.setCreatedDate(LocalDateTime.now());
 
                             List<GeItemEntity.DetalleAdicional> listaDetallesAdicionales = new ArrayList<>();
                             if (requestDto.getNombreDetalleAdicional1() != null
@@ -178,7 +181,7 @@ public class GeItemsServiceImpl {
         return response;
     }
 
-    public GeItemGetListDto update(Long idData, Long idEmpresa, UUID id, GeItemRequestDto request) {
+    public GeItemGetListDto update(Long idData, Long idEmpresa, UUID id, GeItemRequestDto request, String usuario) {
 
         ValidarCampoAscii.validarStrings(request);
 
@@ -187,21 +190,21 @@ public class GeItemsServiceImpl {
 
         GeItemEntity update = getItemBuilder.builderUpdateEntity(request, entidad);
 
-        update.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        update.setModifiedBy(usuario);
         update.setModifiedDate(LocalDateTime.now());
 
         geItemsRepository.save(update);
         return getItemBuilder.builderListResponse(update);
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID id) {
+    public void delete(Long idData, Long idEmpresa, UUID id, String usuario) {
 
         GeItemEntity entidad = geItemsRepository.findByIdItem(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no existe", id)));
 
 
         entidad.setDelete(Boolean.TRUE);
-        entidad.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        entidad.setDeletedBy(usuario);
         entidad.setDeletedDate(LocalDateTime.now());
 
         geItemsRepository.save(entidad);

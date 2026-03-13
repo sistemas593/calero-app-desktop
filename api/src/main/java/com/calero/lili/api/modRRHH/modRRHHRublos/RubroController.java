@@ -5,6 +5,7 @@ import com.calero.lili.api.modRRHH.modRRHHRublos.dto.RubroResponseDto;
 import com.calero.lili.api.utils.IdDataServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,13 +29,14 @@ public class RubroController {
 
     private final RubroServiceImpl rubroService;
     private final IdDataServiceImpl idDataService;
-    ;
+    private final AuditorAware<String> auditorAware;
+
 
     @PostMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.CREATED)
     public RubroResponseDto create(@PathVariable("idEmpresa") Long idEmpresa,
                                    @Valid @RequestBody RubroRequestDto request) {
-        return rubroService.create(idDataService.getIdData(), idEmpresa, request);
+        return rubroService.create(idDataService.getIdData(), idEmpresa, request,auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idEmpresa}/{id}")
@@ -42,14 +44,14 @@ public class RubroController {
     public RubroResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                                    @PathVariable("id") UUID id,
                                    @Valid @RequestBody RubroRequestDto request) {
-        return rubroService.update(id, idDataService.getIdData(), idEmpresa, request);
+        return rubroService.update(id, idDataService.getIdData(), idEmpresa, request,auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("{idEmpresa}/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("idEmpresa") Long idEmpresa,
                        @PathVariable("id") UUID id) {
-        rubroService.delete(id, idDataService.getIdData(), idEmpresa);
+        rubroService.delete(id, idDataService.getIdData(), idEmpresa,auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{idEmpresa}/{id}")

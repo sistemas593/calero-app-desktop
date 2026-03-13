@@ -28,7 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -59,15 +58,16 @@ public class OrdenComprasServiceImpl {
     private final ResponseApiBuilder responseApiBuilder;
     private final CpOrdenComprasBuilder cpOrdenComprasBuilder;
     private final GeTercerosRepository geTercerosRepository;
-    private final AuditorAware<String> auditorAware;
 
-    public ResponseDto create(Long idData, Long idEmpresa, OrdenCompraRequestDto request) {
+    public ResponseDto create(Long idData, Long idEmpresa, OrdenCompraRequestDto request, String usuario) {
 
         GeTerceroEntity tercero = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
                 .orElseThrow(() -> new GeneralException("No existe tercero"));
 
         CpOrdenComprasEntity cpOrdenCompras = cpOrdenComprasBuilder.builderEntity(request, idData, idEmpresa);
         cpOrdenCompras.setTercero(tercero);
+        cpOrdenCompras.setCreatedBy(usuario);
+        cpOrdenCompras.setCreatedDate(LocalDateTime.now());
 
         CpOrdenComprasEntity cpOrdenComprasEntity = ordenComprasRepository.save(cpOrdenCompras);
         return responseApiBuilder.builderResponse(cpOrdenComprasEntity.getIdCompra().toString());
@@ -76,7 +76,7 @@ public class OrdenComprasServiceImpl {
 
 
     @Transactional
-    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, OrdenCompraRequestDto request) {
+    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, OrdenCompraRequestDto request, String usuario) {
 
         GeTerceroEntity tercero = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
                 .orElseThrow(() -> new GeneralException("No existe tercero"));
@@ -87,7 +87,7 @@ public class OrdenComprasServiceImpl {
 
         CpOrdenComprasEntity orden = cpOrdenComprasBuilder.builderUpdateEntity(request, vtVentaEntity);
 
-        orden.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        orden.setModifiedBy(usuario);
         orden.setModifiedDate(LocalDateTime.now());
         orden.setTercero(tercero);
 
@@ -96,14 +96,14 @@ public class OrdenComprasServiceImpl {
 
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID idVenta) {
+    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario) {
 
         CpOrdenComprasEntity venta = ordenComprasRepository.findByIdEntity(idData, idEmpresa, idVenta)
                 .orElseThrow(() -> new NotFoundException(MessageFormat.format("La compra con ID {0} no existe", idVenta)));
 
 
         venta.setDelete(Boolean.TRUE);
-        venta.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        venta.setDeletedBy(usuario);
         venta.setDeletedDate(LocalDateTime.now());
 
         ordenComprasRepository.save(venta);

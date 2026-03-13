@@ -1,12 +1,13 @@
 package com.calero.lili.api.modComprasItemsBodegas;
 
-import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.api.modComprasItemsBodegas.dto.GeItemBodegaCreationRequestDto;
 import com.calero.lili.api.modComprasItemsBodegas.dto.GeItemBodegaCreationResponseDto;
 import com.calero.lili.api.modComprasItemsBodegas.dto.GeItemBodegaListFilterDto;
 import com.calero.lili.api.modComprasItemsBodegas.dto.GeItemBodegaReportDto;
 import com.calero.lili.api.utils.IdDataServiceImpl;
+import com.calero.lili.core.dtos.PaginatedDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,13 +34,14 @@ public class GeItemsBodegasController {
 
     private final GeItemsBodegasServiceImpl geItemsMedidasService;
     private final IdDataServiceImpl idDataService;
+    private final AuditorAware<String> auditorAware;
 
     @PostMapping("{idEmpresa}")
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('GE_BO_CR')")
     public GeItemBodegaCreationResponseDto create(@PathVariable("idEmpresa") Long idEmpresa,
                                                   @RequestBody GeItemBodegaCreationRequestDto request) {
-        return geItemsMedidasService.create(idDataService.getIdData(), idEmpresa, request);
+        return geItemsMedidasService.create(idDataService.getIdData(), idEmpresa, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idEmpresa}/{id}")
@@ -48,7 +50,7 @@ public class GeItemsBodegasController {
     public GeItemBodegaCreationResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                                                   @PathVariable("id") UUID id,
                                                   @RequestBody GeItemBodegaCreationRequestDto request) {
-        return geItemsMedidasService.update(idDataService.getIdData(), idEmpresa, id, request);
+        return geItemsMedidasService.update(idDataService.getIdData(), idEmpresa, id, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("{idEmpresa}/{id}")
@@ -56,7 +58,7 @@ public class GeItemsBodegasController {
     @PreAuthorize("hasAuthority('GE_BO_EL')")
     public void delete(@PathVariable("idEmpresa") Long idEmpresa,
                        @PathVariable("id") UUID id) {
-        geItemsMedidasService.delete(idDataService.getIdData(), idEmpresa, id);
+        geItemsMedidasService.delete(idDataService.getIdData(), idEmpresa, id, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{idEmpresa}/{id}")

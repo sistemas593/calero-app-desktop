@@ -1,9 +1,5 @@
 package com.calero.lili.api.modTerceros;
 
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.Paginator;
-import com.calero.lili.core.enums.TipoIdentificacion;
-import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.api.modTerceros.builder.GeTerceroBuilder;
 import com.calero.lili.api.modTerceros.dto.GeTerceroFilterDto;
 import com.calero.lili.api.modTerceros.dto.GeTerceroGetListDto;
@@ -12,8 +8,11 @@ import com.calero.lili.api.modTerceros.dto.GeTerceroRequestDto;
 import com.calero.lili.api.modTerceros.projections.GeTerceroProjection;
 import com.calero.lili.api.utils.validaciones.ValidarCampoAscii;
 import com.calero.lili.api.utils.validaciones.ValidarIdentificacion;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.Paginator;
+import com.calero.lili.core.enums.TipoIdentificacion;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -33,10 +32,10 @@ public class GeTercerosServiceImpl {
     private final ValidarIdentificacion validarIdentificacion;
     private final GeTerceroBuilder clienteBuilder;
     private final GeTercerosTipoServiceImpl geTercerosTipoService;
-    private final AuditorAware<String> auditorAware;
 
 
-    public GeTerceroGetListDto create(Long idEmpresa, Long idData, GeTerceroRequestDto request) {
+
+    public GeTerceroGetListDto create(Long idEmpresa, Long idData, GeTerceroRequestDto request, String usuario) {
 
         ValidarCampoAscii.validarStrings(request);
 
@@ -61,12 +60,15 @@ public class GeTercerosServiceImpl {
 
         validarTransportista(request);
         validarTrabajador(request);
-        GeTerceroEntity entity = vtClientesRepository.save(clienteBuilder.builderEntity(request, idData));
+        GeTerceroEntity newEntity = clienteBuilder.builderEntity(request, idData);
+        newEntity.setCreatedBy(usuario);
+        newEntity.setCreatedDate(LocalDateTime.now());
+        GeTerceroEntity entity = vtClientesRepository.save(newEntity);
         geTercerosTipoService.save(request, entity, idData, idEmpresa);
         return clienteBuilder.builderListResponse(entity);
     }
 
-    public GeTerceroGetListDto update(Long idEmpresa, Long idData, UUID id, GeTerceroRequestDto request) {
+    public GeTerceroGetListDto update(Long idEmpresa, Long idData, UUID id, GeTerceroRequestDto request, String usuario) {
 
         ValidarCampoAscii.validarStrings(request);
 
@@ -78,7 +80,7 @@ public class GeTercerosServiceImpl {
 
         GeTerceroEntity update = clienteBuilder.builderUpdateEntity(request, actualizar);
 
-        update.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        update.setModifiedBy(usuario);
         update.setModifiedDate(LocalDateTime.now());
 
         GeTerceroEntity actualizado = vtClientesRepository.save(update);
@@ -86,13 +88,13 @@ public class GeTercerosServiceImpl {
         return clienteBuilder.builderListResponse(actualizado);
     }
 
-    public void delete(Long idData, UUID id) {
+    public void delete(Long idData, UUID id, String usuario) {
         GeTerceroEntity entidad = vtClientesRepository.findByIdCliente(idData, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Tercero con id {0} no existe", id)));
 
 
         entidad.setDelete(Boolean.TRUE);
-        entidad.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        entidad.setDeletedBy(usuario);
         entidad.setDeletedDate(LocalDateTime.now());
 
         vtClientesRepository.save(entidad);

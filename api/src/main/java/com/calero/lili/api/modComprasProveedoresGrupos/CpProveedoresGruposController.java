@@ -6,6 +6,7 @@ import com.calero.lili.api.modComprasProveedoresGrupos.dto.CpProveedorGrupoListF
 import com.calero.lili.api.modComprasProveedoresGrupos.dto.CpProveedorGrupoReportDto;
 import com.calero.lili.api.utils.IdDataServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,13 +33,14 @@ import java.util.UUID;
 public class CpProveedoresGruposController {
     private final CpProveedoresGruposServiceImpl cpProveedoresGruposService;
     private final IdDataServiceImpl idDataService;
+    private final AuditorAware<String> auditorAware;
 
     @PostMapping("{idEmpresa}")
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('CP_PG_CR')")
     public CpProveedorGrupoCreationResponseDto create(@PathVariable("idEmpresa") Long idEmpresa,
                                                       @RequestBody CpProveedorGrupoCreationRequestDto request) {
-        return cpProveedoresGruposService.create(idDataService.getIdData(), idEmpresa, request);
+        return cpProveedoresGruposService.create(idDataService.getIdData(), idEmpresa, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idEmpresa}/{id}")
@@ -47,7 +49,7 @@ public class CpProveedoresGruposController {
     public CpProveedorGrupoCreationResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                                                       @PathVariable("id") UUID id,
                                                       @RequestBody CpProveedorGrupoCreationRequestDto request) {
-        return cpProveedoresGruposService.update(idDataService.getIdData(), idEmpresa, id, request);
+        return cpProveedoresGruposService.update(idDataService.getIdData(), idEmpresa, id, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("{idEmpresa}/{id}")
@@ -55,7 +57,7 @@ public class CpProveedoresGruposController {
     @PreAuthorize("hasAuthority('CP_PG_EL')")
     public void delete(@PathVariable("idEmpresa") Long idEmpresa,
                        @PathVariable("id") UUID id) {
-        cpProveedoresGruposService.delete(idDataService.getIdData(), idEmpresa, id);
+        cpProveedoresGruposService.delete(idDataService.getIdData(), idEmpresa, id, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{idEmpresa}/{id}")

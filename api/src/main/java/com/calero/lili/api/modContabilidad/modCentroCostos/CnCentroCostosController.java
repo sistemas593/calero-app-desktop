@@ -7,6 +7,7 @@ import com.calero.lili.api.modContabilidad.modPlanCuentas.dto.CnPlanCuentaListFi
 import com.calero.lili.api.utils.IdDataServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,6 +33,7 @@ public class CnCentroCostosController {
 
     private final CnCentroCostosServiceImpl cnCentroCostosService;
     private final IdDataServiceImpl idDataService;
+    private final AuditorAware<String> auditorAware;
 
 
     @PostMapping("{idEmpresa}")
@@ -39,7 +41,7 @@ public class CnCentroCostosController {
     @PreAuthorize("hasAuthority('CN_CC_CR')")
     public CentroCostosDtoResponse create(@PathVariable("idEmpresa") Long idEmpresa,
                                           @RequestBody @Valid CentroCostosDtoRequest request) {
-        return cnCentroCostosService.create(idDataService.getIdData(), idEmpresa, request);
+        return cnCentroCostosService.create(idDataService.getIdData(), idEmpresa, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idEmpresa}/{id}")
@@ -48,7 +50,7 @@ public class CnCentroCostosController {
     public CentroCostosDtoResponse update(@PathVariable("idEmpresa") Long idEmpresa,
                                           @PathVariable("id") UUID id,
                                           @RequestBody @Valid CentroCostosDtoRequest request) {
-        return cnCentroCostosService.update(idDataService.getIdData(), idEmpresa, id, request);
+        return cnCentroCostosService.update(idDataService.getIdData(), idEmpresa, id, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("{idEmpresa}/{id}")
@@ -56,7 +58,7 @@ public class CnCentroCostosController {
     @PreAuthorize("hasAuthority('CN_CC_EL')")
     public void delete(@PathVariable("idEmpresa") Long idEmpresa,
                        @PathVariable("id") UUID id) {
-        cnCentroCostosService.delete(idDataService.getIdData(), idEmpresa, id);
+        cnCentroCostosService.delete(idDataService.getIdData(), idEmpresa, id, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{idEmpresa}/{id}")

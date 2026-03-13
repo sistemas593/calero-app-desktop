@@ -25,7 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -54,11 +53,10 @@ public class VtVentasReembolsoServiceImpl {
     private final VtVentasReembolsoRepository vtVentasReembolsoRepository;
     private final VtVentaReembolsosBuilder vtVentaReembolsosBuilder;
     private final ResponseApiBuilder responseApiBuilder;
-    private final AuditorAware<String> auditorAware;
     private final AdIvaPorcentajeServiceImpl adIvaPorcentajeService;
 
 
-    public ResponseDto create(CreationRequestReembolsoDto request) {
+    public ResponseDto create(CreationRequestReembolsoDto request, String usuario) {
 
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getReembolsosValores()),
                 DateUtils.toLocalDate(request.getFechaEmisionReemb()));
@@ -71,13 +69,15 @@ public class VtVentasReembolsoServiceImpl {
                     "Serie: {0} Secuencia: {1}", request.getSerieReemb(), request.getSecuencialReemb()));
         }
 
-        VtVentaReembolsosEntity reembolso = vtVentasReembolsoRepository.save(vtVentaReembolsosBuilder
-                .builderEntity(request));
-        return responseApiBuilder.builderResponse(reembolso.getIdVentaReembolsos().toString());
+        VtVentaReembolsosEntity reembolso = vtVentaReembolsosBuilder.builderEntity(request);
+        reembolso.setCreatedBy(usuario);
+        reembolso.setCreatedDate(LocalDateTime.now());
+        VtVentaReembolsosEntity saved = vtVentasReembolsoRepository.save(reembolso);
+        return responseApiBuilder.builderResponse(saved.getIdVentaReembolsos().toString());
     }
 
 
-    public ResponseDto update(UUID id, CreationRequestReembolsoDto request) {
+    public ResponseDto update(UUID id, CreationRequestReembolsoDto request, String usuario) {
 
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getReembolsosValores()),
                 DateUtils.toLocalDate(request.getFechaEmisionReemb()));
@@ -92,14 +92,14 @@ public class VtVentasReembolsoServiceImpl {
 
         VtVentaReembolsosEntity update = vtVentaReembolsosBuilder.builderUpdateEntity(request, optional.get());
 
-        update.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        update.setModifiedBy(usuario);
         update.setModifiedDate(LocalDateTime.now());
         vtVentasReembolsoRepository.save(update);
 
         return responseApiBuilder.builderResponse(update.getIdVentaReembolsos().toString());
     }
 
-    public void delete(UUID id) {
+    public void delete(UUID id, String usuario) {
 
         VtVentaReembolsosEntity reembolso = vtVentasReembolsoRepository.findById(id)
                 .orElseThrow(() -> new GeneralException(MessageFormat
@@ -107,7 +107,7 @@ public class VtVentasReembolsoServiceImpl {
 
 
         reembolso.setDelete(Boolean.TRUE);
-        reembolso.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        reembolso.setDeletedBy(usuario);
         reembolso.setDeletedDate(LocalDateTime.now());
 
         vtVentasReembolsoRepository.save(reembolso);

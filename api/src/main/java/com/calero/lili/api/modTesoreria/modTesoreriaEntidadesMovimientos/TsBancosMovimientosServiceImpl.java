@@ -11,7 +11,6 @@ import com.calero.lili.api.modTesoreria.modTesoreriaEntidadesMovimientos.dto.BcB
 import com.calero.lili.api.modTesoreria.modTesoreriaEntidadesMovimientos.dto.BcBancoMovimientoListFilterDto;
 import com.calero.lili.api.modTesoreria.modTesoreriaEntidadesMovimientos.dto.BcBancoMovimientoReportDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,22 +27,23 @@ public class TsBancosMovimientosServiceImpl {
     private final TsBancosMovimientosRepository bcBancosMovimientosRepository;
     private final TsBancosMovimentosBuilder tsBancosMovimentosBuilder;
     private final GeTercerosRepository geTercerosRepository;
-    private final AuditorAware<String> auditorAware;
 
 
-    public BcBancoMovimientoCreationResponseDto create(Long idData, Long idEmpresa, BcBancoMovimientoCreationRequestDto request) {
+    public BcBancoMovimientoCreationResponseDto create(Long idData, Long idEmpresa, BcBancoMovimientoCreationRequestDto request, String usuario) {
 
         GeTerceroEntity tercero = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
                 .orElseThrow(() -> new GeneralException("No existe tercero"));
 
         TsBancosMovimentosEntity bancosMovimentos = tsBancosMovimentosBuilder.builderEntity(request, idData, idEmpresa);
         bancosMovimentos.setVtClienteEntity(tercero);
+        bancosMovimentos.setCreatedBy(usuario);
+        bancosMovimentos.setCreatedDate(LocalDateTime.now());
 
         return tsBancosMovimentosBuilder.builderResponse(bcBancosMovimientosRepository
                 .save(bancosMovimentos));
     }
 
-    public BcBancoMovimientoCreationResponseDto update(Long idData, Long idEmpresa, UUID id, BcBancoMovimientoCreationRequestDto request) {
+    public BcBancoMovimientoCreationResponseDto update(Long idData, Long idEmpresa, UUID id, BcBancoMovimientoCreationRequestDto request, String usuario) {
 
         TsBancosMovimentosEntity entidad = bcBancosMovimientosRepository.findByIdEntity(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no existe", id)));
@@ -52,7 +52,7 @@ public class TsBancosMovimientosServiceImpl {
                 .orElseThrow(() -> new GeneralException("No existe tercero"));
 
         TsBancosMovimentosEntity bancosMovimentos = tsBancosMovimentosBuilder.builderUpdateEntity(request, entidad);
-        bancosMovimentos.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        bancosMovimentos.setModifiedBy(usuario);
         bancosMovimentos.setModifiedDate(LocalDateTime.now());
 
         bancosMovimentos.setVtClienteEntity(tercero);
@@ -62,14 +62,14 @@ public class TsBancosMovimientosServiceImpl {
                 .save(bancosMovimentos));
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID id) {
+    public void delete(Long idData, Long idEmpresa, UUID id, String usuario) {
 
         TsBancosMovimentosEntity entidad = bcBancosMovimientosRepository.findByIdEntity(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no existe", id)));
 
-        entidad.setDelete(Boolean.TRUE);
-        entidad.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        entidad.setDeletedBy(usuario);
         entidad.setDeletedDate(LocalDateTime.now());
+        entidad.setDelete(Boolean.TRUE);
 
         bcBancosMovimientosRepository.save(entidad);
 

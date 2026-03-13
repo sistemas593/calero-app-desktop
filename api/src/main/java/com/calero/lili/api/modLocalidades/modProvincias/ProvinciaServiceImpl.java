@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -23,27 +24,33 @@ public class ProvinciaServiceImpl {
     private final ProvinciaRepository provinciaRepository;
     private final ProvinciaBuilder provinciaBuilder;
 
-    public ResponseProvinciaDto create(RequestProvinciaDto request) {
-
-        return provinciaBuilder.builderResponse(provinciaRepository
-                .save(provinciaBuilder.builderEntity(request)));
+    public ResponseProvinciaDto create(RequestProvinciaDto request, String usuario) {
+        ProvinciaEntity newEntity = provinciaBuilder.builderEntity(request);
+        newEntity.setCreatedBy(usuario);
+        newEntity.setCreatedDate(LocalDateTime.now());
+        return provinciaBuilder.builderResponse(provinciaRepository.save(newEntity));
     }
 
-    public ResponseProvinciaDto update(String idProvincia, RequestProvinciaDto request) {
+    public ResponseProvinciaDto update(String idProvincia, RequestProvinciaDto request, String usuario) {
         ProvinciaEntity provinciaEntity = provinciaRepository.getForFindById(idProvincia);
         if (Objects.isNull(provinciaEntity)) {
             throw new GeneralException(MessageFormat.format("Id {0} no existe", idProvincia));
         }
-        return provinciaBuilder.builderResponse(provinciaRepository
-                .save(provinciaBuilder.builderUpdateEntity(request, provinciaEntity)));
+        ProvinciaEntity updated = provinciaBuilder.builderUpdateEntity(request, provinciaEntity);
+        updated.setModifiedBy(usuario);
+        updated.setModifiedDate(LocalDateTime.now());
+        return provinciaBuilder.builderResponse(provinciaRepository.save(updated));
     }
 
-    public void delete(String idProvincia) {
+    public void delete(String idProvincia, String usuario) {
         ProvinciaEntity provinciaEntity = provinciaRepository.getForFindById(idProvincia);
         if (Objects.isNull(provinciaEntity)) {
             throw new GeneralException(MessageFormat.format("Id {0} no existe", idProvincia));
         }
-        provinciaRepository.deleteById(idProvincia);
+        provinciaEntity.setDeletedBy(usuario);
+        provinciaEntity.setDeletedDate(LocalDateTime.now());
+        provinciaEntity.setDelete(Boolean.TRUE);
+        provinciaRepository.save(provinciaEntity);
     }
 
     public ResponseProvinciaDto findFirstById(String idProvincia) {

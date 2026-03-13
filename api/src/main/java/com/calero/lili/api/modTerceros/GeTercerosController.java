@@ -9,6 +9,7 @@ import com.calero.lili.api.utils.IdDataServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,13 +36,14 @@ public class GeTercerosController {
 
     private final GeTercerosServiceImpl vtClientesService;
     private final IdDataServiceImpl idDataService;
+    private final AuditorAware<String> auditorAware;
 
     @PostMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('GE_TE_CR')")
     public GeTerceroGetListDto create(@PathVariable("idEmpresa") Long idEmpresa,
                                       @Valid @RequestBody GeTerceroRequestDto request) {
-        return vtClientesService.create(idEmpresa, idDataService.getIdData(), request);
+        return vtClientesService.create(idEmpresa, idDataService.getIdData(), request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idEmpresa}/{id}")
@@ -50,14 +52,14 @@ public class GeTercerosController {
     public GeTerceroGetListDto update(@PathVariable("idEmpresa") Long idEmpresa,
                                       @PathVariable("id") UUID id,
                                       @Valid @RequestBody GeTerceroRequestDto request) {
-        return vtClientesService.update(idEmpresa, idDataService.getIdData(), id, request);
+        return vtClientesService.update(idEmpresa, idDataService.getIdData(), id, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasAuthority('GE_TE_EL')")
     public void delete(@PathVariable("id") UUID id) {
-        vtClientesService.delete(idDataService.getIdData(), id);
+        vtClientesService.delete(idDataService.getIdData(), id, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{idEmpresa}/{id}")

@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -40,13 +41,14 @@ public class CotizacionesController {
 
     private final CotizacionesServiceImpl vtVentasService;
     private final IdDataServiceImpl idDataService;
+    private final AuditorAware<String> auditorAware;
 
     @PostMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('VT_CO_CR')")
     public ResponseDto create(@PathVariable("idEmpresa") Long idEmpresa,
                               @Valid @RequestBody CreationVentasCotizacionesRequestDto request) {
-        return vtVentasService.create(idDataService.getIdData(), idEmpresa, request);
+        return vtVentasService.create(idDataService.getIdData(), idEmpresa, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idEmpresa}/{idVenta}")
@@ -55,7 +57,7 @@ public class CotizacionesController {
     public ResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                               @PathVariable("idVenta") UUID idVenta,
                               @RequestBody CreationVentasCotizacionesRequestDto request) {
-        return vtVentasService.update(idDataService.getIdData(), idEmpresa, idVenta, request);
+        return vtVentasService.update(idDataService.getIdData(), idEmpresa, idVenta, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("{idEmpresa}/{idVenta}")
@@ -63,7 +65,7 @@ public class CotizacionesController {
     @PreAuthorize("hasAuthority('VT_CO_EL')")
     public void delete(@PathVariable("idEmpresa") Long idEmpresa,
                        @PathVariable("idVenta") UUID idVenta) {
-        vtVentasService.delete(idDataService.getIdData(), idEmpresa, idVenta);
+        vtVentasService.delete(idDataService.getIdData(), idEmpresa, idVenta, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{idEmpresa}/{idVenta}")

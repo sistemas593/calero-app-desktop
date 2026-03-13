@@ -1,5 +1,6 @@
 package com.calero.lili.api.controllers;
 
+import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.core.dtos.FilterDto;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.ResponseDto;
@@ -28,12 +29,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class AdDatasController {
 
     private final AdDatasServiceImpl adDatasService;
+    private final AuditorAwareImpl auditorAware;
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('CF_DT_CR')")
     public ResponseDto create(@RequestBody AdDatasCreationRequestDto request) {
-        return adDatasService.create(request);
+        return adDatasService.create(request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idData}")
@@ -41,7 +43,7 @@ public class AdDatasController {
     @PreAuthorize("hasAuthority('CF_DT_MO')")
     public ResponseDto update(@PathVariable("idData") Long idData,
                               @RequestBody AdDatasCreationRequestDto request) {
-        return adDatasService.update(idData, request);
+        return adDatasService.update(idData, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{idData}")

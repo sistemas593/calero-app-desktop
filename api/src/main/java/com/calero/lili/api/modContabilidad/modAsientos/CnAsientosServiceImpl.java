@@ -16,7 +16,6 @@ import com.calero.lili.api.modContabilidad.modPlanCuentas.CnPlanCuentaEntity;
 import com.calero.lili.api.modContabilidad.modPlanCuentas.CnPlanCuentasRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -38,22 +37,23 @@ public class CnAsientosServiceImpl {
     private final CnAsientosBuilder cnAsientosBuilder;
     private final CnPlanCuentasRepository cnPlanCuentasRepository;
     private final AdEmpresasSucursalesRepository adEmpresasSucursalesRepository;
-    private final AuditorAware<String> auditorAware;
 
-    public ResponseDto create(Long idData, Long idEmpresa, CreationAsientosRequestDto request) {
+    public ResponseDto create(Long idData, Long idEmpresa, CreationAsientosRequestDto request, String usuario) {
 
 
         validarSucursal(request, idData, idEmpresa);
         validarPlanCuenta(idData, idEmpresa, request);
 
-        CnAsientosEntity cnAsientosEntity = cnAsientosRepository.save(cnAsientosBuilder
-                .builderEntity(request, idData, idEmpresa));
+        CnAsientosEntity entity = cnAsientosBuilder.builderEntity(request, idData, idEmpresa);
+        entity.setCreatedBy(usuario);
+        entity.setCreatedDate(LocalDateTime.now());
+        CnAsientosEntity cnAsientosEntity = cnAsientosRepository.save(entity);
         return responseApiBuilder.builderResponse(cnAsientosEntity.getIdAsiento().toString());
     }
 
 
     @Transactional
-    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationAsientosRequestDto request) {
+    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationAsientosRequestDto request, String usuario) {
 
 
         CnAsientosEntity exists = cnAsientosRepository
@@ -66,7 +66,7 @@ public class CnAsientosServiceImpl {
         CnAsientosEntity update = cnAsientosBuilder
                 .builderUpdateEntity(request, exists);
 
-        update.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        update.setModifiedBy(usuario);
         update.setModifiedDate(LocalDateTime.now());
 
         CnAsientosEntity cnAsientosEntity = cnAsientosRepository.save(update);
@@ -74,7 +74,7 @@ public class CnAsientosServiceImpl {
 
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID idVenta) {
+    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario) {
 
 
         CnAsientosEntity venta = cnAsientosRepository.findByIdEntity(idData, idEmpresa, idVenta)
@@ -82,7 +82,7 @@ public class CnAsientosServiceImpl {
 
 
         venta.setDelete(Boolean.TRUE);
-        venta.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        venta.setDeletedBy(usuario);
         venta.setDeletedDate(LocalDateTime.now());
 
         cnAsientosRepository.save(venta);

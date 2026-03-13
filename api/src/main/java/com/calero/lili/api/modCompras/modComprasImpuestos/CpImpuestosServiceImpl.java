@@ -44,7 +44,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -83,11 +82,10 @@ public class CpImpuestosServiceImpl {
     private final ImpuestoCodigoBuilder impuestoCodigoBuilder;
     private final ValidarValoresComprobantesPdf validarValoresComprobantesPdf;
     private final AdEmpresasRepository adEmpresasRepository;
-    private final AuditorAware<String> auditorAware;
     private final ComprobanteSustentoService comprobanteSustentoService;
     private final AdIvaPorcentajeServiceImpl adIvaPorcentajeService;
 
-    public ResponseDto create(Long idData, Long idEmpresa, CreationCompraImpuestoRequestDto request) {
+    public ResponseDto create(Long idData, Long idEmpresa, CreationCompraImpuestoRequestDto request, String usuario) {
 
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
                 DateUtils.toLocalDate(request.getFechaEmision()));
@@ -105,6 +103,8 @@ public class CpImpuestosServiceImpl {
         validarPagoExterior(request);
         CpImpuestosEntity impuestosEntity = cpImpuestosBuilder.builderEntity(request, idData, idEmpresa);
         impuestosEntity.setOrigen(validarCodigoImpuesto(request));
+        impuestosEntity.setCreatedBy(usuario);
+        impuestosEntity.setCreatedDate(LocalDateTime.now());
         return responseApiBuilder.builderResponse(cpImpuestosRepository
                 .save(impuestosEntity).getIdImpuestos().toString());
 
@@ -129,7 +129,7 @@ public class CpImpuestosServiceImpl {
 
 
     @Transactional
-    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationCompraImpuestoRequestDto request) {
+    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationCompraImpuestoRequestDto request, String usuario) {
 
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
                 DateUtils.toLocalDate(request.getFechaEmision()));
@@ -152,7 +152,7 @@ public class CpImpuestosServiceImpl {
         validacionCodigoImpuesto(request);
         CpImpuestosEntity impuestosEntity = cpImpuestosBuilder.builderUpdateEntity(request, vtVentaEntity);
 
-        impuestosEntity.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        impuestosEntity.setModifiedBy(usuario);
         impuestosEntity.setModifiedDate(LocalDateTime.now());
 
         impuestosEntity.setOrigen(validarCodigoImpuesto(request));
@@ -169,13 +169,13 @@ public class CpImpuestosServiceImpl {
     }
 
 
-    public void delete(Long idData, Long idEmpresa, UUID idVenta) {
+    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario) {
 
         CpImpuestosEntity impuestosEntity = cpImpuestosRepository.findByIdEntity(idData, idEmpresa, idVenta)
                 .orElseThrow(() -> new NotFoundException(MessageFormat.format("El impuesto con ID {0} no existe", idVenta)));
 
         impuestosEntity.setDelete(Boolean.TRUE);
-        impuestosEntity.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        impuestosEntity.setDeletedBy(usuario);
         impuestosEntity.setDeletedDate(LocalDateTime.now());
 
         cpImpuestosRepository.save(impuestosEntity);

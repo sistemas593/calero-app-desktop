@@ -1,16 +1,15 @@
 package com.calero.lili.api.modComprasItemsMarcas;
 
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.Paginator;
-import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.api.modComprasItemsMarcas.builder.GetItemsMarcasBuilder;
 import com.calero.lili.api.modComprasItemsMarcas.dto.GeItemMarcasReportDto;
 import com.calero.lili.api.modComprasItemsMarcas.dto.GeItemMedidaCreationResponseDto;
 import com.calero.lili.api.modComprasItemsMarcas.dto.GeItemMedidaListFilterDto;
 import com.calero.lili.api.modComprasItemsMarcas.dto.GeItemsMarcasCreationRequestDto;
 import com.calero.lili.api.modComprasItemsMedidas.dto.GeItemMedidaReportDto;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.Paginator;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,16 +27,18 @@ public class GeItemsMarcasServiceImpl {
 
     private final GeItemsMarcasRepository geItemsMarcasRepository;
     private final GetItemsMarcasBuilder getItemsMarcasBuilder;
-    private final AuditorAware<String> auditorAware;
 
-    public GeItemMedidaCreationResponseDto create(Long idData, GeItemsMarcasCreationRequestDto request) {
 
-        GeItemsMarcasEntity createdDto = geItemsMarcasRepository.save(getItemsMarcasBuilder
-                .builderEntity(request, idData));
+    public GeItemMedidaCreationResponseDto create(Long idData, GeItemsMarcasCreationRequestDto request, String usuario) {
+
+        GeItemsMarcasEntity entity = getItemsMarcasBuilder.builderEntity(request, idData);
+        entity.setCreatedBy(usuario);
+        entity.setCreatedDate(LocalDateTime.now());
+        GeItemsMarcasEntity createdDto = geItemsMarcasRepository.save(entity);
         return getItemsMarcasBuilder.builderResponse(createdDto);
     }
 
-    public GeItemMedidaCreationResponseDto update(Long idData, UUID id, GeItemsMarcasCreationRequestDto request) {
+    public GeItemMedidaCreationResponseDto update(Long idData, UUID id, GeItemsMarcasCreationRequestDto request, String usuario) {
 
         GeItemsMarcasEntity entidad = geItemsMarcasRepository.findById(idData, id);
         if (Objects.isNull(entidad)) {
@@ -45,20 +46,20 @@ public class GeItemsMarcasServiceImpl {
         }
 
         GeItemsMarcasEntity update = getItemsMarcasBuilder.builderUpdateEntity(request, entidad);
-        update.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        update.setModifiedBy(usuario);
         update.setModifiedDate(LocalDateTime.now());
         geItemsMarcasRepository.save(update);
         return getItemsMarcasBuilder.builderResponse(update);
     }
 
-    public void delete(Long idData, UUID id) {
+    public void delete(Long idData, UUID id, String usuario) {
         GeItemsMarcasEntity entidad = geItemsMarcasRepository.findById(idData, id);
         if (Objects.isNull(entidad)) {
             throw new GeneralException(MessageFormat.format("Id {0} no existe", id));
         }
 
         entidad.setDelete(Boolean.TRUE);
-        entidad.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        entidad.setDeletedBy(usuario);
         entidad.setDeletedDate(LocalDateTime.now());
 
         geItemsMarcasRepository.save(entidad);

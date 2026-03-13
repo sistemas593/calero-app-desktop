@@ -1,5 +1,9 @@
 package com.calero.lili.api.modVentasZonas;
 
+import com.calero.lili.api.modVentasZonas.builder.VtZonaBuilder;
+import com.calero.lili.api.modVentasZonas.dto.VtZonaCreationRequestDto;
+import com.calero.lili.api.modVentasZonas.dto.VtZonaGetListDto;
+import com.calero.lili.api.modVentasZonas.dto.VtZonaGetOneDto;
 import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.core.dtos.FilterDto;
 import com.calero.lili.core.dtos.PaginatedDto;
@@ -8,12 +12,7 @@ import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
-import com.calero.lili.api.modVentasZonas.builder.VtZonaBuilder;
-import com.calero.lili.api.modVentasZonas.dto.VtZonaCreationRequestDto;
-import com.calero.lili.api.modVentasZonas.dto.VtZonaGetListDto;
-import com.calero.lili.api.modVentasZonas.dto.VtZonaGetOneDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -32,40 +31,42 @@ public class VtZonasServiceImpl {
     private final AdEmpresasRepository adEmpresasRepository;
     private final VtZonaBuilder vtZonaBuilder;
     private final ResponseApiBuilder responseApiBuilder;
-    private final AuditorAware<String> auditorAware;
 
 
-    public ResponseDto create(Long idData, Long idEmpresa, VtZonaCreationRequestDto request) {
+    public ResponseDto create(Long idData, Long idEmpresa, VtZonaCreationRequestDto request, String usuario) {
 
         Optional<AdEmpresaEntity> existing = adEmpresasRepository.findById(idData, idEmpresa);
         if (existing.isEmpty()) {
             throw new GeneralException(MessageFormat.format("Data: {0} / Empresa {1} no existe", idData, idEmpresa));
         }
-        VtZonaEntity entidad = vtZonasRepository.save(vtZonaBuilder.builderEntity(request, idData, idEmpresa));
-        return responseApiBuilder.builderResponse(entidad.getIdZona().toString());
+        VtZonaEntity entidad = vtZonaBuilder.builderEntity(request, idData, idEmpresa);
+        entidad.setCreatedBy(usuario);
+        entidad.setCreatedDate(LocalDateTime.now());
+        VtZonaEntity saved = vtZonasRepository.save(entidad);
+        return responseApiBuilder.builderResponse(saved.getIdZona().toString());
 
 
     }
 
-    public ResponseDto update(Long idData, Long idEmpresa, UUID id, VtZonaCreationRequestDto request) {
+    public ResponseDto update(Long idData, Long idEmpresa, UUID id, VtZonaCreationRequestDto request, String usuario) {
 
         VtZonaEntity entidad = vtZonasRepository.findById(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no existe", id)));
 
 
         VtZonaEntity actualizado = vtZonaBuilder.builderUpdateEntity(request, entidad);
-        actualizado.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        actualizado.setModifiedBy(usuario);
         actualizado.setModifiedDate(LocalDateTime.now());
         vtZonasRepository.save(actualizado);
         return responseApiBuilder.builderResponse(actualizado.getIdZona().toString());
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID id) {
+    public void delete(Long idData, Long idEmpresa, UUID id, String usuario) {
         VtZonaEntity entidad = vtZonasRepository.findById(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no existe", id)));
 
         entidad.setDelete(Boolean.TRUE);
-        entidad.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        entidad.setDeletedBy(usuario);
         entidad.setDeletedDate(LocalDateTime.now());
 
         vtZonasRepository.save(entidad);

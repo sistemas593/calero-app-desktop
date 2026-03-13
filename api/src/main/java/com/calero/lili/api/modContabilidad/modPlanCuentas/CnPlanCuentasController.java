@@ -7,6 +7,7 @@ import com.calero.lili.api.modContabilidad.modPlanCuentas.dto.CnPlanCuentaGetOne
 import com.calero.lili.api.utils.IdDataServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -33,13 +34,14 @@ public class CnPlanCuentasController {
 
     private final CnPlanCuentasServiceImpl cnPlanCuentasService;
     private final IdDataServiceImpl idDataService;
+    private final AuditorAware<String> auditorAware;
 
     @PostMapping("{idEmpresa}")
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('CN_PC_CR')")
     public ResponseDto create(@PathVariable("idEmpresa") Long idEmpresa,
                               @RequestBody @Valid CnPlanCuentaCreationRequestDto request) {
-        return cnPlanCuentasService.create(idDataService.getIdData(), idEmpresa, request);
+        return cnPlanCuentasService.create(idDataService.getIdData(), idEmpresa, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idEmpresa}/{id}")
@@ -48,7 +50,7 @@ public class CnPlanCuentasController {
     public ResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                               @PathVariable("id") UUID id,
                               @RequestBody @Valid CnPlanCuentaCreationRequestDto request) {
-        return cnPlanCuentasService.update(idDataService.getIdData(), idEmpresa, id, request);
+        return cnPlanCuentasService.update(idDataService.getIdData(), idEmpresa, id, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("{idEmpresa}/{id}")
@@ -56,7 +58,7 @@ public class CnPlanCuentasController {
     @PreAuthorize("hasAuthority('CN_PC_EL')")
     public void delete(@PathVariable("idEmpresa") Long idEmpresa,
                        @PathVariable("id") UUID id) {
-        cnPlanCuentasService.delete(idDataService.getIdData(), idEmpresa, id);
+        cnPlanCuentasService.delete(idDataService.getIdData(), idEmpresa, id, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{idEmpresa}/{id}")

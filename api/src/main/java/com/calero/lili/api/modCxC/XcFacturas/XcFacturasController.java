@@ -9,6 +9,7 @@ import com.calero.lili.api.utils.IdDataServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,6 +34,7 @@ public class XcFacturasController {
 
     private final XcFacturaServiceImpl tsComprobanteIngresoService;
     private final IdDataServiceImpl idDataService;
+    private final AuditorAware<String> auditorAware;
 
 
     @PostMapping("{idEmpresa}")
@@ -40,7 +42,7 @@ public class XcFacturasController {
     @PreAuthorize("hasAuthority('CX_XC_CR')")
     public ResponseDto create(@PathVariable("idEmpresa") Long idEmpresa,
                               @Valid @RequestBody RequestXcFacturasDto request) {
-        return tsComprobanteIngresoService.create(idDataService.getIdData(), idEmpresa, request, UUID.randomUUID());
+        return tsComprobanteIngresoService.create(idDataService.getIdData(), idEmpresa, request, UUID.randomUUID(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idEmpresa}/{idFactura}")
@@ -49,7 +51,7 @@ public class XcFacturasController {
     public ResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                               @PathVariable("idFactura") UUID idFactura,
                               @Valid @RequestBody RequestXcFacturasDto request) {
-        return tsComprobanteIngresoService.update(idDataService.getIdData(), idEmpresa, idFactura, request);
+        return tsComprobanteIngresoService.update(idDataService.getIdData(), idEmpresa, idFactura, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("delete/{idFactura}")
@@ -57,7 +59,7 @@ public class XcFacturasController {
     @PreAuthorize("hasAuthority('CX_XC_EL')")
     public void delete(@PathVariable("idFactura") UUID idFactura) {
 
-        tsComprobanteIngresoService.delete(idFactura);
+        tsComprobanteIngresoService.delete(idFactura, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("findById/{idFactura}")

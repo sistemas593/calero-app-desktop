@@ -59,10 +59,9 @@ public class CotizacionesServiceImpl {
     private final VtCotizacionBuilder vtCotizacionBuilder;
     private final ResponseApiBuilder responseApiBuilder;
     private final GeTercerosRepository geTercerosRepository;
-    private final AuditorAware<String> auditorAware;
 
 
-    public ResponseDto create(Long idData, Long idEmpresa, CreationVentasCotizacionesRequestDto request) {
+    public ResponseDto create(Long idData, Long idEmpresa, CreationVentasCotizacionesRequestDto request, String usuario) {
 
         Optional<OneProjection> existingFactura = cotizacionesRepository.findExistBySecuencial(idData, idEmpresa, request.getSecuencial());
 
@@ -80,6 +79,8 @@ public class CotizacionesServiceImpl {
         vtCotizacion.setCliente(tercero);
         vtCotizacion.setEmail(tercero.getEmail());
         vtCotizacion.setTerceroNombre(tercero.getTercero());
+        vtCotizacion.setCreatedBy(usuario);
+        vtCotizacion.setCreatedDate(LocalDateTime.now());
 
         VtCotizacionEntity vtVentaEntity = cotizacionesRepository.save(vtCotizacion);
 
@@ -89,7 +90,7 @@ public class CotizacionesServiceImpl {
 
 
     @Transactional
-    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationVentasCotizacionesRequestDto request) {
+    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationVentasCotizacionesRequestDto request, String usuario) {
 
         VtCotizacionEntity vtVentaEntity = cotizacionesRepository
                 .findByIdEntity(idData, idEmpresa, idVenta)
@@ -109,7 +110,7 @@ public class CotizacionesServiceImpl {
                 .builderUpdateEntity(request, vtVentaEntity);
 
 
-        vtCotizacion.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        vtCotizacion.setModifiedBy(usuario);
         vtCotizacion.setModifiedDate(LocalDateTime.now());
         vtCotizacion.setCliente(tercero);
         vtCotizacion.setEmail(tercero.getEmail());
@@ -120,14 +121,14 @@ public class CotizacionesServiceImpl {
         return responseApiBuilder.builderResponse(vtCotizacionEntity.getIdCotizacion().toString());
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID idVenta) {
+    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario) {
 
         VtCotizacionEntity vtVentaEntity = cotizacionesRepository
                 .findByIdEntity(idData, idEmpresa, idVenta)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("idCotizaciones {0} no existe", idVenta)));
 
         vtVentaEntity.setDelete(Boolean.TRUE);
-        vtVentaEntity.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        vtVentaEntity.setDeletedBy(usuario);
         vtVentaEntity.setDeletedDate(LocalDateTime.now());
 
         cotizacionesRepository.save(vtVentaEntity);

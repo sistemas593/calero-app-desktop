@@ -15,7 +15,6 @@ import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.utils.DateUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -35,10 +34,10 @@ public class VtClientesConfiguracionesServiceImpl {
     private final VtClientesConfiguracionesRepository clientesConfiguracionesRepository;
     private final VtClienteConfiguracionBuilder vtClienteConfiguracionBuilder;
     private final ResponseApiBuilder responseApiBuilder;
-    private final AuditorAware<String> auditorAware;
 
 
-    public ResponseDto create(Long idData, VtClientesConfiguracionesRequestDto request) {
+
+    public ResponseDto create(Long idData, VtClientesConfiguracionesRequestDto request, String usuario) {
 
 
         Optional<VtClientesConfiguracionesEntity> existing = clientesConfiguracionesRepository
@@ -51,15 +50,14 @@ public class VtClientesConfiguracionesServiceImpl {
         if (existing2.isPresent()) {
             throw new GeneralException(MessageFormat.format("RUC {0} ya existe", request.getRuc()));
         }
-
-        VtClientesConfiguracionesEntity saved = clientesConfiguracionesRepository.save(vtClienteConfiguracionBuilder
-                .builderEntity(idData, request));
-
-        return responseApiBuilder.builderResponse(saved.getIdConfiguracion().toString());
+        VtClientesConfiguracionesEntity configuracion = vtClienteConfiguracionBuilder.builderEntity(idData, request);
+        configuracion.setCreatedBy(usuario);
+        configuracion.setCreatedDate(LocalDateTime.now());
+        clientesConfiguracionesRepository.save(configuracion);
+        return responseApiBuilder.builderResponse(configuracion.getIdConfiguracion().toString());
     }
 
-    public ResponseDto update(Long idData, UUID id, VtClientesConfiguracionesRequestDto request) {
-
+    public ResponseDto update(Long idData, UUID id, VtClientesConfiguracionesRequestDto request, String usuario) {
 
         VtClientesConfiguracionesEntity entidad = clientesConfiguracionesRepository.findById(idData, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("id number {0} no exists", id)));
@@ -67,7 +65,7 @@ public class VtClientesConfiguracionesServiceImpl {
         VtClientesConfiguracionesEntity update = vtClienteConfiguracionBuilder
                 .builderUpdateEntity(request, entidad);
 
-        update.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        update.setModifiedBy(usuario);
         update.setModifiedDate(LocalDateTime.now());
 
         VtClientesConfiguracionesEntity actualizar = clientesConfiguracionesRepository.save(update);
@@ -75,13 +73,13 @@ public class VtClientesConfiguracionesServiceImpl {
         return responseApiBuilder.builderResponse(actualizar.getIdConfiguracion().toString());
     }
 
-    public void delete(Long idData, UUID id) {
+    public void delete(Long idData, UUID id, String usuario) {
 
         VtClientesConfiguracionesEntity stEmpresasEntity = clientesConfiguracionesRepository.findById(idData, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
 
         stEmpresasEntity.setDelete(Boolean.TRUE);
-        stEmpresasEntity.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        stEmpresasEntity.setDeletedBy(usuario);
         stEmpresasEntity.setDeletedDate(LocalDateTime.now());
 
         clientesConfiguracionesRepository.save(stEmpresasEntity);

@@ -73,8 +73,11 @@ public class LiquidacionesReembolsosServiceImpl {
             throw new GeneralException(MessageFormat.format("El registro ya existe - numeroIdentificacion{0} Serie: {1} Secuencia: {2} numeroAutorizacion: {3}", request.getNumeroIdentificacionReemb(), request.getSerieReemb(), request.getSecuencialReemb(), request.getNumeroAutorizacionReemb()));
         }
 
+        CpLiquidacionesReembolsosEntity entity = cpLiquidacionesReembolsosBuilder.builderReembolso(request);
+        entity.setCreatedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        entity.setCreatedDate(LocalDateTime.now());
         return responseApiBuilder.builderResponse(reembolsosRepository
-                .save(cpLiquidacionesReembolsosBuilder.builderReembolso(request))
+                .save(entity)
                 .getIdLiquidacionReembolsos().toString());
 
     }

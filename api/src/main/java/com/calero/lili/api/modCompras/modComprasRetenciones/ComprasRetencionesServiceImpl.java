@@ -71,9 +71,9 @@ public class ComprasRetencionesServiceImpl {
     private final CpImpuestosServiceImpl cpImpuestosService;
     private final ComprobanteServiceImpl comprobanteService;
     private final GeTercerosRepository geTercerosRepository;
-    private final AuditorAware<String> auditorAware;
 
-    public ResponseDto create(Long idData, Long idEmpresa, CreationRetencionRequestDto request) {
+
+    public ResponseDto create(Long idData, Long idEmpresa, CreationRetencionRequestDto request, String usuario) {
 
 
         GeTerceroEntity proveedor = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
@@ -86,6 +86,9 @@ public class ComprasRetencionesServiceImpl {
         retencionesEntity.setTipoEmision(getTipoEmision(request));
         retencionesEntity.setProveedor(proveedor);
         retencionesEntity.setEmail(proveedor.getEmail());
+
+        retencionesEntity.setCreatedBy(usuario);
+        retencionesEntity.setCreatedDate(LocalDateTime.now());
 
         comprobanteService.getComprobanteXmlRetencion(idData, idEmpresa, retencionesEntity, request);
         CpRetencionesEntity saved = comprasRetencionesRepository.save(retencionesEntity);
@@ -128,7 +131,7 @@ public class ComprasRetencionesServiceImpl {
 
 
     @Transactional
-    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationRetencionRequestDto request) {
+    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationRetencionRequestDto request, String usuario) {
 
         CpRetencionesEntity retencionesEntity = comprasRetencionesRepository
                 .findByIdEntity(idData, idEmpresa, idVenta)
@@ -144,7 +147,7 @@ public class ComprasRetencionesServiceImpl {
 
         CpRetencionesEntity update = cpRetencionesBuilder.builderUpdateEntity(request, retencionesEntity);
 
-        update.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        update.setModifiedBy(usuario);
         update.setModifiedDate(LocalDateTime.now());
 
         update.setTipoEmision(getTipoEmision(request));
@@ -163,7 +166,7 @@ public class ComprasRetencionesServiceImpl {
         }
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID idVenta) {
+    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario) {
 
 
         CpRetencionesEntity venta = comprasRetencionesRepository.findByIdEntity(idData, idEmpresa, idVenta)
@@ -171,7 +174,7 @@ public class ComprasRetencionesServiceImpl {
 
 
         venta.setDelete(Boolean.TRUE);
-        venta.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        venta.setDeletedBy(usuario);
         venta.setDeletedDate(LocalDateTime.now());
 
         comprasRetencionesRepository.save(venta);

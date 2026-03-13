@@ -8,6 +8,7 @@ import com.calero.lili.api.modVentasZonas.dto.VtZonaGetListDto;
 import com.calero.lili.api.modVentasZonas.dto.VtZonaGetOneDto;
 import com.calero.lili.api.utils.IdDataServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,6 +34,7 @@ public class VtZonasController {
 
     private final VtZonasServiceImpl vtZonasService;
     private final IdDataServiceImpl idDataService;
+    private final AuditorAware<String> auditorAware;
 
 
     @PostMapping("{idEmpresa}")
@@ -40,7 +42,7 @@ public class VtZonasController {
     @PreAuthorize("hasAuthority('VT_ZO_CR')")
     public ResponseDto create(@PathVariable("idEmpresa") Long idEmpresa,
                               @RequestBody VtZonaCreationRequestDto request) {
-        return vtZonasService.create(idDataService.getIdData(), idEmpresa, request);
+        return vtZonasService.create(idDataService.getIdData(), idEmpresa, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idEmpresa}/{id}")
@@ -49,7 +51,7 @@ public class VtZonasController {
     public ResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                               @PathVariable("id") UUID id,
                               @RequestBody VtZonaCreationRequestDto request) {
-        return vtZonasService.update(idDataService.getIdData(), idEmpresa, id, request);
+        return vtZonasService.update(idDataService.getIdData(), idEmpresa, id, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("{idEmpresa}/{id}")
@@ -57,7 +59,7 @@ public class VtZonasController {
     @PreAuthorize("hasAuthority('VT_ZO_EL')")
     public void delete(@PathVariable("idEmpresa") Long idEmpresa,
                        @PathVariable("id") UUID id) {
-        vtZonasService.delete(idDataService.getIdData(), idEmpresa, id);
+        vtZonasService.delete(idDataService.getIdData(), idEmpresa, id, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{idEmpresa}/{id}")

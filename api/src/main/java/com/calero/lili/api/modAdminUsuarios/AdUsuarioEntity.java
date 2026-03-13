@@ -1,6 +1,7 @@
 package com.calero.lili.api.modAdminUsuarios;
 
 import com.calero.lili.api.modAdminUsuarios.adRol.AdRolEntity;
+import com.calero.lili.core.Auditable;
 import com.calero.lili.core.dtos.models.IUser;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,7 +28,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AdUsuarioEntity implements IUser {
+public class AdUsuarioEntity extends Auditable implements IUser {
 
     //@NotEmpty
     private String idArea;

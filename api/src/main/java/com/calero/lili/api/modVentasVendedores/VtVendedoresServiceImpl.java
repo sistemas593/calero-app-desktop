@@ -1,15 +1,14 @@
 package com.calero.lili.api.modVentasVendedores;
 
-import com.calero.lili.core.dtos.FilterDto;
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.Paginator;
-import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.api.modVentasVendedores.builder.VtVendedorBuilder;
 import com.calero.lili.api.modVentasVendedores.dto.VtVendedorCreationRequestDto;
 import com.calero.lili.api.modVentasVendedores.dto.VtVendedorCreationResponseDto;
 import com.calero.lili.api.modVentasVendedores.dto.VtVendedorReportDto;
+import com.calero.lili.core.dtos.FilterDto;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.Paginator;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -25,35 +24,36 @@ public class VtVendedoresServiceImpl {
 
     private final VtVendedoresRepository vtVendedoresRepository;
     private final VtVendedorBuilder vtVendedorBuilder;
-    private final AuditorAware<String> auditorAware;
 
-    public VtVendedorCreationResponseDto create(Long idData, Long idEmpresa, VtVendedorCreationRequestDto request) {
+    public VtVendedorCreationResponseDto create(Long idData, Long idEmpresa, VtVendedorCreationRequestDto request, String usuario) {
 
-
-        return vtVendedorBuilder.builderResponse(vtVendedoresRepository
-                .save(vtVendedorBuilder.builderEntity(request, idData, idEmpresa)));
+        VtVendedorEntity entity = vtVendedorBuilder.builderEntity(request, idData, idEmpresa);
+        entity.setCreatedBy(usuario);
+        entity.setCreatedDate(LocalDateTime.now());
+        return vtVendedorBuilder.builderResponse(vtVendedoresRepository.save(entity));
     }
 
-    public VtVendedorCreationResponseDto update(Long idData, Long idEmpresa, UUID id, VtVendedorCreationRequestDto request) {
+    public VtVendedorCreationResponseDto update(Long idData, Long idEmpresa, UUID id,
+                                                VtVendedorCreationRequestDto request, String usuario) {
 
         VtVendedorEntity entidad = vtVendedoresRepository.findById(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no existe", id)));
 
         VtVendedorEntity update = vtVendedorBuilder.builderUpdateEntity(request, entidad);
 
-        update.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        update.setModifiedBy(usuario);
         update.setModifiedDate(LocalDateTime.now());
 
         return vtVendedorBuilder.builderResponse(vtVendedoresRepository.save(update));
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID id) {
+    public void delete(Long idData, Long idEmpresa, UUID id, String usuario) {
 
         VtVendedorEntity entidad = vtVendedoresRepository.findById(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no existe", id)));
 
         entidad.setDelete(Boolean.TRUE);
-        entidad.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        entidad.setDeletedBy(usuario);
         entidad.setDeletedDate(LocalDateTime.now());
 
         vtVendedoresRepository.save(entidad);

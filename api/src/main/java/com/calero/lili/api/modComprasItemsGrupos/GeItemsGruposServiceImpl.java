@@ -29,18 +29,17 @@ public class GeItemsGruposServiceImpl {
     private final GeItemsGruposRepository geItemsGruposRepository;
     private final ResponseApiBuilder responseApiBuilder;
     private final GetItemGrupoBuilder getItemGrupoBuilder;
-    private final AuditorAware<String> auditorAware;
 
-    public ResponseDto create(Long idData, Long idEmpresa, GeItemGrupoCreationRequestDto request) {
-
-        GeItemGrupoEntity entidad = geItemsGruposRepository
-                .save(getItemGrupoBuilder.builderEntity(request, idData, idEmpresa));
-
+    public ResponseDto create(Long idData, Long idEmpresa, GeItemGrupoCreationRequestDto request, String usuario) {
+        GeItemGrupoEntity entidad = getItemGrupoBuilder.builderEntity(request, idData, idEmpresa);
+        entidad.setCreatedBy(usuario);
+        entidad.setCreatedDate(LocalDateTime.now());
+        geItemsGruposRepository.save(entidad);
         return responseApiBuilder.builderResponse(entidad.getIdGrupo().toString());
 
     }
 
-    public ResponseDto update(Long idData, Long idEmpresa, UUID id, GeItemGrupoCreationRequestDto request) {
+    public ResponseDto update(Long idData, Long idEmpresa, UUID id, GeItemGrupoCreationRequestDto request, String usuario) {
 
         GeItemGrupoEntity entidad = geItemsGruposRepository.findByIdGrupo(idData, idEmpresa, id);
         if (Objects.isNull(entidad)) {
@@ -48,20 +47,20 @@ public class GeItemsGruposServiceImpl {
         }
 
         GeItemGrupoEntity entity = getItemGrupoBuilder.builderUpdateEntity(request, entidad);
-        entity.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        entity.setModifiedBy(usuario);
         entity.setModifiedDate(LocalDateTime.now());
         geItemsGruposRepository.save(entity);
         return responseApiBuilder.builderResponse(entity.getIdGrupo().toString());
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID id) {
+    public void delete(Long idData, Long idEmpresa, UUID id, String usuario) {
 
         GeItemGrupoEntity entidad = geItemsGruposRepository.findByIdGrupo(idData, idEmpresa, id);
         if (Objects.isNull(entidad)) {
             throw new GeneralException(MessageFormat.format("Id {0} no existe", id));
         }
         entidad.setDelete(Boolean.TRUE);
-        entidad.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        entidad.setDeletedBy(usuario);
         entidad.setDeletedDate(LocalDateTime.now());
         geItemsGruposRepository.save(entidad);
 

@@ -8,7 +8,6 @@ import com.calero.lili.api.modTesoreria.modTesoreriaBancosConcilaciones.dto.BcBa
 import com.calero.lili.api.modTesoreria.modTesoreriaBancosConcilaciones.dto.BcBancoConciliacionCreationResponseDto;
 import com.calero.lili.api.modTesoreria.modTesoreriaBancosConcilaciones.dto.BcBancoConciliacionListFilterDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -24,15 +23,16 @@ public class TsBancosConciliacionesServiceImpl {
 
     private final TsBancosConciliacionesRepository bcBancosConciliacionesRepository;
     private final TsBancosConciliacionesBuilder tsBancosConciliacionesBuilder;
-    private final AuditorAware<String> auditorAware;
 
-    public BcBancoConciliacionCreationResponseDto create(Long idData, Long idEmpresa, BcBancoConciliacionCreationRequestDto request) {
+    public BcBancoConciliacionCreationResponseDto create(Long idData, Long idEmpresa, BcBancoConciliacionCreationRequestDto request, String usuario) {
 
-        return tsBancosConciliacionesBuilder.builderResponse(bcBancosConciliacionesRepository
-                .save(tsBancosConciliacionesBuilder.builderEntity(request, idData, idEmpresa)));
+        TsBancosConciliacionesEntity entity = tsBancosConciliacionesBuilder.builderEntity(request, idData, idEmpresa);
+        entity.setCreatedBy(usuario);
+        entity.setCreatedDate(LocalDateTime.now());
+        return tsBancosConciliacionesBuilder.builderResponse(bcBancosConciliacionesRepository.save(entity));
     }
 
-    public BcBancoConciliacionCreationResponseDto update(Long idData, Long idEmpresa, UUID id, BcBancoConciliacionCreationRequestDto request) {
+    public BcBancoConciliacionCreationResponseDto update(Long idData, Long idEmpresa, UUID id, BcBancoConciliacionCreationRequestDto request, String usuario) {
 
 
         TsBancosConciliacionesEntity entidad = bcBancosConciliacionesRepository.findByIdEntity(idData, idEmpresa, id)
@@ -40,7 +40,7 @@ public class TsBancosConciliacionesServiceImpl {
 
         TsBancosConciliacionesEntity update = tsBancosConciliacionesBuilder.builderUpdateEntity(request, entidad);
 
-        update.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        update.setModifiedBy(usuario);
         update.setModifiedDate(LocalDateTime.now());
 
         return tsBancosConciliacionesBuilder.builderResponse(bcBancosConciliacionesRepository
@@ -48,14 +48,14 @@ public class TsBancosConciliacionesServiceImpl {
 
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID id) {
+    public void delete(Long idData, Long idEmpresa, UUID id, String usuario) {
 
         TsBancosConciliacionesEntity entidad = bcBancosConciliacionesRepository.findByIdEntity(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no existe", id)));
 
-        entidad.setDelete(Boolean.TRUE);
-        entidad.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        entidad.setDeletedBy(usuario);
         entidad.setDeletedDate(LocalDateTime.now());
+        entidad.setDelete(Boolean.TRUE);
 
         bcBancosConciliacionesRepository.save(entidad);
     }

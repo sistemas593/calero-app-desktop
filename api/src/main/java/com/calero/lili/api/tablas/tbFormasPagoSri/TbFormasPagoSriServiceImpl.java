@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -22,24 +23,33 @@ public class TbFormasPagoSriServiceImpl {
     private final TbFormasPagoSriRepository tbRepository;
     private final ResponseApiBuilder responseApiBuilder;
 
-    public ResponseDto create(TbFormaPagoSriCreationRequestDto request) {
+    public ResponseDto create(TbFormaPagoSriCreationRequestDto request, String usuario) {
         Optional<TbFormaPagoSriEntity> existing = tbRepository.findById(request.getCodigoFormaPagoSri());
         if (existing.isPresent()) {
             throw new GeneralException(MessageFormat.format("Documento {0} ya existe", request.getCodigoFormaPagoSri()));
         }
         TbFormaPagoSriEntity entidad = new TbFormaPagoSriEntity();
         entidad.setCodigoFormaPagoSri(request.getCodigoFormaPagoSri());
+        entidad.setCreatedBy(usuario);
+        entidad.setCreatedDate(LocalDateTime.now());
         return toEntity(entidad, request);
     }
 
-    public ResponseDto update(String id, TbFormaPagoSriCreationRequestDto request) {
+    public ResponseDto update(String id, TbFormaPagoSriCreationRequestDto request, String usuario) {
         TbFormaPagoSriEntity entidad = tbRepository.findById(id).
                 orElseThrow(() -> new GeneralException(MessageFormat.format("Documento {0} no exists", id)));
+        entidad.setModifiedBy(usuario);
+        entidad.setModifiedDate(LocalDateTime.now());
         return toEntity(entidad, request);
     }
 
-    public void delete(String codigoDocumento) {
-        tbRepository.deleteById(codigoDocumento);
+    public void delete(String codigoDocumento, String usuario) {
+        TbFormaPagoSriEntity entidad = tbRepository.findById(codigoDocumento).
+                orElseThrow(() -> new GeneralException(MessageFormat.format("Documento {0} no exists", codigoDocumento)));
+        entidad.setDeletedBy(usuario);
+        entidad.setDeletedDate(LocalDateTime.now());
+        entidad.setDelete(Boolean.TRUE);
+        tbRepository.save(entidad);
     }
 
     public TbFormaPagoSriGetOneDto findById(String id) {

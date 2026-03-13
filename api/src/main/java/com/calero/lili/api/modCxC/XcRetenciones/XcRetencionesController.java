@@ -7,6 +7,7 @@ import com.calero.lili.api.utils.IdDataServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,13 +31,14 @@ public class XcRetencionesController {
 
     private final XcRetencionesServiceImpl xcPagoService;
     private final IdDataServiceImpl idDataService;
+    private final AuditorAware<String> auditorAware;
 
 
     @PostMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.CREATED)
     public ResponseDto create(@PathVariable("idEmpresa") Long idEmpresa,
                               @Valid @RequestBody RequestRetencionesDto request) {
-        return xcPagoService.create(idDataService.getIdData(), idEmpresa, request);
+        return xcPagoService.create(idDataService.getIdData(), idEmpresa, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idEmpresa}/{idGrupoFactura}")
@@ -44,14 +46,14 @@ public class XcRetencionesController {
     public ResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                               @PathVariable("idGrupoFactura") UUID idGrupoFactura,
                               @Valid @RequestBody RequestRetencionesDto request) {
-        return xcPagoService.update(idDataService.getIdData(), idGrupoFactura, idEmpresa, request);
+        return xcPagoService.update(idDataService.getIdData(), idGrupoFactura, idEmpresa, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
 
     @DeleteMapping("{idGrupoFactura}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("idGrupoFactura") UUID idGrupoFactura) {
-        xcPagoService.delete(idGrupoFactura);
+        xcPagoService.delete(idGrupoFactura, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{idGrupoFactura}")

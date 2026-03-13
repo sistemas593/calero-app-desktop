@@ -1,13 +1,12 @@
 package com.calero.lili.api.modVentasCientesGrupos;
 
-import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.api.modVentasCientesGrupos.builder.VtClienteGrupoBuilder;
 import com.calero.lili.api.modVentasCientesGrupos.dto.VtClienteGrupoCreationRequestDto;
 import com.calero.lili.api.modVentasCientesGrupos.dto.VtClienteGrupoCreationResponseDto;
 import com.calero.lili.api.modVentasCientesGrupos.dto.VtClienteGrupoListFilterDto;
 import com.calero.lili.api.modVentasCientesGrupos.dto.VtClienteGrupoReportDto;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -22,23 +21,27 @@ public class VtClientesGruposServiceImpl {
 
     private final VtClientesGruposRepository vtClientesGruposRepository;
     private final VtClienteGrupoBuilder vtClienteGrupoBuilder;
-    private final AuditorAware<String> auditorAware;
 
-    public VtClienteGrupoCreationResponseDto create(Long idData, Long idEmpresa, VtClienteGrupoCreationRequestDto request) {
 
-        VtClienteGrupoEntity createdDto = vtClientesGruposRepository
-                .save(vtClienteGrupoBuilder.builderEntity(request, idData, idEmpresa));
+    public VtClienteGrupoCreationResponseDto create(Long idData, Long idEmpresa,
+                                                    VtClienteGrupoCreationRequestDto request, String usuario) {
+
+        VtClienteGrupoEntity entity = vtClienteGrupoBuilder.builderEntity(request, idData, idEmpresa);
+        entity.setCreatedBy(usuario);
+        entity.setCreatedDate(LocalDateTime.now());
+        VtClienteGrupoEntity createdDto = vtClientesGruposRepository.save(entity);
         return vtClienteGrupoBuilder.builderClienteGroupResponse(createdDto);
     }
 
-    public VtClienteGrupoCreationResponseDto update(Long idData, Long idEmpresa, UUID id, VtClienteGrupoCreationRequestDto request) {
+    public VtClienteGrupoCreationResponseDto update(Long idData, Long idEmpresa, UUID id,
+                                                    VtClienteGrupoCreationRequestDto request, String usuario) {
 
         VtClienteGrupoEntity entidad = vtClientesGruposRepository.findByIdGrupo(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no existe", id)));
 
         VtClienteGrupoEntity update = vtClienteGrupoBuilder.builderUpdateEntity(request, entidad);
 
-        update.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        update.setModifiedBy(usuario);
         update.setModifiedDate(LocalDateTime.now());
 
         vtClientesGruposRepository.save(update);
@@ -46,13 +49,13 @@ public class VtClientesGruposServiceImpl {
 
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID id) {
+    public void delete(Long idData, Long idEmpresa, UUID id, String usuario) {
 
         VtClienteGrupoEntity entidad = vtClientesGruposRepository.findByIdGrupo(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no existe", id)));
 
         entidad.setDelete(Boolean.TRUE);
-        entidad.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        entidad.setDeletedBy(usuario);
         entidad.setDeletedDate(LocalDateTime.now());
 
         vtClientesGruposRepository.save(entidad);

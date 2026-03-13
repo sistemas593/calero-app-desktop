@@ -11,6 +11,7 @@ import com.calero.lili.api.modClientesConfiguraciones.dto.VtClientesConfiguracio
 import com.calero.lili.api.utils.IdDataServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,12 +37,14 @@ public class VtClientesConfiguracionesController {
 
     private final VtClientesConfiguracionesServiceImpl clientesConfiguracionesService;
     private final IdDataServiceImpl idDataService;
+    private final AuditorAware<String> auditorAware;
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('CR_CC_CR')")
     public ResponseDto create(@RequestBody @Valid VtClientesConfiguracionesRequestDto request) {
-        return clientesConfiguracionesService.create(idDataService.getIdData(), request);
+        return clientesConfiguracionesService.create(idDataService.getIdData(), request,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{id}")
@@ -49,14 +52,16 @@ public class VtClientesConfiguracionesController {
     @PreAuthorize("hasAuthority('CR_CC_MO')")
     public ResponseDto update(@PathVariable("id") UUID id,
                               @RequestBody @Valid VtClientesConfiguracionesRequestDto request) {
-        return clientesConfiguracionesService.update(idDataService.getIdData(), id, request);
+        return clientesConfiguracionesService.update(idDataService.getIdData(), id, request,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasAuthority('CR_CC_EL')")
     public void delete(@PathVariable("id") UUID id) {
-        clientesConfiguracionesService.delete(idDataService.getIdData(),id);
+        clientesConfiguracionesService.delete(idDataService.getIdData(), id,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{id}")
@@ -74,7 +79,6 @@ public class VtClientesConfiguracionesController {
             Pageable pageable) {
         return clientesConfiguracionesService.findAllPaginate(idDataService.getIdData(), filters, pageable);
     }
-
 
 
     // Actualiza solo la fecha vencimiento y enviar correos, se usa para actualizar en lista

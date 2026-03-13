@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -27,7 +28,7 @@ public class AdDatasUsuariosServiceImpl {
     private final AdDataRepository adDataRepository;
     private final AdDataUsuarioBuilder adDataUsuarioBuilder;
 
-    public AdDataUsuarioCreationResponseDto create(Long idData, AdDataUsuarioCreationRequestDto request) {
+    public AdDataUsuarioCreationResponseDto create(Long idData, AdDataUsuarioCreationRequestDto request, String usuario) {
 
         adDataRepository.findById(idData)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("IdData {0} no exists", idData)));
@@ -37,18 +38,22 @@ public class AdDatasUsuariosServiceImpl {
             throw new GeneralException(MessageFormat
                     .format("Data {0}, UsuarioSecurity {1} ya existe", idData, request.getIdUsuario()));
         }
-        return adDataUsuarioBuilder.builderResponse(adDataUsuarioBuilder
-                .builderEntity(request, idData));
+        AdDataUsuarioEntity entity = adDataUsuarioBuilder.builderEntity(request, idData);
+        entity.setCreatedBy(usuario);
+        entity.setCreatedDate(LocalDateTime.now());
+        return adDataUsuarioBuilder.builderResponse(entity);
     }
 
 
-    public AdDataUsuarioCreationResponseDto update(Long idData, UUID idRegistro, AdDataUsuarioCreationRequestDto request) {
+    public AdDataUsuarioCreationResponseDto update(Long idData, UUID idRegistro, AdDataUsuarioCreationRequestDto request, String usuario) {
         Optional<AdDataUsuarioEntity> existing = adDatasUsuariosRepository.getForIdDataAndIdRegistro(idRegistro, idData);
         if (existing.isEmpty()) {
             throw new GeneralException(MessageFormat.format("id number {0} no exists", idRegistro));
         }
-        return adDataUsuarioBuilder.builderResponse(adDataUsuarioBuilder
-                .builderUpdateEntity(request, existing.get()));
+        AdDataUsuarioEntity entity = adDataUsuarioBuilder.builderUpdateEntity(request, existing.get());
+        entity.setModifiedBy(usuario);
+        entity.setModifiedDate(LocalDateTime.now());
+        return adDataUsuarioBuilder.builderResponse(entity);
     }
 
     public AdDataUsuarioCreationResponseDto findByIdData(UUID idRegistro) {

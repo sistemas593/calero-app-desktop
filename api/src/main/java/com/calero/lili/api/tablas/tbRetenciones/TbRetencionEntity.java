@@ -1,5 +1,6 @@
 package com.calero.lili.api.tablas.tbRetenciones;
 
+import com.calero.lili.core.Auditable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -14,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TbRetencionEntity {
+public class TbRetencionEntity extends Auditable {
          
     @Id
     private String codigo;

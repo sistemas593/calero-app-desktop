@@ -6,6 +6,7 @@ import com.calero.lili.api.modVentasCientesGrupos.dto.VtClienteGrupoListFilterDt
 import com.calero.lili.api.modVentasCientesGrupos.dto.VtClienteGrupoReportDto;
 import com.calero.lili.api.utils.IdDataServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,13 +34,14 @@ public class VtClientesGruposController {
 
     private final VtClientesGruposServiceImpl vtClientesGruposService;
     private final IdDataServiceImpl idDataService;
+    private final AuditorAware<String> auditorAware;
 
     @PostMapping("{idEmpresa}")
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('VT_CG_CR')")
     public VtClienteGrupoCreationResponseDto create(@PathVariable("idEmpresa") Long idEmpresa,
                                                     @RequestBody VtClienteGrupoCreationRequestDto request) {
-        return vtClientesGruposService.create(idDataService.getIdData(), idEmpresa, request);
+        return vtClientesGruposService.create(idDataService.getIdData(), idEmpresa, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idEmpresa}/{id}")
@@ -48,7 +50,7 @@ public class VtClientesGruposController {
     public VtClienteGrupoCreationResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                                                     @PathVariable("id") UUID id,
                                                     @RequestBody VtClienteGrupoCreationRequestDto request) {
-        return vtClientesGruposService.update(idDataService.getIdData(), idEmpresa, id, request);
+        return vtClientesGruposService.update(idDataService.getIdData(), idEmpresa, id, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("{idEmpresa}/{id}")
@@ -56,7 +58,7 @@ public class VtClientesGruposController {
     @PreAuthorize("hasAuthority('VT_CG_EL')")
     public void delete(@PathVariable("idEmpresa") Long idEmpresa,
                        @PathVariable("id") UUID id) {
-        vtClientesGruposService.delete(idDataService.getIdData(), idEmpresa, id);
+        vtClientesGruposService.delete(idDataService.getIdData(), idEmpresa, id, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{idEmpresa}/{id}")

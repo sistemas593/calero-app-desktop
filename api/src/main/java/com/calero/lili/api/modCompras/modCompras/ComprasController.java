@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -39,13 +40,15 @@ public class ComprasController {
 
     private final ComprasServiceImpl vtVentasService;
     private final IdDataServiceImpl idDataService;
+    private final AuditorAware<String> auditorAware;
 
     @PostMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('CP_CP_CR')")
     public ResponseDto create(@PathVariable("idEmpresa") Long idEmpresa,
                               @Valid @RequestBody CompraRequestDto request) {
-        return vtVentasService.create(idDataService.getIdData(), idEmpresa, request);
+        return vtVentasService.create(idDataService.getIdData(), idEmpresa, request,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idEmpresa}/{idCompra}")
@@ -54,14 +57,14 @@ public class ComprasController {
     public ResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                               @PathVariable("idCompra") UUID idCompra,
                               @RequestBody CompraRequestDto request) {
-        return vtVentasService.update(idDataService.getIdData(), idEmpresa, idCompra, request);
+        return vtVentasService.update(idDataService.getIdData(), idEmpresa, idCompra, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("{idEmpresa}/{idCompra}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasAuthority('CP_CP_EL')")
     public void delete(@PathVariable("idEmpresa") Long idEmpresa, @PathVariable("idCompra") UUID idCompra) {
-        vtVentasService.delete(idDataService.getIdData(), idEmpresa, idCompra);
+        vtVentasService.delete(idDataService.getIdData(), idEmpresa, idCompra, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{idEmpresa}/{idCompra}")

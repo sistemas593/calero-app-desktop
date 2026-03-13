@@ -9,7 +9,6 @@ import com.calero.lili.api.modContabilidad.modEnlances.dto.CnEnlaceResponseDto;
 import com.calero.lili.api.modContabilidad.modEnlances.dto.EnlaceFilterDto;
 import com.calero.lili.api.modContabilidad.modPlanCuentas.dto.CnPlanCuentaGetListDto;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,34 +25,35 @@ public class CnEnlaceServiceImpl {
 
     private final CnEnlacesGeneralesRepository cnEnlacesGeneralesRepository;
     private final CnEnlaceBuilder cnEnlaceBuilder;
-    private final AuditorAware<String> auditorAware;
 
 
-    public CnEnlaceResponseDto create(CnEnlaceRequestDto request) {
-        return cnEnlaceBuilder.builderResponse(cnEnlacesGeneralesRepository.save(cnEnlaceBuilder
-                .builderEntity(request)));
+    public CnEnlaceResponseDto create(CnEnlaceRequestDto request, String usuario) {
+        CnEnlacesGeneralesEntity entity = cnEnlaceBuilder.builderEntity(request);
+        entity.setCreatedBy(usuario);
+        entity.setCreatedDate(LocalDateTime.now());
+        return cnEnlaceBuilder.builderResponse(cnEnlacesGeneralesRepository.save(entity));
     }
 
-    public CnEnlaceResponseDto update(UUID idEnlace, CnEnlaceRequestDto request) {
+    public CnEnlaceResponseDto update(UUID idEnlace, CnEnlaceRequestDto request, String usuario) {
 
         CnEnlacesGeneralesEntity enlace = cnEnlacesGeneralesRepository.findByIdEnlace(idEnlace)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("El enlace con id {0} no existe", idEnlace)));
 
         CnEnlacesGeneralesEntity updated = cnEnlaceBuilder.builderUpdate(request, enlace);
 
-        updated.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        updated.setModifiedBy(usuario);
         updated.setModifiedDate(LocalDateTime.now());
 
         return cnEnlaceBuilder.builderResponse(cnEnlacesGeneralesRepository.save(updated));
 
     }
 
-    public void delete(UUID idEnlace) {
+    public void delete(UUID idEnlace, String usuario) {
 
         CnEnlacesGeneralesEntity enlace = cnEnlacesGeneralesRepository.findByIdEnlace(idEnlace)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("El enlace con id {0} no existe", idEnlace)));
 
-        enlace.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        enlace.setDeletedBy(usuario);
         enlace.setDeletedDate(LocalDateTime.now());
         enlace.setDelete(Boolean.TRUE);
 

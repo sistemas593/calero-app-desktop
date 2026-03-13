@@ -42,7 +42,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -82,10 +81,9 @@ public class LiquidacionesServiceImpl {
     private final LiquidacionReembolsosRepository liquidacionReembolsosRepository;
     private final GeTercerosRepository geTercerosRepository;
     private final GeItemsRepository geItemsRepository;
-    private final AuditorAware<String> auditorAware;
 
 
-    public ResponseDto create(Long idData, Long idEmpresa, CreationRequestLiquidacionCompraDto request) {
+    public ResponseDto create(Long idData, Long idEmpresa, CreationRequestLiquidacionCompraDto request, String usuario) {
 
         Optional<OneProjection> existingFactura = liquidacionesRepository
                 .findExistBySecuencial(idData, idEmpresa, request.getSerie(), request.getSecuencial());
@@ -105,6 +103,9 @@ public class LiquidacionesServiceImpl {
         CpLiquidacionesEntity cpLiquidacionesEntity = cpLiquidacionesBuilder.builderEntity(request, idData, idEmpresa);
         cpLiquidacionesEntity.setProveedor(proveedor);
         cpLiquidacionesEntity.setEmail(proveedor.getEmail());
+
+        cpLiquidacionesEntity.setCreatedBy(usuario);
+        cpLiquidacionesEntity.setCreatedDate(LocalDateTime.now());
 
         cpLiquidacionesEntity.setTipoEmision(getTipoEmision(request));
         List<CpLiquidacionesReembolsosEntity> reembolsos = validarReembolso(request);
@@ -200,7 +201,7 @@ public class LiquidacionesServiceImpl {
     }
 
     @Transactional
-    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationRequestLiquidacionCompraDto request) {
+    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationRequestLiquidacionCompraDto request, String usuario) {
 
         CpLiquidacionesEntity cpLiquidacionesEntity = liquidacionesRepository
                 .findByIdEntity(idData, idEmpresa, idVenta)
@@ -223,7 +224,7 @@ public class LiquidacionesServiceImpl {
 
         CpLiquidacionesEntity update = cpLiquidacionesBuilder.builderUpdateEntity(request, cpLiquidacionesEntity);
 
-        update.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        update.setModifiedBy(usuario);
         update.setModifiedDate(LocalDateTime.now());
 
         update.setProveedor(proveedor);
@@ -245,14 +246,14 @@ public class LiquidacionesServiceImpl {
         }
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID idVenta) {
+    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario) {
 
 
         CpLiquidacionesEntity liquidacion = liquidacionesRepository.findByIdEntity(idData, idEmpresa, idVenta)
                 .orElseThrow(() -> new NotFoundException(MessageFormat.format("La liquidacion con ID {0} no existe", idVenta)));
 
         liquidacion.setDelete(Boolean.TRUE);
-        liquidacion.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        liquidacion.setDeletedBy(usuario);
         liquidacion.setDeletedDate(LocalDateTime.now());
 
         liquidacionesRepository.save(liquidacion);

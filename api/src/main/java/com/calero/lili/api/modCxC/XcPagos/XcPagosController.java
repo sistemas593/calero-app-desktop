@@ -7,6 +7,7 @@ import com.calero.lili.api.utils.IdDataServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,6 +32,7 @@ public class XcPagosController {
 
     private final XcPagoServiceImpl xcPagoService;
     private final IdDataServiceImpl idDataService;
+    private final AuditorAware<String> auditorAware;
 
 
     @PostMapping("{idEmpresa}")
@@ -38,7 +40,7 @@ public class XcPagosController {
     @PreAuthorize("hasAuthority('CX_XP_CR')")
     public ResponseDto create(@PathVariable("idEmpresa") Long idEmpresa,
                               @Valid @RequestBody RequestPagoDto request) {
-        return xcPagoService.create(idDataService.getIdData(), idEmpresa, request);
+        return xcPagoService.create(idDataService.getIdData(), idEmpresa, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idEmpresa}/{idGrupoFactura}")
@@ -47,7 +49,7 @@ public class XcPagosController {
     public ResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                               @PathVariable("idGrupoFactura") UUID idGrupoFactura,
                               @Valid @RequestBody RequestPagoDto request) {
-        return xcPagoService.update(idDataService.getIdData(), idGrupoFactura, idEmpresa, request);
+        return xcPagoService.update(idDataService.getIdData(), idGrupoFactura, idEmpresa, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
 
@@ -55,7 +57,7 @@ public class XcPagosController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasAuthority('CX_XP_EL')")
     public void delete(@PathVariable("idGrupoFactura") UUID idGrupoFactura) {
-        xcPagoService.delete(idGrupoFactura);
+        xcPagoService.delete(idGrupoFactura, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{idGrupoFactura}")

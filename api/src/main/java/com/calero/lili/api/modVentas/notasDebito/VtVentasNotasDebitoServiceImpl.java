@@ -63,10 +63,9 @@ public class VtVentasNotasDebitoServiceImpl {
     private final ComprobanteServiceImpl vtComprobanteService;
     private final GeItemsRepository geItemsRepository;
     private final GeTercerosRepository geTercerosRepository;
-    private final AuditorAware<String> auditorAware;
     private final AdIvaPorcentajeServiceImpl adIvaPorcentajeService;
 
-    public ResponseDto create(Long idData, Long idEmpresa, CreationNotaDebitoRequestDto request) {
+    public ResponseDto create(Long idData, Long idEmpresa, CreationNotaDebitoRequestDto request, String usuario) {
 
         ValidarCampoAscii.validarStrings(request);
 
@@ -92,6 +91,8 @@ public class VtVentasNotasDebitoServiceImpl {
         vtVentaEntity.setTercero(tercero);
         vtVentaEntity.setEmail(tercero.getEmail());
         vtVentaEntity.setTerceroNombre(tercero.getTercero());
+        vtVentaEntity.setCreatedBy(usuario);
+        vtVentaEntity.setCreatedDate(LocalDateTime.now());
 
         vtVentaEntity.setTipoEmision(getTipoEmision(request));
         vtComprobanteService.getComprobanteXmlNotaDebito(idData, idEmpresa, vtVentaEntity);
@@ -111,7 +112,7 @@ public class VtVentasNotasDebitoServiceImpl {
     }
 
     @Transactional
-    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationNotaDebitoRequestDto request) {
+    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationNotaDebitoRequestDto request, String usuario) {
 
         ValidarCampoAscii.validarStrings(request);
 
@@ -139,7 +140,7 @@ public class VtVentasNotasDebitoServiceImpl {
 
 
         VtVentaEntity update = vtNotasDebitoBuilder.builderUpdateEntity(request, vtVentaEntity);
-        update.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        update.setModifiedBy(usuario);
         update.setModifiedDate(LocalDateTime.now());
         update.setTercero(tercero);
         update.setEmail(tercero.getEmail());
@@ -159,13 +160,13 @@ public class VtVentasNotasDebitoServiceImpl {
         }
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID idVenta) {
+    public void delete(Long idData, Long idEmpresa, UUID idVenta,String usuario) {
 
         VtVentaEntity venta = vtVentaRepository.findByIdEntity(idData, idEmpresa, idVenta)
                 .orElseThrow(() -> new NotFoundException(MessageFormat.format("La nota de debito con ID {0} no existe", idVenta)));
 
         venta.setDelete(Boolean.TRUE);
-        venta.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        venta.setDeletedBy(usuario);
         venta.setDeletedDate(LocalDateTime.now());
 
         vtVentaRepository.save(venta);

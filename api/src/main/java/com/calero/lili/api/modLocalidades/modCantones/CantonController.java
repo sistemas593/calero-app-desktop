@@ -4,6 +4,7 @@ import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.api.modLocalidades.modCantones.dto.RequestCantonDto;
 import com.calero.lili.api.modLocalidades.modCantones.dto.ResponseCantonDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -24,12 +25,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class CantonController {
 
     private final CantonServiceImpl cantonService;
+    private final AuditorAware<String> auditorAware;
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseCantonDto create(
             @RequestBody RequestCantonDto request) {
-        return cantonService.create(request);
+        return cantonService.create(request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{id}")
@@ -37,13 +39,13 @@ public class CantonController {
     public ResponseCantonDto update(
             @PathVariable("id") String id,
             @RequestBody RequestCantonDto request) {
-        return cantonService.update(id, request);
+        return cantonService.update(id, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("id") String id) {
-        cantonService.delete(id);
+        cantonService.delete(id, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{id}")

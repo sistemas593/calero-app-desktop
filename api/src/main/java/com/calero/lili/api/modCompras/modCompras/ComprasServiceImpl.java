@@ -67,10 +67,9 @@ public class ComprasServiceImpl {
     private final CpImpuestosServiceImpl cpImpuestosService;
     private final GeItemsRepository geItemsRepository;
     private final GeTercerosRepository geTercerosRepository;
-    private final AuditorAware<String> auditorAware;
     private final AdIvaPorcentajeServiceImpl adIvaPorcentajeService;
 
-    public ResponseDto create(Long idData, Long idEmpresa, CompraRequestDto request) {
+    public ResponseDto create(Long idData, Long idEmpresa, CompraRequestDto request, String usuario) {
 
         validarItem(request, idData, idEmpresa);
 
@@ -81,6 +80,8 @@ public class ComprasServiceImpl {
                 .orElseThrow(() -> new GeneralException("No existe tercero"));
 
         CpComprasEntity compra = cpComprasBuilder.builderEntity(request, idData, idEmpresa);
+        compra.setCreatedBy(usuario);
+        compra.setCreatedDate(LocalDateTime.now());
         compra.setTercero(tercero);
         CpComprasEntity cpComprasEntity = comprasRepository.save(compra);
 
@@ -123,7 +124,7 @@ public class ComprasServiceImpl {
     }
 
     @Transactional
-    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CompraRequestDto request) {
+    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CompraRequestDto request, String usuario) {
 
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
                 DateUtils.toLocalDate(request.getFechaEmision()));
@@ -140,7 +141,7 @@ public class ComprasServiceImpl {
         validarItem(request, idData, idEmpresa);
         CpComprasEntity compra = cpComprasBuilder.builderUpdateEntity(request, vtVentaEntity);
 
-        compra.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        compra.setModifiedBy(usuario);
         compra.setModifiedDate(LocalDateTime.now());
 
         compra.setTercero(tercero);
@@ -149,13 +150,13 @@ public class ComprasServiceImpl {
 
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID idVenta) {
+    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario) {
 
         CpComprasEntity compra = comprasRepository.findByIdEntity(idData, idEmpresa, idVenta)
                 .orElseThrow(() -> new NotFoundException(MessageFormat.format("La compra con ID {0} no existe", idVenta)));
 
         compra.setDelete(Boolean.TRUE);
-        compra.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        compra.setDeletedBy(usuario);
         compra.setDeletedDate(LocalDateTime.now());
 
         comprasRepository.save(compra);

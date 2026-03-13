@@ -7,6 +7,7 @@ import com.calero.lili.api.modComprasItemsCategorias.dto.GeItemMedidaListFilterD
 import com.calero.lili.api.modComprasItemsCategorias.dto.GeItemsCategoriaCreationRequestDto;
 import com.calero.lili.api.utils.IdDataServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,12 +34,13 @@ public class GeItemsCategoriaController {
 
     private final GeItemsCategoriaServiceImpl geItemsCategoriaService;
     private final IdDataServiceImpl idDataService;
+    private final AuditorAware<String> auditorAware;
 
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('GE_CA_CR')")
     public GeItemCategoriaCreationResponseDto create(@RequestBody GeItemsCategoriaCreationRequestDto request) {
-        return geItemsCategoriaService.create(idDataService.getIdData(), request);
+        return geItemsCategoriaService.create(idDataService.getIdData(), request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{id}")
@@ -46,14 +48,14 @@ public class GeItemsCategoriaController {
     @PreAuthorize("hasAuthority('GE_CA_MO')")
     public GeItemCategoriaCreationResponseDto update(@PathVariable("id") UUID id,
                                                      @RequestBody GeItemsCategoriaCreationRequestDto request) {
-        return geItemsCategoriaService.update(idDataService.getIdData(), id, request);
+        return geItemsCategoriaService.update(idDataService.getIdData(), id, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasAuthority('GE_CA_EL')")
     public void delete(@PathVariable("id") UUID id) {
-        geItemsCategoriaService.delete(idDataService.getIdData(), id);
+        geItemsCategoriaService.delete(idDataService.getIdData(), id, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{id}")

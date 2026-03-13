@@ -8,6 +8,7 @@ import com.calero.lili.api.utils.IdDataServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -33,13 +34,14 @@ public class VtVentasNotasCreditoController {
 
     private final VtVentasNotasCreditoServiceImpl vtVentasService;
     private final IdDataServiceImpl idDataService;
+    private final AuditorAware<String> auditorAware;
 
     @PostMapping("notas-credito/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('VT_NC_CR')")
     public ResponseDto createNotaCredito(@PathVariable("idEmpresa") Long idEmpresa,
                                          @Valid @RequestBody CreationNotaCreditoRequestDto request) {
-        return vtVentasService.create(idDataService.getIdData(), idEmpresa, request);
+        return vtVentasService.create(idDataService.getIdData(), idEmpresa, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("notas-credito/{idEmpresa}/{idVenta}")
@@ -48,7 +50,7 @@ public class VtVentasNotasCreditoController {
     public ResponseDto updateNotaCredito(@PathVariable("idEmpresa") Long idEmpresa,
                                          @PathVariable("idVenta") UUID idVenta,
                                          @RequestBody CreationNotaCreditoRequestDto request) {
-        return vtVentasService.update(idDataService.getIdData(), idEmpresa, idVenta, request);
+        return vtVentasService.update(idDataService.getIdData(), idEmpresa, idVenta, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("notas-credito/{idEmpresa}/{idVenta}")
@@ -56,7 +58,7 @@ public class VtVentasNotasCreditoController {
     @PreAuthorize("hasAuthority('VT_NC_EL')")
     public void deleteNotaCredito(@PathVariable("idEmpresa") Long idEmpresa,
                                   @PathVariable("idVenta") UUID idVenta) {
-        vtVentasService.delete(idDataService.getIdData(), idEmpresa, idVenta);
+        vtVentasService.delete(idDataService.getIdData(), idEmpresa, idVenta, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("notas-credito/{idEmpresa}/{idVenta}")

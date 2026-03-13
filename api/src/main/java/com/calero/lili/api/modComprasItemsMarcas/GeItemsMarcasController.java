@@ -1,12 +1,13 @@
 package com.calero.lili.api.modComprasItemsMarcas;
 
-import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.api.modComprasItemsMarcas.dto.GeItemMarcasReportDto;
 import com.calero.lili.api.modComprasItemsMarcas.dto.GeItemMedidaCreationResponseDto;
 import com.calero.lili.api.modComprasItemsMarcas.dto.GeItemMedidaListFilterDto;
 import com.calero.lili.api.modComprasItemsMarcas.dto.GeItemsMarcasCreationRequestDto;
 import com.calero.lili.api.utils.IdDataServiceImpl;
+import com.calero.lili.core.dtos.PaginatedDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,12 +34,13 @@ public class GeItemsMarcasController {
 
     private final GeItemsMarcasServiceImpl geItemsMedidasService;
     private final IdDataServiceImpl idDataService;
+    private final AuditorAware<String> auditorAware;
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('GE_MA_CR')")
     public GeItemMedidaCreationResponseDto create(@RequestBody GeItemsMarcasCreationRequestDto request) {
-        return geItemsMedidasService.create(idDataService.getIdData(), request);
+        return geItemsMedidasService.create(idDataService.getIdData(), request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{id}")
@@ -46,14 +48,14 @@ public class GeItemsMarcasController {
     @PreAuthorize("hasAuthority('GE_MA_MO')")
     public GeItemMedidaCreationResponseDto update(@PathVariable("id") UUID id,
                                                   @RequestBody GeItemsMarcasCreationRequestDto request) {
-        return geItemsMedidasService.update(idDataService.getIdData(), id, request);
+        return geItemsMedidasService.update(idDataService.getIdData(), id, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasAuthority('GE_MA_EL')")
     public void delete(@PathVariable("id") UUID id) {
-        geItemsMedidasService.delete(idDataService.getIdData(), id);
+        geItemsMedidasService.delete(idDataService.getIdData(), id, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{id}")

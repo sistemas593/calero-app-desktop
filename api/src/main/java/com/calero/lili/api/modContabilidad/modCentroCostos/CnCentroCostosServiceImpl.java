@@ -9,7 +9,6 @@ import com.calero.lili.api.modContabilidad.modCentroCostos.dto.CentroCostosDtoRe
 import com.calero.lili.api.modContabilidad.modPlanCuentas.dto.CnPlanCuentaGetListDto;
 import com.calero.lili.api.modContabilidad.modPlanCuentas.dto.CnPlanCuentaListFilterDto;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,9 +27,8 @@ public class CnCentroCostosServiceImpl {
 
     private final CnCentroCostosRepository cnCentroCostosRepository;
     private final CentroCostosBuilder centroCostosBuilder;
-    private final AuditorAware<String> auditorAware;
 
-    public CentroCostosDtoResponse create(Long idData, Long idEmpresa, CentroCostosDtoRequest model) {
+    public CentroCostosDtoResponse create(Long idData, Long idEmpresa, CentroCostosDtoRequest model, String usuario) {
 
         Optional<CnCentroCostosEntity> entidad = cnCentroCostosRepository.findByCentroCostosCodigoOriginal(idData,
                 idEmpresa,
@@ -44,11 +42,13 @@ public class CnCentroCostosServiceImpl {
 
         CnCentroCostosEntity cnCentroCostosEntity = centroCostosBuilder.builderEntity(idData, idEmpresa, model);
         cnCentroCostosEntity.setNivel(getNivel(model.getCodigoCentroCostosOriginal(), model.getMayor()));
+        cnCentroCostosEntity.setCreatedBy(usuario);
+        cnCentroCostosEntity.setCreatedDate(LocalDateTime.now());
         return centroCostosBuilder.builderResponse(cnCentroCostosRepository.save(cnCentroCostosEntity));
     }
 
 
-    public CentroCostosDtoResponse update(Long idData, Long idEmpresa, UUID id, CentroCostosDtoRequest model) {
+    public CentroCostosDtoResponse update(Long idData, Long idEmpresa, UUID id, CentroCostosDtoRequest model, String usuario) {
 
         CnCentroCostosEntity entidad = cnCentroCostosRepository
                 .findByIdCentroCostos(idData, idEmpresa, id)
@@ -59,7 +59,7 @@ public class CnCentroCostosServiceImpl {
         CnCentroCostosEntity cnCentroCostosEntity = centroCostosBuilder.builderUpdateEntity(model, entidad);
         cnCentroCostosEntity.setNivel(getNivel(model.getCodigoCentroCostosOriginal(), model.getMayor()));
 
-        cnCentroCostosEntity.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        cnCentroCostosEntity.setModifiedBy(usuario);
         cnCentroCostosEntity.setModifiedDate(LocalDateTime.now());
 
         return centroCostosBuilder.builderResponse(cnCentroCostosRepository.save(cnCentroCostosEntity));
@@ -87,7 +87,7 @@ public class CnCentroCostosServiceImpl {
     }
 
 
-    public void delete(Long idData, Long idEmpresa, UUID id) {
+    public void delete(Long idData, Long idEmpresa, UUID id, String usuario) {
         CnCentroCostosEntity entidad = cnCentroCostosRepository
                 .findByIdCentroCostos(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(
@@ -95,7 +95,7 @@ public class CnCentroCostosServiceImpl {
 
 
         entidad.setDelete(Boolean.TRUE);
-        entidad.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        entidad.setDeletedBy(usuario);
         entidad.setDeletedDate(LocalDateTime.now());
 
         cnCentroCostosRepository.save(entidad);

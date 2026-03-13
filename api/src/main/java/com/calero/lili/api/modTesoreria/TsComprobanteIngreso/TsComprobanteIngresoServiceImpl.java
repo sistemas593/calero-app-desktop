@@ -39,6 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.MessageFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -59,7 +60,7 @@ public class TsComprobanteIngresoServiceImpl {
 
 
     @Transactional
-    public ResponseDto create(Long idData, Long idEmpresa, UUID idComprobanteIngreso, RequestCreationComprobanteIngresoDto request) {
+    public ResponseDto create(Long idData, Long idEmpresa, UUID idComprobanteIngreso, RequestCreationComprobanteIngresoDto request, String usuario) {
 
         Optional<CnAsientosEntity> existeComprobante = cnAsientosRepository
                 .findByNumeroAsiento(idData, idEmpresa, request.getNumeroComprobante(), request.getTipoAsiento());
@@ -76,6 +77,8 @@ public class TsComprobanteIngresoServiceImpl {
         CnAsientosEntity asiento = tsComprobanteIngresoBuilder.builderIngresoEntity
                 (request, idData, idEmpresa, idComprobanteIngreso);
         asiento.setTercero(tercero);
+        asiento.setCreatedBy(usuario);
+        asiento.setCreatedDate(LocalDateTime.now());
 
         CnAsientosEntity entidad = cnAsientosRepository.save(asiento);
 
@@ -84,7 +87,7 @@ public class TsComprobanteIngresoServiceImpl {
 
 
     @Transactional
-    public ResponseDto update(Long idData, Long idEmpresa, UUID idComprobante, RequestCreationComprobanteIngresoDto request) {
+    public ResponseDto update(Long idData, Long idEmpresa, UUID idComprobante, RequestCreationComprobanteIngresoDto request, String usuario) {
 
         CnAsientosEntity entity = cnAsientosRepository.findByIdEntity(idData, idEmpresa, idComprobante)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("El comprobante no existe: {0}",
@@ -103,17 +106,22 @@ public class TsComprobanteIngresoServiceImpl {
         entity.setObservaciones(request.getObservaciones());
         entity.setNombre(request.getNombre());
         entity.setTercero(tercero);
+        entity.setModifiedBy(usuario);
+        entity.setModifiedDate(LocalDateTime.now());
 
         return responseApiBuilder.builderResponse(entity.getIdAsiento().toString());
     }
 
 
-    public void delete(Long idData, Long idEmpresa, UUID idComprobante) {
+    public void delete(Long idData, Long idEmpresa, UUID idComprobante, String usuario) {
         CnAsientosEntity existeComprobante = cnAsientosRepository
                 .findByIdEntity(idData, idEmpresa, idComprobante)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("La factura ya existe Secuencia: {0}", idComprobante)));
 
-        cnAsientosRepository.delete(existeComprobante);
+        existeComprobante.setDeletedBy(usuario);
+        existeComprobante.setDeletedDate(LocalDateTime.now());
+        existeComprobante.setDelete(Boolean.TRUE);
+        cnAsientosRepository.save(existeComprobante);
     }
 
 

@@ -3,6 +3,7 @@ package com.calero.lili.api.adEmpresasPeriodo;
 import com.calero.lili.api.adEmpresasPeriodo.dto.AdEmpresaPeriodoCreationRequestDto;
 import com.calero.lili.api.adEmpresasPeriodo.dto.AdEmpresaPeriodoCreationResponseDto;
 import com.calero.lili.api.adEmpresasPeriodo.dto.AdEmpresaPeriodoListFilterDto;
+import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.api.utils.IdDataServiceImpl;
 import com.calero.lili.core.dtos.PaginatedDto;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ public class AdEmpresasPeriodosController {
 
     private final AdEmpresasPeriodosServiceImpl adEmpresasPeriodosService;
     private final IdDataServiceImpl idDataService;
+    private final AuditorAwareImpl auditorAware;
 
     @PostMapping("{idEmpresa}")
     @ResponseStatus(HttpStatus.CREATED)
@@ -37,7 +39,8 @@ public class AdEmpresasPeriodosController {
                                                       @RequestBody AdEmpresaPeriodoCreationRequestDto request) {
 
 
-        return adEmpresasPeriodosService.create(idDataService.getIdData(), idEmpresa, request);
+        return adEmpresasPeriodosService.create(idDataService.getIdData(), idEmpresa, request,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idEmpresa}/{idPeriodo}")
@@ -47,7 +50,8 @@ public class AdEmpresasPeriodosController {
                                                       @RequestBody AdEmpresaPeriodoCreationRequestDto request) {
 
 
-        return adEmpresasPeriodosService.update(idDataService.getIdData(), idEmpresa, idPeriodo, request);
+        return adEmpresasPeriodosService.update(idDataService.getIdData(), idEmpresa, idPeriodo, request,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("{idEmpresa}/{idPeriodo}")
@@ -55,7 +59,8 @@ public class AdEmpresasPeriodosController {
     public void delete(@PathVariable("idEmpresa") Long idEmpresa, @PathVariable("idPeriodo") UUID idPeriodo) {
 
 
-        adEmpresasPeriodosService.delete(idDataService.getIdData(), idEmpresa, idPeriodo);
+        adEmpresasPeriodosService.delete(idDataService.getIdData(), idEmpresa, idPeriodo,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{idPeriodo}")

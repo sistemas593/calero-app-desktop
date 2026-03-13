@@ -10,13 +10,13 @@ import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.MessageFormat;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,23 +30,26 @@ public class XcPagoServiceImpl {
     private final ResponseApiBuilder responseApiBuilder;
     private final XcFacturasRepository xcFacturasRepository;
     private final TsComprobanteIngresoServiceImpl tsComprobanteIngresoService;
-    private final AuditorAware<String> auditorAware;
 
     @Transactional
-    public ResponseDto create(Long idData, Long idEmpresa, RequestPagoDto request) {
+    public ResponseDto create(Long idData, Long idEmpresa, RequestPagoDto request, String usuario) {
 
 
         UUID idPagoGrupo = UUID.randomUUID();
-        List<XcPagosEntity> pagosEntities = xcPagosRepository.saveAll(xcPagosBuilder
-                .builderListEntity(request, idPagoGrupo, idData, idEmpresa));
+        List<XcPagosEntity> entidades = xcPagosBuilder.builderListEntity(request, idPagoGrupo, idData, idEmpresa);
+        entidades.forEach(e -> {
+            e.setCreatedBy(usuario);
+            e.setCreatedDate(LocalDateTime.now());
+        });
+        List<XcPagosEntity> pagosEntities = xcPagosRepository.saveAll(entidades);
         actualizarCamposFactura(request.getIdFactura(), pagosEntities);
-        tsComprobanteIngresoService.create(idData, idEmpresa, idPagoGrupo, request.getComprobanteIngreso());
+        tsComprobanteIngresoService.create(idData, idEmpresa, idPagoGrupo, request.getComprobanteIngreso(), usuario);
         return responseApiBuilder.builderResponse(idPagoGrupo.toString());
     }
 
 
     @Transactional
-    public ResponseDto update(Long idData, UUID idPagoGrupo, Long idEmpresa, RequestPagoDto request) {
+    public ResponseDto update(Long idData, UUID idPagoGrupo, Long idEmpresa, RequestPagoDto request, String usuario) {
 
         List<XcPagosEntity> list = xcPagosRepository.getAllForFindByIdPagoGrupo(idPagoGrupo);
 
@@ -54,10 +57,14 @@ public class XcPagoServiceImpl {
 
             validarValoresFactura(request.getIdFactura(), list);
             xcPagosRepository.deleteAll(list);
-            List<XcPagosEntity> pagosEntities = xcPagosRepository
-                    .saveAll(xcPagosBuilder.builderListEntity(request, idPagoGrupo, idData, idEmpresa));
+            List<XcPagosEntity> nuevasEntidades = xcPagosBuilder.builderListEntity(request, idPagoGrupo, idData, idEmpresa);
+            nuevasEntidades.forEach(e -> {
+                e.setModifiedBy(usuario);
+                e.setModifiedDate(LocalDateTime.now());
+            });
+            List<XcPagosEntity> pagosEntities = xcPagosRepository.saveAll(nuevasEntidades);
             actualizarCamposFactura(request.getIdFactura(), pagosEntities);
-            tsComprobanteIngresoService.update(idData,idEmpresa, idPagoGrupo, request.getComprobanteIngreso());
+            tsComprobanteIngresoService.update(idData,idEmpresa, idPagoGrupo, request.getComprobanteIngreso(), usuario);
             return responseApiBuilder.builderResponse(idPagoGrupo.toString());
         } else {
             throw new GeneralException(MessageFormat.format("No existe lista de pagos del id grupo:  {0}",
@@ -67,10 +74,16 @@ public class XcPagoServiceImpl {
     }
 
 
-    public void delete(UUID idPagoGrupo) {
+    public void delete(UUID idPagoGrupo, String usuario) {
         List<XcPagosEntity> list = xcPagosRepository.getAllForFindByIdPagoGrupo(idPagoGrupo);
         if (!list.isEmpty()) {
             validarValoresFactura(list.getFirst().getFactura().getIdFactura(), list);
+            list.forEach(e -> {
+                e.setDeletedBy(usuario);
+                e.setDeletedDate(LocalDateTime.now());
+                e.setDelete(Boolean.TRUE);
+                xcPagosRepository.save(e);
+            });
             xcPagosRepository.deleteAll(list);
         } else {
             throw new GeneralException(MessageFormat.format("No existe lista de pagos del id grupo:  {0}",

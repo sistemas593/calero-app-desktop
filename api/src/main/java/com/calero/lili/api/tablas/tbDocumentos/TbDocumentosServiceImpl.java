@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -23,24 +24,34 @@ public class TbDocumentosServiceImpl {
     private final ResponseApiBuilder responseApiBuilder;
     private final TbDocumentoBuilder tbDocumentoBuilder;
 
-    public ResponseDto create(TbDocumentosCreationRequestDto request) {
+    public ResponseDto create(TbDocumentosCreationRequestDto request, String usuario) {
         Optional<TbDocumentoEntity> existing = tbRepository.findById(request.getCodigoDocumento());
         if (existing.isPresent()) {
             throw new GeneralException(MessageFormat.format("Documento {0} ya existe", request.getCodigoDocumento()));
         }
 
-        return responseApiBuilder.builderResponse(tbRepository.save(tbDocumentoBuilder.builderEntity(request)).getCodigoDocumento());
+        TbDocumentoEntity entity = tbDocumentoBuilder.builderEntity(request);
+        entity.setCreatedBy(usuario);
+        entity.setCreatedDate(LocalDateTime.now());
+        return responseApiBuilder.builderResponse(tbRepository.save(entity).getCodigoDocumento());
     }
 
-    public ResponseDto update(String id, TbDocumentosCreationRequestDto request) {
+    public ResponseDto update(String id, TbDocumentosCreationRequestDto request, String usuario) {
         TbDocumentoEntity entidad = tbRepository.findById(id).
                 orElseThrow(() -> new GeneralException(MessageFormat.format("Documento {0} no exists", id)));
-        return responseApiBuilder.builderResponse(tbRepository.save(tbDocumentoBuilder
-                .builderUpdateEntity(request, entidad)).getCodigoDocumento());
+        TbDocumentoEntity update = tbDocumentoBuilder.builderUpdateEntity(request, entidad);
+        update.setModifiedBy(usuario);
+        update.setModifiedDate(LocalDateTime.now());
+        return responseApiBuilder.builderResponse(tbRepository.save(update).getCodigoDocumento());
     }
 
-    public void delete(String codigoDocumento) {
-        tbRepository.deleteById(codigoDocumento);
+    public void delete(String codigoDocumento, String usuario) {
+        TbDocumentoEntity entidad = tbRepository.findById(codigoDocumento).
+                orElseThrow(() -> new GeneralException(MessageFormat.format("Documento {0} no exists", codigoDocumento)));
+        entidad.setDeletedBy(usuario);
+        entidad.setDeletedDate(LocalDateTime.now());
+        entidad.setDelete(Boolean.TRUE);
+        tbRepository.save(entidad);
     }
 
     public TbDocumentosGetOneDto findById(String id) {

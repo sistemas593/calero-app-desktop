@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -42,13 +43,14 @@ public class LiquidacionesController {
 
     private final LiquidacionesServiceImpl vtVentasService;
     private final IdDataServiceImpl idDataService;
+    private final AuditorAware<String> auditorAware;
 
     @PostMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('LQ_LQ_CR')")
     public ResponseDto create(@PathVariable("idEmpresa") Long idEmpresa,
                               @Valid @RequestBody CreationRequestLiquidacionCompraDto request) {
-        return vtVentasService.create(idDataService.getIdData(), idEmpresa, request);
+        return vtVentasService.create(idDataService.getIdData(), idEmpresa, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idEmpresa}/{idLiquidacion}")
@@ -57,7 +59,7 @@ public class LiquidacionesController {
     public ResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                               @PathVariable("idLiquidacion") UUID idLiquidacion,
                               @RequestBody CreationRequestLiquidacionCompraDto request) {
-        return vtVentasService.update(idDataService.getIdData(), idEmpresa, idLiquidacion, request);
+        return vtVentasService.update(idDataService.getIdData(), idEmpresa, idLiquidacion, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("{idEmpresa}/{idLiquidacion}")
@@ -65,7 +67,7 @@ public class LiquidacionesController {
     @PreAuthorize("hasAuthority('LQ_LQ_EL')")
     public void delete(@PathVariable("idEmpresa") Long idEmpresa,
                        @PathVariable("idLiquidacion") UUID idLiquidacion) {
-        vtVentasService.delete(idDataService.getIdData(), idEmpresa, idLiquidacion);
+        vtVentasService.delete(idDataService.getIdData(), idEmpresa, idLiquidacion, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{idEmpresa}/{idLiquidacion}")

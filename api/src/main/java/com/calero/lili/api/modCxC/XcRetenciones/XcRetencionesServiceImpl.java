@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.MessageFormat;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,18 +34,23 @@ public class XcRetencionesServiceImpl {
 
 
     @Transactional
-    public ResponseDto create(Long idData, Long idEmpresa, RequestRetencionesDto request) {
+    public ResponseDto create(Long idData, Long idEmpresa, RequestRetencionesDto request, String usuario) {
 
 
         UUID idPagoGrupo = UUID.randomUUID();
-        xcRetencionesRepository.saveAll(xcRetencionesBuilder.builderListEntity(request, idPagoGrupo, idData, idEmpresa));
+        List<XcPagosEntity> entidades = xcRetencionesBuilder.builderListEntity(request, idPagoGrupo, idData, idEmpresa);
+        entidades.forEach(e -> {
+            e.setCreatedBy(usuario);
+            e.setCreatedDate(LocalDateTime.now());
+        });
+        xcRetencionesRepository.saveAll(entidades);
         actualizarCamposFactura(request);
         return responseApiBuilder.builderResponse(idPagoGrupo.toString());
     }
 
 
     @Transactional
-    public ResponseDto update(Long idData, UUID idPagoGrupo, Long idEmpresa, RequestRetencionesDto request) {
+    public ResponseDto update(Long idData, UUID idPagoGrupo, Long idEmpresa, RequestRetencionesDto request, String usuario) {
 
 
         List<XcPagosEntity> list = xcRetencionesRepository.getAllForFindByIdPagoGrupo(idPagoGrupo);
@@ -53,7 +59,12 @@ public class XcRetencionesServiceImpl {
 
             validarValoresFactura(request);
             xcRetencionesRepository.deleteAll(list);
-            xcRetencionesRepository.saveAll(xcRetencionesBuilder.builderListEntity(request, idPagoGrupo, idData, idEmpresa));
+            List<XcPagosEntity> nuevasEntidades = xcRetencionesBuilder.builderListEntity(request, idPagoGrupo, idData, idEmpresa);
+            nuevasEntidades.forEach(e -> {
+                e.setModifiedBy(usuario);
+                e.setModifiedDate(LocalDateTime.now());
+            });
+            xcRetencionesRepository.saveAll(nuevasEntidades);
             actualizarCamposFactura(request);
             return responseApiBuilder.builderResponse(idPagoGrupo.toString());
         } else {
@@ -64,10 +75,16 @@ public class XcRetencionesServiceImpl {
     }
 
 
-    public void delete(UUID idPagoGrupo) {
+    public void delete(UUID idPagoGrupo, String usuario) {
         List<XcPagosEntity> list = xcRetencionesRepository.getAllForFindByIdPagoGrupo(idPagoGrupo);
         if (!list.isEmpty()) {
             validarValoresEliminar(list.getFirst().getFactura().getIdFactura());
+            list.forEach(e -> {
+                e.setDeletedBy(usuario);
+                e.setDeletedDate(LocalDateTime.now());
+                e.setDelete(Boolean.TRUE);
+                xcRetencionesRepository.save(e);
+            });
             xcRetencionesRepository.deleteAll(list);
         } else {
             throw new GeneralException(MessageFormat.format("No existe lista de pagos del id grupo:  {0}",

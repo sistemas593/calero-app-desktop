@@ -6,6 +6,7 @@ import com.calero.lili.api.modTesoreria.modTesoreriaCierresCajas.dto.BcCajaTpvCr
 import com.calero.lili.api.modTesoreria.modTesoreriaCierresCajas.dto.BcCajaTpvListFilterDto;
 import com.calero.lili.api.utils.IdDataServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -31,13 +32,14 @@ public class BcCajasTpvController {
 
     private final TsCajasTpvServiceImpl bcCajasTpvService;
     private final IdDataServiceImpl idDataService;
+    private final AuditorAware<String> auditorAware;
 
     @PostMapping("{idEmpresa}")
     @ResponseStatus(HttpStatus.CREATED)
     public BcCajaTpvCreationResponseDto create(
             @PathVariable("idEmpresa") Long idEmpresa,
             @RequestBody BcCajaTpvCreationRequestDto request) {
-        return bcCajasTpvService.create(idDataService.getIdData(), idEmpresa, request);
+        return bcCajasTpvService.create(idDataService.getIdData(), idEmpresa, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idEmpresa}/{id}")
@@ -45,14 +47,14 @@ public class BcCajasTpvController {
     public BcCajaTpvCreationResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                                                @PathVariable("id") UUID id,
                                                @RequestBody BcCajaTpvCreationRequestDto request) {
-        return bcCajasTpvService.update(idDataService.getIdData(),idEmpresa, id, request);
+        return bcCajasTpvService.update(idDataService.getIdData(),idEmpresa, id, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("{idEmpresa}/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("idEmpresa") Long idEmpresa,
                        @PathVariable("id") Long id) {
-        bcCajasTpvService.delete(idDataService.getIdData(),idEmpresa, id);
+        bcCajasTpvService.delete(idDataService.getIdData(),idEmpresa, id, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{idEmpresa}/{id}")

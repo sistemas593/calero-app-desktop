@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -22,27 +23,33 @@ public class CantonServiceImpl {
     private final CantonRepository cantonRepository;
     private final CantonBuilder cantonBuilder;
 
-    public ResponseCantonDto create(RequestCantonDto request) {
-
-        return cantonBuilder.builderResponse(cantonRepository
-                .save(cantonBuilder.builderEntity(request)));
+    public ResponseCantonDto create(RequestCantonDto request, String usuario) {
+        CantonEntity newEntity = cantonBuilder.builderEntity(request);
+        newEntity.setCreatedBy(usuario);
+        newEntity.setCreatedDate(LocalDateTime.now());
+        return cantonBuilder.builderResponse(cantonRepository.save(newEntity));
     }
 
-    public ResponseCantonDto update(String idProvincia, RequestCantonDto request) {
+    public ResponseCantonDto update(String idProvincia, RequestCantonDto request, String usuario) {
         CantonEntity cantonEntity = cantonRepository.getForFindById(idProvincia);
         if (Objects.isNull(cantonEntity)) {
             throw new GeneralException(MessageFormat.format("Id {0} no existe", idProvincia));
         }
-        return cantonBuilder.builderResponse(cantonRepository
-                .save(cantonBuilder.builderUpdateEntity(request, cantonEntity)));
+        CantonEntity updated = cantonBuilder.builderUpdateEntity(request, cantonEntity);
+        updated.setModifiedBy(usuario);
+        updated.setModifiedDate(LocalDateTime.now());
+        return cantonBuilder.builderResponse(cantonRepository.save(updated));
     }
 
-    public void delete(String idProvincia) {
+    public void delete(String idProvincia, String usuario) {
         CantonEntity cantonEntity = cantonRepository.getForFindById(idProvincia);
         if (Objects.isNull(cantonEntity)) {
             throw new GeneralException(MessageFormat.format("Id {0} no existe", idProvincia));
         }
-        cantonRepository.deleteById(idProvincia);
+        cantonEntity.setDeletedBy(usuario);
+        cantonEntity.setDeletedDate(LocalDateTime.now());
+        cantonEntity.setDelete(Boolean.TRUE);
+        cantonRepository.save(cantonEntity);
     }
 
     public ResponseCantonDto findFirstById(String idProvincia) {

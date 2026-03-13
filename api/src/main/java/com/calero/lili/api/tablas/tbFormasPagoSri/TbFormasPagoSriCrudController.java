@@ -1,5 +1,6 @@
 package com.calero.lili.api.tablas.tbFormasPagoSri;
 
+import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.core.dtos.FilterDto;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.ResponseDto;
@@ -25,12 +26,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class TbFormasPagoSriCrudController {
 
     private final TbFormasPagoSriServiceImpl tbDocumentosService;
+    private final AuditorAwareImpl auditorAware;
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseDto create(
             @RequestBody TbFormaPagoSriCreationRequestDto request) {
-        return tbDocumentosService.create(request);
+        return tbDocumentosService.create(request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{id}")
@@ -38,14 +40,14 @@ public class TbFormasPagoSriCrudController {
     public ResponseDto update(
             @PathVariable("id") String id,
             @RequestBody TbFormaPagoSriCreationRequestDto request) {
-        return tbDocumentosService.update(id, request);
+        return tbDocumentosService.update(id, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(
             @PathVariable("id") String id) {
-        tbDocumentosService.delete(id);
+        tbDocumentosService.delete(id, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{id}")

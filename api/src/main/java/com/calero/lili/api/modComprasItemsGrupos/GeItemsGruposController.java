@@ -1,13 +1,14 @@
 package com.calero.lili.api.modComprasItemsGrupos;
 
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.api.modComprasItemsGrupos.dto.GeItemGrupoCreationRequestDto;
 import com.calero.lili.api.modComprasItemsGrupos.dto.GeItemGrupoGetListDto;
 import com.calero.lili.api.modComprasItemsGrupos.dto.GeItemGrupoGetOneDto;
 import com.calero.lili.api.modComprasItemsGrupos.dto.GeItemGrupoListFilterDto;
 import com.calero.lili.api.utils.IdDataServiceImpl;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.ResponseDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,6 +35,7 @@ public class GeItemsGruposController {
 
     private final GeItemsGruposServiceImpl geItemsGruposService;
     private final IdDataServiceImpl idDataService;
+    private final AuditorAware<String> auditorAware;
 
     @PostMapping("{idEmpresa}")
     @ResponseStatus(HttpStatus.CREATED)
@@ -41,7 +43,7 @@ public class GeItemsGruposController {
     public ResponseDto create(
             @PathVariable("idEmpresa") Long idEmpresa,
             @RequestBody GeItemGrupoCreationRequestDto request) {
-        return geItemsGruposService.create(idDataService.getIdData(), idEmpresa, request);
+        return geItemsGruposService.create(idDataService.getIdData(), idEmpresa, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idEmpresa}/{id}")
@@ -50,7 +52,7 @@ public class GeItemsGruposController {
     public ResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                               @PathVariable("id") UUID id,
                               @RequestBody GeItemGrupoCreationRequestDto request) {
-        return geItemsGruposService.update(idDataService.getIdData(), idEmpresa, id, request);
+        return geItemsGruposService.update(idDataService.getIdData(), idEmpresa, id, request,auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("{idEmpresa}/{id}")
@@ -58,7 +60,7 @@ public class GeItemsGruposController {
     @PreAuthorize("hasAuthority('GE_IG_EL')")
     public void delete(@PathVariable("idEmpresa") Long idEmpresa,
                        @PathVariable("id") UUID id) {
-        geItemsGruposService.delete(idDataService.getIdData(), idEmpresa, id);
+        geItemsGruposService.delete(idDataService.getIdData(), idEmpresa, id,auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{idEmpresa}/{id}")

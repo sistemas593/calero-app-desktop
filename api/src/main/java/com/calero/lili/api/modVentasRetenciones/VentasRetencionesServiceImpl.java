@@ -1,10 +1,5 @@
 package com.calero.lili.api.modVentasRetenciones;
 
-import com.calero.lili.core.builder.ResponseApiBuilder;
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.Paginator;
-import com.calero.lili.core.dtos.ResponseDto;
-import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.api.modTerceros.GeTerceroEntity;
 import com.calero.lili.api.modTerceros.GeTercerosRepository;
 import com.calero.lili.api.modVentasRetenciones.builder.VtRetencionesBuilder;
@@ -14,6 +9,11 @@ import com.calero.lili.api.modVentasRetenciones.dto.GetDto;
 import com.calero.lili.api.modVentasRetenciones.dto.GetListDto;
 import com.calero.lili.api.modVentasRetenciones.dto.GetListDtoTotalizado;
 import com.calero.lili.api.modVentasRetenciones.projection.TotalesProjection;
+import com.calero.lili.core.builder.ResponseApiBuilder;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.Paginator;
+import com.calero.lili.core.dtos.ResponseDto;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.utils.DateUtils;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -27,7 +27,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -57,9 +56,8 @@ public class VentasRetencionesServiceImpl {
     private final VtRetencionesBuilder vtRetencionesBuilder;
     private final ResponseApiBuilder responseApiBuilder;
     private final GeTercerosRepository geTercerosRepository;
-    private final AuditorAware<String> auditorAware;
 
-    public ResponseDto create(Long idData, Long idEmpresa, CreationVentasRetencionesRequestDto request) {
+    public ResponseDto create(Long idData, Long idEmpresa, CreationVentasRetencionesRequestDto request, String usuario) {
 
 
         GeTerceroEntity tercero = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
@@ -68,6 +66,8 @@ public class VentasRetencionesServiceImpl {
         VtRetencionesEntity retenciones = vtRetencionesBuilder
                 .builderEntity(request, idData, idEmpresa);
         retenciones.setCliente(tercero);
+        retenciones.setCreatedBy(usuario);
+        retenciones.setCreatedDate(LocalDateTime.now());
 
         return responseApiBuilder.builderResponse(vtVentaRepository.save(retenciones).getIdRetencion().toString());
 
@@ -75,7 +75,8 @@ public class VentasRetencionesServiceImpl {
 
 
     @Transactional
-    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationVentasRetencionesRequestDto request) {
+    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationVentasRetencionesRequestDto request,
+                              String usuario) {
 
         VtRetencionesEntity vtRetencionesEntity = vtVentaRepository
                 .findById(idData, idEmpresa, idVenta)
@@ -88,7 +89,7 @@ public class VentasRetencionesServiceImpl {
                 .builderUpdateEntity(request, vtRetencionesEntity);
 
         retenciones.setCliente(tercero);
-        retenciones.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        retenciones.setModifiedBy(usuario);
         retenciones.setModifiedDate(LocalDateTime.now());
 
         VtRetencionesEntity actualizado = vtVentaRepository.save(retenciones);
@@ -96,7 +97,7 @@ public class VentasRetencionesServiceImpl {
 
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID idVenta) {
+    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario) {
 
 
         VtRetencionesEntity vtRetencionesEntity = vtVentaRepository
@@ -104,7 +105,7 @@ public class VentasRetencionesServiceImpl {
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("idVenta {0} no existe", idVenta)));
 
         vtRetencionesEntity.setDelete(Boolean.TRUE);
-        vtRetencionesEntity.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        vtRetencionesEntity.setDeletedBy(usuario);
         vtRetencionesEntity.setDeletedDate(LocalDateTime.now());
 
         vtVentaRepository.save(vtRetencionesEntity);

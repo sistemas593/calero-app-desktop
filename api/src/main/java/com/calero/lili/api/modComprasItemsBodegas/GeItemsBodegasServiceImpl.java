@@ -1,15 +1,14 @@
 package com.calero.lili.api.modComprasItemsBodegas;
 
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.Paginator;
-import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.api.modComprasItemsBodegas.builder.GetItemsBodegasBuilder;
 import com.calero.lili.api.modComprasItemsBodegas.dto.GeItemBodegaCreationRequestDto;
 import com.calero.lili.api.modComprasItemsBodegas.dto.GeItemBodegaCreationResponseDto;
 import com.calero.lili.api.modComprasItemsBodegas.dto.GeItemBodegaListFilterDto;
 import com.calero.lili.api.modComprasItemsBodegas.dto.GeItemBodegaReportDto;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.Paginator;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -25,21 +24,25 @@ public class GeItemsBodegasServiceImpl {
 
     private final GeItemsBodegasRepository geItemsMedidasRepository;
     private final GetItemsBodegasBuilder getItemsBodegasBuilder;
-    private final AuditorAware<String> auditorAware;
 
-    public GeItemBodegaCreationResponseDto create(Long idData, Long idEmpresa, GeItemBodegaCreationRequestDto request) {
+
+    public GeItemBodegaCreationResponseDto create(Long idData, Long idEmpresa,
+                                                  GeItemBodegaCreationRequestDto request, String usuario) {
 
         IvBodegaEntity entidad = getItemsBodegasBuilder.builderEntity(request, idData, idEmpresa);
         entidad.setIdBodega(UUID.randomUUID());
+        entidad.setCreatedBy(usuario);
+        entidad.setCreatedDate(LocalDateTime.now());
         return getItemsBodegasBuilder.builderDto(geItemsMedidasRepository.save(entidad));
     }
 
-    public GeItemBodegaCreationResponseDto update(Long idData, Long idEmpresa, UUID id, GeItemBodegaCreationRequestDto request) {
+    public GeItemBodegaCreationResponseDto update(Long idData, Long idEmpresa, UUID id,
+                                                  GeItemBodegaCreationRequestDto request, String usuario) {
 
         IvBodegaEntity entidad = geItemsMedidasRepository.findById(idData, idEmpresa, id);
         if (entidad != null) {
             IvBodegaEntity update = getItemsBodegasBuilder.builderUpdateEntity(request, entidad);
-            update.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+            update.setModifiedBy(usuario);
             update.setModifiedDate(LocalDateTime.now());
             geItemsMedidasRepository.save(update);
             return getItemsBodegasBuilder.builderDto(update);
@@ -48,7 +51,7 @@ public class GeItemsBodegasServiceImpl {
         }
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID id) {
+    public void delete(Long idData, Long idEmpresa, UUID id, String usuario) {
 
         IvBodegaEntity entidad = geItemsMedidasRepository.findById(idData, idEmpresa, id);
         if (entidad == null) {
@@ -56,7 +59,7 @@ public class GeItemsBodegasServiceImpl {
         }
 
         entidad.setDelete(Boolean.TRUE);
-        entidad.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        entidad.setDeletedBy(usuario);
         entidad.setDeletedDate(LocalDateTime.now());
 
         geItemsMedidasRepository.save(entidad);

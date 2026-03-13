@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -31,7 +32,7 @@ public class ExcelCargaPlanCuentasServiceImpl {
     private final CpPlanCuentasConfiguracionPadresImpl cpPlanCuentasConfiguracionService;
 
     @Transactional
-    public void cargarPlanDeCuentas(Long idData, MultipartFile file, Long idEmpresa) throws IOException {
+    public void cargarPlanDeCuentas(Long idData, MultipartFile file, Long idEmpresa, String usuario) throws IOException {
 
 // BUSCAR TODAS LAS CUENTAS QUE EXISTAN DE LA EMPRESA (CONTEO DE CUENTAS)
         // SI QUE EXISTEN LAS CUENTAS, SI EXISTE AL MENOS UNA NO SE REALIZA EL PROCESO, Y SE ENVIA UN ERROR
@@ -64,6 +65,8 @@ public class ExcelCargaPlanCuentasServiceImpl {
                 item.setIdCuenta(UUID.randomUUID());
                 item.setIdData(idData);
                 item.setIdEmpresa(idEmpresa);
+                item.setCreatedBy(usuario);
+                item.setCreatedDate(LocalDateTime.now());
 
                 if (Objects.isNull(row.getCell(0))) {
                     detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.NOT_FOUND_CUENTA));

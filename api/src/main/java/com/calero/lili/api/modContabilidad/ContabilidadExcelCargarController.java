@@ -5,6 +5,7 @@ import com.calero.lili.api.modContabilidad.services.ExcelCargaPlanCuentasService
 import com.calero.lili.api.modContabilidad.services.ExcelCargarAsientosServiceImpl;
 import com.calero.lili.api.utils.IdDataServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,12 +28,13 @@ public class ContabilidadExcelCargarController {
     private final ExcelCargarAsientosServiceImpl excelCargarAsientosService;
 
     private final IdDataServiceImpl idDataService;
+    private final AuditorAware<String> auditorAware;
 
     @PostMapping("/plan-cuentas/{idEmpresa}")
     @PreAuthorize("hasAuthority('CN_PC_IMEX')")
     public void uploadFilePlanCuentas(@RequestBody MultipartFile file, @PathVariable("idEmpresa") Long idEmpresa) {
         try {
-            excelCargaPlanCuentasService.cargarPlanDeCuentas(idDataService.getIdData(), file, idEmpresa);
+            excelCargaPlanCuentasService.cargarPlanDeCuentas(idDataService.getIdData(), file, idEmpresa, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -44,7 +46,7 @@ public class ContabilidadExcelCargarController {
                                    @PathVariable("idEmpresa") Long idEmpresa,
                                    FilterListDto request) {
         try {
-            excelCargarAsientosService.cargarAsientos(idDataService.getIdData(), idEmpresa, file, request);
+            excelCargarAsientosService.cargarAsientos(idDataService.getIdData(), idEmpresa, file, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

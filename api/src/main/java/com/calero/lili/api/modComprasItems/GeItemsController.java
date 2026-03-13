@@ -1,15 +1,16 @@
 package com.calero.lili.api.modComprasItems;
 
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.errors.ListCreationResponseDto;
 import com.calero.lili.api.modComprasItems.dto.GeItemGetListDto;
 import com.calero.lili.api.modComprasItems.dto.GeItemGetOneDto;
 import com.calero.lili.api.modComprasItems.dto.GeItemListFilterDto;
 import com.calero.lili.api.modComprasItems.dto.GeItemRequestDto;
 import com.calero.lili.api.modComprasItems.dto.GeItemRequestListDto;
 import com.calero.lili.api.utils.IdDataServiceImpl;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.errors.ListCreationResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,13 +36,14 @@ public class GeItemsController {
 
     private final GeItemsServiceImpl geItemsService;
     private final IdDataServiceImpl idDataService;
+    private final AuditorAware<String> auditorAware;
 
     @PostMapping("{idEmpresa}")
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('GE_IT_CR')")
     public GeItemGetListDto create(@Valid @PathVariable("idEmpresa") Long idEmpresa,
                                    @Valid @RequestBody GeItemRequestDto request) {
-        return geItemsService.create(idDataService.getIdData(), idEmpresa, request);
+        return geItemsService.create(idDataService.getIdData(), idEmpresa, request,auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PostMapping("/createList/{idEmpresa}")
@@ -49,7 +51,7 @@ public class GeItemsController {
     @PreAuthorize("hasAuthority('GE_IT_CR')")
     public ListCreationResponseDto createList(@PathVariable("idEmpresa") Long idEmpresa,
                                               @Valid @RequestBody GeItemRequestListDto request) {
-        return geItemsService.createListItems(idDataService.getIdData(), idEmpresa, request);
+        return geItemsService.createListItems(idDataService.getIdData(), idEmpresa, request,auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idEmpresa}/{id}")
@@ -58,7 +60,7 @@ public class GeItemsController {
     public GeItemGetListDto update(@PathVariable("idEmpresa") Long idEmpresa,
                                    @PathVariable("id") UUID id,
                                    @Valid @RequestBody GeItemRequestDto request) {
-        return geItemsService.update(idDataService.getIdData(), idEmpresa, id, request);
+        return geItemsService.update(idDataService.getIdData(), idEmpresa, id, request,auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("{idEmpresa}/{id}")
@@ -66,7 +68,7 @@ public class GeItemsController {
     @PreAuthorize("hasAuthority('GE_IT_EL')")
     public void delete(@PathVariable("idEmpresa") Long idEmpresa,
                        @PathVariable("id") UUID id) {
-        geItemsService.delete(idDataService.getIdData(), idEmpresa, id);
+        geItemsService.delete(idDataService.getIdData(), idEmpresa, id, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{idEmpresa}/{id}")

@@ -1,5 +1,6 @@
 package com.calero.lili.api.adEmpresasPeriodo;
 
+import com.calero.lili.core.Auditable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -19,7 +20,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "ad_empresas_periodos")
-public class AdEmpresaPeriodoEntity {
+public class AdEmpresaPeriodoEntity extends Auditable {
 
     @Id
     @Column(unique = true, updatable = false, nullable = false)

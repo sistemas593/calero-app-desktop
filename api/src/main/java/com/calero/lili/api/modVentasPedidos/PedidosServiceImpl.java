@@ -59,9 +59,9 @@ public class PedidosServiceImpl {
     private final ResponseApiBuilder responseApiBuilder;
     private final VtPedidoBuilder vtPedidoBuilder;
     private final GeTercerosRepository geTercerosRepository;
-    private final AuditorAware<String> auditorAware;
 
-    public ResponseDto create(Long idData, Long idEmpresa, CreationComprasPedidosRequestDto request) {
+
+    public ResponseDto create(Long idData, Long idEmpresa, CreationComprasPedidosRequestDto request, String usuario) {
 
         Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData, idEmpresa, request.getSecuencial());
 
@@ -77,6 +77,8 @@ public class PedidosServiceImpl {
         vtPedido.setCliente(tercero);
         vtPedido.setTerceroNombre(tercero.getTercero());
         vtPedido.setEmail(tercero.getEmail());
+        vtPedido.setCreatedBy(usuario);
+        vtPedido.setCreatedDate(LocalDateTime.now());
 
         VtPedidoEntity vtVentaEntity = vtVentaRepository.save(vtPedido);
 
@@ -85,7 +87,7 @@ public class PedidosServiceImpl {
 
 
     @Transactional
-    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationComprasPedidosRequestDto request) {
+    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationComprasPedidosRequestDto request, String usuario) {
 
 
         VtPedidoEntity vtVentaEntity = vtVentaRepository
@@ -104,7 +106,7 @@ public class PedidosServiceImpl {
 
         VtPedidoEntity vtPedido = vtPedidoBuilder.builderUpdateEntity(request, vtVentaEntity);
 
-        vtPedido.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        vtPedido.setModifiedBy(usuario);
         vtPedido.setModifiedDate(LocalDateTime.now());
         vtPedido.setCliente(tercero);
         vtPedido.setTerceroNombre(tercero.getTercero());
@@ -116,7 +118,7 @@ public class PedidosServiceImpl {
 
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID idVenta) {
+    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario) {
 
 
         VtPedidoEntity vtVentaEntity = vtVentaRepository
@@ -124,7 +126,7 @@ public class PedidosServiceImpl {
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("idVenta {0} no existe", idVenta)));
 
         vtVentaEntity.setDelete(Boolean.TRUE);
-        vtVentaEntity.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        vtVentaEntity.setDeletedBy(usuario);
         vtVentaEntity.setDeletedDate(LocalDateTime.now());
 
         vtVentaRepository.save(vtVentaEntity);

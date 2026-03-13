@@ -1,20 +1,9 @@
 package com.calero.lili.api.modVentas.notasCredito;
 
-import com.calero.lili.api.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
-import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.api.comprobantes.services.ComprobanteServiceImpl;
-import com.calero.lili.core.dtos.Mensajes;
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.Paginator;
-import com.calero.lili.core.dtos.ResponseDto;
-import com.calero.lili.core.enums.EstadoDocumento;
-import com.calero.lili.core.enums.FormatoDocumento;
-import com.calero.lili.core.enums.TipoEmision;
-import com.calero.lili.core.enums.TipoVenta;
-import com.calero.lili.core.errors.exceptions.GeneralException;
-import com.calero.lili.core.errors.exceptions.NotFoundException;
 import com.calero.lili.api.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosEntity;
 import com.calero.lili.api.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosRepository;
+import com.calero.lili.api.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
 import com.calero.lili.api.modComprasItems.GeItemsRepository;
 import com.calero.lili.api.modContabilidad.modAsientos.CnAsientosEntity;
 import com.calero.lili.api.modContabilidad.modAsientos.CnAsientosRepository;
@@ -34,6 +23,17 @@ import com.calero.lili.api.modVentas.notasCredito.dto.GetNotaCreditoDto;
 import com.calero.lili.api.modVentas.projection.OneProjection;
 import com.calero.lili.api.modVentas.projection.TotalesProjection;
 import com.calero.lili.api.utils.validaciones.ValidarCampoAscii;
+import com.calero.lili.core.builder.ResponseApiBuilder;
+import com.calero.lili.core.dtos.Mensajes;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.Paginator;
+import com.calero.lili.core.dtos.ResponseDto;
+import com.calero.lili.core.enums.EstadoDocumento;
+import com.calero.lili.core.enums.FormatoDocumento;
+import com.calero.lili.core.enums.TipoEmision;
+import com.calero.lili.core.enums.TipoVenta;
+import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.core.errors.exceptions.NotFoundException;
 import com.calero.lili.core.utils.DateUtils;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -47,7 +47,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -85,13 +84,12 @@ public class VtVentasNotasCreditoServiceImpl {
     private final ComprobanteServiceImpl vtComprobanteService;
     private final GeItemsRepository geItemsRepository;
     private final GeTercerosRepository geTercerosRepository;
-    private final AuditorAware<String> auditorAware;
     private final CnAsientosRepository cnAsientosRepository;
     private final GenerarAsientoServiceImpl generarAsientoService;
     private final AdIvaPorcentajeServiceImpl adIvaPorcentajeService;
 
 
-    public ResponseDto create(Long idData, Long idEmpresa, CreationNotaCreditoRequestDto request) {
+    public ResponseDto create(Long idData, Long idEmpresa, CreationNotaCreditoRequestDto request, String usuario) {
 
         ValidarCampoAscii.validarStrings(request);
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
@@ -114,6 +112,8 @@ public class VtVentasNotasCreditoServiceImpl {
         vtVentaEntity.setTercero(tercero);
         vtVentaEntity.setEmail(tercero.getTercero());
         vtVentaEntity.setTerceroNombre(tercero.getTercero());
+        vtVentaEntity.setCreatedBy(usuario);
+        vtVentaEntity.setCreatedDate(LocalDateTime.now());
 
         vtVentaEntity.setTipoEmision(getTipoEmision(request));
         vtComprobanteService.getComprobanteXmlNotaCredito(idData, idEmpresa, vtVentaEntity);
@@ -140,7 +140,7 @@ public class VtVentasNotasCreditoServiceImpl {
     }
 
     @Transactional
-    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationNotaCreditoRequestDto request) {
+    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationNotaCreditoRequestDto request, String usuario) {
 
         ValidarCampoAscii.validarStrings(request);
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
@@ -168,7 +168,7 @@ public class VtVentasNotasCreditoServiceImpl {
 
         VtVentaEntity update = vtNotasCreditoBuilder.builderUpdateEntity(request, vtVentaEntity);
 
-        update.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        update.setModifiedBy(usuario);
         update.setModifiedDate(LocalDateTime.now());
 
         update.setTercero(tercero);
@@ -189,13 +189,13 @@ public class VtVentasNotasCreditoServiceImpl {
         }
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID idVenta) {
+    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario) {
 
         VtVentaEntity venta = vtVentaRepository.findByIdEntity(idData, idEmpresa, idVenta)
                 .orElseThrow(() -> new NotFoundException(MessageFormat.format("La nota de credito con ID {0} no existe", idVenta)));
 
         venta.setDelete(Boolean.TRUE);
-        venta.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        venta.setDeletedBy(usuario);
         venta.setDeletedDate(LocalDateTime.now());
 
         vtVentaRepository.save(venta);
