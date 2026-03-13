@@ -1,7 +1,9 @@
 package com.calero.lili.api.modCompras.modComprasLiquidaciones.reembolsos;
 
+import com.calero.lili.api.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
 import com.calero.lili.api.modCompras.modComprasLiquidaciones.dto.FilterListDto;
 import com.calero.lili.api.modCompras.modComprasLiquidaciones.dto.GetListDtoTotalizado;
+import com.calero.lili.api.modCompras.modComprasLiquidaciones.dto.detalles.ValoresDto;
 import com.calero.lili.api.modCompras.modComprasLiquidaciones.projection.TotalesProjection;
 import com.calero.lili.api.modCompras.modComprasLiquidaciones.reembolsos.builder.CpLiquidacionesReembolsosBuilder;
 import com.calero.lili.api.modCompras.modComprasLiquidaciones.reembolsos.dto.GetReembolsoDto;
@@ -41,6 +43,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.IntStream;
@@ -55,8 +58,13 @@ public class LiquidacionesReembolsosServiceImpl {
     private final CpLiquidacionesReembolsosBuilder cpLiquidacionesReembolsosBuilder;
     private final ResponseApiBuilder responseApiBuilder;
     private final AuditorAware<String> auditorAware;
+    private final AdIvaPorcentajeServiceImpl adIvaPorcentajeService;
 
     public ResponseDto create(ReembolsoRequestDto request) {
+
+        adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getReembolsosValores()),
+                DateUtils.toLocalDate(request.getFechaEmisionReemb()));
+
         Optional<CpLiquidacionesReembolsosEntity> existReembolso = reembolsosRepository
                 .findByIdentificacionAndDocumentoAndSecuencialAndAutorizacion(request.getNumeroIdentificacionReemb(),
                         request.getSerieReemb(), request.getSecuencialReemb(), request.getNumeroAutorizacionReemb());
@@ -73,6 +81,9 @@ public class LiquidacionesReembolsosServiceImpl {
 
     @Transactional
     public ResponseDto update(UUID idReembolso, ReembolsoRequestDto request) {
+
+        adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getReembolsosValores()),
+                DateUtils.toLocalDate(request.getFechaEmisionReemb()));
 
         CpLiquidacionesReembolsosEntity reembolso = reembolsosRepository
                 .findByIdLiquidacionReembolsos(idReembolso).orElseThrow(() -> new GeneralException(MessageFormat.format("idReembolso {0} no existe", idReembolso)));
@@ -430,6 +441,14 @@ public class LiquidacionesReembolsosServiceImpl {
             }
 
         }
+    }
+
+    private List<Integer> getIntegerTarifaIva(List<ValoresDto> valores) {
+        return valores.stream()
+                .map(ValoresDto::getTarifa)
+                .filter(Objects::nonNull)
+                .map(BigDecimal::intValue)
+                .toList();
     }
 
 

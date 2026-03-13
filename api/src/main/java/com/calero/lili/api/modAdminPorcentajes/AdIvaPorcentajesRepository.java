@@ -34,7 +34,7 @@ public interface AdIvaPorcentajesRepository extends JpaRepository<AdIvaPorcentaj
             SELECT entity 
             FROM AdIvaPorcentajesEntity entity
             WHERE entity.fechaDesde <= :fechaFactura
-            ORDER BY entity.fechaDesde DESC
+            ORDER BY entity.fechaDesde DESC LIMIT 1
             """)
     Optional<AdIvaPorcentajesEntity> findVigente(@Param("fechaFactura") LocalDate fechaFactura);
 

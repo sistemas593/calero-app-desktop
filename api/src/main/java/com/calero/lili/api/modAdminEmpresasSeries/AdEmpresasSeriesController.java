@@ -4,6 +4,7 @@ import com.calero.lili.api.modAdminEmpresasSeries.dto.AdEmpresaSerieCreationRequ
 import com.calero.lili.api.modAdminEmpresasSeries.dto.AdEmpresaSerieGetDto;
 import com.calero.lili.api.modAdminEmpresasSeries.dto.AdEmpresaSerieGetListDto;
 import com.calero.lili.api.modAdminEmpresasSeries.dto.AdEmpresaSerieListFilterDto;
+import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.api.utils.IdDataServiceImpl;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.ResponseDto;
@@ -34,13 +35,15 @@ public class AdEmpresasSeriesController {
 
     private final AdEmpresasSeriesServiceImpl adEmpresasSeriesService;
     private final IdDataServiceImpl idDataService;
+    private final AuditorAwareImpl auditorAware;
 
     @PostMapping("{idEmpresa}")
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('AD_SE_CR')")
     public ResponseDto create(@PathVariable("idEmpresa") Long idEmpresa,
                               @RequestBody AdEmpresaSerieCreationRequestDto request) {
-        return adEmpresasSeriesService.create(idDataService.getIdData(), idEmpresa, request);
+        return adEmpresasSeriesService.create(idDataService.getIdData(), idEmpresa, request,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idEmpresa}/{id}")
@@ -50,7 +53,8 @@ public class AdEmpresasSeriesController {
                               @PathVariable("id") UUID id,
                               @RequestBody AdEmpresaSerieCreationRequestDto request) {
         System.out.println(id);
-        return adEmpresasSeriesService.update(idDataService.getIdData(), idEmpresa, id, request);
+        return adEmpresasSeriesService.update(idDataService.getIdData(), idEmpresa, id, request,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("{idEmpresa}/{id}")
@@ -58,7 +62,8 @@ public class AdEmpresasSeriesController {
     @PreAuthorize("hasAuthority('AD_SE_EL')")
     public void delete(@PathVariable("idEmpresa") Long idEmpresa,
                        @PathVariable("id") UUID id) {
-        adEmpresasSeriesService.delete(idDataService.getIdData(), idEmpresa, id);
+        adEmpresasSeriesService.delete(idDataService.getIdData(), idEmpresa, id,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{idEmpresa}/{idSerie}")

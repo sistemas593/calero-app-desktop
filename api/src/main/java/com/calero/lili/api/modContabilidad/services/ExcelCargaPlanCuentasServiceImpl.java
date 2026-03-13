@@ -12,6 +12,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -29,6 +30,7 @@ public class ExcelCargaPlanCuentasServiceImpl {
     private final DetalleErrorBuilder detalleErrorBuilder;
     private final CpPlanCuentasConfiguracionPadresImpl cpPlanCuentasConfiguracionService;
 
+    @Transactional
     public void cargarPlanDeCuentas(Long idData, MultipartFile file, Long idEmpresa) throws IOException {
 
 // BUSCAR TODAS LAS CUENTAS QUE EXISTAN DE LA EMPRESA (CONTEO DE CUENTAS)

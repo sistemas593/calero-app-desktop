@@ -1,5 +1,6 @@
 package com.calero.lili.api.modCompras.modCompras;
 
+import com.calero.lili.api.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
 import com.calero.lili.api.modCompras.modCompras.builder.CpComprasBuilder;
 import com.calero.lili.api.modCompras.modCompras.dto.CompraImpuestosDto;
 import com.calero.lili.api.modCompras.modCompras.dto.CompraRequestDto;
@@ -67,10 +68,14 @@ public class ComprasServiceImpl {
     private final GeItemsRepository geItemsRepository;
     private final GeTercerosRepository geTercerosRepository;
     private final AuditorAware<String> auditorAware;
+    private final AdIvaPorcentajeServiceImpl adIvaPorcentajeService;
 
     public ResponseDto create(Long idData, Long idEmpresa, CompraRequestDto request) {
 
         validarItem(request, idData, idEmpresa);
+
+        adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
+                DateUtils.toLocalDate(request.getFechaEmision()));
 
         GeTerceroEntity tercero = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
                 .orElseThrow(() -> new GeneralException("No existe tercero"));
@@ -119,6 +124,10 @@ public class ComprasServiceImpl {
 
     @Transactional
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CompraRequestDto request) {
+
+        adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
+                DateUtils.toLocalDate(request.getFechaEmision()));
+
 
         CpComprasEntity vtVentaEntity = comprasRepository
                 .findByIdEntity(idData, idEmpresa, idVenta)
@@ -486,6 +495,14 @@ public class ComprasServiceImpl {
             geItemsRepository.findByIdItem(idData, idEmpresa, model.getIdItem())
                     .orElseThrow(() -> new GeneralException("El item con id  " + model.getIdItem() + " no existe "));
         }
+    }
+
+    private List<Integer> getIntegerTarifaIva(List<CompraRequestDto.ValoresDto> valores) {
+        return valores.stream()
+                .map(CompraRequestDto.ValoresDto::getTarifa)
+                .filter(Objects::nonNull)
+                .map(BigDecimal::intValue)
+                .toList();
     }
 
 }

@@ -6,6 +6,7 @@ import com.calero.lili.api.modAdminUsuarios.adPermisos.dto.PermisoFilterDto;
 import com.calero.lili.core.dtos.PaginatedDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,12 +28,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class AdPermisoController {
 
     private final AdPermisosServiceImpl adPermisosService;
+    private final AuditorAware<String> auditorAware;
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('US_PE_CR')")
     public AdPermisosResponseDto create(@RequestBody @Valid AdPermisosRequestDto request) {
-        return adPermisosService.create(request);
+        return adPermisosService.create(request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idPermiso}")
@@ -41,7 +43,7 @@ public class AdPermisoController {
     public AdPermisosResponseDto update(@PathVariable("idPermiso") Long idPermiso,
                                         @RequestBody @Valid AdPermisosRequestDto request) {
 
-        return adPermisosService.update(idPermiso, request);
+        return adPermisosService.update(idPermiso, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{idPermiso}")
@@ -64,7 +66,7 @@ public class AdPermisoController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasAuthority('US_PE_EL')")
     public void delete(@PathVariable("idPermiso") Long idPermiso) {
-        adPermisosService.delete(idPermiso);
+        adPermisosService.delete(idPermiso, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
 }

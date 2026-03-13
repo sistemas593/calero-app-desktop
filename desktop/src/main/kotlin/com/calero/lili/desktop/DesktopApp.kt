@@ -86,8 +86,9 @@ fun main() {
                         )
                     } else {
                         EmpresasScreen(
-                            viewModel      = viewModel,
-                            onNuevaEmpresa = { viewModel.abrirFormulario() }
+                            viewModel       = viewModel,
+                            onNuevaEmpresa  = { viewModel.abrirFormulario() },
+                            onEditarEmpresa = { idEmpresa -> viewModel.abrirFormulario(idEmpresa) }
                         )
                     }
                 }

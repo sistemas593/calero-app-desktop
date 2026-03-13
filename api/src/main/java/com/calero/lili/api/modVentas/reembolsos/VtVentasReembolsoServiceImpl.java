@@ -1,16 +1,17 @@
 package com.calero.lili.api.modVentas.reembolsos;
 
-import com.calero.lili.core.builder.ResponseApiBuilder;
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.Paginator;
-import com.calero.lili.core.dtos.ResponseDto;
-import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.api.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
 import com.calero.lili.api.modVentas.facturas.dto.FilterListDto;
 import com.calero.lili.api.modVentas.reembolsos.builder.VtVentaReembolsosBuilder;
 import com.calero.lili.api.modVentas.reembolsos.dto.CreationRequestReembolsoDto;
 import com.calero.lili.api.modVentas.reembolsos.dto.GetListDtoTotalizado;
 import com.calero.lili.api.modVentas.reembolsos.dto.ResponseReembolsoDto;
 import com.calero.lili.api.modVentas.reembolsos.projection.TotalesProjection;
+import com.calero.lili.core.builder.ResponseApiBuilder;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.Paginator;
+import com.calero.lili.core.dtos.ResponseDto;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.utils.DateUtils;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -40,6 +41,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.IntStream;
@@ -53,9 +55,13 @@ public class VtVentasReembolsoServiceImpl {
     private final VtVentaReembolsosBuilder vtVentaReembolsosBuilder;
     private final ResponseApiBuilder responseApiBuilder;
     private final AuditorAware<String> auditorAware;
+    private final AdIvaPorcentajeServiceImpl adIvaPorcentajeService;
 
 
     public ResponseDto create(CreationRequestReembolsoDto request) {
+
+        adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getReembolsosValores()),
+                DateUtils.toLocalDate(request.getFechaEmisionReemb()));
 
         Optional<VtVentaReembolsosEntity> optional = vtVentasReembolsoRepository
                 .findByDatosReembolso(request.getNumeroIdentificacionReemb(), request.getSerieReemb(), request.getSecuencialReemb());
@@ -72,6 +78,9 @@ public class VtVentasReembolsoServiceImpl {
 
 
     public ResponseDto update(UUID id, CreationRequestReembolsoDto request) {
+
+        adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getReembolsosValores()),
+                DateUtils.toLocalDate(request.getFechaEmisionReemb()));
 
         Optional<VtVentaReembolsosEntity> optional = vtVentasReembolsoRepository
                 .findByIdEntity(id);
@@ -427,6 +436,14 @@ public class VtVentasReembolsoServiceImpl {
             }
 
         }
+    }
+
+    private List<Integer> getIntegerTarifaIva(List<CreationRequestReembolsoDto.ValoresDto> valores) {
+        return valores.stream()
+                .map(CreationRequestReembolsoDto.ValoresDto::getTarifa)
+                .filter(Objects::nonNull)
+                .map(BigDecimal::intValue)
+                .toList();
     }
 
 }

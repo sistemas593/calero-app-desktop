@@ -39,6 +39,4 @@ VALUES
 (nextval('ad_iva_porcentajes_id_iva_porcentaje_seq'), false, '2026-01-01', 15, 5, 8),
 (nextval('ad_iva_porcentajes_id_iva_porcentaje_seq'), false, '2026-01-06', 15, 5, 0),
 (nextval('ad_iva_porcentajes_id_iva_porcentaje_seq'), false, '2026-02-14', 15, 5, 8),
-(nextval('ad_iva_porcentajes_id_iva_porcentaje_seq'), false, '2026-02-18', 15, 5, 0),
-(nextval('ad_iva_porcentajes_id_iva_porcentaje_seq'), false, '2026-03-30', 15, 5, 8),
-(nextval('ad_iva_porcentajes_id_iva_porcentaje_seq'), false, '2026-04-03', 15, 5, 0);
+(nextval('ad_iva_porcentajes_id_iva_porcentaje_seq'), false, '2026-02-18', 15, 5, 0);

@@ -12,7 +12,6 @@ import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -32,9 +31,10 @@ public class AdEmpresasSeriesServiceImpl {
     private final AdEmpresasRepository adEmpresasRepository;
     private final ResponseApiBuilder responseApiBuilder;
     private final AdEmpresasSeriesBuilder adEmpresasSeriesBuilder;
-    private final AuditorAware<String> auditorAware;
 
-    public ResponseDto create(Long idData, Long idEmpresa, AdEmpresaSerieCreationRequestDto request) {
+
+    public ResponseDto create(Long idData, Long idEmpresa,
+                              AdEmpresaSerieCreationRequestDto request, String usuario) {
 
 
         adEmpresasRepository
@@ -47,10 +47,11 @@ public class AdEmpresasSeriesServiceImpl {
         }
 
         validarListaDocumentos(request);
-        AdEmpresasSeriesEntity entidad = adEmpresasSeriesRepository.save(adEmpresasSeriesBuilder
-                .builderEntity(request, idEmpresa, idData));
-
-        return responseApiBuilder.builderResponse(entidad.getIdSerie().toString());
+        AdEmpresasSeriesEntity serie = adEmpresasSeriesBuilder.builderEntity(request, idEmpresa, idData);
+        serie.setCreatedBy(usuario);
+        serie.setCreatedDate(LocalDateTime.now());
+        adEmpresasSeriesRepository.save(serie);
+        return responseApiBuilder.builderResponse(serie.getIdSerie().toString());
 
     }
 
@@ -63,7 +64,8 @@ public class AdEmpresasSeriesServiceImpl {
         }
     }
 
-    public ResponseDto update(Long idData, Long idEmpresa, UUID id, AdEmpresaSerieCreationRequestDto request) {
+    public ResponseDto update(Long idData, Long idEmpresa, UUID id, AdEmpresaSerieCreationRequestDto request,
+                              String usuario) {
 
         AdEmpresasSeriesEntity entidad = adEmpresasSeriesRepository.findById(idData, idEmpresa, id).orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
         if (Objects.isNull(entidad)) {
@@ -75,20 +77,20 @@ public class AdEmpresasSeriesServiceImpl {
         AdEmpresasSeriesEntity update = adEmpresasSeriesBuilder
                 .builderUpdateEntity(request, entidad);
 
-        update.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        update.setModifiedBy(usuario);
         update.setModifiedDate(LocalDateTime.now());
 
         adEmpresasSeriesRepository.save(update);
         return responseApiBuilder.builderResponse(entidad.getIdSerie().toString());
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID idSerie) {
+    public void delete(Long idData, Long idEmpresa, UUID idSerie, String usuario) {
 
         AdEmpresasSeriesEntity serie = adEmpresasSeriesRepository.findById(idData, idEmpresa, idSerie)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no existe", idSerie)));
 
         serie.setDelete(Boolean.TRUE);
-        serie.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        serie.setDeletedBy(usuario);
         serie.setDeletedDate(LocalDateTime.now());
 
         adEmpresasSeriesRepository.save(serie);

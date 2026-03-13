@@ -30,21 +30,21 @@ public class AdRolServiceImpl {
     private final AdUsuarioRolRepository adUsuarioRolRepository;
     private final AdRolBuilder adRolBuilder;
     private final AdGruposRepository adGruposRepository;
-    private final AuditorAware<String> auditorAware;
 
 
-    public AdRolDtoResponse create(AdRolDtoRequest request) {
+
+    public AdRolDtoResponse create(AdRolDtoRequest request, String usuario) {
         return adRolBuilder.builderResponse(adUsuarioRolRepository
-                .save(validarCreatePermisos(request)));
+                .save(validarCreatePermisos(request, usuario)));
     }
 
-    public AdRolDtoResponse update(Long idRol, AdRolDtoRequest request) {
+    public AdRolDtoResponse update(Long idRol, AdRolDtoRequest request, String usuario) {
 
         AdRolEntity adRolEntity = adUsuarioRolRepository.getFindId(idRol).orElseThrow(() -> new GeneralException(MessageFormat
                 .format("El rol con id {0} no existe", idRol)));
 
         return adRolBuilder.builderResponse(adUsuarioRolRepository
-                .save(validarUpdatePermisos(request, adRolEntity)));
+                .save(validarUpdatePermisos(request, adRolEntity, usuario)));
     }
 
     public AdRolDtoResponse findById(Long idRol) {
@@ -53,12 +53,12 @@ public class AdRolServiceImpl {
                         .format("El rol con id {0} no existe", idRol))));
     }
 
-    public void delete(Long idRol) {
+    public void delete(Long idRol, String usuario) {
 
         AdRolEntity adRolEntity = adUsuarioRolRepository.getFindId(idRol).orElseThrow(() -> new GeneralException(MessageFormat
                 .format("El rol con id {0} no existe", idRol)));
 
-        adRolEntity.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        adRolEntity.setDeletedBy(usuario);
         adRolEntity.setDeletedDate(LocalDateTime.now());
         adRolEntity.setDelete(Boolean.TRUE);
 
@@ -104,10 +104,12 @@ public class AdRolServiceImpl {
         }
     }
 
-    private AdRolEntity validarCreatePermisos(AdRolDtoRequest request) {
+    private AdRolEntity validarCreatePermisos(AdRolDtoRequest request, String usuario) {
         validarRol(request);
         List<AdGruposEntity> listPermisos = new ArrayList<>();
         AdRolEntity entidad = adRolBuilder.builderEntity(request);
+        entidad.setCreatedBy(usuario);
+        entidad.setCreatedDate(LocalDateTime.now());
         if (!request.getGrupos().isEmpty()) {
 
             for (AdRolDtoRequest.Grupo item : request.getGrupos()) {
@@ -122,7 +124,7 @@ public class AdRolServiceImpl {
         return entidad;
     }
 
-    private AdRolEntity validarUpdatePermisos(AdRolDtoRequest request, AdRolEntity item) {
+    private AdRolEntity validarUpdatePermisos(AdRolDtoRequest request, AdRolEntity item, String usuario) {
 
         List<AdGruposEntity> listPermisos = adGruposRepository
                 .findAllById(request.getGrupos()
@@ -132,7 +134,7 @@ public class AdRolServiceImpl {
 
         item.getGrupos().clear();
         AdRolEntity entidad = adRolBuilder.builderUpdate(request, item);
-        entidad.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        entidad.setModifiedBy(usuario);
         entidad.setModifiedDate(LocalDateTime.now());
         entidad.setGrupos(listPermisos);
         return entidad;

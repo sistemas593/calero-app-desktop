@@ -17,7 +17,10 @@ import org.springframework.stereotype.Service;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -98,11 +101,39 @@ public class AdIvaPorcentajeServiceImpl {
     }
 
 
-    public void validateIvaPorcentaje(List<CreationFacturaRequestDto.ValoresDto> valores, LocalDate fechaFactura) {
+    public void validateIvaPorcentaje(List<Integer> valores, LocalDate fechaFactura) {
 
-          /*  AdIvaPorcentajesEntity porcentaje = adIvaPorcentajesRepository.findVigente(fechaFactura)
-                    .orElseThrow(()-> new GeneralException(MessageFormat.format("No existe")));*/
 
+        AdIvaPorcentajesEntity porcentaje = adIvaPorcentajesRepository.findVigente(fechaFactura)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("No existe porcentajes de iva para la fecha: {0}", fechaFactura)));
+
+
+        Set<Integer> tarifasVigentes = new HashSet<>();
+
+        if (Objects.nonNull(porcentaje.getIva1()))
+
+            if (porcentaje.getIva1() != 0) {
+                tarifasVigentes.add(porcentaje.getIva1());
+            }
+
+        if (Objects.nonNull(porcentaje.getIva2())) {
+            if (porcentaje.getIva2() != 0) {
+                tarifasVigentes.add(porcentaje.getIva2());
+            }
+        }
+
+        if (Objects.nonNull(porcentaje.getIva3())) {
+            if (porcentaje.getIva3() != 0) {
+                tarifasVigentes.add(porcentaje.getIva3());
+            }
+        }
+
+        for (Integer tarifa : valores) {
+            if (!tarifasVigentes.contains(tarifa)) {
+                throw new GeneralException(MessageFormat
+                        .format("La tarifa de IVA: {0}, no está vigente para la fecha {1}", tarifa, fechaFactura));
+            }
+        }
 
 
     }

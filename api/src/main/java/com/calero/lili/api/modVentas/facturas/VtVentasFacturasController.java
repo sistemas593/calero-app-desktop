@@ -59,37 +59,45 @@ public class VtVentasFacturasController {
 
     @PutMapping("facturas/{idEmpresa}/{idVenta}")
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasAuthority('VT_FC_MO')")
+    @PreAuthorize("hasAuthority('VT_FC_MO_PR, VT_FC_MO_SC, VT_FC_MO_TD')")
     public ResponseDto updateFactura(@PathVariable("idEmpresa") Long idEmpresa,
                                      @PathVariable("idVenta") UUID idVenta,
-                                     @RequestBody CreationFacturaRequestDto request) {
-        return vtVentasService.update(idDataService.getIdData(), idEmpresa, idVenta, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+                                     @RequestBody CreationFacturaRequestDto request,
+                                     FilterListDto filters) {
+        return vtVentasService.update(idDataService.getIdData(), idEmpresa, idVenta, request, filters,
+                auditorAware.getTipoPermisoModificarFacturas(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("facturas/{idEmpresa}/{idVenta}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAuthority('VT_FC_EL')")
+    @PreAuthorize("hasAuthority('VT_FC_EL_PR, VT_FC_EL_SC, VT_FC_EL_TD')")
     public void deleteFactura(@PathVariable("idEmpresa") Long idEmpresa,
-                              @PathVariable("idVenta") UUID idVenta) {
-        vtVentasService.delete(idDataService.getIdData(), idEmpresa, idVenta, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+                              @PathVariable("idVenta") UUID idVenta,
+                              FilterListDto filters) {
+        vtVentasService.delete(idDataService.getIdData(), idEmpresa, idVenta, filters,
+                auditorAware.getTipoPermisoEliminarFacturas(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("facturas/{idEmpresa}/{idVenta}")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('VT_FC_VR')")
+    @PreAuthorize("hasAnyAuthority('VT_FC_VR_PR','VT_FC_VR_SC','VT_FC_VR_TD')")
     public GetFacturaDto findFacturaById(@PathVariable("idEmpresa") Long idEmpresa,
-                                         @PathVariable("idVenta") UUID idVenta) {
-        return vtVentasService.findById(idDataService.getIdData(), idEmpresa, idVenta);
+                                         @PathVariable("idVenta") UUID idVenta,
+                                         FilterListDto filters) {
+        return vtVentasService.findById(idDataService.getIdData(), idEmpresa, idVenta, filters,
+                auditorAware.getTipoPermisoVerFacturas(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
 
     @GetMapping("facturas/mensajes/{idEmpresa}/{idVenta}")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('VT_FC_VR')")
+    @PreAuthorize("hasAnyAuthority('VT_FC_VR_PR','VT_FC_VR_SC','VT_FC_VR_TD')")
     public List<Mensajes> findMensajeById(@PathVariable("idEmpresa") Long idEmpresa,
-                                          @PathVariable("idVenta") UUID idVenta) {
+                                          @PathVariable("idVenta") UUID idVenta,
+                                          FilterListDto filters) {
 
-        return vtVentasService.findMensajeById(idDataService.getIdData(), idEmpresa, idVenta);
+        return vtVentasService.findMensajeById(idDataService.getIdData(), idEmpresa, idVenta, filters,
+                auditorAware.getTipoPermisoVerFacturas(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("facturas/{idEmpresa}")
@@ -104,12 +112,13 @@ public class VtVentasFacturasController {
 
     @GetMapping("facturas/reportes/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('VT_FC_MO')")
+    @PreAuthorize("hasAnyAuthority('VT_FC_VR_PR','VT_FC_VR_SC','VT_FC_VR_TD')")
     public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(@PathVariable("idEmpresa") Long idEmpresa,
                                                                       FilterListDto filters,
                                                                       Pageable pageable) {
         log.info("Filters = {}", filters);
-        return vtVentasService.findAllPaginateTotalizado(idDataService.getIdData(), idEmpresa, filters, pageable);
+        return vtVentasService.findAllPaginateTotalizado(idDataService.getIdData(), idEmpresa, filters,
+                auditorAware.getTipoPermisoVerFacturas(), auditorAware.getCurrentAuditor().orElse("SYSTEM") ,pageable);
     }
 
     @GetMapping("excel/{idEmpresa}")
@@ -130,10 +139,12 @@ public class VtVentasFacturasController {
     }
 
     @PostMapping("facturas/anulada/{idEmpresa}/{idVenta}")
-    @PreAuthorize("hasAuthority('VT_FC_AN')")
+    @PreAuthorize("hasAuthority('VT_FC_AN_PR ,VT_FC_AN_SC, VT_FC_AN_TD')")
     public ResponseDto updateAnulada(@PathVariable("idEmpresa") Long idEmpresa,
-                                     @PathVariable("idVenta") UUID idVenta) {
-        return vtVentasService.updateAnulada(idDataService.getIdData(), idEmpresa, idVenta);
+                                     @PathVariable("idVenta") UUID idVenta,
+                                     FilterListDto filters) {
+        return vtVentasService.updateAnulada(idDataService.getIdData(), idEmpresa, idVenta, filters,
+                auditorAware.getTipoPermisoAnularFacturas(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PostMapping("facturas/excel/{idEmpresa}/{sucursal}")

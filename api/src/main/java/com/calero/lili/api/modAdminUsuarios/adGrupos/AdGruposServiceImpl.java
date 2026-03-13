@@ -30,22 +30,21 @@ public class AdGruposServiceImpl {
     private final AdGruposRepository adGruposRepository;
     private final AdGruposBuilder adGruposBuilder;
     private final AdPermisosRepository adPermisosRepository;
-    private final AuditorAware<String> auditorAware;
 
 
-    public AdGruposResponseDto create(AdGruposRequestDto request) {
+    public AdGruposResponseDto create(AdGruposRequestDto request, String usuario) {
         return adGruposBuilder.builderResponse(adGruposRepository
-                .save(validarCreatePermisos(request)));
+                .save(validarCreatePermisos(request, usuario)));
     }
 
 
-    public AdGruposResponseDto update(Long idGrupoPermiso, AdGruposRequestDto request) {
+    public AdGruposResponseDto update(Long idGrupoPermiso, AdGruposRequestDto request, String usuario) {
         AdGruposEntity adGrupoPermiso = adGruposRepository.getFindId(idGrupoPermiso).orElseThrow(() ->
                 new GeneralException(MessageFormat
                         .format("El grupo permiso con id {0} no existe", idGrupoPermiso)));
 
         return adGruposBuilder.builderResponse(adGruposRepository
-                .save(validarUpdatePermisos(request, adGrupoPermiso)));
+                .save(validarUpdatePermisos(request, adGrupoPermiso, usuario)));
     }
 
     public AdGruposResponseDto findById(Long idGrupoPermiso) {
@@ -54,14 +53,14 @@ public class AdGruposServiceImpl {
                         .format("El grupo permiso con id {0} no existe", idGrupoPermiso))));
     }
 
-    public void delete(Long idGrupoPermiso) {
+    public void delete(Long idGrupoPermiso, String usuario) {
 
         AdGruposEntity adGrupoPermiso = adGruposRepository.getFindId(idGrupoPermiso)
                 .orElseThrow(() -> new GeneralException(MessageFormat
                         .format("El grupo permiso con id {0} no existe", idGrupoPermiso)));
 
 
-        adGrupoPermiso.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        adGrupoPermiso.setDeletedBy(usuario);
         adGrupoPermiso.setDeletedDate(LocalDateTime.now());
         adGrupoPermiso.setDelete(Boolean.TRUE);
 
@@ -97,10 +96,12 @@ public class AdGruposServiceImpl {
 
     }
 
-    private AdGruposEntity validarCreatePermisos(AdGruposRequestDto request) {
+    private AdGruposEntity validarCreatePermisos(AdGruposRequestDto request, String usuario) {
         validarGrupoPermiso(request);
         List<AdPermisosEntity> listPermisos = new ArrayList<>();
         AdGruposEntity entidad = adGruposBuilder.builderEntity(request);
+        entidad.setCreatedBy(usuario);
+        entidad.setCreatedDate(LocalDateTime.now());
         if (!request.getPermisos().isEmpty()) {
 
             for (AdGruposRequestDto.Permisos item : request.getPermisos()) {
@@ -116,7 +117,7 @@ public class AdGruposServiceImpl {
     }
 
 
-    private AdGruposEntity validarUpdatePermisos(AdGruposRequestDto request, AdGruposEntity item) {
+    private AdGruposEntity validarUpdatePermisos(AdGruposRequestDto request, AdGruposEntity item, String usuario) {
 
         List<AdPermisosEntity> listPermisos = adPermisosRepository
                 .findAllById(request.getPermisos()
@@ -126,7 +127,7 @@ public class AdGruposServiceImpl {
 
         item.getPermisos().clear();
         AdGruposEntity entidad = adGruposBuilder.builderUpdate(request, item);
-        entidad.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        entidad.setModifiedBy(usuario);
         entidad.setModifiedDate(LocalDateTime.now());
         entidad.setPermisos(listPermisos);
         return entidad;

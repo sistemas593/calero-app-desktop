@@ -9,7 +9,6 @@ import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,22 +25,25 @@ public class AdPermisosServiceImpl {
 
     private final AdPermisosRepository adPermisosRepository;
     private final AdPermisosBuilder adPermisosBuilder;
-    private final AuditorAware<String> auditorAware;
 
-    public AdPermisosResponseDto create(AdPermisosRequestDto model) {
+
+    public AdPermisosResponseDto create(AdPermisosRequestDto model, String usuario) {
+
         validarPermisoIdentificador(model);
-        return adPermisosBuilder.builderResponse(adPermisosRepository
-                .save(adPermisosBuilder.builderEntity(model)));
+        AdPermisosEntity permiso = adPermisosBuilder.builderEntity(model);
+        permiso.setCreatedBy(usuario);
+        permiso.setCreatedDate(LocalDateTime.now());
+        return adPermisosBuilder.builderResponse(adPermisosRepository.save(permiso));
     }
 
-    public AdPermisosResponseDto update(Long idPermiso, AdPermisosRequestDto model) {
+    public AdPermisosResponseDto update(Long idPermiso, AdPermisosRequestDto model, String usuario) {
 
         AdPermisosEntity exists = adPermisosRepository.getFindId(idPermiso).orElseThrow(() -> new GeneralException
                 (MessageFormat.format("El  permiso con id {0} no existe", idPermiso)));
 
         AdPermisosEntity update = adPermisosBuilder.builderUpdate(model, exists);
 
-        update.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        update.setModifiedBy(usuario);
         update.setModifiedDate(LocalDateTime.now());
 
         return adPermisosBuilder.builderResponse(adPermisosRepository.save(update));
@@ -53,12 +55,12 @@ public class AdPermisosServiceImpl {
                         (MessageFormat.format("El  permiso con id {0} no existe", idPermiso))));
     }
 
-    public void delete(Long idPermiso) {
+    public void delete(Long idPermiso, String usuario) {
 
         AdPermisosEntity exists = adPermisosRepository.getFindId(idPermiso).orElseThrow(() -> new GeneralException
                 (MessageFormat.format("El  permiso con id {0} no existe", idPermiso)));
 
-        exists.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        exists.setDeletedBy(usuario);
         exists.setDeletedDate(LocalDateTime.now());
         exists.setDelete(Boolean.TRUE);
 

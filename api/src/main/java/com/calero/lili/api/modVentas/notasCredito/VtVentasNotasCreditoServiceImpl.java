@@ -1,5 +1,6 @@
 package com.calero.lili.api.modVentas.notasCredito;
 
+import com.calero.lili.api.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
 import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.api.comprobantes.services.ComprobanteServiceImpl;
 import com.calero.lili.core.dtos.Mensajes;
@@ -87,11 +88,14 @@ public class VtVentasNotasCreditoServiceImpl {
     private final AuditorAware<String> auditorAware;
     private final CnAsientosRepository cnAsientosRepository;
     private final GenerarAsientoServiceImpl generarAsientoService;
+    private final AdIvaPorcentajeServiceImpl adIvaPorcentajeService;
 
 
     public ResponseDto create(Long idData, Long idEmpresa, CreationNotaCreditoRequestDto request) {
 
         ValidarCampoAscii.validarStrings(request);
+        adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
+                DateUtils.toLocalDate(request.getModFechaEmision()));
 
         Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData, idEmpresa, TipoVenta.NCR.name(), request.getSerie(), request.getSecuencial());
 
@@ -139,6 +143,8 @@ public class VtVentasNotasCreditoServiceImpl {
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationNotaCreditoRequestDto request) {
 
         ValidarCampoAscii.validarStrings(request);
+        adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
+                DateUtils.toLocalDate(request.getModFechaEmision()));
 
         VtVentaEntity vtVentaEntity = vtVentaRepository
                 .findByIdEntity(idData, idEmpresa, idVenta)
@@ -643,6 +649,14 @@ public class VtVentasNotasCreditoServiceImpl {
         }
 
         return responseApiBuilder.builderResponse(idVenta.toString());
+    }
+
+    private List<Integer> getIntegerTarifaIva(List<CreationNotaCreditoRequestDto.ValoresDto> valores) {
+        return valores.stream()
+                .map(CreationNotaCreditoRequestDto.ValoresDto::getTarifa)
+                .filter(Objects::nonNull)
+                .map(BigDecimal::intValue)
+                .toList();
     }
 
 }

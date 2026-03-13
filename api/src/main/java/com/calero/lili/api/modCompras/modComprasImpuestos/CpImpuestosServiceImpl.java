@@ -1,15 +1,8 @@
 package com.calero.lili.api.modCompras.modComprasImpuestos;
 
-import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.api.dtos.CompraImpuestosDto;
-import com.calero.lili.core.dtos.Paginator;
-import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.api.dtos.deRecibidos.CpImpuestosRecibirCreationRequestDto;
-import com.calero.lili.core.enums.CodigoImpuesto;
-import com.calero.lili.core.errors.exceptions.GeneralException;
-import com.calero.lili.core.errors.exceptions.NotFoundException;
-import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
-import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
+import com.calero.lili.api.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
 import com.calero.lili.api.modCompras.modComprasImpuestos.builder.CpImpuestosBuilder;
 import com.calero.lili.api.modCompras.modComprasImpuestos.builder.ImpuestoCodigoBuilder;
 import com.calero.lili.api.modCompras.modComprasImpuestos.dto.AcumulacionProveedorTotalesDto;
@@ -18,12 +11,21 @@ import com.calero.lili.api.modCompras.modComprasImpuestos.dto.FilterListDto;
 import com.calero.lili.api.modCompras.modComprasImpuestos.dto.GetDto;
 import com.calero.lili.api.modCompras.modComprasImpuestos.dto.GetListDto;
 import com.calero.lili.api.modCompras.modComprasImpuestos.dto.GetListDtoTotalizado;
+import com.calero.lili.api.modCompras.modComprasImpuestos.dto.ValoresDto;
 import com.calero.lili.api.modCompras.modComprasImpuestos.projection.ComprasImpuestoProjection;
 import com.calero.lili.api.modCompras.modComprasImpuestos.projection.OneProjection;
 import com.calero.lili.api.modCompras.modComprasImpuestos.projection.TotalesProjection;
 import com.calero.lili.api.modCompras.modComprasRetenciones.CpRetencionesEntity;
-import com.calero.lili.api.utils.validaciones.ValidarValoresComprobantesPdf;
 import com.calero.lili.api.utils.ComprobanteSustentoService;
+import com.calero.lili.api.utils.validaciones.ValidarValoresComprobantesPdf;
+import com.calero.lili.core.builder.ResponseApiBuilder;
+import com.calero.lili.core.dtos.Paginator;
+import com.calero.lili.core.dtos.ResponseDto;
+import com.calero.lili.core.enums.CodigoImpuesto;
+import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.core.errors.exceptions.NotFoundException;
+import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
+import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.utils.DateUtils;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -83,9 +85,12 @@ public class CpImpuestosServiceImpl {
     private final AdEmpresasRepository adEmpresasRepository;
     private final AuditorAware<String> auditorAware;
     private final ComprobanteSustentoService comprobanteSustentoService;
+    private final AdIvaPorcentajeServiceImpl adIvaPorcentajeService;
 
     public ResponseDto create(Long idData, Long idEmpresa, CreationCompraImpuestoRequestDto request) {
 
+        adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
+                DateUtils.toLocalDate(request.getFechaEmision()));
 
         Optional<OneProjection> existingFactura = cpImpuestosRepository
                 .findExistBySecuencial(idData, idEmpresa, request.getNumeroIdentificacion(),
@@ -125,6 +130,9 @@ public class CpImpuestosServiceImpl {
 
     @Transactional
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationCompraImpuestoRequestDto request) {
+
+        adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
+                DateUtils.toLocalDate(request.getFechaEmision()));
 
         CpImpuestosEntity vtVentaEntity = cpImpuestosRepository
                 .findByIdEntity(idData, idEmpresa, idVenta)
@@ -606,6 +614,14 @@ public class CpImpuestosServiceImpl {
         }
 
 
+    }
+
+    private List<Integer> getIntegerTarifaIva(List<ValoresDto> valores) {
+        return valores.stream()
+                .map(ValoresDto::getTarifa)
+                .filter(Objects::nonNull)
+                .map(BigDecimal::intValue)
+                .toList();
     }
 
 

@@ -6,6 +6,7 @@ import com.calero.lili.api.modAdminUsuarios.adRol.dto.RolFilterDto;
 import com.calero.lili.core.dtos.PaginatedDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,12 +29,13 @@ public class AdRolController {
 
 
     private final AdRolServiceImpl adRolService;
+    private final AuditorAware<String> auditorAware;
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('US_RL_CR')")
     public AdRolDtoResponse create(@RequestBody @Valid AdRolDtoRequest request) {
-        return adRolService.create(request);
+        return adRolService.create(request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idRol}")
@@ -42,7 +44,7 @@ public class AdRolController {
     public AdRolDtoResponse update(@PathVariable("idRol") Long idRol,
                                    @RequestBody @Valid AdRolDtoRequest request) {
 
-        return adRolService.update(idRol, request);
+        return adRolService.update(idRol, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{idRol}")
@@ -65,7 +67,7 @@ public class AdRolController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasAuthority('US_RL_EL')")
     public void delete(@PathVariable("idRol") Long idRol) {
-        adRolService.delete(idRol);
+        adRolService.delete(idRol, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
 

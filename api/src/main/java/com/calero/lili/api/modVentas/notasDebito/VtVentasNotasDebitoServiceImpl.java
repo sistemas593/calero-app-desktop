@@ -1,19 +1,9 @@
 package com.calero.lili.api.modVentas.notasDebito;
 
-import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.api.comprobantes.services.ComprobanteServiceImpl;
-import com.calero.lili.core.dtos.Mensajes;
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.Paginator;
-import com.calero.lili.core.dtos.ResponseDto;
-import com.calero.lili.core.enums.EstadoDocumento;
-import com.calero.lili.core.enums.FormatoDocumento;
-import com.calero.lili.core.enums.TipoEmision;
-import com.calero.lili.core.enums.TipoVenta;
-import com.calero.lili.core.errors.exceptions.GeneralException;
-import com.calero.lili.core.errors.exceptions.NotFoundException;
 import com.calero.lili.api.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosEntity;
 import com.calero.lili.api.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosRepository;
+import com.calero.lili.api.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
 import com.calero.lili.api.modComprasItems.GeItemsRepository;
 import com.calero.lili.api.modTerceros.GeTerceroEntity;
 import com.calero.lili.api.modTerceros.GeTercerosRepository;
@@ -29,6 +19,18 @@ import com.calero.lili.api.modVentas.notasDebito.dto.GetNotaDebitoDto;
 import com.calero.lili.api.modVentas.projection.OneProjection;
 import com.calero.lili.api.modVentas.projection.TotalesProjection;
 import com.calero.lili.api.utils.validaciones.ValidarCampoAscii;
+import com.calero.lili.core.builder.ResponseApiBuilder;
+import com.calero.lili.core.dtos.Mensajes;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.Paginator;
+import com.calero.lili.core.dtos.ResponseDto;
+import com.calero.lili.core.enums.EstadoDocumento;
+import com.calero.lili.core.enums.FormatoDocumento;
+import com.calero.lili.core.enums.TipoEmision;
+import com.calero.lili.core.enums.TipoVenta;
+import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.core.errors.exceptions.NotFoundException;
+import com.calero.lili.core.utils.DateUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.AuditorAware;
@@ -37,6 +39,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.time.LocalDate;
@@ -61,11 +64,14 @@ public class VtVentasNotasDebitoServiceImpl {
     private final GeItemsRepository geItemsRepository;
     private final GeTercerosRepository geTercerosRepository;
     private final AuditorAware<String> auditorAware;
-
+    private final AdIvaPorcentajeServiceImpl adIvaPorcentajeService;
 
     public ResponseDto create(Long idData, Long idEmpresa, CreationNotaDebitoRequestDto request) {
 
         ValidarCampoAscii.validarStrings(request);
+
+        adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
+                DateUtils.toLocalDate(request.getFechaEmision()));
 
         Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData, idEmpresa,
                 TipoVenta.NDB.name(), request.getSerie(), request.getSecuencial());
@@ -108,6 +114,9 @@ public class VtVentasNotasDebitoServiceImpl {
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationNotaDebitoRequestDto request) {
 
         ValidarCampoAscii.validarStrings(request);
+
+        adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
+                DateUtils.toLocalDate(request.getFechaEmision()));
 
         VtVentaEntity vtVentaEntity = vtVentaRepository
                 .findByIdEntity(idData, idEmpresa, idVenta)
@@ -306,6 +315,14 @@ public class VtVentasNotasDebitoServiceImpl {
                     .orElseThrow(() -> new GeneralException("El item con id  " + model.getIdItem() + " no existe "));
         }
 
+    }
+
+    private List<Integer> getIntegerTarifaIva(List<CreationNotaDebitoRequestDto.ValoresDto> valores) {
+        return valores.stream()
+                .map(CreationNotaDebitoRequestDto.ValoresDto::getTarifa)
+                .filter(Objects::nonNull)
+                .map(BigDecimal::intValue)
+                .toList();
     }
 
 }

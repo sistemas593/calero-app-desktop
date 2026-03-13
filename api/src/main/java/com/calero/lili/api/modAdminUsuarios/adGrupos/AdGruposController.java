@@ -6,6 +6,7 @@ import com.calero.lili.api.modAdminUsuarios.adGrupos.dto.GruposFilter;
 import com.calero.lili.core.dtos.PaginatedDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,13 +29,14 @@ public class AdGruposController {
 
 
     private final AdGruposServiceImpl adGrupoPermisoService;
+    private final AuditorAware<String> auditorAware;
 
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('US_GR_CR')")
     public AdGruposResponseDto create(@RequestBody @Valid AdGruposRequestDto request) {
-        return adGrupoPermisoService.create(request);
+        return adGrupoPermisoService.create(request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idGrupoPermiso}")
@@ -43,7 +45,7 @@ public class AdGruposController {
     public AdGruposResponseDto update(@PathVariable("idGrupoPermiso") Long idGrupoPermiso,
                                       @RequestBody @Valid AdGruposRequestDto request) {
 
-        return adGrupoPermisoService.update(idGrupoPermiso, request);
+        return adGrupoPermisoService.update(idGrupoPermiso, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{idGrupoPermiso}")
@@ -66,7 +68,7 @@ public class AdGruposController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasAuthority('US_GR_EL')")
     public void delete(@PathVariable("idGrupoPermiso") Long idGrupoPermiso) {
-        adGrupoPermisoService.delete(idGrupoPermiso);
+        adGrupoPermisoService.delete(idGrupoPermiso, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
 }

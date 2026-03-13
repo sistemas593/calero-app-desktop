@@ -54,4 +54,94 @@ public class AuditorAwareImpl implements AuditorAware<String> {
 
     }
 
+    public String getTipoPermisoModificarFacturas() {
+
+        Authentication auth =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        boolean verPropias = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("VT_FC_MO_PR"));
+
+        boolean verSucursal = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("VT_FC_MO_SC"));
+
+        boolean verTodas = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("VT_FC_MO_TD"));
+
+        if (verTodas) {
+            return "TODAS";
+        }
+
+        if (verSucursal) {
+            return "SUCURSAL";
+        }
+
+        if (verPropias) {
+            return "PROPIAS";
+        }
+
+        throw new GeneralException("No tiene permisos para acceder a esta sección");
+
+    }
+
+    public String getTipoPermisoEliminarFacturas() {
+
+        Authentication auth =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        boolean verPropias = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("VT_FC_EL_PR"));
+
+        boolean verSucursal = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("VT_FC_EL_SC"));
+
+        boolean verTodas = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("VT_FC_EL_TD"));
+
+        if (verTodas) {
+            return "TODAS";
+        }
+
+        if (verSucursal) {
+            return "SUCURSAL";
+        }
+
+        if (verPropias) {
+            return "PROPIAS";
+        }
+
+        throw new GeneralException("No tiene permisos para acceder a esta sección");
+
+    }
+
+    public String getTipoPermisoAnularFacturas() {
+
+        Authentication auth =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        boolean verPropias = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("VT_FC_AN_PR"));
+
+        boolean verSucursal = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("VT_FC_AN_SC"));
+
+        boolean verTodas = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("VT_FC_AN_TD"));
+
+        if (verTodas) {
+            return "TODAS";
+        }
+
+        if (verSucursal) {
+            return "SUCURSAL";
+        }
+
+        if (verPropias) {
+            return "PROPIAS";
+        }
+
+        throw new GeneralException("No tiene permisos para acceder a esta sección");
+
+    }
+
 }

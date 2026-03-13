@@ -26,7 +26,10 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             "WHERE vtVentasEntity.idData = :idData  AND " +
             "vtVentasEntity.idEmpresa = :idEmpresa AND " +
             "vtVentasEntity.idVenta = :idVenta ")
-    Optional<VtVentaEntity> findByIdEntity(Long idData, Long idEmpresa, UUID idVenta);
+    Optional<VtVentaEntity> findByIdEntity(@Param("idData") Long idData,
+                                           @Param("idEmpresa") Long idEmpresa,
+                                           @Param("idVenta") UUID idVenta);
+
 
     @Query(value = "SELECT id_venta as idVenta " +
             "FROM vt_ventas vtVentasEntity " +

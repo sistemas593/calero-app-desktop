@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.calero.lili.core.modAdminEmpresas.dto.AdEmpresaGetListDto
 
+private val COL_ACCIONES   = 70.dp
 private val COL_NUM        = 50.dp
 private val COL_RUC        = 140.dp
 private val COL_RAZON      = 260.dp
@@ -38,7 +41,8 @@ private val ColorTextoSub   = Color(0xFF555577)
 @Composable
 fun EmpresasScreen(
     viewModel: EmpresasViewModel,
-    onNuevaEmpresa: () -> Unit
+    onNuevaEmpresa: () -> Unit,
+    onEditarEmpresa: (Long) -> Unit = {}
 ) {
     val state by viewModel.state.collectAsState()
 
@@ -111,7 +115,10 @@ fun EmpresasScreen(
                     color      = Color.White
                 ) {
                     Column {
-                        TablaEmpresas(empresas = state.empresas)
+                        TablaEmpresas(
+                            empresas = state.empresas,
+                            onEditar = onEditarEmpresa
+                        )
                     }
                 }
             }
@@ -221,7 +228,10 @@ private fun FiltrosBar(
 }
 
 @Composable
-private fun TablaEmpresas(empresas: List<AdEmpresaGetListDto>) {
+private fun TablaEmpresas(
+    empresas: List<AdEmpresaGetListDto>,
+    onEditar: (Long) -> Unit
+) {
     val scrollH = rememberScrollState()
 
     Column(modifier = Modifier.horizontalScroll(scrollH)) {
@@ -233,7 +243,8 @@ private fun TablaEmpresas(empresas: List<AdEmpresaGetListDto>) {
                 FilaEmpresa(
                     indice  = idx + 1,
                     empresa = empresa,
-                    bgColor = if (idx % 2 == 0) ColorRowPar else ColorRowImpar
+                    bgColor = if (idx % 2 == 0) ColorRowPar else ColorRowImpar,
+                    onEditar = { onEditar(empresa.idEmpresa) }
                 )
                 HorizontalDivider(color = ColorBorde, thickness = 0.5.dp)
             }
@@ -257,6 +268,7 @@ private fun EncabezadoTabla() {
         CeldaHeader("Email",         COL_EMAIL,     TextAlign.Start)
         CeldaHeader("Representante", COL_REPRESENT, TextAlign.Start)
         CeldaHeader("Tipo Contrib.", COL_TIPO,      TextAlign.Start)
+        CeldaHeader("Acciones",      COL_ACCIONES,  TextAlign.Center)
     }
 }
 
@@ -264,12 +276,13 @@ private fun EncabezadoTabla() {
 private fun FilaEmpresa(
     indice  : Int,
     empresa : AdEmpresaGetListDto,
-    bgColor : Color
+    bgColor : Color,
+    onEditar: () -> Unit
 ) {
     Row(
         modifier = Modifier
             .background(bgColor)
-            .padding(vertical = 8.dp, horizontal = 8.dp),
+            .padding(vertical = 4.dp, horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         CeldaDato(indice.toString(),                    COL_NUM,       TextAlign.Center)
@@ -280,6 +293,23 @@ private fun FilaEmpresa(
         CeldaDato(empresa.email ?: "-",                COL_EMAIL,     TextAlign.Start)
         CeldaDato(empresa.representanteNombre ?: "-",  COL_REPRESENT, TextAlign.Start)
         CeldaDato(empresa.tipoContribuyente?.name ?: "-", COL_TIPO,   TextAlign.Start)
+        // Icono de lápiz para editar
+        Box(
+            modifier = Modifier.width(COL_ACCIONES).height(36.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            IconButton(
+                onClick = onEditar,
+                modifier = Modifier.size(36.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "Editar",
+                    tint = Color(0xFF1565C0),
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+        }
     }
 }
 
