@@ -3,6 +3,7 @@ package com.calero.lili.api.modCompras.modComprasImpuestos;
 import com.calero.lili.api.dtos.CompraImpuestosDto;
 import com.calero.lili.api.dtos.deRecibidos.CpImpuestosRecibirCreationRequestDto;
 import com.calero.lili.api.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
+import com.calero.lili.api.modAuditoria.TipoPermiso;
 import com.calero.lili.api.modCompras.modComprasImpuestos.builder.CpImpuestosBuilder;
 import com.calero.lili.api.modCompras.modComprasImpuestos.builder.ImpuestoCodigoBuilder;
 import com.calero.lili.api.modCompras.modComprasImpuestos.dto.AcumulacionProveedorTotalesDto;
@@ -23,7 +24,6 @@ import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.enums.CodigoImpuesto;
 import com.calero.lili.core.errors.exceptions.GeneralException;
-import com.calero.lili.core.errors.exceptions.NotFoundException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.utils.DateUtils;
@@ -129,14 +129,13 @@ public class CpImpuestosServiceImpl {
 
 
     @Transactional
-    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationCompraImpuestoRequestDto request, String usuario) {
+    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationCompraImpuestoRequestDto request,
+                              String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
 
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
                 DateUtils.toLocalDate(request.getFechaEmision()));
 
-        CpImpuestosEntity vtVentaEntity = cpImpuestosRepository
-                .findByIdEntity(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("idImpuestos {0} no existe", idVenta)));
+        CpImpuestosEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         if (!vtVentaEntity.getNumeroIdentificacion().equals(request.getNumeroIdentificacion())
                 || !vtVentaEntity.getSerie().equals(request.getSerie())
@@ -169,11 +168,10 @@ public class CpImpuestosServiceImpl {
     }
 
 
-    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario) {
+    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario,
+                       FilterListDto filters, TipoPermiso tipoBusqueda) {
 
-        CpImpuestosEntity impuestosEntity = cpImpuestosRepository.findByIdEntity(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new NotFoundException(MessageFormat.format("El impuesto con ID {0} no existe", idVenta)));
-
+        CpImpuestosEntity impuestosEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
         impuestosEntity.setDelete(Boolean.TRUE);
         impuestosEntity.setDeletedBy(usuario);
         impuestosEntity.setDeletedDate(LocalDateTime.now());
@@ -184,13 +182,11 @@ public class CpImpuestosServiceImpl {
     }
 
 
-    public GetDto findById(Long idData, Long idEmpresa, UUID id) {
+    public GetDto findById(Long idData, Long idEmpresa, UUID id,
+                           FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
-        Optional<CpImpuestosEntity> projection = cpImpuestosRepository.findById(idData, idEmpresa, id);
-        if (projection.isEmpty()) {
-            throw new GeneralException(MessageFormat.format("Id de impuesto {0} no existe", id));
-        }
-        return cpImpuestosBuilder.builderDto(projection.get());
+        CpImpuestosEntity entity = validacionTipoBusqueda(idData, idEmpresa, id, filters, tipoBusqueda, usuario);
+        return cpImpuestosBuilder.builderDto(entity);
     }
 
     public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable) {
@@ -624,6 +620,38 @@ public class CpImpuestosServiceImpl {
                 .toList();
     }
 
+
+    private CpImpuestosEntity validacionTipoBusqueda(Long idData, Long idEmpresa, UUID idVenta,
+                                                     FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+
+        switch (tipoBusqueda) {
+            case TODAS:
+                return cpImpuestosRepository
+                        .findByIdEntity(idData, idEmpresa, idVenta, null, null)
+                        .orElseThrow(() -> new GeneralException(MessageFormat.format("La factura con ID {0} no existe", idVenta)));
+
+            case SUCURSAL: {
+                if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
+
+                    return cpImpuestosRepository
+                            .findByIdEntity(idData, idEmpresa, idVenta, filters.getSucursal(), null)
+                            .orElseThrow(() -> new GeneralException(MessageFormat.format("No tiene acceso al documento en la sucursal {0}", filters.getSucursal())));
+
+                } else {
+                    throw new GeneralException("Es requerido el parametro de la sucursal");
+                }
+            }
+            case PROPIAS: {
+
+                return cpImpuestosRepository
+                        .findByIdEntity(idData, idEmpresa, idVenta, null, usuario)
+                        .orElseThrow(() -> new GeneralException(MessageFormat.format("No tiene acceso al documento el usuario: {0}", usuario)));
+
+            }
+        }
+
+        throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
+    }
 
 }
 

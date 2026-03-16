@@ -25,10 +25,14 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             "FROM VtVentaEntity vtVentasEntity " +
             "WHERE vtVentasEntity.idData = :idData  AND " +
             "vtVentasEntity.idEmpresa = :idEmpresa AND " +
-            "vtVentasEntity.idVenta = :idVenta ")
+            "vtVentasEntity.idVenta = :idVenta AND " +
+            "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
+            "(:usuario IS NULL OR vtVentasEntity.createdBy = :usuario)")
     Optional<VtVentaEntity> findByIdEntity(@Param("idData") Long idData,
                                            @Param("idEmpresa") Long idEmpresa,
-                                           @Param("idVenta") UUID idVenta);
+                                           @Param("idVenta") UUID idVenta,
+                                           @Param("sucursal") String sucursal,
+                                           @Param("usuario") String usuario);
 
 
     @Query(value = "SELECT id_venta as idVenta " +

@@ -31,6 +31,7 @@ import com.calero.lili.api.modVentas.reembolsos.VtVentaReembolsosEntity;
 import com.calero.lili.api.modVentas.reembolsos.VtVentasReembolsoRepository;
 import com.calero.lili.api.tablas.tbPaises.TbPaisEntity;
 import com.calero.lili.api.tablas.tbPaises.TbPaisesRepository;
+import com.calero.lili.api.modAuditoria.TipoPermiso;
 import com.calero.lili.api.utils.validaciones.ValidarCampoAscii;
 import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.core.dtos.Mensajes;
@@ -166,18 +167,13 @@ public class VtVentasFacturasServiceImpl {
 
     @Transactional
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationFacturaRequestDto request,
-                              FilterListDto filters, String tipoBusqueda, String usuario) {
+                              FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         ValidarCampoAscii.validarStrings(request);
 
         adIvaPorcentajeService.validateIvaPorcentaje(getTarifaInteger(request.getValores()), DateUtils.toLocalDate(request.getFechaEmision()));
 
-        VtVentaEntity vtVentaEntity = vtVentaRepository
-                .findByIdEntity(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("La factura con ID {0} no existe", idVenta)));
-
-
-        validacionTipoBusqueda(filters, tipoBusqueda, usuario, vtVentaEntity);
+        VtVentaEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         if (!vtVentaEntity.getSerie().equals(request.getSerie()) || !vtVentaEntity.getSecuencial().equals(request.getSecuencial())) {
             Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData, idEmpresa, TipoVenta.FAC.name(), request.getSerie(), request.getSecuencial());
@@ -310,15 +306,9 @@ public class VtVentasFacturasServiceImpl {
     }
 
     public void delete(Long idData, Long idEmpresa, UUID idVenta, FilterListDto filters,
-                       String tipoBusqueda, String usuario) {
+                       TipoPermiso tipoBusqueda, String usuario) {
 
-        VtVentaEntity venta = vtVentaRepository
-                .findByIdEntity(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("La factura con ID {0} no existe", idVenta)));
-
-
-        validacionTipoBusqueda(filters, tipoBusqueda, usuario, venta);
-
+        VtVentaEntity venta = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         venta.setDelete(Boolean.TRUE);
         venta.setDeletedBy(usuario);
@@ -329,14 +319,9 @@ public class VtVentasFacturasServiceImpl {
     }
 
     public GetFacturaDto findById(Long idData, Long idEmpresa, UUID idVenta,
-                                  FilterListDto filters, String tipoBusqueda, String usuario) {
+                                  FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
-        VtVentaEntity vtVentaEntity = vtVentaRepository
-                .findByIdEntity(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("La factura con ID {0} no existe", idVenta)));
-
-
-        validacionTipoBusqueda(filters, tipoBusqueda, usuario, vtVentaEntity);
+        VtVentaEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         GetFacturaDto response = vtFacturasBuilder.builderResponse(vtVentaEntity);
 
@@ -360,31 +345,26 @@ public class VtVentasFacturasServiceImpl {
 
     public List<Mensajes> findMensajeById(Long idData, Long idEmpresa, UUID idVenta,
                                           FilterListDto filters,
-                                          String tipoBusqueda, String usuario) {
+                                          TipoPermiso tipoBusqueda, String usuario) {
 
-        VtVentaEntity vtVentaEntity = vtVentaRepository
-                .findByIdEntity(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("La factura con ID {0} no existe", idVenta)));
-
-        validacionTipoBusqueda(filters, tipoBusqueda, usuario, vtVentaEntity);
-
+        VtVentaEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
         return vtVentaEntity.getMensajes();
     }
 
 
     public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa,
-                                                    FilterListDto filters, Pageable pageable, String tipoBusqueda, String usuario) {
+                                                    FilterListDto filters, Pageable pageable, TipoPermiso tipoBusqueda, String usuario) {
 
 
         Page<VtVentaEntity> page = null;
 
-        if (Objects.equals(tipoBusqueda, "TODAS")) {
+        if (tipoBusqueda == TipoPermiso.TODAS) {
             page = vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
                     filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getTipoVenta(), filters.getSerie(),
                     filters.getSecuencial(), filters.getNumeroAutorizacion(), pageable);
         }
 
-        if (Objects.equals(tipoBusqueda, "SUCURSAL")) {
+        if (tipoBusqueda == TipoPermiso.SUCURSAL) {
             if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
                 page = vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
                         filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getTipoVenta(), filters.getSerie(),
@@ -394,7 +374,7 @@ public class VtVentasFacturasServiceImpl {
             }
         }
 
-        if (Objects.equals(tipoBusqueda, "PROPIAS")) {
+        if (tipoBusqueda == TipoPermiso.PROPIAS) {
 
             page = vtVentaRepository.findAllPaginateUsuario(idData, idEmpresa, usuario, filters.getSucursal(),
                     filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(),
@@ -431,18 +411,18 @@ public class VtVentasFacturasServiceImpl {
     }
 
     public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa,
-                                                                      FilterListDto filters, String tipoBusqueda, String usuario,
+                                                                      FilterListDto filters, TipoPermiso tipoBusqueda, String usuario,
                                                                       Pageable pageable) {
 
         Page<VtVentaEntity> page = null;
 
-        if (Objects.equals(tipoBusqueda, "TODAS")) {
+        if (tipoBusqueda == TipoPermiso.TODAS) {
             page = vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
                     filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getTipoVenta(), filters.getSerie(),
                     filters.getSecuencial(), filters.getNumeroAutorizacion(), pageable);
         }
 
-        if (Objects.equals(tipoBusqueda, "SUCURSAL")) {
+        if (tipoBusqueda == TipoPermiso.SUCURSAL) {
             if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
                 page = vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
                         filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getTipoVenta(), filters.getSerie(),
@@ -452,7 +432,7 @@ public class VtVentasFacturasServiceImpl {
             }
         }
 
-        if (Objects.equals(tipoBusqueda, "PROPIAS")) {
+        if (tipoBusqueda == TipoPermiso.PROPIAS) {
 
             page = vtVentaRepository.findAllPaginateUsuario(idData, idEmpresa, usuario, filters.getSucursal(),
                     filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(),
@@ -872,13 +852,9 @@ public class VtVentasFacturasServiceImpl {
 
     }
 
-    public ResponseDto updateAnulada(Long idData, Long idEmpresa, UUID idVenta, FilterListDto filters, String tipoBusqueda, String usuario) {
+    public ResponseDto updateAnulada(Long idData, Long idEmpresa, UUID idVenta, FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
-        VtVentaEntity vtVentaEntity = vtVentaRepository
-                .findByIdEntity(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("La factura con ID {0} no existe", idVenta)));
-
-        validacionTipoBusqueda(filters, tipoBusqueda, usuario, vtVentaEntity);
+        VtVentaEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         if (!vtVentaEntity.getAnulada()) {
             vtVentaEntity.setAnulada(Boolean.TRUE);
@@ -928,7 +904,7 @@ public class VtVentasFacturasServiceImpl {
     public ResponseDto createAsientoVenta(Long idData, Long idEmpresa, UUID idVenta) {
 
         VtVentaEntity vtVentaEntity = vtVentaRepository
-                .findByIdEntity(idData, idEmpresa, idVenta)
+                .findByIdEntity(idData, idEmpresa, idVenta, null, null)
                 .orElseThrow(() -> new NotFoundException(MessageFormat.format("La factura con ID {0} no existe", idVenta)));
 
         Boolean generarAsiento = Boolean.TRUE;
@@ -950,31 +926,36 @@ public class VtVentasFacturasServiceImpl {
                 .toList();
     }
 
-    private void validacionTipoBusqueda(FilterListDto filters,
-                                        String tipoBusqueda, String usuario, VtVentaEntity vtVentaEntity) {
+    private VtVentaEntity validacionTipoBusqueda(Long idData, Long idEmpresa, UUID idVenta,
+                                                 FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+
         switch (tipoBusqueda) {
-            case "TODAS":
-                break;
-            case "SUCURSAL": {
+            case TODAS:
+                return vtVentaRepository
+                        .findByIdEntity(idData, idEmpresa, idVenta, null, null)
+                        .orElseThrow(() -> new GeneralException(MessageFormat.format("La factura con ID {0} no existe", idVenta)));
+
+            case SUCURSAL: {
                 if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
 
-                    if (vtVentaEntity.getSucursal().equals(filters.getSucursal())) {
-                        break;
-                    } else {
-                        throw new GeneralException(MessageFormat.format("No tiene acceso al documento en la sucursal {0}", filters.getSucursal()));
-                    }
+                    return vtVentaRepository
+                            .findByIdEntity(idData, idEmpresa, idVenta, filters.getSucursal(), null)
+                            .orElseThrow(() -> new GeneralException(MessageFormat.format("No tiene acceso al documento en la sucursal {0}", filters.getSucursal())));
+
                 } else {
                     throw new GeneralException("Es requerido el parametro de la sucursal");
                 }
             }
-            case "PROPIAS": {
-                if (vtVentaEntity.getCreatedBy().equals(usuario)) {
-                    break;
-                } else {
-                    throw new GeneralException(MessageFormat.format("No tiene acceso al documento el usuario: {0}", usuario));
-                }
+            case PROPIAS: {
+
+                return vtVentaRepository
+                        .findByIdEntity(idData, idEmpresa, idVenta, null, usuario)
+                        .orElseThrow(() -> new GeneralException(MessageFormat.format("No tiene acceso al documento el usuario: {0}", usuario)));
+
             }
         }
+
+        throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
     }
 }
 

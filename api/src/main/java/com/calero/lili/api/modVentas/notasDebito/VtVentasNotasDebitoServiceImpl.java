@@ -4,6 +4,7 @@ import com.calero.lili.api.comprobantes.services.ComprobanteServiceImpl;
 import com.calero.lili.api.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosEntity;
 import com.calero.lili.api.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosRepository;
 import com.calero.lili.api.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
+import com.calero.lili.api.modAuditoria.TipoPermiso;
 import com.calero.lili.api.modComprasItems.GeItemsRepository;
 import com.calero.lili.api.modTerceros.GeTerceroEntity;
 import com.calero.lili.api.modTerceros.GeTercerosRepository;
@@ -29,11 +30,9 @@ import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.TipoEmision;
 import com.calero.lili.core.enums.TipoVenta;
 import com.calero.lili.core.errors.exceptions.GeneralException;
-import com.calero.lili.core.errors.exceptions.NotFoundException;
 import com.calero.lili.core.utils.DateUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -112,16 +111,15 @@ public class VtVentasNotasDebitoServiceImpl {
     }
 
     @Transactional
-    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationNotaDebitoRequestDto request, String usuario) {
+    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationNotaDebitoRequestDto request, String usuario,
+                              FilterListDto filters, TipoPermiso tipoBusqueda) {
 
         ValidarCampoAscii.validarStrings(request);
 
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
                 DateUtils.toLocalDate(request.getFechaEmision()));
 
-        VtVentaEntity vtVentaEntity = vtVentaRepository
-                .findByIdEntity(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("idVenta {0} no existe", idVenta)));
+        VtVentaEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         if (!vtVentaEntity.getSerie().equals(request.getSerie()) || !vtVentaEntity.getSecuencial().equals(request.getSecuencial())) {
             Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData, idEmpresa, TipoVenta.NCR.name(), request.getSerie(), request.getSecuencial());
@@ -160,11 +158,10 @@ public class VtVentasNotasDebitoServiceImpl {
         }
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID idVenta,String usuario) {
+    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario, FilterListDto filters,
+                       TipoPermiso tipoBusqueda) {
 
-        VtVentaEntity venta = vtVentaRepository.findByIdEntity(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new NotFoundException(MessageFormat.format("La nota de debito con ID {0} no existe", idVenta)));
-
+        VtVentaEntity venta = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
         venta.setDelete(Boolean.TRUE);
         venta.setDeletedBy(usuario);
         venta.setDeletedDate(LocalDateTime.now());
@@ -172,23 +169,20 @@ public class VtVentasNotasDebitoServiceImpl {
         vtVentaRepository.save(venta);
     }
 
-    public GetNotaDebitoDto findById(Long idData, Long idEmpresa, UUID idVenta) {
+    public GetNotaDebitoDto findById(Long idData, Long idEmpresa, UUID idVenta, FilterListDto filters,
+                                     TipoPermiso tipoBusqueda, String usuario) {
 
 
-        VtVentaEntity vtVentaEntity = vtVentaRepository
-                .findByIdEntity(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new NotFoundException(MessageFormat.format("La nota de debito con ID {0} no exixte", idVenta)));
-
+        VtVentaEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
         return vtNotasDebitoBuilder.builderResponse(vtVentaEntity);
     }
 
 
-    public List<Mensajes> findByIdMensajes(Long idData, Long idEmpresa, UUID idVenta) {
+    public List<Mensajes> findByIdMensajes(Long idData, Long idEmpresa, UUID idVenta, FilterListDto filters,
+                                           TipoPermiso tipoBusqueda, String usuario) {
 
-        VtVentaEntity vtVentaEntity = vtVentaRepository
-                .findByIdEntity(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new NotFoundException(MessageFormat.format("La nota de debito con ID {0} no exixte", idVenta)));
 
+        VtVentaEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
         return vtVentaEntity.getMensajes();
     }
 
@@ -279,11 +273,10 @@ public class VtVentasNotasDebitoServiceImpl {
         return null;
     }
 
-    public ResponseDto updateAnulada(Long idData, Long idEmpresa, UUID idVenta) {
+    public ResponseDto updateAnulada(Long idData, Long idEmpresa, UUID idVenta,
+                                     FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
-        VtVentaEntity vtVentaEntity = vtVentaRepository
-                .findByIdEntity(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("idVenta {0} no existe", idVenta)));
+        VtVentaEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         if (!vtVentaEntity.getAnulada()) {
             vtVentaEntity.setAnulada(Boolean.TRUE);
@@ -324,6 +317,38 @@ public class VtVentasNotasDebitoServiceImpl {
                 .filter(Objects::nonNull)
                 .map(BigDecimal::intValue)
                 .toList();
+    }
+
+    private VtVentaEntity validacionTipoBusqueda(Long idData, Long idEmpresa, UUID idVenta,
+                                                 FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+
+        switch (tipoBusqueda) {
+            case TODAS:
+                return vtVentaRepository
+                        .findByIdEntity(idData, idEmpresa, idVenta, null, null)
+                        .orElseThrow(() -> new GeneralException(MessageFormat.format("La factura con ID {0} no existe", idVenta)));
+
+            case SUCURSAL: {
+                if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
+
+                    return vtVentaRepository
+                            .findByIdEntity(idData, idEmpresa, idVenta, filters.getSucursal(), null)
+                            .orElseThrow(() -> new GeneralException(MessageFormat.format("No tiene acceso al documento en la sucursal {0}", filters.getSucursal())));
+
+                } else {
+                    throw new GeneralException("Es requerido el parametro de la sucursal");
+                }
+            }
+            case PROPIAS: {
+
+                return vtVentaRepository
+                        .findByIdEntity(idData, idEmpresa, idVenta, null, usuario)
+                        .orElseThrow(() -> new GeneralException(MessageFormat.format("No tiene acceso al documento el usuario: {0}", usuario)));
+
+            }
+        }
+
+        throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
     }
 
 }

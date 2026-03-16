@@ -1,18 +1,9 @@
 package com.calero.lili.api.modVentasGuias;
 
-import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.api.comprobantes.services.ComprobanteServiceImpl;
-import com.calero.lili.core.dtos.Mensajes;
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.Paginator;
-import com.calero.lili.core.dtos.ResponseDto;
-import com.calero.lili.core.enums.EstadoDocumento;
-import com.calero.lili.core.enums.FormatoDocumento;
-import com.calero.lili.core.enums.TipoEmision;
-import com.calero.lili.core.enums.TipoTercero;
-import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.api.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosEntity;
 import com.calero.lili.api.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosRepository;
+import com.calero.lili.api.modAuditoria.TipoPermiso;
 import com.calero.lili.api.modComprasItems.GeItemsRepository;
 import com.calero.lili.api.modTerceros.GeTerceroEntity;
 import com.calero.lili.api.modTerceros.GeTercerosRepository;
@@ -22,6 +13,16 @@ import com.calero.lili.api.modVentasGuias.dto.FilterListDto;
 import com.calero.lili.api.modVentasGuias.dto.GetDto;
 import com.calero.lili.api.modVentasGuias.dto.GetListDto;
 import com.calero.lili.api.modVentasGuias.projection.OneProjection;
+import com.calero.lili.core.builder.ResponseApiBuilder;
+import com.calero.lili.core.dtos.Mensajes;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.Paginator;
+import com.calero.lili.core.dtos.ResponseDto;
+import com.calero.lili.core.enums.EstadoDocumento;
+import com.calero.lili.core.enums.FormatoDocumento;
+import com.calero.lili.core.enums.TipoEmision;
+import com.calero.lili.core.enums.TipoTercero;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.utils.DateUtils;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -35,7 +36,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -120,11 +120,10 @@ public class VtGuiasServiceImpl {
 
 
     @Transactional
-    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationRequestGuiaRemisionDto request, String usuario) {
+    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationRequestGuiaRemisionDto request,
+                              String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
 
-        VtGuiaEntity vtGuiaEntity = vtVentaRepository
-                .findByIdEntity(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("idVenta {0} no existe", idVenta)));
+        VtGuiaEntity vtGuiaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         if (!vtGuiaEntity.getSerie().equals(request.getSerie()) || !vtGuiaEntity.getSecuencial().equals(request.getSecuencial())) {
             Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData, idEmpresa, request.getSerie(), request.getSecuencial());
@@ -167,11 +166,9 @@ public class VtGuiasServiceImpl {
         }
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario) {
+    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
 
-        VtGuiaEntity vtGuiaEntity = vtVentaRepository
-                .findByIdEntity(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("idVenta {0} no existe", idVenta)));
+        VtGuiaEntity vtGuiaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         vtGuiaEntity.setDelete(Boolean.TRUE);
         vtGuiaEntity.setDeletedBy(usuario);
@@ -182,21 +179,18 @@ public class VtGuiasServiceImpl {
     }
 
 
-    public GetDto findById(Long idData, Long idEmpresa, UUID idVenta) {
+    public GetDto findById(Long idData, Long idEmpresa, UUID idVenta,
+                           FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
-        VtGuiaEntity vtGuiaEntity = vtVentaRepository
-                .findByIdEntity(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("La factura con ID {0} no exixte", idVenta)));
-
+        VtGuiaEntity vtGuiaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
         return vtGuiaBuilder.builderResponse(vtGuiaEntity);
     }
 
 
-    public List<Mensajes> findByIdMensajes(Long idData, Long idEmpresa, UUID idVenta) {
+    public List<Mensajes> findByIdMensajes(Long idData, Long idEmpresa, UUID idVenta,
+                                           FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
-        VtGuiaEntity vtGuiaEntity = vtVentaRepository
-                .findByIdEntity(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("La factura con ID {0} no exixte", idVenta)));
+        VtGuiaEntity vtGuiaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         return vtGuiaEntity.getMensajes();
     }
@@ -445,11 +439,10 @@ public class VtGuiasServiceImpl {
 
     }
 
-    public ResponseDto updateAnulada(Long idData, Long idEmpresa, UUID idVenta) {
+    public ResponseDto updateAnulada(Long idData, Long idEmpresa, UUID idVenta,
+                                     FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
-        VtGuiaEntity vtGuiaEntity = vtVentaRepository
-                .findByIdEntity(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("idVenta {0} no existe", idVenta)));
+        VtGuiaEntity vtGuiaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         if (!vtGuiaEntity.getAnulada()) {
             vtGuiaEntity.setAnulada(Boolean.TRUE);
@@ -493,6 +486,38 @@ public class VtGuiasServiceImpl {
                     .orElseThrow(() -> new GeneralException("El item con id  " + model.getIdItem() + " no existe "));
         }
 
+    }
+
+    private VtGuiaEntity validacionTipoBusqueda(Long idData, Long idEmpresa, UUID idVenta,
+                                                FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+
+        switch (tipoBusqueda) {
+            case TODAS:
+                return vtVentaRepository
+                        .findByIdEntity(idData, idEmpresa, idVenta, null, null)
+                        .orElseThrow(() -> new GeneralException(MessageFormat.format("La factura con ID {0} no existe", idVenta)));
+
+            case SUCURSAL: {
+                if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
+
+                    return vtVentaRepository
+                            .findByIdEntity(idData, idEmpresa, idVenta, filters.getSucursal(), null)
+                            .orElseThrow(() -> new GeneralException(MessageFormat.format("No tiene acceso al documento en la sucursal {0}", filters.getSucursal())));
+
+                } else {
+                    throw new GeneralException("Es requerido el parametro de la sucursal");
+                }
+            }
+            case PROPIAS: {
+
+                return vtVentaRepository
+                        .findByIdEntity(idData, idEmpresa, idVenta, null, usuario)
+                        .orElseThrow(() -> new GeneralException(MessageFormat.format("No tiene acceso al documento el usuario: {0}", usuario)));
+
+            }
+        }
+
+        throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
     }
 
 }

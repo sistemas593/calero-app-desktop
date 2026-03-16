@@ -1,5 +1,6 @@
 package com.calero.lili.api.modVentasRetenciones;
 
+import com.calero.lili.api.modAuditoria.TipoPermiso;
 import com.calero.lili.api.modTerceros.GeTerceroEntity;
 import com.calero.lili.api.modTerceros.GeTercerosRepository;
 import com.calero.lili.api.modVentasRetenciones.builder.VtRetencionesBuilder;
@@ -43,6 +44,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.IntStream;
 
@@ -76,11 +78,9 @@ public class VentasRetencionesServiceImpl {
 
     @Transactional
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationVentasRetencionesRequestDto request,
-                              String usuario) {
+                              String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
 
-        VtRetencionesEntity vtRetencionesEntity = vtVentaRepository
-                .findById(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("idVenta {0} no existe", idVenta)));
+        VtRetencionesEntity vtRetencionesEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         GeTerceroEntity tercero = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
                 .orElseThrow(() -> new GeneralException("No existe tercero"));
@@ -97,12 +97,11 @@ public class VentasRetencionesServiceImpl {
 
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario) {
+    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario, FilterListDto filters,
+                       TipoPermiso tipoBusqueda) {
 
 
-        VtRetencionesEntity vtRetencionesEntity = vtVentaRepository
-                .findById(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("idVenta {0} no existe", idVenta)));
+        VtRetencionesEntity vtRetencionesEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         vtRetencionesEntity.setDelete(Boolean.TRUE);
         vtRetencionesEntity.setDeletedBy(usuario);
@@ -113,12 +112,10 @@ public class VentasRetencionesServiceImpl {
     }
 
 
-    public GetDto findById(Long idData, Long idEmpresa, UUID idVenta) {
+    public GetDto findById(Long idData, Long idEmpresa, UUID idVenta,
+                           FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
-        VtRetencionesEntity vtRetencionesEntity = vtVentaRepository
-                .findById(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new GeneralException(MessageFormat
-                        .format("La factura con ID {0} no exixte", idVenta)));
+        VtRetencionesEntity vtRetencionesEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         return vtRetencionesBuilder.builderResponse(vtRetencionesEntity);
     }
@@ -426,5 +423,38 @@ public class VentasRetencionesServiceImpl {
             }
 
         }
+    }
+
+
+    private VtRetencionesEntity validacionTipoBusqueda(Long idData, Long idEmpresa, UUID idVenta,
+                                                       FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+
+        switch (tipoBusqueda) {
+            case TODAS:
+                return vtVentaRepository
+                        .findById(idData, idEmpresa, idVenta, null, null)
+                        .orElseThrow(() -> new GeneralException(MessageFormat.format("La factura con ID {0} no existe", idVenta)));
+
+            case SUCURSAL: {
+                if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
+
+                    return vtVentaRepository
+                            .findById(idData, idEmpresa, idVenta, filters.getSucursal(), null)
+                            .orElseThrow(() -> new GeneralException(MessageFormat.format("No tiene acceso al documento en la sucursal {0}", filters.getSucursal())));
+
+                } else {
+                    throw new GeneralException("Es requerido el parametro de la sucursal");
+                }
+            }
+            case PROPIAS: {
+
+                return vtVentaRepository
+                        .findById(idData, idEmpresa, idVenta, null, usuario)
+                        .orElseThrow(() -> new GeneralException(MessageFormat.format("No tiene acceso al documento el usuario: {0}", usuario)));
+
+            }
+        }
+
+        throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
     }
 }

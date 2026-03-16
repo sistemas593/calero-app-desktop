@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -17,14 +18,20 @@ import java.util.Optional;
 import java.util.UUID;
 
 @org.springframework.stereotype.Repository
-public interface VtGuiasRepository extends JpaRepository<VtGuiaEntity, UUID> , JpaSpecificationExecutor<VtGuiaEntity> {
+public interface VtGuiasRepository extends JpaRepository<VtGuiaEntity, UUID>, JpaSpecificationExecutor<VtGuiaEntity> {
 
-    @Query( value= "SELECT vtVentasEntity " +
+    @Query(value = "SELECT vtVentasEntity " +
             "FROM VtGuiaEntity vtVentasEntity " +
             "WHERE vtVentasEntity.idData = :idData  AND " +
             "vtVentasEntity.idEmpresa = :idEmpresa AND " +
-            "vtVentasEntity.idGuia = :idVenta ")
-    Optional<VtGuiaEntity> findByIdEntity(Long idData, Long idEmpresa, UUID idVenta);
+            "vtVentasEntity.idGuia = :idVenta AND " +
+            "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
+            "(:usuario IS NULL OR vtVentasEntity.createdBy = :usuario)")
+    Optional<VtGuiaEntity> findByIdEntity(@Param("iData") Long idData,
+                                          @Param("idEmpresa") Long idEmpresa,
+                                          @Param("idVenta") UUID idVenta,
+                                          @Param("sucursal") String sucursal,
+                                          @Param("usuario") String usuario);
 
     @Transactional
     @Modifying
@@ -32,7 +39,7 @@ public interface VtGuiasRepository extends JpaRepository<VtGuiaEntity, UUID> , J
             "WHERE e.idData = :idData AND e.idEmpresa = :idEmpresa AND e.idGuia = :idVenta")
     void deleteById(Long idData, Long idEmpresa, UUID idVenta);
 
-    @Query( value= "SELECT id_guia as idGuia " +
+    @Query(value = "SELECT id_guia as idGuia " +
             "FROM vt_guias vtVentasEntity " +
             "WHERE (vtVentasEntity.id_Data = :idData)  AND " +
             "(vtVentasEntity.id_Empresa = :idEmpresa) AND " +
@@ -40,7 +47,7 @@ public interface VtGuiasRepository extends JpaRepository<VtGuiaEntity, UUID> , J
             "vtVentasEntity.secuencial = :secuencial LIMIT 1", nativeQuery = true)
     Optional<OneProjection> findExistBySecuencial(Long idData, Long idEmpresa, String serie, String secuencial);
 
-    @Query( value= "SELECT  " +
+    @Query(value = "SELECT  " +
             "detalle.id_item as idItem, " +
             "detalle.codigo_principal as codigoPrincipal, " +
             "detalle.codigo_auxiliar as codigoAuxiliar, " +
@@ -58,46 +65,46 @@ public interface VtGuiasRepository extends JpaRepository<VtGuiaEntity, UUID> , J
             "FROM vt_ventas vtVentasEntity INNER JOIN vt_ventas_detalle detalle ON vtVentasEntity.id_guia = detalle.id_guia " +
             "WHERE vtVentasEntity.id_data = :idData  AND " +
             "vtVentasEntity.id_empresa = :idEmpresa AND " +
-            "vtVentasEntity.id_guia = :idVenta ",  nativeQuery = true)
+            "vtVentasEntity.id_guia = :idVenta ", nativeQuery = true)
     List<OneDetalleProjection> findByIdVentaDetalle(Long idData, Long idEmpresa, UUID idVenta);
 
-        @Query( value= "SELECT vtVentasEntity " +
+    @Query(value = "SELECT vtVentasEntity " +
             "FROM VtGuiaEntity vtVentasEntity " +
             "WHERE vtVentasEntity.idData = :idData  AND " +
             "vtVentasEntity.idEmpresa = :idEmpresa AND " +
-                "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND "+
-                "(:serie IS NULL OR vtVentasEntity.serie = :serie) AND " +
+            "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
+            "(:serie IS NULL OR vtVentasEntity.serie = :serie) AND " +
             "(:secuencial IS NULL OR vtVentasEntity.secuencial = :secuencial) AND " +
-            "(:numeroAutorizacion IS NULL OR vtVentasEntity.numeroAutorizacion = :numeroAutorizacion ) AND "+
+            "(:numeroAutorizacion IS NULL OR vtVentasEntity.numeroAutorizacion = :numeroAutorizacion ) AND " +
             "( cast(:fechaEmisionDesde as date) is null OR vtVentasEntity.fechaEmision >= :fechaEmisionDesde ) AND " +
             "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmision <= :fechaEmisionHasta )"
-,
-                countQuery = "SELECT COUNT(1) "+
-                        "FROM VtGuiaEntity vtVentasEntity "+
-                        "WHERE ( vtVentasEntity.idData = :idData)  AND " +
-                        "(vtVentasEntity.idEmpresa = :idEmpresa) AND " +
-                        "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND "+
-                        "(:serie IS NULL OR vtVentasEntity.serie = :serie ) AND "+
-                        "(:secuencial IS NULL OR vtVentasEntity.secuencial = :secuencial ) AND "+
-                        "(:numeroAutorizacion IS NULL OR vtVentasEntity.numeroAutorizacion = :numeroAutorizacion ) AND "+
-                        "( cast(:fechaEmisionDesde as date) is null OR vtVentasEntity.fechaEmision >= :fechaEmisionDesde ) AND " +
-                        "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmision <= :fechaEmisionHasta )"
-        )
+            ,
+            countQuery = "SELECT COUNT(1) " +
+                    "FROM VtGuiaEntity vtVentasEntity " +
+                    "WHERE ( vtVentasEntity.idData = :idData)  AND " +
+                    "(vtVentasEntity.idEmpresa = :idEmpresa) AND " +
+                    "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
+                    "(:serie IS NULL OR vtVentasEntity.serie = :serie ) AND " +
+                    "(:secuencial IS NULL OR vtVentasEntity.secuencial = :secuencial ) AND " +
+                    "(:numeroAutorizacion IS NULL OR vtVentasEntity.numeroAutorizacion = :numeroAutorizacion ) AND " +
+                    "( cast(:fechaEmisionDesde as date) is null OR vtVentasEntity.fechaEmision >= :fechaEmisionDesde ) AND " +
+                    "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmision <= :fechaEmisionHasta )"
+    )
     Page<VtGuiaEntity> findAllPaginate(Long idData, Long idEmpresa, String sucursal, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta, String serie, String secuencial, String numeroAutorizacion, Pageable pageable);
 
 
-    @Query( value= "SELECT vtVentasEntity " +
+    @Query(value = "SELECT vtVentasEntity " +
             "FROM VtGuiaEntity vtVentasEntity " +
             "WHERE vtVentasEntity.idData = :idData  AND " +
             "vtVentasEntity.idEmpresa = :idEmpresa AND " +
-            "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND "+
+            "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
             "(" +
             "(:serie IS NULL OR vtVentasEntity.serie = :serie) AND " +
             "(:secuencial IS NULL OR vtVentasEntity.secuencial = :secuencial) AND " +
             "( cast(:fechaEmisionDesde as date) is null OR vtVentasEntity.fechaEmision >= :fechaEmisionDesde ) AND " +
             "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmision <= :fechaEmisionHasta )  " +
             ")"
-            )
+    )
     List<VtGuiaEntity> findAll(Long idData, Long idEmpresa, String sucursal, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta, String serie, String secuencial);
 
     @Query(
@@ -125,7 +132,7 @@ public interface VtGuiasRepository extends JpaRepository<VtGuiaEntity, UUID> , J
     )
     List<VtGuiaEntity> findAllFacturasGenerarCorreo(Long idData, Long idEmpresa, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta);
 
-    @Query( value= "SELECT " +
+    @Query(value = "SELECT " +
             "entity.id_guia as idGuia,  " +
             "entity.estado_documento as estadoDocumento,  " +
             "entity.numero_autorizacion as numeroAutorizacion, " +

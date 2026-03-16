@@ -14,11 +14,13 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
+import org.springframework.data.domain.Persistable;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -33,7 +35,7 @@ import java.util.UUID;
 @Table(name = "cnAsientos")
 @Builder
 @Where(clause = "deleted = false")
-public class CnAsientosEntity extends Auditable {
+public class CnAsientosEntity extends Auditable implements Persistable<UUID> {
 
     @Column(name = "id_data")
     private Long idData;
@@ -89,5 +91,19 @@ public class CnAsientosEntity extends Auditable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idTercero")
     private GeTerceroEntity tercero;
+
+    @Transient
+    @Builder.Default
+    private boolean isNewEntity = true;
+
+    @Override
+    public UUID getId() {
+        return idAsiento;
+    }
+
+    @Override
+    public boolean isNew() {
+        return isNewEntity;
+    }
 
 }

@@ -1,10 +1,6 @@
 package com.calero.lili.api.modVentasCotizaciones;
 
-import com.calero.lili.core.builder.ResponseApiBuilder;
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.Paginator;
-import com.calero.lili.core.dtos.ResponseDto;
-import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.api.modAuditoria.TipoPermiso;
 import com.calero.lili.api.modTerceros.GeTerceroEntity;
 import com.calero.lili.api.modTerceros.GeTercerosRepository;
 import com.calero.lili.api.modVentasCotizaciones.builder.VtCotizacionBuilder;
@@ -15,6 +11,11 @@ import com.calero.lili.api.modVentasCotizaciones.dto.GetListDto;
 import com.calero.lili.api.modVentasCotizaciones.dto.GetListDtoTotalizado;
 import com.calero.lili.api.modVentasCotizaciones.projection.OneProjection;
 import com.calero.lili.api.modVentasCotizaciones.projection.TotalesProjection;
+import com.calero.lili.core.builder.ResponseApiBuilder;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.Paginator;
+import com.calero.lili.core.dtos.ResponseDto;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.utils.DateUtils;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -28,7 +29,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -45,6 +45,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.IntStream;
@@ -90,11 +91,10 @@ public class CotizacionesServiceImpl {
 
 
     @Transactional
-    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationVentasCotizacionesRequestDto request, String usuario) {
+    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationVentasCotizacionesRequestDto request,
+                              String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
 
-        VtCotizacionEntity vtVentaEntity = cotizacionesRepository
-                .findByIdEntity(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("idCotizaciones {0} no existe", idVenta)));
+        VtCotizacionEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         if (!vtVentaEntity.getSecuencial().equals(request.getSecuencial())) {
             Optional<OneProjection> existingFactura = cotizacionesRepository.findExistBySecuencial(idData, idEmpresa, request.getSecuencial());
@@ -121,26 +121,24 @@ public class CotizacionesServiceImpl {
         return responseApiBuilder.builderResponse(vtCotizacionEntity.getIdCotizacion().toString());
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario) {
+    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario,
+                       FilterListDto filters, TipoPermiso tipoBusqueda) {
 
-        VtCotizacionEntity vtVentaEntity = cotizacionesRepository
-                .findByIdEntity(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("idCotizaciones {0} no existe", idVenta)));
+        VtCotizacionEntity vtCotizacionEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
-        vtVentaEntity.setDelete(Boolean.TRUE);
-        vtVentaEntity.setDeletedBy(usuario);
-        vtVentaEntity.setDeletedDate(LocalDateTime.now());
+        vtCotizacionEntity.setDelete(Boolean.TRUE);
+        vtCotizacionEntity.setDeletedBy(usuario);
+        vtCotizacionEntity.setDeletedDate(LocalDateTime.now());
 
-        cotizacionesRepository.save(vtVentaEntity);
+        cotizacionesRepository.save(vtCotizacionEntity);
 
     }
 
 
-    public GetDto findById(Long idData, Long idEmpresa, UUID idVenta) {
+    public GetDto findById(Long idData, Long idEmpresa, UUID idVenta,
+                           FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
-        VtCotizacionEntity vtCotizacionEntity = cotizacionesRepository
-                .findByIdEntity(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("La cotización con ID {0} no exixte", idVenta)));
+        VtCotizacionEntity vtCotizacionEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         return vtCotizacionBuilder.builderResponse(vtCotizacionEntity);
     }
@@ -446,5 +444,38 @@ public class CotizacionesServiceImpl {
             }
 
         }
+    }
+
+
+    private VtCotizacionEntity validacionTipoBusqueda(Long idData, Long idEmpresa, UUID idVenta,
+                                                      FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+
+        switch (tipoBusqueda) {
+            case TODAS:
+                return cotizacionesRepository
+                        .findByIdEntity(idData, idEmpresa, idVenta, null, null)
+                        .orElseThrow(() -> new GeneralException(MessageFormat.format("La factura con ID {0} no existe", idVenta)));
+
+            case SUCURSAL: {
+                if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
+
+                    return cotizacionesRepository
+                            .findByIdEntity(idData, idEmpresa, idVenta, filters.getSucursal(), null)
+                            .orElseThrow(() -> new GeneralException(MessageFormat.format("No tiene acceso al documento en la sucursal {0}", filters.getSucursal())));
+
+                } else {
+                    throw new GeneralException("Es requerido el parametro de la sucursal");
+                }
+            }
+            case PROPIAS: {
+
+                return cotizacionesRepository
+                        .findByIdEntity(idData, idEmpresa, idVenta, null, usuario)
+                        .orElseThrow(() -> new GeneralException(MessageFormat.format("No tiene acceso al documento el usuario: {0}", usuario)));
+
+            }
+        }
+
+        throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
     }
 }

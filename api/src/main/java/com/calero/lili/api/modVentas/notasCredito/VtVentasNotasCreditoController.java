@@ -1,5 +1,7 @@
 package com.calero.lili.api.modVentas.notasCredito;
 
+import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
+import com.calero.lili.api.modVentas.facturas.dto.FilterListDto;
 import com.calero.lili.core.dtos.Mensajes;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.api.modVentas.notasCredito.dto.CreationNotaCreditoRequestDto;
@@ -8,7 +10,6 @@ import com.calero.lili.api.utils.IdDataServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -34,7 +35,7 @@ public class VtVentasNotasCreditoController {
 
     private final VtVentasNotasCreditoServiceImpl vtVentasService;
     private final IdDataServiceImpl idDataService;
-    private final AuditorAware<String> auditorAware;
+    private final AuditorAwareImpl auditorAware;
 
     @PostMapping("notas-credito/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.CREATED)
@@ -46,44 +47,62 @@ public class VtVentasNotasCreditoController {
 
     @PutMapping("notas-credito/{idEmpresa}/{idVenta}")
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasAuthority('VT_NC_MO')")
+    @PreAuthorize("hasAnyAuthority('VT_NC_MO_PR','VT_NC_MO_SC','VT_NC_MO_TD')")
     public ResponseDto updateNotaCredito(@PathVariable("idEmpresa") Long idEmpresa,
                                          @PathVariable("idVenta") UUID idVenta,
-                                         @RequestBody CreationNotaCreditoRequestDto request) {
-        return vtVentasService.update(idDataService.getIdData(), idEmpresa, idVenta, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+                                         @RequestBody CreationNotaCreditoRequestDto request,
+                                         FilterListDto filters) {
+        return vtVentasService.update(idDataService.getIdData(), idEmpresa, idVenta, request,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"),
+                auditorAware.getTipoPermisoModificarNotaCredito(),
+                filters);
     }
 
     @DeleteMapping("notas-credito/{idEmpresa}/{idVenta}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAuthority('VT_NC_EL')")
+    @PreAuthorize("hasAnyAuthority('VT_NC_EL_PR','VT_NC_EL_SC','VT_NC_EL_TD')")
     public void deleteNotaCredito(@PathVariable("idEmpresa") Long idEmpresa,
-                                  @PathVariable("idVenta") UUID idVenta) {
-        vtVentasService.delete(idDataService.getIdData(), idEmpresa, idVenta, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+                                  @PathVariable("idVenta") UUID idVenta,
+                                  FilterListDto filters) {
+        vtVentasService.delete(idDataService.getIdData(), idEmpresa, idVenta,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"),
+                auditorAware.getTipoPermisoEliminarNotaCredito(),
+                filters);
     }
 
     @GetMapping("notas-credito/{idEmpresa}/{idVenta}")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('VT_NC_VR')")
+    @PreAuthorize("hasAnyAuthority('VT_NC_VR_PR','VT_NC_VR_SC','VT_NC_VR_TD')")
     public GetNotaCreditoDto findNotaCreditoById(@PathVariable("idEmpresa") Long idEmpresa,
-                                                 @PathVariable("idVenta") UUID idVenta) {
-        return vtVentasService.findById(idDataService.getIdData(), idEmpresa, idVenta);
+                                                 @PathVariable("idVenta") UUID idVenta,
+                                                 FilterListDto filters) {
+        return vtVentasService.findById(idDataService.getIdData(), idEmpresa, idVenta,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"),
+                auditorAware.getTipoPermisoVerNotaCredito(),
+                filters);
     }
-
 
     @GetMapping("notas-credito/mensajes/{idEmpresa}/{idVenta}")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('VT_NC_VR')")
+    @PreAuthorize("hasAnyAuthority('VT_NC_VR_PR','VT_NC_VR_SC','VT_NC_VR_TD')")
     public List<Mensajes> findByMensajesForId(@PathVariable("idEmpresa") Long idEmpresa,
-                                              @PathVariable("idVenta") UUID idVenta) {
-        return vtVentasService.findByMensajes(idDataService.getIdData(), idEmpresa, idVenta);
+                                              @PathVariable("idVenta") UUID idVenta,
+                                              FilterListDto filters) {
+        return vtVentasService.findByMensajes(idDataService.getIdData(), idEmpresa, idVenta,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"),
+                auditorAware.getTipoPermisoVerNotaCredito(),
+                filters);
     }
 
-
     @PostMapping("notas-credito/anulada/{idEmpresa}/{idVenta}")
-    @PreAuthorize("hasAuthority('VT_NC_AN')")
+    @PreAuthorize("hasAnyAuthority('VT_NC_AN_PR','VT_NC_AN_SC','VT_NC_AN_TD')")
     public ResponseDto updateAnulada(@PathVariable("idEmpresa") Long idEmpresa,
-                                     @PathVariable("idVenta") UUID idVenta) {
-        return vtVentasService.updateAnulada(idDataService.getIdData(), idEmpresa, idVenta);
+                                     @PathVariable("idVenta") UUID idVenta,
+                                     FilterListDto filters) {
+        return vtVentasService.updateAnulada(idDataService.getIdData(), idEmpresa, idVenta,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"),
+                auditorAware.getTipoPermisoAnularNotaCredito(),
+                filters);
     }
 
     @PostMapping("notas-credito/asiento/{idEmpresa}/{idVenta}")

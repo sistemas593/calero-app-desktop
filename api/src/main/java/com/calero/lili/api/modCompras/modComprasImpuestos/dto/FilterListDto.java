@@ -13,6 +13,7 @@ public class FilterListDto {
     private String tipoDocumento;
     private String serie;
     private String secuencial;
+    private String sucursal;
 
     private String numeroIdentificacion;
 
@@ -22,13 +23,13 @@ public class FilterListDto {
     private String fechaEmisionHasta;
 
     public LocalDate getFechaEmisionDesde() {
-        if(fechaEmisionDesde == null)
+        if (fechaEmisionDesde == null)
             return null;
         return DateUtils.toLocalDate(fechaEmisionDesde);
     }
 
     public LocalDate getFechaEmisionHasta() {
-        if(fechaEmisionHasta == null)
+        if (fechaEmisionHasta == null)
             return null;
         return DateUtils.toLocalDate(fechaEmisionHasta);
     }
@@ -37,13 +38,13 @@ public class FilterListDto {
     private String fechaRegistroHasta;
 
     public LocalDate getFechaRegistroDesde() {
-        if(fechaRegistroDesde == null)
+        if (fechaRegistroDesde == null)
             return null;
         return DateUtils.toLocalDate(fechaRegistroDesde);
     }
 
     public LocalDate getFechaRegistroHasta() {
-        if(fechaRegistroHasta == null)
+        if (fechaRegistroHasta == null)
             return null;
         return DateUtils.toLocalDate(fechaRegistroHasta);
     }

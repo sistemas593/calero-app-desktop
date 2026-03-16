@@ -65,7 +65,7 @@ public class VtVentasFacturasController {
                                      @RequestBody CreationFacturaRequestDto request,
                                      FilterListDto filters) {
         return vtVentasService.update(idDataService.getIdData(), idEmpresa, idVenta, request, filters,
-                auditorAware.getTipoPermisoModificarFacturas(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+                auditorAware.getTipoPermisoFacturaModificar(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("facturas/{idEmpresa}/{idVenta}")
@@ -75,7 +75,7 @@ public class VtVentasFacturasController {
                               @PathVariable("idVenta") UUID idVenta,
                               FilterListDto filters) {
         vtVentasService.delete(idDataService.getIdData(), idEmpresa, idVenta, filters,
-                auditorAware.getTipoPermisoEliminarFacturas(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+                auditorAware.getTipoPermisoFacturaEliminar(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("facturas/{idEmpresa}/{idVenta}")
@@ -85,7 +85,7 @@ public class VtVentasFacturasController {
                                          @PathVariable("idVenta") UUID idVenta,
                                          FilterListDto filters) {
         return vtVentasService.findById(idDataService.getIdData(), idEmpresa, idVenta, filters,
-                auditorAware.getTipoPermisoVerFacturas(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+                auditorAware.getTipoPermisoFacturaVer(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
 
@@ -97,7 +97,7 @@ public class VtVentasFacturasController {
                                           FilterListDto filters) {
 
         return vtVentasService.findMensajeById(idDataService.getIdData(), idEmpresa, idVenta, filters,
-                auditorAware.getTipoPermisoVerFacturas(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+                auditorAware.getTipoPermisoFacturaVer(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("facturas/{idEmpresa}")
@@ -107,7 +107,7 @@ public class VtVentasFacturasController {
                                                     FilterListDto filters,
                                                     Pageable pageable) {
         return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable,
-                auditorAware.getTipoPermisoVerFacturas(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+                auditorAware.getTipoPermisoFacturaVer(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("facturas/reportes/{idEmpresa}")
@@ -118,7 +118,7 @@ public class VtVentasFacturasController {
                                                                       Pageable pageable) {
         log.info("Filters = {}", filters);
         return vtVentasService.findAllPaginateTotalizado(idDataService.getIdData(), idEmpresa, filters,
-                auditorAware.getTipoPermisoVerFacturas(), auditorAware.getCurrentAuditor().orElse("SYSTEM") ,pageable);
+                auditorAware.getTipoPermisoFacturaVer(), auditorAware.getCurrentAuditor().orElse("SYSTEM") ,pageable);
     }
 
     @GetMapping("excel/{idEmpresa}")
@@ -144,7 +144,7 @@ public class VtVentasFacturasController {
                                      @PathVariable("idVenta") UUID idVenta,
                                      FilterListDto filters) {
         return vtVentasService.updateAnulada(idDataService.getIdData(), idEmpresa, idVenta, filters,
-                auditorAware.getTipoPermisoAnularFacturas(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+                auditorAware.getTipoPermisoFacturaAnular(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PostMapping("facturas/excel/{idEmpresa}/{sucursal}")

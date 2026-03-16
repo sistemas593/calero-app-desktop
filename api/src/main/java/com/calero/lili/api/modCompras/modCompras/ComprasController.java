@@ -1,19 +1,19 @@
 package com.calero.lili.api.modCompras.modCompras;
 
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.ResponseDto;
+import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.api.modCompras.modCompras.dto.CompraRequestDto;
 import com.calero.lili.api.modCompras.modCompras.dto.FilterListDto;
 import com.calero.lili.api.modCompras.modCompras.dto.GetDto;
 import com.calero.lili.api.modCompras.modCompras.dto.GetListDto;
 import com.calero.lili.api.modCompras.modCompras.dto.GetListDtoTotalizado;
 import com.calero.lili.api.utils.IdDataServiceImpl;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.ResponseDto;
 import com.lowagie.text.DocumentException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -40,7 +40,7 @@ public class ComprasController {
 
     private final ComprasServiceImpl vtVentasService;
     private final IdDataServiceImpl idDataService;
-    private final AuditorAware<String> auditorAware;
+    private final AuditorAwareImpl auditorAware;
 
     @PostMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.CREATED)
@@ -53,31 +53,44 @@ public class ComprasController {
 
     @PutMapping("{idEmpresa}/{idCompra}")
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasAuthority('CP_CP_MO')")
+    @PreAuthorize("hasAnyAuthority('CP_CP_MO_PR','CP_CP_MO_SC','CP_CP_MO_TD')")
     public ResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                               @PathVariable("idCompra") UUID idCompra,
-                              @RequestBody CompraRequestDto request) {
-        return vtVentasService.update(idDataService.getIdData(), idEmpresa, idCompra, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+                              @RequestBody CompraRequestDto request,
+                              FilterListDto filters) {
+        return vtVentasService.update(idDataService.getIdData(), idEmpresa, idCompra, request,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"),
+                filters,
+                auditorAware.getTipoPermisoModificarCompra());
     }
 
     @DeleteMapping("{idEmpresa}/{idCompra}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAuthority('CP_CP_EL')")
-    public void delete(@PathVariable("idEmpresa") Long idEmpresa, @PathVariable("idCompra") UUID idCompra) {
-        vtVentasService.delete(idDataService.getIdData(), idEmpresa, idCompra, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+    @PreAuthorize("hasAnyAuthority('CP_CP_EL_PR','CP_CP_EL_SC','CP_CP_EL_TD')")
+    public void delete(@PathVariable("idEmpresa") Long idEmpresa,
+                       @PathVariable("idCompra") UUID idCompra,
+                       FilterListDto filters) {
+        vtVentasService.delete(idDataService.getIdData(), idEmpresa, idCompra,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"),
+                filters,
+                auditorAware.getTipoPermisoEliminarCompra());
     }
 
     @GetMapping("{idEmpresa}/{idCompra}")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('CP_CP_VR')")
-    public GetDto findById(@PathVariable("idEmpresa") Long idEmpresa, @PathVariable("idCompra") UUID idCompra) {
-        return vtVentasService.findById(idDataService.getIdData(), idEmpresa, idCompra);
+    @PreAuthorize("hasAnyAuthority('CP_CP_VR_PR','CP_CP_VR_SC','CP_CP_VR_TD')")
+    public GetDto findById(@PathVariable("idEmpresa") Long idEmpresa,
+                           @PathVariable("idCompra") UUID idCompra,
+                           FilterListDto filters) {
+        return vtVentasService.findById(idDataService.getIdData(), idEmpresa, idCompra,
+                filters,
+                auditorAware.getTipoPermisoVerCompra(),
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
-
 
     @GetMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('CP_CP_VR')")
+    @PreAuthorize("hasAnyAuthority('CP_CP_VR_PR','CP_CP_VR_SC','CP_CP_VR_TD')")
     public PaginatedDto<GetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
                                                     FilterListDto filters,
                                                     Pageable pageable) {
@@ -86,7 +99,7 @@ public class ComprasController {
 
     @GetMapping("reportes/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('CP_CP_VR')")
+    @PreAuthorize("hasAnyAuthority('CP_CP_VR_PR','CP_CP_VR_SC','CP_CP_VR_TD')")
     public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(
             @PathVariable("idEmpresa") Long idEmpresa,
             FilterListDto filters,
@@ -105,7 +118,7 @@ public class ComprasController {
     }
 
     @GetMapping("pdf/{idEmpresa}")
-    @PreAuthorize("hasAuthority('CP_CP_MO')")
+    @PreAuthorize("hasAuthority('CP_CP_EX')")
     public void exportarPDF(HttpServletResponse response,
                             @PathVariable("idEmpresa") Long idEmpresa,
                             FilterListDto filters) throws DocumentException, IOException {

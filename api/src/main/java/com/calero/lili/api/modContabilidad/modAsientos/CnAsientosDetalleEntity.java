@@ -11,10 +11,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Persistable;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -26,7 +28,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Table(name = "cnAsientosDetalle")
 @Builder
-public class CnAsientosDetalleEntity {
+public class CnAsientosDetalleEntity implements Persistable<UUID> {
 
     @Id
     @Column(unique = true, updatable = false, nullable = false)
@@ -74,5 +76,19 @@ public class CnAsientosDetalleEntity {
 
     @Column(name = "id_empresa")
     private Long idEmpresa;
+
+    @Transient
+    @Builder.Default
+    private boolean isNewEntity = true;
+
+    @Override
+    public UUID getId() {
+        return idAsientoDetalle;
+    }
+
+    @Override
+    public boolean isNew() {
+        return isNewEntity;
+    }
 
 }

@@ -1,18 +1,18 @@
 package com.calero.lili.api.modCompras.modComprasImpuestos;
 
-import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.api.dtos.deRecibidos.CpImpuestosRecibirCreationRequestDto;
+import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.api.modCompras.modComprasImpuestos.dto.CreationCompraImpuestoRequestDto;
 import com.calero.lili.api.modCompras.modComprasImpuestos.dto.FilterListDto;
 import com.calero.lili.api.modCompras.modComprasImpuestos.dto.GetDto;
 import com.calero.lili.api.modCompras.modComprasImpuestos.dto.GetListDto;
 import com.calero.lili.api.modCompras.modComprasImpuestos.dto.GetListDtoTotalizado;
 import com.calero.lili.api.utils.IdDataServiceImpl;
+import com.calero.lili.core.dtos.ResponseDto;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,48 +35,61 @@ import java.util.UUID;
 @RequestMapping(value = "api/v1.0/impuestos")
 @RequiredArgsConstructor
 @CrossOrigin(originPatterns = "*")
-
 public class CpImpuestosController {
 
     private final CpImpuestosServiceImpl vtVentasService;
     private final IdDataServiceImpl idDataService;
-    private final AuditorAware<String> auditorAware;
+    private final AuditorAwareImpl auditorAware;
 
     @PostMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('CP_CI_CR')")
     public ResponseDto create(@PathVariable("idEmpresa") Long idEmpresa,
                               @Valid @RequestBody CreationCompraImpuestoRequestDto request) {
-        return vtVentasService.create(idDataService.getIdData(), idEmpresa, request,auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        return vtVentasService.create(idDataService.getIdData(), idEmpresa, request,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idEmpresa}/{idCompraImpuesto}")
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasAuthority('CP_CI_MO')")
+    @PreAuthorize("hasAnyAuthority('CP_CI_MO_PR','CP_CI_MO_SC','CP_CI_MO_TD')")
     public ResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                               @PathVariable("idCompraImpuesto") UUID idCompraImpuesto,
-                              @RequestBody CreationCompraImpuestoRequestDto request) {
-        return vtVentasService.update(idDataService.getIdData(), idEmpresa, idCompraImpuesto, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+                              @RequestBody CreationCompraImpuestoRequestDto request,
+                              FilterListDto filters) {
+        return vtVentasService.update(idDataService.getIdData(), idEmpresa, idCompraImpuesto, request,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"),
+                filters,
+                auditorAware.getTipoPermisoModificarImpuesto());
     }
 
     @DeleteMapping("facturas/{idEmpresa}/{idRecibida}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAuthority('CP_CI_EL')")
-    public void delete(@PathVariable("idEmpresa") Long idEmpresa, @PathVariable("idRecibida") UUID idRecibida) {
-        vtVentasService.delete(idDataService.getIdData(), idEmpresa, idRecibida, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+    @PreAuthorize("hasAnyAuthority('CP_CI_EL_PR','CP_CI_EL_SC','CP_CI_EL_TD')")
+    public void delete(@PathVariable("idEmpresa") Long idEmpresa,
+                       @PathVariable("idRecibida") UUID idRecibida,
+                       FilterListDto filters) {
+        vtVentasService.delete(idDataService.getIdData(), idEmpresa, idRecibida,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"),
+                filters,
+                auditorAware.getTipoPermisoEliminarImpuesto());
     }
 
     @GetMapping("facturas/{idEmpresa}/{idRecibida}")
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasAuthority('CP_CI_VR')")
+    @PreAuthorize("hasAnyAuthority('CP_CI_VR_PR','CP_CI_VR_SC','CP_CI_VR_TD')")
     public GetDto findById(@PathVariable("idEmpresa") Long idEmpresa,
-                           @PathVariable("idRecibida") UUID idRecibida) {
-        return vtVentasService.findById(idDataService.getIdData(), idEmpresa, idRecibida);
+                           @PathVariable("idRecibida") UUID idRecibida,
+                           FilterListDto filters) {
+        return vtVentasService.findById(idDataService.getIdData(), idEmpresa, idRecibida,
+                filters,
+                auditorAware.getTipoPermisoVerImpuesto(),
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("facturas/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('CP_CI_VR')")
+    @PreAuthorize("hasAnyAuthority('CP_CI_VR_PR','CP_CI_VR_SC','CP_CI_VR_TD')")
     public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(@PathVariable("idEmpresa") Long idEmpresa,
                                                                       FilterListDto filters,
                                                                       Pageable pageable) {
@@ -87,7 +100,9 @@ public class CpImpuestosController {
     @GetMapping("facturas/excel/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAuthority('CP_CI_EX')")
-    public void exportarExcel(@PathVariable("idEmpresa") Long idEmpresa, FilterListDto filter, HttpServletResponse response) throws IOException {
+    public void exportarExcel(@PathVariable("idEmpresa") Long idEmpresa,
+                              FilterListDto filter,
+                              HttpServletResponse response) throws IOException {
         log.info("Iniciando la exportación a Excel con el filtro: {}", filter);
         vtVentasService.exportarExcel(idDataService.getIdData(), idEmpresa, response, filter);
     }
@@ -95,14 +110,15 @@ public class CpImpuestosController {
     @GetMapping("facturas/pdf/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAuthority('CP_CI_EX')")
-    public void exportarPDF(@PathVariable("idEmpresa") Long idEmpresa, FilterListDto filter,
+    public void exportarPDF(@PathVariable("idEmpresa") Long idEmpresa,
+                            FilterListDto filter,
                             HttpServletResponse response) throws IOException {
         vtVentasService.exportarPDF(idDataService.getIdData(), idEmpresa, response, filter);
     }
 
     @PutMapping("facturas/{idEmpresa}/{idRecibida}")
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasAuthority('CP_CI_EX')")
+    @PreAuthorize("hasAnyAuthority('CP_CI_MO_PR','CP_CI_MO_SC','CP_CI_MO_TD')")
     public void updateDatos(@PathVariable("idEmpresa") Long idEmpresa,
                             @PathVariable("idRecibida") UUID idRecibida,
                             @RequestBody CpImpuestosRecibirCreationRequestDto request) {

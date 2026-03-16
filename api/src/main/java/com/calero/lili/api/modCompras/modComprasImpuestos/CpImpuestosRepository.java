@@ -28,8 +28,14 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
             "FROM CpImpuestosEntity entity " +
             "WHERE entity.idData = :idData  AND " +
             "entity.idEmpresa = :idEmpresa AND " +
-            "entity.idImpuestos = :idLiquidacion ")
-    Optional<CpImpuestosEntity> findByIdEntity(Long idData, Long idEmpresa, UUID idLiquidacion);
+            "entity.idImpuestos = :idLiquidacion AND " +
+            "(:sucursal IS NULL OR entity.sucursal = :sucursal) AND " +
+            "(:usuario IS NULL OR entity.createdBy = :usuario)")
+    Optional<CpImpuestosEntity> findByIdEntity(@Param("idData") Long idData,
+                                               @Param("idEmpresa") Long idEmpresa,
+                                               @Param("idLiquidacion") UUID idLiquidacion,
+                                               @Param("sucursal") String sucursal,
+                                               @Param("usuario") String usuario);
 
 
     @Transactional

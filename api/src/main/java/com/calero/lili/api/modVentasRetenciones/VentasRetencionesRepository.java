@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -17,14 +18,20 @@ import java.util.Optional;
 import java.util.UUID;
 
 @org.springframework.stereotype.Repository
-public interface VentasRetencionesRepository extends JpaRepository<VtRetencionesEntity, UUID> , JpaSpecificationExecutor<VtRetencionesEntity> {
+public interface VentasRetencionesRepository extends JpaRepository<VtRetencionesEntity, UUID>, JpaSpecificationExecutor<VtRetencionesEntity> {
 
-    @Query( value= "SELECT vtVentasEntity " +
+    @Query(value = "SELECT vtVentasEntity " +
             "FROM VtRetencionesEntity vtVentasEntity " +
             "WHERE vtVentasEntity.idData = :idData  AND " +
             "vtVentasEntity.idEmpresa = :idEmpresa AND " +
-            "vtVentasEntity.idRetencion = :idVenta ")
-    Optional<VtRetencionesEntity> findById(Long idData, Long idEmpresa, UUID idVenta);
+            "vtVentasEntity.idRetencion = :idVenta AND " +
+            "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
+            "(:usuario IS NULL OR vtVentasEntity.createdBy = :usuario)")
+    Optional<VtRetencionesEntity> findById(@Param("iData") Long idData,
+                                           @Param("idEmpresa") Long idEmpresa,
+                                           @Param("idVenta") UUID idVenta,
+                                           @Param("sucursal") String sucursal,
+                                           @Param("usuario") String usuario);
 
     @Transactional
     @Modifying
@@ -33,7 +40,7 @@ public interface VentasRetencionesRepository extends JpaRepository<VtRetenciones
     void deleteById(Long idData, Long idEmpresa, UUID idVenta);
 
 
-    @Query( value= "SELECT vt_retenciones.id_Data as id_data " +
+    @Query(value = "SELECT vt_retenciones.id_Data as id_data " +
             "FROM vt_retenciones vt_retenciones " +
             "WHERE (vt_retenciones.id_Data = :idData)  AND " +
             "(vt_retenciones.id_Empresa = :idEmpresa) AND " +
@@ -41,7 +48,7 @@ public interface VentasRetencionesRepository extends JpaRepository<VtRetenciones
             "LIMIT 1", nativeQuery = true)
     Optional<DeRecibidasRetencionesProjection> findExistByNumeroAutorizacion(Long idData, Long idEmpresa, String numeroAutorizacion);
 
-    @Query( value= "SELECT " +
+    @Query(value = "SELECT " +
             "entity.id_retencion as idRetencion,  " +
             "entity.numero_autorizacion_retencion as numeroAutorizacion, " +
             "entity.comprobante as comprobante " +
@@ -52,30 +59,30 @@ public interface VentasRetencionesRepository extends JpaRepository<VtRetenciones
     Optional<VtRetencionesOneProjection> findXMLById(Long idData, Long idEmpresa, UUID id);
 
 
-    @Query( value= "SELECT vtVentasEntity " +
+    @Query(value = "SELECT vtVentasEntity " +
             "FROM VtRetencionesEntity vtVentasEntity " +
             "WHERE vtVentasEntity.idData = :idData  AND " +
             "vtVentasEntity.idEmpresa = :idEmpresa AND " +
-            "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND "+
-            "(:numeroIdentificacion IS NULL OR vtVentasEntity.numeroIdentificacion = :numeroIdentificacion ) AND "+
+            "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
+            "(:numeroIdentificacion IS NULL OR vtVentasEntity.numeroIdentificacion = :numeroIdentificacion ) AND " +
             "(:serie IS NULL OR vtVentasEntity.serieRetencion = :serie) AND " +
             "(:secuencial IS NULL OR vtVentasEntity.secuencialRetencion = :secuencial) AND " +
-            "(:numeroAutorizacion IS NULL OR vtVentasEntity.numeroAutorizacionRetencion = :numeroAutorizacion ) AND "+
+            "(:numeroAutorizacion IS NULL OR vtVentasEntity.numeroAutorizacionRetencion = :numeroAutorizacion ) AND " +
             "( cast(:fechaEmisionDesde as date) is null OR vtVentasEntity.fechaEmisionRetencion >= :fechaEmisionDesde ) AND " +
             "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmisionRetencion <= :fechaEmisionHasta )"
-,
-                countQuery = "SELECT COUNT(1) "+
-                        "FROM VtRetencionesEntity vtVentasEntity "+
-                        "WHERE ( vtVentasEntity.idData = :idData)  AND " +
-                        "(vtVentasEntity.idEmpresa = :idEmpresa) AND " +
-                        "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND "+
-                        "(:numeroIdentificacion IS NULL OR vtVentasEntity.numeroIdentificacion = :numeroIdentificacion ) AND "+
-                        "(:serie IS NULL OR vtVentasEntity.serieRetencion = :serie ) AND "+
-                        "(:secuencial IS NULL OR vtVentasEntity.secuencialRetencion = :secuencial ) AND "+
-                        "(:numeroAutorizacion IS NULL OR vtVentasEntity.numeroAutorizacionRetencion = :numeroAutorizacion ) AND "+
-                        "( cast(:fechaEmisionDesde as date) is null OR vtVentasEntity.fechaEmisionRetencion >= :fechaEmisionDesde ) AND " +
-                        "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmisionRetencion <= :fechaEmisionHasta )"
-        )
+            ,
+            countQuery = "SELECT COUNT(1) " +
+                    "FROM VtRetencionesEntity vtVentasEntity " +
+                    "WHERE ( vtVentasEntity.idData = :idData)  AND " +
+                    "(vtVentasEntity.idEmpresa = :idEmpresa) AND " +
+                    "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
+                    "(:numeroIdentificacion IS NULL OR vtVentasEntity.numeroIdentificacion = :numeroIdentificacion ) AND " +
+                    "(:serie IS NULL OR vtVentasEntity.serieRetencion = :serie ) AND " +
+                    "(:secuencial IS NULL OR vtVentasEntity.secuencialRetencion = :secuencial ) AND " +
+                    "(:numeroAutorizacion IS NULL OR vtVentasEntity.numeroAutorizacionRetencion = :numeroAutorizacion ) AND " +
+                    "( cast(:fechaEmisionDesde as date) is null OR vtVentasEntity.fechaEmisionRetencion >= :fechaEmisionDesde ) AND " +
+                    "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmisionRetencion <= :fechaEmisionHasta )"
+    )
     Page<VtRetencionesEntity> findAllPaginate(Long idData, Long idEmpresa, String sucursal, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta, String numeroIdentificacion, String serie, String secuencial, String numeroAutorizacion, Pageable pageable);
 
 
@@ -88,21 +95,21 @@ public interface VentasRetencionesRepository extends JpaRepository<VtRetenciones
                     "INNER JOIN vt_retenciones_valores valoresEntity ON vtVentaEntity.id_retencion = valoresEntity.id_retencion " +
                     "WHERE ( vtVentaEntity.id_data = :idData)  AND " +
                     "(vtVentaEntity.id_empresa = :idEmpresa) AND " +
-                    "(:sucursal IS NULL OR vtVentaEntity.sucursal = :sucursal) AND "+
-                    "(:numeroIdentificacion IS NULL OR vtVentaEntity.numero_identificacion = :numeroIdentificacion ) AND "+
-                    "(:serie IS NULL OR vtVentaEntity.serie_retencion = :serie ) AND "+
-                    "(:secuencial IS NULL OR vtVentaEntity.secuencial_retencion = :secuencial ) AND "+
+                    "(:sucursal IS NULL OR vtVentaEntity.sucursal = :sucursal) AND " +
+                    "(:numeroIdentificacion IS NULL OR vtVentaEntity.numero_identificacion = :numeroIdentificacion ) AND " +
+                    "(:serie IS NULL OR vtVentaEntity.serie_retencion = :serie ) AND " +
+                    "(:secuencial IS NULL OR vtVentaEntity.secuencial_retencion = :secuencial ) AND " +
                     "( cast(:fechaEmisionDesde as date) is null OR vtVentaEntity.fecha_emision_retencion >= :fechaEmisionDesde ) AND " +
                     "( cast(:fechaEmisionHasta as date) is null OR vtVentaEntity.fecha_emision_retencion <= :fechaEmisionHasta ) " +
                     "GROUP BY valoresEntity.codigo, valoresEntity.codigo_retencion", nativeQuery = true
     )
     List<TotalesProjection> totalValores(Long idData, Long idEmpresa, String sucursal, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta, String numeroIdentificacion, String serie, String secuencial);
 
-    @Query( value= "SELECT vtVentasEntity " +
+    @Query(value = "SELECT vtVentasEntity " +
             "FROM VtRetencionesEntity vtVentasEntity " +
             "WHERE vtVentasEntity.idData = :idData  AND " +
             "vtVentasEntity.idEmpresa = :idEmpresa AND " +
-            "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND "+
+            "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
             "(" +
             "(:numeroIdentificacion IS NULL OR vtVentasEntity.numeroIdentificacion = :numeroIdentificacion) AND " +
             "(:serie IS NULL OR vtVentasEntity.serieRetencion = :serie) AND " +
@@ -110,7 +117,7 @@ public interface VentasRetencionesRepository extends JpaRepository<VtRetenciones
             "( cast(:fechaEmisionDesde as date) is null OR vtVentasEntity.fechaEmisionRetencion >= :fechaEmisionDesde ) AND " +
             "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmisionRetencion <= :fechaEmisionHasta )  " +
             ")"
-            )
+    )
     List<VtRetencionesEntity> findAll(Long idData, Long idEmpresa, String sucursal, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta, String numeroIdentificacion, String serie, String secuencial);
 
 

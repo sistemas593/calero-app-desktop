@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -18,14 +19,20 @@ import java.util.Optional;
 import java.util.UUID;
 
 @org.springframework.stereotype.Repository
-public interface CotizacionesRepository extends JpaRepository<VtCotizacionEntity, UUID> , JpaSpecificationExecutor<VtCotizacionEntity> {
+public interface CotizacionesRepository extends JpaRepository<VtCotizacionEntity, UUID>, JpaSpecificationExecutor<VtCotizacionEntity> {
 
-    @Query( value= "SELECT vtVentasEntity " +
+    @Query(value = "SELECT vtVentasEntity " +
             "FROM VtCotizacionEntity vtVentasEntity " +
             "WHERE vtVentasEntity.idData = :idData  AND " +
             "vtVentasEntity.idEmpresa = :idEmpresa AND " +
-            "vtVentasEntity.idCotizacion = :idVenta ")
-    Optional<VtCotizacionEntity> findByIdEntity(Long idData, Long idEmpresa, UUID idVenta);
+            "vtVentasEntity.idCotizacion = :idVenta AND " +
+            "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
+            "(:usuario IS NULL OR vtVentasEntity.createdBy = :usuario)")
+    Optional<VtCotizacionEntity> findByIdEntity(@Param("iData") Long idData,
+                                                @Param("idEmpresa") Long idEmpresa,
+                                                @Param("idVenta") UUID idVenta,
+                                                @Param("sucursal") String sucursal,
+                                                @Param("usuario") String usuario);
 
     @Transactional
     @Modifying
@@ -33,14 +40,14 @@ public interface CotizacionesRepository extends JpaRepository<VtCotizacionEntity
             "WHERE e.idData = :idData AND e.idEmpresa = :idEmpresa AND e.idCotizacion = :idVenta")
     void deleteById(Long idData, Long idEmpresa, UUID idVenta);
 
-    @Query( value= "SELECT id_cotizacion as idVenta " +
+    @Query(value = "SELECT id_cotizacion as idVenta " +
             "FROM vt_cotizaciones vtVentasEntity " +
             "WHERE (vtVentasEntity.id_Data = :idData)  AND " +
             "(vtVentasEntity.id_Empresa = :idEmpresa) AND " +
             "vtVentasEntity.secuencial = :secuencial LIMIT 1", nativeQuery = true)
     Optional<OneProjection> findExistBySecuencial(Long idData, Long idEmpresa, String secuencial);
 
-    @Query( value= "SELECT  " +
+    @Query(value = "SELECT  " +
             "detalle.id_item as idItem, " +
             "detalle.codigo_principal as codigoPrincipal, " +
             "detalle.codigo_auxiliar as codigoAuxiliar, " +
@@ -58,29 +65,29 @@ public interface CotizacionesRepository extends JpaRepository<VtCotizacionEntity
             "FROM vt_cotizaciones vtVentasEntity INNER JOIN vt_cotizaciones_detalle detalle ON vtVentasEntity.id_cotizacion = detalle.id_cotizacion " +
             "WHERE vtVentasEntity.id_data = :idData  AND " +
             "vtVentasEntity.id_empresa = :idEmpresa AND " +
-            "vtVentasEntity.id_cotizacion = :idVenta ",  nativeQuery = true)
+            "vtVentasEntity.id_cotizacion = :idVenta ", nativeQuery = true)
     List<OneDetalleProjection> findByIdVentaDetalle(Long idData, Long idEmpresa, UUID idVenta);
 
-        @Query( value= "SELECT vtVentasEntity " +
+    @Query(value = "SELECT vtVentasEntity " +
             "FROM VtCotizacionEntity vtVentasEntity " +
             "WHERE vtVentasEntity.idData = :idData  AND " +
             "vtVentasEntity.idEmpresa = :idEmpresa AND " +
-                "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND "+
-                "(:numeroIdentificacion IS NULL OR vtVentasEntity.numeroIdentificacion = :numeroIdentificacion ) AND "+
+            "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
+            "(:numeroIdentificacion IS NULL OR vtVentasEntity.numeroIdentificacion = :numeroIdentificacion ) AND " +
             "(:secuencial IS NULL OR vtVentasEntity.secuencial = :secuencial) AND " +
             "( cast(:fechaEmisionDesde as date) is null OR vtVentasEntity.fechaEmision >= :fechaEmisionDesde ) AND " +
             "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmision <= :fechaEmisionHasta )"
-,
-                countQuery = "SELECT COUNT(1) "+
-                        "FROM VtCotizacionEntity vtVentasEntity "+
-                        "WHERE ( vtVentasEntity.idData = :idData)  AND " +
-                        "(vtVentasEntity.idEmpresa = :idEmpresa) AND " +
-                        "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND "+
-                        "(:numeroIdentificacion IS NULL OR vtVentasEntity.numeroIdentificacion = :numeroIdentificacion ) AND "+
-                        "(:secuencial IS NULL OR vtVentasEntity.secuencial = :secuencial ) AND "+
-                        "( cast(:fechaEmisionDesde as date) is null OR vtVentasEntity.fechaEmision >= :fechaEmisionDesde ) AND " +
-                        "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmision <= :fechaEmisionHasta )"
-        )
+            ,
+            countQuery = "SELECT COUNT(1) " +
+                    "FROM VtCotizacionEntity vtVentasEntity " +
+                    "WHERE ( vtVentasEntity.idData = :idData)  AND " +
+                    "(vtVentasEntity.idEmpresa = :idEmpresa) AND " +
+                    "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
+                    "(:numeroIdentificacion IS NULL OR vtVentasEntity.numeroIdentificacion = :numeroIdentificacion ) AND " +
+                    "(:secuencial IS NULL OR vtVentasEntity.secuencial = :secuencial ) AND " +
+                    "( cast(:fechaEmisionDesde as date) is null OR vtVentasEntity.fechaEmision >= :fechaEmisionDesde ) AND " +
+                    "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmision <= :fechaEmisionHasta )"
+    )
     Page<VtCotizacionEntity> findAllPaginate(Long idData, Long idEmpresa, String sucursal, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta, String numeroIdentificacion, String secuencial, Pageable pageable);
 
     @Query(
@@ -91,7 +98,7 @@ public interface CotizacionesRepository extends JpaRepository<VtCotizacionEntity
                     "INNER JOIN GeTerceroEntity clienteEntity ON vtVentaEntity.cliente.idTercero = clienteEntity.idTercero " +
                     "WHERE ( vtVentaEntity.idData = :idData)  AND " +
                     "(vtVentaEntity.idEmpresa = :idEmpresa) AND " +
-                    "(:secuencial IS NULL OR vtVentaEntity.secuencial = :secuencial ) AND "+
+                    "(:secuencial IS NULL OR vtVentaEntity.secuencial = :secuencial ) AND " +
                     "( cast(:fechaEmisionDesde as date) is null OR vtVentaEntity.fechaEmision >= :fechaEmisionDesde ) AND " +
                     "( cast(:fechaEmisionHasta as date) is null OR vtVentaEntity.fechaEmision <= :fechaEmisionHasta )"
     )
@@ -106,27 +113,27 @@ public interface CotizacionesRepository extends JpaRepository<VtCotizacionEntity
                     "INNER JOIN vt_cotizaciones_valores valoresEntity ON vtVentaEntity.id_cotizacion = valoresEntity.id_cotizacion " +
                     "WHERE ( vtVentaEntity.id_data = :idData)  AND " +
                     "(vtVentaEntity.id_empresa = :idEmpresa) AND " +
-                    "(:sucursal IS NULL OR vtVentaEntity.sucursal = :sucursal) AND "+
-                    "(:numeroIdentificacion IS NULL OR vtVentaEntity.numero_identificacion = :numeroIdentificacion ) AND "+
-                    "(:secuencial IS NULL OR vtVentaEntity.secuencial = :secuencial ) AND "+
+                    "(:sucursal IS NULL OR vtVentaEntity.sucursal = :sucursal) AND " +
+                    "(:numeroIdentificacion IS NULL OR vtVentaEntity.numero_identificacion = :numeroIdentificacion ) AND " +
+                    "(:secuencial IS NULL OR vtVentaEntity.secuencial = :secuencial ) AND " +
                     "( cast(:fechaEmisionDesde as date) is null OR vtVentaEntity.fecha_emision >= :fechaEmisionDesde ) AND " +
                     "( cast(:fechaEmisionHasta as date) is null OR vtVentaEntity.fecha_emision <= :fechaEmisionHasta ) " +
                     "GROUP BY valoresEntity.codigo, valoresEntity.codigo_porcentaje", nativeQuery = true
     )
     List<TotalesProjection> totalValores(Long idData, Long idEmpresa, String sucursal, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta, String numeroIdentificacion, String secuencial);
 
-    @Query( value= "SELECT vtVentasEntity " +
+    @Query(value = "SELECT vtVentasEntity " +
             "FROM VtCotizacionEntity vtVentasEntity " +
             "WHERE vtVentasEntity.idData = :idData  AND " +
             "vtVentasEntity.idEmpresa = :idEmpresa AND " +
-            "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND "+
+            "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
             "(" +
             "(:numeroIdentificacion IS NULL OR vtVentasEntity.numeroIdentificacion = :numeroIdentificacion) AND " +
             "(:secuencial IS NULL OR vtVentasEntity.secuencial = :secuencial) AND " +
             "( cast(:fechaEmisionDesde as date) is null OR vtVentasEntity.fechaEmision >= :fechaEmisionDesde ) AND " +
             "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmision <= :fechaEmisionHasta )  " +
             ")"
-            )
+    )
     List<VtCotizacionEntity> findAll(Long idData, Long idEmpresa, String sucursal, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta, String numeroIdentificacion, String secuencial);
 
 }
