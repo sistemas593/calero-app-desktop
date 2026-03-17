@@ -1,19 +1,20 @@
 package com.calero.lili.api.modCompras.modComprasRetenciones;
 
-import com.calero.lili.core.dtos.Mensajes;
-import com.calero.lili.core.dtos.ResponseDto;
+import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.api.modCompras.modComprasRetenciones.dto.CreationRetencionRequestDto;
 import com.calero.lili.api.modCompras.modComprasRetenciones.dto.FilterListDto;
 import com.calero.lili.api.modCompras.modComprasRetenciones.dto.GetDto;
 import com.calero.lili.api.modCompras.modComprasRetenciones.dto.GetListDto;
 import com.calero.lili.api.modCompras.modComprasRetenciones.dto.GetListDtoTotalizado;
 import com.calero.lili.api.utils.IdDataServiceImpl;
+import com.calero.lili.core.dtos.Mensajes;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.ResponseDto;
 import com.lowagie.text.DocumentException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -37,57 +38,82 @@ import java.util.UUID;
 @RequestMapping(value = "api/v1.0/compras/comprobantes-retencion")
 @RequiredArgsConstructor
 @CrossOrigin(originPatterns = "*")
-
 public class ComprasRetencionesController {
 
     private final ComprasRetencionesServiceImpl vtVentasService;
     private final IdDataServiceImpl idDataService;
-    private final AuditorAware<String> auditorAware;
+    private final AuditorAwareImpl auditorAware;
 
     @PostMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('CP_RT_CR')")
-    public ResponseDto create(@PathVariable("idEmpresa") Long idEmpresa, @Valid @RequestBody CreationRetencionRequestDto request) {
-        return vtVentasService.create(idDataService.getIdData(), idEmpresa, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+    public ResponseDto create(@PathVariable("idEmpresa") Long idEmpresa,
+                              @Valid @RequestBody CreationRetencionRequestDto request) {
+        return vtVentasService.create(idDataService.getIdData(), idEmpresa, request,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idEmpresa}/{idRetencion}")
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasAuthority('CP_RT_MO')")
+    @PreAuthorize("hasAnyAuthority('CP_RT_MO_PR','CP_RT_MO_SC','CP_RT_MO_TD')")
     public ResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                               @PathVariable("idRetencion") UUID idRetencion,
-                              @RequestBody CreationRetencionRequestDto request) {
-        return vtVentasService.update(idDataService.getIdData(), idEmpresa, idRetencion, request,auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+                              @RequestBody CreationRetencionRequestDto request,
+                              FilterListDto filters) {
+        return vtVentasService.update(idDataService.getIdData(), idEmpresa, idRetencion, request,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"),
+                filters,
+                auditorAware.getTipoPermisoModificarCompraRetencion());
     }
 
     @DeleteMapping("{idEmpresa}/{idRetencion}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAuthority('CP_RT_EL')")
+    @PreAuthorize("hasAnyAuthority('CP_RT_EL_PR','CP_RT_EL_SC','CP_RT_EL_TD')")
     public void delete(@PathVariable("idEmpresa") Long idEmpresa,
-                       @PathVariable("idRetencion") UUID idRetencion) {
-        vtVentasService.delete(idDataService.getIdData(), idEmpresa, idRetencion,auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+                       @PathVariable("idRetencion") UUID idRetencion,
+                       FilterListDto filters) {
+        vtVentasService.delete(idDataService.getIdData(), idEmpresa, idRetencion,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"),
+                filters,
+                auditorAware.getTipoPermisoEliminarCompraRetencion());
     }
 
     @GetMapping("{idEmpresa}/{idRetencion}")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('CP_RT_VR')")
+    @PreAuthorize("hasAnyAuthority('CP_RT_VR_PR','CP_RT_VR_SC','CP_RT_VR_TD')")
     public GetDto findById(@PathVariable("idEmpresa") Long idEmpresa,
-                           @PathVariable("idRetencion") UUID idRetencion) {
-        return vtVentasService.findById(idDataService.getIdData(), idEmpresa, idRetencion);
+                           @PathVariable("idRetencion") UUID idRetencion,
+                           FilterListDto filters) {
+        return vtVentasService.findById(idDataService.getIdData(), idEmpresa, idRetencion,
+                filters,
+                auditorAware.getTipoPermisoVerCompraRetencion(),
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
-
 
     @GetMapping("mensajes/{idEmpresa}/{idRetencion}")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('CP_RT_VR')")
+    @PreAuthorize("hasAnyAuthority('CP_RT_VR_PR','CP_RT_VR_SC','CP_RT_VR_TD')")
     public List<Mensajes> findByIdMensajes(@PathVariable("idEmpresa") Long idEmpresa,
-                                           @PathVariable("idRetencion") UUID idRetencion) {
-        return vtVentasService.findByIdMensajes(idDataService.getIdData(), idEmpresa, idRetencion);
+                                           @PathVariable("idRetencion") UUID idRetencion,
+                                           FilterListDto filters) {
+        return vtVentasService.findByIdMensajes(idDataService.getIdData(), idEmpresa, idRetencion,
+                filters,
+                auditorAware.getTipoPermisoVerCompraRetencion(),
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+    }
+
+    @GetMapping("{idEmpresa}")
+    @ResponseStatus(code = HttpStatus.OK)
+    @PreAuthorize("hasAnyAuthority('CP_RT_VR_PR','CP_RT_VR_SC','CP_RT_VR_TD')")
+    public PaginatedDto<GetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
+                                                    FilterListDto filters,
+                                                    Pageable pageable) {
+        return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable);
     }
 
     @GetMapping("reportes/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('CP_RT_VR')")
+    @PreAuthorize("hasAnyAuthority('CP_RT_VR_PR','CP_RT_VR_SC','CP_RT_VR_TD')")
     public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(@PathVariable("idEmpresa") Long idEmpresa,
                                                                       FilterListDto filters,
                                                                       Pageable pageable) {
@@ -95,9 +121,8 @@ public class ComprasRetencionesController {
         return vtVentasService.findAllPaginateTotalizado(idDataService.getIdData(), idEmpresa, filters, pageable);
     }
 
-
     @GetMapping("excel/{idEmpresa}")
-    @PreAuthorize("hasAuthority('CP_RT_EX)")
+    @PreAuthorize("hasAuthority('CP_RT_EX')")
     public void exportarExcel(HttpServletResponse response,
                               @PathVariable("idEmpresa") Long idEmpresa,
                               FilterListDto filter) throws IOException {
@@ -113,12 +138,15 @@ public class ComprasRetencionesController {
         vtVentasService.exportarPDF(idDataService.getIdData(), idEmpresa, response, filters);
     }
 
-
     @PostMapping("anulada/{idEmpresa}/{idRetencion}")
-    @PreAuthorize("hasAuthority('CP_RT_AN')")
+    @PreAuthorize("hasAnyAuthority('CP_RT_AN_PR','CP_RT_AN_SC','CP_RT_AN_TD')")
     public ResponseDto updateAnulada(@PathVariable("idEmpresa") Long idEmpresa,
-                                     @PathVariable("idVenta") UUID idVenta) {
-        return vtVentasService.updateAnulada(idDataService.getIdData(), idEmpresa, idVenta);
+                                     @PathVariable("idRetencion") UUID idRetencion,
+                                     FilterListDto filters) {
+        return vtVentasService.updateAnulada(idDataService.getIdData(), idEmpresa, idRetencion,
+                filters,
+                auditorAware.getTipoPermisoAnularCompraRetencion(),
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
 }

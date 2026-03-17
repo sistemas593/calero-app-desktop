@@ -17,14 +17,20 @@ import java.util.Optional;
 import java.util.UUID;
 
 @org.springframework.stereotype.Repository
-public interface OrdenComprasRepository extends JpaRepository<CpOrdenComprasEntity, UUID> , JpaSpecificationExecutor<CpOrdenComprasEntity> {
+public interface OrdenComprasRepository extends JpaRepository<CpOrdenComprasEntity, UUID>, JpaSpecificationExecutor<CpOrdenComprasEntity> {
 
-    @Query( value= "SELECT entity " +
+    @Query(value = "SELECT entity " +
             "FROM CpOrdenComprasEntity entity " +
             "WHERE entity.idData = :idData  AND " +
             "entity.idEmpresa = :idEmpresa AND " +
-            "entity.idCompra = :idCompra ")
-    Optional<CpOrdenComprasEntity> findByIdEntity(Long idData, Long idEmpresa, UUID idCompra);
+            "entity.idCompra = :idCompra AND " +
+            "(:sucursal IS NULL OR entity.sucursal = :sucursal) AND " +
+            "(:usuario IS NULL OR entity.createdBy = :usuario)")
+    Optional<CpOrdenComprasEntity> findByIdEntity(@Param("idData") Long idData,
+                                                  @Param("idEmpresa") Long idEmpresa,
+                                                  @Param("idCompra") UUID idCompra,
+                                                  @Param("sucursal") String sucursal,
+                                                  @Param("usuario") String usuario);
 
     @Transactional
     @Modifying
@@ -33,7 +39,7 @@ public interface OrdenComprasRepository extends JpaRepository<CpOrdenComprasEnti
     void deleteById(Long idData, Long idEmpresa, UUID idCompra);
 
 
-    @Query( value= "SELECT id_compra as idCompra " +
+    @Query(value = "SELECT id_compra as idCompra " +
             "FROM cp_orden_compras entity " +
             "WHERE (entity.id_Data = :idData)  AND " +
             "(entity.id_Empresa = :idEmpresa) AND " +
@@ -41,7 +47,7 @@ public interface OrdenComprasRepository extends JpaRepository<CpOrdenComprasEnti
     Optional<OneProjection> findExistBySecuencial(Long idData, Long idEmpresa, String secuencial);
 
 
-        @Query( value= "SELECT entity " +
+    @Query(value = "SELECT entity " +
             "FROM CpOrdenComprasEntity entity " +
             "WHERE entity.idData = :idData  AND " +
             "entity.idEmpresa = :idEmpresa AND " +
@@ -49,17 +55,17 @@ public interface OrdenComprasRepository extends JpaRepository<CpOrdenComprasEnti
             "(:secuencial IS NULL OR entity.secuencial = :secuencial) AND " +
             "( cast(:fechaEmisionDesde as date) is null OR entity.fechaEmision >= :fechaEmisionDesde ) AND " +
             "( cast(:fechaEmisionHasta as date) is null OR entity.fechaEmision <= :fechaEmisionHasta )"
-,
-                countQuery = "SELECT COUNT(1) "+
-                        "FROM CpOrdenComprasEntity entity "+
-                        "WHERE ( entity.idData = :idData)  AND " +
-                        "(entity.idEmpresa = :idEmpresa) AND " +
-                        "(:sucursal IS NULL OR entity.sucursal = :sucursal) AND " +
-                        "(:secuencial IS NULL OR entity.secuencial = :secuencial ) AND "+
-                        "( cast(:fechaEmisionDesde as date) is null OR entity.fechaEmision >= :fechaEmisionDesde ) AND " +
-                        "( cast(:fechaEmisionHasta as date) is null OR entity.fechaEmision <= :fechaEmisionHasta )"
-        )
-    Page<CpOrdenComprasEntity> findAllPaginate(Long idData, Long idEmpresa, String sucursal, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta,  String secuencial, Pageable pageable);
+            ,
+            countQuery = "SELECT COUNT(1) " +
+                    "FROM CpOrdenComprasEntity entity " +
+                    "WHERE ( entity.idData = :idData)  AND " +
+                    "(entity.idEmpresa = :idEmpresa) AND " +
+                    "(:sucursal IS NULL OR entity.sucursal = :sucursal) AND " +
+                    "(:secuencial IS NULL OR entity.secuencial = :secuencial ) AND " +
+                    "( cast(:fechaEmisionDesde as date) is null OR entity.fechaEmision >= :fechaEmisionDesde ) AND " +
+                    "( cast(:fechaEmisionHasta as date) is null OR entity.fechaEmision <= :fechaEmisionHasta )"
+    )
+    Page<CpOrdenComprasEntity> findAllPaginate(Long idData, Long idEmpresa, String sucursal, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta, String secuencial, Pageable pageable);
 
     @Query(
             value = "SELECT valoresEntity.codigo as codigo," +
@@ -71,7 +77,7 @@ public interface OrdenComprasRepository extends JpaRepository<CpOrdenComprasEnti
                     "WHERE ( entity.id_data = :idData)  AND cp_orden_compras.anulada = false " +
                     "(entity.id_empresa = :idEmpresa) AND " +
                     "(:sucursal IS NULL OR entity.sucursal = :sucursal) AND " +
-                    "(:secuencial IS NULL OR entity.secuencial = :secuencial ) AND "+
+                    "(:secuencial IS NULL OR entity.secuencial = :secuencial ) AND " +
                     "( cast(:fechaEmisionDesde as date) is null OR entity.fecha_emision >= :fechaEmisionDesde ) AND " +
                     "( cast(:fechaEmisionHasta as date) is null OR entity.fecha_emision <= :fechaEmisionHasta ) " +
                     "GROUP BY valoresEntity.codigo, valoresEntity.codigo_porcentaje", nativeQuery = true
@@ -79,18 +85,17 @@ public interface OrdenComprasRepository extends JpaRepository<CpOrdenComprasEnti
     List<TotalesProjection> totalValores(Long idData, Long idEmpresa, String sucursal, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta, String secuencial);
 
 
-    @Query( value= "SELECT entity " +
+    @Query(value = "SELECT entity " +
             "FROM CpOrdenComprasEntity entity " +
             "WHERE entity.idData = :idData  AND " +
             "entity.idEmpresa = :idEmpresa AND " +
-            "(:sucursal IS NULL OR entity.sucursal = :sucursal) AND "+
+            "(:sucursal IS NULL OR entity.sucursal = :sucursal) AND " +
             "(" +
             "(:secuencial IS NULL OR entity.secuencial = :secuencial) AND " +
             "( cast(:fechaEmisionDesde as date) is null OR entity.fechaEmision >= :fechaEmisionDesde ) AND " +
             "( cast(:fechaEmisionHasta as date) is null OR entity.fechaEmision <= :fechaEmisionHasta )  " +
             ")")
     List<CpOrdenComprasEntity> findAll(Long idData, Long idEmpresa, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta, String secuencial, String sucursal);
-
 
 
     @Query("""

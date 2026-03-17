@@ -1,11 +1,11 @@
 package com.calero.lili.api.modContabilidad.modAsientos;
 
+import com.calero.lili.api.modAuditoria.TipoPermiso;
 import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.errors.exceptions.GeneralException;
-import com.calero.lili.core.errors.exceptions.NotFoundException;
 import com.calero.lili.core.modAdminEmpresasSucursales.AdEmpresasSucursalesRepository;
 import com.calero.lili.api.modContabilidad.modAsientos.builder.CnAsientosBuilder;
 import com.calero.lili.api.modContabilidad.modAsientos.dto.CreationAsientosRequestDto;
@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -53,12 +54,10 @@ public class CnAsientosServiceImpl {
 
 
     @Transactional
-    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationAsientosRequestDto request, String usuario) {
+    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationAsientosRequestDto request,
+                              String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
 
-
-        CnAsientosEntity exists = cnAsientosRepository
-                .findByIdEntity(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("idVenta {0} no existe", idVenta)));
+        CnAsientosEntity exists = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         validarSucursal(request, idData, idEmpresa);
         validarPlanCuenta(idData, idEmpresa, request);
@@ -74,12 +73,10 @@ public class CnAsientosServiceImpl {
 
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario) {
+    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario,
+                       FilterListDto filters, TipoPermiso tipoBusqueda) {
 
-
-        CnAsientosEntity venta = cnAsientosRepository.findByIdEntity(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new NotFoundException(MessageFormat.format("La factura con ID {0} no existe", idVenta)));
-
+        CnAsientosEntity venta = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         venta.setDelete(Boolean.TRUE);
         venta.setDeletedBy(usuario);
@@ -90,12 +87,10 @@ public class CnAsientosServiceImpl {
     }
 
 
-    public GetDto findById(Long idData, Long idEmpresa, UUID idVenta) {
+    public GetDto findById(Long idData, Long idEmpresa, UUID idVenta,
+                           FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
-        CnAsientosEntity cnAsientosEntity = cnAsientosRepository
-                .findByIdEntity(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("La factura con ID {0} no exixte", idVenta)));
-
+        CnAsientosEntity cnAsientosEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
         return cnAsientosBuilder.builderResponse(cnAsientosEntity);
     }
 
@@ -147,6 +142,39 @@ public class CnAsientosServiceImpl {
         adEmpresasSucursalesRepository
                 .findfirstByIdDataAndIdEmpresaAAndSucursal(idData, idEmpresa, request.getSucursal())
                 .orElseThrow(() -> new GeneralException("No existe sucursal"));
+    }
+
+
+    private CnAsientosEntity validacionTipoBusqueda(Long idData, Long idEmpresa, UUID idVenta,
+                                                    FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+
+        switch (tipoBusqueda) {
+            case TODAS:
+                return cnAsientosRepository
+                        .findByIdEntity(idData, idEmpresa, idVenta, null, null)
+                        .orElseThrow(() -> new GeneralException(MessageFormat.format("La factura con ID {0} no existe", idVenta)));
+
+            case SUCURSAL: {
+                if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
+
+                    return cnAsientosRepository
+                            .findByIdEntity(idData, idEmpresa, idVenta, filters.getSucursal(), null)
+                            .orElseThrow(() -> new GeneralException(MessageFormat.format("No tiene acceso al documento en la sucursal {0}", filters.getSucursal())));
+
+                } else {
+                    throw new GeneralException("Es requerido el parametro de la sucursal");
+                }
+            }
+            case PROPIAS: {
+
+                return cnAsientosRepository
+                        .findByIdEntity(idData, idEmpresa, idVenta, null, usuario)
+                        .orElseThrow(() -> new GeneralException(MessageFormat.format("No tiene acceso al documento el usuario: {0}", usuario)));
+
+            }
+        }
+
+        throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
     }
 }
 

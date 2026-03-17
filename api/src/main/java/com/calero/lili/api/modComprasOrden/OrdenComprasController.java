@@ -1,19 +1,19 @@
 package com.calero.lili.api.modComprasOrden;
 
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.ResponseDto;
+import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.api.modComprasOrden.dto.FilterListDto;
 import com.calero.lili.api.modComprasOrden.dto.GetDto;
 import com.calero.lili.api.modComprasOrden.dto.GetListDto;
 import com.calero.lili.api.modComprasOrden.dto.GetListDtoTotalizado;
 import com.calero.lili.api.modComprasOrden.dto.OrdenCompraRequestDto;
 import com.calero.lili.api.utils.IdDataServiceImpl;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.ResponseDto;
 import com.lowagie.text.DocumentException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -40,43 +40,57 @@ public class OrdenComprasController {
 
     private final OrdenComprasServiceImpl vtVentasService;
     private final IdDataServiceImpl idDataService;
-    private final AuditorAware<String> auditorAware;
+    private final AuditorAwareImpl auditorAware;
 
     @PostMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('CP_OC_CR')")
     public ResponseDto create(@PathVariable("idEmpresa") Long idEmpresa,
                               @Valid @RequestBody OrdenCompraRequestDto request) {
-        return vtVentasService.create(idDataService.getIdData(), idEmpresa, request,auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        return vtVentasService.create(idDataService.getIdData(), idEmpresa, request,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idEmpresa}/{idOrdenCompra}")
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasAuthority('CP_OC_MO')")
+    @PreAuthorize("hasAnyAuthority('CP_OC_MO_PR','CP_OC_MO_SC','CP_OC_MO_TD')")
     public ResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                               @PathVariable("idOrdenCompra") UUID idOrdenCompra,
-                              @RequestBody OrdenCompraRequestDto request) {
-        return vtVentasService.update(idDataService.getIdData(), idEmpresa, idOrdenCompra, request,auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+                              @RequestBody OrdenCompraRequestDto request,
+                              FilterListDto filters) {
+        return vtVentasService.update(idDataService.getIdData(), idEmpresa, idOrdenCompra, request,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"),
+                filters,
+                auditorAware.getTipoPermisoModificarOrdenCompra());
     }
 
     @DeleteMapping("{idEmpresa}/{idOrdenCompra}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAuthority('CP_OC_EL')")
-    public void delete(@PathVariable("idEmpresa") Long idEmpresa, @PathVariable("idOrdenCompra") UUID idOrdenCompra) {
-        vtVentasService.delete(idDataService.getIdData(), idEmpresa, idOrdenCompra,auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+    @PreAuthorize("hasAnyAuthority('CP_OC_EL_PR','CP_OC_EL_SC','CP_OC_EL_TD')")
+    public void delete(@PathVariable("idEmpresa") Long idEmpresa,
+                       @PathVariable("idOrdenCompra") UUID idOrdenCompra,
+                       FilterListDto filters) {
+        vtVentasService.delete(idDataService.getIdData(), idEmpresa, idOrdenCompra,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"),
+                filters,
+                auditorAware.getTipoPermisoEliminarOrdenCompra());
     }
 
     @GetMapping("{idEmpresa}/{idOrdenCompra}")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('CP_OC_VR')")
-    public GetDto findById(@PathVariable("idEmpresa") Long idEmpresa, @PathVariable("idOrdenCompra") UUID idOrdenCompra) {
-        return vtVentasService.findById(idDataService.getIdData(), idEmpresa, idOrdenCompra);
+    @PreAuthorize("hasAnyAuthority('CP_OC_VR_PR','CP_OC_VR_SC','CP_OC_VR_TD')")
+    public GetDto findById(@PathVariable("idEmpresa") Long idEmpresa,
+                           @PathVariable("idOrdenCompra") UUID idOrdenCompra,
+                           FilterListDto filters) {
+        return vtVentasService.findById(idDataService.getIdData(), idEmpresa, idOrdenCompra,
+                filters,
+                auditorAware.getTipoPermisoVerOrdenCompra(),
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
-
 
     @GetMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('CP_OC_VR')")
+    @PreAuthorize("hasAnyAuthority('CP_OC_VR_PR','CP_OC_VR_SC','CP_OC_VR_TD')")
     public PaginatedDto<GetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
                                                     FilterListDto filters,
                                                     Pageable pageable) {
@@ -85,7 +99,7 @@ public class OrdenComprasController {
 
     @GetMapping("reportes/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('CP_OC_VR')")
+    @PreAuthorize("hasAnyAuthority('CP_OC_VR_PR','CP_OC_VR_SC','CP_OC_VR_TD')")
     public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(@PathVariable("idEmpresa") Long idEmpresa,
                                                                       FilterListDto filters,
                                                                       Pageable pageable) {
@@ -111,10 +125,14 @@ public class OrdenComprasController {
     }
 
     @PostMapping("anulada/{idEmpresa}/{idOrdenCompra}")
-    @PreAuthorize("hasAuthority('CP_OC_AN')")
+    @PreAuthorize("hasAnyAuthority('CP_OC_AN_PR','CP_OC_AN_SC','CP_OC_AN_TD')")
     public ResponseDto updateAnulada(@PathVariable("idEmpresa") Long idEmpresa,
-                                     @PathVariable("idOrdenCompra") UUID idOrdenCompra) {
-        return vtVentasService.updateAnulada(idDataService.getIdData(), idEmpresa, idOrdenCompra);
+                                     @PathVariable("idOrdenCompra") UUID idOrdenCompra,
+                                     FilterListDto filters) {
+        return vtVentasService.updateAnulada(idDataService.getIdData(), idEmpresa, idOrdenCompra,
+                filters,
+                auditorAware.getTipoPermisoAnularOrdenCompra(),
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
 }

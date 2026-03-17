@@ -1,5 +1,6 @@
 package com.calero.lili.api.modCxP.XpFacturas;
 
+import com.calero.lili.api.modAuditoria.TipoPermiso;
 import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
@@ -20,6 +21,7 @@ import java.math.BigInteger;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -55,13 +57,10 @@ public class XpFacturaServiceImpl {
 
 
     @Transactional
-    public ResponseDto update(Long idData, Long idEmpresa, UUID idFactura, XpFacturasRequestDto request, String usuario) {
+    public ResponseDto update(Long idData, Long idEmpresa, UUID idFactura, XpFacturasRequestDto request,
+                              String usuario, FilterXpFacturaDto filters, TipoPermiso tipoBusqueda) {
 
-
-        XpFacturasEntity existFactura = xpFacturasRepository
-                .getForFindByIdAndIdDataAndIdEmpresa(idFactura, idData, idEmpresa)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("La factura no existe: {0}",
-                        idFactura)));
+        XpFacturasEntity existFactura = validacionTipoBusqueda(idData, idEmpresa, idFactura, filters, tipoBusqueda, usuario);
 
         validarSaldoValor(request);
         validarRegistroAplicados(existFactura);
@@ -78,10 +77,9 @@ public class XpFacturaServiceImpl {
     }
 
 
-    public void delete(UUID idComprobante, String usuario) {
-        XpFacturasEntity existFactura = xpFacturasRepository
-                .getForFindById(idComprobante).orElseThrow(() -> new GeneralException(MessageFormat.format("La factura no existe Secuencia: {0}",
-                        idComprobante)));
+    public void delete(Long idData, Long idEmpresa, UUID idFactura, String usuario,
+                       FilterXpFacturaDto filters, TipoPermiso tipoBusqueda) {
+        XpFacturasEntity existFactura = validacionTipoBusqueda(idData, idEmpresa, idFactura, filters, tipoBusqueda, usuario);
 
         existFactura.setDelete(Boolean.TRUE);
         existFactura.setDeletedBy(usuario);
@@ -91,12 +89,10 @@ public class XpFacturaServiceImpl {
     }
 
 
-    public XpFacturasResponseDto findById(UUID idComprobante) {
-        return xpFacturasBuilder.builderResponse(xpFacturasRepository
-                .getForFindById(idComprobante)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("La factura no existe Secuencia: {0}",
-                        idComprobante))));
-
+    public XpFacturasResponseDto findById(Long idData, Long idEmpresa, UUID idFactura,
+                                          FilterXpFacturaDto filters, TipoPermiso tipoBusqueda, String usuario) {
+        return xpFacturasBuilder.builderResponse(
+                validacionTipoBusqueda(idData, idEmpresa, idFactura, filters, tipoBusqueda, usuario));
     }
 
     public PaginatedDto<XpFacturasResponseDto> findAllPaginate(Long idData, Long idEmpresa, FilterXpFacturaDto filter, Pageable pageable) {
@@ -125,6 +121,32 @@ public class XpFacturaServiceImpl {
 
     }
 
+
+    private XpFacturasEntity validacionTipoBusqueda(Long idData, Long idEmpresa, UUID idFactura,
+                                                    FilterXpFacturaDto filters, TipoPermiso tipoBusqueda, String usuario) {
+        switch (tipoBusqueda) {
+            case TODAS:
+                return xpFacturasRepository
+                        .findByIdEntity(idData, idEmpresa, idFactura, null, null)
+                        .orElseThrow(() -> new GeneralException(MessageFormat.format("La factura con ID {0} no existe", idFactura)));
+
+            case SUCURSAL: {
+                if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
+                    return xpFacturasRepository
+                            .findByIdEntity(idData, idEmpresa, idFactura, filters.getSucursal(), null)
+                            .orElseThrow(() -> new GeneralException(MessageFormat.format("No tiene acceso al documento en la sucursal {0}", filters.getSucursal())));
+                } else {
+                    throw new GeneralException("Es requerido el parametro de la sucursal");
+                }
+            }
+            case PROPIAS: {
+                return xpFacturasRepository
+                        .findByIdEntity(idData, idEmpresa, idFactura, null, usuario)
+                        .orElseThrow(() -> new GeneralException(MessageFormat.format("No tiene acceso al documento el usuario: {0}", usuario)));
+            }
+        }
+        throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
+    }
 
     private void validarSaldoValor(XpFacturasRequestDto request) {
         if (request.getSaldo().compareTo(request.getValor()) != 0) {

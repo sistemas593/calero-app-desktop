@@ -31,4 +31,5 @@ public class FilterXpFacturaDto {
     }
 
     private UUID idTercero;
+    private String sucursal;
 }

@@ -349,4 +349,280 @@ public class AuditorAwareImpl implements AuditorAware<String> {
                 TipoPermiso.PROPIAS,  List.of("CP_CI_EL_PR")
         ));
     }
+
+    // -------------------------------------------------------------------------
+    // Métodos específicos de Compras Retenciones (usan resolverPermiso internamente)
+    // -------------------------------------------------------------------------
+
+    public TipoPermiso getTipoPermisoVerCompraRetencion() {
+        return resolverPermiso(Map.of(
+                TipoPermiso.TODAS,    List.of("CP_RT_VR_TD"),
+                TipoPermiso.SUCURSAL, List.of("CP_RT_VR_SC"),
+                TipoPermiso.PROPIAS,  List.of("CP_RT_VR_PR")
+        ));
+    }
+
+    public TipoPermiso getTipoPermisoModificarCompraRetencion() {
+        return resolverPermiso(Map.of(
+                TipoPermiso.TODAS,    List.of("CP_RT_MO_TD"),
+                TipoPermiso.SUCURSAL, List.of("CP_RT_MO_SC"),
+                TipoPermiso.PROPIAS,  List.of("CP_RT_MO_PR")
+        ));
+    }
+
+    public TipoPermiso getTipoPermisoEliminarCompraRetencion() {
+        return resolverPermiso(Map.of(
+                TipoPermiso.TODAS,    List.of("CP_RT_EL_TD"),
+                TipoPermiso.SUCURSAL, List.of("CP_RT_EL_SC"),
+                TipoPermiso.PROPIAS,  List.of("CP_RT_EL_PR")
+        ));
+    }
+
+    public TipoPermiso getTipoPermisoAnularCompraRetencion() {
+        return resolverPermiso(Map.of(
+                TipoPermiso.TODAS,    List.of("CP_RT_AN_TD"),
+                TipoPermiso.SUCURSAL, List.of("CP_RT_AN_SC"),
+                TipoPermiso.PROPIAS,  List.of("CP_RT_AN_PR")
+        ));
+    }
+
+    // -------------------------------------------------------------------------
+    // Métodos específicos de Orden de Compras (usan resolverPermiso internamente)
+    // -------------------------------------------------------------------------
+
+    public TipoPermiso getTipoPermisoVerOrdenCompra() {
+        return resolverPermiso(Map.of(
+                TipoPermiso.TODAS,    List.of("CP_OC_VR_TD"),
+                TipoPermiso.SUCURSAL, List.of("CP_OC_VR_SC"),
+                TipoPermiso.PROPIAS,  List.of("CP_OC_VR_PR")
+        ));
+    }
+
+    public TipoPermiso getTipoPermisoModificarOrdenCompra() {
+        return resolverPermiso(Map.of(
+                TipoPermiso.TODAS,    List.of("CP_OC_MO_TD"),
+                TipoPermiso.SUCURSAL, List.of("CP_OC_MO_SC"),
+                TipoPermiso.PROPIAS,  List.of("CP_OC_MO_PR")
+        ));
+    }
+
+    public TipoPermiso getTipoPermisoEliminarOrdenCompra() {
+        return resolverPermiso(Map.of(
+                TipoPermiso.TODAS,    List.of("CP_OC_EL_TD"),
+                TipoPermiso.SUCURSAL, List.of("CP_OC_EL_SC"),
+                TipoPermiso.PROPIAS,  List.of("CP_OC_EL_PR")
+        ));
+    }
+
+    public TipoPermiso getTipoPermisoAnularOrdenCompra() {
+        return resolverPermiso(Map.of(
+                TipoPermiso.TODAS,    List.of("CP_OC_AN_TD"),
+                TipoPermiso.SUCURSAL, List.of("CP_OC_AN_SC"),
+                TipoPermiso.PROPIAS,  List.of("CP_OC_AN_PR")
+        ));
+    }
+
+    // -------------------------------------------------------------------------
+    // Métodos específicos de Asientos Contables (usan resolverPermiso internamente)
+    // -------------------------------------------------------------------------
+
+    public TipoPermiso getTipoPermisoVerAsiento() {
+        return resolverPermiso(Map.of(
+                TipoPermiso.TODAS,    List.of("CN_AS_VR_TD"),
+                TipoPermiso.SUCURSAL, List.of("CN_AS_VR_SC"),
+                TipoPermiso.PROPIAS,  List.of("CN_AS_VR_PR")
+        ));
+    }
+
+    public TipoPermiso getTipoPermisoModificarAsiento() {
+        return resolverPermiso(Map.of(
+                TipoPermiso.TODAS,    List.of("CN_AS_MO_TD"),
+                TipoPermiso.SUCURSAL, List.of("CN_AS_MO_SC"),
+                TipoPermiso.PROPIAS,  List.of("CN_AS_MO_PR")
+        ));
+    }
+
+    public TipoPermiso getTipoPermisoEliminarAsiento() {
+        return resolverPermiso(Map.of(
+                TipoPermiso.TODAS,    List.of("CN_AS_EL_TD"),
+                TipoPermiso.SUCURSAL, List.of("CN_AS_EL_SC"),
+                TipoPermiso.PROPIAS,  List.of("CN_AS_EL_PR")
+        ));
+    }
+
+    // -------------------------------------------------------------------------
+    // Métodos específicos de Liquidaciones de Compra (usan resolverPermiso internamente)
+    // -------------------------------------------------------------------------
+
+    public TipoPermiso getTipoPermisoVerLiquidacion() {
+        return resolverPermiso(Map.of(
+                TipoPermiso.TODAS,    List.of("LQ_LQ_VR_TD"),
+                TipoPermiso.SUCURSAL, List.of("LQ_LQ_VR_SC"),
+                TipoPermiso.PROPIAS,  List.of("LQ_LQ_VR_PR")
+        ));
+    }
+
+    public TipoPermiso getTipoPermisoModificarLiquidacion() {
+        return resolverPermiso(Map.of(
+                TipoPermiso.TODAS,    List.of("LQ_LQ_MO_TD"),
+                TipoPermiso.SUCURSAL, List.of("LQ_LQ_MO_SC"),
+                TipoPermiso.PROPIAS,  List.of("LQ_LQ_MO_PR")
+        ));
+    }
+
+    public TipoPermiso getTipoPermisoEliminarLiquidacion() {
+        return resolverPermiso(Map.of(
+                TipoPermiso.TODAS,    List.of("LQ_LQ_EL_TD"),
+                TipoPermiso.SUCURSAL, List.of("LQ_LQ_EL_SC"),
+                TipoPermiso.PROPIAS,  List.of("LQ_LQ_EL_PR")
+        ));
+    }
+
+    public TipoPermiso getTipoPermisoAnularLiquidacion() {
+        return resolverPermiso(Map.of(
+                TipoPermiso.TODAS,    List.of("LQ_LQ_AN_TD"),
+                TipoPermiso.SUCURSAL, List.of("LQ_LQ_AN_SC"),
+                TipoPermiso.PROPIAS,  List.of("LQ_LQ_AN_PR")
+        ));
+    }
+
+    // -------------------------------------------------------------------------
+    // Métodos específicos de Reembolsos de Liquidaciones (usan resolverPermiso internamente)
+    // -------------------------------------------------------------------------
+
+    public TipoPermiso getTipoPermisoVerReembolso() {
+        return resolverPermiso(Map.of(
+                TipoPermiso.TODAS,    List.of("LQ_LQR_VR_TD"),
+                TipoPermiso.SUCURSAL, List.of("LQ_LQR_VR_SC"),
+                TipoPermiso.PROPIAS,  List.of("LQ_LQR_VR_PR")
+        ));
+    }
+
+    public TipoPermiso getTipoPermisoModificarReembolso() {
+        return resolverPermiso(Map.of(
+                TipoPermiso.TODAS,    List.of("LQ_LQR_MO_TD"),
+                TipoPermiso.SUCURSAL, List.of("LQ_LQR_MO_SC"),
+                TipoPermiso.PROPIAS,  List.of("LQ_LQR_MO_PR")
+        ));
+    }
+
+    public TipoPermiso getTipoPermisoEliminarReembolso() {
+        return resolverPermiso(Map.of(
+                TipoPermiso.TODAS,    List.of("LQ_LQR_EL_TD"),
+                TipoPermiso.SUCURSAL, List.of("LQ_LQR_EL_SC"),
+                TipoPermiso.PROPIAS,  List.of("LQ_LQR_EL_PR")
+        ));
+    }
+
+    // -------------------------------------------------------------------------
+    // Métodos específicos de CxC Facturas (usan resolverPermiso internamente)
+    // -------------------------------------------------------------------------
+
+    public TipoPermiso getTipoPermisoVerXcFactura() {
+        return resolverPermiso(Map.of(
+                TipoPermiso.TODAS,    List.of("CX_XC_VR_TD"),
+                TipoPermiso.SUCURSAL, List.of("CX_XC_VR_SC"),
+                TipoPermiso.PROPIAS,  List.of("CX_XC_VR_PR")
+        ));
+    }
+
+    public TipoPermiso getTipoPermisoModificarXcFactura() {
+        return resolverPermiso(Map.of(
+                TipoPermiso.TODAS,    List.of("CX_XC_MO_TD"),
+                TipoPermiso.SUCURSAL, List.of("CX_XC_MO_SC"),
+                TipoPermiso.PROPIAS,  List.of("CX_XC_MO_PR")
+        ));
+    }
+
+    public TipoPermiso getTipoPermisoEliminarXcFactura() {
+        return resolverPermiso(Map.of(
+                TipoPermiso.TODAS,    List.of("CX_XC_EL_TD"),
+                TipoPermiso.SUCURSAL, List.of("CX_XC_EL_SC"),
+                TipoPermiso.PROPIAS,  List.of("CX_XC_EL_PR")
+        ));
+    }
+
+    // -------------------------------------------------------------------------
+    // Métodos específicos de CxC Pagos (usan resolverPermiso internamente)
+    // -------------------------------------------------------------------------
+
+    public TipoPermiso getTipoPermisoVerXcPago() {
+        return resolverPermiso(Map.of(
+                TipoPermiso.TODAS,    List.of("CX_XP_VR_TD"),
+                TipoPermiso.SUCURSAL, List.of("CX_XP_VR_SC"),
+                TipoPermiso.PROPIAS,  List.of("CX_XP_VR_PR")
+        ));
+    }
+
+    public TipoPermiso getTipoPermisoModificarXcPago() {
+        return resolverPermiso(Map.of(
+                TipoPermiso.TODAS,    List.of("CX_XP_MO_TD"),
+                TipoPermiso.SUCURSAL, List.of("CX_XP_MO_SC"),
+                TipoPermiso.PROPIAS,  List.of("CX_XP_MO_PR")
+        ));
+    }
+
+    public TipoPermiso getTipoPermisoEliminarXcPago() {
+        return resolverPermiso(Map.of(
+                TipoPermiso.TODAS,    List.of("CX_XP_EL_TD"),
+                TipoPermiso.SUCURSAL, List.of("CX_XP_EL_SC"),
+                TipoPermiso.PROPIAS,  List.of("CX_XP_EL_PR")
+        ));
+    }
+
+    // -------------------------------------------------------------------------
+    // Métodos específicos de CxP Facturas (usan resolverPermiso internamente)
+    // -------------------------------------------------------------------------
+
+    public TipoPermiso getTipoPermisoVerXpFactura() {
+        return resolverPermiso(Map.of(
+                TipoPermiso.TODAS,    List.of("CX_PF_VR_TD"),
+                TipoPermiso.SUCURSAL, List.of("CX_PF_VR_SC"),
+                TipoPermiso.PROPIAS,  List.of("CX_PF_VR_PR")
+        ));
+    }
+
+    public TipoPermiso getTipoPermisoModificarXpFactura() {
+        return resolverPermiso(Map.of(
+                TipoPermiso.TODAS,    List.of("CX_PF_MO_TD"),
+                TipoPermiso.SUCURSAL, List.of("CX_PF_MO_SC"),
+                TipoPermiso.PROPIAS,  List.of("CX_PF_MO_PR")
+        ));
+    }
+
+    public TipoPermiso getTipoPermisoEliminarXpFactura() {
+        return resolverPermiso(Map.of(
+                TipoPermiso.TODAS,    List.of("CX_PF_EL_TD"),
+                TipoPermiso.SUCURSAL, List.of("CX_PF_EL_SC"),
+                TipoPermiso.PROPIAS,  List.of("CX_PF_EL_PR")
+        ));
+    }
+
+    // -------------------------------------------------------------------------
+    // Métodos específicos de CxP Pagos (usan resolverPermiso internamente)
+    // -------------------------------------------------------------------------
+
+    public TipoPermiso getTipoPermisoVerXpPago() {
+        return resolverPermiso(Map.of(
+                TipoPermiso.TODAS,    List.of("CP_PG_VR_TD"),
+                TipoPermiso.SUCURSAL, List.of("CP_PG_VR_SC"),
+                TipoPermiso.PROPIAS,  List.of("CP_PG_VR_PR")
+        ));
+    }
+
+    public TipoPermiso getTipoPermisoModificarXpPago() {
+        return resolverPermiso(Map.of(
+                TipoPermiso.TODAS,    List.of("CP_PG_MO_TD"),
+                TipoPermiso.SUCURSAL, List.of("CP_PG_MO_SC"),
+                TipoPermiso.PROPIAS,  List.of("CP_PG_MO_PR")
+        ));
+    }
+
+    public TipoPermiso getTipoPermisoEliminarXpPago() {
+        return resolverPermiso(Map.of(
+                TipoPermiso.TODAS,    List.of("CP_PG_EL_TD"),
+                TipoPermiso.SUCURSAL, List.of("CP_PG_EL_SC"),
+                TipoPermiso.PROPIAS,  List.of("CP_PG_EL_PR")
+        ));
+    }
 }

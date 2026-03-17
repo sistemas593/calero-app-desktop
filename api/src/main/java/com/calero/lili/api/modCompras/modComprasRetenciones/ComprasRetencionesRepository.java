@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -23,8 +24,14 @@ public interface ComprasRetencionesRepository extends JpaRepository<CpRetencione
             "FROM CpRetencionesEntity vtVentasEntity " +
             "WHERE vtVentasEntity.idData = :idData  AND " +
             "vtVentasEntity.idEmpresa = :idEmpresa AND " +
-            "vtVentasEntity.idRetencion = :idVenta ")
-    Optional<CpRetencionesEntity> findByIdEntity(Long idData, Long idEmpresa, UUID idVenta);
+            "vtVentasEntity.idRetencion = :idVenta AND " +
+            "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
+            "(:usuario IS NULL OR vtVentasEntity.createdBy = :usuario)")
+    Optional<CpRetencionesEntity> findByIdEntity(@Param("idData") Long idData,
+                                                 @Param("idEmpresa") Long idEmpresa,
+                                                 @Param("idVenta") UUID idVenta,
+                                                 @Param("sucursal") String sucursal,
+                                                 @Param("usuario") String usuario);
 
     @Transactional
     @Modifying

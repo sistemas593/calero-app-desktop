@@ -187,9 +187,14 @@ public class VtVentasNotasDebitoServiceImpl {
     }
 
 
-    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable) {
+    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable,
+                                                    TipoPermiso tipoBusqueda, String usuario) {
 
-        Page<VtVentaEntity> page = vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getTipoVenta(), filters.getSerie(), filters.getSecuencial(), filters.getNumeroAutorizacion(), pageable);
+        Page<VtVentaEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
+
+        if (page.isEmpty()) {
+            throw new GeneralException("No existen datos a mostrar");
+        }
 
         List<GetListDto> dtoList = page.stream().map(item -> {
             if (item.getAnulada()) {
@@ -218,10 +223,14 @@ public class VtVentasNotasDebitoServiceImpl {
         return paginatedDto;
     }
 
-    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable) {
+    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable,
+                                                                      TipoPermiso tipoBusqueda, String usuario) {
 
+        Page<VtVentaEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
 
-        Page<VtVentaEntity> page = vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getTipoVenta(), filters.getSerie(), filters.getSecuencial(), filters.getNumeroAutorizacion(), pageable);
+        if (page.isEmpty()) {
+            throw new GeneralException("No existen datos a mostrar");
+        }
 
         List<GetListDto> dtoList = page.stream().map(item -> {
             if (item.getAnulada()) {
@@ -317,6 +326,32 @@ public class VtVentasNotasDebitoServiceImpl {
                 .filter(Objects::nonNull)
                 .map(BigDecimal::intValue)
                 .toList();
+    }
+
+    private Page<VtVentaEntity> getTipoBusquedaPaginado(Long idData, Long idEmpresa, FilterListDto filters,
+                                                        Pageable pageable, TipoPermiso tipoBusqueda, String usuario) {
+        switch (tipoBusqueda) {
+            case TODAS -> {
+                return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
+                        filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getTipoVenta(), filters.getSerie(),
+                        filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
+            }
+            case SUCURSAL -> {
+                if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
+                    return vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
+                            filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getTipoVenta(), filters.getSerie(),
+                            filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
+                } else {
+                    throw new GeneralException("Es requerido el parametro de la sucursal");
+                }
+            }
+            case PROPIAS -> {
+                return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
+                        filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getTipoVenta(), filters.getSerie(),
+                        filters.getSecuencial(), filters.getNumeroAutorizacion(), usuario, pageable);
+            }
+        }
+        throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
     }
 
     private VtVentaEntity validacionTipoBusqueda(Long idData, Long idEmpresa, UUID idVenta,

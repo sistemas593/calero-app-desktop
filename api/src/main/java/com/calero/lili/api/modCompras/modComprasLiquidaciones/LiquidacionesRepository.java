@@ -26,8 +26,14 @@ public interface LiquidacionesRepository extends JpaRepository<CpLiquidacionesEn
             "FROM CpLiquidacionesEntity entity " +
             "WHERE entity.idData = :idData  AND " +
             "entity.idEmpresa = :idEmpresa AND " +
-            "entity.idLiquidacion = :idLiquidacion ")
-    Optional<CpLiquidacionesEntity> findByIdEntity(Long idData, Long idEmpresa, UUID idLiquidacion);
+            "entity.idLiquidacion = :idLiquidacion AND " +
+            "(:sucursal IS NULL OR entity.sucursal = :sucursal) AND " +
+            "(:usuario IS NULL OR entity.createdBy = :usuario)")
+    Optional<CpLiquidacionesEntity> findByIdEntity(@Param("idData") Long idData,
+                                                   @Param("idEmpresa") Long idEmpresa,
+                                                   @Param("idLiquidacion") UUID idLiquidacion,
+                                                   @Param("sucursal") String sucursal,
+                                                   @Param("usuario") String usuario);
 
     @Transactional
     @Modifying

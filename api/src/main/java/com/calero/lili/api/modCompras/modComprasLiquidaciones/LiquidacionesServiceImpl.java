@@ -3,6 +3,7 @@ package com.calero.lili.api.modCompras.modComprasLiquidaciones;
 import com.calero.lili.api.comprobantes.services.ComprobanteServiceImpl;
 import com.calero.lili.api.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosEntity;
 import com.calero.lili.api.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosRepository;
+import com.calero.lili.api.modAuditoria.TipoPermiso;
 import com.calero.lili.api.modCompras.modComprasImpuestos.CpImpuestosServiceImpl;
 import com.calero.lili.api.modCompras.modComprasImpuestos.dto.CreationCompraImpuestoRequestDto;
 import com.calero.lili.api.modCompras.modComprasLiquidaciones.builder.CpLiquidacionesBuilder;
@@ -28,7 +29,6 @@ import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.TipoEmision;
 import com.calero.lili.core.errors.exceptions.GeneralException;
-import com.calero.lili.core.errors.exceptions.NotFoundException;
 import com.calero.lili.core.utils.DateUtils;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -201,16 +201,15 @@ public class LiquidacionesServiceImpl {
     }
 
     @Transactional
-    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationRequestLiquidacionCompraDto request, String usuario) {
+    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationRequestLiquidacionCompraDto request,
+                              String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
 
-        CpLiquidacionesEntity cpLiquidacionesEntity = liquidacionesRepository
-                .findByIdEntity(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("idLiquidacion {0} no existe", idVenta)));
+        CpLiquidacionesEntity cpLiquidacionesEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         if (!cpLiquidacionesEntity.getSerie().equals(request.getSerie()) || !cpLiquidacionesEntity.getSecuencial().equals(request.getSecuencial())) {
             Optional<OneProjection> existingFactura = liquidacionesRepository.findExistBySecuencial(idData, idEmpresa, request.getSerie(), request.getSecuencial());
             if (existingFactura.isPresent()) {
-                throw new GeneralException(MessageFormat.format("La liquidación ya existe Serie: {1} Secuencia: {2}", request.getSerie(), request.getSecuencial()));
+                throw new GeneralException(MessageFormat.format("La liquidación ya existe Serie: {0} Secuencia: {1}", request.getSerie(), request.getSecuencial()));
             }
         }
 
@@ -246,11 +245,10 @@ public class LiquidacionesServiceImpl {
         }
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario) {
+    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario,
+                       FilterListDto filters, TipoPermiso tipoBusqueda) {
 
-
-        CpLiquidacionesEntity liquidacion = liquidacionesRepository.findByIdEntity(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new NotFoundException(MessageFormat.format("La liquidacion con ID {0} no existe", idVenta)));
+        CpLiquidacionesEntity liquidacion = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         liquidacion.setDelete(Boolean.TRUE);
         liquidacion.setDeletedBy(usuario);
@@ -261,11 +259,10 @@ public class LiquidacionesServiceImpl {
     }
 
 
-    public GetDto findById(Long idData, Long idEmpresa, UUID idVenta) {
+    public GetDto findById(Long idData, Long idEmpresa, UUID idVenta,
+                           FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
-        CpLiquidacionesEntity vtVentaEntity = liquidacionesRepository
-                .findByIdEntity(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("La factura con ID {0} no exixte", idVenta)));
+        CpLiquidacionesEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         GetDto response = cpLiquidacionesBuilder.builderGetDto(vtVentaEntity);
         response.setListCompraImpuesto(cpImpuestosService.getListCompraImpuestoForIdParent(idVenta, idEmpresa, idData));
@@ -273,11 +270,10 @@ public class LiquidacionesServiceImpl {
     }
 
 
-    public List<Mensajes> findByIdMensajes(Long idData, Long idEmpresa, UUID idVenta) {
+    public List<Mensajes> findByIdMensajes(Long idData, Long idEmpresa, UUID idVenta,
+                                           FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
-        CpLiquidacionesEntity vtVentaEntity = liquidacionesRepository
-                .findByIdEntity(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("La factura con ID {0} no exixte", idVenta)));
+        CpLiquidacionesEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         return vtVentaEntity.getMensajes();
     }
@@ -721,11 +717,10 @@ public class LiquidacionesServiceImpl {
         }
     }
 
-    public ResponseDto updateAnulada(Long idData, Long idEmpresa, UUID idLiquidacion) {
+    public ResponseDto updateAnulada(Long idData, Long idEmpresa, UUID idLiquidacion,
+                                     FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
-        CpLiquidacionesEntity cpLiquidacionesEntity = liquidacionesRepository
-                .findByIdEntity(idData, idEmpresa, idLiquidacion)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("idLiquidacion {0} no existe", idLiquidacion)));
+        CpLiquidacionesEntity cpLiquidacionesEntity = validacionTipoBusqueda(idData, idEmpresa, idLiquidacion, filters, tipoBusqueda, usuario);
 
         if (!cpLiquidacionesEntity.getAnulada()) {
             cpLiquidacionesEntity.setAnulada(Boolean.TRUE);
@@ -758,6 +753,38 @@ public class LiquidacionesServiceImpl {
                     .orElseThrow(() -> new GeneralException("El item con id  " + model.getIdItem() + " no existe "));
         }
 
+    }
+
+    private CpLiquidacionesEntity validacionTipoBusqueda(Long idData, Long idEmpresa, UUID idVenta,
+                                                         FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+
+        switch (tipoBusqueda) {
+            case TODAS:
+                return liquidacionesRepository
+                        .findByIdEntity(idData, idEmpresa, idVenta, null, null)
+                        .orElseThrow(() -> new GeneralException(MessageFormat.format("La factura con ID {0} no existe", idVenta)));
+
+            case SUCURSAL: {
+                if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
+
+                    return liquidacionesRepository
+                            .findByIdEntity(idData, idEmpresa, idVenta, filters.getSucursal(), null)
+                            .orElseThrow(() -> new GeneralException(MessageFormat.format("No tiene acceso al documento en la sucursal {0}", filters.getSucursal())));
+
+                } else {
+                    throw new GeneralException("Es requerido el parametro de la sucursal");
+                }
+            }
+            case PROPIAS: {
+
+                return liquidacionesRepository
+                        .findByIdEntity(idData, idEmpresa, idVenta, null, usuario)
+                        .orElseThrow(() -> new GeneralException(MessageFormat.format("No tiene acceso al documento el usuario: {0}", usuario)));
+
+            }
+        }
+
+        throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
     }
 
 }

@@ -1,15 +1,16 @@
 package com.calero.lili.api.modCxC.XcFacturas;
 
+import com.calero.lili.api.modAuditoria.TipoPermiso;
+import com.calero.lili.api.modCxC.XcFacturas.builder.XcFacturasBuilder;
+import com.calero.lili.api.modCxC.XcFacturas.dto.FilterXcFacturaDto;
+import com.calero.lili.api.modCxC.XcFacturas.dto.RequestXcFacturasDto;
+import com.calero.lili.api.modCxC.XcFacturas.dto.ResponseXcFacturasDto;
 import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresas.dto.AdEmpresaGetListDto;
-import com.calero.lili.api.modCxC.XcFacturas.builder.XcFacturasBuilder;
-import com.calero.lili.api.modCxC.XcFacturas.dto.FilterXcFacturaDto;
-import com.calero.lili.api.modCxC.XcFacturas.dto.RequestXcFacturasDto;
-import com.calero.lili.api.modCxC.XcFacturas.dto.ResponseXcFacturasDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,7 @@ import java.math.BigInteger;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -55,12 +57,10 @@ public class XcFacturaServiceImpl {
 
 
     @Transactional
-    public ResponseDto update(Long idData, Long idEmpresa, UUID idComprobante, RequestXcFacturasDto request, String usuario) {
+    public ResponseDto update(Long idData, Long idEmpresa, UUID idComprobante, RequestXcFacturasDto request,
+                              String usuario, FilterXcFacturaDto filters, TipoPermiso tipoBusqueda) {
 
-        XcFacturasEntity existFactura = xcFacturasRepository
-                .getForFindByIdAndIdDataAndIdEmpresa(idComprobante, idData, idEmpresa)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("La factura no existe: {0}",
-                        idComprobante)));
+        XcFacturasEntity existFactura = validacionTipoBusqueda(idData, idEmpresa, idComprobante, filters, tipoBusqueda, usuario);
 
         validarSaldoValor(request);
         validarRegistroAplicados(existFactura);
@@ -69,7 +69,6 @@ public class XcFacturaServiceImpl {
         update.setModifiedBy(usuario);
         update.setModifiedDate(LocalDateTime.now());
 
-
         return responseApiBuilder.builderResponse(xcFacturasRepository
                 .save(update)
                 .getIdFactura().toString());
@@ -77,9 +76,9 @@ public class XcFacturaServiceImpl {
     }
 
 
-    public void delete(UUID idComprobante, String usuario) {
-        XcFacturasEntity existFactura = xcFacturasRepository
-                .getForFindById(idComprobante).orElseThrow(() -> new GeneralException(MessageFormat.format("La factura no existe Secuencia: {0}", idComprobante)));
+    public void delete(Long idData, Long idEmpresa, UUID idComprobante, String usuario,
+                       FilterXcFacturaDto filters, TipoPermiso tipoBusqueda) {
+        XcFacturasEntity existFactura = validacionTipoBusqueda(idData, idEmpresa, idComprobante, filters, tipoBusqueda, usuario);
 
         existFactura.setDelete(Boolean.TRUE);
         existFactura.setDeletedBy(usuario);
@@ -89,12 +88,10 @@ public class XcFacturaServiceImpl {
     }
 
 
-    public ResponseXcFacturasDto findById(UUID idComprobante) {
-        return xcFacturasBuilder.builderResponse(xcFacturasRepository
-                .getForFindById(idComprobante)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("La factura no existe Secuencia: {0}",
-                        idComprobante))));
-
+    public ResponseXcFacturasDto findById(Long idData, Long idEmpresa, UUID idComprobante,
+                                          FilterXcFacturaDto filters, TipoPermiso tipoBusqueda, String usuario) {
+        return xcFacturasBuilder.builderResponse(
+                validacionTipoBusqueda(idData, idEmpresa, idComprobante, filters, tipoBusqueda, usuario));
     }
 
     public PaginatedDto<ResponseXcFacturasDto> findAllPaginate(Long idData, Long idEmpresa, FilterXcFacturaDto filter, Pageable pageable) {
@@ -135,4 +132,38 @@ public class XcFacturaServiceImpl {
             throw new GeneralException("No se puede realizar una modificación por que ya cuenta con registros de pagos");
         }
     }
+
+
+    private XcFacturasEntity validacionTipoBusqueda(Long idData, Long idEmpresa, UUID idVenta,
+                                                    FilterXcFacturaDto filters, TipoPermiso tipoBusqueda, String usuario) {
+
+        switch (tipoBusqueda) {
+            case TODAS:
+                return xcFacturasRepository
+                        .findByIdEntity(idData, idEmpresa, idVenta, null, null)
+                        .orElseThrow(() -> new GeneralException(MessageFormat.format("La factura con ID {0} no existe", idVenta)));
+
+            case SUCURSAL: {
+                if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
+
+                    return xcFacturasRepository
+                            .findByIdEntity(idData, idEmpresa, idVenta, filters.getSucursal(), null)
+                            .orElseThrow(() -> new GeneralException(MessageFormat.format("No tiene acceso al documento en la sucursal {0}", filters.getSucursal())));
+
+                } else {
+                    throw new GeneralException("Es requerido el parametro de la sucursal");
+                }
+            }
+            case PROPIAS: {
+
+                return xcFacturasRepository
+                        .findByIdEntity(idData, idEmpresa, idVenta, null, usuario)
+                        .orElseThrow(() -> new GeneralException(MessageFormat.format("No tiene acceso al documento el usuario: {0}", usuario)));
+
+            }
+        }
+
+        throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
+    }
+
 }

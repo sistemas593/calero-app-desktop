@@ -1,15 +1,15 @@
 package com.calero.lili.api.modCxC.XcFacturas;
 
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.ResponseDto;
+import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.api.modCxC.XcFacturas.dto.FilterXcFacturaDto;
 import com.calero.lili.api.modCxC.XcFacturas.dto.RequestXcFacturasDto;
 import com.calero.lili.api.modCxC.XcFacturas.dto.ResponseXcFacturasDto;
 import com.calero.lili.api.utils.IdDataServiceImpl;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.ResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,48 +31,60 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class XcFacturasController {
 
-
     private final XcFacturaServiceImpl tsComprobanteIngresoService;
     private final IdDataServiceImpl idDataService;
-    private final AuditorAware<String> auditorAware;
-
+    private final AuditorAwareImpl auditorAware;
 
     @PostMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.CREATED)
-    @PreAuthorize("hasAuthority('CX_XC_CR')")
+    @PreAuthorize("hasAuthority('CX_FC_CR')")
     public ResponseDto create(@PathVariable("idEmpresa") Long idEmpresa,
                               @Valid @RequestBody RequestXcFacturasDto request) {
-        return tsComprobanteIngresoService.create(idDataService.getIdData(), idEmpresa, request, UUID.randomUUID(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        return tsComprobanteIngresoService.create(idDataService.getIdData(), idEmpresa, request,
+                UUID.randomUUID(),
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idEmpresa}/{idFactura}")
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasAuthority('CX_XC_MO')")
+    @PreAuthorize("hasAnyAuthority('CX_FC_MO_PR','CX_FC_MO_SC','CX_FC_MO_TD')")
     public ResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                               @PathVariable("idFactura") UUID idFactura,
-                              @Valid @RequestBody RequestXcFacturasDto request) {
-        return tsComprobanteIngresoService.update(idDataService.getIdData(), idEmpresa, idFactura, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+                              @Valid @RequestBody RequestXcFacturasDto request,
+                              FilterXcFacturaDto filters) {
+        return tsComprobanteIngresoService.update(idDataService.getIdData(), idEmpresa, idFactura, request,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"),
+                filters,
+                auditorAware.getTipoPermisoModificarXcFactura());
     }
 
-    @DeleteMapping("delete/{idFactura}")
+    @DeleteMapping("{idEmpresa}/delete/{idFactura}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAuthority('CX_XC_EL')")
-    public void delete(@PathVariable("idFactura") UUID idFactura) {
-
-        tsComprobanteIngresoService.delete(idFactura, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+    @PreAuthorize("hasAnyAuthority('CX_FC_EL_PR','CX_FC_EL_SC','CX_FC_EL_TD')")
+    public void delete(@PathVariable("idEmpresa") Long idEmpresa,
+                       @PathVariable("idFactura") UUID idFactura,
+                       FilterXcFacturaDto filters) {
+        tsComprobanteIngresoService.delete(idDataService.getIdData(), idEmpresa, idFactura,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"),
+                filters,
+                auditorAware.getTipoPermisoEliminarXcFactura());
     }
 
-    @GetMapping("findById/{idFactura}")
+    @GetMapping("{idEmpresa}/findById/{idFactura}")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('CX_XC_VR')")
-    public ResponseXcFacturasDto findById(@PathVariable("idFactura") UUID idFactura) {
-        return tsComprobanteIngresoService.findById(idFactura);
+    @PreAuthorize("hasAnyAuthority('CX_FC_VR_PR','CX_FC_VR_SC','CX_FC_VR_TD')")
+    public ResponseXcFacturasDto findById(@PathVariable("idEmpresa") Long idEmpresa,
+                                          @PathVariable("idFactura") UUID idFactura,
+                                          FilterXcFacturaDto filters) {
+        return tsComprobanteIngresoService.findById(idDataService.getIdData(), idEmpresa, idFactura,
+                filters,
+                auditorAware.getTipoPermisoVerXcFactura(),
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
-
 
     @GetMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('CX_XC_VR')")
+    @PreAuthorize("hasAnyAuthority('CX_FC_VR_PR','CX_FC_VR_SC','CX_FC_VR_TD')")
     public PaginatedDto<ResponseXcFacturasDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
                                                                FilterXcFacturaDto filters,
                                                                Pageable pageable) {

@@ -107,7 +107,9 @@ public class VtGuiaController {
     public PaginatedDto<GetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
                                                     FilterListDto filters,
                                                     Pageable pageable) {
-        return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable);
+        return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable,
+                auditorAware.getTipoPermisoVerGuia(),
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("excel/{idEmpresa}")

@@ -11,9 +11,16 @@ import java.util.UUID;
 @Repository
 public interface XpPagosRepository extends JpaRepository<XpPagosEntity, UUID> {
 
-    @Query("SELECT c FROM XpPagosEntity c WHERE c.idPagoGrupo = :idPagoGrupo")
-    List<XpPagosEntity> getAllForFindByIdPagoGrupo(@Param("idPagoGrupo") UUID idPagoGrupo);
-
+    @Query("SELECT c FROM XpPagosEntity c " +
+            "WHERE c.idPagoGrupo = :idPagoGrupo AND " +
+            "c.idData = :idData AND c.idEmpresa = :idEmpresa AND " +
+            "(:sucursal IS NULL OR c.sucursal = :sucursal) AND " +
+            "(:usuario IS NULL OR c.createdBy = :usuario)")
+    List<XpPagosEntity> getAllForFindByIdPagoGrupo(@Param("idData") Long idData,
+                                                   @Param("idEmpresa") Long idEmpresa,
+                                                   @Param("idPagoGrupo") UUID idPagoGrupo,
+                                                   @Param("sucursal") String sucursal,
+                                                   @Param("usuario") String usuario);
 
 
 }

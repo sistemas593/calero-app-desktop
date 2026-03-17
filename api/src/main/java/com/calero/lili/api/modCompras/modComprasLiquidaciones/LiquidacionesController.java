@@ -1,20 +1,20 @@
 package com.calero.lili.api.modCompras.modComprasLiquidaciones;
 
-import com.calero.lili.core.dtos.Mensajes;
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.ResponseDto;
+import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.api.modCompras.modComprasLiquidaciones.dto.CreationRequestLiquidacionCompraDto;
 import com.calero.lili.api.modCompras.modComprasLiquidaciones.dto.FilterListDto;
 import com.calero.lili.api.modCompras.modComprasLiquidaciones.dto.GetDto;
 import com.calero.lili.api.modCompras.modComprasLiquidaciones.dto.GetListDto;
 import com.calero.lili.api.modCompras.modComprasLiquidaciones.dto.GetListDtoTotalizado;
 import com.calero.lili.api.utils.IdDataServiceImpl;
+import com.calero.lili.core.dtos.Mensajes;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.ResponseDto;
 import com.lowagie.text.DocumentException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,59 +38,73 @@ import java.util.UUID;
 @RequestMapping(value = "api/v1.0/liquidaciones")
 @RequiredArgsConstructor
 @CrossOrigin(originPatterns = "*")
-
 public class LiquidacionesController {
 
     private final LiquidacionesServiceImpl vtVentasService;
     private final IdDataServiceImpl idDataService;
-    private final AuditorAware<String> auditorAware;
+    private final AuditorAwareImpl auditorAware;
 
     @PostMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('LQ_LQ_CR')")
     public ResponseDto create(@PathVariable("idEmpresa") Long idEmpresa,
                               @Valid @RequestBody CreationRequestLiquidacionCompraDto request) {
-        return vtVentasService.create(idDataService.getIdData(), idEmpresa, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        return vtVentasService.create(idDataService.getIdData(), idEmpresa, request,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idEmpresa}/{idLiquidacion}")
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasAuthority('LQ_LQ_MO')")
+    @PreAuthorize("hasAnyAuthority('LQ_LQ_MO_PR','LQ_LQ_MO_SC','LQ_LQ_MO_TD')")
     public ResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                               @PathVariable("idLiquidacion") UUID idLiquidacion,
-                              @RequestBody CreationRequestLiquidacionCompraDto request) {
-        return vtVentasService.update(idDataService.getIdData(), idEmpresa, idLiquidacion, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+                              @RequestBody CreationRequestLiquidacionCompraDto request,
+                              FilterListDto filters) {
+        return vtVentasService.update(idDataService.getIdData(), idEmpresa, idLiquidacion, request,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"),
+                filters,
+                auditorAware.getTipoPermisoModificarLiquidacion());
     }
 
     @DeleteMapping("{idEmpresa}/{idLiquidacion}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAuthority('LQ_LQ_EL')")
+    @PreAuthorize("hasAnyAuthority('LQ_LQ_EL_PR','LQ_LQ_EL_SC','LQ_LQ_EL_TD')")
     public void delete(@PathVariable("idEmpresa") Long idEmpresa,
-                       @PathVariable("idLiquidacion") UUID idLiquidacion) {
-        vtVentasService.delete(idDataService.getIdData(), idEmpresa, idLiquidacion, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+                       @PathVariable("idLiquidacion") UUID idLiquidacion,
+                       FilterListDto filters) {
+        vtVentasService.delete(idDataService.getIdData(), idEmpresa, idLiquidacion,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"),
+                filters,
+                auditorAware.getTipoPermisoEliminarLiquidacion());
     }
 
     @GetMapping("{idEmpresa}/{idLiquidacion}")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('LQ_LQ_VR')")
+    @PreAuthorize("hasAnyAuthority('LQ_LQ_VR_PR','LQ_LQ_VR_SC','LQ_LQ_VR_TD')")
     public GetDto findById(@PathVariable("idEmpresa") Long idEmpresa,
-                           @PathVariable("idLiquidacion") UUID idLiquidacion) {
-        return vtVentasService.findById(idDataService.getIdData(), idEmpresa, idLiquidacion);
+                           @PathVariable("idLiquidacion") UUID idLiquidacion,
+                           FilterListDto filters) {
+        return vtVentasService.findById(idDataService.getIdData(), idEmpresa, idLiquidacion,
+                filters,
+                auditorAware.getTipoPermisoVerLiquidacion(),
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
-
 
     @GetMapping("mensajes/{idEmpresa}/{idLiquidacion}")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('LQ_LQ_VR')")
+    @PreAuthorize("hasAnyAuthority('LQ_LQ_VR_PR','LQ_LQ_VR_SC','LQ_LQ_VR_TD')")
     public List<Mensajes> findByIdMensajes(@PathVariable("idEmpresa") Long idEmpresa,
-                                           @PathVariable("idLiquidacion") UUID idLiquidacion) {
-        return vtVentasService.findByIdMensajes(idDataService.getIdData(), idEmpresa, idLiquidacion);
+                                           @PathVariable("idLiquidacion") UUID idLiquidacion,
+                                           FilterListDto filters) {
+        return vtVentasService.findByIdMensajes(idDataService.getIdData(), idEmpresa, idLiquidacion,
+                filters,
+                auditorAware.getTipoPermisoVerLiquidacion(),
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
-
 
     @GetMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('LQ_LQ_VR')")
+    @PreAuthorize("hasAnyAuthority('LQ_LQ_VR_PR','LQ_LQ_VR_SC','LQ_LQ_VR_TD')")
     public PaginatedDto<GetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
                                                     FilterListDto filters,
                                                     Pageable pageable) {
@@ -99,7 +113,7 @@ public class LiquidacionesController {
 
     @GetMapping("reportes/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('LQ_LQ_VR')")
+    @PreAuthorize("hasAnyAuthority('LQ_LQ_VR_PR','LQ_LQ_VR_SC','LQ_LQ_VR_TD')")
     public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(@PathVariable("idEmpresa") Long idEmpresa,
                                                                       FilterListDto filters,
                                                                       Pageable pageable) {
@@ -125,10 +139,14 @@ public class LiquidacionesController {
     }
 
     @PostMapping("anulada/{idEmpresa}/{idLiquidacion}")
-    @PreAuthorize("hasAuthority('LQ_LQ_AN')")
+    @PreAuthorize("hasAnyAuthority('LQ_LQ_AN_PR','LQ_LQ_AN_SC','LQ_LQ_AN_TD')")
     public ResponseDto updateAnulada(@PathVariable("idEmpresa") Long idEmpresa,
-                                     @PathVariable("idLiquidacion") UUID idLiquidacion) {
-        return vtVentasService.updateAnulada(idDataService.getIdData(), idEmpresa, idLiquidacion);
+                                     @PathVariable("idLiquidacion") UUID idLiquidacion,
+                                     FilterListDto filters) {
+        return vtVentasService.updateAnulada(idDataService.getIdData(), idEmpresa, idLiquidacion,
+                filters,
+                auditorAware.getTipoPermisoAnularLiquidacion(),
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
 }

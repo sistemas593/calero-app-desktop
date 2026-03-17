@@ -77,7 +77,8 @@ public interface VtGuiasRepository extends JpaRepository<VtGuiaEntity, UUID>, Jp
             "(:secuencial IS NULL OR vtVentasEntity.secuencial = :secuencial) AND " +
             "(:numeroAutorizacion IS NULL OR vtVentasEntity.numeroAutorizacion = :numeroAutorizacion ) AND " +
             "( cast(:fechaEmisionDesde as date) is null OR vtVentasEntity.fechaEmision >= :fechaEmisionDesde ) AND " +
-            "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmision <= :fechaEmisionHasta )"
+            "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmision <= :fechaEmisionHasta ) AND " +
+            "(:usuario IS NULL OR vtVentasEntity.createdBy = :usuario)"
             ,
             countQuery = "SELECT COUNT(1) " +
                     "FROM VtGuiaEntity vtVentasEntity " +
@@ -88,9 +89,10 @@ public interface VtGuiasRepository extends JpaRepository<VtGuiaEntity, UUID>, Jp
                     "(:secuencial IS NULL OR vtVentasEntity.secuencial = :secuencial ) AND " +
                     "(:numeroAutorizacion IS NULL OR vtVentasEntity.numeroAutorizacion = :numeroAutorizacion ) AND " +
                     "( cast(:fechaEmisionDesde as date) is null OR vtVentasEntity.fechaEmision >= :fechaEmisionDesde ) AND " +
-                    "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmision <= :fechaEmisionHasta )"
+                    "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmision <= :fechaEmisionHasta ) AND " +
+                    "(:usuario IS NULL OR vtVentasEntity.createdBy = :usuario)"
     )
-    Page<VtGuiaEntity> findAllPaginate(Long idData, Long idEmpresa, String sucursal, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta, String serie, String secuencial, String numeroAutorizacion, Pageable pageable);
+    Page<VtGuiaEntity> findAllPaginate(Long idData, Long idEmpresa, String sucursal, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta, String serie, String secuencial, String numeroAutorizacion, String usuario, Pageable pageable);
 
 
     @Query(value = "SELECT vtVentasEntity " +

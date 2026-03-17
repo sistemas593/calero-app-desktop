@@ -1,15 +1,15 @@
 package com.calero.lili.api.modCompras.modComprasLiquidaciones.reembolsos;
 
-
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.api.dtos.deRecibidos.CpImpuestosRecibirListCreationResponseDto;
+import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.api.modCompras.modComprasLiquidaciones.comprobantes.DocumentoRecibidosServiceImpl;
 import com.calero.lili.api.modCompras.modComprasLiquidaciones.dto.FilterListDto;
 import com.calero.lili.api.modCompras.modComprasLiquidaciones.dto.GetListDtoTotalizado;
 import com.calero.lili.api.modCompras.modComprasLiquidaciones.reembolsos.dto.GetReembolsoDto;
 import com.calero.lili.api.modCompras.modComprasLiquidaciones.reembolsos.dto.ReembolsoRequestDto;
 import com.calero.lili.api.utils.IdDataServiceImpl;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.ResponseDto;
 import com.lowagie.text.DocumentException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -39,50 +39,66 @@ import java.util.UUID;
 @CrossOrigin(originPatterns = "*")
 public class LiquidacionReembolsosController {
 
-
     private final LiquidacionesReembolsosServiceImpl reembolsosService;
     private final DocumentoRecibidosServiceImpl documentoRecibidosService;
     private final IdDataServiceImpl idDataService;
+    private final AuditorAwareImpl auditorAware;
 
     @PostMapping("/create")
     @ResponseStatus(code = HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('LQ_LQR_CR')")
     public ResponseDto create(@Valid @RequestBody ReembolsoRequestDto request) {
-        return reembolsosService.create(request);
+        return reembolsosService.create(request,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
-    @PutMapping("/update/{idReembolso}")
+    @PutMapping("{idEmpresa}/update/{idReembolso}")
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasAuthority('LQ_LQR_MO')")
-    public ResponseDto update(@PathVariable("idReembolso") UUID idReembolso, @Valid @RequestBody ReembolsoRequestDto request) {
-        return reembolsosService.update(idReembolso, request);
+    @PreAuthorize("hasAnyAuthority('LQ_LQR_MO_PR','LQ_LQR_MO_SC','LQ_LQR_MO_TD')")
+    public ResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
+                              @PathVariable("idReembolso") UUID idReembolso,
+                              @Valid @RequestBody ReembolsoRequestDto request,
+                              FilterListDto filters) {
+        return reembolsosService.update(idEmpresa, idReembolso, request,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"),
+                filters,
+                auditorAware.getTipoPermisoModificarReembolso());
     }
 
-    @DeleteMapping("/delete/{idReembolso}")
+    @DeleteMapping("{idEmpresa}/delete/{idReembolso}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAuthority('LQ_LQR_EL')")
-    public void delete(@PathVariable("idReembolso") UUID idReembolso) {
-        reembolsosService.delete(idReembolso);
+    @PreAuthorize("hasAnyAuthority('LQ_LQR_EL_PR','LQ_LQR_EL_SC','LQ_LQR_EL_TD')")
+    public void delete(@PathVariable("idEmpresa") Long idEmpresa,
+                       @PathVariable("idReembolso") UUID idReembolso,
+                       FilterListDto filters) {
+        reembolsosService.delete(idEmpresa, idReembolso,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"),
+                filters,
+                auditorAware.getTipoPermisoEliminarReembolso());
     }
 
-    @GetMapping("/findById/{idReembolso}")
+    @GetMapping("{idEmpresa}/findById/{idReembolso}")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('LQ_LQR_VR')")
-    public GetReembolsoDto findById(@PathVariable("idReembolso") UUID idVenta) {
-        return reembolsosService.findById(idVenta);
+    @PreAuthorize("hasAnyAuthority('LQ_LQR_VR_PR','LQ_LQR_VR_SC','LQ_LQR_VR_TD')")
+    public GetReembolsoDto findById(@PathVariable("idEmpresa") Long idEmpresa,
+                                    @PathVariable("idReembolso") UUID idReembolso,
+                                    FilterListDto filters) {
+        return reembolsosService.findById(idEmpresa, idReembolso,
+                filters,
+                auditorAware.getTipoPermisoVerReembolso(),
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
-
 
     @GetMapping("/findAllPaginate")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('LQ_LQR_VR')")
+    @PreAuthorize("hasAnyAuthority('LQ_LQR_VR_PR','LQ_LQR_VR_SC','LQ_LQR_VR_TD')")
     public PaginatedDto<GetReembolsoDto> findAllPaginate(FilterListDto filters, Pageable pageable) {
         return reembolsosService.findAllPaginate(filters, pageable);
     }
 
     @GetMapping("/reportes")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('LQ_LQR_VR')")
+    @PreAuthorize("hasAnyAuthority('LQ_LQR_VR_PR','LQ_LQR_VR_SC','LQ_LQR_VR_TD')")
     public GetListDtoTotalizado<GetReembolsoDto> findAllPaginateTotalizado(FilterListDto filters,
                                                                            Pageable pageable) {
         return reembolsosService.findAllPaginateTotalizado(filters, pageable);
@@ -106,6 +122,5 @@ public class LiquidacionReembolsosController {
     public CpImpuestosRecibirListCreationResponseDto recibirFiles(@Valid @RequestBody List<MultipartFile> documentos) {
         return documentoRecibidosService.createFilesLiqReembolso(idDataService.getIdData(), documentos);
     }
-
 
 }

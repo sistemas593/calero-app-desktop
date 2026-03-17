@@ -19,6 +19,18 @@ public interface XpFacturasRepository extends JpaRepository<XpFacturasEntity, UU
 
 
     @Query("SELECT c FROM XpFacturasEntity c " +
+            "WHERE c.idFactura = :idFactura AND " +
+            "c.idData = :idData AND c.idEmpresa = :idEmpresa AND " +
+            "(:sucursal IS NULL OR c.sucursal = :sucursal) AND " +
+            "(:usuario IS NULL OR c.createdBy = :usuario)")
+    Optional<XpFacturasEntity> findByIdEntity(@Param("idData") Long idData,
+                                              @Param("idEmpresa") Long idEmpresa,
+                                              @Param("idFactura") UUID idFactura,
+                                              @Param("sucursal") String sucursal,
+                                              @Param("usuario") String usuario);
+
+
+    @Query("SELECT c FROM XpFacturasEntity c " +
             "WHERE c.idFactura = :idFactura " +
             "AND c.idData = :idData " +
             "AND c.idEmpresa = :idEmpresa")
@@ -31,7 +43,7 @@ public interface XpFacturasRepository extends JpaRepository<XpFacturasEntity, UU
             "FROM XpFacturasEntity entity " +
             "WHERE ( entity.idData = :idData) AND " +
             "(entity.idEmpresa = :idEmpresa) AND " +
-            " (:idTercero IS NULL OR entity.proveedor.idTercero = :idTercero) AND "+
+            " (:idTercero IS NULL OR entity.proveedor.idTercero = :idTercero) AND " +
             "( cast(:fechaRegistroDesde as date) is null OR entity.fechaRegistro >= :fechaRegistroDesde ) AND " +
             "( cast(:fechaRegistroHasta as date) is null OR entity.fechaRegistro <= :fechaRegistroHasta ) ")
     Page<XpFacturasEntity> findAllPaginate(Long idData, Long idEmpresa, LocalDate fechaRegistroDesde,

@@ -1,9 +1,9 @@
 package com.calero.lili.api.modContabilidad.modAsientos;
 
-import com.calero.lili.core.enums.TipoAsiento;
 import com.calero.lili.api.modContabilidad.modAsientos.projection.OneDetalleProjection;
 import com.calero.lili.api.modContabilidad.modAsientos.projection.OneProjection;
 import com.calero.lili.api.modContabilidad.modAsientos.projection.TotalesProjection;
+import com.calero.lili.core.enums.TipoAsiento;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,8 +25,14 @@ public interface CnAsientosRepository extends JpaRepository<CnAsientosEntity, UU
             "FROM CnAsientosEntity vtVentasEntity " +
             "WHERE vtVentasEntity.idData = :idData  AND " +
             "vtVentasEntity.idEmpresa = :idEmpresa AND " +
-            "vtVentasEntity.idAsiento = :idVenta ")
-    Optional<CnAsientosEntity> findByIdEntity(Long idData, Long idEmpresa, UUID idVenta);
+            "vtVentasEntity.idAsiento = :idVenta AND " +
+            "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
+            "(:usuario IS NULL OR vtVentasEntity.createdBy = :usuario)")
+    Optional<CnAsientosEntity> findByIdEntity(@Param("idData") Long idData,
+                                              @Param("idEmpresa") Long idEmpresa,
+                                              @Param("idVenta") UUID idVenta,
+                                              @Param("sucursal") String sucursal,
+                                              @Param("usuario") String usuario);
 
     @Transactional
     @Modifying

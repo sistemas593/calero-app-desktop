@@ -1,6 +1,7 @@
 package com.calero.lili.api.modCompras.modComprasLiquidaciones.reembolsos;
 
 import com.calero.lili.api.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
+import com.calero.lili.api.modAuditoria.TipoPermiso;
 import com.calero.lili.api.modCompras.modComprasLiquidaciones.dto.FilterListDto;
 import com.calero.lili.api.modCompras.modComprasLiquidaciones.dto.GetListDtoTotalizado;
 import com.calero.lili.api.modCompras.modComprasLiquidaciones.dto.detalles.ValoresDto;
@@ -26,7 +27,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -57,10 +57,9 @@ public class LiquidacionesReembolsosServiceImpl {
     private final LiquidacionReembolsosRepository reembolsosRepository;
     private final CpLiquidacionesReembolsosBuilder cpLiquidacionesReembolsosBuilder;
     private final ResponseApiBuilder responseApiBuilder;
-    private final AuditorAware<String> auditorAware;
     private final AdIvaPorcentajeServiceImpl adIvaPorcentajeService;
 
-    public ResponseDto create(ReembolsoRequestDto request) {
+    public ResponseDto create(ReembolsoRequestDto request, String usuario) {
 
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getReembolsosValores()),
                 DateUtils.toLocalDate(request.getFechaEmisionReemb()));
@@ -74,7 +73,7 @@ public class LiquidacionesReembolsosServiceImpl {
         }
 
         CpLiquidacionesReembolsosEntity entity = cpLiquidacionesReembolsosBuilder.builderReembolso(request);
-        entity.setCreatedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        entity.setCreatedBy(usuario);
         entity.setCreatedDate(LocalDateTime.now());
         return responseApiBuilder.builderResponse(reembolsosRepository
                 .save(entity)
@@ -83,46 +82,47 @@ public class LiquidacionesReembolsosServiceImpl {
     }
 
     @Transactional
-    public ResponseDto update(UUID idReembolso, ReembolsoRequestDto request) {
+    public ResponseDto update(Long idEmpresa, UUID idReembolso, ReembolsoRequestDto request,
+                              String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
 
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getReembolsosValores()),
                 DateUtils.toLocalDate(request.getFechaEmisionReemb()));
 
-        CpLiquidacionesReembolsosEntity reembolso = reembolsosRepository
-                .findByIdLiquidacionReembolsos(idReembolso).orElseThrow(() -> new GeneralException(MessageFormat.format("idReembolso {0} no existe", idReembolso)));
+        CpLiquidacionesReembolsosEntity reembolso = validacionTipoBusqueda(idEmpresa, idReembolso, filters, tipoBusqueda, usuario);
+
         if (!reembolso.getSerieReemb().equals(request.getSerieReemb()) || !reembolso.getSecuencialReemb().equals(request.getSecuencialReemb())) {
 
             if (reembolsosRepository.findBySecuencialReembAndSerieReemb(request.getSecuencialReemb(), request.getSerieReemb()).isPresent()) {
 
-                throw new GeneralException(MessageFormat.format("El reembolso ya existe Serie: {1} Secuencia: {2}",
+                throw new GeneralException(MessageFormat.format("El reembolso ya existe Serie: {0} Secuencia: {1}",
                         request.getSerieReemb(), request.getSecuencialReemb()));
             }
         }
 
         CpLiquidacionesReembolsosEntity update = cpLiquidacionesReembolsosBuilder.builderUpdateReembolso(request, reembolso);
-        update.setModifiedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        update.setModifiedBy(usuario);
         update.setModifiedDate(LocalDateTime.now());
         reembolsosRepository.save(update);
         return responseApiBuilder.builderResponse(reembolso.getIdLiquidacionReembolsos().toString());
 
     }
 
-    public void delete(UUID idReembolso) {
+    public void delete(Long idEmpresa, UUID idReembolso, String usuario,
+                       FilterListDto filters, TipoPermiso tipoBusqueda) {
 
-        CpLiquidacionesReembolsosEntity entidad = reembolsosRepository.findByIdLiquidacionReembolsos(idReembolso)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("idReembolso {0} no existe", idReembolso)));
+        CpLiquidacionesReembolsosEntity entidad = validacionTipoBusqueda(idEmpresa, idReembolso, filters, tipoBusqueda, usuario);
 
         entidad.setDelete(Boolean.TRUE);
-        entidad.setDeletedBy(auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        entidad.setDeletedBy(usuario);
         entidad.setDeletedDate(LocalDateTime.now());
 
         reembolsosRepository.save(entidad);
 
     }
 
-    public GetReembolsoDto findById(UUID idReembolso) {
-        CpLiquidacionesReembolsosEntity reembolso = reembolsosRepository
-                .findByIdLiquidacionReembolsos(idReembolso).orElseThrow(() -> new GeneralException(MessageFormat.format("idReembolso {0} no existe", idReembolso)));
+    public GetReembolsoDto findById(Long idEmpresa, UUID idReembolso,
+                                    FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+        CpLiquidacionesReembolsosEntity reembolso = validacionTipoBusqueda(idEmpresa, idReembolso, filters, tipoBusqueda, usuario);
         return cpLiquidacionesReembolsosBuilder.builderResponse(reembolso);
     }
 
@@ -452,6 +452,39 @@ public class LiquidacionesReembolsosServiceImpl {
                 .filter(Objects::nonNull)
                 .map(BigDecimal::intValue)
                 .toList();
+    }
+
+
+    private CpLiquidacionesReembolsosEntity validacionTipoBusqueda(Long idEmpresa, UUID idVenta,
+                                                                   FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+
+        switch (tipoBusqueda) {
+            case TODAS:
+                return reembolsosRepository
+                        .findByIdEntity(idEmpresa, idVenta, null, null)
+                        .orElseThrow(() -> new GeneralException(MessageFormat.format("La factura con ID {0} no existe", idVenta)));
+
+            case SUCURSAL: {
+                if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
+
+                    return reembolsosRepository
+                            .findByIdEntity(idEmpresa, idVenta, filters.getSucursal(), null)
+                            .orElseThrow(() -> new GeneralException(MessageFormat.format("No tiene acceso al documento en la sucursal {0}", filters.getSucursal())));
+
+                } else {
+                    throw new GeneralException("Es requerido el parametro de la sucursal");
+                }
+            }
+            case PROPIAS: {
+
+                return reembolsosRepository
+                        .findByIdEntity(idEmpresa, idVenta, null, usuario)
+                        .orElseThrow(() -> new GeneralException(MessageFormat.format("No tiene acceso al documento el usuario: {0}", usuario)));
+
+            }
+        }
+
+        throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
     }
 
 

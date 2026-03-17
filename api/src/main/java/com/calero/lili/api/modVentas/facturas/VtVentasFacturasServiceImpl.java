@@ -4,6 +4,7 @@ import com.calero.lili.api.comprobantes.services.ComprobanteServiceImpl;
 import com.calero.lili.api.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosEntity;
 import com.calero.lili.api.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosRepository;
 import com.calero.lili.api.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
+import com.calero.lili.api.modAuditoria.TipoPermiso;
 import com.calero.lili.api.modComprasItems.GeItemsRepository;
 import com.calero.lili.api.modContabilidad.modAsientos.CnAsientosEntity;
 import com.calero.lili.api.modContabilidad.modAsientos.CnAsientosRepository;
@@ -31,7 +32,6 @@ import com.calero.lili.api.modVentas.reembolsos.VtVentaReembolsosEntity;
 import com.calero.lili.api.modVentas.reembolsos.VtVentasReembolsoRepository;
 import com.calero.lili.api.tablas.tbPaises.TbPaisEntity;
 import com.calero.lili.api.tablas.tbPaises.TbPaisesRepository;
-import com.calero.lili.api.modAuditoria.TipoPermiso;
 import com.calero.lili.api.utils.validaciones.ValidarCampoAscii;
 import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.core.dtos.Mensajes;
@@ -353,35 +353,15 @@ public class VtVentasFacturasServiceImpl {
 
 
     public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa,
-                                                    FilterListDto filters, Pageable pageable, TipoPermiso tipoBusqueda, String usuario) {
+                                                    FilterListDto filters, Pageable pageable,
+                                                    TipoPermiso tipoBusqueda, String usuario) {
 
 
-        Page<VtVentaEntity> page = null;
+        Page<VtVentaEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
 
-        if (tipoBusqueda == TipoPermiso.TODAS) {
-            page = vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
-                    filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getTipoVenta(), filters.getSerie(),
-                    filters.getSecuencial(), filters.getNumeroAutorizacion(), pageable);
+        if (page.isEmpty()) {
+            throw new GeneralException("No existen datos a mostrar");
         }
-
-        if (tipoBusqueda == TipoPermiso.SUCURSAL) {
-            if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
-                page = vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
-                        filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getTipoVenta(), filters.getSerie(),
-                        filters.getSecuencial(), filters.getNumeroAutorizacion(), pageable);
-            } else {
-                throw new GeneralException("Es requerido el parametro de la sucursal");
-            }
-        }
-
-        if (tipoBusqueda == TipoPermiso.PROPIAS) {
-
-            page = vtVentaRepository.findAllPaginateUsuario(idData, idEmpresa, usuario, filters.getSucursal(),
-                    filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(),
-                    filters.getTipoVenta(), filters.getSerie(), filters.getSecuencial(),
-                    filters.getNumeroAutorizacion(), pageable);
-        }
-
 
         List<GetListDto> dtoList = page.stream().map(item -> {
             if (item.getAnulada()) {
@@ -410,34 +390,15 @@ public class VtVentasFacturasServiceImpl {
         return paginatedDto;
     }
 
+
     public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa,
                                                                       FilterListDto filters, TipoPermiso tipoBusqueda, String usuario,
                                                                       Pageable pageable) {
 
-        Page<VtVentaEntity> page = null;
+        Page<VtVentaEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
 
-        if (tipoBusqueda == TipoPermiso.TODAS) {
-            page = vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
-                    filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getTipoVenta(), filters.getSerie(),
-                    filters.getSecuencial(), filters.getNumeroAutorizacion(), pageable);
-        }
-
-        if (tipoBusqueda == TipoPermiso.SUCURSAL) {
-            if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
-                page = vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
-                        filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getTipoVenta(), filters.getSerie(),
-                        filters.getSecuencial(), filters.getNumeroAutorizacion(), pageable);
-            } else {
-                throw new GeneralException("Es requerido el parametro de la sucursal");
-            }
-        }
-
-        if (tipoBusqueda == TipoPermiso.PROPIAS) {
-
-            page = vtVentaRepository.findAllPaginateUsuario(idData, idEmpresa, usuario, filters.getSucursal(),
-                    filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(),
-                    filters.getTipoVenta(), filters.getSerie(), filters.getSecuencial(),
-                    filters.getNumeroAutorizacion(), pageable);
+        if (page.isEmpty()) {
+            throw new GeneralException("No existen datos a mostrar");
         }
 
         List<GetListDto> dtoList = page.stream().map(item -> {
@@ -957,5 +918,40 @@ public class VtVentasFacturasServiceImpl {
 
         throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
     }
+
+
+    private Page<VtVentaEntity> getTipoBusquedaPaginado(Long idData, Long idEmpresa, FilterListDto filters,
+                                                        Pageable pageable, TipoPermiso tipoBusqueda, String usuario) {
+
+        switch (tipoBusqueda) {
+            case TODAS -> {
+                return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
+                        filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getTipoVenta(), filters.getSerie(),
+                        filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
+            }
+
+            case SUCURSAL -> {
+                if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
+
+                    return vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
+                            filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getTipoVenta(), filters.getSerie(),
+                            filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
+                } else {
+                    throw new GeneralException("Es requerido el parametro de la sucursal");
+                }
+            }
+
+            case PROPIAS -> {
+                return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
+                        filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getTipoVenta(), filters.getSerie(),
+                        filters.getSecuencial(), filters.getNumeroAutorizacion(), usuario, pageable);
+            }
+        }
+
+        throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
+
+    }
+
+
 }
 

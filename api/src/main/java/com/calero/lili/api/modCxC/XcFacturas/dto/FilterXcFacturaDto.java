@@ -12,6 +12,7 @@ import java.util.UUID;
 @Builder
 public class FilterXcFacturaDto {
 
+    private String sucursal;
     private String fechaEmisionDesde;
     private String fechaEmisionHasta;
 

@@ -53,6 +53,18 @@ public interface LiquidacionReembolsosRepository extends JpaRepository<CpLiquida
 
     @Query("SELECT entity " +
             "FROM CpLiquidacionesReembolsosEntity entity " +
+            "WHERE entity.idLiquidacionReembolsos = :idLiquidacionReembolsos AND " +
+            "entity.idEmpresa := idEmpresa AND " +
+            "(:sucursal IS NULL OR entity.sucursal = :sucursal) AND " +
+            "(:usuario IS NULL OR entity.createdBy = :usuario)")
+    Optional<CpLiquidacionesReembolsosEntity> findByIdEntity(@Param("idEmpresa") Long idEmpresa,
+                                                             @Param("idLiquidacionReembolsos") UUID idLiquidacionReembolsos,
+                                                             @Param("sucursal") String sucursal,
+                                                             @Param("usuario") String usuario);
+
+
+    @Query("SELECT entity " +
+            "FROM CpLiquidacionesReembolsosEntity entity " +
             "WHERE entity.numeroIdentificacionReemb = :numeroIdentificacionReemb " +
             "AND entity.serieReemb = :serieReemb " +
             "AND entity.secuencialReemb = :secuencialReemb " +

@@ -195,9 +195,14 @@ public class VtGuiasServiceImpl {
         return vtGuiaEntity.getMensajes();
     }
 
-    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable) {
+    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable,
+                                                    TipoPermiso tipoBusqueda, String usuario) {
 
-        Page<VtGuiaEntity> page = vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getSerie(), filters.getSecuencial(), filters.getNumeroAutorizacion(), pageable);
+        Page<VtGuiaEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
+
+        if (page.isEmpty()) {
+            throw new GeneralException("No existen datos a mostrar");
+        }
 
         List<GetListDto> dtoList = page.stream().map(vtGuiaBuilder::builderListResponse).toList();
 
@@ -486,6 +491,32 @@ public class VtGuiasServiceImpl {
                     .orElseThrow(() -> new GeneralException("El item con id  " + model.getIdItem() + " no existe "));
         }
 
+    }
+
+    private Page<VtGuiaEntity> getTipoBusquedaPaginado(Long idData, Long idEmpresa, FilterListDto filters,
+                                                      Pageable pageable, TipoPermiso tipoBusqueda, String usuario) {
+        switch (tipoBusqueda) {
+            case TODAS -> {
+                return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
+                        filters.getFechaEmisionHasta(), filters.getSerie(), filters.getSecuencial(),
+                        filters.getNumeroAutorizacion(), null, pageable);
+            }
+            case SUCURSAL -> {
+                if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
+                    return vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
+                            filters.getFechaEmisionHasta(), filters.getSerie(), filters.getSecuencial(),
+                            filters.getNumeroAutorizacion(), null, pageable);
+                } else {
+                    throw new GeneralException("Es requerido el parametro de la sucursal");
+                }
+            }
+            case PROPIAS -> {
+                return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
+                        filters.getFechaEmisionHasta(), filters.getSerie(), filters.getSecuencial(),
+                        filters.getNumeroAutorizacion(), usuario, pageable);
+            }
+        }
+        throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
     }
 
     private VtGuiaEntity validacionTipoBusqueda(Long idData, Long idEmpresa, UUID idVenta,

@@ -1,6 +1,7 @@
 package com.calero.lili.api.modCompras.modComprasRetenciones;
 
 import com.calero.lili.api.comprobantes.services.ComprobanteServiceImpl;
+import com.calero.lili.api.modAuditoria.TipoPermiso;
 import com.calero.lili.api.modCompras.modCompras.dto.CompraImpuestosDto;
 import com.calero.lili.api.modCompras.modComprasImpuestos.CpImpuestosServiceImpl;
 import com.calero.lili.api.modCompras.modComprasRetenciones.builder.CpRetencionesBuilder;
@@ -36,7 +37,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -131,11 +131,11 @@ public class ComprasRetencionesServiceImpl {
 
 
     @Transactional
-    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationRetencionRequestDto request, String usuario) {
+    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationRetencionRequestDto request,
+                              String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
 
-        CpRetencionesEntity retencionesEntity = comprasRetencionesRepository
-                .findByIdEntity(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("idRetencion {0} no existe", idVenta)));
+
+        CpRetencionesEntity retencionesEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         GeTerceroEntity proveedor = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
                 .orElseThrow(() -> new GeneralException("El tercero seleccionado no existe"));
@@ -166,12 +166,11 @@ public class ComprasRetencionesServiceImpl {
         }
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario) {
+    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario, FilterListDto filters,
+                       TipoPermiso tipoBusqueda) {
 
 
-        CpRetencionesEntity venta = comprasRetencionesRepository.findByIdEntity(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new NotFoundException(MessageFormat.format("La retención con ID {0} no existe", idVenta)));
-
+        CpRetencionesEntity venta = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         venta.setDelete(Boolean.TRUE);
         venta.setDeletedBy(usuario);
@@ -182,25 +181,22 @@ public class ComprasRetencionesServiceImpl {
     }
 
 
-    public GetDto findById(Long idData, Long idEmpresa, UUID idVenta) {
+    public GetDto findById(Long idData, Long idEmpresa, UUID idVenta,
+                           FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
-        CpRetencionesEntity vtVentaEntity = comprasRetencionesRepository
-                .findByIdEntity(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("La retención con ID {0} no exixte", idVenta)));
-
-        GetDto response = cpRetencionesBuilder.builderResponse(vtVentaEntity);
+        CpRetencionesEntity cpRetencionesEntity = validacionTipoBusqueda(idData, idEmpresa,
+                idVenta, filters, tipoBusqueda, usuario);
+        GetDto response = cpRetencionesBuilder.builderResponse(cpRetencionesEntity);
         response.setListCompraImpuesto(cpImpuestosService.getListCompraImpuestoForIdParent(idVenta, idEmpresa, idData));
         return response;
     }
 
 
-    public List<Mensajes> findByIdMensajes(Long idData, Long idEmpresa, UUID idVenta) {
+    public List<Mensajes> findByIdMensajes(Long idData, Long idEmpresa, UUID idRetencion,
+                                           FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
-        CpRetencionesEntity vtVentaEntity = comprasRetencionesRepository
-                .findByIdEntity(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("La retención con ID {0} no exixte", idVenta)));
-
-        return vtVentaEntity.getMensajes();
+        CpRetencionesEntity cpRetencionesEntity = validacionTipoBusqueda(idData, idEmpresa, idRetencion, filters, tipoBusqueda, usuario);
+        return cpRetencionesEntity.getMensajes();
     }
 
     public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable) {
@@ -474,12 +470,10 @@ public class ComprasRetencionesServiceImpl {
     }
 
 
-    public ResponseDto updateAnulada(Long idData, Long idEmpresa, UUID idRetencion) {
+    public ResponseDto updateAnulada(Long idData, Long idEmpresa, UUID idRetencion,
+                                     FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
-        CpRetencionesEntity cpRetencionesEntity = comprasRetencionesRepository
-                .findByIdEntity(idData, idEmpresa, idRetencion)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("idRetencion {0} no existe", idRetencion)));
-
+        CpRetencionesEntity cpRetencionesEntity = validacionTipoBusqueda(idData, idEmpresa, idRetencion, filters, tipoBusqueda, usuario);
         if (!cpRetencionesEntity.getAnulada()) {
             cpRetencionesEntity.setAnulada(Boolean.TRUE);
             cpRetencionesEntity.setFechaAnulacion(LocalDate.now());
@@ -495,6 +489,39 @@ public class ComprasRetencionesServiceImpl {
                 throw new GeneralException("La información adicional se envia pero esta vacia");
             }
         }
+    }
+
+
+    private CpRetencionesEntity validacionTipoBusqueda(Long idData, Long idEmpresa, UUID idVenta,
+                                                       FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+
+        switch (tipoBusqueda) {
+            case TODAS:
+                return comprasRetencionesRepository
+                        .findByIdEntity(idData, idEmpresa, idVenta, null, null)
+                        .orElseThrow(() -> new GeneralException(MessageFormat.format("La factura con ID {0} no existe", idVenta)));
+
+            case SUCURSAL: {
+                if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
+
+                    return comprasRetencionesRepository
+                            .findByIdEntity(idData, idEmpresa, idVenta, filters.getSucursal(), null)
+                            .orElseThrow(() -> new GeneralException(MessageFormat.format("No tiene acceso al documento en la sucursal {0}", filters.getSucursal())));
+
+                } else {
+                    throw new GeneralException("Es requerido el parametro de la sucursal");
+                }
+            }
+            case PROPIAS: {
+
+                return comprasRetencionesRepository
+                        .findByIdEntity(idData, idEmpresa, idVenta, null, usuario)
+                        .orElseThrow(() -> new GeneralException(MessageFormat.format("No tiene acceso al documento el usuario: {0}", usuario)));
+
+            }
+        }
+
+        throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
     }
 
 }

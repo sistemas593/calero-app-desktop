@@ -1,5 +1,6 @@
 package com.calero.lili.api.modComprasOrden;
 
+import com.calero.lili.api.modAuditoria.TipoPermiso;
 import com.calero.lili.api.modComprasOrden.builder.CpOrdenComprasBuilder;
 import com.calero.lili.api.modComprasOrden.dto.FilterListDto;
 import com.calero.lili.api.modComprasOrden.dto.GetDto;
@@ -14,7 +15,6 @@ import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.errors.exceptions.GeneralException;
-import com.calero.lili.core.errors.exceptions.NotFoundException;
 import com.calero.lili.core.utils.DateUtils;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -45,6 +45,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.IntStream;
 
@@ -76,32 +77,29 @@ public class OrdenComprasServiceImpl {
 
 
     @Transactional
-    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, OrdenCompraRequestDto request, String usuario) {
+    public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, OrdenCompraRequestDto request,
+                              String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
 
         GeTerceroEntity tercero = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
                 .orElseThrow(() -> new GeneralException("No existe tercero"));
 
-        CpOrdenComprasEntity vtVentaEntity = ordenComprasRepository
-                .findByIdEntity(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("idCompra {0} no existe", idVenta)));
 
-        CpOrdenComprasEntity orden = cpOrdenComprasBuilder.builderUpdateEntity(request, vtVentaEntity);
+        CpOrdenComprasEntity cpOrdenComprasEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
+        CpOrdenComprasEntity orden = cpOrdenComprasBuilder.builderUpdateEntity(request, cpOrdenComprasEntity);
 
         orden.setModifiedBy(usuario);
         orden.setModifiedDate(LocalDateTime.now());
         orden.setTercero(tercero);
 
         ordenComprasRepository.save(orden);
-        return responseApiBuilder.builderResponse(vtVentaEntity.getIdCompra().toString());
+        return responseApiBuilder.builderResponse(cpOrdenComprasEntity.getIdCompra().toString());
 
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario) {
+    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario,
+                       FilterListDto filters, TipoPermiso tipoBusqueda) {
 
-        CpOrdenComprasEntity venta = ordenComprasRepository.findByIdEntity(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new NotFoundException(MessageFormat.format("La compra con ID {0} no existe", idVenta)));
-
-
+        CpOrdenComprasEntity venta = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
         venta.setDelete(Boolean.TRUE);
         venta.setDeletedBy(usuario);
         venta.setDeletedDate(LocalDateTime.now());
@@ -112,13 +110,11 @@ public class OrdenComprasServiceImpl {
     }
 
 
-    public GetDto findById(Long idData, Long idEmpresa, UUID idVenta) {
+    public GetDto findById(Long idData, Long idEmpresa, UUID idVenta,
+                           FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
-        CpOrdenComprasEntity vtVentaEntity = ordenComprasRepository
-                .findByIdEntity(idData, idEmpresa, idVenta)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("La compra con ID {0} no exixte", idVenta)));
-
-        return cpOrdenComprasBuilder.builderGetDto(vtVentaEntity);
+        CpOrdenComprasEntity cpOrdenComprasEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
+        return cpOrdenComprasBuilder.builderGetDto(cpOrdenComprasEntity);
     }
 
     public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable) {
@@ -513,11 +509,10 @@ public class OrdenComprasServiceImpl {
 
     }
 
-    public ResponseDto updateAnulada(Long idData, Long idEmpresa, UUID idOrdenCompra) {
+    public ResponseDto updateAnulada(Long idData, Long idEmpresa, UUID idOrdenCompra,
+                                     FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
-        CpOrdenComprasEntity cpOrdenComprasEntity = ordenComprasRepository
-                .findByIdEntity(idData, idEmpresa, idOrdenCompra)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("idVenta {0} no existe", idOrdenCompra)));
+        CpOrdenComprasEntity cpOrdenComprasEntity = validacionTipoBusqueda(idData, idEmpresa, idOrdenCompra, filters, tipoBusqueda, usuario);
 
         if (!cpOrdenComprasEntity.getAnulada()) {
             cpOrdenComprasEntity.setAnulada(Boolean.TRUE);
@@ -525,6 +520,39 @@ public class OrdenComprasServiceImpl {
             ordenComprasRepository.save(cpOrdenComprasEntity);
         }
         return responseApiBuilder.builderResponse(idOrdenCompra.toString());
+    }
+
+
+    private CpOrdenComprasEntity validacionTipoBusqueda(Long idData, Long idEmpresa, UUID idVenta,
+                                                        FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+
+        switch (tipoBusqueda) {
+            case TODAS:
+                return ordenComprasRepository
+                        .findByIdEntity(idData, idEmpresa, idVenta, null, null)
+                        .orElseThrow(() -> new GeneralException(MessageFormat.format("La factura con ID {0} no existe", idVenta)));
+
+            case SUCURSAL: {
+                if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
+
+                    return ordenComprasRepository
+                            .findByIdEntity(idData, idEmpresa, idVenta, filters.getSucursal(), null)
+                            .orElseThrow(() -> new GeneralException(MessageFormat.format("No tiene acceso al documento en la sucursal {0}", filters.getSucursal())));
+
+                } else {
+                    throw new GeneralException("Es requerido el parametro de la sucursal");
+                }
+            }
+            case PROPIAS: {
+
+                return ordenComprasRepository
+                        .findByIdEntity(idData, idEmpresa, idVenta, null, usuario)
+                        .orElseThrow(() -> new GeneralException(MessageFormat.format("No tiene acceso al documento el usuario: {0}", usuario)));
+
+            }
+        }
+
+        throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
     }
 
 }
