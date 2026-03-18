@@ -34,6 +34,8 @@ dependencyManagement {
 
 dependencies {
 
+    implementation("org.springframework.boot:spring-boot-starter-web")
+
     //validaciones
     implementation("org.springframework.boot:spring-boot-starter-validation")
 
@@ -72,6 +74,10 @@ dependencies {
 
     // StringTemplate
     implementation("org.antlr:ST4:4.3")
+
+
+
+
 }
 
 tasks.withType<KotlinCompile> {

@@ -1,0 +1,15 @@
+package com.calero.lili.core.modComprasItemsBodegas.dto;
+
+import lombok.Builder;
+import lombok.Data;
+
+import java.util.UUID;
+
+
+@Data
+@Builder
+public class GeItemBodegaCreationResponseDto {
+    private UUID idBodega;
+    private String bodega;
+    private String sucursal;
+}

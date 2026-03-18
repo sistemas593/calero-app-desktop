@@ -23,7 +23,9 @@ private val SidebarTextActive = Color.White
 private val SidebarDivider   = Color(0xFF1B2838)
 
 enum class MenuOpcion(val titulo: String) {
-    LISTA_EMPRESAS("Lista de Empresas")
+    LISTA_EMPRESAS("Lista de Empresas"),
+    LISTA_SERIES("Series"),
+    LISTA_CLIENTES("Clientes")
 }
 
 @Composable
@@ -59,24 +61,29 @@ fun Sidebar(
         Spacer(Modifier.height(12.dp))
 
         // ── Sección: Empresas
-        Text(
-            text = "EMPRESAS",
-            color = SidebarTextColor,
-            fontSize = 11.sp,
-            fontWeight = FontWeight.SemiBold,
-            letterSpacing = 1.5.sp,
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp)
+        SeccionLabel("EMPRESAS")
+        SidebarItem(
+            texto      = MenuOpcion.LISTA_EMPRESAS.titulo,
+            isSelected = opcionActual == MenuOpcion.LISTA_EMPRESAS,
+            onClick    = { onSeleccionar(MenuOpcion.LISTA_EMPRESAS) }
+        )
+        SidebarItem(
+            texto      = MenuOpcion.LISTA_SERIES.titulo,
+            isSelected = opcionActual == MenuOpcion.LISTA_SERIES,
+            onClick    = { onSeleccionar(MenuOpcion.LISTA_SERIES) }
         )
 
-        Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(8.dp))
+        HorizontalDivider(color = SidebarDivider, thickness = 1.dp)
+        Spacer(Modifier.height(8.dp))
 
-        MenuOpcion.values().forEach { opcion ->
-            SidebarItem(
-                texto      = opcion.titulo,
-                isSelected = opcion == opcionActual,
-                onClick    = { onSeleccionar(opcion) }
-            )
-        }
+        // ── Sección: Terceros
+        SeccionLabel("TERCEROS")
+        SidebarItem(
+            texto      = MenuOpcion.LISTA_CLIENTES.titulo,
+            isSelected = opcionActual == MenuOpcion.LISTA_CLIENTES,
+            onClick    = { onSeleccionar(MenuOpcion.LISTA_CLIENTES) }
+        )
 
         Spacer(Modifier.weight(1f))
 
@@ -89,6 +96,18 @@ fun Sidebar(
             modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
         )
     }
+}
+
+@Composable
+private fun SeccionLabel(texto: String) {
+    Text(
+        text          = texto,
+        color         = SidebarTextColor,
+        fontSize      = 11.sp,
+        fontWeight    = FontWeight.SemiBold,
+        letterSpacing = 1.5.sp,
+        modifier      = Modifier.padding(horizontal = 20.dp, vertical = 6.dp)
+    )
 }
 
 @Composable

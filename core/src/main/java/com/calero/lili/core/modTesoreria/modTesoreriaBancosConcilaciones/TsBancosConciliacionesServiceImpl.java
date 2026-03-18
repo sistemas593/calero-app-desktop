@@ -1,0 +1,101 @@
+package com.calero.lili.core.modTesoreria.modTesoreriaBancosConcilaciones;
+
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.Paginator;
+import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.core.modTesoreria.modTesoreriaBancosConcilaciones.builder.TsBancosConciliacionesBuilder;
+import com.calero.lili.core.modTesoreria.modTesoreriaBancosConcilaciones.dto.BcBancoConciliacionCreationRequestDto;
+import com.calero.lili.core.modTesoreria.modTesoreriaBancosConcilaciones.dto.BcBancoConciliacionCreationResponseDto;
+import com.calero.lili.core.modTesoreria.modTesoreriaBancosConcilaciones.dto.BcBancoConciliacionListFilterDto;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import java.text.MessageFormat;
+import java.time.LocalDateTime;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class TsBancosConciliacionesServiceImpl {
+
+    private final TsBancosConciliacionesRepository bcBancosConciliacionesRepository;
+    private final TsBancosConciliacionesBuilder tsBancosConciliacionesBuilder;
+
+    public BcBancoConciliacionCreationResponseDto create(Long idData, Long idEmpresa, BcBancoConciliacionCreationRequestDto request, String usuario) {
+
+        TsBancosConciliacionesEntity entity = tsBancosConciliacionesBuilder.builderEntity(request, idData, idEmpresa);
+        entity.setCreatedBy(usuario);
+        entity.setCreatedDate(LocalDateTime.now());
+        return tsBancosConciliacionesBuilder.builderResponse(bcBancosConciliacionesRepository.save(entity));
+    }
+
+    public BcBancoConciliacionCreationResponseDto update(Long idData, Long idEmpresa, UUID id, BcBancoConciliacionCreationRequestDto request, String usuario) {
+
+
+        TsBancosConciliacionesEntity entidad = bcBancosConciliacionesRepository.findByIdEntity(idData, idEmpresa, id)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no existe", id)));
+
+        TsBancosConciliacionesEntity update = tsBancosConciliacionesBuilder.builderUpdateEntity(request, entidad);
+
+        update.setModifiedBy(usuario);
+        update.setModifiedDate(LocalDateTime.now());
+
+        return tsBancosConciliacionesBuilder.builderResponse(bcBancosConciliacionesRepository
+                .save(update));
+
+    }
+
+    public void delete(Long idData, Long idEmpresa, UUID id, String usuario) {
+
+        TsBancosConciliacionesEntity entidad = bcBancosConciliacionesRepository.findByIdEntity(idData, idEmpresa, id)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no existe", id)));
+
+        entidad.setDeletedBy(usuario);
+        entidad.setDeletedDate(LocalDateTime.now());
+        entidad.setDelete(Boolean.TRUE);
+
+        bcBancosConciliacionesRepository.save(entidad);
+    }
+
+    public BcBancoConciliacionCreationResponseDto findFirstById(Long idData, Long idEmpresa, UUID id) {
+
+        return tsBancosConciliacionesBuilder.builderResponse(bcBancosConciliacionesRepository.findByIdEntity(idData, idEmpresa, id)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no existe", id))));
+    }
+
+
+    public PaginatedDto<BcBancoConciliacionCreationResponseDto> findAllPaginate(Long idData, Long idEmpresa,
+                                                                                BcBancoConciliacionListFilterDto filters,
+                                                                                Pageable pageable) {
+
+
+        Page<TsBancosConciliacionesEntity> page = bcBancosConciliacionesRepository.findAllByIdDataAndIdEmpresa
+                (idData, idEmpresa, pageable);
+
+        PaginatedDto paginatedDto = new PaginatedDto<BcBancoConciliacionCreationResponseDto>();
+        paginatedDto.setContent(page.getContent()
+                .stream()
+                .map(tsBancosConciliacionesBuilder::builderResponse)
+                .collect(Collectors.toList()));
+
+        Paginator paginated = new Paginator();
+        paginated.setTotalElements(page.getTotalElements());
+        paginated.setTotalPages(page.getTotalPages());
+        paginated.setNumberOfElements(page.getNumberOfElements());
+        paginated.setSize(page.getSize());
+        paginated.setFirst(page.isFirst());
+        paginated.setLast(page.isLast());
+        paginated.setPageNumber(page.getPageable().getPageNumber());
+        paginated.setPageSize(page.getPageable().getPageSize());
+        paginated.setEmpty(page.isEmpty());
+        paginated.setNumber(page.getNumber());
+
+        paginatedDto.setPaginator(paginated);
+
+        return paginatedDto;
+
+    }
+}

@@ -1,5 +1,6 @@
 package com.calero.lili.api.modAuditoria;
 
+import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.Authentication;
