@@ -54,8 +54,7 @@ class ClientesViewModel(
             try {
                 val current = _state.value
                 val filterDto = GeTerceroFilterDto().apply {
-                    filter      = current.filterText.ifBlank { null }
-                    tipoTercero = 1  // solo clientes (tipo 1)
+                    filter = current.filterText.ifBlank { null }
                 }
                 val pageable = PageRequest.of(current.currentPage, current.pageSize, Sort.unsorted())
                 val result   = service.findAllPaginate(idData, filterDto, pageable)
