@@ -5,12 +5,14 @@ import com.calero.lili.core.modComprasItems.dto.GeItemRequestDto;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Component
 public class GeItemsPreciosBuilder {
 
     public List<GeItemsPreciosEntity> builderListPrecios(List<GeItemRequestDto.Precios> list) {
+        if (Objects.isNull(list)) return null;
         return list.stream()
                 .map(this::builderPrecios)
                 .toList();

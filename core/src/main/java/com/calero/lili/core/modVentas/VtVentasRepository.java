@@ -42,7 +42,11 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             "vtVentasEntity.tipo_Venta = :tipoVenta AND " +
             "vtVentasEntity.serie = :serie AND " +
             "vtVentasEntity.secuencial = :secuencial LIMIT 1", nativeQuery = true)
-    Optional<OneProjection> findExistBySecuencial(Long idData, Long idEmpresa, String tipoVenta, String serie, String secuencial);
+    Optional<OneProjection> findExistBySecuencial(@Param("idData") Long idData,
+                                                  @Param("idEmpresa") Long idEmpresa,
+                                                  @Param("tipoVenta") String tipoVenta,
+                                                  @Param("serie") String serie,
+                                                  @Param("secuencial") String secuencial);
 
     @Query(value = "SELECT  " +
             "detalle.id_item as idItem, " +
@@ -63,7 +67,9 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             "WHERE vtVentasEntity.id_data = :idData  AND " +
             "vtVentasEntity.id_empresa = :idEmpresa AND " +
             "vtVentasEntity.id_venta = :idVenta ", nativeQuery = true)
-    List<OneDetalleProjection> findByIdVentaDetalle(Long idData, Long idEmpresa, UUID idVenta);
+    List<OneDetalleProjection> findByIdVentaDetalle(@Param("idData") Long idData,
+                                                    @Param("idEmpresa") Long idEmpresa,
+                                                    @Param("idVenta") UUID idVenta);
 
     @Query(value = "SELECT vtVentasEntity " +
             "FROM VtVentaEntity vtVentasEntity " +
@@ -120,7 +126,13 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
                     "( cast(:fechaEmisionDesde as date) is null OR vtVentaEntity.fechaEmision >= :fechaEmisionDesde ) AND " +
                     "( cast(:fechaEmisionHasta as date) is null OR vtVentaEntity.fechaEmision <= :fechaEmisionHasta )"
     )
-    TotalCabeceraProjection totalCabecera(Long idData, Long idEmpresa, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta, String tipoVenta, String serie, String secuencial);
+    TotalCabeceraProjection totalCabecera(@Param("idData") Long idData,
+                                          @Param("idEmpresa") Long idEmpresa,
+                                          @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
+                                          @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
+                                          @Param("tipoVenta") String tipoVenta,
+                                          @Param("serie") String serie,
+                                          @Param("secuencial") String secuencial);
 
     @Query(
             value = "SELECT valoresEntity.codigo as codigo," +
@@ -140,7 +152,15 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
                     "( cast(:fechaEmisionHasta as date) is null OR vtVentaEntity.fecha_emision <= :fechaEmisionHasta ) " +
                     "GROUP BY valoresEntity.codigo, valoresEntity.codigo_porcentaje", nativeQuery = true
     )
-    List<TotalesProjection> totalValores(Long idData, Long idEmpresa, String sucursal, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta, String numeroIdentificacion, String tipoVenta, String serie, String secuencial);
+    List<TotalesProjection> totalValores(@Param("idData") Long idData,
+                                         @Param("idEmpresa") Long idEmpresa,
+                                         @Param("sucursal") String sucursal,
+                                         @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
+                                         @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
+                                         @Param("numeroIdentificacion") String numeroIdentificacion,
+                                         @Param("tipoVenta") String tipoVenta,
+                                         @Param("serie") String serie,
+                                         @Param("secuencial") String secuencial);
 
     @Query(value = "SELECT vtVentasEntity " +
             "FROM VtVentaEntity vtVentasEntity " +
@@ -156,7 +176,15 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmision <= :fechaEmisionHasta )  " +
             ")"
     )
-    List<VtVentaEntity> findAll(Long idData, Long idEmpresa, String sucursal, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta, String numeroIdentificacion, String tipoVenta, String serie, String secuencial);
+    List<VtVentaEntity> findAll(@Param("idData") Long idData,
+                                @Param("idEmpresa") Long idEmpresa,
+                                @Param("sucursal") String sucursal,
+                                @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
+                                @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
+                                @Param("numeroIdentificacion") String numeroIdentificacion,
+                                @Param("tipoVenta") String tipoVenta,
+                                @Param("serie") String serie,
+                                @Param("secuencial") String secuencial);
 
     @Query(value = "SELECT " +
             "entity.id_venta as idVenta,  " +
@@ -167,7 +195,9 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             "WHERE (entity.id_data = :idData)  AND " +
             "(entity.id_empresa = :idEmpresa) AND " +
             "entity.id_venta = :id ", nativeQuery = true)
-    Optional<VtVentasFacturaOneProjection> findXMLById(Long idData, Long idEmpresa, UUID id);
+    Optional<VtVentasFacturaOneProjection> findXMLById(@Param("idData") Long idData,
+                                                        @Param("idEmpresa") Long idEmpresa,
+                                                        @Param("id") UUID id);
 
 
     @Query(
@@ -180,7 +210,11 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
                     "( cast(:fechaEmisionDesde as date) is null OR vtVentaEntity.fechaEmision >= :fechaEmisionDesde ) AND " +
                     "( cast(:fechaEmisionHasta as date) is null OR vtVentaEntity.fechaEmision <= :fechaEmisionHasta )"
     )
-    List<VtVentaEntity> findAllFacturasGenerar(Long idData, Long idEmpresa, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta, String estadoDocumento);
+    List<VtVentaEntity> findAllFacturasGenerar(@Param("idData") Long idData,
+                                               @Param("idEmpresa") Long idEmpresa,
+                                               @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
+                                               @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
+                                               @Param("estadoDocumento") String estadoDocumento);
 
     @Query(
             value = "SELECT vtVentaEntity " +
@@ -193,7 +227,10 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
                     "( cast(:fechaEmisionDesde as date) is null OR vtVentaEntity.fechaEmision >= :fechaEmisionDesde ) AND " +
                     "( cast(:fechaEmisionHasta as date) is null OR vtVentaEntity.fechaEmision <= :fechaEmisionHasta )"
     )
-    List<VtVentaEntity> findAllFacturasGenerarCorreo(Long idData, Long idEmpresa, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta);
+    List<VtVentaEntity> findAllFacturasGenerarCorreo(@Param("idData") Long idData,
+                                                     @Param("idEmpresa") Long idEmpresa,
+                                                     @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
+                                                     @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta);
 
 
     @Query(value = "SELECT\n" +
@@ -210,8 +247,11 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             " AND vvv.codigo = '2' and vvv.codigo_porcentaje = '4'" +
             " and (vv.tipo_venta = 'FAC' or vv.tipo_venta = 'NDB') " +
             "GROUP BY vv.tipo_ingreso;", nativeQuery = true)
-    Optional<ImpuestosF104Projection> findByImpuestoFacturasNotasDebito(Long idData, Long idEmpresa, String tipoIngreso,
-                                                                        LocalDate fechaDesde, LocalDate fechaHasta);
+    Optional<ImpuestosF104Projection> findByImpuestoFacturasNotasDebito(@Param("idData") Long idData,
+                                                                        @Param("idEmpresa") Long idEmpresa,
+                                                                        @Param("tipoIngreso") String tipoIngreso,
+                                                                        @Param("fechaDesde") LocalDate fechaDesde,
+                                                                        @Param("fechaHasta") LocalDate fechaHasta);
 
 
     @Query(value = "SELECT\n" +
@@ -228,8 +268,11 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             " AND vvv.codigo = '2' and vvv.codigo_porcentaje = '4'" +
             " and (vv.tipo_venta = 'NCR') " +
             "GROUP BY vv.tipo_ingreso;", nativeQuery = true)
-    Optional<ImpuestosF104Projection> findByImpuestoNotasCredito(Long idData, Long idEmpresa, String tipoIngreso,
-                                                                 LocalDate fechaDesde, LocalDate fechaHasta);
+    Optional<ImpuestosF104Projection> findByImpuestoNotasCredito(@Param("idData") Long idData,
+                                                                 @Param("idEmpresa") Long idEmpresa,
+                                                                 @Param("tipoIngreso") String tipoIngreso,
+                                                                 @Param("fechaDesde") LocalDate fechaDesde,
+                                                                 @Param("fechaHasta") LocalDate fechaHasta);
 
 
     @Query(value = "SELECT\n" +
@@ -246,9 +289,11 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             " AND vvv.codigo = '2' and vvv.codigo_porcentaje = '0'" +
             " and (vv.tipo_venta = 'FAC' or vv.tipo_venta = 'NDB') " +
             "GROUP BY vv.tipo_ingreso;", nativeQuery = true)
-    Optional<ImpuestosF104Projection> findByImpuestoFacturasNotasDebitoBaseCero(Long idData, Long idEmpresa,
-                                                                                String tipoIngreso, LocalDate fechaDesde,
-                                                                                LocalDate fechaHasta);
+    Optional<ImpuestosF104Projection> findByImpuestoFacturasNotasDebitoBaseCero(@Param("idData") Long idData,
+                                                                                @Param("idEmpresa") Long idEmpresa,
+                                                                                @Param("tipoIngreso") String tipoIngreso,
+                                                                                @Param("fechaDesde") LocalDate fechaDesde,
+                                                                                @Param("fechaHasta") LocalDate fechaHasta);
 
 
     @Query(value = "SELECT\n" +
@@ -265,8 +310,11 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             " AND vvv.codigo = '2' and vvv.codigo_porcentaje = '0'" +
             " and (vv.tipo_venta = 'NCR') " +
             "GROUP BY vv.tipo_ingreso;", nativeQuery = true)
-    Optional<ImpuestosF104Projection> findByImpuestoNotasCreditoBaseCero(Long idData, Long idEmpresa, String tipoIngreso,
-                                                                         LocalDate fechaDesde, LocalDate fechaHasta);
+    Optional<ImpuestosF104Projection> findByImpuestoNotasCreditoBaseCero(@Param("idData") Long idData,
+                                                                         @Param("idEmpresa") Long idEmpresa,
+                                                                         @Param("tipoIngreso") String tipoIngreso,
+                                                                         @Param("fechaDesde") LocalDate fechaDesde,
+                                                                         @Param("fechaHasta") LocalDate fechaHasta);
 
 
     @Query(value = "SELECT\n" +
@@ -283,9 +331,11 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             " AND vvv.codigo = '2' and (vvv.codigo_porcentaje = '7' or vvv.codigo_porcentaje = '6')" +
             " and (vv.tipo_venta = 'FAC' or vv.tipo_venta = 'NDB') " +
             "GROUP BY vv.tipo_ingreso;", nativeQuery = true)
-    Optional<ImpuestosF104Projection> findByImpuestoFacturasNotasDebitoExentoIva(Long idData, Long idEmpresa,
-                                                                                 String tipoIngreso, LocalDate fechaDesde,
-                                                                                 LocalDate fechaHasta);
+    Optional<ImpuestosF104Projection> findByImpuestoFacturasNotasDebitoExentoIva(@Param("idData") Long idData,
+                                                                                 @Param("idEmpresa") Long idEmpresa,
+                                                                                 @Param("tipoIngreso") String tipoIngreso,
+                                                                                 @Param("fechaDesde") LocalDate fechaDesde,
+                                                                                 @Param("fechaHasta") LocalDate fechaHasta);
 
 
     @Query(value = "SELECT\n" +
@@ -302,8 +352,11 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             " AND vvv.codigo = '2' and (vvv.codigo_porcentaje = '7' or vvv.codigo_porcentaje = '6')" +
             " and (vv.tipo_venta = 'NCR') " +
             "GROUP BY vv.tipo_ingreso;", nativeQuery = true)
-    Optional<ImpuestosF104Projection> findByImpuestoNotasCreditoExentoIva(Long idData, Long idEmpresa, String tipoIngreso,
-                                                                          LocalDate fechaDesde, LocalDate fechaHasta);
+    Optional<ImpuestosF104Projection> findByImpuestoNotasCreditoExentoIva(@Param("idData") Long idData,
+                                                                          @Param("idEmpresa") Long idEmpresa,
+                                                                          @Param("tipoIngreso") String tipoIngreso,
+                                                                          @Param("fechaDesde") LocalDate fechaDesde,
+                                                                          @Param("fechaHasta") LocalDate fechaHasta);
 
 
     @Query(value = "SELECT\n" +
@@ -320,9 +373,11 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             " AND vvv.codigo = '2' and vvv.codigo_porcentaje = '5'" +
             " and (vv.tipo_venta = 'FAC' or vv.tipo_venta = 'NDB') " +
             "GROUP BY vv.tipo_ingreso;", nativeQuery = true)
-    Optional<ImpuestosF104Projection> findByImpuestoFacturasNotasDebitoTarifaCinco(Long idData, Long idEmpresa,
-                                                                                   String tipoIngreso, LocalDate fechaDesde,
-                                                                                   LocalDate fechaHasta);
+    Optional<ImpuestosF104Projection> findByImpuestoFacturasNotasDebitoTarifaCinco(@Param("idData") Long idData,
+                                                                                   @Param("idEmpresa") Long idEmpresa,
+                                                                                   @Param("tipoIngreso") String tipoIngreso,
+                                                                                   @Param("fechaDesde") LocalDate fechaDesde,
+                                                                                   @Param("fechaHasta") LocalDate fechaHasta);
 
 
     @Query(value = "SELECT\n" +
@@ -339,8 +394,11 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             " AND vvv.codigo = '2' and vvv.codigo_porcentaje = '5'" +
             " and (vv.tipo_venta = 'NCR') " +
             "GROUP BY vv.tipo_ingreso;", nativeQuery = true)
-    Optional<ImpuestosF104Projection> findByImpuestoNotasCreditoTarifaCinco(Long idData, Long idEmpresa, String tipoIngreso,
-                                                                            LocalDate fechaDesde, LocalDate fechaHasta);
+    Optional<ImpuestosF104Projection> findByImpuestoNotasCreditoTarifaCinco(@Param("idData") Long idData,
+                                                                            @Param("idEmpresa") Long idEmpresa,
+                                                                            @Param("tipoIngreso") String tipoIngreso,
+                                                                            @Param("fechaDesde") LocalDate fechaDesde,
+                                                                            @Param("fechaHasta") LocalDate fechaHasta);
 
 
     @Query(value = "SELECT\n" +
@@ -357,8 +415,11 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             " AND vvv.codigo = '2' " +
             " and (vv.tipo_venta = 'FAC' or vv.tipo_venta = 'NDB') " +
             "GROUP BY vv.tipo_ingreso;", nativeQuery = true)
-    Optional<ImpuestosF104Projection> findByImpuestoFacturasNotasDebitoReembolso(Long idData, Long idEmpresa, String tipoIngreso,
-                                                                                 LocalDate fechaDesde, LocalDate fechaHasta);
+    Optional<ImpuestosF104Projection> findByImpuestoFacturasNotasDebitoReembolso(@Param("idData") Long idData,
+                                                                                 @Param("idEmpresa") Long idEmpresa,
+                                                                                 @Param("tipoIngreso") String tipoIngreso,
+                                                                                 @Param("fechaDesde") LocalDate fechaDesde,
+                                                                                 @Param("fechaHasta") LocalDate fechaHasta);
 
 
     @Query(value = "SELECT\n" +
@@ -375,8 +436,11 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             " AND vvv.codigo = '2' " +
             " and (vv.tipo_venta = 'NCR') " +
             "GROUP BY vv.tipo_ingreso;", nativeQuery = true)
-    Optional<ImpuestosF104Projection> findByImpuestoNotasCreditoReembolso(Long idData, Long idEmpresa, String tipoIngreso,
-                                                                          LocalDate fechaDesde, LocalDate fechaHasta);
+    Optional<ImpuestosF104Projection> findByImpuestoNotasCreditoReembolso(@Param("idData") Long idData,
+                                                                          @Param("idEmpresa") Long idEmpresa,
+                                                                          @Param("tipoIngreso") String tipoIngreso,
+                                                                          @Param("fechaDesde") LocalDate fechaDesde,
+                                                                          @Param("fechaHasta") LocalDate fechaHasta);
 
 
 }

@@ -23,6 +23,7 @@ public class GeItemRequestDto {
 
     @NotEmpty(message = "No existe la descripción")
     private String descripcion;
+    private String tipoItem;
     private String cmarca;
     private String medida;
     private UUID idGrupo;

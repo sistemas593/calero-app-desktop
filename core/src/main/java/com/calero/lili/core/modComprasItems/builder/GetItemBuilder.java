@@ -35,6 +35,7 @@ public class GetItemBuilder {
                 .codigoAuxiliar(model.getCodigoAuxiliar())
                 .codigoBarras(model.getCodigoBarras())
                 .descripcion(model.getDescripcion())
+                .tipoItem(model.getTipoItem())
                 .detallesAdicionales(builderListDetalles(model.getDetallesAdicionales()))
                 .impuestos(builderListImpuestos(model.getImpuestos()))
                 .geItemsPreciosEntities(geItemsPreciosBuilder.builderListPrecios(model.getPrecios()))
@@ -47,27 +48,53 @@ public class GetItemBuilder {
     }
 
     public GeItemEntity builderUpdateEntity(GeItemRequestDto model, GeItemEntity item) {
-        return GeItemEntity.builder()
-                .idItem(item.getIdItem())
-                .idData(item.getIdData())
-                .idEmpresa(item.getIdEmpresa())
-                .codigoPrincipal(model.getCodigoPrincipal())
-                .codigoAuxiliar(model.getCodigoAuxiliar())
-                .codigoBarras(model.getCodigoBarras())
-                .descripcion(model.getDescripcion())
-                .detallesAdicionales(builderListDetalles(model.getDetallesAdicionales()))
-                .impuestos(builderListImpuestos(model.getImpuestos()))
-                .geItemsPreciosEntities(geItemsPreciosBuilder.builderListPrecios(model.getPrecios()))
-                .grupos(builderGrupo(model.getIdGrupo()))
-                .marcas(builderMarca(model.getIdMarca()))
-                .categorias(builderCategoria(model.getIdCategoria()))
-                .medidas(builderListMedidas(model.getMedidas()))
-                .caracteristicas(model.getCaracteristicas())
-                .build();
+        item.setCodigoPrincipal(model.getCodigoPrincipal());
+        item.setCodigoAuxiliar(model.getCodigoAuxiliar());
+        item.setCodigoBarras(model.getCodigoBarras());
+        item.setDescripcion(model.getDescripcion());
+        item.setTipoItem(model.getTipoItem());
+        item.setCaracteristicas(model.getCaracteristicas());
+        item.setGrupos(builderGrupo(model.getIdGrupo()));
+        item.setMarcas(builderMarca(model.getIdMarca()));
+        item.setCategorias(builderCategoria(model.getIdCategoria()));
+
+        List<GeItemEntity.DetalleAdicional> nuevosDetalles = builderListDetalles(model.getDetallesAdicionales());
+        if (item.getDetallesAdicionales() != null) {
+            item.getDetallesAdicionales().clear();
+            if (nuevosDetalles != null) item.getDetallesAdicionales().addAll(nuevosDetalles);
+        } else {
+            item.setDetallesAdicionales(nuevosDetalles);
+        }
+
+        List<GeImpuestosEntity> nuevosImpuestos = builderListImpuestos(model.getImpuestos());
+        if (item.getImpuestos() != null) {
+            item.getImpuestos().clear();
+            if (nuevosImpuestos != null) item.getImpuestos().addAll(nuevosImpuestos);
+        } else {
+            item.setImpuestos(nuevosImpuestos);
+        }
+
+        List<GeItemsPreciosEntity> nuevosPrecios = geItemsPreciosBuilder.builderListPrecios(model.getPrecios());
+        if (item.getGeItemsPreciosEntities() != null) {
+            item.getGeItemsPreciosEntities().clear();
+            if (nuevosPrecios != null) item.getGeItemsPreciosEntities().addAll(nuevosPrecios);
+        } else {
+            item.setGeItemsPreciosEntities(nuevosPrecios);
+        }
+
+        List<GeMedidasItemsEntity> nuevasMedidas = builderListMedidas(model.getMedidas());
+        if (item.getMedidas() != null) {
+            item.getMedidas().clear();
+            if (nuevasMedidas != null) item.getMedidas().addAll(nuevasMedidas);
+        } else {
+            item.setMedidas(nuevasMedidas);
+        }
+
+        return item;
     }
 
     private List<GeItemEntity.DetalleAdicional> builderListDetalles(List<GeItemRequestDto.DetalleAdicional> list) {
-       // if (Objects.isNull(list)) return null;
+        if (Objects.isNull(list)) return null;
         return list.stream()
                 .map(this::builderDetallesAdicionales)
                 .toList();
@@ -82,6 +109,7 @@ public class GetItemBuilder {
 
 
     private List<GeImpuestosEntity> builderListImpuestos(List<GeItemRequestDto.Impuesto> list) {
+        if (Objects.isNull(list)) return null;
         return list.stream()
                 .map(this::builderImpuesto)
                 .toList();
@@ -94,26 +122,29 @@ public class GetItemBuilder {
     }
 
     private GeItemGrupoEntity builderGrupo(UUID idGrupo) {
+        if (Objects.isNull(idGrupo)) return null;
         return GeItemGrupoEntity.builder()
                 .idGrupo(idGrupo)
                 .build();
     }
 
     private GeItemsMarcasEntity builderMarca(UUID idMarca) {
+        if (Objects.isNull(idMarca)) return null;
         return GeItemsMarcasEntity.builder()
                 .idMarca(idMarca)
                 .build();
     }
 
     private GeItemsCategoriaEntity builderCategoria(UUID idCategoria) {
+        if (Objects.isNull(idCategoria)) return null;
         return GeItemsCategoriaEntity.builder()
                 .idCategoria(idCategoria)
                 .build();
     }
 
     private List<GeMedidasItemsEntity> builderListMedidas(List<GeMedidasItemsDto> list) {
-        return list.
-                stream()
+        if (Objects.isNull(list)) return null;
+        return list.stream()
                 .map(this::builderMedidas)
                 .toList();
     }
@@ -133,8 +164,9 @@ public class GetItemBuilder {
                 .codigoAuxiliar(model.getCodigoAuxiliar())
                 .codigoBarras(model.getCodigoBarras())
                 .descripcion(model.getDescripcion())
+                .tipoItem(model.getTipoItem())
                 .caracteristicas(model.getCaracteristicas())
-                .idGrupo(model.getGrupos().getIdGrupo())
+                .idGrupo(model.getGrupos() != null ? model.getGrupos().getIdGrupo() : null)
                 .impuestos(builderListImpuestoResponse(model.getImpuestos()))
                 .detallesAdicionales(builderListDetallesResponse(model.getDetallesAdicionales()))
                 .precios(builderListResponsePrecios(model.getGeItemsPreciosEntities()))
@@ -152,8 +184,11 @@ public class GetItemBuilder {
                 .codigoAuxiliar(model.getCodigoAuxiliar())
                 .codigoBarras(model.getCodigoBarras())
                 .descripcion(model.getDescripcion())
+                .tipoItem(model.getTipoItem())
                 .caracteristicas(model.getCaracteristicas())
-                .idGrupo(model.getGrupos().getIdGrupo())
+                .ultimaCompra(model.getUltimaCompra())
+                .ultimaVenta(model.getUltimaVenta())
+                .idGrupo(model.getGrupos() != null ? model.getGrupos().getIdGrupo() : null)
                 .impuestos(builderResponseListImpuestos(model.getImpuestos()))
                 .detallesAdicionales(builderResponseListDetalles(model.getDetallesAdicionales()))
                 .precios(builderResponseListPrecios(model.getGeItemsPreciosEntities()))
@@ -164,6 +199,7 @@ public class GetItemBuilder {
     }
 
     private List<GeItemGetListDto.Precios> builderResponseListPrecios(List<GeItemsPreciosEntity> geItemsPreciosEntities) {
+        if (Objects.isNull(geItemsPreciosEntities)) return null;
         return geItemsPreciosEntities.stream()
                 .map(this::builderListPrecios)
                 .toList();
@@ -180,6 +216,7 @@ public class GetItemBuilder {
     }
 
     private List<GeItemGetListDto.DetalleAdicional> builderResponseListDetalles(List<GeItemEntity.DetalleAdicional> detallesAdicionales) {
+        if (Objects.isNull(detallesAdicionales) || detallesAdicionales.isEmpty()) return null;
         return detallesAdicionales.stream()
                 .map(this::builderListDetalle)
                 .toList();
@@ -193,6 +230,7 @@ public class GetItemBuilder {
     }
 
     private List<GeItemGetListDto.Impuesto> builderResponseListImpuestos(List<GeImpuestosEntity> impuestos) {
+        if (Objects.isNull(impuestos)) return null;
         return impuestos.stream()
                 .map(this::builderListImpuesto)
                 .toList();
@@ -209,6 +247,7 @@ public class GetItemBuilder {
 
 
     private List<GeItemGetOneDto.Precios> builderListResponsePrecios(List<GeItemsPreciosEntity> geItemsPreciosEntities) {
+        if (Objects.nonNull(geItemsPreciosEntities) || geItemsPreciosEntities.isEmpty()) return null;
         return geItemsPreciosEntities.stream()
                 .map(this::builderPrecioResponse)
                 .toList();
@@ -225,6 +264,7 @@ public class GetItemBuilder {
     }
 
     private List<GeItemGetOneDto.DetalleAdicional> builderListDetallesResponse(List<GeItemEntity.DetalleAdicional> detallesAdicionales) {
+        if (Objects.isNull(detallesAdicionales) || detallesAdicionales.isEmpty()) return null;
         return detallesAdicionales.stream()
                 .map(this::builderResponseDetalle)
                 .toList();
@@ -238,6 +278,7 @@ public class GetItemBuilder {
     }
 
     private List<GeItemGetOneDto.Impuesto> builderListImpuestoResponse(List<GeImpuestosEntity> impuestos) {
+        if (Objects.isNull(impuestos) || impuestos.isEmpty()) return null;
         return impuestos.stream()
                 .map(this::builderImpuestoResponse)
                 .toList();

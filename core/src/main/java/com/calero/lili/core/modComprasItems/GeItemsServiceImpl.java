@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -41,6 +42,7 @@ public class GeItemsServiceImpl {
     private final GeItemsMedidasRepository geItemsMedidasRepository;
 
 
+    @Transactional
     public GeItemGetListDto create(Long idData, Long idEmpresa, GeItemRequestDto request, String usuario) {
 
         ValidarCampoAscii.validarStrings(request);
@@ -181,6 +183,7 @@ public class GeItemsServiceImpl {
         return response;
     }
 
+    @Transactional
     public GeItemGetListDto update(Long idData, Long idEmpresa, UUID id, GeItemRequestDto request, String usuario) {
 
         ValidarCampoAscii.validarStrings(request);
@@ -211,6 +214,7 @@ public class GeItemsServiceImpl {
 
     }
 
+    @Transactional(readOnly = true)
     public GeItemGetOneDto findById(Long idData, Long idEmpresa, UUID id) {
 
         GeItemEntity entidad = geItemsRepository.findByIdItem(idData, idEmpresa, id)
@@ -233,6 +237,7 @@ public class GeItemsServiceImpl {
                 }).toList();
     }
 
+    @Transactional(readOnly = true)
     public PaginatedDto<GeItemGetListDto> findAllPaginate(Long idData, Long idEmpresa, GeItemListFilterDto filters, Pageable pageable) {
 
         Page<GeItemEntity> page = geItemsRepository.findAllPaginate(idData, idEmpresa, filters.getFilter(), (filters.getFilter() != null) ? filters.getFilter() : "", pageable);

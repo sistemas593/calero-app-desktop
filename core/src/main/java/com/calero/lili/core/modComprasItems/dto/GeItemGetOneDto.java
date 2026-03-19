@@ -20,6 +20,7 @@ public class GeItemGetOneDto {
     private String codigoAuxiliar;
     private String codigoBarras;
     private String descripcion;
+    private String tipoItem;
     private String caracteristicas;
 
     private UUID idGrupo;

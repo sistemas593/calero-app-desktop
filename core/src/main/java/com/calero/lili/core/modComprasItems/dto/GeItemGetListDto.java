@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,8 +21,11 @@ public class GeItemGetListDto {
     private String codigoAuxiliar;
     private String codigoBarras;
     private String descripcion;
+    private String tipoItem;
     private UUID idGrupo;
     private String caracteristicas;
+    private LocalDate ultimaCompra;
+    private LocalDate ultimaVenta;
 
     private GeItemGetOneDto.CategoriaItem categoria;
     private GeItemGetOneDto.GrupoItem grupo;

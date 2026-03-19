@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,43 +21,51 @@ public interface GeItemsRepository extends JpaRepository<GeItemEntity, String> {
             "WHERE e.idData = :idData AND " +
             "e.idEmpresa = :idEmpresa AND " +
             "e.idItem = :idItem")
-    void deleteByIdItem(Long idData, Long idEmpresa, UUID idItem);
+    void deleteByIdItem(@Param("idData") Long idData,
+                        @Param("idEmpresa") Long idEmpresa,
+                        @Param("idItem") UUID idItem);
 
-        @Query(value = "SELECT entity " +
+    @Query(value = "SELECT entity " +
             "FROM GeItemEntity entity " +
             "WHERE entity.idData = :idData AND " +
             "entity.idEmpresa = :idEmpresa AND " +
             "entity.idItem = :idItem ")
-    Optional<GeItemEntity> findByIdItem(Long idData, Long idEmpresa, UUID idItem);
+    Optional<GeItemEntity> findByIdItem(@Param("idData") Long idData,
+                                        @Param("idEmpresa") Long idEmpresa,
+                                        @Param("idItem") UUID idItem);
 
     @Query(value = "SELECT entity " +
             "FROM GeItemEntity entity " +
             "where entity.idData = :idData and " +
             "entity.idEmpresa = :idEmpresa and " +
             "entity.codigoPrincipal = :codigoPrincipal")
-    Optional<GeItemEntity> findByCodigoItem(Long idData, Long idEmpresa, String codigoPrincipal);
+    Optional<GeItemEntity> findByCodigoItem(@Param("idData") Long idData,
+                                            @Param("idEmpresa") Long idEmpresa,
+                                            @Param("codigoPrincipal") String codigoPrincipal);
+
     @Query(
             value = "SELECT entity " +
                     "FROM GeItemEntity entity " +
                     "WHERE ( entity.idData = :idData)  AND " +
-                    "(entity.idEmpresa = :idEmpresa) AND "+
+                    "(entity.idEmpresa = :idEmpresa) AND " +
                     "(" +
                     "(:filter IS NULL OR LOWER(entity.descripcion) LIKE LOWER(CONCAT('%', :filterContent, '%')) ) OR " +
                     "(:filter IS NULL OR LOWER(entity.codigoBarras) LIKE LOWER(CONCAT('%', :filterContent, '%')) ) OR " +
                     "(:filter IS NULL OR LOWER(entity.codigoPrincipal) LIKE LOWER(CONCAT('%', :filterContent, '%')) ) " +
                     ") "
             ,
-            countQuery = "SELECT COUNT(1) "+
-                    "FROM GeItemEntity entity "+
+            countQuery = "SELECT COUNT(1) " +
+                    "FROM GeItemEntity entity " +
                     "WHERE ( entity.idData = :idData)  AND " +
-                    "(entity.idEmpresa = :idEmpresa) AND "+
+                    "(entity.idEmpresa = :idEmpresa) AND " +
                     "(" +
                     "(:filter IS NULL OR LOWER(entity.descripcion) LIKE LOWER(CONCAT('%', :filterContent, '%')) ) OR " +
                     "(:filter IS NULL OR LOWER(entity.codigoBarras) LIKE LOWER(CONCAT('%', :filterContent, '%')) ) OR " +
                     "(:filter IS NULL OR LOWER(entity.codigoPrincipal) LIKE LOWER(CONCAT('%', :filterContent, '%')) ) " +
                     ") "
     )
-    Page<GeItemEntity> findAllPaginate(Long idData, Long idEmpresa, String filter, String filterContent, Pageable pageable);
+    Page<GeItemEntity> findAllPaginate(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa,
+                                       @Param("filter") String filter, @Param("filterContent") String filterContent, Pageable pageable);
 
 //    @Query(
 //            value = "SELECT " +
