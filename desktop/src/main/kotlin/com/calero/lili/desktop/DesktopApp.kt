@@ -9,6 +9,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
+import com.calero.lili.core.comprobantesWs.services.ProcesarDocumentosServiceImpl
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasServiceImpl
 import com.calero.lili.core.modVentas.facturas.VtVentasFacturasServiceImpl
 import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesServiceImpl
@@ -68,6 +69,7 @@ fun main() {
     // ── Servicios Spring
     val empresasService   = context.getBean(AdEmpresasServiceImpl::class.java)
     val facturasService   = context.getBean(VtVentasFacturasServiceImpl::class.java)
+    val procesarService   = context.getBean(ProcesarDocumentosServiceImpl::class.java)
     val seriesService     = context.getBean(AdEmpresasSeriesServiceImpl::class.java)
     val tercerosService   = context.getBean(GeTercerosServiceImpl::class.java)
     val medidasService    = context.getBean(GeItemsMedidasServiceImpl::class.java)
@@ -119,7 +121,7 @@ fun main() {
                     val clientesViewModel  = remember(idEmpresa) { ClientesViewModel(tercerosService) }
                     val medidasViewModel   = remember(idEmpresa) { MedidasViewModel(medidasService) }
                     val itemsViewModel     = remember(idEmpresa) { ItemsViewModel(itemsService, idData = ID_DATA, idEmpresa = idEmpresa) }
-                    val facturasViewModel  = remember(idEmpresa) { FacturasViewModel(facturasService, idData = ID_DATA, idEmpresa = idEmpresa) }
+                    val facturasViewModel  = remember(idEmpresa) { FacturasViewModel(facturasService, procesarService, idData = ID_DATA, idEmpresa = idEmpresa) }
 
                     DisposableEffect(idEmpresa) {
                         onDispose {

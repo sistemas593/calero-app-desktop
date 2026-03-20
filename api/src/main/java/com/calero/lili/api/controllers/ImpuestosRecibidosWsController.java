@@ -1,0 +1,48 @@
+package com.calero.lili.api.controllers;
+
+import com.calero.lili.api.utils.IdDataServiceImpl;
+import com.calero.lili.core.comprobantesWs.services.DeRecibidasWsServiceImpl;
+import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirListCreationRequestDto;
+import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirListCreationResponseDto;
+import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirListExistRequestResponseDto;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("api/v1.0/recibidos")
+@CrossOrigin(originPatterns = "*")
+
+public class ImpuestosRecibidosWsController {
+
+    private final IdDataServiceImpl idDataService;
+    private final DeRecibidasWsServiceImpl deRecibidasWsService;
+
+    // Verificar si existen
+    @PostMapping("verificar/{idEmpresa}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public CpImpuestosRecibirListExistRequestResponseDto verificarClaveAccesoExiste(
+            @PathVariable("idEmpresa") Long idEmpresa,
+            @RequestBody CpImpuestosRecibirListExistRequestResponseDto request) {
+        return deRecibidasWsService.verificarExisteListaClaves(idDataService.getIdData(), idEmpresa, request);
+
+    }
+
+    // crear con claves de acceso
+    @PostMapping("list/{idEmpresa}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public CpImpuestosRecibirListCreationResponseDto createListClavesAcceso(
+            @PathVariable("idEmpresa") Long idEmpresa,
+            @RequestBody CpImpuestosRecibirListCreationRequestDto request) {
+        return deRecibidasWsService.createListClavesAcceso(idDataService.getIdData(), idEmpresa, request);
+
+    }
+
+}

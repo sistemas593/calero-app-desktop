@@ -79,6 +79,7 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             "(:usuario IS NULL OR vtVentasEntity.sucursal = :usuario) AND " +
             "(:tipoVenta IS NULL OR vtVentasEntity.tipoVenta = :tipoVenta) AND " +
             "(:numeroIdentificacion IS NULL OR vtVentasEntity.numeroIdentificacion = :numeroIdentificacion ) AND " +
+            "(:terceroNombre IS NULL OR LOWER(vtVentasEntity.terceroNombre) LIKE LOWER(CONCAT('%', CAST(:terceroNombre AS string), '%'))) AND " +
             "(:serie IS NULL OR vtVentasEntity.serie = :serie) AND " +
             "(:secuencial IS NULL OR vtVentasEntity.secuencial = :secuencial) AND " +
             "(:numeroAutorizacion IS NULL OR vtVentasEntity.numeroAutorizacion = :numeroAutorizacion ) AND " +
@@ -93,6 +94,7 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
                     "(:usuario IS NULL OR vtVentasEntity.sucursal = :usuario) AND " +
                     "(:tipoVenta IS NULL OR vtVentasEntity.tipoVenta = :tipoVenta) AND " +
                     "(:numeroIdentificacion IS NULL OR vtVentasEntity.numeroIdentificacion = :numeroIdentificacion ) AND " +
+                    "(:terceroNombre IS NULL OR LOWER(vtVentasEntity.terceroNombre) LIKE LOWER(CONCAT('%', CAST(:terceroNombre AS string), '%'))) AND " +
                     "(:serie IS NULL OR vtVentasEntity.serie = :serie ) AND " +
                     "(:secuencial IS NULL OR vtVentasEntity.secuencial = :secuencial ) AND " +
                     "(:numeroAutorizacion IS NULL OR vtVentasEntity.numeroAutorizacion = :numeroAutorizacion ) AND " +
@@ -104,6 +106,7 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
                                         @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
                                         @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
                                         @Param("numeroIdentificacion") String numeroIdentificacion,
+                                        @Param("terceroNombre") String terceroNombre,
                                         @Param("tipoVenta") String tipoVenta,
                                         @Param("serie") String serie,
                                         @Param("secuencial") String secuencial,

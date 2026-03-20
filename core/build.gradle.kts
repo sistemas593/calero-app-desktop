@@ -77,7 +77,34 @@ dependencies {
 
 
 
+    // GOOGLE CLOUD
+    implementation("com.google.cloud:google-cloud-secretmanager:2.31.0")
+    implementation("com.google.cloud:google-cloud-storage:2.22.2")
+    implementation("com.google.guava:guava:33.4.0-jre")
+    implementation("com.google.inject:guice:7.0.0")
+    implementation("com.google.cloud.sql:postgres-socket-factory:1.20.0")
 
+    // JAXB / XML - Documentos electronicos SRI
+    implementation("com.sun.xml.ws:jaxws-ri:4.0.3")
+
+    // Apache XML Security - Firma digital XAdES
+    implementation("org.apache.santuario:xmlsec:4.0.4")
+
+    // BouncyCastle - Criptografia / Firma digital XML
+    implementation("org.bouncycastle:bcpkix-jdk18on:1.81")
+    implementation("org.bouncycastle:bcprov-jdk18on:1.81")
+
+    // JAXB (solo Jakarta)
+    implementation("jakarta.xml.bind:jakarta.xml.bind-api:4.0.2")
+    runtimeOnly("org.glassfish.jaxb:jaxb-runtime:4.0.5")
+
+    testImplementation("org.junit.jupiter:junit-jupiter:5.13.4")
+    testImplementation("org.slf4j:slf4j-simple:2.0.17")
+
+}
+
+tasks.withType<JavaCompile>().configureEach {
+    options.encoding = "UTF-8"
 }
 
 tasks.withType<KotlinCompile> {

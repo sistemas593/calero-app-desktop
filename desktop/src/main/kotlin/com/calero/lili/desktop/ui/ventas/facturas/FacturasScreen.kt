@@ -1,13 +1,23 @@
 package com.calero.lili.desktop.ui.ventas.facturas
 
 import androidx.compose.foundation.HorizontalScrollbar
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.rememberScrollbarAdapter
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -57,7 +67,8 @@ private val COLUMNAS = listOf(
     Columna("Base Grav. 5%",      100.dp),
     Columna("Base Grav. 8%",      100.dp),
     Columna("Base Grav. 15%",     100.dp),
-    Columna("Total",              100.dp)
+    Columna("Total",              100.dp),
+    Columna("Acciones",           80.dp)
 )
 
 // ── Screen ────────────────────────────────────────────────────────────────────
@@ -65,15 +76,43 @@ private val COLUMNAS = listOf(
 fun FacturasScreen(viewModel: FacturasViewModel) {
     val state by viewModel.state.collectAsState()
 
-    // Error dialog
+    // ── Diálogo de error general
     if (state.errorMessage != null) {
         AlertDialog(
             onDismissRequest = viewModel::dismissError,
             title            = { Text("Error") },
             text             = { Text(state.errorMessage ?: "") },
-            confirmButton    = {
-                TextButton(onClick = viewModel::dismissError) { Text("Aceptar") }
-            }
+            confirmButton    = { TextButton(onClick = viewModel::dismissError) { Text("Aceptar") } }
+        )
+    }
+
+    // ── Diálogo resultado de firma (éxito)
+    if (state.firmaResultado != null) {
+        AlertDialog(
+            onDismissRequest = viewModel::dismissFirmaResultado,
+            title            = { Text("Firma Electrónica") },
+            text             = { Text(state.firmaResultado ?: "") },
+            confirmButton    = { TextButton(onClick = viewModel::dismissFirmaResultado) { Text("Aceptar") } }
+        )
+    }
+
+    // ── Diálogo de firma electrónica
+    if (state.firmaDialogFactura != null) {
+        DialogoFirma(
+            serie         = state.firmaDialogFactura?.serie ?: "",
+            secuencial    = state.firmaDialogFactura?.secuencial ?: "",
+            firmaMode     = state.firmaMode,
+            password      = state.firmaPassword,
+            rutaP12       = state.firmaRutaP12,
+            rutaLogo      = state.firmaRutaLogo,
+            firmando      = state.firmando,
+            firmaError    = state.firmaError,
+            onSetMode     = viewModel::setFirmaMode,
+            onSetPassword = viewModel::setFirmaPassword,
+            onSetRutaP12  = viewModel::setFirmaRutaP12,
+            onSetRutaLogo = viewModel::setFirmaRutaLogo,
+            onProcesar    = viewModel::procesarFirma,
+            onCancelar    = viewModel::cerrarDialogoFirma
         )
     }
 
@@ -95,7 +134,12 @@ fun FacturasScreen(viewModel: FacturasViewModel) {
             }
         }
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(12.dp))
+
+        // ── Barra de filtros
+        FiltrosBar(state = state, viewModel = viewModel)
+
+        Spacer(Modifier.height(12.dp))
 
         // ── Tabla con scroll horizontal
         Surface(
@@ -150,7 +194,11 @@ fun FacturasScreen(viewModel: FacturasViewModel) {
                             ) {
                                 Column(modifier = Modifier.width(anchoTotal)) {
                                     state.facturas.forEachIndexed { idx, factura ->
-                                        FilaFactura(idx, factura)
+                                        FilaFactura(
+                                            idx      = idx,
+                                            f        = factura,
+                                            onFirmar = { viewModel.abrirDialogoFirma(factura) }
+                                        )
                                         HorizontalDivider(color = ColorBorde, thickness = 0.5.dp)
                                     }
                                 }
@@ -196,26 +244,26 @@ fun FacturasScreen(viewModel: FacturasViewModel) {
 
 // ── Fila de datos ─────────────────────────────────────────────────────────────
 @Composable
-private fun FilaFactura(idx: Int, f: GetListDto) {
+private fun FilaFactura(idx: Int, f: GetListDto, onFirmar: () -> Unit) {
     val bg = if (idx % 2 == 0) ColorFilaPar else ColorFilaImpar
 
     Row(
-        modifier          = Modifier.background(bg).padding(vertical = 6.dp),
+        modifier          = Modifier.background(bg).padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        CeldaDato((idx + 1).toString(),             COLUMNAS[0].ancho,  TextAlign.Center)
-        CeldaDato(tipoVentaLabel(f.tipoVenta),        COLUMNAS[1].ancho)
-        CeldaDato(ambienteLabel(f.ambiente),         COLUMNAS[2].ancho)
+        CeldaDato((idx + 1).toString(),                  COLUMNAS[0].ancho,  TextAlign.Center)
+        CeldaDato(tipoVentaLabel(f.tipoVenta),           COLUMNAS[1].ancho)
+        CeldaDato(ambienteLabel(f.ambiente),             COLUMNAS[2].ancho)
         CeldaDato(estadoDocumentoLabel(f.estadoDocumento), COLUMNAS[3].ancho)
-        CeldaDato(f.serie ?: "—",                   COLUMNAS[4].ancho)
-        CeldaDato(f.secuencial ?: "—",              COLUMNAS[5].ancho)
-        CeldaDato(f.numeroAutorizacion ?: "—",       COLUMNAS[6].ancho)
-        CeldaDato(f.fechaEmision ?: "—",            COLUMNAS[7].ancho)
-        CeldaDato(f.numeroIdentificacion ?: "—",     COLUMNAS[8].ancho)
-        CeldaDato(f.terceroNombre ?: "—",           COLUMNAS[9].ancho)
-        CeldaDato(f.email ?: "—",                   COLUMNAS[10].ancho)
-        CeldaDato(estadoEmailLabel(f.emailEstado),   COLUMNAS[11].ancho)
-        CeldaDato(fmtDecimal(f.subtotal),               COLUMNAS[12].ancho, TextAlign.End)
+        CeldaDato(f.serie ?: "—",                        COLUMNAS[4].ancho)
+        CeldaDato(f.secuencial ?: "—",                   COLUMNAS[5].ancho)
+        CeldaDato(f.numeroAutorizacion ?: "—",           COLUMNAS[6].ancho)
+        CeldaDato(f.fechaEmision ?: "—",                 COLUMNAS[7].ancho)
+        CeldaDato(f.numeroIdentificacion ?: "—",         COLUMNAS[8].ancho)
+        CeldaDato(f.terceroNombre ?: "—",                COLUMNAS[9].ancho)
+        CeldaDato(f.email ?: "—",                        COLUMNAS[10].ancho)
+        CeldaDato(estadoEmailLabel(f.emailEstado),       COLUMNAS[11].ancho)
+        CeldaDato(fmtDecimal(f.subtotal),                COLUMNAS[12].ancho, TextAlign.End)
         CeldaDato(fmtDecimal(f.totalDescuento),          COLUMNAS[13].ancho, TextAlign.End)
         CeldaDato(baseIva(f.valores, "0"),               COLUMNAS[14].ancho, TextAlign.End)
         CeldaDato(baseIva(f.valores, "6"),               COLUMNAS[15].ancho, TextAlign.End)
@@ -224,7 +272,171 @@ private fun FilaFactura(idx: Int, f: GetListDto) {
         CeldaDato(baseIva(f.valores, "8"),               COLUMNAS[18].ancho, TextAlign.End)
         CeldaDato(baseIva(f.valores, "4"),               COLUMNAS[19].ancho, TextAlign.End)
         CeldaDato(fmtDecimal(f.total),                   COLUMNAS[20].ancho, TextAlign.End)
+
+        // ── Acciones
+        Box(modifier = Modifier.width(COLUMNAS[21].ancho), contentAlignment = Alignment.Center) {
+            Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                IconButton(onClick = { /* editar — pendiente */ }, modifier = Modifier.size(28.dp)) {
+                    Icon(Icons.Default.Edit, contentDescription = "Editar",
+                        tint = ColorHeader, modifier = Modifier.size(16.dp))
+                }
+                IconButton(onClick = onFirmar, modifier = Modifier.size(28.dp)) {
+                    Icon(Icons.Default.Lock, contentDescription = "Firma electrónica",
+                        tint = Color(0xFF2E7D32), modifier = Modifier.size(16.dp))
+                }
+            }
+        }
     }
+}
+
+// ── Diálogo Firma Electrónica ─────────────────────────────────────────────────
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DialogoFirma(
+    serie: String, secuencial: String,
+    firmaMode: String, password: String, rutaP12: String, rutaLogo: String,
+    firmando: Boolean, firmaError: String?,
+    onSetMode: (String) -> Unit,
+    onSetPassword: (String) -> Unit,
+    onSetRutaP12: (String) -> Unit, onSetRutaLogo: (String) -> Unit,
+    onProcesar: () -> Unit, onCancelar: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = { if (!firmando) onCancelar() },
+        title = {
+            Text("Firma Electrónica", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+
+                Text("Documento: $serie-$secuencial", fontSize = 13.sp, color = ColorSub)
+
+                HorizontalDivider(color = ColorBorde)
+
+                // ── Selección WEB / LOCAL
+                Text("Origen del certificado:", fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                Row(horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalAlignment = Alignment.CenterVertically) {
+                    listOf("WEB" to "Web (nube)", "LOC" to "Local (mi equipo)").forEach { (value, label) ->
+                        Row(verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            RadioButton(
+                                selected = firmaMode == value,
+                                onClick  = { onSetMode(value) },
+                                enabled  = !firmando,
+                                colors   = RadioButtonDefaults.colors(selectedColor = ColorHeader)
+                            )
+                            Text(label, fontSize = 13.sp)
+                        }
+                    }
+                }
+
+                // ── Contraseña del certificado (siempre visible)
+                HorizontalDivider(color = ColorBorde)
+                Text("Contraseña del certificado", fontSize = 12.sp, color = ColorSub, fontWeight = FontWeight.Medium)
+                OutlinedTextField(
+                    value         = password,
+                    onValueChange = onSetPassword,
+                    placeholder   = { Text("Contraseña del .p12", fontSize = 12.sp) },
+                    singleLine    = true,
+                    enabled       = !firmando,
+                    visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                    modifier      = Modifier.fillMaxWidth(),
+                    textStyle     = androidx.compose.ui.text.TextStyle(fontSize = 13.sp),
+                    colors        = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = ColorHeader, unfocusedBorderColor = ColorBorde)
+                )
+
+                // ── Campos LOCAL
+                if (firmaMode == "LOC") {
+                    HorizontalDivider(color = ColorBorde)
+
+                    // Ruta .p12
+                    Text("Archivo .p12", fontSize = 12.sp, color = ColorSub, fontWeight = FontWeight.Medium)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically) {
+                        OutlinedTextField(
+                            value         = rutaP12,
+                            onValueChange = onSetRutaP12,
+                            placeholder   = { Text("Ruta del archivo .p12", fontSize = 12.sp) },
+                            singleLine    = true,
+                            enabled       = !firmando,
+                            modifier      = Modifier.weight(1f),
+                            textStyle     = androidx.compose.ui.text.TextStyle(fontSize = 12.sp),
+                            colors        = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = ColorHeader, unfocusedBorderColor = ColorBorde)
+                        )
+                        Button(
+                            onClick  = {
+                                val chooser = javax.swing.JFileChooser()
+                                chooser.dialogTitle = "Seleccionar archivo .p12"
+                                chooser.fileFilter  = javax.swing.filechooser.FileNameExtensionFilter(
+                                    "Certificado (*.p12, *.pfx)", "p12", "pfx")
+                                if (chooser.showOpenDialog(null) == javax.swing.JFileChooser.APPROVE_OPTION)
+                                    onSetRutaP12(chooser.selectedFile.absolutePath)
+                            },
+                            enabled  = !firmando,
+                            colors   = ButtonDefaults.buttonColors(containerColor = ColorHeader)
+                        ) { Text("...", fontSize = 13.sp) }
+                    }
+
+                    // Ruta logo (opcional)
+                    Text("Logo (opcional)", fontSize = 12.sp, color = ColorSub, fontWeight = FontWeight.Medium)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically) {
+                        OutlinedTextField(
+                            value         = rutaLogo,
+                            onValueChange = onSetRutaLogo,
+                            placeholder   = { Text("Ruta del logo (opcional)", fontSize = 12.sp) },
+                            singleLine    = true,
+                            enabled       = !firmando,
+                            modifier      = Modifier.weight(1f),
+                            textStyle     = androidx.compose.ui.text.TextStyle(fontSize = 12.sp),
+                            colors        = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = ColorHeader, unfocusedBorderColor = ColorBorde)
+                        )
+                        Button(
+                            onClick  = {
+                                val chooser = javax.swing.JFileChooser()
+                                chooser.dialogTitle = "Seleccionar logo"
+                                chooser.fileFilter  = javax.swing.filechooser.FileNameExtensionFilter(
+                                    "Imagen (*.png, *.jpg)", "png", "jpg", "jpeg")
+                                if (chooser.showOpenDialog(null) == javax.swing.JFileChooser.APPROVE_OPTION)
+                                    onSetRutaLogo(chooser.selectedFile.absolutePath)
+                            },
+                            enabled  = !firmando,
+                            colors   = ButtonDefaults.buttonColors(containerColor = ColorHeader)
+                        ) { Text("...", fontSize = 13.sp) }
+                    }
+                }
+
+                // ── Error
+                if (firmaError != null) {
+                    Text(firmaError, color = Color(0xFFB00020), fontSize = 12.sp)
+                }
+
+                // ── Progreso
+                if (firmando) {
+                    Row(verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        CircularProgressIndicator(modifier = Modifier.size(18.dp),
+                            strokeWidth = 2.dp, color = ColorHeader)
+                        Text("Procesando firma...", fontSize = 12.sp, color = ColorSub)
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick  = onProcesar,
+                enabled  = !firmando,
+                colors   = ButtonDefaults.buttonColors(containerColor = ColorHeader)
+            ) { Text("Procesar") }
+        },
+        dismissButton = {
+            TextButton(onClick = onCancelar, enabled = !firmando) { Text("Cancelar") }
+        }
+    )
 }
 
 // ── Helpers celda ─────────────────────────────────────────────────────────────
@@ -286,6 +498,180 @@ private fun PaginadorFacturas(
                 onClick  = onSiguiente,
                 enabled  = currentPage < totalPages - 1
             ) { Text("Siguiente →", fontSize = 12.sp) }
+        }
+    }
+}
+
+// ── Máscara visual dd/MM/yyyy ─────────────────────────────────────────────────
+/**
+ * Muestra siempre la guía __/__/____ mientras el usuario digita.
+ * El estado interno almacena solo los dígitos (máx 8).
+ */
+private object DateMaskTransformation : VisualTransformation {
+    override fun filter(text: AnnotatedString): TransformedText {
+        val digits = text.text          // solo dígitos en el estado
+        val display = buildString {
+            for (i in 0..7) {
+                if (i == 2 || i == 4) append('/')
+                append(if (i < digits.length) digits[i] else '_')
+            }
+        }
+        val offsetMap = object : OffsetMapping {
+            override fun originalToTransformed(offset: Int) = when {
+                offset <= 2 -> offset
+                offset <= 4 -> offset + 1
+                else        -> offset + 2
+            }
+            override fun transformedToOriginal(offset: Int) = when {
+                offset <= 2 -> offset
+                offset <= 5 -> offset - 1
+                else        -> offset - 2
+            }.coerceIn(0, digits.length)
+        }
+        return TransformedText(AnnotatedString(display), offsetMap)
+    }
+}
+
+// ── Barra de filtros ──────────────────────────────────────────────────────────
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun FiltrosBar(state: FacturasUiState, viewModel: FacturasViewModel) {
+    val fieldColors = OutlinedTextFieldDefaults.colors(
+        focusedBorderColor   = ColorHeader,
+        unfocusedBorderColor = ColorBorde,
+        focusedLabelColor    = ColorHeader
+    )
+
+    Surface(
+        color           = Color.White,
+        shadowElevation = 1.dp,
+        shape           = RoundedCornerShape(8.dp),
+        modifier        = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+
+            // ── Fila 1: Serie · Secuencial · Fecha Desde · Fecha Hasta
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment     = Alignment.Bottom
+            ) {
+                Column {
+                    Text("Serie", fontSize = 12.sp, color = ColorSub, fontWeight = FontWeight.Medium)
+                    Spacer(Modifier.height(2.dp))
+                    OutlinedTextField(
+                        value         = state.filterSerie,
+                        onValueChange = viewModel::setFilterSerie,
+                        singleLine    = true,
+                        modifier      = Modifier.width(120.dp),
+                        textStyle     = LocalTextStyle.current.copy(fontSize = 13.sp),
+                        colors        = fieldColors
+                    )
+                }
+                Column {
+                    Text("Secuencial", fontSize = 12.sp, color = ColorSub, fontWeight = FontWeight.Medium)
+                    Spacer(Modifier.height(2.dp))
+                    OutlinedTextField(
+                        value         = state.filterSecuencial,
+                        onValueChange = viewModel::setFilterSecuencial,
+                        singleLine    = true,
+                        modifier      = Modifier.width(130.dp),
+                        textStyle     = LocalTextStyle.current.copy(fontSize = 13.sp),
+                        colors        = fieldColors
+                    )
+                }
+                OutlinedTextField(
+                    value                = state.filterFechaDesde,
+                    onValueChange        = { viewModel.setFilterFechaDesde(it.filter(Char::isDigit).take(8)) },
+                    label                = { Text("Fecha Desde", fontSize = 12.sp) },
+                    singleLine           = true,
+                    modifier             = Modifier.width(140.dp),
+                    textStyle            = LocalTextStyle.current.copy(fontSize = 13.sp),
+                    visualTransformation = DateMaskTransformation,
+                    colors               = fieldColors
+                )
+                OutlinedTextField(
+                    value                = state.filterFechaHasta,
+                    onValueChange        = { viewModel.setFilterFechaHasta(it.filter(Char::isDigit).take(8)) },
+                    label                = { Text("Fecha Hasta", fontSize = 12.sp) },
+                    singleLine           = true,
+                    modifier             = Modifier.width(140.dp),
+                    textStyle            = LocalTextStyle.current.copy(fontSize = 13.sp),
+                    visualTransformation = DateMaskTransformation,
+                    colors               = fieldColors
+                )
+            }
+
+            Spacer(Modifier.height(8.dp))
+
+            // ── Fila 2: Estado · Tercero · Buscar · Limpiar
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment     = Alignment.Bottom
+            ) {
+                // Dropdown Estado
+                var expandedEstado by remember { mutableStateOf(false) }
+                Column {
+                    Text("Estado", fontSize = 12.sp, color = ColorSub, fontWeight = FontWeight.Medium)
+                    Spacer(Modifier.height(2.dp))
+                ExposedDropdownMenuBox(
+                    expanded         = expandedEstado,
+                    onExpandedChange = { expandedEstado = !expandedEstado },
+                    modifier         = Modifier.width(160.dp)
+                ) {
+                    OutlinedTextField(
+                        value         = state.filterEstado.label,
+                        onValueChange = {},
+                        readOnly      = true,
+                        trailingIcon  = { ExposedDropdownMenuDefaults.TrailingIcon(expandedEstado) },
+                        modifier      = Modifier.menuAnchor().fillMaxWidth(),
+                        textStyle     = LocalTextStyle.current.copy(fontSize = 13.sp),
+                        colors        = fieldColors
+                    )
+                    ExposedDropdownMenu(
+                        expanded         = expandedEstado,
+                        onDismissRequest = { expandedEstado = false }
+                    ) {
+                        EstadoFiltroFactura.entries.forEach { opcion ->
+                            DropdownMenuItem(
+                                text    = { Text(opcion.label, fontSize = 13.sp) },
+                                onClick = { viewModel.setFilterEstado(opcion); expandedEstado = false }
+                            )
+                        }
+                    }
+                }
+                } // fin Column Estado
+
+                Column {
+                    Text("Tercero", fontSize = 12.sp, color = ColorSub, fontWeight = FontWeight.Medium)
+                    Spacer(Modifier.height(2.dp))
+                    OutlinedTextField(
+                        value         = state.filterTercero,
+                        onValueChange = viewModel::setFilterTercero,
+                        placeholder   = { Text("Buscar por nombre…", fontSize = 12.sp, color = ColorSub) },
+                        singleLine    = true,
+                        modifier      = Modifier.width(260.dp),
+                        textStyle     = LocalTextStyle.current.copy(fontSize = 13.sp),
+                        colors        = fieldColors
+                    )
+                }
+
+                Spacer(Modifier.width(4.dp))
+
+                Button(
+                    onClick = viewModel::buscar,
+                    colors  = ButtonDefaults.buttonColors(containerColor = ColorHeader)
+                ) {
+                    Icon(Icons.Default.Search, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("Buscar", fontSize = 13.sp)
+                }
+
+                OutlinedButton(onClick = viewModel::limpiarFiltros) {
+                    Icon(Icons.Default.Clear, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("Limpiar", fontSize = 13.sp)
+                }
+            }
         }
     }
 }

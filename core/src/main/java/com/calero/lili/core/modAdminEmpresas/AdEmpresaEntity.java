@@ -90,4 +90,12 @@ public class AdEmpresaEntity extends Auditable {
     private String contraseniaFirma;
 
     private LocalDate fechaCaducidadCertificado;
+
+    // Ruta absoluta del archivo .p12 en el sistema local (modo LOC)
+    // Ejemplo Windows : C:\Users\Ismael\Documents\firma.p12
+    // Ejemplo Linux   : /home/ismael/firmas/empresa.p12
+    private String rutaArchivoFirma;
+
+    // Ruta absoluta del logo en el sistema local (modo LOC, opcional)
+    private String rutaLogo;
 }

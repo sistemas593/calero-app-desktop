@@ -18,6 +18,7 @@ public class FilterListDto {
     private String fechaEmisionDesde;
     private String fechaEmisionHasta;
     private String numeroIdentificacion;
+    private String terceroNombre;
     private String numeroAutorizacion;
     private Integer utilizado;
 
