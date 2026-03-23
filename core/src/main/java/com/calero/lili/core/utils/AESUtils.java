@@ -25,7 +25,7 @@ public class AESUtils {
         }
     }
 
-    private static String decrypt(String passEncrypt) {
+    public static String decrypt(String passEncrypt) {
         try {
             Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
             SecretKeySpec secretKey = new SecretKeySpec(KEY_ACCESS.getBytes(), "AES");

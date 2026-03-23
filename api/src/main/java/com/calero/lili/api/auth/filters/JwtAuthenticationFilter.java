@@ -16,11 +16,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -97,14 +95,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         user.setRandom(random.nextInt(1000));
         repository.save(user);
 
-        Collection<? extends GrantedAuthority> roles = authResult.getAuthorities();
-//        boolean isAdmin = roles.stream().anyMatch(r -> r.getAuthority().equals("ROLE_ADMIN"));
         Claims claims = Jwts.claims();
-        // json a string
-        claims.put("authorities", roles.stream()
-                .map(GrantedAuthority::getAuthority)
-                .toList());
-//        claims.put("isAdmin", isAdmin);
         claims.put("username", username);
         claims.put("ar", ar);
         claims.put("dt", dt);

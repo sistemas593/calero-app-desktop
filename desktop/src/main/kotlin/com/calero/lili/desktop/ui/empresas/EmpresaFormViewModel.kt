@@ -43,6 +43,8 @@ data class EmpresaFormUiState(
     // ── Sección 4: Firma Digital y Momentos de Envío
     val contraseniaFirma: String = "",
     val fechaCaducidadCertificado: String = "",
+    val rutaArchivoFirma: String = "",
+    val rutaLogo: String = "",
     val momentoEnvioFactura: String = "2",
     val momentoEnvioNotaCredito: String = "2",
     val momentoEnvioNotaDebito: String = "2",
@@ -111,6 +113,8 @@ class EmpresaFormViewModel(
                         representanteIdentificacion = dto.representanteIdentificacion ?: "",
                         contraseniaFirma = "", // nunca pre-rellenar contraseñas
                         fechaCaducidadCertificado = dto.fechaCaducidadCertificado ?: "",
+                        rutaArchivoFirma = dto.rutaArchivoFirma ?: "",
+                        rutaLogo = dto.rutaLogo ?: "",
                         momentoEnvioFactura = dto.momentoEnvioFactura.toString(),
                         momentoEnvioNotaCredito = dto.momentoEnvioNotaCredito.toString(),
                         momentoEnvioNotaDebito = dto.momentoEnvioNotaDebito.toString(),
@@ -172,6 +176,8 @@ class EmpresaFormViewModel(
             .representanteIdentificacion(current.representanteIdentificacion.trim())
             .contraseniaFirma(current.contraseniaFirma.ifBlank { null })
             .fechaCaducidadCertificado(current.fechaCaducidadCertificado.ifBlank { null })
+            .rutaArchivoFirma(current.rutaArchivoFirma.ifBlank { null })
+            .rutaLogo(current.rutaLogo.ifBlank { null })
             .momentoEnvioFactura(current.momentoEnvioFactura.toIntOrNull() ?: 2)
             .momentoEnvioNotaCredito(current.momentoEnvioNotaCredito.toIntOrNull() ?: 2)
             .momentoEnvioNotaDebito(current.momentoEnvioNotaDebito.toIntOrNull() ?: 2)
@@ -221,6 +227,8 @@ class EmpresaFormViewModel(
     fun setRepresentanteIdentificacion(v: String) = _state.update { it.copy(representanteIdentificacion = v) }
     fun setContraseniaFirma(v: String) = _state.update { it.copy(contraseniaFirma = v) }
     fun setFechaCaducidadCertificado(v: String) = _state.update { it.copy(fechaCaducidadCertificado = v) }
+    fun setRutaArchivoFirma(v: String) = _state.update { it.copy(rutaArchivoFirma = v) }
+    fun setRutaLogo(v: String) = _state.update { it.copy(rutaLogo = v) }
     fun setMomentoEnvioFactura(v: String) = _state.update { it.copy(momentoEnvioFactura = v) }
     fun setMomentoEnvioNotaCredito(v: String) = _state.update { it.copy(momentoEnvioNotaCredito = v) }
     fun setMomentoEnvioNotaDebito(v: String) = _state.update { it.copy(momentoEnvioNotaDebito = v) }

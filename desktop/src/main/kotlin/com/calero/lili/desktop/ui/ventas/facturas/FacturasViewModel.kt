@@ -46,10 +46,6 @@ data class FacturasUiState(
     val filterTercero: String = "",
     // firma electrónica
     val firmaDialogFactura: GetListDto? = null,   // null = cerrado
-    val firmaMode: String = "WEB",                // "WEB" o "LOC"
-    val firmaPassword: String = "",
-    val firmaRutaP12: String = "",
-    val firmaRutaLogo: String = "",
     val firmando: Boolean = false,
     val firmaResultado: String? = null,
     val firmaError: String? = null
@@ -132,28 +128,18 @@ class FacturasViewModel(
 
     // ── Firma electrónica ─────────────────────────────────────────────────────
     fun abrirDialogoFirma(factura: GetListDto) =
-        _state.update { it.copy(firmaDialogFactura = factura, firmaMode = "WEB",
-            firmaPassword = "", firmaRutaP12 = "", firmaRutaLogo = "",
+        _state.update { it.copy(firmaDialogFactura = factura,
             firmaError = null, firmaResultado = null) }
 
     fun cerrarDialogoFirma() =
         _state.update { it.copy(firmaDialogFactura = null, firmaError = null) }
 
-    fun setFirmaMode(mode: String)      = _state.update { it.copy(firmaMode = mode, firmaError = null) }
-    fun setFirmaPassword(v: String)     = _state.update { it.copy(firmaPassword = v) }
-    fun setFirmaRutaP12(ruta: String)   = _state.update { it.copy(firmaRutaP12 = ruta) }
-    fun setFirmaRutaLogo(ruta: String)  = _state.update { it.copy(firmaRutaLogo = ruta) }
-    fun dismissFirmaResultado()         = _state.update { it.copy(firmaResultado = null) }
+    fun dismissFirmaResultado() = _state.update { it.copy(firmaResultado = null) }
 
     fun procesarFirma() {
         val s       = _state.value
         val factura = s.firmaDialogFactura ?: return
         val id      = factura.idVenta ?: return
-
-        if (s.firmaMode == "LOC" && s.firmaRutaP12.isBlank()) {
-            _state.update { it.copy(firmaError = "Debe seleccionar el archivo .p12") }
-            return
-        }
         scope.launch {
             _state.update { it.copy(firmando = true, firmaError = null) }
             try {
@@ -161,10 +147,7 @@ class FacturasViewModel(
                     idData,
                     idEmpresa,
                     id,
-                    s.firmaMode,
-                    s.firmaPassword.ifBlank { null },
-                    s.firmaRutaP12.ifBlank { null },
-                    s.firmaRutaLogo.ifBlank { null }
+                    "LOC"
                 )
                 _state.update { it.copy(
                     firmando         = false,

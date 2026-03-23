@@ -53,6 +53,12 @@ public class AdEmpresaRequestDto {
 
     private String fechaCaducidadCertificado;
 
+    // Ruta absoluta del .p12 en el sistema local
+    private String rutaArchivoFirma;
+
+    // Ruta absoluta del logo en el sistema local (opcional)
+    private String rutaLogo;
+
     private int momentoEnvioFactura;
     private int momentoEnvioNotaCredito;
     private int momentoEnvioNotaDebito;

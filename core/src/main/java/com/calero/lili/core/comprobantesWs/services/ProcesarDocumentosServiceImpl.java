@@ -15,6 +15,7 @@ import com.calero.lili.core.comprobantesWs.ws.services.RecepcionServiceImpl;
 import com.calero.lili.core.dtos.Mensajes;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.CpLiquidacionesEntity;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.LiquidacionesRepository;
@@ -24,6 +25,7 @@ import com.calero.lili.core.modVentas.VtVentaEntity;
 import com.calero.lili.core.modVentas.VtVentasRepository;
 import com.calero.lili.core.modVentasGuias.VtGuiaEntity;
 import com.calero.lili.core.modVentasGuias.VtGuiasRepository;
+import com.calero.lili.core.utils.AESUtils;
 import com.calero.lili.core.utils.DateUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,9 +36,6 @@ import recepcion.ws.sri.gob.ec.Mensaje;
 import recepcion.ws.sri.gob.ec.RespuestaSolicitud;
 import xades4j.SignXmlString;
 
-import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
-
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -72,7 +71,7 @@ public class ProcesarDocumentosServiceImpl {
 //    private static String projectId = "caleroapp";
 //    private static String bucketName = "caleroapp-bucket-sgn";
 
-        private final AdEmpresasRepository adEmpresasRepository;
+    private final AdEmpresasRepository adEmpresasRepository;
     private final BuscarDatosEmpresa buscarDatosEmpresa;
 //    public DatosEmpresaDto buscarEmpresa(Long idData, Long idEmpresa){
 //        String sgn = "data00001/file001.p12";
@@ -106,9 +105,7 @@ public class ProcesarDocumentosServiceImpl {
 //
 //    }
 
-    public RespuestaProcesoGetDto procesarFacNcNd(Long idData, Long idEmpresa, UUID id,
-                                                  String origenCertificado, String password,
-                                                  String rutaArchivoFirma, String rutaLogo) {
+    public RespuestaProcesoGetDto procesarFacNcNd(Long idData, Long idEmpresa, UUID id, String origenCertificado) {
 
         System.out.println("Inicio del proceso");
 
@@ -118,8 +115,7 @@ public class ProcesarDocumentosServiceImpl {
 
             case "WEB" -> datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(idData, idEmpresa);
 
-            case "LOC" -> datosEmpresaDto = obtenerLocalDatosEmpresa(idData, idEmpresa, password,
-                                                                      rutaArchivoFirma, rutaLogo);
+            case "LOC" -> datosEmpresaDto = obtenerLocalDatosEmpresa(idData, idEmpresa);
         }
 
 
@@ -237,36 +233,28 @@ public class ProcesarDocumentosServiceImpl {
      * @return DatosEmpresaDto con el stream del certificado, la contraseña y los bytes del logo
      */
     /**
-     * Carga el certificado .p12 y el logo desde rutas absolutas del sistema de archivos local.
-     * Las rutas las provee el cliente (desktop) — este método solo lee los archivos.
-     *
-     * @param idData           identificador del tenant
-     * @param idEmpresa        identificador de la empresa
-     * @param password         contraseña del .p12 (si es null usa la guardada en la entidad)
-     * @param rutaArchivoFirma ruta absoluta del .p12 en el sistema del cliente
-     * @param rutaLogo         ruta absoluta del logo (puede ser null para omitirlo)
+     * Lee el .p12 y el logo desde las rutas guardadas en la entidad empresa (BD).
+     * La contraseña viene por parámetro; si es nula usa la almacenada en la entidad.
      */
-    private DatosEmpresaDto obtenerLocalDatosEmpresa(Long idData, Long idEmpresa, String password,
-                                                      String rutaArchivoFirma, String rutaLogo) {
+    private DatosEmpresaDto obtenerLocalDatosEmpresa(Long idData, Long idEmpresa) {
 
-        // ── 1. Contraseña: parámetro o desde entidad ──────────────────────────
         AdEmpresaEntity empresa = adEmpresasRepository.findById(idData, idEmpresa)
                 .orElseThrow(() -> new GeneralException(
                         MessageFormat.format("Data {0}, Empresa {1} no existe", idData, idEmpresa)));
 
-        String pwd = (password != null && !password.isBlank())
-                ? password
-                : empresa.getContraseniaFirma();
+        String pwd = AESUtils.decrypt(empresa.getContraseniaFirma());
 
-        // ── 2. Validar y leer el archivo .p12 ────────────────────────────────
-        if (rutaArchivoFirma == null || rutaArchivoFirma.isBlank()) {
-            throw new GeneralException("La ruta del archivo de firma (.p12) es requerida");
+        String rutaFirma = empresa.getRutaArchivoFirma();
+        if (rutaFirma == null || rutaFirma.isBlank()) {
+            throw new GeneralException(
+                    "La empresa no tiene configurada la ruta del archivo de firma (.p12). " +
+                            "Configure la ruta en la sección 'Firma y Envío' del formulario de empresa.");
         }
 
-        Path pathP12 = Paths.get(rutaArchivoFirma);
+        Path pathP12 = Paths.get(rutaFirma);
         if (!Files.exists(pathP12)) {
             throw new GeneralException(MessageFormat.format(
-                    "El archivo .p12 no existe en la ruta: {0}", pathP12.toAbsolutePath()));
+                    "El archivo .p12 no existe en la ruta configurada: {0}", pathP12.toAbsolutePath()));
         }
 
         InputStream inputStreamFirma;
@@ -277,8 +265,9 @@ public class ProcesarDocumentosServiceImpl {
                     "Error al leer el archivo .p12: {0}", e.getMessage()));
         }
 
-        // ── 3. Leer logo si se proporcionó la ruta (opcional) ─────────────────
+        // ── 4. Leer logo desde la ruta guardada en BD (opcional) ──────────────
         byte[] imageBytes = null;
+        String rutaLogo = empresa.getRutaLogo();
         if (rutaLogo != null && !rutaLogo.isBlank()) {
             Path pathLogo = Paths.get(rutaLogo);
             if (Files.exists(pathLogo)) {
@@ -287,8 +276,6 @@ public class ProcesarDocumentosServiceImpl {
                 } catch (Exception e) {
                     System.out.println("Advertencia: no se pudo leer el logo: " + e.getMessage());
                 }
-            } else {
-                System.out.println("Advertencia: logo no encontrado en: " + pathLogo.toAbsolutePath());
             }
         }
 

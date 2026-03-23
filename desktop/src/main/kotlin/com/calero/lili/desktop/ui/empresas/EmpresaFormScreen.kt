@@ -298,6 +298,74 @@ private fun TabFirmaEnvio(state: EmpresaFormUiState, vm: EmpresaFormViewModel) {
     }
 
     Spacer(Modifier.height(12.dp))
+
+    // ── Selección de archivo .p12
+    Text("Archivo de Firma (.p12)", fontSize = 12.sp, color = FColorBorde.copy(alpha = 0f).let { FColorHeader }, fontWeight = FontWeight.Medium)
+    Spacer(Modifier.height(4.dp))
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        OutlinedTextField(
+            value         = state.rutaArchivoFirma,
+            onValueChange = vm::setRutaArchivoFirma,
+            placeholder   = { Text("Seleccione o escriba la ruta del .p12…", fontSize = 12.sp) },
+            singleLine    = true,
+            modifier      = Modifier.weight(1f),
+            textStyle     = androidx.compose.ui.text.TextStyle(fontSize = 13.sp),
+            colors        = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = FColorHeader, unfocusedBorderColor = FColorBorde)
+        )
+        Button(
+            onClick = {
+                val chooser = javax.swing.JFileChooser()
+                chooser.dialogTitle = "Seleccione el archivo de firma digital (.p12)"
+                chooser.fileSelectionMode = javax.swing.JFileChooser.FILES_ONLY
+                chooser.fileFilter = javax.swing.filechooser.FileNameExtensionFilter(
+                    "Certificado digital (*.p12, *.pfx)", "p12", "pfx")
+                if (chooser.showOpenDialog(null) == javax.swing.JFileChooser.APPROVE_OPTION) {
+                    vm.setRutaArchivoFirma(chooser.selectedFile.absolutePath)
+                }
+            },
+            colors = ButtonDefaults.buttonColors(containerColor = FColorHeader)
+        ) { Text("Examinar", fontSize = 13.sp) }
+    }
+
+    Spacer(Modifier.height(8.dp))
+
+    // ── Selección de logo (opcional)
+    Text("Logo de la Empresa (opcional)", fontSize = 12.sp, color = FColorHeader, fontWeight = FontWeight.Medium)
+    Spacer(Modifier.height(4.dp))
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        OutlinedTextField(
+            value         = state.rutaLogo,
+            onValueChange = vm::setRutaLogo,
+            placeholder   = { Text("Seleccione o escriba la ruta del logo…", fontSize = 12.sp) },
+            singleLine    = true,
+            modifier      = Modifier.weight(1f),
+            textStyle     = androidx.compose.ui.text.TextStyle(fontSize = 13.sp),
+            colors        = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = FColorHeader, unfocusedBorderColor = FColorBorde)
+        )
+        Button(
+            onClick = {
+                val chooser = javax.swing.JFileChooser()
+                chooser.dialogTitle = "Seleccione el logo de la empresa"
+                chooser.fileSelectionMode = javax.swing.JFileChooser.FILES_ONLY
+                chooser.fileFilter = javax.swing.filechooser.FileNameExtensionFilter(
+                    "Imagen (*.png, *.jpg, *.jpeg)", "png", "jpg", "jpeg")
+                if (chooser.showOpenDialog(null) == javax.swing.JFileChooser.APPROVE_OPTION) {
+                    vm.setRutaLogo(chooser.selectedFile.absolutePath)
+                }
+            },
+            colors = ButtonDefaults.buttonColors(containerColor = FColorHeader)
+        ) { Text("Examinar", fontSize = 13.sp) }
+    }
+
+    Spacer(Modifier.height(12.dp))
     HorizontalDivider(color = FColorBorde)
     Spacer(Modifier.height(12.dp))
 

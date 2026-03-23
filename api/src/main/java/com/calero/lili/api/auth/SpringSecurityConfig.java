@@ -14,6 +14,8 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -34,6 +36,9 @@ public class SpringSecurityConfig {
     @Autowired
     private AdUsuarioRepository repository;
 
+    @Autowired
+    private UserDetailsService userDetailsService;
+
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -49,28 +54,28 @@ public class SpringSecurityConfig {
         http
                 .authorizeHttpRequests((requests) -> requests
 
-                                .requestMatchers(HttpMethod.GET, "/apist/**").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/apist/**").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/login").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/apist/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/apist/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/login").permitAll()
 
 
-                                .requestMatchers(HttpMethod.GET, "/api/v1.0/stempresas/**").hasRole("SUPER")
-                                .requestMatchers(HttpMethod.POST, "/api/v1.0/stempresas/**").hasRole("SUPER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1.0/stempresas/**").hasRole("SUPER")
+                        .requestMatchers(HttpMethod.POST, "/api/v1.0/stempresas/**").hasRole("SUPER")
 
-                                .requestMatchers(HttpMethod.GET, "/api/v1.0/tablas-crud/**").hasRole("SUPER")
-                                .requestMatchers(HttpMethod.POST, "/api/v1.0/tablas-crud/**").hasRole("SUPER")
-                                .requestMatchers(HttpMethod.DELETE, "/api/v1.0/tablas-crud/**").hasRole("SUPER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1.0/tablas-crud/**").hasRole("SUPER")
+                        .requestMatchers(HttpMethod.POST, "/api/v1.0/tablas-crud/**").hasRole("SUPER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1.0/tablas-crud/**").hasRole("SUPER")
 
-                                // PERMISOS PARA LA DOCUMENTACIÓN DE SWAGGER.
+                        // PERMISOS PARA LA DOCUMENTACIÓN DE SWAGGER.
 
-                                .requestMatchers("/v3/api-docs/**").permitAll()
-                                .requestMatchers("/swagger-ui/**").permitAll()
-                                .requestMatchers("/swagger-ui.html").permitAll()
+                        .requestMatchers("/v3/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-ui/**").permitAll()
+                        .requestMatchers("/swagger-ui.html").permitAll()
 
-                                .anyRequest().authenticated()
+                        .anyRequest().authenticated()
                 )
                 .addFilter(new JwtAuthenticationFilter(authenticationConfiguration.getAuthenticationManager(), repository))
-                .addFilter(new JwtValidationFilter(authenticationConfiguration.getAuthenticationManager()))
+                .addFilter(new JwtValidationFilter(authenticationConfiguration.getAuthenticationManager(), userDetailsService))
                 .csrf(config -> config.disable())
                 .sessionManagement(managment -> managment.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))

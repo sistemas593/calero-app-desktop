@@ -46,6 +46,8 @@ public class AdEmpresaGetOneDto {
     private int ambienteComprobanteRetencion;
     private Integer momentoEnvio;
     private String fechaCaducidadCertificado;
+    private String rutaArchivoFirma;
+    private String rutaLogo;
     private int momentoEnvioFactura;
     private int momentoEnvioNotaCredito;
     private int momentoEnvioNotaDebito;

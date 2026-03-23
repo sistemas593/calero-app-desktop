@@ -66,6 +66,8 @@ public class AdEmpresaBuilder {
                 .momentoEnvioLiquidacion(model.getMomentoEnvioLiquidacion())
                 .momentoEnvioGuiaRemision(model.getMomentoEnvioGuiaRemision())
                 .momentoEnvioComprobanteRetencion(model.getMomentoEnvioComprobanteRetencion())
+                .rutaArchivoFirma(model.getRutaArchivoFirma())
+                .rutaLogo(model.getRutaLogo())
                 .build();
     }
 
@@ -113,6 +115,8 @@ public class AdEmpresaBuilder {
                 .momentoEnvioLiquidacion(model.getMomentoEnvioLiquidacion())
                 .momentoEnvioGuiaRemision(model.getMomentoEnvioGuiaRemision())
                 .momentoEnvioComprobanteRetencion(model.getMomentoEnvioComprobanteRetencion())
+                .rutaArchivoFirma(model.getRutaArchivoFirma())
+                .rutaLogo(model.getRutaLogo())
                 .build();
     }
 
@@ -164,6 +168,8 @@ public class AdEmpresaBuilder {
                 .momentoEnvioLiquidacion(model.getMomentoEnvioLiquidacion())
                 .momentoEnvioGuiaRemision(model.getMomentoEnvioGuiaRemision())
                 .momentoEnvioComprobanteRetencion(model.getMomentoEnvioComprobanteRetencion())
+                .rutaArchivoFirma(model.getRutaArchivoFirma())
+                .rutaLogo(model.getRutaLogo())
                 .build();
     }
 

@@ -99,20 +99,12 @@ fun FacturasScreen(viewModel: FacturasViewModel) {
     // ── Diálogo de firma electrónica
     if (state.firmaDialogFactura != null) {
         DialogoFirma(
-            serie         = state.firmaDialogFactura?.serie ?: "",
-            secuencial    = state.firmaDialogFactura?.secuencial ?: "",
-            firmaMode     = state.firmaMode,
-            password      = state.firmaPassword,
-            rutaP12       = state.firmaRutaP12,
-            rutaLogo      = state.firmaRutaLogo,
-            firmando      = state.firmando,
-            firmaError    = state.firmaError,
-            onSetMode     = viewModel::setFirmaMode,
-            onSetPassword = viewModel::setFirmaPassword,
-            onSetRutaP12  = viewModel::setFirmaRutaP12,
-            onSetRutaLogo = viewModel::setFirmaRutaLogo,
-            onProcesar    = viewModel::procesarFirma,
-            onCancelar    = viewModel::cerrarDialogoFirma
+            serie      = state.firmaDialogFactura?.serie ?: "",
+            secuencial = state.firmaDialogFactura?.secuencial ?: "",
+            firmando   = state.firmando,
+            firmaError = state.firmaError,
+            onProcesar = viewModel::procesarFirma,
+            onCancelar = viewModel::cerrarDialogoFirma
         )
     }
 
@@ -290,15 +282,10 @@ private fun FilaFactura(idx: Int, f: GetListDto, onFirmar: () -> Unit) {
 }
 
 // ── Diálogo Firma Electrónica ─────────────────────────────────────────────────
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DialogoFirma(
     serie: String, secuencial: String,
-    firmaMode: String, password: String, rutaP12: String, rutaLogo: String,
     firmando: Boolean, firmaError: String?,
-    onSetMode: (String) -> Unit,
-    onSetPassword: (String) -> Unit,
-    onSetRutaP12: (String) -> Unit, onSetRutaLogo: (String) -> Unit,
     onProcesar: () -> Unit, onCancelar: () -> Unit
 ) {
     AlertDialog(
@@ -309,106 +296,18 @@ private fun DialogoFirma(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
 
-                Text("Documento: $serie-$secuencial", fontSize = 13.sp, color = ColorSub)
-
-                HorizontalDivider(color = ColorBorde)
-
-                // ── Selección WEB / LOCAL
-                Text("Origen del certificado:", fontSize = 13.sp, fontWeight = FontWeight.Medium)
-                Row(horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalAlignment = Alignment.CenterVertically) {
-                    listOf("WEB" to "Web (nube)", "LOC" to "Local (mi equipo)").forEach { (value, label) ->
-                        Row(verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                            RadioButton(
-                                selected = firmaMode == value,
-                                onClick  = { onSetMode(value) },
-                                enabled  = !firmando,
-                                colors   = RadioButtonDefaults.colors(selectedColor = ColorHeader)
-                            )
-                            Text(label, fontSize = 13.sp)
-                        }
-                    }
-                }
-
-                // ── Contraseña del certificado (siempre visible)
-                HorizontalDivider(color = ColorBorde)
-                Text("Contraseña del certificado", fontSize = 12.sp, color = ColorSub, fontWeight = FontWeight.Medium)
-                OutlinedTextField(
-                    value         = password,
-                    onValueChange = onSetPassword,
-                    placeholder   = { Text("Contraseña del .p12", fontSize = 12.sp) },
-                    singleLine    = true,
-                    enabled       = !firmando,
-                    visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
-                    modifier      = Modifier.fillMaxWidth(),
-                    textStyle     = androidx.compose.ui.text.TextStyle(fontSize = 13.sp),
-                    colors        = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = ColorHeader, unfocusedBorderColor = ColorBorde)
+                Text(
+                    text     = "Número: $serie-$secuencial",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color    = ColorTexto
                 )
-
-                // ── Campos LOCAL
-                if (firmaMode == "LOC") {
-                    HorizontalDivider(color = ColorBorde)
-
-                    // Ruta .p12
-                    Text("Archivo .p12", fontSize = 12.sp, color = ColorSub, fontWeight = FontWeight.Medium)
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically) {
-                        OutlinedTextField(
-                            value         = rutaP12,
-                            onValueChange = onSetRutaP12,
-                            placeholder   = { Text("Ruta del archivo .p12", fontSize = 12.sp) },
-                            singleLine    = true,
-                            enabled       = !firmando,
-                            modifier      = Modifier.weight(1f),
-                            textStyle     = androidx.compose.ui.text.TextStyle(fontSize = 12.sp),
-                            colors        = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = ColorHeader, unfocusedBorderColor = ColorBorde)
-                        )
-                        Button(
-                            onClick  = {
-                                val chooser = javax.swing.JFileChooser()
-                                chooser.dialogTitle = "Seleccionar archivo .p12"
-                                chooser.fileFilter  = javax.swing.filechooser.FileNameExtensionFilter(
-                                    "Certificado (*.p12, *.pfx)", "p12", "pfx")
-                                if (chooser.showOpenDialog(null) == javax.swing.JFileChooser.APPROVE_OPTION)
-                                    onSetRutaP12(chooser.selectedFile.absolutePath)
-                            },
-                            enabled  = !firmando,
-                            colors   = ButtonDefaults.buttonColors(containerColor = ColorHeader)
-                        ) { Text("...", fontSize = 13.sp) }
-                    }
-
-                    // Ruta logo (opcional)
-                    Text("Logo (opcional)", fontSize = 12.sp, color = ColorSub, fontWeight = FontWeight.Medium)
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically) {
-                        OutlinedTextField(
-                            value         = rutaLogo,
-                            onValueChange = onSetRutaLogo,
-                            placeholder   = { Text("Ruta del logo (opcional)", fontSize = 12.sp) },
-                            singleLine    = true,
-                            enabled       = !firmando,
-                            modifier      = Modifier.weight(1f),
-                            textStyle     = androidx.compose.ui.text.TextStyle(fontSize = 12.sp),
-                            colors        = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = ColorHeader, unfocusedBorderColor = ColorBorde)
-                        )
-                        Button(
-                            onClick  = {
-                                val chooser = javax.swing.JFileChooser()
-                                chooser.dialogTitle = "Seleccionar logo"
-                                chooser.fileFilter  = javax.swing.filechooser.FileNameExtensionFilter(
-                                    "Imagen (*.png, *.jpg)", "png", "jpg", "jpeg")
-                                if (chooser.showOpenDialog(null) == javax.swing.JFileChooser.APPROVE_OPTION)
-                                    onSetRutaLogo(chooser.selectedFile.absolutePath)
-                            },
-                            enabled  = !firmando,
-                            colors   = ButtonDefaults.buttonColors(containerColor = ColorHeader)
-                        ) { Text("...", fontSize = 13.sp) }
-                    }
-                }
+                HorizontalDivider(color = ColorBorde)
+                Text(
+                    text     = "Está a punto de realizar la firma electrónica del documento.",
+                    fontSize = 13.sp,
+                    color    = ColorSub
+                )
 
                 // ── Error
                 if (firmaError != null) {
