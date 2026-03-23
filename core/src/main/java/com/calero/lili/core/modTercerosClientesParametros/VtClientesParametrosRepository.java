@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,7 +19,7 @@ public interface VtClientesParametrosRepository extends JpaRepository<VtClienteP
     @Transactional
     @Modifying
     @Query("DELETE FROM VtClienteParametroEntity e WHERE e.idData = :idData AND e.idEmpresa =:idEmpresa AND e.idParametro = :idParametro")
-    void deleteByIdDataAndIdParametro(Long idData, Long idEmpresa, UUID idParametro);
+    void deleteByIdDataAndIdParametro(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("idParametro") UUID idParametro);
 
 
     @Query(value = "SELECT entity " +
@@ -26,7 +27,7 @@ public interface VtClientesParametrosRepository extends JpaRepository<VtClienteP
             "WHERE entity.idData = :idData  AND " +
             "entity.idEmpresa = :idEmpresa AND " +
             "entity.idParametro = :idParametro ")
-    Optional<VtClienteParametroEntity> findByIdEntity(Long idData, Long idEmpresa, UUID idParametro);
+    Optional<VtClienteParametroEntity> findByIdEntity(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("idParametro") UUID idParametro);
 
 
     @Query(
@@ -38,6 +39,6 @@ public interface VtClientesParametrosRepository extends JpaRepository<VtClienteP
                     "FROM VtClienteParametroEntity entity " +
                     "WHERE ( entity.idData = :idData)  AND " +
                     "(entity.idEmpresa = :idEmpresa)")
-    Page<VtClienteParametroEntity> findAllPaginate(Long idData, Long idEmpresa, Pageable pageable);
+    Page<VtClienteParametroEntity> findAllPaginate(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, Pageable pageable);
 
 }

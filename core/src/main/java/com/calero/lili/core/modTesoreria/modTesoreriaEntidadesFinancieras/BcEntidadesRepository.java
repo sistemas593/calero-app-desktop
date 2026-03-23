@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.UUID;
@@ -49,9 +50,9 @@ public interface BcEntidadesRepository extends JpaRepository<TsEntidadEntity, Lo
                     ")"
 
     )
-    Page<BcEntidadesProjection> findAllPaginate(Long idData, Long idEmpresa,
-                                                String filter, String filterContent,
-                                                String tipoEntidad,
+    Page<BcEntidadesProjection> findAllPaginate(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa,
+                                                @Param("filter") String filter, @Param("filterContent") String filterContent,
+                                                @Param("tipoEntidad") String tipoEntidad,
                                                 Pageable pageable);
 
 }

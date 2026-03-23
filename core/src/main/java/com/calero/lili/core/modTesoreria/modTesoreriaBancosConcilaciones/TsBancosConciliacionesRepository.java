@@ -20,7 +20,7 @@ public interface TsBancosConciliacionesRepository extends JpaRepository<TsBancos
             "WHERE entity.idData = :idData  AND " +
             "entity.idEmpresa = :idEmpresa AND " +
             "entity.idConciliacion = :idConciliacion ")
-    Optional<TsBancosConciliacionesEntity> findByIdEntity(Long idData, Long idEmpresa, UUID idConciliacion);
+    Optional<TsBancosConciliacionesEntity> findByIdEntity(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("idConciliacion") UUID idConciliacion);
 
     @Query(
             value = "SELECT entity " +

@@ -37,7 +37,7 @@ public interface VtGuiasRepository extends JpaRepository<VtGuiaEntity, UUID>, Jp
     @Modifying
     @Query("DELETE FROM VtGuiaEntity e " +
             "WHERE e.idData = :idData AND e.idEmpresa = :idEmpresa AND e.idGuia = :idVenta")
-    void deleteById(Long idData, Long idEmpresa, UUID idVenta);
+    void deleteById(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("idVenta") UUID idVenta);
 
     @Query(value = "SELECT id_guia as idGuia " +
             "FROM vt_guias vtVentasEntity " +
@@ -45,7 +45,7 @@ public interface VtGuiasRepository extends JpaRepository<VtGuiaEntity, UUID>, Jp
             "(vtVentasEntity.id_Empresa = :idEmpresa) AND " +
             "vtVentasEntity.serie = :serie AND " +
             "vtVentasEntity.secuencial = :secuencial LIMIT 1", nativeQuery = true)
-    Optional<OneProjection> findExistBySecuencial(Long idData, Long idEmpresa, String serie, String secuencial);
+    Optional<OneProjection> findExistBySecuencial(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("serie") String serie, @Param("secuencial") String secuencial);
 
     @Query(value = "SELECT  " +
             "detalle.id_item as idItem, " +
@@ -66,7 +66,7 @@ public interface VtGuiasRepository extends JpaRepository<VtGuiaEntity, UUID>, Jp
             "WHERE vtVentasEntity.id_data = :idData  AND " +
             "vtVentasEntity.id_empresa = :idEmpresa AND " +
             "vtVentasEntity.id_guia = :idVenta ", nativeQuery = true)
-    List<OneDetalleProjection> findByIdVentaDetalle(Long idData, Long idEmpresa, UUID idVenta);
+    List<OneDetalleProjection> findByIdVentaDetalle(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("idVenta") UUID idVenta);
 
     @Query(value = "SELECT vtVentasEntity " +
             "FROM VtGuiaEntity vtVentasEntity " +
@@ -92,7 +92,7 @@ public interface VtGuiasRepository extends JpaRepository<VtGuiaEntity, UUID>, Jp
                     "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmision <= :fechaEmisionHasta ) AND " +
                     "(:usuario IS NULL OR vtVentasEntity.createdBy = :usuario)"
     )
-    Page<VtGuiaEntity> findAllPaginate(Long idData, Long idEmpresa, String sucursal, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta, String serie, String secuencial, String numeroAutorizacion, String usuario, Pageable pageable);
+    Page<VtGuiaEntity> findAllPaginate(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("sucursal") String sucursal, @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde, @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta, @Param("serie") String serie, @Param("secuencial") String secuencial, @Param("numeroAutorizacion") String numeroAutorizacion, @Param("usuario") String usuario, Pageable pageable);
 
 
     @Query(value = "SELECT vtVentasEntity " +
@@ -107,7 +107,7 @@ public interface VtGuiasRepository extends JpaRepository<VtGuiaEntity, UUID>, Jp
             "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmision <= :fechaEmisionHasta )  " +
             ")"
     )
-    List<VtGuiaEntity> findAll(Long idData, Long idEmpresa, String sucursal, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta, String serie, String secuencial);
+    List<VtGuiaEntity> findAll(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("sucursal") String sucursal, @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde, @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta, @Param("serie") String serie, @Param("secuencial") String secuencial);
 
     @Query(
             value = "SELECT vtVentaEntity " +
@@ -119,7 +119,7 @@ public interface VtGuiasRepository extends JpaRepository<VtGuiaEntity, UUID>, Jp
                     "( cast(:fechaEmisionDesde as date) is null OR vtVentaEntity.fechaEmision >= :fechaEmisionDesde ) AND " +
                     "( cast(:fechaEmisionHasta as date) is null OR vtVentaEntity.fechaEmision <= :fechaEmisionHasta )"
     )
-    List<VtGuiaEntity> findAllFacturasGenerar(Long idData, Long idEmpresa, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta, String estadoDocumento);
+    List<VtGuiaEntity> findAllFacturasGenerar(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde, @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta, @Param("estadoDocumento") String estadoDocumento);
 
     @Query(
             value = "SELECT vtVentaEntity " +
@@ -132,7 +132,7 @@ public interface VtGuiasRepository extends JpaRepository<VtGuiaEntity, UUID>, Jp
                     "( cast(:fechaEmisionDesde as date) is null OR vtVentaEntity.fechaEmision >= :fechaEmisionDesde ) AND " +
                     "( cast(:fechaEmisionHasta as date) is null OR vtVentaEntity.fechaEmision <= :fechaEmisionHasta )"
     )
-    List<VtGuiaEntity> findAllFacturasGenerarCorreo(Long idData, Long idEmpresa, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta);
+    List<VtGuiaEntity> findAllFacturasGenerarCorreo(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde, @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta);
 
     @Query(value = "SELECT " +
             "entity.id_guia as idGuia,  " +
@@ -143,7 +143,7 @@ public interface VtGuiasRepository extends JpaRepository<VtGuiaEntity, UUID>, Jp
             "WHERE (entity.id_data = :idData)  AND " +
             "(entity.id_empresa = :idEmpresa) AND " +
             "entity.id_guia = :id ", nativeQuery = true)
-    Optional<VtGuiaRemisionOneProjection> findXMLById(Long idData, Long idEmpresa, UUID id);
+    Optional<VtGuiaRemisionOneProjection> findXMLById(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("id") UUID id);
 
 
 }

@@ -21,7 +21,7 @@ public interface TsBancosMovimientosRepository extends JpaRepository<TsBancosMov
             "WHERE entity.idData = :idData  AND " +
             "entity.idEmpresa = :idEmpresa AND " +
             "entity.idMovimiento = :idMovimiento ")
-    Optional<TsBancosMovimentosEntity> findByIdEntity(Long idData, Long idEmpresa, UUID idMovimiento);
+    Optional<TsBancosMovimentosEntity> findByIdEntity(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("idMovimiento") UUID idMovimiento);
 
 
     @Query(

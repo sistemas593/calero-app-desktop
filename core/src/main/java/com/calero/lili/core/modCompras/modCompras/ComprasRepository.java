@@ -6,10 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -32,12 +30,6 @@ public interface ComprasRepository extends JpaRepository<CpComprasEntity, UUID>,
                                              @Param("sucursal") String sucursal,
                                              @Param("usuario") String usuario);
 
-    @Transactional
-    @Modifying
-    @Query("DELETE FROM CpComprasEntity e " +
-            "WHERE e.idData = :idData AND e.idEmpresa = :idEmpresa AND e.idCompra = :idCompra")
-    void deleteById(Long idData, Long idEmpresa, UUID idCompra);
-
 
     @Query(value = "SELECT id_compra as idCompra " +
             "FROM cp_compras entity " +
@@ -45,7 +37,10 @@ public interface ComprasRepository extends JpaRepository<CpComprasEntity, UUID>,
             "(entity.id_Empresa = :idEmpresa) AND " +
             "entity.serie = :serie AND " +
             "entity.secuencial = :secuencial LIMIT 1", nativeQuery = true)
-    Optional<OneProjection> findExistBySecuencial(Long idData, Long idEmpresa, String serie, String secuencial);
+    Optional<OneProjection> findExistBySecuencial(@Param("idData") Long idData,
+                                                  @Param("idEmpresa") Long idEmpresa,
+                                                  @Param("serie") String serie,
+                                                  @Param("secuencial") String secuencial);
 
 
     @Query(value = "SELECT entity " +
@@ -99,7 +94,14 @@ public interface ComprasRepository extends JpaRepository<CpComprasEntity, UUID>,
                     "( cast(:fechaEmisionHasta as date) is null OR entity.fecha_emision <= :fechaEmisionHasta ) " +
                     "GROUP BY valoresEntity.codigo, valoresEntity.codigo_porcentaje", nativeQuery = true
     )
-    List<TotalesProjection> totalValores(Long idData, Long idEmpresa, String sucursal, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta, String numeroIdentificacion, String serie, String secuencial);
+    List<TotalesProjection> totalValores(@Param("idData") Long idData,
+                                         @Param("idEmpresa") Long idEmpresa,
+                                         @Param("sucursal") String sucursal,
+                                         @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
+                                         @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
+                                         @Param("numeroIdentificacion") String numeroIdentificacion,
+                                         @Param("serie") String serie,
+                                         @Param("secuencial") String secuencial);
 
 
     @Query(value = "SELECT entity " +
@@ -114,7 +116,13 @@ public interface ComprasRepository extends JpaRepository<CpComprasEntity, UUID>,
             "( cast(:fechaEmisionDesde as date) is null OR entity.fechaEmision >= :fechaEmisionDesde ) AND " +
             "( cast(:fechaEmisionHasta as date) is null OR entity.fechaEmision <= :fechaEmisionHasta )  " +
             ")")
-    List<CpComprasEntity> findAll(Long idData, Long idEmpresa, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta, String numeroIdentificacion, String serie, String secuencial);
+    List<CpComprasEntity> findAll(@Param("idData") Long idData,
+                                  @Param("idEmpresa") Long idEmpresa,
+                                  @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
+                                  @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
+                                  @Param("numeroIdentificacion") String numeroIdentificacion,
+                                  @Param("serie") String serie,
+                                  @Param("secuencial") String secuencial);
 
 
     @Query("""

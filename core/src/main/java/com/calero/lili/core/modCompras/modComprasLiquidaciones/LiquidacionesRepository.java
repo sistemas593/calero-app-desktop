@@ -9,10 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -35,11 +33,6 @@ public interface LiquidacionesRepository extends JpaRepository<CpLiquidacionesEn
                                                    @Param("sucursal") String sucursal,
                                                    @Param("usuario") String usuario);
 
-    @Transactional
-    @Modifying
-    @Query("DELETE FROM CpLiquidacionesEntity e " +
-            "WHERE e.idData = :idData AND e.idEmpresa = :idEmpresa AND e.idLiquidacion = :idVenta")
-    void deleteById(Long idData, Long idEmpresa, UUID idVenta);
 
     @Query(value = "SELECT id_liquidacion as idLiquidacion " +
             "FROM cp_liquidaciones entity " +
@@ -47,7 +40,10 @@ public interface LiquidacionesRepository extends JpaRepository<CpLiquidacionesEn
             "(entity.id_Empresa = :idEmpresa) AND " +
             "entity.serie = :serie AND " +
             "entity.secuencial = :secuencial LIMIT 1", nativeQuery = true)
-    Optional<OneProjection> findExistBySecuencial(Long idData, Long idEmpresa, String serie, String secuencial);
+    Optional<OneProjection> findExistBySecuencial(@Param("idData") Long idData,
+                                                  @Param("idEmpresa") Long idEmpresa,
+                                                  @Param("serie") String serie,
+                                                  @Param("secuencial") String secuencial);
 
     @Query(value = "SELECT  " +
             "detalle.id_item as idItem, " +
@@ -68,7 +64,9 @@ public interface LiquidacionesRepository extends JpaRepository<CpLiquidacionesEn
             "WHERE vtVentasEntity.id_data = :idData  AND " +
             "vtVentasEntity.id_empresa = :idEmpresa AND " +
             "vtVentasEntity.id_liquidacion = :idVenta ", nativeQuery = true)
-    List<OneDetalleProjection> findByIdVentaDetalle(Long idData, Long idEmpresa, UUID idVenta);
+    List<OneDetalleProjection> findByIdVentaDetalle(@Param("idData") Long idData,
+                                                    @Param("idEmpresa") Long idEmpresa,
+                                                    @Param("idVenta") UUID idVenta);
 
     @Query(value = "SELECT entity " +
             "FROM CpLiquidacionesEntity entity " +
@@ -107,7 +105,12 @@ public interface LiquidacionesRepository extends JpaRepository<CpLiquidacionesEn
                     "( cast(:fechaEmisionDesde as date) is null OR cabeceraEntity.fechaEmision >= :fechaEmisionDesde ) AND " +
                     "( cast(:fechaEmisionHasta as date) is null OR cabeceraEntity.fechaEmision <= :fechaEmisionHasta )"
     )
-    TotalCabeceraProjection totalCabecera(Long idData, Long idEmpresa, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta, String serie, String secuencial);
+    TotalCabeceraProjection totalCabecera(@Param("idData") Long idData,
+                                          @Param("idEmpresa") Long idEmpresa,
+                                          @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
+                                          @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
+                                          @Param("serie") String serie,
+                                          @Param("secuencial") String secuencial);
 
     @Query(
             value = "SELECT valoresEntity.codigo as codigo," +
@@ -126,7 +129,14 @@ public interface LiquidacionesRepository extends JpaRepository<CpLiquidacionesEn
                     "( cast(:fechaEmisionHasta as date) is null OR entity.fecha_emision <= :fechaEmisionHasta ) " +
                     "GROUP BY valoresEntity.codigo, valoresEntity.codigo_porcentaje", nativeQuery = true
     )
-    List<TotalesProjection> totalValores(Long idData, Long idEmpresa, String sucursal, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta, String numeroIdentificacion, String serie, String secuencial);
+    List<TotalesProjection> totalValores(@Param("idData") Long idData,
+                                         @Param("idEmpresa") Long idEmpresa,
+                                         @Param("sucursal") String sucursal,
+                                         @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
+                                         @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
+                                         @Param("numeroIdentificacion") String numeroIdentificacion,
+                                         @Param("serie") String serie,
+                                         @Param("secuencial") String secuencial);
 
     @Query(value = "SELECT entity " +
             "FROM CpLiquidacionesEntity entity " +
@@ -141,9 +151,14 @@ public interface LiquidacionesRepository extends JpaRepository<CpLiquidacionesEn
             "( cast(:fechaEmisionHasta as date) is null OR entity.fechaEmision <= :fechaEmisionHasta )  " +
             ")"
     )
-    List<CpLiquidacionesEntity> findAll(Long idData, Long idEmpresa, String sucursal,
-                                        LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta,
-                                        String numeroIdentificacion, String serie, String secuencial);
+    List<CpLiquidacionesEntity> findAll(@Param("idData") Long idData,
+                                        @Param("idEmpresa") Long idEmpresa,
+                                        @Param("sucursal") String sucursal,
+                                        @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
+                                        @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
+                                        @Param("numeroIdentificacion") String numeroIdentificacion,
+                                        @Param("serie") String serie,
+                                        @Param("secuencial") String secuencial);
 
     @Query(
             value = "SELECT entity " +
@@ -155,8 +170,11 @@ public interface LiquidacionesRepository extends JpaRepository<CpLiquidacionesEn
                     "( cast(:fechaEmisionDesde as date) is null OR entity.fechaEmision >= :fechaEmisionDesde ) AND " +
                     "( cast(:fechaEmisionHasta as date) is null OR entity.fechaEmision <= :fechaEmisionHasta )"
     )
-    List<CpLiquidacionesEntity> findAllFacturasGenerar(Long idData, Long idEmpresa, LocalDate fechaEmisionDesde,
-                                                       LocalDate fechaEmisionHasta, String estadoDocumento);
+    List<CpLiquidacionesEntity> findAllFacturasGenerar(@Param("idData") Long idData,
+                                                       @Param("idEmpresa") Long idEmpresa,
+                                                       @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
+                                                       @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
+                                                       @Param("estadoDocumento") String estadoDocumento);
 
     @Query(
             value = "SELECT entity " +
@@ -169,7 +187,10 @@ public interface LiquidacionesRepository extends JpaRepository<CpLiquidacionesEn
                     "( cast(:fechaEmisionDesde as date) is null OR entity.fechaEmision >= :fechaEmisionDesde ) AND " +
                     "( cast(:fechaEmisionHasta as date) is null OR entity.fechaEmision <= :fechaEmisionHasta )"
     )
-    List<CpLiquidacionesEntity> findAllFacturasGenerarCorreo(Long idData, Long idEmpresa, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta);
+    List<CpLiquidacionesEntity> findAllFacturasGenerarCorreo(@Param("idData") Long idData,
+                                                             @Param("idEmpresa") Long idEmpresa,
+                                                             @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
+                                                             @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta);
 
     @Query(value = "SELECT " +
             "entity.id_liquidacion as idLiquidacion,  " +
@@ -180,7 +201,9 @@ public interface LiquidacionesRepository extends JpaRepository<CpLiquidacionesEn
             "WHERE (entity.id_data = :idData)  AND " +
             "(entity.id_empresa = :idEmpresa) AND " +
             "entity.id_liquidacion = :id ", nativeQuery = true)
-    Optional<CpLiquidacionOneProjection> findXMLById(Long idData, Long idEmpresa, UUID id);
+    Optional<CpLiquidacionOneProjection> findXMLById(@Param("idData") Long idData,
+                                                     @Param("idEmpresa") Long idEmpresa,
+                                                     @Param("id") UUID id);
 
 
     @Query("""

@@ -45,9 +45,9 @@ public interface XcFacturasRepository extends JpaRepository<XcFacturasEntity, UU
             " (:idTercero IS NULL OR entity.cliente.idTercero = :idTercero) AND " +
             "( cast(:fechaEmisionDesde as date) is null OR entity.fechaEmision >= :fechaEmisionDesde ) AND " +
             "( cast(:fechaEmisionHasta as date) is null OR entity.fechaEmision <= :fechaEmisionHasta ) ")
-    Page<XcFacturasEntity> findAllPaginate(Long idData, Long idEmpresa, LocalDate fechaEmisionDesde,
-                                           LocalDate fechaEmisionHasta,
-                                           UUID idTercero,
+    Page<XcFacturasEntity> findAllPaginate(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
+                                           @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
+                                           @Param("idTercero") UUID idTercero,
                                            Pageable pageable);
 
 

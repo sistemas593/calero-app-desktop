@@ -62,7 +62,7 @@ public interface VtVentasReembolsoRepository extends JpaRepository<VtVentaReembo
             FROM VtVentaReembolsosEntity r
             WHERE r.idVentaReembolsos in :idsReembolsos
             """)
-    List<VtVentaReembolsosEntity> findAllForIds(List<UUID> idsReembolsos);
+    List<VtVentaReembolsosEntity> findAllForIds(@Param("idsReembolsos") List<UUID> idsReembolsos);
 
 
     @Query(value = """

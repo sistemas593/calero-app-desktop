@@ -17,7 +17,7 @@ public interface AdMailsListaNegraRepository extends JpaRepository<AdMailListaNe
     @Query("SELECT entity " +
             "FROM AdMailListaNegraEntity entity " +
             "WHERE entity.email IN :emails")
-    List<AdMailListaNegraEntity> findByEmails(List<String> emails);
+    List<AdMailListaNegraEntity> findByEmails(@Param("emails") List<String> emails);
 
 
     @Query(value = """

@@ -15,14 +15,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -36,11 +32,8 @@ public class GenerarAsientoServiceImpl {
 
     public CnAsientosEntity generarAsiento(Long idData, Long idEmpresa, VtVentaEntity venta) {
 
-
-
-
-
-        List<CnAsientosDetalleEntity> detalles = new ArrayList<>();
+        // TODO GENERACION ASIENTOS
+      /*  List<CnAsientosDetalleEntity> detalles = new ArrayList<>();
 
         CnAsientosEntity asiento = cnAsientosBuilder.builderAsientoVenta(venta);
         CnAsientosDetalleEntity detalleCredito = getAsientoDetalleCredito(idData, idEmpresa, venta);
@@ -66,7 +59,7 @@ public class GenerarAsientoServiceImpl {
             CnAsientosDetalleEntity detalleAsiento = cnAsientosBuilder
                     .builderDetalleAsientoVentaAgrupado(referencia, venta, total);
 
-            detalleAsiento.setCuenta(cnAsientosBuilder.builderCuentaIngreso(idCuenta));
+            detalleAsiento.setCuenta(validarCuenta());
             detalleAsiento.setItemOrden(contador.getAndIncrement());
 
             detalles.add(detalleAsiento);
@@ -82,7 +75,9 @@ public class GenerarAsientoServiceImpl {
         List<CnAsientosDetalleEntity> todosDetalles = detallesAsientoValores(venta, detalles, contador);
 
         asiento.setDetalleEntity(todosDetalles);
-        return asiento;
+        return asiento;*/
+
+        return null;
     }
 
 
@@ -165,7 +160,7 @@ public class GenerarAsientoServiceImpl {
                 detalle.setHaber(item.getValor());
                 //detalle.setGeItem(detalle.getItems());
                 detalle.setTercero(model.getTercero());
-                detalle.setCuenta(cnAsientosBuilder.builderCuentaIngreso(enlace.getIdCuenta()));
+              //  detalle.setCuenta(cnAsientosBuilder.builderCuentaIngreso(enlace.getIdCuenta()));
                 //detalle.setCentroCostos();
 
                 detalle.setItemOrden(contador.getAndIncrement());
@@ -190,7 +185,7 @@ public class GenerarAsientoServiceImpl {
                 detalle.setHaber(item.getValor());
                 //detalle.setGeItem(detalle.getItems());
                 detalle.setTercero(model.getTercero());
-                detalle.setCuenta(cnAsientosBuilder.builderCuentaIngreso(enlace.getIdCuenta()));
+            //    detalle.setCuenta(cnAsientosBuilder.builderCuentaIngreso(enlace.getIdCuenta()));
                 //detalle.setCentroCostos();
 
                 detalle.setItemOrden(contador.getAndIncrement());
@@ -216,7 +211,7 @@ public class GenerarAsientoServiceImpl {
                 detalle.setHaber(item.getValor());
                 //detalle.setGeItem(detalle.getItems());
                 detalle.setTercero(model.getTercero());
-                detalle.setCuenta(cnAsientosBuilder.builderCuentaIngreso(enlace.getIdCuenta()));
+            //    detalle.setCuenta(cnAsientosBuilder.builderCuentaIngreso(enlace.getIdCuenta()));
                 //detalle.setCentroCostos();
 
                 detalle.setItemOrden(contador.getAndIncrement());

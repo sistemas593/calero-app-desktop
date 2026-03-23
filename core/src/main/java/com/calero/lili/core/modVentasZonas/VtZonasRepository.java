@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +23,7 @@ public interface VtZonasRepository extends JpaRepository<VtZonaEntity, UUID> {
 
     @Query("SELECT e FROM VtZonaEntity e " +
             "WHERE e.idData = :idData AND e.idEmpresa = :idEmpresa AND e.idZona = :idZona")
-    Optional<VtZonaEntity> findById(Long idData, Long idEmpresa, UUID idZona);
+    Optional<VtZonaEntity> findById(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("idZona") UUID idZona);
 
     @Query(
             value = "SELECT entity " +
@@ -37,6 +38,6 @@ public interface VtZonasRepository extends JpaRepository<VtZonaEntity, UUID> {
                     "(entity.idEmpresa = :idEmpresa ) AND " +
                     "(:filter IS NULL OR LOWER(entity.zona) LIKE LOWER(CONCAT('%', :filterContent, '%'))) "
     )
-    Page<VtZonaEntity> findAllPaginate(Long idData, Long idEmpresa, String filter, String filterContent, Pageable pageable);
+    Page<VtZonaEntity> findAllPaginate(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("filter") String filter, @Param("filterContent") String filterContent, Pageable pageable);
 
 }

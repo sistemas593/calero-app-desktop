@@ -54,7 +54,13 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
             "entity.numero_autorizacion = :numeroAutorizacion AND " +
             "entity.codigo_sustento = :codigoSustento  " +
             "LIMIT 1", nativeQuery = true)
-    Optional<OneProjection> findExistBySecuencial(Long idData, Long idEmpresa, String numeroIdentificacion, String serie, String secuencial, String numeroAutorizacion, String codigoSustento);
+    Optional<OneProjection> findExistBySecuencial(@Param("idData") Long idData,
+                                                  @Param("idEmpresa") Long idEmpresa,
+                                                  @Param("numeroIdentificacion") String numeroIdentificacion,
+                                                  @Param("serie") String serie,
+                                                  @Param("secuencial") String secuencial,
+                                                  @Param("numeroAutorizacion") String numeroAutorizacion,
+                                                  @Param("codigoSustento") String codigoSustento);
 
     @Query(
             value = "SELECT entity " +

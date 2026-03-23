@@ -19,7 +19,7 @@ public interface AdDatasUsuariosRepository extends JpaRepository<AdDataUsuarioEn
             "where id_data = :idData AND " +
             "id_usuario= :idUsuario " +
             "LIMIT 1", nativeQuery = true)
-    Optional<AdDataUsuarioEntity> findFirstByIdDataAndIdUsuario(Long idData, Long idUsuario);
+    Optional<AdDataUsuarioEntity> findFirstByIdDataAndIdUsuario(@Param("idData") Long idData, @Param("idUsuario") Long idUsuario);
 
     @Query(
             value = "SELECT entity.idRegistro as idRegistro," +
@@ -32,7 +32,7 @@ public interface AdDatasUsuariosRepository extends JpaRepository<AdDataUsuarioEn
                     "FROM AdDataUsuarioEntity entity " +
                     "WHERE (:idData IS NULL OR entity.idData = :idData) AND " +
                     "(:idUsuario IS NULL OR entity.idUsuario = :idUsuario)")
-    Page<AdDataUsuarioEntity> findAllPaginate(Long idData, Long idUsuario, Pageable pageable);
+    Page<AdDataUsuarioEntity> findAllPaginate(@Param("idData") Long idData,@Param("idUsuario")  Long idUsuario, Pageable pageable);
 
 
     @Query("SELECT c FROM AdDataUsuarioEntity c WHERE c.idRegistro = :idRegistro AND c.idData = :idData")

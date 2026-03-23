@@ -2,6 +2,7 @@ package com.calero.lili.core.modComprasProveedoresGrupos;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -21,13 +22,13 @@ public interface CpProveedoresGruposRepository extends JpaRepository<CpProveedor
                     "WHERE ( entity.idData = :idData)  AND " +
                     "(entity.idEmpresa = :idEmpresa)  AND " +
                     "(:filter IS NULL OR LOWER(entity.grupo) LIKE LOWER(CONCAT('%', :filterContent, '%')) ) ")
-    List<CpProveedoresGruposEntity> findAllPaginate(Long idData, Long idEmpresa, String filter, String filterContent);
+    List<CpProveedoresGruposEntity> findAllPaginate(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("filter") String filter, @Param("filterContent") String filterContent);
 
 
     @Query("select  e from CpProveedoresGruposEntity e " +
             "WHERE e.idData = :idData AND " +
             "e.idEmpresa = :idEmpresa AND " +
             "e.predeterminado = :predeterminado")
-    Optional<CpProveedoresGruposEntity> findByIdPredeterminado(Long idData, Long idEmpresa, Boolean predeterminado);
+    Optional<CpProveedoresGruposEntity> findByIdPredeterminado(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("predeterminado") Boolean predeterminado);
 
 }

@@ -38,14 +38,14 @@ public interface CotizacionesRepository extends JpaRepository<VtCotizacionEntity
     @Modifying
     @Query("DELETE FROM VtCotizacionEntity e " +
             "WHERE e.idData = :idData AND e.idEmpresa = :idEmpresa AND e.idCotizacion = :idVenta")
-    void deleteById(Long idData, Long idEmpresa, UUID idVenta);
+    void deleteById(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("idVenta") UUID idVenta);
 
     @Query(value = "SELECT id_cotizacion as idVenta " +
             "FROM vt_cotizaciones vtVentasEntity " +
             "WHERE (vtVentasEntity.id_Data = :idData)  AND " +
             "(vtVentasEntity.id_Empresa = :idEmpresa) AND " +
             "vtVentasEntity.secuencial = :secuencial LIMIT 1", nativeQuery = true)
-    Optional<OneProjection> findExistBySecuencial(Long idData, Long idEmpresa, String secuencial);
+    Optional<OneProjection> findExistBySecuencial(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("secuencial") String secuencial);
 
     @Query(value = "SELECT  " +
             "detalle.id_item as idItem, " +
@@ -66,7 +66,7 @@ public interface CotizacionesRepository extends JpaRepository<VtCotizacionEntity
             "WHERE vtVentasEntity.id_data = :idData  AND " +
             "vtVentasEntity.id_empresa = :idEmpresa AND " +
             "vtVentasEntity.id_cotizacion = :idVenta ", nativeQuery = true)
-    List<OneDetalleProjection> findByIdVentaDetalle(Long idData, Long idEmpresa, UUID idVenta);
+    List<OneDetalleProjection> findByIdVentaDetalle(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("idVenta") UUID idVenta);
 
     @Query(value = "SELECT vtVentasEntity " +
             "FROM VtCotizacionEntity vtVentasEntity " +
@@ -111,7 +111,7 @@ public interface CotizacionesRepository extends JpaRepository<VtCotizacionEntity
                     "( cast(:fechaEmisionDesde as date) is null OR vtVentaEntity.fechaEmision >= :fechaEmisionDesde ) AND " +
                     "( cast(:fechaEmisionHasta as date) is null OR vtVentaEntity.fechaEmision <= :fechaEmisionHasta )"
     )
-    TotalCabeceraProjection totalCabecera(Long idData, Long idEmpresa, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta, String secuencial);
+    TotalCabeceraProjection totalCabecera(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde, @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta, @Param("secuencial") String secuencial);
 
     @Query(
             value = "SELECT valoresEntity.codigo as codigo," +
@@ -129,7 +129,7 @@ public interface CotizacionesRepository extends JpaRepository<VtCotizacionEntity
                     "( cast(:fechaEmisionHasta as date) is null OR vtVentaEntity.fecha_emision <= :fechaEmisionHasta ) " +
                     "GROUP BY valoresEntity.codigo, valoresEntity.codigo_porcentaje", nativeQuery = true
     )
-    List<TotalesProjection> totalValores(Long idData, Long idEmpresa, String sucursal, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta, String numeroIdentificacion, String secuencial);
+    List<TotalesProjection> totalValores(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("sucursal") String sucursal, @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde, @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta, @Param("numeroIdentificacion") String numeroIdentificacion, @Param("secuencial") String secuencial);
 
     @Query(value = "SELECT vtVentasEntity " +
             "FROM VtCotizacionEntity vtVentasEntity " +
@@ -143,6 +143,6 @@ public interface CotizacionesRepository extends JpaRepository<VtCotizacionEntity
             "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmision <= :fechaEmisionHasta )  " +
             ")"
     )
-    List<VtCotizacionEntity> findAll(Long idData, Long idEmpresa, String sucursal, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta, String numeroIdentificacion, String secuencial);
+    List<VtCotizacionEntity> findAll(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("sucursal") String sucursal, @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde, @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta, @Param("numeroIdentificacion") String numeroIdentificacion, @Param("secuencial") String secuencial);
 
 }

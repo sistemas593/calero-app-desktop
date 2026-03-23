@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -15,7 +16,7 @@ public interface TbRetencionesRepository extends JpaRepository<TbRetencionEntity
             "FROM TbRetencionEntity entity " +
             "where entity.codigo = :codigo " )
 
-    Optional<TbRetencionEntity> findById(String codigo);
+    Optional<TbRetencionEntity> findById(@Param("codigo") String codigo);
 
     @Query(
             value = "SELECT entity "+
@@ -31,5 +32,5 @@ public interface TbRetencionesRepository extends JpaRepository<TbRetencionEntity
                     "(:filter IS NULL OR LOWER(entity.nombreRetencion) LIKE LOWER(CONCAT('%', :filterContent, '%')) )) " +
                     ""
     )
-    Page<TbRetencionEntity> findAllPaginate(String filter, String filterContent, Pageable pageable);
+    Page<TbRetencionEntity> findAllPaginate(@Param("filter") String filter, @Param("filterContent") String filterContent, Pageable pageable);
 }

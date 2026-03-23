@@ -4,6 +4,7 @@ import com.calero.lili.core.modRRHH.modRRHHCabecera.projection.ReporteRolCabecer
 import com.calero.lili.core.modRRHH.modRRHHCabecera.projection.TalonResumenTrabajadoresProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -49,7 +50,7 @@ public interface RhRolCabeceraRepository extends JpaRepository<RhRolCabeceraEnti
             " rt.codigo_establecimiento, rt.codigo_residencia, rt.codigo_pais," +
             " rt.aplica_convenio, rt.tipo_discapacidad, rt.porcentaje_discapacidad," +
             " rt.id_discapacidad, rt.codigo_salario, rrc.fecha_generacion;", nativeQuery = true)
-    List<ReporteRolCabeceraProjection> getReportRolCabeceraDetalles(Long idData, Long idEmpresa, UUID idPeriodo, UUID idTercero);
+    List<ReporteRolCabeceraProjection> getReportRolCabeceraDetalles(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("idPeriodo") UUID idPeriodo, @Param("idTercero") UUID idTercero);
 
 
     @Query(value = "SELECT gt.numero_identificacion, gt.tercero," +
@@ -94,11 +95,11 @@ public interface RhRolCabeceraRepository extends JpaRepository<RhRolCabeceraEnti
             " rt.aplica_convenio, rt.tipo_discapacidad, rt.porcentaje_discapacidad," +
             " rt.id_discapacidad, rt.codigo_salario, rrc.fecha_generacion, rt.enfermedad_catastrofica, " +
             " rt.beneficio_prov_galapagos, rrpc.numero_cargas,rt.tipo_id_discapacidad, rt.apellidos, rt.nombres;", nativeQuery = true)
-    List<ReporteRolCabeceraProjection> getRolCabeceraForPeriodo(Long idData, Long idEmpresa, LocalDate fechaInicio, LocalDate fechaFin);
+    List<ReporteRolCabeceraProjection> getRolCabeceraForPeriodo(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("fechaInicio") LocalDate fechaInicio, @Param("fechaFin") LocalDate fechaFin);
 
 
     @Query("SELECT r FROM RhRolCabeceraEntity r WHERE r.periodos.idPeriodo = :idPeriodo AND r.idEmpresa =:idEmpresa AND r.idData =:idData")
-    List<RhRolCabeceraEntity> getAllPeriodo(Long idData, Long idEmpresa, UUID idPeriodo);
+    List<RhRolCabeceraEntity> getAllPeriodo(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("idPeriodo") UUID idPeriodo);
 
 
     @Query(
@@ -109,11 +110,11 @@ public interface RhRolCabeceraRepository extends JpaRepository<RhRolCabeceraEnti
                     " (SELECT COUNT(*) FROM roles_filtrados) AS total_registros FROM rh_rol_detalles rrd " +
                     "JOIN rh_rol_cabecera rrc ON rrc.id_rol = rrd.id_rol JOIN rh_rubros rr ON rr.id_rubro = rrd.id_rubro " +
                     "JOIN roles_filtrados rf ON rf.id_rol = rrc.id_rol GROUP BY rr.codigo, rr.rubro ORDER BY rr.codigo", nativeQuery = true)
-    List<TalonResumenTrabajadoresProjection> getTalResumenRetencionTrabajadores(Long idData, Long idEmpresa, LocalDate fechaInicio,
-                                                                                LocalDate fechaFin);
+    List<TalonResumenTrabajadoresProjection> getTalResumenRetencionTrabajadores(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("fechaInicio") LocalDate fechaInicio,
+                                                                                @Param("fechaFin") LocalDate fechaFin);
 
 
     @Query("SELECT r FROM RhRolCabeceraEntity r WHERE r.tercero.idTercero = :idTercero AND r.idEmpresa =:idEmpresa AND r.idData =:idData")
-    Optional<RhRolCabeceraEntity> getCabeceraForTercero(Long idData, Long idEmpresa, UUID idTercero);
+    Optional<RhRolCabeceraEntity> getCabeceraForTercero(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("idTercero") UUID idTercero);
 
 }

@@ -38,14 +38,14 @@ public interface CnAsientosRepository extends JpaRepository<CnAsientosEntity, UU
     @Modifying
     @Query("DELETE FROM CnAsientosEntity e " +
             "WHERE e.idData = :idData AND e.idEmpresa = :idEmpresa AND e.idAsiento = :idVenta")
-    void deleteById(Long idData, Long idEmpresa, UUID idVenta);
+    void deleteById(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("idVenta") UUID idVenta);
 
     @Query(value = "SELECT id_cotizacion as idVenta " +
             "FROM vt_cotizaciones vtVentasEntity " +
             "WHERE (vtVentasEntity.id_Data = :idData)  AND " +
             "(vtVentasEntity.id_Empresa = :idEmpresa) AND " +
             "vtVentasEntity.secuencial = :secuencial LIMIT 1", nativeQuery = true)
-    Optional<OneProjection> findExistBySecuencial(Long idData, Long idEmpresa, String secuencial);
+    Optional<OneProjection> findExistBySecuencial(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("secuencial") String secuencial);
 
     @Query(value = "SELECT  " +
             "detalle.id_item as idItem, " +
@@ -66,7 +66,7 @@ public interface CnAsientosRepository extends JpaRepository<CnAsientosEntity, UU
             "WHERE vtVentasEntity.id_data = :idData  AND " +
             "vtVentasEntity.id_empresa = :idEmpresa AND " +
             "vtVentasEntity.id_cotizacion = :idVenta ", nativeQuery = true)
-    List<OneDetalleProjection> findByIdVentaDetalle(Long idData, Long idEmpresa, UUID idVenta);
+    List<OneDetalleProjection> findByIdVentaDetalle(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("idVenta") UUID idVenta);
 
     @Query(value = "SELECT vtVentasEntity " +
             "FROM CnAsientosEntity vtVentasEntity " +
@@ -122,7 +122,7 @@ public interface CnAsientosRepository extends JpaRepository<CnAsientosEntity, UU
                     "( cast(:fechaAsientoHasta as date) is null OR vtVentaEntity.fecha_emision <= :fechaAsientoHasta ) " +
                     "GROUP BY valoresEntity.codigo, valoresEntity.codigo_porcentaje", nativeQuery = true
     )
-    List<TotalesProjection> totalValores(Long idData, Long idEmpresa, String sucursal, LocalDate fechaAsientoDesde, LocalDate fechaAsientoHasta, String numeroIdentificacion, String secuencial);
+    List<TotalesProjection> totalValores(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("sucursal") String sucursal, @Param("fechaAsientoDesde") LocalDate fechaAsientoDesde, @Param("fechaAsientoHasta") LocalDate fechaAsientoHasta, @Param("numeroIdentificacion") String numeroIdentificacion, @Param("secuencial") String secuencial);
 
     @Query(value = "SELECT vtVentasEntity " +
             "FROM CnAsientosEntity vtVentasEntity " +
@@ -134,7 +134,7 @@ public interface CnAsientosRepository extends JpaRepository<CnAsientosEntity, UU
             "( cast(:fechaAsientoHasta as date) is null OR vtVentasEntity.fechaAsiento <= :fechaAsientoHasta )  " +
             ")"
     )
-    List<CnAsientosEntity> findAll(Long idData, Long idEmpresa, String sucursal, LocalDate fechaAsientoDesde, LocalDate fechaAsientoHasta);
+    List<CnAsientosEntity> findAll(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("sucursal") String sucursal, @Param("fechaAsientoDesde") LocalDate fechaAsientoDesde, @Param("fechaAsientoHasta") LocalDate fechaAsientoHasta);
 
 
     @Query("SELECT vtVentasEntity FROM CnAsientosEntity vtVentasEntity WHERE vtVentasEntity.idData = :idData AND" +

@@ -364,8 +364,6 @@ VALUES
 (331,'CUENTAS POR PAGAR	PAGOS ELIMINAR PROPIAS','PX_PG_EL_PR', '0'),
 (332,'CUENTAS POR PAGAR	PAGOS ELIMINAR SUCURSAL','PX_PG_EL_SC', '0'),
 (333,'CUENTAS POR PAGAR	PAGOS ELIMINAR TODAS','PX_PG_EL_TD', '0'),
-
---Este permiso no existe en el script
 (334,'USUARIOS PERMISOS VER','US_PE_VR', '0');
 
 
@@ -668,7 +666,6 @@ VALUES
 (10,292),
 (10,293),
 (10,294),
--- IDs 295-314: permisos corregidos (duplicados reasignados)
 (10,295),
 (10,296),
 (10,297),

@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -15,7 +16,7 @@ public interface TbSustentosRepository extends JpaRepository<TbSustentosEntity, 
             "FROM TbSustentosEntity entity " +
             "where entity.codigoSustento = :codigoSustento " )
 
-    Optional<TbSustentosEntity> findById(String codigoSustento);
+    Optional<TbSustentosEntity> findById(@Param("codigoSustento") String codigoSustento);
 
     @Query(
             value = "SELECT entity "+
@@ -31,5 +32,5 @@ public interface TbSustentosRepository extends JpaRepository<TbSustentosEntity, 
                     "(:filter IS NULL OR LOWER(entity.sustento) LIKE LOWER(CONCAT('%', :filterContent, '%')) )) " +
                     ""
     )
-    Page<TbSustentosEntity> findAllPaginate(String filter, String filterContent, Pageable pageable);
+    Page<TbSustentosEntity> findAllPaginate(@Param("filter") String filter, @Param("filterContent") String filterContent, Pageable pageable);
 }

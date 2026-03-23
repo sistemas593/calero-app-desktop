@@ -107,18 +107,18 @@ public interface VtClientesConfiguracionesRepository extends JpaRepository<VtCli
             "FROM VtClientesConfiguracionesEntity entity " +
             "where entity.idData = :idData AND " +
             "entity.idConfiguracion = :id ")
-    Optional<VtClientesConfiguracionesEntity> findById(Long idData, UUID id);
+    Optional<VtClientesConfiguracionesEntity> findById(@Param("idData") Long idData, @Param("id") UUID id);
 
     @Query(value = "SELECT entity " +
             "FROM VtClientesConfiguracionesEntity entity " +
             "where entity.idData = :idData AND " +
             "entity.clave = :clave")
-    Optional<VtClientesConfiguracionesEntity> findByClave(Long idData, String clave);
+    Optional<VtClientesConfiguracionesEntity> findByClave(@Param("idData") Long idData, @Param("clave") String clave);
 
     @Query(value = "SELECT entity " +
             "FROM VtClientesConfiguracionesEntity entity " +
             "where entity.idData = :idData AND " +
             "entity.ruc = :ruc")
-    Optional<VtClientesConfiguracionesEntity> findByRuc(Long idData, String ruc);
+    Optional<VtClientesConfiguracionesEntity> findByRuc(@Param("idData") Long idData, @Param("ruc") String ruc);
 
 }

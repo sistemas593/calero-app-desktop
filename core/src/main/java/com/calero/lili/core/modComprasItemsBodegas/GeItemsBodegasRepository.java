@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +21,7 @@ public interface GeItemsBodegasRepository extends JpaRepository<IvBodegaEntity, 
             "e.idData = :idData  AND " +
             "e.idEmpresa = :idEmpresa  AND " +
             "e.idBodega = :id")
-    void deleteById(Long idData, Long idEmpresa, UUID id);
+    void deleteById(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("id") UUID id);
 
     @Query("SELECT e " +
             "FROM IvBodegaEntity e " +
@@ -28,7 +29,7 @@ public interface GeItemsBodegasRepository extends JpaRepository<IvBodegaEntity, 
             "e.idData = :idData AND " +
             "e.idEmpresa = :idEmpresa AND " +
             "e.idBodega = :id")
-    IvBodegaEntity findById(Long idData, Long idEmpresa, UUID id);
+    IvBodegaEntity findById(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("id") UUID id);
 
     @Query(
             value = "SELECT entity " +
@@ -43,5 +44,5 @@ public interface GeItemsBodegasRepository extends JpaRepository<IvBodegaEntity, 
                     "entity.idEmpresa = :idEmpresa AND " +
                     ":filter IS NULL OR LOWER(entity.bodega) LIKE LOWER(CONCAT('%', :filterContent, '%')) "
     )
-    Page<IvBodegaEntity> findAllPaginate(Long idData, Long idEmpresa, String filter, String filterContent, Pageable pageable);
+    Page<IvBodegaEntity> findAllPaginate(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("filter") String filter, @Param("filterContent") String filterContent, Pageable pageable);
 }

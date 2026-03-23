@@ -16,7 +16,9 @@ public interface GeTercerosGruposClientesRepository extends JpaRepository<GeTerc
             "WHERE e.idData = :idData AND " +
             "e.idEmpresa = :idEmpresa AND " +
             "e.tercero.idTercero = :idTercero")
-    List<GeTercerosGruposClientesEntity> findByIdTercero(Long idData, Long idEmpresa, UUID idTercero);
+    List<GeTercerosGruposClientesEntity> findByIdTercero(@Param("idData") Long idData,
+                                                         @Param("idEmpresa") Long idEmpresa,
+                                                         @Param("idTercero") UUID idTercero);
 
     @Query("SELECT e FROM GeTercerosGruposClientesEntity e " +
             "WHERE e.idData = :idData AND " +

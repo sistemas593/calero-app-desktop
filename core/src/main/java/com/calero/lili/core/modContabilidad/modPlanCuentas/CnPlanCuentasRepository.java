@@ -21,21 +21,21 @@ public interface CnPlanCuentasRepository extends JpaRepository<CnPlanCuentaEntit
     @Transactional
     @Modifying
     @Query("DELETE FROM CnPlanCuentaEntity e WHERE e.idData = :idData AND e.idEmpresa = :idEmpresa AND e.idCuenta = :idCuenta")
-    void deleteById(Long idData, Long idEmpresa, UUID idCuenta);
+    void deleteById(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("idCuenta") UUID idCuenta);
 
     @Query("SELECT e " +
             "FROM CnPlanCuentaEntity e " +
             "WHERE e.idData = :idData AND " +
             "e.idEmpresa = :idEmpresa AND " +
             "e.idCuenta = :idCuenta")
-    Optional<CnPlanCuentaEntity> findByIdCuenta(Long idData, Long idEmpresa, UUID idCuenta);
+    Optional<CnPlanCuentaEntity> findByIdCuenta(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("idCuenta") UUID idCuenta);
 
     @Query("SELECT e " +
             "FROM CnPlanCuentaEntity e " +
             "WHERE e.idData = :idData AND " +
             "e.idEmpresa = :idEmpresa AND " +
             "e.codigoCuenta = :codigoCuenta")
-    Optional<CnPlanCuentaEntity> findByCodigoCuenta(Long idData, Long idEmpresa, String codigoCuenta);
+    Optional<CnPlanCuentaEntity> findByCodigoCuenta(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("codigoCuenta") String codigoCuenta);
 
 
     @Query(
@@ -45,7 +45,7 @@ public interface CnPlanCuentasRepository extends JpaRepository<CnPlanCuentaEntit
                     "(entity.idEmpresa = :idEmpresa) " +
                     "ORDER BY entity.codigoCuentaOriginal"
     )
-    List<CnPlanCuentaEntity> findAll(Long idData, Long idEmpresa);
+    List<CnPlanCuentaEntity> findAll(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa);
 
     @Query(
             value = "SELECT entity " +
@@ -64,7 +64,7 @@ public interface CnPlanCuentasRepository extends JpaRepository<CnPlanCuentaEntit
                     ":filter IS NULL OR LOWER(entity.codigoCuenta) LIKE LOWER(CONCAT('%', :filterContent, '%')) AND " +
                     ":filter IS NULL OR LOWER(entity.cuenta) LIKE LOWER(CONCAT('%', :filterContent, '%')) " +
                     ")")
-    Page<CnPlanCuentaEntity> findAllPaginate(Long idData, Long idEmpresa, String filter, String filterContent, Pageable pageable);
+    Page<CnPlanCuentaEntity> findAllPaginate(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("filter") String filter, @Param("filterContent") String filterContent, Pageable pageable);
 
 
     @Query(
@@ -82,7 +82,7 @@ public interface CnPlanCuentasRepository extends JpaRepository<CnPlanCuentaEntit
                     "(entity.idEmpresa = :idEmpresa) " +
                     "AND (entity.mayor = :mayor) " +
                     "ORDER BY entity.codigoCuentaOriginal")
-    List<CnPlanCuentaEntity> findAllMayores(Long idData, Long idEmpresa, Boolean mayor);
+    List<CnPlanCuentaEntity> findAllMayores(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("mayor") Boolean mayor);
 
 
     @Query("""

@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,13 +18,13 @@ public interface GeItemsGruposRepository extends JpaRepository<GeItemGrupoEntity
     @Transactional
     @Modifying
     @Query("DELETE FROM GeItemGrupoEntity e WHERE e.idData = :idData AND e.idEmpresa = :idEmpresa AND e.idGrupo = :idGrupo ")
-    void deleteByIdGrupo(Long idData, Long idEmpresa, UUID idGrupo);
+    void deleteByIdGrupo(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("idGrupo") UUID idGrupo);
 
     @Query("SELECT e FROM GeItemGrupoEntity e " +
             "WHERE e.idData = :idData AND " +
             "e.idEmpresa = :idEmpresa AND " +
             "e.idGrupo = :idGrupo ")
-    GeItemGrupoEntity findByIdGrupo(Long idData, Long idEmpresa, UUID idGrupo);
+    GeItemGrupoEntity findByIdGrupo(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("idGrupo") UUID idGrupo);
 
 
     @Query(
@@ -44,12 +45,12 @@ public interface GeItemsGruposRepository extends JpaRepository<GeItemGrupoEntity
                     ")"
 
     )
-    Page<GeItemGrupoEntity> findAllPaginate(Long idData, Long idEmpresa, String filter, String filterContent, Pageable pageable);
+    Page<GeItemGrupoEntity> findAllPaginate(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("filter") String filter, @Param("filterContent") String filterContent, Pageable pageable);
 
 
     @Query("SELECT e FROM GeItemGrupoEntity e " +
             "WHERE e.idData = :idData AND " +
             "e.idEmpresa = :idEmpresa AND " +
             "e.grupo = :grupo")
-    GeItemGrupoEntity findByNameGrupo(Long idData, Long idEmpresa, String grupo);
+    GeItemGrupoEntity findByNameGrupo(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("grupo") String grupo);
 }

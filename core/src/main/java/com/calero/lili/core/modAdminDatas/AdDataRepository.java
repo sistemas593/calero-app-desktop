@@ -19,7 +19,7 @@ public interface AdDataRepository extends JpaRepository<AdDataEntity, Long> {
     @Query("DELETE FROM AdDataEntity e WHERE e.idData = :idData ")
     void deleteByIdData(@Param("idData") Long idData);
 
-    Optional<AdDataEntity> findByIdData(Long idData);
+    Optional<AdDataEntity> findByIdData(@Param("idData") Long idData);
 
     // findfirstByIdDataProj
     // BUSCAR registro por id PARA DEVOLVER AL USUARIO LA INFO en projection

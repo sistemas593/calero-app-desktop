@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,7 +19,7 @@ public interface CpProveedoresParametrosRepository extends JpaRepository<CpProve
     @Transactional
     @Modifying
     @Query("DELETE FROM CpProveedoresParametrosEntity e WHERE e.idData = :idData AND e.idEmpresa = :idEmpresa AND e.idParametro = :idParametro")
-    void deleteByIdDataAndEmpresaAndIdParametro(Long idData, Long idEmpresa, UUID idParametro);
+    void deleteByIdDataAndEmpresaAndIdParametro(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("idParametro") UUID idParametro);
 
 
     @Query(value = "SELECT entity " +
@@ -26,7 +27,7 @@ public interface CpProveedoresParametrosRepository extends JpaRepository<CpProve
             "WHERE entity.idData = :idData  AND " +
             "entity.idEmpresa = :idEmpresa AND " +
             "entity.idParametro = :idLiquidacion ")
-    Optional<CpProveedoresParametrosEntity> findByIdEntity(Long idData, Long idEmpresa, UUID idLiquidacion);
+    Optional<CpProveedoresParametrosEntity> findByIdEntity(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("idLiquidacion") UUID idLiquidacion);
 
     @Query(
             value = "SELECT entity " +
@@ -37,7 +38,7 @@ public interface CpProveedoresParametrosRepository extends JpaRepository<CpProve
                     "FROM CpProveedoresParametrosEntity entity " +
                     "WHERE ( entity.idData = :idData)  AND " +
                     "(entity.idEmpresa = :idEmpresa)")
-    Page<CpProveedoresParametrosEntity> findAllPaginate(Long idData, Long idEmpresa, Pageable pageable);
+    Page<CpProveedoresParametrosEntity> findAllPaginate(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, Pageable pageable);
 
 }
 

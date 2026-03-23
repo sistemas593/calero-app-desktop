@@ -37,7 +37,7 @@ public interface ComprasRetencionesRepository extends JpaRepository<CpRetencione
     @Modifying
     @Query("DELETE FROM CpRetencionesEntity e " +
             "WHERE e.idData = :idData AND e.idEmpresa = :idEmpresa AND e.idRetencion = :idVenta")
-    void deleteById(Long idData, Long idEmpresa, UUID idVenta);
+    void deleteById(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("idVenta") UUID idVenta);
 
 
     @Query(value = "SELECT cp_retenciones.id_Data as id_data " +
@@ -46,7 +46,7 @@ public interface ComprasRetencionesRepository extends JpaRepository<CpRetencione
             "(cp_retenciones.id_Empresa = :idEmpresa) AND " +
             "cp_retenciones.clave_acceso = :numeroAutorizacion " +
             "LIMIT 1", nativeQuery = true)
-    Optional<DeEmitidasRetencionesProjection> findExistByNumeroAutorizacion(Long idData, Long idEmpresa, String numeroAutorizacion);
+    Optional<DeEmitidasRetencionesProjection> findExistByNumeroAutorizacion(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("numeroAutorizacion") String numeroAutorizacion);
 
     @Query(value = "SELECT vtVentasEntity " +
             "FROM CpRetencionesEntity vtVentasEntity " +
@@ -107,9 +107,9 @@ public interface ComprasRetencionesRepository extends JpaRepository<CpRetencione
                     "GROUP BY cpiv.codigo, cpiv.codigo_porcentaje",
             nativeQuery = true
     )
-    List<TotalesProjection> totalValores(Long idData, Long idEmpresa, String sucursal, LocalDate fechaEmisionDesde,
-                                         LocalDate fechaEmisionHasta, String numeroIdentificacion, String serie,
-                                         String secuencial);
+    List<TotalesProjection> totalValores(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("sucursal") String sucursal, @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
+                                         @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta, @Param("numeroIdentificacion") String numeroIdentificacion, @Param("serie") String serie,
+                                         @Param("secuencial") String secuencial);
 
 
     @Query(value = "SELECT vtVentasEntity " +
@@ -125,7 +125,7 @@ public interface ComprasRetencionesRepository extends JpaRepository<CpRetencione
             "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmisionRetencion <= :fechaEmisionHasta )  " +
             ")"
     )
-    List<CpRetencionesEntity> findAll(Long idData, Long idEmpresa, String sucursal, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta, String numeroIdentificacion, String serie, String secuencial);
+    List<CpRetencionesEntity> findAll(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("sucursal") String sucursal, @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde, @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta, @Param("numeroIdentificacion") String numeroIdentificacion, @Param("serie") String serie, @Param("secuencial") String secuencial);
 
     @Query(value = "SELECT " +
             "entity.id_retencion as idRetencion,  " +
@@ -135,6 +135,6 @@ public interface ComprasRetencionesRepository extends JpaRepository<CpRetencione
             "WHERE (entity.id_data = :idData)  AND " +
             "(entity.id_empresa = :idEmpresa) AND " +
             "entity.id_retencion = :id ", nativeQuery = true)
-    Optional<CpRetencionesOneProjection> findXMLById(Long idData, Long idEmpresa, UUID id);
+    Optional<CpRetencionesOneProjection> findXMLById(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("id") UUID id);
 
 }

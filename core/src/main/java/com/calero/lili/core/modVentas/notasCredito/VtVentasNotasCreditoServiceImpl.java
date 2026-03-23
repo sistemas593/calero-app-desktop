@@ -1,6 +1,18 @@
 package com.calero.lili.core.modVentas.notasCredito;
 
+import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.core.comprobantes.services.ComprobanteServiceImpl;
+import com.calero.lili.core.dtos.Mensajes;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.Paginator;
+import com.calero.lili.core.dtos.ResponseDto;
+import com.calero.lili.core.enums.EstadoDocumento;
+import com.calero.lili.core.enums.FormatoDocumento;
+import com.calero.lili.core.enums.TipoEmision;
+import com.calero.lili.core.enums.TipoPermiso;
+import com.calero.lili.core.enums.TipoVenta;
+import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.core.errors.exceptions.NotFoundException;
 import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosEntity;
 import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosRepository;
 import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
@@ -22,20 +34,8 @@ import com.calero.lili.core.modVentas.notasCredito.dto.CreationNotaCreditoReques
 import com.calero.lili.core.modVentas.notasCredito.dto.GetNotaCreditoDto;
 import com.calero.lili.core.modVentas.projection.OneProjection;
 import com.calero.lili.core.modVentas.projection.TotalesProjection;
-import com.calero.lili.core.enums.TipoPermiso;
-import com.calero.lili.core.utils.validaciones.ValidarCampoAscii;
-import com.calero.lili.core.builder.ResponseApiBuilder;
-import com.calero.lili.core.dtos.Mensajes;
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.Paginator;
-import com.calero.lili.core.dtos.ResponseDto;
-import com.calero.lili.core.enums.EstadoDocumento;
-import com.calero.lili.core.enums.FormatoDocumento;
-import com.calero.lili.core.enums.TipoEmision;
-import com.calero.lili.core.enums.TipoVenta;
-import com.calero.lili.core.errors.exceptions.GeneralException;
-import com.calero.lili.core.errors.exceptions.NotFoundException;
 import com.calero.lili.core.utils.DateUtils;
+import com.calero.lili.core.utils.validaciones.ValidarCampoAscii;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Phrase;
@@ -128,13 +128,6 @@ public class VtVentasNotasCreditoServiceImpl {
         String sec = request.getSecuencial();
         DecimalFormat df = new DecimalFormat(sec.replaceAll("[1-9]", "0"));
         documentosEntity.setSecuencial(df.format(nuevo));
-
-        Boolean generarAsiento = Boolean.TRUE;
-        if (generarAsiento) {
-            CnAsientosEntity asiento = cnAsientosRepository.save(generarAsientoService.generarAsiento(idData, idEmpresa, saved));
-            saved.setIdAsiento(asiento.getIdAsiento());
-            vtVentaRepository.save(saved);
-        }
 
         return responseApiBuilder.builderResponse(saved.getIdVenta().toString());
 

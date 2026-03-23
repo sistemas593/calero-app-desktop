@@ -17,7 +17,7 @@ public interface CnEnlacesGeneralesRepository extends JpaRepository<CnEnlacesGen
     @Query("SELECT e " +
             "FROM CnEnlacesGeneralesEntity e WHERE " +
             "e.idEnlace = :idEnlace")
-    Optional<CnEnlacesGeneralesEntity> findByIdEnlace(UUID idEnlace);
+    Optional<CnEnlacesGeneralesEntity> findByIdEnlace(@Param("idEnlace") UUID idEnlace);
 
 
     @Query(
@@ -34,7 +34,7 @@ public interface CnEnlacesGeneralesRepository extends JpaRepository<CnEnlacesGen
     @Query("SELECT e " +
             "FROM CnEnlacesGeneralesEntity e WHERE " +
             "e.codigo = :codigo")
-    Optional<CnEnlacesGeneralesEntity> findByCodigo(String codigo);
+    Optional<CnEnlacesGeneralesEntity> findByCodigo(@Param("codigo") String codigo);
 
 
 }

@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,12 +17,12 @@ public interface TsCajasTpvRepository extends JpaRepository<TsCajasTpvEntity, UU
     @Transactional
     @Modifying
     @Query("DELETE FROM TsCajasTpvEntity e WHERE e.idData = :idData AND e.idEmpresa = :idEmpresa AND e.idCajaTpv = :idCajaTpv")
-    void deleteByIdDataAndEmpresaAndidCajaTpv(Long idData, Long idEmpresa, Long idCajaTpv);
+    void deleteByIdDataAndEmpresaAndidCajaTpv(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("idCajaTpv") Long idCajaTpv);
 
     @Query("SELECT e " +
             "FROM TsCajasTpvEntity e " +
             "WHERE e.idData = :idData AND e.idEmpresa = :idEmpresa AND e.idCajaTpv = :idCajaTpv")
-    TsCajasTpvEntity findByIdCajaTpv(Long idData, Long idEmpresa, UUID idCajaTpv);
+    TsCajasTpvEntity findByIdCajaTpv(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("idCajaTpv") UUID idCajaTpv);
 
     @Query(
             value = "SELECT entity "+
@@ -32,6 +33,6 @@ public interface TsCajasTpvRepository extends JpaRepository<TsCajasTpvEntity, UU
                     "FROM TsCajasTpvEntity entity "+
                     "WHERE ( entity.idData = :idData)  AND " +
                     "(entity.idEmpresa = :idEmpresa)")
-    Page<TsCajasTpvEntity> findAllPaginate(Long idData, Long idEmpresa, Pageable pageable);
+    Page<TsCajasTpvEntity> findAllPaginate(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, Pageable pageable);
 
 }

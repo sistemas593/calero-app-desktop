@@ -46,9 +46,9 @@ public interface XpFacturasRepository extends JpaRepository<XpFacturasEntity, UU
             " (:idTercero IS NULL OR entity.proveedor.idTercero = :idTercero) AND " +
             "( cast(:fechaRegistroDesde as date) is null OR entity.fechaRegistro >= :fechaRegistroDesde ) AND " +
             "( cast(:fechaRegistroHasta as date) is null OR entity.fechaRegistro <= :fechaRegistroHasta ) ")
-    Page<XpFacturasEntity> findAllPaginate(Long idData, Long idEmpresa, LocalDate fechaRegistroDesde,
-                                           LocalDate fechaRegistroHasta,
-                                           UUID idTercero,
+    Page<XpFacturasEntity> findAllPaginate(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("fechaRegistroDesde") LocalDate fechaRegistroDesde,
+                                           @Param("fechaRegistroHasta") LocalDate fechaRegistroHasta,
+                                           @Param("idTercero") UUID idTercero,
                                            Pageable pageable);
 
     @Query("SELECT c FROM XpFacturasEntity c " +

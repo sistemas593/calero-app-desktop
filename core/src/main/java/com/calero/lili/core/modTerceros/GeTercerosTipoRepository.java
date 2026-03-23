@@ -3,6 +3,7 @@ package com.calero.lili.core.modTerceros;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,12 +15,12 @@ public interface GeTercerosTipoRepository extends JpaRepository<GeTercerosTipoEn
     @Transactional
     @Modifying
     @Query("DELETE FROM GeTercerosTipoEntity e WHERE e.tercero.idTercero = :idTercero")
-    void deleteByIdTercero(UUID idTercero);
+    void deleteByIdTercero(@Param("idTercero") UUID idTercero);
 
 
     @Transactional
     @Modifying
     @Query("DELETE FROM GeTercerosTipoEntity e WHERE e.tercero.idTercero = :idTercero AND e.tipo = :tipo")
-    void deleteByIdTerceroAndTipo(UUID idTercero, Integer tipo);
+    void deleteByIdTerceroAndTipo(@Param("idTercero") UUID idTercero, @Param("tipo") Integer tipo);
 
 }

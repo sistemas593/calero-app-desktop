@@ -16,15 +16,17 @@ public interface GeTercerosGruposProveedoresRepository extends JpaRepository<GeT
             "WHERE e.idData = :idData AND " +
             "e.idEmpresa = :idEmpresa AND " +
             "e.tercero.idTercero = :idTercero")
-    List<GeTercerosGruposProveedoresEntity> findByIdTercero(Long idData, Long idEmpresa, UUID idTercero);
+    List<GeTercerosGruposProveedoresEntity> findByIdTercero(@Param("idData") Long idData,
+                                                            @Param("idEmpresa") Long idEmpresa,
+                                                            @Param("idTercero") UUID idTercero);
 
     @Query("SELECT e FROM GeTercerosGruposProveedoresEntity e " +
             "WHERE e.idData = :idData AND " +
             "e.idEmpresa = :idEmpresa AND " +
             "e.tercero.idTercero = :idTercero ")
     Optional<GeTercerosGruposProveedoresEntity> findByDataTercero(@Param("idData") Long idData,
-                                                               @Param("idEmpresa") Long idEmpresa,
-                                                               @Param("idTercero") UUID idTercero);
+                                                                  @Param("idEmpresa") Long idEmpresa,
+                                                                  @Param("idTercero") UUID idTercero);
 
 
 }
