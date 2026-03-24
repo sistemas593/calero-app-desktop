@@ -1,9 +1,11 @@
 package com.calero.lili.api.modAdminUsuarios;
 
+import com.calero.lili.api.modAdminUsuarios.adPermisos.AdPermisosEntity;
 import com.calero.lili.api.modAdminUsuarios.adRol.AdRolEntity;
 import com.calero.lili.api.modAdminUsuarios.adRol.AdUsuarioRolRepository;
 import com.calero.lili.api.modAdminUsuarios.dto.AdUsuarioCreationResponseDto;
 import com.calero.lili.api.modAdminUsuarios.dto.AdUsuarioListFilterDto;
+import com.calero.lili.api.modAdminUsuarios.dto.AdUsuarioPermisosDtoResponse;
 import com.calero.lili.api.modAdminUsuarios.dto.AdUsuarioReportDto;
 import com.calero.lili.api.modAdminUsuarios.dto.AdUsuarioRequestDto;
 import com.calero.lili.core.dtos.PaginatedDto;
@@ -39,6 +41,7 @@ public class AdUsuarioServiceImpl {
 
     @Autowired
     private AdDataRepository adDataRepository;
+
 
     @Transactional
     // ESTA INCORRECTO ESTOY RECIBIENTO DIRECTAMENTE LA ENTIDAD, CAMBIAR Y RECIBIR DTO
@@ -223,23 +226,31 @@ public class AdUsuarioServiceImpl {
         dto.setRoles(rolesDto);
         return dto;
     }
-//
-//
-//    private List<AdRolEntity> getRoles(IUser user) {
-//        Optional<AdRolEntity> ou = roleRepository.findByName("ROLE_USER");
-//
-//        List<AdRolEntity> roles = new ArrayList<>();
-//        if (ou.isPresent()) {
-//            roles.add(ou.orElseThrow());
-//        }
-//
-//        if (user.isAdmin()) {
-//            Optional<AdRolEntity> oa = roleRepository.findByName("ROLE_ADMIN");
-//            if (oa.isPresent()) {
-//                roles.add(oa.orElseThrow());
-//            }
-//        }
-//        return roles;
-//    }
+
+
+    public AdUsuarioPermisosDtoResponse getRolPermisosUsuario(Long idUsuario) {
+        AdUsuarioEntity entidad = adUsuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", idUsuario)));
+
+        List<String> permisos = entidad.getRoles().stream()
+                .flatMap(rol -> rol.getGrupos().stream())
+                .flatMap(grupo -> grupo.getPermisos().stream())
+                .map(AdPermisosEntity::getPermiso)
+                .distinct()
+                .toList();
+
+        return AdUsuarioPermisosDtoResponse.builder()
+                .roles(entidad.getRoles().stream().map(this::getRolUsuario).toList())
+                .permisos(permisos)
+                .build();
+
+
+    }
+
+    private AdUsuarioPermisosDtoResponse.Roles getRolUsuario(AdRolEntity rol) {
+        return AdUsuarioPermisosDtoResponse.Roles.builder()
+                .rol(rol.getNombre())
+                .build();
+    }
 
 }

@@ -3,6 +3,7 @@ package com.calero.lili.api.controllers;
 import com.calero.lili.api.modAdminUsuarios.AdUsuarioServiceImpl;
 import com.calero.lili.api.modAdminUsuarios.dto.AdUsuarioCreationResponseDto;
 import com.calero.lili.api.modAdminUsuarios.dto.AdUsuarioListFilterDto;
+import com.calero.lili.api.modAdminUsuarios.dto.AdUsuarioPermisosDtoResponse;
 import com.calero.lili.api.modAdminUsuarios.dto.AdUsuarioReportDto;
 import com.calero.lili.api.modAdminUsuarios.dto.AdUsuarioRequestDto;
 import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
@@ -60,6 +61,14 @@ public class AdUsuariosController {
     public PaginatedDto<AdUsuarioReportDto> findAllPaginate(AdUsuarioListFilterDto filters,
                                                             Pageable pageable) {
         return adUsuarioService.findAllPaginate(filters, pageable);
+    }
+
+
+    @GetMapping("permisos/{idUsuario}")
+    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAuthority('US_US_VR')")
+    public AdUsuarioPermisosDtoResponse getPermisosUsuario(@PathVariable("idUsuario") Long idUsuario) {
+        return adUsuarioService.getRolPermisosUsuario(idUsuario);
     }
 
 }
