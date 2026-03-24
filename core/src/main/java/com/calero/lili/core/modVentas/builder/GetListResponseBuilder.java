@@ -23,8 +23,6 @@ public class GetListResponseBuilder {
                 .tipoIngreso(model.getTipoIngreso())
                 .codigoDocumento(model.getCodigoDocumento())
                 .fechaEmision(model.getFechaEmision().toString())
-                .terceroNombre(model.getTerceroNombre())
-                .numeroIdentificacion(model.getNumeroIdentificacion())
                 .idTercero(model.getTercero().getIdTercero())
                 .fechaVencimiento(model.getFechaVencimiento())
                 .numeroItems(model.getNumeroItems())
@@ -41,6 +39,8 @@ public class GetListResponseBuilder {
                 .valores(builderListValoresDto(model.getValoresEntity()))
                 .ambiente(model.getAmbiente())
                 .email(model.getEmail())
+                .numeroIdentificacion(model.getTercero().getNumeroIdentificacion())
+                .terceroNombre(model.getTercero().getTercero())
                 .build();
     }
 
@@ -72,8 +72,6 @@ public class GetListResponseBuilder {
                 .tipoIngreso(model.getTipoIngreso())
                 .codigoDocumento(model.getCodigoDocumento())
                 .fechaEmision(model.getFechaEmision().toString())
-                .terceroNombre(model.getTerceroNombre())
-                .numeroIdentificacion(model.getNumeroIdentificacion())
                 .idTercero(model.getTercero().getIdTercero())
                 .fechaVencimiento(model.getFechaVencimiento())
                 .numeroItems(model.getNumeroItems())
@@ -90,6 +88,8 @@ public class GetListResponseBuilder {
                 .valores(builderAnuladoListValoresDto(model.getValoresEntity()))
                 .ambiente(model.getAmbiente())
                 .email(model.getEmail())
+                .numeroIdentificacion(model.getTercero().getNumeroIdentificacion())
+                .terceroNombre(model.getTercero().getTercero())
                 .build();
     }
 

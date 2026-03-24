@@ -64,11 +64,11 @@ public class AdUsuariosController {
     }
 
 
-    @GetMapping("permisos/{idUsuario}")
+    @GetMapping("permisos/{username}")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAuthority('US_US_VR')")
-    public AdUsuarioPermisosDtoResponse getPermisosUsuario(@PathVariable("idUsuario") Long idUsuario) {
-        return adUsuarioService.getRolPermisosUsuario(idUsuario);
+    public AdUsuarioPermisosDtoResponse getPermisosUsuario(@PathVariable("username") String username) {
+        return adUsuarioService.getRolPermisosUsuario(username);
     }
 
 }

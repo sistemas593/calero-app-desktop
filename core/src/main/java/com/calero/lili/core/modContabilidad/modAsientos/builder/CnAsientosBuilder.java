@@ -6,9 +6,6 @@ import com.calero.lili.core.modContabilidad.modAsientos.CnAsientosEntity;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.CreationAsientosRequestDto;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.GetDto;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.GetListDto;
-import com.calero.lili.core.errors.exceptions.GeneralException;
-import com.calero.lili.core.modContabilidad.modPlanCuentas.CnPlanCuentaEntity;
-import com.calero.lili.core.modContabilidad.modPlanCuentas.CnPlanCuentasRepository;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modVentas.VtVentaDetalleEntity;
 import com.calero.lili.core.modVentas.VtVentaEntity;
@@ -25,7 +22,6 @@ import java.util.UUID;
 public class CnAsientosBuilder {
 
     private final CnAsientosDetallesBuilder cnAsientosDetallesBuilder;
-    private final CnPlanCuentasRepository cnPlanCuentasRepository;
 
     public CnAsientosEntity builderEntity(CreationAsientosRequestDto model, Long idData, Long idEmpresa) {
         return CnAsientosEntity.builder()
@@ -119,7 +115,7 @@ public class CnAsientosBuilder {
                 .anulada(Boolean.FALSE)
                 .valor(BigDecimal.ZERO)
                 .codigoSerie("")
-                .nombre(model.getTerceroNombre())
+                //.nombre(model) NOMBRE TERCERO.
                 .observaciones("")
                 .tercero(model.getTercero())
                 .build();

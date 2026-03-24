@@ -21,6 +21,8 @@ import java.util.UUID;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class GetFacturaDto {
 
     private UUID idVenta;
@@ -39,10 +41,6 @@ public class GetFacturaDto {
 
     private UUID idTercero;
 
-    private String tipoIdentificacion;
-    private String numeroIdentificacion;
-    private String terceroNombre;
-    private String tipoCliente;
     private String relacionado;
     private String email;
 

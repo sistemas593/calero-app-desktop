@@ -5,7 +5,6 @@ import com.calero.lili.core.builder.InformacionAdicionalBuilder;
 import com.calero.lili.core.enums.Ambiente;
 import com.calero.lili.core.enums.EmailEstado;
 import com.calero.lili.core.enums.Liquidar;
-import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.enums.TipoVenta;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modVentas.VtVentaEntity;
@@ -70,11 +69,6 @@ public class VtFacturasBuilder {
                 .total(model.getTotal())
                 .anulada(Boolean.FALSE)
                 .impresa(model.getImpresa())
-                .tipoIdentificacion(Objects.nonNull(model.getTipoIdentificacion())
-                        ? model.getTipoIdentificacion().name()
-                        : TipoIdentificacion.C.name())
-                .numeroIdentificacion(model.getNumeroIdentificacion())
-                .tipoCliente(model.getTipoCliente())
                 .relacionado(model.getRelacionado())
                 .concepto(model.getConcepto())
                 .modSerie("")
@@ -132,11 +126,7 @@ public class VtFacturasBuilder {
                 //  .idVendedor(model.getIdVendedor())
                 .anulada(item.getAnulada())
                 .impresa(model.getImpresa())
-                .tipoIdentificacion(Objects.nonNull(model.getTipoIdentificacion())
-                        ? model.getTipoIdentificacion().name()
-                        : TipoIdentificacion.C.name())
-                .numeroIdentificacion(model.getNumeroIdentificacion())
-                .tipoCliente(model.getTipoCliente())
+
                 .relacionado(model.getRelacionado())
                 .concepto(model.getConcepto())
                 .modSerie("")
@@ -268,10 +258,6 @@ public class VtFacturasBuilder {
                 .liquidar(model.getLiquidar())
                 .guiaRemisionSerie(model.getGuiaRemisionSerie())
                 .guiaRemisionSecuencial(model.getGuiaRemisionSecuencial())
-                .tipoIdentificacion(model.getTipoIdentificacion())
-                .numeroIdentificacion(model.getNumeroIdentificacion())
-                .terceroNombre(model.getTerceroNombre())
-                .tipoCliente(model.getTipoCliente())
                 .relacionado(model.getRelacionado())
                 .email(model.getEmail())
                 .subtotal(model.getSubtotal())
@@ -321,10 +307,6 @@ public class VtFacturasBuilder {
                 .liquidar(model.getLiquidar())
                 .guiaRemisionSerie(model.getGuiaRemisionSerie())
                 .guiaRemisionSecuencial(model.getGuiaRemisionSecuencial())
-                .tipoIdentificacion(model.getTipoIdentificacion())
-                .numeroIdentificacion(model.getNumeroIdentificacion())
-                .terceroNombre(model.getTerceroNombre())
-                .tipoCliente(model.getTipoCliente())
                 .relacionado(model.getRelacionado())
                 .email(model.getEmail())
                 .subtotal(model.getSubtotal())

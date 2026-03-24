@@ -3,19 +3,13 @@ package com.calero.lili.core.modCxC.XcFacturas.dto;
 import com.calero.lili.core.enums.TipoDocumentoFactura;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.UUID;
 
 @Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
 public class RequestXcFacturasDto {
 
     private String sucursal;

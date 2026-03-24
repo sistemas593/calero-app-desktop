@@ -6,14 +6,12 @@ import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.TipoIdentificacion;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
 import java.util.UUID;
 
 @Data
-@Builder
 public class CreationRetencionRequestDto {
 
     @NotEmpty(message = "No existe la sucursal")

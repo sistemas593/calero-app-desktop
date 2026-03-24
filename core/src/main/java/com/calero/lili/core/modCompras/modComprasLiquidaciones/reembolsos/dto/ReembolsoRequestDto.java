@@ -4,14 +4,12 @@ import com.calero.lili.core.enums.TipoTerceroPerSoc;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.detalles.ValoresDto;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
 import java.util.UUID;
 
 @Data
-@Builder
 public class ReembolsoRequestDto {
 
     @NotEmpty(message = "El tipo de identificación esta vacío")

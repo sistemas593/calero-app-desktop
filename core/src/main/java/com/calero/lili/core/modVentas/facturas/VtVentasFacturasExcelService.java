@@ -200,11 +200,12 @@ public class VtVentasFacturasExcelService {
                 Objects.nonNull(row.getCell(5)) && Objects.nonNull(row.getCell(7)) &&
                 Objects.nonNull(row.getCell(10)) && Objects.nonNull(row.getCell(8)) && Objects.nonNull(row.getCell(9))) {
 
+            // TODO REVISAR EJEMPLO DE EXCEL DE VENTAS FACTURAS PARA QUITAR LOS CAMPOS QUE NO SON YA REQUERIDOS LOS QUE ESTAN COMENTADOS
 
-            factura.setNumeroIdentificacion(row.getCell(4).getStringCellValue());
+           /* factura.setNumeroIdentificacion(row.getCell(4).getStringCellValue());
             factura.setTipoIdentificacion(TipoIdentificacion.obtenerTipoIdentificacion(row.getCell(3).getStringCellValue()).name());
             factura.setTipoCliente(row.getCell(5).getStringCellValue());
-            factura.setTerceroNombre(row.getCell(7).getStringCellValue());
+            factura.setTerceroNombre(row.getCell(7).getStringCellValue());*/
             factura.setEmail(row.getCell(10).getStringCellValue());
 
             Optional<GeTerceroEntity> cliente = geTercerosRepository

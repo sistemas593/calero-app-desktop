@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.ToString;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Data
 @ToString
@@ -17,6 +18,7 @@ public class FilterListDto {
     private String secuencial;
     private String fechaEmisionDesde;
     private String fechaEmisionHasta;
+    private UUID idTercero;
     private String numeroIdentificacion;
     private String terceroNombre;
     private String numeroAutorizacion;

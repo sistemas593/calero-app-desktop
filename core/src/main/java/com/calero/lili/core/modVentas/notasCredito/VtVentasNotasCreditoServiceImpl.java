@@ -112,7 +112,6 @@ public class VtVentasNotasCreditoServiceImpl {
         VtVentaEntity vtVentaEntity = vtNotasCreditoBuilder.builderEntity(request, idData, idEmpresa);
         vtVentaEntity.setTercero(tercero);
         vtVentaEntity.setEmail(tercero.getTercero());
-        vtVentaEntity.setTerceroNombre(tercero.getTercero());
         vtVentaEntity.setCreatedBy(usuario);
         vtVentaEntity.setCreatedDate(LocalDateTime.now());
 
@@ -166,7 +165,6 @@ public class VtVentasNotasCreditoServiceImpl {
 
         update.setTercero(tercero);
         update.setEmail(tercero.getEmail());
-        update.setTerceroNombre(tercero.getTercero());
 
         update.setTipoEmision(getTipoEmision(request));
         vtComprobanteService.getComprobanteXmlNotaCredito(idData, idEmpresa, update);
@@ -263,7 +261,9 @@ public class VtVentasNotasCreditoServiceImpl {
             return getListResponseBuilder.builderListResponse(item);
         }).toList();
 
-        List<TotalesProjection> totalValoresProjection = vtVentaRepository.totalValores(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getTipoVenta(), filters.getSerie(), filters.getSecuencial());
+        List<TotalesProjection> totalValoresProjection = vtVentaRepository.totalValores(idData, idEmpresa, filters.getSucursal(),
+                filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getTipoVenta(),
+                filters.getSerie(), filters.getSecuencial());
 
         GetListDtoTotalizado totalesDto = new GetListDtoTotalizado<>();
         totalesDto.setContent(dtoList);
@@ -292,7 +292,8 @@ public class VtVentasNotasCreditoServiceImpl {
     public void exportarExcel(Long idData, Long idEmpresa, HttpServletResponse response, FilterListDto filter) throws IOException {
 
         log.info("Iniciando la exportación a Excel con el filtro: {}", filter);
-        List<VtVentaEntity> facturas = vtVentaRepository.findAll(idData, idEmpresa, filter.getSucursal(), filter.getFechaEmisionDesde(), filter.getFechaEmisionHasta(), filter.getNumeroIdentificacion(), filter.getTipoVenta(), filter.getSerie(), filter.getSecuencial());
+        List<VtVentaEntity> facturas = vtVentaRepository.findAll(idData, idEmpresa, filter.getSucursal(), filter.getFechaEmisionDesde(),
+                filter.getFechaEmisionHasta(), filter.getTipoVenta(), filter.getSerie(), filter.getSecuencial());
 
         DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
         String currentDateTime = dateFormatter.format(new Date());
@@ -411,7 +412,7 @@ public class VtVentasNotasCreditoServiceImpl {
                     row.createCell(2).setCellValue(factura.getSecuencial());
                     row.createCell(3).setCellValue(DateUtils.toString(factura.getFechaEmision()));
                     row.createCell(4).setCellValue(factura.getNumeroAutorizacion());
-                    row.createCell(5).setCellValue(factura.getNumeroIdentificacion());
+                    row.createCell(5).setCellValue(factura.getTercero().getNumeroIdentificacion());
 
                     row.createCell(6).setCellValue(baseCero.doubleValue());
 
@@ -450,7 +451,8 @@ public class VtVentasNotasCreditoServiceImpl {
 
     public void exportarPDF(Long idData, Long idEmpresa, HttpServletResponse response, FilterListDto filters) throws DocumentException, IOException {
 
-        List<VtVentaEntity> facturas = vtVentaRepository.findAll(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getTipoVenta(), filters.getSerie(), filters.getSecuencial());
+        List<VtVentaEntity> facturas = vtVentaRepository.findAll(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
+                filters.getFechaEmisionHasta(), filters.getTipoVenta(), filters.getSerie(), filters.getSecuencial());
 
         response.setContentType("application/pdf");
         String headerKey = "Content-Disposition";
@@ -541,7 +543,7 @@ public class VtVentasNotasCreditoServiceImpl {
                 table.addCell(factura.getSecuencial());
                 table.addCell(factura.getFechaEmision().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
                 table.addCell(factura.getNumeroAutorizacion());
-                table.addCell(factura.getNumeroIdentificacion());
+                table.addCell(factura.getTercero().getNumeroIdentificacion());
 
                 table.addCell(String.valueOf(baseCero));
 
@@ -661,19 +663,19 @@ public class VtVentasNotasCreditoServiceImpl {
 
 
     private Page<VtVentaEntity> getTipoBusquedaPaginado(Long idData, Long idEmpresa, FilterListDto filters,
-                                                       Pageable pageable, TipoPermiso tipoBusqueda, String usuario) {
+                                                        Pageable pageable, TipoPermiso tipoBusqueda, String usuario) {
 
         switch (tipoBusqueda) {
             case TODAS -> {
                 return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
-                        filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), null, filters.getTipoVenta(), filters.getSerie(),
+                        filters.getFechaEmisionHasta(), null, null, filters.getSerie(),
                         filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
             }
 
             case SUCURSAL -> {
                 if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
                     return vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
-                            filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), null, filters.getTipoVenta(), filters.getSerie(),
+                            filters.getFechaEmisionHasta(), null, null, filters.getSerie(),
                             filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
                 } else {
                     throw new GeneralException("Es requerido el parametro de la sucursal");
@@ -682,7 +684,7 @@ public class VtVentasNotasCreditoServiceImpl {
 
             case PROPIAS -> {
                 return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
-                        filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), null, filters.getTipoVenta(), filters.getSerie(),
+                        filters.getFechaEmisionHasta(), null, null, filters.getSerie(),
                         filters.getSecuencial(), filters.getNumeroAutorizacion(), usuario, pageable);
             }
         }

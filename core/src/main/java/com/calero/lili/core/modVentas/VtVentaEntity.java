@@ -1,5 +1,6 @@
 package com.calero.lili.core.modVentas;
 
+import com.calero.lili.core.Auditable;
 import com.calero.lili.core.dtos.FormasPagoSri;
 import com.calero.lili.core.dtos.InformacionAdicional;
 import com.calero.lili.core.dtos.Mensajes;
@@ -7,7 +8,6 @@ import com.calero.lili.core.enums.ComercioExterior;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormaPago;
 import com.calero.lili.core.enums.FormatoDocumento;
-import com.calero.lili.core.Auditable;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modVentas.reembolsos.VtVentaReembolsosEntity;
 import com.calero.lili.core.modVentasVendedores.VtVendedorEntity;
@@ -148,15 +148,6 @@ public class VtVentaEntity extends Auditable {
     @Column(name = "impresa")
     private Boolean impresa;
 
-    @Column(name = "tipo_identificacion")
-    private String tipoIdentificacion;
-
-    private String numeroIdentificacion;
-
-    @Column(name = "tercero")
-    private String terceroNombre;
-
-    private String tipoCliente;
     private String relacionado;
 
     @JdbcTypeCode(SqlTypes.JSON)

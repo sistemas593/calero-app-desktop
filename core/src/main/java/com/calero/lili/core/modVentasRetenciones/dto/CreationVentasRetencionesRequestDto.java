@@ -14,6 +14,8 @@ import java.util.UUID;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class CreationVentasRetencionesRequestDto {
 
     @NotEmpty(message = "No existe la sucursal")

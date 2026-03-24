@@ -3,14 +3,18 @@ package com.calero.lili.core.modRRHH.modRRHHTrabajadores.dto;
 import com.calero.lili.core.modLocalidades.modCantones.dto.ResponseCantonDto;
 import com.calero.lili.core.modLocalidades.modCantones.dto.ResponseProvinciaDto;
 import com.calero.lili.core.tablas.tbPaises.TbPaisGetOneDto;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ResponseTrabajadorDto {
 
     private UUID idTrabajador;

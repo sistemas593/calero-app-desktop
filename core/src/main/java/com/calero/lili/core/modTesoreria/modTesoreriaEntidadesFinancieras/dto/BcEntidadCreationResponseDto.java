@@ -11,6 +11,8 @@ import java.util.UUID;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class BcEntidadCreationResponseDto {
     private UUID idEntidad;
     private String tipoEntidad;

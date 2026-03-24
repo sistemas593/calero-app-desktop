@@ -1,10 +1,20 @@
 package com.calero.lili.core.modVentas.notasDebito;
 
+import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.core.comprobantes.services.ComprobanteServiceImpl;
+import com.calero.lili.core.dtos.Mensajes;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.Paginator;
+import com.calero.lili.core.dtos.ResponseDto;
+import com.calero.lili.core.enums.EstadoDocumento;
+import com.calero.lili.core.enums.FormatoDocumento;
+import com.calero.lili.core.enums.TipoEmision;
+import com.calero.lili.core.enums.TipoPermiso;
+import com.calero.lili.core.enums.TipoVenta;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosEntity;
 import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosRepository;
 import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
-import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.modComprasItems.GeItemsRepository;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
@@ -19,18 +29,8 @@ import com.calero.lili.core.modVentas.notasDebito.dto.FilterListDto;
 import com.calero.lili.core.modVentas.notasDebito.dto.GetNotaDebitoDto;
 import com.calero.lili.core.modVentas.projection.OneProjection;
 import com.calero.lili.core.modVentas.projection.TotalesProjection;
-import com.calero.lili.core.utils.validaciones.ValidarCampoAscii;
-import com.calero.lili.core.builder.ResponseApiBuilder;
-import com.calero.lili.core.dtos.Mensajes;
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.Paginator;
-import com.calero.lili.core.dtos.ResponseDto;
-import com.calero.lili.core.enums.EstadoDocumento;
-import com.calero.lili.core.enums.FormatoDocumento;
-import com.calero.lili.core.enums.TipoEmision;
-import com.calero.lili.core.enums.TipoVenta;
-import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.utils.DateUtils;
+import com.calero.lili.core.utils.validaciones.ValidarCampoAscii;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -89,7 +89,6 @@ public class VtVentasNotasDebitoServiceImpl {
         VtVentaEntity vtVentaEntity = vtNotasDebitoBuilder.builderEntity(request, idData, idEmpresa);
         vtVentaEntity.setTercero(tercero);
         vtVentaEntity.setEmail(tercero.getEmail());
-        vtVentaEntity.setTerceroNombre(tercero.getTercero());
         vtVentaEntity.setCreatedBy(usuario);
         vtVentaEntity.setCreatedDate(LocalDateTime.now());
 
@@ -142,7 +141,6 @@ public class VtVentasNotasDebitoServiceImpl {
         update.setModifiedDate(LocalDateTime.now());
         update.setTercero(tercero);
         update.setEmail(tercero.getEmail());
-        update.setTerceroNombre(tercero.getTercero());
 
         update.setTipoEmision(getTipoEmision(request));
         vtComprobanteService.getComprobanteXmlNotaDebito(idData, idEmpresa, update);
@@ -239,7 +237,8 @@ public class VtVentasNotasDebitoServiceImpl {
             return getListResponseBuilder.builderListResponse(item);
         }).toList();
 
-        List<TotalesProjection> totalValoresProjection = vtVentaRepository.totalValores(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getTipoVenta(), filters.getSerie(), filters.getSecuencial());
+        List<TotalesProjection> totalValoresProjection = vtVentaRepository.totalValores(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
+                filters.getFechaEmisionHasta(), filters.getTipoVenta(), filters.getSerie(), filters.getSecuencial());
 
         GetListDtoTotalizado totalesDto = new GetListDtoTotalizado<>();
         totalesDto.setContent(dtoList);
@@ -333,13 +332,13 @@ public class VtVentasNotasDebitoServiceImpl {
         switch (tipoBusqueda) {
             case TODAS -> {
                 return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
-                        filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), null, filters.getTipoVenta(), filters.getSerie(),
+                        filters.getFechaEmisionHasta(), null, null, filters.getSerie(),
                         filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
             }
             case SUCURSAL -> {
                 if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
                     return vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
-                            filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), null, filters.getTipoVenta(), filters.getSerie(),
+                            filters.getFechaEmisionHasta(), null, null, filters.getSerie(),
                             filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
                 } else {
                     throw new GeneralException("Es requerido el parametro de la sucursal");
@@ -347,7 +346,7 @@ public class VtVentasNotasDebitoServiceImpl {
             }
             case PROPIAS -> {
                 return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
-                        filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), null, filters.getTipoVenta(), filters.getSerie(),
+                        filters.getFechaEmisionHasta(), null, null, filters.getSerie(),
                         filters.getSecuencial(), filters.getNumeroAutorizacion(), usuario, pageable);
             }
         }

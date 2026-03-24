@@ -10,9 +10,9 @@ import java.util.List;
 
 
 @Data
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class AdEmpresaSerieCreationRequestDto {
 
     private String serie;
@@ -30,8 +30,8 @@ public class AdEmpresaSerieCreationRequestDto {
 
     @Data
     @Builder
-    @AllArgsConstructor
     @NoArgsConstructor
+    @AllArgsConstructor
     public static class Documentos {
         private String documento;
         private String numeroAutorizacion;

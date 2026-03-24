@@ -13,6 +13,8 @@ import java.util.UUID;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class GetDto {
 
     private UUID idRetencion;

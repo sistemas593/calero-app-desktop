@@ -3,14 +3,18 @@ package com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.dto;
 import com.calero.lili.core.enums.TipoTerceroPerSoc;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.detalles.ValoresDto;
 import com.calero.lili.core.tablas.tbPaises.TbPaisGetOneDto;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.UUID;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class GetReembolsoDto {
 
     private UUID idLiquidacionReembolsos;

@@ -13,6 +13,8 @@ import java.util.UUID;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class GetListDto {
 
     private UUID idCompra;

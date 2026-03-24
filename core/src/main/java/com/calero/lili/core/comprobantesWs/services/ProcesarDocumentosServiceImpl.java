@@ -158,7 +158,7 @@ public class ProcesarDocumentosServiceImpl {
                             envioCorreoDto.setComprobante(venta1.getComprobante());
                             envioCorreoDto.setNumeroAutorizacion(venta1.getNumeroAutorizacion());
                             envioCorreoDto.setFechaAutorizacion(venta1.getFechaAutorizacion());
-                            envioCorreoDto.setNombreReceptor(venta1.getTerceroNombre());
+                            envioCorreoDto.setNombreReceptor(venta1.getTercero().getTercero());
 
                             switch (venta1.getTipoVenta()) {
                                 case "FAC":

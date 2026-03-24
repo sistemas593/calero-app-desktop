@@ -454,30 +454,24 @@ private fun FiltrosBar(state: FacturasUiState, viewModel: FacturasViewModel) {
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                 verticalAlignment     = Alignment.Bottom
             ) {
-                Column {
-                    Text("Serie", fontSize = 12.sp, color = ColorSub, fontWeight = FontWeight.Medium)
-                    Spacer(Modifier.height(2.dp))
-                    OutlinedTextField(
-                        value         = state.filterSerie,
-                        onValueChange = viewModel::setFilterSerie,
-                        singleLine    = true,
-                        modifier      = Modifier.width(120.dp),
-                        textStyle     = LocalTextStyle.current.copy(fontSize = 13.sp),
-                        colors        = fieldColors
-                    )
-                }
-                Column {
-                    Text("Secuencial", fontSize = 12.sp, color = ColorSub, fontWeight = FontWeight.Medium)
-                    Spacer(Modifier.height(2.dp))
-                    OutlinedTextField(
-                        value         = state.filterSecuencial,
-                        onValueChange = viewModel::setFilterSecuencial,
-                        singleLine    = true,
-                        modifier      = Modifier.width(130.dp),
-                        textStyle     = LocalTextStyle.current.copy(fontSize = 13.sp),
-                        colors        = fieldColors
-                    )
-                }
+                OutlinedTextField(
+                    value         = state.filterSerie,
+                    onValueChange = viewModel::setFilterSerie,
+                    label         = { Text("Serie", fontSize = 12.sp) },
+                    singleLine    = true,
+                    modifier      = Modifier.width(120.dp),
+                    textStyle     = LocalTextStyle.current.copy(fontSize = 13.sp),
+                    colors        = fieldColors
+                )
+                OutlinedTextField(
+                    value         = state.filterSecuencial,
+                    onValueChange = viewModel::setFilterSecuencial,
+                    label         = { Text("Secuencial", fontSize = 12.sp) },
+                    singleLine    = true,
+                    modifier      = Modifier.width(130.dp),
+                    textStyle     = LocalTextStyle.current.copy(fontSize = 13.sp),
+                    colors        = fieldColors
+                )
                 OutlinedTextField(
                     value                = state.filterFechaDesde,
                     onValueChange        = { viewModel.setFilterFechaDesde(it.filter(Char::isDigit).take(8)) },
@@ -509,9 +503,6 @@ private fun FiltrosBar(state: FacturasUiState, viewModel: FacturasViewModel) {
             ) {
                 // Dropdown Estado
                 var expandedEstado by remember { mutableStateOf(false) }
-                Column {
-                    Text("Estado", fontSize = 12.sp, color = ColorSub, fontWeight = FontWeight.Medium)
-                    Spacer(Modifier.height(2.dp))
                 ExposedDropdownMenuBox(
                     expanded         = expandedEstado,
                     onExpandedChange = { expandedEstado = !expandedEstado },
@@ -521,6 +512,7 @@ private fun FiltrosBar(state: FacturasUiState, viewModel: FacturasViewModel) {
                         value         = state.filterEstado.label,
                         onValueChange = {},
                         readOnly      = true,
+                        label         = { Text("Estado", fontSize = 12.sp) },
                         trailingIcon  = { ExposedDropdownMenuDefaults.TrailingIcon(expandedEstado) },
                         modifier      = Modifier.menuAnchor().fillMaxWidth(),
                         textStyle     = LocalTextStyle.current.copy(fontSize = 13.sp),
@@ -538,20 +530,46 @@ private fun FiltrosBar(state: FacturasUiState, viewModel: FacturasViewModel) {
                         }
                     }
                 }
-                } // fin Column Estado
 
-                Column {
-                    Text("Tercero", fontSize = 12.sp, color = ColorSub, fontWeight = FontWeight.Medium)
-                    Spacer(Modifier.height(2.dp))
+                Box {
                     OutlinedTextField(
                         value         = state.filterTercero,
                         onValueChange = viewModel::setFilterTercero,
-                        placeholder   = { Text("Buscar por nombre…", fontSize = 12.sp, color = ColorSub) },
+                        label         = { Text("Tercero", fontSize = 12.sp) },
                         singleLine    = true,
-                        modifier      = Modifier.width(260.dp),
+                        modifier      = Modifier.width(160.dp),
                         textStyle     = LocalTextStyle.current.copy(fontSize = 13.sp),
-                        colors        = fieldColors
+                        colors        = fieldColors,
+                        trailingIcon  = {
+                            if (state.buscandoTercero)
+                                CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                            else if (state.filterTercero.isNotBlank())
+                                IconButton(
+                                    onClick  = { viewModel.setFilterTercero("") },
+                                    modifier = Modifier.size(20.dp)
+                                ) {
+                                    Icon(Icons.Default.Clear, contentDescription = "Limpiar", modifier = Modifier.size(14.dp))
+                                }
+                        }
                     )
+
+                    DropdownMenu(
+                        expanded         = state.terceroDropdownVisible,
+                        onDismissRequest = viewModel::cerrarDropdownTercero,
+                        modifier         = Modifier.width(260.dp).heightIn(max = 220.dp)
+                    ) {
+                        state.terceroSugerencias.forEach { t ->
+                            DropdownMenuItem(
+                                text = {
+                                    Column {
+                                        Text(t.tercero ?: "—", fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                                        Text(t.numeroIdentificacion ?: "—", fontSize = 11.sp, color = ColorSub)
+                                    }
+                                },
+                                onClick = { viewModel.seleccionarTercero(t) }
+                            )
+                        }
+                    }
                 }
 
                 Spacer(Modifier.width(4.dp))

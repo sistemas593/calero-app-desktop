@@ -3,8 +3,10 @@ package com.calero.lili.core.modContabilidad.modAsientos.dto;
 import com.calero.lili.core.enums.TipoAsiento;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.detalles.DetalleGetDto;
 import jakarta.validation.constraints.NotEmpty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -12,6 +14,8 @@ import java.util.UUID;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class GetDto {
 
     private UUID idAsiento;

@@ -2,8 +2,10 @@ package com.calero.lili.core.modCompras.modCompras.dto;
 
 import com.calero.lili.core.modCompras.modCompras.dto.detalles.DetalleGetDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetListDto;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -11,6 +13,8 @@ import java.util.UUID;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class GetDto {
 
     private UUID idCompra;

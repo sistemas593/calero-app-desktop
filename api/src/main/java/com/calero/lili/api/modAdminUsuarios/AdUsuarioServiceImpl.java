@@ -228,9 +228,9 @@ public class AdUsuarioServiceImpl {
     }
 
 
-    public AdUsuarioPermisosDtoResponse getRolPermisosUsuario(Long idUsuario) {
-        AdUsuarioEntity entidad = adUsuarioRepository.findById(idUsuario)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", idUsuario)));
+    public AdUsuarioPermisosDtoResponse getRolPermisosUsuario(String username) {
+        AdUsuarioEntity entidad = adUsuarioRepository.getUserByUsername(username)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("El usuario con username: {0} no existe ", username)));
 
         List<String> permisos = entidad.getRoles().stream()
                 .flatMap(rol -> rol.getGrupos().stream())

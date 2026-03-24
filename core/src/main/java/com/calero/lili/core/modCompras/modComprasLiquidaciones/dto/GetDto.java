@@ -6,8 +6,10 @@ import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetListDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.detalles.DetalleGetDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.dto.GetReembolsoDto;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -15,6 +17,8 @@ import java.util.UUID;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class GetDto {
 
     private UUID idLiquidacion;

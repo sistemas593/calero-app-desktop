@@ -1,14 +1,12 @@
 package com.calero.lili.core.modComprasItemsGrupos.dto;
 
 import com.calero.lili.core.enums.TipoItemGrupo;
-import lombok.Builder;
 import lombok.Data;
 
 import java.util.UUID;
 
 
 @Data
-@Builder
 public class GeItemGrupoCreationRequestDto {
 
     private String grupo;

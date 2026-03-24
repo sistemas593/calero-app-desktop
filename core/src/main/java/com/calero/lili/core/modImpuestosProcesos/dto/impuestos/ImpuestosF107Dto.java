@@ -1,13 +1,17 @@
 package com.calero.lili.core.modImpuestosProcesos.dto.impuestos;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ImpuestosF107Dto {
     private String ano;
     private String ruc;

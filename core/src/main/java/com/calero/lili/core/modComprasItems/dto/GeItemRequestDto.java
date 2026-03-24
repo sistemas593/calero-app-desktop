@@ -13,6 +13,8 @@ import java.util.UUID;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class GeItemRequestDto {
 
     @NotEmpty(message = "No existe el código principal")

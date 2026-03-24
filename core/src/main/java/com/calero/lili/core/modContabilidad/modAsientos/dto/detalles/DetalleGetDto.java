@@ -10,6 +10,8 @@ import java.util.UUID;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class DetalleGetDto {
 
     private Cuenta cuentas;

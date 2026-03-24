@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.UUID;
 
 @Data
-@Builder
 public class DetalleGetDto {
 //    private UUID idItem;
 

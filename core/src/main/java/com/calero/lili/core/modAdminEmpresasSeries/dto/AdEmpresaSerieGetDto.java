@@ -11,6 +11,8 @@ import java.util.UUID;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class AdEmpresaSerieGetDto {
 
     private UUID idSerie;

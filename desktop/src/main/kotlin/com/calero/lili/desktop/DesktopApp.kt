@@ -121,7 +121,7 @@ fun main() {
                     val clientesViewModel  = remember(idEmpresa) { ClientesViewModel(tercerosService) }
                     val medidasViewModel   = remember(idEmpresa) { MedidasViewModel(medidasService) }
                     val itemsViewModel     = remember(idEmpresa) { ItemsViewModel(itemsService, idData = ID_DATA, idEmpresa = idEmpresa) }
-                    val facturasViewModel  = remember(idEmpresa) { FacturasViewModel(facturasService, procesarService, idData = ID_DATA, idEmpresa = idEmpresa) }
+                    val facturasViewModel  = remember(idEmpresa) { FacturasViewModel(facturasService, procesarService, tercerosService, idData = ID_DATA, idEmpresa = idEmpresa) }
 
                     DisposableEffect(idEmpresa) {
                         onDispose {

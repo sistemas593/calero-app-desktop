@@ -10,6 +10,8 @@ import java.util.UUID;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class VtClienteGrupoCreationResponseDto {
 
     private UUID idGrupo;

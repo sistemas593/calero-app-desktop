@@ -2,14 +2,18 @@ package com.calero.lili.core.modVentasGuias.dto;
 
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class GetListDto {
 
     private String sucursal;

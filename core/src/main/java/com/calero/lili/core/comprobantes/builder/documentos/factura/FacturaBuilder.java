@@ -12,8 +12,8 @@ import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesEntity;
 import com.calero.lili.core.modVentas.VtVentaEntity;
-import com.calero.lili.core.utils.validaciones.ObligadoContabilidad;
 import com.calero.lili.core.utils.DateUtils;
+import com.calero.lili.core.utils.validaciones.ObligadoContabilidad;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -52,10 +52,10 @@ public class FacturaBuilder {
                         ? empresa.getContribuyenteEspecial()
                         : null)
                 .obligadoContabilidad(ObligadoContabilidad.getObligadoContabilidad(empresa.getObligadoContabilidad()))
-                .tipoIdentificacionComprador(TipoIdentificacion.valueOf(venta.getTipoIdentificacion()).getCodigo())
-                .razonSocialComprador(venta.getTerceroNombre())
+                .tipoIdentificacionComprador(TipoIdentificacion.valueOf(venta.getTercero().getTipoIdentificacion()).getCodigo())
+                .razonSocialComprador(venta.getTercero().getTercero())
                 .direccionComprador(venta.getTercero().getDireccion())
-                .identificacionComprador(venta.getNumeroIdentificacion())
+                .identificacionComprador(venta.getTercero().getNumeroIdentificacion())
                 .totalSinImpuestos(formatoValores.convertirBigDecimalToString(venta.getSubtotal()))
                 .totalDescuento(formatoValores.convertirBigDecimalToString(venta.getTotalDescuento()))
                 .importeTotal(formatoValores.convertirBigDecimalToString(venta.getTotal()))

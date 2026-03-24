@@ -14,6 +14,8 @@ import java.util.UUID;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class GeTerceroRequestDto {
 
     @NotEmpty(message = "No existe el nombre")

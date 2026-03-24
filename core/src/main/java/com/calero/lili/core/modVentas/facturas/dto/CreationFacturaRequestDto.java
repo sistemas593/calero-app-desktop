@@ -64,9 +64,7 @@ public class CreationFacturaRequestDto {
     @NotNull(message = "No existe el tipo identificacion")
     private TipoIdentificacion tipoIdentificacion;
 
-    private String numeroIdentificacion;
     private String email;
-    private String tipoCliente;
     private String relacionado;
 
     private String concepto;

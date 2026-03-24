@@ -13,6 +13,8 @@ import java.util.UUID;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class GeItemGetOneDto {
 
     private UUID idItem;

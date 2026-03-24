@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.UUID;
 
 @Data
-@Builder
 public class CompraRequestDto {
 
     @NotEmpty(message = "No existe la sucursal")

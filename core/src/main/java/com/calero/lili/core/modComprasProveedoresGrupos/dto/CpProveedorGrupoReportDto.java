@@ -10,6 +10,8 @@ import java.util.UUID;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CpProveedorGrupoReportDto {
 
     private UUID idGrupo;

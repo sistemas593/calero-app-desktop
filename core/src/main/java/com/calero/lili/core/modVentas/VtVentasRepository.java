@@ -78,8 +78,7 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
             "(:usuario IS NULL OR vtVentasEntity.sucursal = :usuario) AND " +
             "(:tipoVenta IS NULL OR vtVentasEntity.tipoVenta = :tipoVenta) AND " +
-            "(:numeroIdentificacion IS NULL OR vtVentasEntity.numeroIdentificacion = :numeroIdentificacion ) AND " +
-            "(:terceroNombre IS NULL OR LOWER(vtVentasEntity.terceroNombre) LIKE LOWER(CONCAT('%', CAST(:terceroNombre AS string), '%'))) AND " +
+            "(:idTercero IS NULL OR vtVentasEntity.tercero.idTercero = :idTercero) AND " +
             "(:serie IS NULL OR vtVentasEntity.serie = :serie) AND " +
             "(:secuencial IS NULL OR vtVentasEntity.secuencial = :secuencial) AND " +
             "(:numeroAutorizacion IS NULL OR vtVentasEntity.numeroAutorizacion = :numeroAutorizacion ) AND " +
@@ -93,8 +92,7 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
                     "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
                     "(:usuario IS NULL OR vtVentasEntity.sucursal = :usuario) AND " +
                     "(:tipoVenta IS NULL OR vtVentasEntity.tipoVenta = :tipoVenta) AND " +
-                    "(:numeroIdentificacion IS NULL OR vtVentasEntity.numeroIdentificacion = :numeroIdentificacion ) AND " +
-                    "(:terceroNombre IS NULL OR LOWER(vtVentasEntity.terceroNombre) LIKE LOWER(CONCAT('%', CAST(:terceroNombre AS string), '%'))) AND " +
+                    "(:idTercero IS NULL OR vtVentasEntity.tercero.idTercero = :idTercero) AND " +
                     "(:serie IS NULL OR vtVentasEntity.serie = :serie ) AND " +
                     "(:secuencial IS NULL OR vtVentasEntity.secuencial = :secuencial ) AND " +
                     "(:numeroAutorizacion IS NULL OR vtVentasEntity.numeroAutorizacion = :numeroAutorizacion ) AND " +
@@ -105,8 +103,7 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
                                         @Param("sucursal") String sucursal,
                                         @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
                                         @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
-                                        @Param("numeroIdentificacion") String numeroIdentificacion,
-                                        @Param("terceroNombre") String terceroNombre,
+                                        @Param("idTercero") UUID idTercero,
                                         @Param("tipoVenta") String tipoVenta,
                                         @Param("serie") String serie,
                                         @Param("secuencial") String secuencial,
@@ -148,7 +145,6 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
                     "(vtVentaEntity.id_empresa = :idEmpresa) AND " +
                     "(:sucursal IS NULL OR vtVentaEntity.sucursal = :sucursal) AND " +
                     "(:tipoVenta IS NULL OR vtVentaEntity.tipo_venta = :tipoVenta) AND " +
-                    "(:numeroIdentificacion IS NULL OR vtVentaEntity.numero_identificacion = :numeroIdentificacion ) AND " +
                     "(:serie IS NULL OR vtVentaEntity.serie = :serie ) AND " +
                     "(:secuencial IS NULL OR vtVentaEntity.secuencial = :secuencial ) AND " +
                     "( cast(:fechaEmisionDesde as date) is null OR vtVentaEntity.fecha_emision >= :fechaEmisionDesde ) AND " +
@@ -160,7 +156,6 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
                                          @Param("sucursal") String sucursal,
                                          @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
                                          @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
-                                         @Param("numeroIdentificacion") String numeroIdentificacion,
                                          @Param("tipoVenta") String tipoVenta,
                                          @Param("serie") String serie,
                                          @Param("secuencial") String secuencial);
@@ -172,7 +167,6 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
             "(" +
             "(:tipoVenta IS NULL OR vtVentasEntity.tipoVenta = :tipoVenta) AND " +
-            "(:numeroIdentificacion IS NULL OR vtVentasEntity.numeroIdentificacion = :numeroIdentificacion) AND " +
             "(:serie IS NULL OR vtVentasEntity.serie = :serie) AND " +
             "(:secuencial IS NULL OR vtVentasEntity.secuencial = :secuencial) AND " +
             "( cast(:fechaEmisionDesde as date) is null OR vtVentasEntity.fechaEmision >= :fechaEmisionDesde ) AND " +
@@ -184,7 +178,6 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
                                 @Param("sucursal") String sucursal,
                                 @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
                                 @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
-                                @Param("numeroIdentificacion") String numeroIdentificacion,
                                 @Param("tipoVenta") String tipoVenta,
                                 @Param("serie") String serie,
                                 @Param("secuencial") String secuencial);

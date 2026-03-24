@@ -1,10 +1,22 @@
 package com.calero.lili.core.modVentas.facturas;
 
+import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.core.comprobantes.services.ComprobanteServiceImpl;
+import com.calero.lili.core.dtos.Mensajes;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.Paginator;
+import com.calero.lili.core.dtos.ResponseDto;
+import com.calero.lili.core.enums.EstadoDocumento;
+import com.calero.lili.core.enums.FormatoDocumento;
+import com.calero.lili.core.enums.TipoEmision;
+import com.calero.lili.core.enums.TipoIngreso;
+import com.calero.lili.core.enums.TipoPermiso;
+import com.calero.lili.core.enums.TipoVenta;
+import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.core.errors.exceptions.NotFoundException;
 import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosEntity;
 import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosRepository;
 import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
-import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.modComprasItems.GeItemsRepository;
 import com.calero.lili.core.modContabilidad.modAsientos.CnAsientosEntity;
 import com.calero.lili.core.modContabilidad.modAsientos.CnAsientosRepository;
@@ -32,20 +44,8 @@ import com.calero.lili.core.modVentas.reembolsos.VtVentaReembolsosEntity;
 import com.calero.lili.core.modVentas.reembolsos.VtVentasReembolsoRepository;
 import com.calero.lili.core.tablas.tbPaises.TbPaisEntity;
 import com.calero.lili.core.tablas.tbPaises.TbPaisesRepository;
-import com.calero.lili.core.utils.validaciones.ValidarCampoAscii;
-import com.calero.lili.core.builder.ResponseApiBuilder;
-import com.calero.lili.core.dtos.Mensajes;
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.Paginator;
-import com.calero.lili.core.dtos.ResponseDto;
-import com.calero.lili.core.enums.EstadoDocumento;
-import com.calero.lili.core.enums.FormatoDocumento;
-import com.calero.lili.core.enums.TipoEmision;
-import com.calero.lili.core.enums.TipoIngreso;
-import com.calero.lili.core.enums.TipoVenta;
-import com.calero.lili.core.errors.exceptions.GeneralException;
-import com.calero.lili.core.errors.exceptions.NotFoundException;
 import com.calero.lili.core.utils.DateUtils;
+import com.calero.lili.core.utils.validaciones.ValidarCampoAscii;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Phrase;
@@ -134,7 +134,6 @@ public class VtVentasFacturasServiceImpl {
 
         vtVentaEntity.setTercero(tercero);
         vtVentaEntity.setEmail(tercero.getEmail());
-        vtVentaEntity.setTerceroNombre(tercero.getTercero());
         vtVentaEntity.setTipoEmision(getTipoEmision(request));
 
 
@@ -198,7 +197,6 @@ public class VtVentasFacturasServiceImpl {
 
         update.setTercero(tercero);
         update.setEmail(tercero.getEmail());
-        update.setTerceroNombre(tercero.getTercero());
 
         update.setTipoEmision(getTipoEmision(request));
 
@@ -408,7 +406,7 @@ public class VtVentasFacturasServiceImpl {
             return getListResponseBuilder.builderListResponse(item);
         }).toList();
 
-        List<TotalesProjection> totalValoresProjection = vtVentaRepository.totalValores(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getTipoVenta(), filters.getSerie(), filters.getSecuencial());
+        List<TotalesProjection> totalValoresProjection = vtVentaRepository.totalValores(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getTipoVenta(), filters.getSerie(), filters.getSecuencial());
 
         GetListDtoTotalizado totalesDto = new GetListDtoTotalizado<>();
         totalesDto.setContent(dtoList);
@@ -438,7 +436,7 @@ public class VtVentasFacturasServiceImpl {
     public void exportarExcel(Long idData, Long idEmpresa, HttpServletResponse response, FilterListDto filter) throws IOException {
 
         log.info("Iniciando la exportación a Excel con el filtro: {}", filter);
-        List<VtVentaEntity> facturas = vtVentaRepository.findAll(idData, idEmpresa, filter.getSucursal(), filter.getFechaEmisionDesde(), filter.getFechaEmisionHasta(), filter.getNumeroIdentificacion(), filter.getTipoVenta(), filter.getSerie(), filter.getSecuencial());
+        List<VtVentaEntity> facturas = vtVentaRepository.findAll(idData, idEmpresa, filter.getSucursal(), filter.getFechaEmisionDesde(), filter.getFechaEmisionHasta(), filter.getTipoVenta(), filter.getSerie(), filter.getSecuencial());
 
         DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
         String currentDateTime = dateFormatter.format(new Date());
@@ -558,7 +556,7 @@ public class VtVentasFacturasServiceImpl {
                     row.createCell(2).setCellValue(factura.getSecuencial());
                     row.createCell(3).setCellValue(DateUtils.toString(factura.getFechaEmision()));
                     row.createCell(4).setCellValue(factura.getNumeroAutorizacion());
-                    row.createCell(5).setCellValue(factura.getNumeroIdentificacion());
+                    row.createCell(5).setCellValue(factura.getTercero().getNumeroIdentificacion());
 
                     row.createCell(6).setCellValue(baseCero.doubleValue());
 
@@ -598,7 +596,7 @@ public class VtVentasFacturasServiceImpl {
     public void exportarPDF(Long idData, Long idEmpresa, HttpServletResponse response, FilterListDto filters) throws DocumentException, IOException {
 
 
-        List<VtVentaEntity> facturas = vtVentaRepository.findAll(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getTipoVenta(), filters.getSerie(), filters.getSecuencial());
+        List<VtVentaEntity> facturas = vtVentaRepository.findAll(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getTipoVenta(), filters.getSerie(), filters.getSecuencial());
 
         response.setContentType("application/pdf");
         String headerKey = "Content-Disposition";
@@ -689,7 +687,7 @@ public class VtVentasFacturasServiceImpl {
                 table.addCell(factura.getSecuencial());
                 table.addCell(factura.getFechaEmision().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
                 table.addCell(factura.getNumeroAutorizacion());
-                table.addCell(factura.getNumeroIdentificacion());
+                table.addCell(factura.getTercero().getNumeroIdentificacion());
 
                 table.addCell(String.valueOf(baseCero));
 
@@ -926,8 +924,7 @@ public class VtVentasFacturasServiceImpl {
         switch (tipoBusqueda) {
             case TODAS -> {
                 return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
-                        filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getTerceroNombre(),
-                        filters.getTipoVenta(), filters.getSerie(),
+                        filters.getFechaEmisionHasta(), filters.getIdTercero(), filters.getTipoVenta(), filters.getSerie(),
                         filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
             }
 
@@ -935,8 +932,7 @@ public class VtVentasFacturasServiceImpl {
                 if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
 
                     return vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
-                            filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getTerceroNombre(),
-                            filters.getTipoVenta(), filters.getSerie(),
+                            filters.getFechaEmisionHasta(), filters.getIdTercero(), filters.getTipoVenta(), filters.getSerie(),
                             filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
                 } else {
                     throw new GeneralException("Es requerido el parametro de la sucursal");
@@ -945,8 +941,7 @@ public class VtVentasFacturasServiceImpl {
 
             case PROPIAS -> {
                 return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
-                        filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getTerceroNombre(),
-                        filters.getTipoVenta(), filters.getSerie(),
+                        filters.getFechaEmisionHasta(), filters.getIdTercero(), filters.getTipoVenta(), filters.getSerie(),
                         filters.getSecuencial(), filters.getNumeroAutorizacion(), usuario, pageable);
             }
         }
