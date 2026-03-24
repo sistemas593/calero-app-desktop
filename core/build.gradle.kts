@@ -85,7 +85,11 @@ dependencies {
     implementation("com.google.cloud.sql:postgres-socket-factory:1.20.0")
 
     // JAXB / XML - Documentos electronicos SRI
-    implementation("com.sun.xml.ws:jaxws-ri:4.0.3")
+    // Excluir com.sun.xml.bind:jaxb-core porque org.glassfish.jaxb:jaxb-core ya viene de hibernate
+    // Ambos producen jaxb-core-4.0.5.jar (mismo artefacto, distinto groupId)
+    implementation("com.sun.xml.ws:jaxws-ri:4.0.3") {
+        exclude(group = "com.sun.xml.bind", module = "jaxb-core")
+    }
 
     // Apache XML Security - Firma digital XAdES
     implementation("org.apache.santuario:xmlsec:4.0.4")
@@ -94,9 +98,8 @@ dependencies {
     implementation("org.bouncycastle:bcpkix-jdk18on:1.81")
     implementation("org.bouncycastle:bcprov-jdk18on:1.81")
 
-    // JAXB (solo Jakarta)
+    // JAXB (solo Jakarta) — jaxb-runtime ya viene transitivamente via jaxws-ri
     implementation("jakarta.xml.bind:jakarta.xml.bind-api:4.0.2")
-    runtimeOnly("org.glassfish.jaxb:jaxb-runtime:4.0.5")
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.13.4")
     testImplementation("org.slf4j:slf4j-simple:2.0.17")

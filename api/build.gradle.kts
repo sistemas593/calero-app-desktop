@@ -73,12 +73,12 @@ dependencies {
     // StringTemplate
     implementation("org.antlr:ST4:4.3")
 
-    tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    }
+}
 
-    tasks.named<Jar>("jar") {
-        enabled = false
-    }
+tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
+    // no se necesita duplicatesStrategy — dependencias limpias
+}
 
+tasks.named<Jar>("jar") {
+    enabled = false
 }
