@@ -1,13 +1,10 @@
 package com.calero.lili.desktop.ui.empresas.series
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -125,49 +122,20 @@ fun SerieFormScreen(
                 Spacer(Modifier.height(4.dp))
 
                 // ── Sección: Documentos
-                Row(
-                    modifier              = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment     = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text       = "Documentos",
-                        fontSize   = 15.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color      = FColorHeader
-                    )
-                    Button(
-                        onClick = viewModel::agregarDocumento,
-                        colors  = ButtonDefaults.buttonColors(containerColor = FColorHeader)
-                    ) {
-                        Text("+ Agregar Documento", fontSize = 13.sp)
-                    }
-                }
+                Text(
+                    text       = "Documentos",
+                    fontSize   = 15.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color      = FColorHeader
+                )
                 HorizontalDivider(color = FColorBorde, thickness = 1.dp)
 
-                if (state.documentos.isEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .border(1.dp, FColorBorde, RoundedCornerShape(8.dp))
-                            .padding(24.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text     = "No hay documentos. Haga clic en \"+ Agregar Documento\" para añadir uno.",
-                            color    = Color(0xFF555577),
-                            fontSize = 13.sp
-                        )
-                    }
-                } else {
-                    state.documentos.forEachIndexed { idx, doc ->
-                        DocumentoCard(
-                            index      = idx,
-                            doc        = doc,
-                            onUpdate   = { updated -> viewModel.updateDocumento(idx, updated) },
-                            onEliminar = { viewModel.eliminarDocumento(idx) }
-                        )
-                    }
+                state.documentos.forEachIndexed { idx, doc ->
+                    DocumentoCard(
+                        index    = idx,
+                        doc      = doc,
+                        onUpdate = { updated -> viewModel.updateDocumento(idx, updated) }
+                    )
                 }
             }
         }
@@ -216,8 +184,7 @@ fun SerieFormScreen(
 private fun DocumentoCard(
     index: Int,
     doc: DocumentoFormState,
-    onUpdate: (DocumentoFormState) -> Unit,
-    onEliminar: () -> Unit
+    onUpdate: (DocumentoFormState) -> Unit
 ) {
     Surface(
         modifier        = Modifier.fillMaxWidth(),
@@ -227,36 +194,28 @@ private fun DocumentoCard(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             // Encabezado de la card
-            Row(
-                modifier              = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment     = Alignment.CenterVertically
-            ) {
-                Text(
-                    text       = "Documento #${index + 1}",
-                    fontSize   = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color      = FColorHeader
-                )
-                IconButton(onClick = onEliminar) {
-                    Icon(
-                        imageVector        = Icons.Default.Delete,
-                        contentDescription = "Eliminar",
-                        tint               = Color(0xFFB00020),
-                        modifier           = Modifier.size(20.dp)
-                    )
-                }
-            }
+            Text(
+                text       = "Documento #${index + 1}",
+                fontSize   = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                color      = FColorHeader
+            )
 
             Spacer(Modifier.height(12.dp))
 
             // Fila 1: tipo documento + formato
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                FormTextField(
+                OutlinedTextField(
                     value         = doc.documento,
-                    onValueChange = { onUpdate(doc.copy(documento = it)) },
-                    label         = "Tipo Documento (ej: FAC, GRM)",
-                    modifier      = Modifier.weight(1f)
+                    onValueChange = {},
+                    readOnly      = true,
+                    label         = { Text("Tipo Documento", fontSize = 13.sp) },
+                    modifier      = Modifier.weight(1f).fillMaxWidth(),
+                    colors        = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor   = FColorHeader,
+                        unfocusedBorderColor = FColorBorde,
+                        focusedLabelColor    = FColorHeader
+                    )
                 )
                 // Dropdown FormatoDocumento
                 var expandedFormato by remember { mutableStateOf(false) }

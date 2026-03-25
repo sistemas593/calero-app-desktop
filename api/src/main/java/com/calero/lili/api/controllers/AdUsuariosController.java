@@ -66,7 +66,6 @@ public class AdUsuariosController {
 
     @GetMapping("permisos/{username}")
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasAuthority('US_US_VR')")
     public AdUsuarioPermisosDtoResponse getPermisosUsuario(@PathVariable("username") String username) {
         return adUsuarioService.getRolPermisosUsuario(username);
     }

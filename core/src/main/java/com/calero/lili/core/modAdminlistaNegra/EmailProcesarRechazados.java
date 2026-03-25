@@ -44,6 +44,11 @@ public class EmailProcesarRechazados {
 
         AdMailConfigEntity adConfigMailEntity = adMailsConfigRepository.findByIdConfig(Long.valueOf(1));
 
+        if (adConfigMailEntity == null) {
+            log.warn("No se encontró configuración de correo (idConfig=1). Se omite el proceso de rechazados.");
+            return;
+        }
+
         // Specify Credentials
         String Consumerkey = adConfigMailEntity.getConsumerKey();
         String Consumersecret = adConfigMailEntity.getConsumerSecret();

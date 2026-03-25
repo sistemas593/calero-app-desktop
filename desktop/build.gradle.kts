@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
     kotlin("jvm")
@@ -50,6 +51,34 @@ tasks.withType<KotlinCompile> {
 compose.desktop {
     application {
         mainClass = "com.calero.lili.desktop.DesktopAppKt"
+
+        nativeDistributions {
+            targetFormats(TargetFormat.Msi)
+
+            // Incluye el runtime de Java 21 completo dentro del instalador
+            // así el usuario final NO necesita tener Java instalado
+            includeAllModules = true
+
+            packageName    = "Calero Lili"
+            packageVersion = "1.0.0"
+            description    = "Calero Lili Desktop"
+            vendor         = "Calero"
+
+            windows {
+                upgradeUuid    = "A1B2C3D4-E5F6-7890-ABCD-EF1234567890"
+                menuGroup      = "Calero"
+                dirChooser     = true
+                perUserInstall = true
+                shortcut       = true
+                menu           = true
+            }
+        }
+
+        jvmArgs(
+            "--add-opens=java.base/java.lang=ALL-UNNAMED",
+            "--add-opens=java.base/java.util=ALL-UNNAMED",
+            "--add-opens=java.base/java.lang.reflect=ALL-UNNAMED"
+        )
     }
 }
 

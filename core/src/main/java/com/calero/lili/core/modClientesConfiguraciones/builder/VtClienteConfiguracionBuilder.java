@@ -91,15 +91,15 @@ public class VtClienteConfiguracionBuilder {
         return VtClientesConfiguracionesGetOneDto.builder()
                 .idConfiguracion(model.getIdConfiguracion())
                 .clave(model.getClave())
-                .fechaVencimiento(DateUtils.toString(model.getFechaVencimiento()))
+                .fechaVencimiento(Objects.nonNull(model.getFechaVencimiento()) ? DateUtils.toString(model.getFechaVencimiento()) : null)
                 .ruc(model.getRuc())
                 .enviarCorreos(model.getEnviarCorreos())
                 .valorRenovacion(model.getValorRenovacion())
                 .facturaEmite(model.getFacturaEmite())
-                .fechaEmitirFactura(DateUtils.toString(model.getFechaEmitirFactura()))
-                .fechaLlamar(DateUtils.toString(model.getFechaLlamar()))
+                .fechaEmitirFactura(Objects.nonNull(model.getFechaEmitirFactura()) ? DateUtils.toString(model.getFechaEmitirFactura()) : null)
+                .fechaLlamar(Objects.nonNull(model.getFechaLlamar()) ? DateUtils.toString(model.getFechaLlamar()) : null)
                 .respaldosResponsable(model.getRespaldosResponsable())
-                .respaldoUltimoOficina(DateUtils.toString(model.getRespaldoUltimoOficina()))
+                .respaldoUltimoOficina(Objects.nonNull(model.getRespaldoUltimoOficina()) ? DateUtils.toString(model.getRespaldoUltimoOficina()) : null)
                 .conexionBase(model.getConexionBase())
                 .configuraciones(model.getConfiguraciones())
                 .notas(model.getNotas())
@@ -108,8 +108,9 @@ public class VtClienteConfiguracionBuilder {
                 .rucsActivados(model.getRucsActivados())
                 .clavesPcs(model.getClavesPcs())
                 .tipoBlo(model.getTipoBlo())
-                .fechaBlo(DateUtils.toString(model.getFechaBlo()))
-                .cliente(builderClienteResponse(model.getTercero()))
+                .fechaBlo(Objects.nonNull(model.getFechaBlo()) ? DateUtils.toString(model.getFechaBlo()) : null)
+                .idTercero(Objects.nonNull(model.getTercero()) ? model.getTercero().getIdTercero() : null)
+                .nombreTercero(Objects.nonNull(model.getTercero()) ? model.getTercero().getTercero() : null)
                 .build();
     }
 
@@ -146,7 +147,9 @@ public class VtClienteConfiguracionBuilder {
                 .fechaBlo(Objects.nonNull(model.getFechaBlo())
                         ? DateUtils.toString(model.getFechaBlo())
                         : null)
-                .cliente(builderClienteListResponse(model.getTercero()))
+
+                .idTercero(Objects.nonNull(model.getTercero()) ? model.getTercero().getIdTercero() : null)
+                .nombreTercero(Objects.nonNull(model.getTercero()) ? model.getTercero().getTercero() : null)
                 .build();
     }
 
@@ -212,21 +215,4 @@ public class VtClienteConfiguracionBuilder {
                 .tercero(item.getTercero())
                 .build();
     }
-
-    private VtClientesConfiguracionesGetOneDto.Cliente builderClienteResponse(GeTerceroEntity cliente) {
-        if (Objects.isNull(cliente)) return null;
-        return VtClientesConfiguracionesGetOneDto.Cliente.builder()
-                .cliente(cliente.getTercero())
-                .idTercero(cliente.getIdTercero())
-                .build();
-    }
-
-    private VtClientesConfiguracionesGetOneDto.Cliente builderClienteListResponse(GeTerceroEntity cliente) {
-        if (Objects.isNull(cliente)) return null;
-        return VtClientesConfiguracionesGetOneDto.Cliente.builder()
-                .cliente(cliente.getTercero())
-                .idTercero(cliente.getIdTercero())
-                .build();
-    }
-
 }

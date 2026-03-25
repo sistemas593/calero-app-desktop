@@ -1,14 +1,18 @@
 package com.calero.lili.desktop
 
-import androidx.compose.foundation.layout.Row
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.lightColorScheme
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
+import com.calero.lili.desktop.ui.actualizacion.ActualizacionViewModel
+import com.calero.lili.desktop.ui.actualizacion.UpdateCheckState
 import com.calero.lili.core.comprobantesWs.services.ProcesarDocumentosServiceImpl
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasServiceImpl
 import com.calero.lili.core.modVentas.facturas.VtVentasFacturasServiceImpl
@@ -76,12 +80,14 @@ fun main() {
     val itemsService      = context.getBean(GeItemsServiceImpl::class.java)
 
     // ViewModel del selector (independiente de empresa)
-    val selectorViewModel = SelectorEmpresaViewModel(empresasService, ID_DATA)
+    val selectorViewModel      = SelectorEmpresaViewModel(empresasService, ID_DATA)
+    val actualizacionViewModel = ActualizacionViewModel()
 
     application {
         Window(
             onCloseRequest = {
                 selectorViewModel.onDestroy()
+                actualizacionViewModel.onDestroy()
                 exitApplication()
             },
             title = "Calero - Sistema de Gestión",
@@ -100,18 +106,124 @@ fun main() {
             ) {
                 // null = pantalla de selección | EmpresaActiva = app principal
                 // Siempre arranca en el selector — el guardado sólo sirve para tener el id disponible en sesión
-                var empresaActiva by remember { mutableStateOf<EmpresaActiva?>(null) }
+                var empresaActiva      by remember { mutableStateOf<EmpresaActiva?>(null) }
+                val updateState        by actualizacionViewModel.state.collectAsState()
+                var mostrarDialogo     by remember { mutableStateOf(false) }
+                var mostrarError       by remember { mutableStateOf(false) }
+                var mensajeError       by remember { mutableStateOf("") }
+                var linkDescarga       by remember { mutableStateOf("") }
 
-                if (empresaActiva == null) {
-                    // ── Pantalla de selección de empresa
-                    SelectorEmpresaScreen(
-                        viewModel             = selectorViewModel,
-                        onEmpresaSeleccionada = { idEmpresa, razonSocial ->
-                            AppPreferences.guardarEmpresa(idEmpresa, razonSocial)
-                            empresaActiva = EmpresaActiva(idEmpresa, razonSocial)
+                LaunchedEffect(updateState) {
+                    when (updateState) {
+                        is UpdateCheckState.UpdateAvailable -> {
+                            linkDescarga   = (updateState as UpdateCheckState.UpdateAvailable).link
+                            mostrarDialogo = true
+                        }
+                        // Los JARs fueron reemplazados por el .bat — cerrar la app para que el bat la relance
+                        UpdateCheckState.ListoParaReiniciar -> exitApplication()
+                        is UpdateCheckState.ErrorActualizacion -> {
+                            mensajeError = (updateState as UpdateCheckState.ErrorActualizacion).mensaje
+                            mostrarError = true
+                        }
+                        else -> {}
+                    }
+                }
+
+                // ── Diálogo: nueva actualización disponible
+                if (mostrarDialogo) {
+                    AlertDialog(
+                        onDismissRequest = {},
+                        title   = { Text("Actualización disponible", fontWeight = androidx.compose.ui.text.font.FontWeight.Bold) },
+                        text    = { Text("Hay una nueva versión disponible del sistema. ¿Desea descargarla ahora?") },
+                        confirmButton = {
+                            Button(
+                                onClick = {
+                                    mostrarDialogo = false
+                                    actualizacionViewModel.descargar(linkDescarga)
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1565C0))
+                            ) { Text("Sí") }
+                        },
+                        dismissButton = {
+                            OutlinedButton(onClick = {
+                                mostrarDialogo = false
+                                actualizacionViewModel.continuar()
+                            }) { Text("Quizás, más tarde") }
                         }
                     )
-                } else {
+                }
+
+                // ── Diálogo: error durante la descarga / actualización
+                if (mostrarError) {
+                    AlertDialog(
+                        onDismissRequest = {},
+                        title   = { Text("Error de actualización", fontWeight = androidx.compose.ui.text.font.FontWeight.Bold) },
+                        text    = { Text(mensajeError) },
+                        confirmButton = {
+                            Button(
+                                onClick = {
+                                    mostrarError = false
+                                    actualizacionViewModel.continuar()
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1565C0))
+                            ) { Text("Continuar sin actualizar") }
+                        }
+                    )
+                }
+
+                when {
+                    // ── Verificando conexión con el servidor de versiones
+                    updateState is UpdateCheckState.Checking -> {
+                        Box(
+                            modifier         = androidx.compose.ui.Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                CircularProgressIndicator(color = Color(0xFF1565C0))
+                                Spacer(androidx.compose.ui.Modifier.height(12.dp))
+                                Text("Verificando actualizaciones…", fontSize = 14.sp, color = Color(0xFF6B7A99))
+                            }
+                        }
+                    }
+                    // ── Descargando el ZIP de actualización
+                    updateState is UpdateCheckState.Descargando -> {
+                        Box(
+                            modifier         = androidx.compose.ui.Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                CircularProgressIndicator(color = Color(0xFF1565C0))
+                                Spacer(androidx.compose.ui.Modifier.height(12.dp))
+                                Text("Descargando actualización, por favor espere…", fontSize = 14.sp, color = Color(0xFF6B7A99))
+                                Spacer(androidx.compose.ui.Modifier.height(6.dp))
+                                Text("No cierre la aplicación.", fontSize = 12.sp, color = Color(0xFF6B7A99))
+                            }
+                        }
+                    }
+                    // ── Actualización lista — el .bat fue lanzado, esperando cierre de la app
+                    updateState is UpdateCheckState.ListoParaReiniciar -> {
+                        Box(
+                            modifier         = androidx.compose.ui.Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                CircularProgressIndicator(color = Color(0xFF1565C0))
+                                Spacer(androidx.compose.ui.Modifier.height(12.dp))
+                                Text("Actualización lista. Reiniciando aplicación…", fontSize = 14.sp, color = Color(0xFF6B7A99))
+                            }
+                        }
+                    }
+                    empresaActiva == null -> {
+                        // ── Pantalla de selección de empresa
+                        SelectorEmpresaScreen(
+                            viewModel             = selectorViewModel,
+                            onEmpresaSeleccionada = { idEmpresa, razonSocial ->
+                                AppPreferences.guardarEmpresa(idEmpresa, razonSocial)
+                                empresaActiva = EmpresaActiva(idEmpresa, razonSocial)
+                            }
+                        )
+                    }
+                    else -> {
                     // ── Aplicación principal
                     val idEmpresa   = empresaActiva!!.idEmpresa
                     val nombreEmpresa = empresaActiva!!.razonSocial
@@ -291,6 +403,7 @@ fun main() {
                         }
                     }
                 }
+                } // when
             }
         }
     }

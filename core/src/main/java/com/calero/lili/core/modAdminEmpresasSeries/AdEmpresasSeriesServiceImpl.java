@@ -67,15 +67,6 @@ public class AdEmpresasSeriesServiceImpl {
                 throw new GeneralException("El formatoDocumento no puede ser nulo");
             }
 
-
-            // Agregar a la lista en caso de ser necesario !List.of("FAC", "NDB", "NCR", "GRM").contains en el if
-
-            // Validar que sea uno permitido
-            if ("FAC".equals(model.getDocumento())) {
-                throw new GeneralException("Tipo de documento no válido: " + model.getDocumento());
-            }
-
-            // Validar duplicados
             if (!tiposUnicos.add(model.getDocumento())) {
                 throw new GeneralException("Solo puede existir un documento por tipo: " + model.getDocumento());
             }

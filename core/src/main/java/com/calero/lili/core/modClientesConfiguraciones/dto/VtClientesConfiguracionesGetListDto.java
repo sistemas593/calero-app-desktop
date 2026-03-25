@@ -38,15 +38,8 @@ public class VtClientesConfiguracionesGetListDto {
     private Long tipoBlo;
     private String fechaBlo;
 
-    private VtClientesConfiguracionesGetOneDto.Cliente cliente;
+    private UUID idTercero;
+    private String nombreTercero;
 
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Builder
-    public static class Cliente {
-        private UUID idTercero;
-        private String cliente;
-    }
 
 }
