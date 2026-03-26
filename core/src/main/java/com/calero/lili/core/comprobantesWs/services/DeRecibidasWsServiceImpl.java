@@ -26,7 +26,6 @@ import java.util.List;
 @Slf4j
 public class DeRecibidasWsServiceImpl {
 
-    // TODO REVISAR
 
     @Autowired
     private final AutorizacionServiceImpl autorizacionService;

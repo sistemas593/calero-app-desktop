@@ -1,5 +1,6 @@
 package com.calero.lili.api.controllers;
 
+import com.calero.lili.api.utils.IdDataServiceImpl;
 import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.VtVentasXMLNotaCreditoGetDto;
 import com.calero.lili.core.comprobantesWs.services.GetXmlVtVentasNotasCreditoServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -22,12 +23,13 @@ import java.util.UUID;
 
 public class GetXmlVtVentasNotasCreditoController {
     private final GetXmlVtVentasNotasCreditoServiceImpl vtVentasService;
+    private final IdDataServiceImpl idDataService;
 
     @GetMapping("notas-credito/xml/{idEmpresa}/{idRecibida}")
     @ResponseStatus(HttpStatus.OK)
     public VtVentasXMLNotaCreditoGetDto findXMLNotaCreditoById(@PathVariable("idEmpresa") Long idEmpresa,
                                                                @PathVariable("idRecibida") UUID idRecibida) {
-        return vtVentasService.findXMLNotaCreditoById(idEmpresa, idRecibida);
+        return vtVentasService.findXMLNotaCreditoById(idDataService.getIdData(), idEmpresa, idRecibida);
     }
 
 

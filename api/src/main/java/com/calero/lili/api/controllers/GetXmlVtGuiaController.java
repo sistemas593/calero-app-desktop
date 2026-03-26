@@ -1,5 +1,6 @@
 package com.calero.lili.api.controllers;
 
+import com.calero.lili.api.utils.IdDataServiceImpl;
 import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.VtVentasXMLGuiaRemisionGetDto;
 import com.calero.lili.core.comprobantesWs.services.GetXmlVtGuiasServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -18,13 +19,13 @@ import java.util.UUID;
 public class GetXmlVtGuiaController {
 
     private final GetXmlVtGuiasServiceImpl vtVentasService;
-
+    private final IdDataServiceImpl idDataService;
 
     @GetMapping("xml/{idEmpresa}/{idRecibida}")
     @ResponseStatus(HttpStatus.OK)
     public VtVentasXMLGuiaRemisionGetDto findXMLGuiaRemisionById(@PathVariable("idEmpresa") Long idEmpresa,
                                                                  @PathVariable("idRecibida") UUID idRecibida) {
-        return vtVentasService.findXMLGuiaById(idEmpresa, idRecibida);
+        return vtVentasService.findXMLGuiaById(idDataService.getIdData(), idEmpresa, idRecibida);
     }
 
 

@@ -27,11 +27,9 @@ import java.util.UUID;
 public class GetXmlVtVentasFacturasServiceImpl {
 
 
-    // TODO REVISAR
+
     private final VtVentasRepository vtVentaRepository;
-
     private final DocumentosElectronicosComprobanteBuilder documentosElectronicosComprobanteBuilder;
-
     private final BuscarDatosEmpresa buscarDatosEmpresa;
     private final FacturaPdf facturaPdf;
 

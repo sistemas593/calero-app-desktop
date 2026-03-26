@@ -1,5 +1,6 @@
 package com.calero.lili.api.controllers;
 
+import com.calero.lili.api.utils.IdDataServiceImpl;
 import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.CpComprasXMLRetencionGetDto;
 import com.calero.lili.core.comprobantesWs.services.GetXmlComprasRetencionesServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -23,12 +24,13 @@ import java.util.UUID;
 public class GetXmlComprasRetencionesController {
 
     private final GetXmlComprasRetencionesServiceImpl vtVentasService;
+    private final IdDataServiceImpl idDataService;
 
     @GetMapping("xml/{idEmpresa}/{idRecibida}")
     @ResponseStatus(HttpStatus.OK)
     public CpComprasXMLRetencionGetDto findXMLRetencionById(@PathVariable("idEmpresa") Long idEmpresa,
                                                             @PathVariable("idRecibida") UUID idRecibida) {
-        return vtVentasService.findXMLRetencionById(idEmpresa, idRecibida);
+        return vtVentasService.findXMLRetencionById(idDataService.getIdData(), idEmpresa, idRecibida);
     }
 
 
