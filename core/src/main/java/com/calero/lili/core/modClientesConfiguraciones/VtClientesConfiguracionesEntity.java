@@ -33,9 +33,8 @@ public class VtClientesConfiguracionesEntity extends Auditable {
 
     @Id
     @Column(unique = true, updatable = false, nullable = false)
-    private UUID idConfiguracion;
-
     private String clave;
+
     private LocalDate fechaVencimiento;
 
     private String ruc;

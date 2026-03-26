@@ -76,6 +76,7 @@ public class VtGuiasServiceImpl {
 
     public ResponseDto create(Long idData, Long idEmpresa, CreationRequestGuiaRemisionDto request, String usuario) {
 
+        DateUtils.validarFechaEmision(request.getFechaEmision());
         Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData, idEmpresa, request.getSerie(), request.getSecuencial());
 
         if (existingFactura.isPresent()) {
@@ -123,6 +124,7 @@ public class VtGuiasServiceImpl {
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationRequestGuiaRemisionDto request,
                               String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
 
+        DateUtils.validarFechaEmision(request.getFechaEmision());
         VtGuiaEntity vtGuiaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         if (!vtGuiaEntity.getSerie().equals(request.getSerie()) || !vtGuiaEntity.getSecuencial().equals(request.getSecuencial())) {

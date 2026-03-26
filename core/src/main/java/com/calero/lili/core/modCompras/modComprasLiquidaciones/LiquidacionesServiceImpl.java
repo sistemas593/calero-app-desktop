@@ -86,6 +86,7 @@ public class LiquidacionesServiceImpl {
 
     public ResponseDto create(Long idData, Long idEmpresa, CreationRequestLiquidacionCompraDto request, String usuario) {
 
+        DateUtils.validarFechaEmision(request.getFechaEmision());
         Optional<OneProjection> existingFactura = liquidacionesRepository
                 .findExistBySecuencial(idData, idEmpresa, request.getSerie(), request.getSecuencial());
 
@@ -205,6 +206,7 @@ public class LiquidacionesServiceImpl {
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationRequestLiquidacionCompraDto request,
                               String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
 
+        DateUtils.validarFechaEmision(request.getFechaEmision());
         CpLiquidacionesEntity cpLiquidacionesEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         if (!cpLiquidacionesEntity.getSerie().equals(request.getSerie()) || !cpLiquidacionesEntity.getSecuencial().equals(request.getSecuencial())) {

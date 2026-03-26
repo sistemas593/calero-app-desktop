@@ -18,7 +18,7 @@ import java.nio.file.StandardCopyOption
 import java.time.Duration
 import java.util.zip.ZipInputStream
 
-private const val FECHA_VERSION_LOCAL = "2026-02-01"
+private const val FECHA_VERSION_LOCAL = "2026-03-26"
 private const val API_URL = "https://api.facturador.com.ec/apist/v1.0/datos/fecha-actualizacion-sitacfacturador"
 
 sealed class UpdateCheckState {

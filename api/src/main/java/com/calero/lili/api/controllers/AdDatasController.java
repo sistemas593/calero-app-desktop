@@ -5,8 +5,10 @@ import com.calero.lili.core.dtos.FilterDto;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.modAdminDatas.AdDatasServiceImpl;
+import com.calero.lili.core.modAdminDatas.dto.AdDataResponseConfiguracionDto;
 import com.calero.lili.core.modAdminDatas.dto.AdDatasCreationRequestDto;
 import com.calero.lili.core.modAdminDatas.dto.AdDatasDto;
+import com.calero.lili.core.modClientesConfiguraciones.dto.VtClientesConfiguracionesGetOneDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -34,17 +36,27 @@ public class AdDatasController {
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('CF_DT_CR')")
-    public ResponseDto create(@RequestBody AdDatasCreationRequestDto request) {
+    public AdDataResponseConfiguracionDto create(@RequestBody AdDatasCreationRequestDto request) {
         return adDatasService.create(request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idData}")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAuthority('CF_DT_MO')")
-    public ResponseDto update(@PathVariable("idData") Long idData,
-                              @RequestBody AdDatasCreationRequestDto request) {
+    public AdDataResponseConfiguracionDto update(@PathVariable("idData") Long idData,
+                                                 @RequestBody AdDatasCreationRequestDto request) {
         return adDatasService.update(idData, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
+
+
+    @GetMapping("listar")
+    @ResponseStatus(code = HttpStatus.OK)
+    @PreAuthorize("hasAuthority('CF_DT_VR')")
+    public PaginatedDto<AdDatasDto> findAllPaginate(FilterDto filters,
+                                                    Pageable pageable) {
+        return adDatasService.findAllPaginate(filters, pageable);
+    }
+
 
     @GetMapping("{idData}")
     @ResponseStatus(HttpStatus.OK)
@@ -53,12 +65,12 @@ public class AdDatasController {
         return adDatasService.findByIdData(idData);
     }
 
-    @GetMapping("listar")
-    @ResponseStatus(code = HttpStatus.OK)
+
+    @GetMapping("cliente-configuracion/{idData}")
+    @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAuthority('CF_DT_VR')")
-    public PaginatedDto<AdDatasDto> findAllPaginate(FilterDto filters,
-                                                    Pageable pageable) {
-        return adDatasService.findAllPaginate(filters, pageable);
+    public VtClientesConfiguracionesGetOneDto findByIdDataConfiguracion(@PathVariable("idData") Long idData) {
+        return adDatasService.findByIdDataConfiguracion(idData);
     }
 
 }

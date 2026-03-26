@@ -2,12 +2,14 @@ package com.calero.lili.core.utils;
 
 import com.calero.lili.core.errors.exceptions.GeneralException;
 
+import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.Locale;
+import java.util.Objects;
 
 public class DateUtils {
 
@@ -76,6 +78,19 @@ public class DateUtils {
 
         if (fechaEmisionHasta.isBefore(fechaEmisionDesde)) {
             throw new GeneralException("La fecha final no puede ser menor que la fecha inicial");
+        }
+    }
+
+    public static void validarFechaEmision(String fechaEmision) {
+
+        if (Objects.isNull(fechaEmision) || fechaEmision.isEmpty()) {
+            throw new GeneralException("La fecha de emisión del documento es obligatoria");
+        }
+        LocalDate fecha = DateUtils.toLocalDate(fechaEmision);
+
+        if (!fecha.isEqual(LocalDate.now())) {
+            throw new GeneralException(MessageFormat.format("La fecha de emisión: {0}," +
+                    " no coincide con la fecha actual", fechaEmision));
         }
     }
 

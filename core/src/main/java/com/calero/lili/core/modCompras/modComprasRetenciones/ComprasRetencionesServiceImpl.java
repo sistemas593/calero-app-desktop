@@ -75,6 +75,7 @@ import java.util.stream.IntStream;
     public ResponseDto create(Long idData, Long idEmpresa, CreationRetencionRequestDto request, String usuario) {
 
 
+        DateUtils.validarFechaEmision(request.getFechaEmisionRetencion());
         GeTerceroEntity proveedor = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
                 .orElseThrow(() -> new GeneralException("El tercero seleccionado no existe"));
 
@@ -134,6 +135,7 @@ import java.util.stream.IntStream;
                               String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
 
 
+        DateUtils.validarFechaEmision(request.getFechaEmisionRetencion());
         CpRetencionesEntity retencionesEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         GeTerceroEntity proveedor = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())

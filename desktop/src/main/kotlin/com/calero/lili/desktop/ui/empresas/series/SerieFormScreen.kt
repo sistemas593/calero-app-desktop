@@ -5,6 +5,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -132,10 +135,20 @@ fun SerieFormScreen(
 
                 state.documentos.forEachIndexed { idx, doc ->
                     DocumentoCard(
-                        index    = idx,
-                        doc      = doc,
-                        onUpdate = { updated -> viewModel.updateDocumento(idx, updated) }
+                        index      = idx,
+                        doc        = doc,
+                        onUpdate   = { updated -> viewModel.updateDocumento(idx, updated) },
+                        onEliminar = { viewModel.eliminarDocumento(idx) }
                     )
+                }
+
+                OutlinedButton(
+                    onClick  = viewModel::agregarDocumento,
+                    modifier = Modifier.align(Alignment.Start)
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("Agregar Documento")
                 }
             }
         }
@@ -182,9 +195,10 @@ fun SerieFormScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DocumentoCard(
-    index: Int,
-    doc: DocumentoFormState,
-    onUpdate: (DocumentoFormState) -> Unit
+    index:      Int,
+    doc:        DocumentoFormState,
+    onUpdate:   (DocumentoFormState) -> Unit,
+    onEliminar: () -> Unit
 ) {
     Surface(
         modifier        = Modifier.fillMaxWidth(),
@@ -193,13 +207,27 @@ private fun DocumentoCard(
         color           = Color.White
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            // Encabezado de la card
-            Text(
-                text       = "Documento #${index + 1}",
-                fontSize   = 14.sp,
-                fontWeight = FontWeight.SemiBold,
-                color      = FColorHeader
-            )
+            // Encabezado: título + botón eliminar
+            Row(
+                modifier              = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment     = Alignment.CenterVertically
+            ) {
+                Text(
+                    text       = "Documento #${index + 1}",
+                    fontSize   = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color      = FColorHeader
+                )
+                IconButton(onClick = onEliminar) {
+                    Icon(
+                        imageVector        = Icons.Default.Delete,
+                        contentDescription = "Eliminar documento",
+                        tint               = Color(0xFFC62828),
+                        modifier           = Modifier.size(20.dp)
+                    )
+                }
+            }
 
             Spacer(Modifier.height(12.dp))
 
@@ -207,9 +235,9 @@ private fun DocumentoCard(
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
                     value         = doc.documento,
-                    onValueChange = {},
-                    readOnly      = true,
+                    onValueChange = { onUpdate(doc.copy(documento = it)) },
                     label         = { Text("Tipo Documento", fontSize = 13.sp) },
+                    singleLine    = true,
                     modifier      = Modifier.weight(1f).fillMaxWidth(),
                     colors        = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor   = FColorHeader,

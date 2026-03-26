@@ -59,19 +59,23 @@ public class AdEmpresasSeriesServiceImpl {
 
     private void validarListaDocumentos(AdEmpresaSerieCreationRequestDto request) {
 
-        Set<String> tiposUnicos = new HashSet<>();
+        if (!request.getDocumentos().isEmpty()) {
 
-        for (AdEmpresaSerieCreationRequestDto.Documentos model : request.getDocumentos()) {
+            Set<String> tiposUnicos = new HashSet<>();
 
-            if (Objects.isNull(model.getFormatoDocumento())) {
-                throw new GeneralException("El formatoDocumento no puede ser nulo");
+            for (AdEmpresaSerieCreationRequestDto.Documentos model : request.getDocumentos()) {
+
+                if (Objects.isNull(model.getFormatoDocumento())) {
+                    throw new GeneralException("El formatoDocumento no puede ser nulo");
+                }
+
+                if (!tiposUnicos.add(model.getDocumento())) {
+                    throw new GeneralException("Solo puede existir un documento por tipo: " + model.getDocumento());
+                }
+
             }
-
-            if (!tiposUnicos.add(model.getDocumento())) {
-                throw new GeneralException("Solo puede existir un documento por tipo: " + model.getDocumento());
-            }
-
         }
+
     }
 
     public ResponseDto update(Long idData, Long idEmpresa, UUID id, AdEmpresaSerieCreationRequestDto request,

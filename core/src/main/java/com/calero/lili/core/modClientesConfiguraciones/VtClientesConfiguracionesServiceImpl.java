@@ -36,7 +36,6 @@ public class VtClientesConfiguracionesServiceImpl {
     private final ResponseApiBuilder responseApiBuilder;
 
 
-
     public ResponseDto create(Long idData, VtClientesConfiguracionesRequestDto request, String usuario) {
 
 
@@ -54,10 +53,10 @@ public class VtClientesConfiguracionesServiceImpl {
         configuracion.setCreatedBy(usuario);
         configuracion.setCreatedDate(LocalDateTime.now());
         clientesConfiguracionesRepository.save(configuracion);
-        return responseApiBuilder.builderResponse(configuracion.getIdConfiguracion().toString());
+        return responseApiBuilder.builderResponse(configuracion.getClave());
     }
 
-    public ResponseDto update(Long idData, UUID id, VtClientesConfiguracionesRequestDto request, String usuario) {
+    public ResponseDto update(Long idData, String id, VtClientesConfiguracionesRequestDto request, String usuario) {
 
         VtClientesConfiguracionesEntity entidad = clientesConfiguracionesRepository.findById(idData, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("id number {0} no exists", id)));
@@ -70,10 +69,10 @@ public class VtClientesConfiguracionesServiceImpl {
 
         VtClientesConfiguracionesEntity actualizar = clientesConfiguracionesRepository.save(update);
 
-        return responseApiBuilder.builderResponse(actualizar.getIdConfiguracion().toString());
+        return responseApiBuilder.builderResponse(actualizar.getClave());
     }
 
-    public void delete(Long idData, UUID id, String usuario) {
+    public void delete(Long idData, String id, String usuario) {
 
         VtClientesConfiguracionesEntity stEmpresasEntity = clientesConfiguracionesRepository.findById(idData, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
@@ -85,7 +84,7 @@ public class VtClientesConfiguracionesServiceImpl {
         clientesConfiguracionesRepository.save(stEmpresasEntity);
     }
 
-    public VtClientesConfiguracionesGetOneDto findById(Long idData, UUID id) {
+    public VtClientesConfiguracionesGetOneDto findById(Long idData, String id) {
 
         VtClientesConfiguracionesEntity entidad = clientesConfiguracionesRepository.findById(idData, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
@@ -193,5 +192,10 @@ public class VtClientesConfiguracionesServiceImpl {
         return errores;
 
     }
+
+    public void saveConfigurationAdData(Long idData, String clave) {
+        clientesConfiguracionesRepository.save(vtClienteConfiguracionBuilder.builderConfiguracionAdData(idData, clave));
+    }
+
 
 }

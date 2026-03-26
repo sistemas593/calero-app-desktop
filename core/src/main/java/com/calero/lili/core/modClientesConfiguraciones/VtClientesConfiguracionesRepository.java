@@ -106,8 +106,8 @@ public interface VtClientesConfiguracionesRepository extends JpaRepository<VtCli
     @Query(value = "SELECT entity " +
             "FROM VtClientesConfiguracionesEntity entity " +
             "where entity.idData = :idData AND " +
-            "entity.idConfiguracion = :id ")
-    Optional<VtClientesConfiguracionesEntity> findById(@Param("idData") Long idData, @Param("id") UUID id);
+            "entity.clave = :clave ")
+    Optional<VtClientesConfiguracionesEntity> findById(@Param("idData") Long idData, @Param("clave") String clave);
 
     @Query(value = "SELECT entity " +
             "FROM VtClientesConfiguracionesEntity entity " +

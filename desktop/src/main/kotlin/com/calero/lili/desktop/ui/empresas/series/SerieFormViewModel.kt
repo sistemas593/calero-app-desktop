@@ -31,7 +31,7 @@ data class SerieFormUiState(
     val ciudad: String = "",
     val telefono1: String = "",
     val telefono2: String = "",
-    val documentos: List<DocumentoFormState> = listOf(DocumentoFormState(documento = "FAC")),
+    val documentos: List<DocumentoFormState> = emptyList(),
     val isLoading: Boolean = false,
     val isSaving: Boolean = false,
     val errorMessage: String? = null,

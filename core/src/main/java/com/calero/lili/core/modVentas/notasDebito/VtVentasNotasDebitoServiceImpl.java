@@ -66,6 +66,7 @@ public class VtVentasNotasDebitoServiceImpl {
 
     public ResponseDto create(Long idData, Long idEmpresa, CreationNotaDebitoRequestDto request, String usuario) {
 
+        DateUtils.validarFechaEmision(request.getFechaEmision());
         ValidarCampoAscii.validarStrings(request);
 
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
@@ -113,6 +114,7 @@ public class VtVentasNotasDebitoServiceImpl {
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationNotaDebitoRequestDto request, String usuario,
                               FilterListDto filters, TipoPermiso tipoBusqueda) {
 
+        DateUtils.validarFechaEmision(request.getFechaEmision());
         ValidarCampoAscii.validarStrings(request);
 
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),

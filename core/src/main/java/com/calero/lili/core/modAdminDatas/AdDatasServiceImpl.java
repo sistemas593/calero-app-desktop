@@ -1,14 +1,15 @@
 package com.calero.lili.core.modAdminDatas;
 
-import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.core.dtos.FilterDto;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
-import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminDatas.builder.AdDataBuilder;
+import com.calero.lili.core.modAdminDatas.dto.AdDataResponseConfiguracionDto;
 import com.calero.lili.core.modAdminDatas.dto.AdDatasCreationRequestDto;
 import com.calero.lili.core.modAdminDatas.dto.AdDatasDto;
+import com.calero.lili.core.modClientesConfiguraciones.VtClientesConfiguracionesServiceImpl;
+import com.calero.lili.core.modClientesConfiguraciones.dto.VtClientesConfiguracionesGetOneDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,18 +24,20 @@ import java.util.stream.Collectors;
 public class AdDatasServiceImpl {
 
     private final AdDataRepository adDataRepository;
-    private final ResponseApiBuilder responseApiBuilder;
     private final AdDataBuilder adDataBuilder;
+    private final VtClientesConfiguracionesServiceImpl clientesConfiguracionesService;
 
-    public ResponseDto create(AdDatasCreationRequestDto request, String usuario) {
+
+    public AdDataResponseConfiguracionDto create(AdDatasCreationRequestDto request, String usuario) {
         AdDataEntity entidad = adDataBuilder.builderEntity(request);
         entidad.setCreatedBy(usuario);
         entidad.setCreatedDate(LocalDateTime.now());
         adDataRepository.save(entidad);
-        return responseApiBuilder.builderResponse(entidad.getIdData().toString());
+        clientesConfiguracionesService.saveConfigurationAdData(entidad.getIdData(), entidad.getClave());
+        return adDataBuilder.builderResponseConfiguracion(entidad);
     }
 
-    public ResponseDto update(Long idData, AdDatasCreationRequestDto request, String usuario) {
+    public AdDataResponseConfiguracionDto update(Long idData, AdDatasCreationRequestDto request, String usuario) {
         AdDataEntity entidad = adDataRepository.findByIdData(idData).
                 orElseThrow(() -> new GeneralException(MessageFormat.format("Data {0} no exists", idData)));
 
@@ -42,7 +45,7 @@ public class AdDatasServiceImpl {
         update.setModifiedBy(usuario);
         update.setModifiedDate(LocalDateTime.now());
         adDataRepository.save(update);
-        return responseApiBuilder.builderResponse(update.getIdData().toString());
+        return adDataBuilder.builderResponseConfiguracion(entidad);
     }
 
     public AdDatasDto findByIdData(Long idData) {
@@ -74,5 +77,11 @@ public class AdDatasServiceImpl {
         paginatedDto.setPaginator(paginated);
 
         return paginatedDto;
+    }
+
+    public VtClientesConfiguracionesGetOneDto findByIdDataConfiguracion(Long idData) {
+        AdDataEntity entidad = adDataRepository.findByIdData(idData).
+                orElseThrow(() -> new GeneralException(MessageFormat.format("Data {0} no exists", idData)));
+        return clientesConfiguracionesService.findById(entidad.getIdData(), entidad.getClave());
     }
 }

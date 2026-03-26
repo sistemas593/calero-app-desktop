@@ -107,6 +107,8 @@ public class VtVentasFacturasServiceImpl {
 
     public ResponseDto create(Long idData, Long idEmpresa, CreationFacturaRequestDto request, String usuario) {
 
+
+        DateUtils.validarFechaEmision(request.getFechaEmision());
         ValidarCampoAscii.validarStrings(request);
         adIvaPorcentajeService.validateIvaPorcentaje(getTarifaInteger(request.getValores()), DateUtils.toLocalDate(request.getFechaEmision()));
 
@@ -168,6 +170,7 @@ public class VtVentasFacturasServiceImpl {
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationFacturaRequestDto request,
                               FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
+        DateUtils.validarFechaEmision(request.getFechaEmision());
         ValidarCampoAscii.validarStrings(request);
 
         adIvaPorcentajeService.validateIvaPorcentaje(getTarifaInteger(request.getValores()), DateUtils.toLocalDate(request.getFechaEmision()));

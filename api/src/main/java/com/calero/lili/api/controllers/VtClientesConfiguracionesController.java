@@ -51,7 +51,7 @@ public class VtClientesConfiguracionesController {
     @PutMapping("{id}")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAuthority('CR_CC_MO')")
-    public ResponseDto update(@PathVariable("id") UUID id,
+    public ResponseDto update(@PathVariable("id") String id,
                               @RequestBody @Valid VtClientesConfiguracionesRequestDto request) {
         return clientesConfiguracionesService.update(idDataService.getIdData(), id, request,
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"));
@@ -60,7 +60,7 @@ public class VtClientesConfiguracionesController {
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasAuthority('CR_CC_EL')")
-    public void delete(@PathVariable("id") UUID id) {
+    public void delete(@PathVariable("id") String id) {
         clientesConfiguracionesService.delete(idDataService.getIdData(), id,
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
@@ -68,7 +68,7 @@ public class VtClientesConfiguracionesController {
     @GetMapping("{id}")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAuthority('CR_CC_VR')")
-    public VtClientesConfiguracionesGetOneDto findById(@PathVariable("id") UUID id) {
+    public VtClientesConfiguracionesGetOneDto findById(@PathVariable("id") String id) {
         return clientesConfiguracionesService.findById(idDataService.getIdData(), id);
     }
 

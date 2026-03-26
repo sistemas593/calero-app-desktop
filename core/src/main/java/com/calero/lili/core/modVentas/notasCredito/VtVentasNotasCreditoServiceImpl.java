@@ -92,6 +92,7 @@ public class VtVentasNotasCreditoServiceImpl {
 
     public ResponseDto create(Long idData, Long idEmpresa, CreationNotaCreditoRequestDto request, String usuario) {
 
+        DateUtils.validarFechaEmision(request.getFechaEmision());
         ValidarCampoAscii.validarStrings(request);
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
                 DateUtils.toLocalDate(request.getModFechaEmision()));
@@ -136,6 +137,7 @@ public class VtVentasNotasCreditoServiceImpl {
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationNotaCreditoRequestDto request,
                               String usuario, TipoPermiso tipoBusqueda, FilterListDto filters) {
 
+        DateUtils.validarFechaEmision(request.getFechaEmision());
         ValidarCampoAscii.validarStrings(request);
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
                 DateUtils.toLocalDate(request.getModFechaEmision()));
