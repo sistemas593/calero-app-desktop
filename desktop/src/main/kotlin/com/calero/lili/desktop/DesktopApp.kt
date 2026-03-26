@@ -136,6 +136,12 @@ fun main() {
                         title   = { Text("Actualización disponible", fontWeight = androidx.compose.ui.text.font.FontWeight.Bold) },
                         text    = { Text("Hay una nueva versión disponible del sistema. ¿Desea descargarla ahora?") },
                         confirmButton = {
+                            OutlinedButton(onClick = {
+                                mostrarDialogo = false
+                                actualizacionViewModel.continuar()
+                            }) { Text("No") }
+                        },
+                        dismissButton = {
                             Button(
                                 onClick = {
                                     mostrarDialogo = false
@@ -143,12 +149,6 @@ fun main() {
                                 },
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1565C0))
                             ) { Text("Sí") }
-                        },
-                        dismissButton = {
-                            OutlinedButton(onClick = {
-                                mostrarDialogo = false
-                                actualizacionViewModel.continuar()
-                            }) { Text("Quizás, más tarde") }
                         }
                     )
                 }
@@ -214,14 +214,29 @@ fun main() {
                         }
                     }
                     empresaActiva == null -> {
-                        // ── Pantalla de selección de empresa
-                        SelectorEmpresaScreen(
-                            viewModel             = selectorViewModel,
-                            onEmpresaSeleccionada = { idEmpresa, razonSocial ->
-                                AppPreferences.guardarEmpresa(idEmpresa, razonSocial)
-                                empresaActiva = EmpresaActiva(idEmpresa, razonSocial)
-                            }
-                        )
+                        var mostrarFormNuevaEmpresa by remember { mutableStateOf(false) }
+                        if (mostrarFormNuevaEmpresa) {
+                            // ── Formulario para crear nueva empresa desde el selector
+                            val formViewModel = remember { EmpresaFormViewModel(service = empresasService, idEmpresa = null) }
+                            DisposableEffect(Unit) { onDispose { formViewModel.onDestroy() } }
+                            EmpresaFormScreen(
+                                viewModel = formViewModel,
+                                onCerrar  = {
+                                    mostrarFormNuevaEmpresa = false
+                                    selectorViewModel.recargar()
+                                }
+                            )
+                        } else {
+                            // ── Pantalla de selección de empresa
+                            SelectorEmpresaScreen(
+                                viewModel             = selectorViewModel,
+                                onEmpresaSeleccionada = { idEmpresa, razonSocial ->
+                                    AppPreferences.guardarEmpresa(idEmpresa, razonSocial)
+                                    empresaActiva = EmpresaActiva(idEmpresa, razonSocial)
+                                },
+                                onNuevaEmpresa = { mostrarFormNuevaEmpresa = true }
+                            )
+                        }
                     }
                     else -> {
                     // ── Aplicación principal
@@ -253,7 +268,7 @@ fun main() {
                     val itemsState     by itemsViewModel.state.collectAsState()
                     val facturasState  by facturasViewModel.state.collectAsState()
 
-                    var opcionActual by remember(idEmpresa) { mutableStateOf(MenuOpcion.LISTA_EMPRESAS) }
+                    var opcionActual by remember(idEmpresa) { mutableStateOf(MenuOpcion.LISTA_SERIES) }
 
                     Row {
                         // ── Sidebar con empresa activa

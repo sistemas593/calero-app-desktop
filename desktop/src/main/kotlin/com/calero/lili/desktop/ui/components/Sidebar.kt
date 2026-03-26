@@ -121,13 +121,8 @@ fun Sidebar(
         HorizontalDivider(color = SidebarDivider, thickness = 1.dp)
         Spacer(Modifier.height(12.dp))
 
-        // ── Sección: Empresas
-        SeccionLabel("EMPRESAS")
-        SidebarItem(
-            texto      = MenuOpcion.LISTA_EMPRESAS.titulo,
-            isSelected = opcionActual == MenuOpcion.LISTA_EMPRESAS,
-            onClick    = { onSeleccionar(MenuOpcion.LISTA_EMPRESAS) }
-        )
+        // ── Sección: Gestión
+        SeccionLabel("GESTIÓN")
         SidebarItem(
             texto      = MenuOpcion.LISTA_SERIES.titulo,
             isSelected = opcionActual == MenuOpcion.LISTA_SERIES,

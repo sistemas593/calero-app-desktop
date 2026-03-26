@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
@@ -18,8 +19,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -36,10 +35,16 @@ private val ColorSubtexto  = Color(0xFF6B7A99)
 @Composable
 fun SelectorEmpresaScreen(
     viewModel: SelectorEmpresaViewModel,
-    onEmpresaSeleccionada: (idEmpresa: Long, razonSocial: String) -> Unit
+    onEmpresaSeleccionada: (idEmpresa: Long, razonSocial: String) -> Unit,
+    onNuevaEmpresa: () -> Unit
 ) {
-    val state       by viewModel.state.collectAsState()
-    val empresas     = viewModel.empresasFiltradas()
+    val state    by viewModel.state.collectAsState()
+    val q        = state.busqueda.trim().lowercase()
+    val empresas = if (q.isEmpty()) state.empresas
+                   else state.empresas.filter {
+                       it.razonSocial?.lowercase()?.contains(q) == true ||
+                       it.ruc?.contains(q) == true
+                   }
 
     Box(
         modifier = Modifier
@@ -95,61 +100,30 @@ fun SelectorEmpresaScreen(
             ) {
                 Column(modifier = Modifier.padding(24.dp)) {
 
-                    // Buscador con autocomplete
-                    val density = LocalDensity.current
-                    var boxWidth by remember { mutableIntStateOf(0) }
-                    Box(modifier = Modifier.onSizeChanged { boxWidth = it.width }) {
-                        OutlinedTextField(
-                            value         = state.busqueda,
-                            onValueChange = viewModel::setBusqueda,
-                            placeholder   = { Text("Buscar por nombre o RUC…", fontSize = 13.sp) },
-                            leadingIcon   = { Icon(Icons.Default.Search, contentDescription = null, tint = ColorSubtexto) },
-                            trailingIcon  = {
-                                if (state.buscando)
-                                    CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp, color = ColorPrimario)
-                                else if (state.busqueda.isNotBlank())
-                                    IconButton(
-                                        onClick  = { viewModel.setBusqueda("") },
-                                        modifier = Modifier.size(20.dp)
-                                    ) {
-                                        Icon(Icons.Default.Clear, contentDescription = "Limpiar", modifier = Modifier.size(14.dp))
-                                    }
-                            },
-                            modifier   = Modifier.fillMaxWidth(),
-                            singleLine = true,
-                            shape      = RoundedCornerShape(10.dp),
-                            colors     = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor   = ColorPrimario,
-                                unfocusedBorderColor = ColorBorde,
-                                focusedLabelColor    = ColorPrimario
-                            )
+                    // Buscador
+                    OutlinedTextField(
+                        value         = state.busqueda,
+                        onValueChange = viewModel::setBusqueda,
+                        placeholder   = { Text("Buscar por nombre o RUC…", fontSize = 13.sp) },
+                        leadingIcon   = { Icon(Icons.Default.Search, contentDescription = null, tint = ColorSubtexto) },
+                        trailingIcon  = {
+                            if (state.busqueda.isNotBlank())
+                                IconButton(
+                                    onClick  = { viewModel.setBusqueda("") },
+                                    modifier = Modifier.size(20.dp)
+                                ) {
+                                    Icon(Icons.Default.Clear, contentDescription = "Limpiar", modifier = Modifier.size(14.dp))
+                                }
+                        },
+                        modifier   = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        shape      = RoundedCornerShape(10.dp),
+                        colors     = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor   = ColorPrimario,
+                            unfocusedBorderColor = ColorBorde,
+                            focusedLabelColor    = ColorPrimario
                         )
-
-                        DropdownMenu(
-                            expanded         = state.dropdownVisible,
-                            onDismissRequest = viewModel::cerrarDropdown,
-                            modifier         = Modifier
-                                .width(with(density) { boxWidth.toDp() })
-                                .heightIn(max = 300.dp)
-                        ) {
-                            state.sugerencias.forEach { empresa ->
-                                DropdownMenuItem(
-                                    text = {
-                                        Column {
-                                            Text(empresa.razonSocial ?: "—", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                                            Text("RUC: ${empresa.ruc ?: "—"}", fontSize = 11.sp, color = ColorSubtexto)
-                                        }
-                                    },
-                                    onClick = {
-                                        val id     = empresa.idEmpresa ?: return@DropdownMenuItem
-                                        val nombre = empresa.razonSocial ?: ""
-                                        viewModel.cerrarDropdown()
-                                        onEmpresaSeleccionada(id, nombre)
-                                    }
-                                )
-                            }
-                        }
-                    }
+                    )
 
                     Spacer(Modifier.height(16.dp))
 
@@ -174,12 +148,31 @@ fun SelectorEmpresaScreen(
                             }
                         }
                         else -> {
-                            // Contador
-                            Text(
-                                text     = "${empresas.size} empresa(s) disponible(s)",
-                                color    = ColorSubtexto,
-                                fontSize = 12.sp
-                            )
+                            // Contador + botón Nueva Empresa
+                            Row(
+                                modifier              = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment     = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text     = "${empresas.size} empresa(s) disponible(s)",
+                                    color    = ColorSubtexto,
+                                    fontSize = 12.sp
+                                )
+                                Button(
+                                    onClick = onNuevaEmpresa,
+                                    colors  = ButtonDefaults.buttonColors(containerColor = ColorPrimario),
+                                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp)
+                                ) {
+                                    Icon(
+                                        imageVector        = Icons.Default.Add,
+                                        contentDescription = null,
+                                        modifier           = Modifier.size(16.dp)
+                                    )
+                                    Spacer(Modifier.width(6.dp))
+                                    Text("Nueva Empresa", fontSize = 13.sp)
+                                }
+                            }
                             Spacer(Modifier.height(8.dp))
 
                             LazyColumn(

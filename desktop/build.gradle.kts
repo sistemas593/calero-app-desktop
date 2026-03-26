@@ -32,6 +32,9 @@ dependencies {
     implementation(compose.material3)
     implementation(compose.materialIconsExtended)
 
+    // Jackson (para leer db-config.json)
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+
     // Kotlin
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
