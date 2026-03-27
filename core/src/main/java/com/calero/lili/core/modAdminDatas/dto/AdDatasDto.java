@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -13,5 +15,6 @@ public class AdDatasDto {
 
     private Long idData;
     private String data;
+    private UUID idConfiguracion;
 
 }

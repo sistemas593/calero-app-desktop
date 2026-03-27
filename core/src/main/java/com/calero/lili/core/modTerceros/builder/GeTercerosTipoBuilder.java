@@ -9,6 +9,7 @@ import com.calero.lili.core.modTerceros.dto.GeTerceroGetOneDto;
 import com.calero.lili.core.modVentasCientesGrupos.VtClienteGrupoEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Component
@@ -52,8 +53,8 @@ public class GeTercerosTipoBuilder {
     public GeTerceroGetOneDto.TipoTercerosClienteDto builderResponseCliente(VtClienteGrupoEntity model) {
         return GeTerceroGetOneDto.TipoTercerosClienteDto.builder()
                 .esCliente(Boolean.TRUE)
-                .idGrupoCliente(model.getIdGrupo())
-                .grupo(model.getGrupo())
+                .idGrupoCliente(Objects.nonNull(model) ? model.getIdGrupo() : null)
+                .grupo(Objects.nonNull(model) ? model.getGrupo() : null)
                 .build();
     }
 
@@ -67,8 +68,8 @@ public class GeTercerosTipoBuilder {
     public GeTerceroGetOneDto.TipoTercerosProveedorDto builderResponseProveedor(CpProveedoresGruposEntity model) {
         return GeTerceroGetOneDto.TipoTercerosProveedorDto.builder()
                 .esProveedor(Boolean.TRUE)
-                .idGrupoProveedor(model.getIdGrupo())
-                .grupo(model.getGrupo())
+                .idGrupoProveedor(Objects.nonNull(model) ? model.getIdGrupo() : null)
+                .grupo(Objects.nonNull(model) ? model.getGrupo() : null)
                 .build();
     }
 

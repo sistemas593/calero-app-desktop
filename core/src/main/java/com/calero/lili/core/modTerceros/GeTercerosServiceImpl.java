@@ -9,6 +9,7 @@ import com.calero.lili.core.modTerceros.projections.GeTerceroProjection;
 import com.calero.lili.core.utils.validaciones.ValidarCampoAscii;
 import com.calero.lili.core.utils.validaciones.ValidarIdentificacion;
 import com.calero.lili.core.dtos.PaginatedDto;
+import org.springframework.transaction.annotation.Transactional;
 import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.errors.exceptions.GeneralException;
@@ -68,6 +69,7 @@ public class GeTercerosServiceImpl {
         return clienteBuilder.builderListResponse(entity);
     }
 
+    @Transactional
     public GeTerceroGetListDto update(Long idEmpresa, Long idData, UUID id, GeTerceroRequestDto request, String usuario) {
 
         ValidarCampoAscii.validarStrings(request);
@@ -100,6 +102,7 @@ public class GeTercerosServiceImpl {
         vtClientesRepository.save(entidad);
     }
 
+    @Transactional
     public GeTerceroGetOneDto findById(Long idData, UUID id, Long idEmpresa) {
         GeTerceroEntity entidad = vtClientesRepository.findByIdCliente(idData, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Cliente con id {0} no existe", id)));

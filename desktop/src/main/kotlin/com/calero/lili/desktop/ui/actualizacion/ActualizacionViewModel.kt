@@ -22,6 +22,7 @@ private const val FECHA_VERSION_LOCAL = "2026-03-26"
 private const val API_URL = "https://api.facturador.com.ec/apist/v1.0/datos/fecha-actualizacion-sitacfacturador"
 
 sealed class UpdateCheckState {
+    object Idle                                        : UpdateCheckState()
     object Checking                                    : UpdateCheckState()
     object UpToDate                                    : UpdateCheckState()
     data class UpdateAvailable(val link: String)       : UpdateCheckState()
@@ -33,13 +34,16 @@ sealed class UpdateCheckState {
 
 class ActualizacionViewModel {
 
-    private val _state = MutableStateFlow<UpdateCheckState>(UpdateCheckState.Checking)
+    private val _state = MutableStateFlow<UpdateCheckState>(UpdateCheckState.Idle)
     val state: StateFlow<UpdateCheckState> = _state.asStateFlow()
 
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
-    init {
-        verificarActualizacion()
+    /** Inicia la verificación de actualizaciones. Llamar al hacer clic en "Continuar". */
+    fun iniciar() {
+        if (_state.value == UpdateCheckState.Idle) {
+            verificarActualizacion()
+        }
     }
 
     // ─── Verificación de versión ──────────────────────────────────────────────

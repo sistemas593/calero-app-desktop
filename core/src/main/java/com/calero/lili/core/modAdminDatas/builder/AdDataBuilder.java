@@ -36,6 +36,7 @@ public class AdDataBuilder {
                 .builder()
                 .idData(entity.getIdData())
                 .data(entity.getData())
+                .idConfiguracion(entity.getIdConfiguracion())
                 .build();
     }
 

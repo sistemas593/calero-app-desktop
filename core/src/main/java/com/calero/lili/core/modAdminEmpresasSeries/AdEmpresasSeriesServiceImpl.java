@@ -65,6 +65,10 @@ public class AdEmpresasSeriesServiceImpl {
 
             for (AdEmpresaSerieCreationRequestDto.Documentos model : request.getDocumentos()) {
 
+                if(Objects.isNull(model.getSecuencial()) || !model.getSecuencial().isEmpty()){
+                    throw new GeneralException("El secuencial no puede ser nulo, ni vacío");
+                }
+
                 if (Objects.isNull(model.getFormatoDocumento())) {
                     throw new GeneralException("El formatoDocumento no puede ser nulo");
                 }

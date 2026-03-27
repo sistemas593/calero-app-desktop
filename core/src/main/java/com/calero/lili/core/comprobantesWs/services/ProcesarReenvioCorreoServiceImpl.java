@@ -2,6 +2,7 @@ package com.calero.lili.core.comprobantesWs.services;
 
 import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.EnvioCorreoDto;
 import com.calero.lili.core.comprobantesWs.dto.DatosEmpresaDto;
+import com.calero.lili.core.comprobantesWs.dto.FilterEmailDto;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.CpLiquidacionesEntity;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.LiquidacionesRepository;
@@ -29,7 +30,7 @@ public class ProcesarReenvioCorreoServiceImpl {
 
     private final ProcesarEnvioCorreoServiceImpl procesarEnvioCorreoService;
     private final BuscarDatosEmpresa buscarDatosEmpresa;
-    public void procesarVentasReenvioCorreo(Long idData, Long idEmpresa, UUID id) {
+    public void procesarVentasReenvioCorreo(Long idData, Long idEmpresa, UUID id, FilterEmailDto filter) {
 
         System.out.println("Reenviando correo");
 
@@ -59,14 +60,14 @@ public class ProcesarReenvioCorreoServiceImpl {
         envioCorreoDto.setSerie(venta1.getSerie());
         envioCorreoDto.setFechaEmision(DateUtils.toString(venta1.getFechaEmision()));
         envioCorreoDto.setClaveAcceso(venta1.getClaveAcceso());
-        envioCorreoDto.setEmail(venta1.getEmail());
+        envioCorreoDto.setEmail(filter.getCorreo());
 
         procesarEnvioCorreoService.enviarCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
 
         System.out.println("Correo reenviado");
 
     }
-    public void procesarGuiasRemisionReenvioCorreo(Long idData, Long idEmpresa, UUID id) {
+    public void procesarGuiasRemisionReenvioCorreo(Long idData, Long idEmpresa, UUID id,FilterEmailDto filter) {
 
         System.out.println("Reenviando correo");
         DatosEmpresaDto datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(idData, idEmpresa);
@@ -84,7 +85,7 @@ public class ProcesarReenvioCorreoServiceImpl {
         envioCorreoDto.setSerie(venta1.getSerie());
         envioCorreoDto.setFechaEmision(DateUtils.toString(venta1.getFechaEmision()));
         envioCorreoDto.setClaveAcceso(venta1.getClaveAcceso());
-        envioCorreoDto.setEmail(venta1.getEmail());
+        envioCorreoDto.setEmail(filter.getCorreo());
 
         procesarEnvioCorreoService.enviarCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
 
@@ -92,7 +93,7 @@ public class ProcesarReenvioCorreoServiceImpl {
 
     }
 
-    public void procesarLiquidacionesReenvioCorreo(Long idData, Long idEmpresa, UUID id) {
+    public void procesarLiquidacionesReenvioCorreo(Long idData, Long idEmpresa, UUID id,FilterEmailDto filter) {
 
         System.out.println("Reenviando correo");
         DatosEmpresaDto datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(idData, idEmpresa);
@@ -110,7 +111,7 @@ public class ProcesarReenvioCorreoServiceImpl {
         envioCorreoDto.setSerie(venta1.getSerie());
         envioCorreoDto.setFechaEmision(DateUtils.toString(venta1.getFechaEmision()));
         envioCorreoDto.setClaveAcceso(venta1.getClaveAcceso());
-        envioCorreoDto.setEmail(venta1.getEmail());
+        envioCorreoDto.setEmail(filter.getCorreo());
 
         procesarEnvioCorreoService.enviarCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
 
@@ -118,7 +119,7 @@ public class ProcesarReenvioCorreoServiceImpl {
 
     }
 
-    public void procesarComprobantesRetencionReenvioCorreo(Long idData, Long idEmpresa, UUID id) {
+    public void procesarComprobantesRetencionReenvioCorreo(Long idData, Long idEmpresa, UUID id, FilterEmailDto filter) {
 
         System.out.println("Reenviando correo");
         DatosEmpresaDto datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(idData, idEmpresa);
@@ -136,7 +137,7 @@ public class ProcesarReenvioCorreoServiceImpl {
         envioCorreoDto.setSerie(venta1.getSerieRetencion());
         envioCorreoDto.setFechaEmision(DateUtils.toString(venta1.getFechaEmisionRetencion()));
         envioCorreoDto.setClaveAcceso(venta1.getClaveAcceso());
-        envioCorreoDto.setEmail(venta1.getEmail());
+        envioCorreoDto.setEmail(filter.getCorreo());
 
         procesarEnvioCorreoService.enviarCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
 

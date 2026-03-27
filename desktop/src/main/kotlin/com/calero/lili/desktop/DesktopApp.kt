@@ -38,6 +38,7 @@ import com.calero.lili.desktop.ui.items.medidas.MedidaFormScreen
 import com.calero.lili.desktop.ui.items.medidas.MedidaFormViewModel
 import com.calero.lili.desktop.ui.items.medidas.MedidasScreen
 import com.calero.lili.desktop.ui.items.medidas.MedidasViewModel
+import com.calero.lili.desktop.ui.inicio.InicioScreen
 import com.calero.lili.desktop.ui.selector.SelectorEmpresaScreen
 import com.calero.lili.desktop.ui.ventas.facturas.FacturasScreen
 import com.calero.lili.desktop.ui.ventas.facturas.FacturasViewModel
@@ -46,6 +47,8 @@ import com.calero.lili.desktop.ui.terceros.ClienteFormScreen
 import com.calero.lili.desktop.ui.terceros.ClienteFormViewModel
 import com.calero.lili.desktop.ui.terceros.ClientesScreen
 import com.calero.lili.desktop.ui.terceros.ClientesViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.WebApplicationType
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -64,32 +67,25 @@ private const val ID_DATA = 1L
 /** Datos de la empresa activa en memoria. */
 data class EmpresaActiva(val idEmpresa: Long, val razonSocial: String)
 
+/** Estado de inicialización de Spring — Loading mientras arranca, Ready con los beans listos. */
+private sealed class AppState {
+    object Loading : AppState()
+    data class Ready(
+        val empresasService : AdEmpresasServiceImpl,
+        val facturasService : VtVentasFacturasServiceImpl,
+        val procesarService : ProcesarDocumentosServiceImpl,
+        val seriesService   : AdEmpresasSeriesServiceImpl,
+        val tercerosService : GeTercerosServiceImpl,
+        val medidasService  : GeItemsMedidasServiceImpl,
+        val itemsService    : GeItemsServiceImpl
+    ) : AppState()
+}
+
 fun main() {
-    val app = SpringApplication(DesktopApplication::class.java)
-    app.webApplicationType = WebApplicationType.NONE
-    app.setHeadless(false)
-    val context = app.run()
-
-    // ── Servicios Spring
-    val empresasService   = context.getBean(AdEmpresasServiceImpl::class.java)
-    val facturasService   = context.getBean(VtVentasFacturasServiceImpl::class.java)
-    val procesarService   = context.getBean(ProcesarDocumentosServiceImpl::class.java)
-    val seriesService     = context.getBean(AdEmpresasSeriesServiceImpl::class.java)
-    val tercerosService   = context.getBean(GeTercerosServiceImpl::class.java)
-    val medidasService    = context.getBean(GeItemsMedidasServiceImpl::class.java)
-    val itemsService      = context.getBean(GeItemsServiceImpl::class.java)
-
-    // ViewModel del selector (independiente de empresa)
-    val selectorViewModel      = SelectorEmpresaViewModel(empresasService, ID_DATA)
-    val actualizacionViewModel = ActualizacionViewModel()
-
+    // Sin código Spring en el hilo main — la ventana abre inmediatamente.
     application {
         Window(
-            onCloseRequest = {
-                selectorViewModel.onDestroy()
-                actualizacionViewModel.onDestroy()
-                exitApplication()
-            },
+            onCloseRequest = { exitApplication() },
             title = "Calero - Sistema de Gestión",
             state = WindowState(placement = WindowPlacement.Maximized)
         ) {
@@ -104,9 +100,66 @@ fun main() {
                     onBackground = Color(0xFF1A1A2E)
                 )
             ) {
+                // Todo Spring (constructor + run + getBean) corre en un hilo IO.
+                // El hilo main solo ejecuta Compose → ventana abre en ~2-3s.
+                var appState by remember { mutableStateOf<AppState>(AppState.Loading) }
+
+                LaunchedEffect(Unit) {
+                    withContext(Dispatchers.IO) {
+                        val app = SpringApplication(DesktopApplication::class.java)
+                        app.webApplicationType = WebApplicationType.NONE
+                        app.setHeadless(false)
+                        val ctx = app.run()
+                        // getBean() en IO: inicializa JPA/Hibernate sin tocar el hilo UI
+                        appState = AppState.Ready(
+                            ctx.getBean(AdEmpresasServiceImpl::class.java),
+                            ctx.getBean(VtVentasFacturasServiceImpl::class.java),
+                            ctx.getBean(ProcesarDocumentosServiceImpl::class.java),
+                            ctx.getBean(AdEmpresasSeriesServiceImpl::class.java),
+                            ctx.getBean(GeTercerosServiceImpl::class.java),
+                            ctx.getBean(GeItemsMedidasServiceImpl::class.java),
+                            ctx.getBean(GeItemsServiceImpl::class.java)
+                        )
+                    }
+                }
+
+                when (val state = appState) {
+                    AppState.Loading -> {
+                        // ── Pantalla de carga mientras Spring inicializa en segundo plano
+                        Box(
+                            modifier         = androidx.compose.ui.Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                CircularProgressIndicator(color = Color(0xFF1565C0))
+                                Spacer(androidx.compose.ui.Modifier.height(12.dp))
+                                Text("Iniciando sistema…", fontSize = 14.sp, color = Color(0xFF6B7A99))
+                            }
+                        }
+                    }
+                    is AppState.Ready -> {
+                        // ── Spring listo — exponer servicios y crear ViewModels
+                        val empresasService   = state.empresasService
+                        val facturasService   = state.facturasService
+                        val procesarService   = state.procesarService
+                        val seriesService     = state.seriesService
+                        val tercerosService   = state.tercerosService
+                        val medidasService    = state.medidasService
+                        val itemsService      = state.itemsService
+
+                        val selectorViewModel      = remember { SelectorEmpresaViewModel(empresasService, ID_DATA) }
+                        val actualizacionViewModel = remember { ActualizacionViewModel() }
+
+                        DisposableEffect(Unit) {
+                            onDispose {
+                                selectorViewModel.onDestroy()
+                                actualizacionViewModel.onDestroy()
+                            }
+                        }
                 // null = pantalla de selección | EmpresaActiva = app principal
-                // Siempre arranca en el selector — el guardado sólo sirve para tener el id disponible en sesión
+                // Siempre arranca en el inicio — el guardado sólo sirve para tener el id disponible en sesión
                 var empresaActiva      by remember { mutableStateOf<EmpresaActiva?>(null) }
+                var mostrarSelector    by remember { mutableStateOf(false) }
                 val updateState        by actualizacionViewModel.state.collectAsState()
                 var mostrarDialogo     by remember { mutableStateOf(false) }
                 var mostrarError       by remember { mutableStateOf(false) }
@@ -172,6 +225,13 @@ fun main() {
                 }
 
                 when {
+                    // ── Pantalla de inicio — primer paso antes de verificar actualizaciones
+                    !mostrarSelector -> {
+                        InicioScreen(onContinuar = {
+                            mostrarSelector = true
+                            actualizacionViewModel.iniciar()
+                        })
+                    }
                     // ── Verificando conexión con el servidor de versiones
                     updateState is UpdateCheckState.Checking -> {
                         Box(
@@ -418,7 +478,9 @@ fun main() {
                         }
                     }
                 }
-                } // when
+                    } // when — navegación interna
+                    } // is AppState.Ready
+                } // when (val state = appState)
             }
         }
     }

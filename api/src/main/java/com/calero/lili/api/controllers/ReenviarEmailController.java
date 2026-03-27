@@ -1,6 +1,7 @@
 package com.calero.lili.api.controllers;
 
 import com.calero.lili.api.utils.IdDataServiceImpl;
+import com.calero.lili.core.comprobantesWs.dto.FilterEmailDto;
 import com.calero.lili.core.comprobantesWs.services.ProcesarReenvioCorreoServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,34 +30,34 @@ public class ReenviarEmailController {
 
     @PostMapping("ventas/{idEmpresa}/{id}")
     @ResponseStatus(HttpStatus.CREATED)
-    public void reenviarEmailVentas(
-            @PathVariable("idEmpresa") Long idEmpresa,
-            @PathVariable("id") UUID id) {
-        procesarReenvioCorreoService.procesarVentasReenvioCorreo(idDataService.getIdData(), idEmpresa, id);
+    public void reenviarEmailVentas(@PathVariable("idEmpresa") Long idEmpresa,
+                                    @PathVariable("id") UUID id,
+                                    FilterEmailDto filter) {
+        procesarReenvioCorreoService.procesarVentasReenvioCorreo(idDataService.getIdData(), idEmpresa, id, filter);
     }
 
     @PostMapping("guias-remision/{idEmpresa}/{id}")
     @ResponseStatus(HttpStatus.CREATED)
-    public void procesarGuiasRemisionReenvioCorreo(
-            @PathVariable("idEmpresa") Long idEmpresa,
-            @PathVariable("id") UUID id) {
-        procesarReenvioCorreoService.procesarGuiasRemisionReenvioCorreo(idDataService.getIdData(), idEmpresa, id);
+    public void procesarGuiasRemisionReenvioCorreo(@PathVariable("idEmpresa") Long idEmpresa,
+                                                   @PathVariable("id") UUID id,
+                                                   FilterEmailDto filter) {
+        procesarReenvioCorreoService.procesarGuiasRemisionReenvioCorreo(idDataService.getIdData(), idEmpresa, id, filter);
     }
 
     @PostMapping("liquidaciones/{idEmpresa}/{id}")
     @ResponseStatus(HttpStatus.CREATED)
-    public void procesarLiquidacionesReenvioCorreo(
-            @PathVariable("idEmpresa") Long idEmpresa,
-            @PathVariable("id") UUID id) {
-        procesarReenvioCorreoService.procesarLiquidacionesReenvioCorreo(idDataService.getIdData(), idEmpresa, id);
+    public void procesarLiquidacionesReenvioCorreo(@PathVariable("idEmpresa") Long idEmpresa,
+                                                   @PathVariable("id") UUID id,
+                                                   FilterEmailDto filter) {
+        procesarReenvioCorreoService.procesarLiquidacionesReenvioCorreo(idDataService.getIdData(), idEmpresa, id, filter);
     }
 
     @PostMapping("comprobantes-retencion/{idEmpresa}/{id}")
     @ResponseStatus(HttpStatus.CREATED)
-    public void procesarComprobantesRetencionReenvioCorreo(
-            @PathVariable("idEmpresa") Long idEmpresa,
-            @PathVariable("id") UUID id) {
-        procesarReenvioCorreoService.procesarComprobantesRetencionReenvioCorreo(idDataService.getIdData(), idEmpresa, id);
+    public void procesarComprobantesRetencionReenvioCorreo(@PathVariable("idEmpresa") Long idEmpresa,
+                                                           @PathVariable("id") UUID id,
+                                                           FilterEmailDto filter) {
+        procesarReenvioCorreoService.procesarComprobantesRetencionReenvioCorreo(idDataService.getIdData(), idEmpresa, id, filter);
     }
 
 }

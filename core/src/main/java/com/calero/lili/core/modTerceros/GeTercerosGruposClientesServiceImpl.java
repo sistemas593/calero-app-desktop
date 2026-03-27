@@ -68,8 +68,9 @@ public class GeTercerosGruposClientesServiceImpl {
         if (grupo.isPresent()) {
             return grupo.get().getGrupo();
         } else {
-            return vtClientesGruposRepository.findByIdPredeterminado(tercero.getIdData(), idEmpresa, Boolean.TRUE)
-                    .orElseThrow(() -> new GeneralException("No existe el grupo"));
+            Optional<VtClienteGrupoEntity> predeterminado = vtClientesGruposRepository
+                    .findByIdPredeterminado(tercero.getIdData(), idEmpresa, Boolean.TRUE);
+            return predeterminado.orElse(null);
         }
 
     }

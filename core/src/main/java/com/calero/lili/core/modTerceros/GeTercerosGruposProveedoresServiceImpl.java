@@ -1,6 +1,5 @@
 package com.calero.lili.core.modTerceros;
 
-import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modComprasProveedoresGrupos.CpProveedoresGruposEntity;
 import com.calero.lili.core.modComprasProveedoresGrupos.CpProveedoresGruposRepository;
 import com.calero.lili.core.modTerceros.builder.GeTercerosGruposBuilder;
@@ -56,6 +55,8 @@ public class GeTercerosGruposProveedoresServiceImpl {
 
     }
 
+
+    // TODO CORRECIÓN, EN CASO DE NO EXISTIR PREDETERMNIADO, DEVUELVA EL ERROR, POR CIERTO GUARDAR CLIENTES EN DESKTOP
     public CpProveedoresGruposEntity getGrupo(GeTerceroEntity tercero, Long idEmpresa) {
         Optional<GeTercerosGruposProveedoresEntity> grupo = geTercerosGruposProveedoresRepository
                 .findByDataTercero(tercero.getIdData(), idEmpresa, tercero.getIdTercero());
@@ -63,8 +64,9 @@ public class GeTercerosGruposProveedoresServiceImpl {
         if (grupo.isPresent()) {
             return grupo.get().getGrupo();
         } else {
-            return cpProveedoresGruposRepository.findByIdPredeterminado(tercero.getIdData(), idEmpresa, Boolean.TRUE)
-                    .orElseThrow(() -> new GeneralException("No existe el grupo"));
+            Optional<CpProveedoresGruposEntity> predeterminado = cpProveedoresGruposRepository
+                    .findByIdPredeterminado(tercero.getIdData(), idEmpresa, Boolean.TRUE);
+            return predeterminado.orElse(null);
         }
 
     }
