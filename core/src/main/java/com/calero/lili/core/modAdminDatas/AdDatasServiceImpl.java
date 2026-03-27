@@ -1,5 +1,6 @@
 package com.calero.lili.core.modAdminDatas;
 
+import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.core.dtos.FilterDto;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
@@ -25,6 +26,7 @@ public class AdDatasServiceImpl {
 
     private final AdDataRepository adDataRepository;
     private final AdDataBuilder adDataBuilder;
+    private final ResponseApiBuilder responseApiBuilder;
     private final VtClientesConfiguracionesServiceImpl clientesConfiguracionesService;
 
 
@@ -33,7 +35,6 @@ public class AdDatasServiceImpl {
         entidad.setCreatedBy(usuario);
         entidad.setCreatedDate(LocalDateTime.now());
         adDataRepository.save(entidad);
-        clientesConfiguracionesService.saveConfigurationAdData(entidad.getIdData(), entidad.getClave());
         return adDataBuilder.builderResponseConfiguracion(entidad);
     }
 
@@ -82,6 +83,6 @@ public class AdDatasServiceImpl {
     public VtClientesConfiguracionesGetOneDto findByIdDataConfiguracion(Long idData) {
         AdDataEntity entidad = adDataRepository.findByIdData(idData).
                 orElseThrow(() -> new GeneralException(MessageFormat.format("Data {0} no exists", idData)));
-        return clientesConfiguracionesService.findById(entidad.getIdData(), entidad.getClave());
+        return clientesConfiguracionesService.findById(entidad.getIdConfiguracion());
     }
 }

@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Component
 public class AdDataBuilder {
@@ -18,7 +17,7 @@ public class AdDataBuilder {
                 .siguienteIdEmpresa(1L)
                 .fechaCreacion(LocalDate.from(LocalDateTime.now()))
                 .data(model.getData())
-                .clave(UUID.randomUUID().toString())
+                .idConfiguracion(model.getIdConfiguracion())
                 .build();
     }
 
@@ -28,7 +27,7 @@ public class AdDataBuilder {
                 .siguienteIdEmpresa(1L)
                 .fechaCreacion(LocalDate.from(LocalDateTime.now()))
                 .data(model.getData())
-                .clave(entidad.getClave())
+                .idConfiguracion(model.getIdConfiguracion())
                 .build();
     }
 
@@ -44,7 +43,7 @@ public class AdDataBuilder {
     public AdDataResponseConfiguracionDto builderResponseConfiguracion(AdDataEntity entity){
         return AdDataResponseConfiguracionDto.builder()
                 .idData(entity.getIdData())
-                .clave(entity.getClave())
+                .idConfiguracion(entity.getIdConfiguracion())
                 .build();
     }
 

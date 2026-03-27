@@ -28,11 +28,10 @@ import java.util.UUID;
 @Where(clause = "deleted = false")
 public class VtClientesConfiguracionesEntity extends Auditable {
 
-    @Column(name = "id_data")
-    private Long idData;
-
     @Id
     @Column(unique = true, updatable = false, nullable = false)
+    private  UUID idConfiguracion;
+
     private String clave;
 
     private LocalDate fechaVencimiento;

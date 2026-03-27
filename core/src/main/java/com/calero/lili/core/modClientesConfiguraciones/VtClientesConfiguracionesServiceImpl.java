@@ -1,5 +1,10 @@
 package com.calero.lili.core.modClientesConfiguraciones;
 
+import com.calero.lili.core.builder.ResponseApiBuilder;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.Paginator;
+import com.calero.lili.core.dtos.ResponseDto;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modClientesConfiguraciones.builder.VtClienteConfiguracionBuilder;
 import com.calero.lili.core.modClientesConfiguraciones.dto.StEmpresasListCreationResponseDto;
 import com.calero.lili.core.modClientesConfiguraciones.dto.VtClientesConfiguracionesCreationResponseDto;
@@ -8,11 +13,6 @@ import com.calero.lili.core.modClientesConfiguraciones.dto.VtClientesConfiguraci
 import com.calero.lili.core.modClientesConfiguraciones.dto.VtClientesConfiguracionesListCreationRequestDto;
 import com.calero.lili.core.modClientesConfiguraciones.dto.VtClientesConfiguracionesListFilterDto;
 import com.calero.lili.core.modClientesConfiguraciones.dto.VtClientesConfiguracionesRequestDto;
-import com.calero.lili.core.builder.ResponseApiBuilder;
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.Paginator;
-import com.calero.lili.core.dtos.ResponseDto;
-import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.utils.DateUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -36,29 +36,29 @@ public class VtClientesConfiguracionesServiceImpl {
     private final ResponseApiBuilder responseApiBuilder;
 
 
-    public ResponseDto create(Long idData, VtClientesConfiguracionesRequestDto request, String usuario) {
+    public ResponseDto create(VtClientesConfiguracionesRequestDto request, String usuario) {
 
 
         Optional<VtClientesConfiguracionesEntity> existing = clientesConfiguracionesRepository
-                .findByClave(idData, request.getClave());
+                .findByClave(request.getClave());
         if (existing.isPresent()) {
             throw new GeneralException(MessageFormat.format("Clave {0} ya existe", request.getClave()));
         }
 
-        Optional<VtClientesConfiguracionesEntity> existing2 = clientesConfiguracionesRepository.findByRuc(idData, request.getRuc());
+        Optional<VtClientesConfiguracionesEntity> existing2 = clientesConfiguracionesRepository.findByRuc(request.getRuc());
         if (existing2.isPresent()) {
             throw new GeneralException(MessageFormat.format("RUC {0} ya existe", request.getRuc()));
         }
-        VtClientesConfiguracionesEntity configuracion = vtClienteConfiguracionBuilder.builderEntity(idData, request);
+        VtClientesConfiguracionesEntity configuracion = vtClienteConfiguracionBuilder.builderEntity(request);
         configuracion.setCreatedBy(usuario);
         configuracion.setCreatedDate(LocalDateTime.now());
         clientesConfiguracionesRepository.save(configuracion);
-        return responseApiBuilder.builderResponse(configuracion.getClave());
+        return responseApiBuilder.builderResponse(configuracion.getIdConfiguracion().toString());
     }
 
-    public ResponseDto update(Long idData, String id, VtClientesConfiguracionesRequestDto request, String usuario) {
+    public ResponseDto update(UUID id, VtClientesConfiguracionesRequestDto request, String usuario) {
 
-        VtClientesConfiguracionesEntity entidad = clientesConfiguracionesRepository.findById(idData, id)
+        VtClientesConfiguracionesEntity entidad = clientesConfiguracionesRepository.findById(id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("id number {0} no exists", id)));
 
         VtClientesConfiguracionesEntity update = vtClienteConfiguracionBuilder
@@ -69,12 +69,12 @@ public class VtClientesConfiguracionesServiceImpl {
 
         VtClientesConfiguracionesEntity actualizar = clientesConfiguracionesRepository.save(update);
 
-        return responseApiBuilder.builderResponse(actualizar.getClave());
+        return responseApiBuilder.builderResponse(actualizar.getIdConfiguracion().toString());
     }
 
-    public void delete(Long idData, String id, String usuario) {
+    public void delete(UUID id, String usuario) {
 
-        VtClientesConfiguracionesEntity stEmpresasEntity = clientesConfiguracionesRepository.findById(idData, id)
+        VtClientesConfiguracionesEntity stEmpresasEntity = clientesConfiguracionesRepository.findById(id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
 
         stEmpresasEntity.setDelete(Boolean.TRUE);
@@ -84,32 +84,33 @@ public class VtClientesConfiguracionesServiceImpl {
         clientesConfiguracionesRepository.save(stEmpresasEntity);
     }
 
-    public VtClientesConfiguracionesGetOneDto findById(Long idData, String id) {
+    public VtClientesConfiguracionesGetOneDto findById(UUID id) {
 
-        VtClientesConfiguracionesEntity entidad = clientesConfiguracionesRepository.findById(idData, id)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
+        VtClientesConfiguracionesEntity entidad = clientesConfiguracionesRepository.findById(id)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no existe", id)));
         return vtClienteConfiguracionBuilder.builderResponse(entidad);
     }
 
-    public PaginatedDto<VtClientesConfiguracionesGetListDto> findAllPaginate(Long idData, VtClientesConfiguracionesListFilterDto filters, Pageable pageable) {
+    public PaginatedDto<VtClientesConfiguracionesGetListDto> findAllPaginate(VtClientesConfiguracionesListFilterDto filters,
+                                                                             Pageable pageable) {
 
         Page<VtClientesConfiguracionesEntity> page = null;
 
         if (Objects.nonNull(filters.getFechaVencimientoDesde()) && Objects.nonNull(filters.getFechaVencimientoHasta())) {
 
-            page = clientesConfiguracionesRepository.findAllPaginateVencimiento(idData, filters.getFilter(),
+            page = clientesConfiguracionesRepository.findAllPaginateVencimiento(filters.getFilter(),
                     (filters.getFilter() != null) ? filters.getFilter() : "", filters.getFechaVencimientoDesde(),
                     filters.getFechaVencimientoHasta(), pageable);
         }
         if (Objects.nonNull(filters.getFechaBloqueoDesde()) && Objects.nonNull(filters.getFechaBloqueoHasta())) {
-            page = clientesConfiguracionesRepository.findAllPaginateBloqueo(idData, filters.getFilter(),
+            page = clientesConfiguracionesRepository.findAllPaginateBloqueo(filters.getFilter(),
                     (filters.getFilter() != null) ? filters.getFilter() : "", filters.getFechaBloqueoDesde(),
                     filters.getFechaBloqueoHasta(), pageable);
         }
 
         if (page == null) {
 
-            page = clientesConfiguracionesRepository.findAllPaginate(idData, filters.getFilter(),
+            page = clientesConfiguracionesRepository.findAllPaginate(filters.getFilter(),
                     (filters.getFilter() != null) ? filters.getFilter() : "", pageable);
         }
 
@@ -139,7 +140,7 @@ public class VtClientesConfiguracionesServiceImpl {
     }
 
 
-    public StEmpresasListCreationResponseDto createUpdateList(Long idData, VtClientesConfiguracionesListCreationRequestDto request) {
+    public StEmpresasListCreationResponseDto createUpdateList(VtClientesConfiguracionesListCreationRequestDto request) {
 
 
         StEmpresasListCreationResponseDto errores = new StEmpresasListCreationResponseDto();
@@ -175,9 +176,9 @@ public class VtClientesConfiguracionesServiceImpl {
             }
             if (error.isEmpty()) {
                 String clave = requestDto.getClave();
-                Optional<VtClientesConfiguracionesEntity> existing = clientesConfiguracionesRepository.findByClave(idData, clave);
+                Optional<VtClientesConfiguracionesEntity> existing = clientesConfiguracionesRepository.findByClave(clave);
                 if (existing.isEmpty()) {
-                    clientesConfiguracionesRepository.save(vtClienteConfiguracionBuilder.builderListEntity(idData, requestDto));
+                    clientesConfiguracionesRepository.save(vtClienteConfiguracionBuilder.builderListEntity(requestDto));
                 } else {
                     //ACTUALIZAR
                     VtClientesConfiguracionesEntity entidad = existing.orElseThrow();
@@ -192,10 +193,4 @@ public class VtClientesConfiguracionesServiceImpl {
         return errores;
 
     }
-
-    public void saveConfigurationAdData(Long idData, String clave) {
-        clientesConfiguracionesRepository.save(vtClienteConfiguracionBuilder.builderConfiguracionAdData(idData, clave));
-    }
-
-
 }

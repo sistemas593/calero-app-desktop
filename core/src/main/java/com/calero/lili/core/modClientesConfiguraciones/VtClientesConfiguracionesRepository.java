@@ -17,23 +17,18 @@ public interface VtClientesConfiguracionesRepository extends JpaRepository<VtCli
     @Query(
             value = "SELECT entity " +
                     "FROM VtClientesConfiguracionesEntity entity " +
-                    "WHERE entity.idData = :idData " +
-
-                    "AND ( :filter IS NULL OR ( " +
+                    "WHERE ( :filter IS NULL OR ( " +
                     "       LOWER(entity.clave) LIKE LOWER(CONCAT('%', :filterContent, '%')) OR " +
                     "       LOWER(entity.ruc) LIKE LOWER(CONCAT('%', :filterContent, '%')) " +
                     ")) ",
             countQuery = "SELECT COUNT(entity) " +
                     "FROM VtClientesConfiguracionesEntity entity " +
-                    "WHERE entity.idData = :idData " +
-
-                    "AND ( :filter IS NULL OR ( " +
+                    "WHERE ( :filter IS NULL OR ( " +
                     "       LOWER(entity.clave) LIKE LOWER(CONCAT('%', :filterContent, '%')) OR " +
                     "       LOWER(entity.ruc) LIKE LOWER(CONCAT('%', :filterContent, '%')) " +
                     ")) "
     )
-    Page<VtClientesConfiguracionesEntity> findAllPaginate(@Param("idData") Long idData,
-                                                          @Param("filter") String filter,
+    Page<VtClientesConfiguracionesEntity> findAllPaginate(@Param("filter") String filter,
                                                           @Param("filterContent") String filterContent,
                                                           Pageable pageable
     );
@@ -41,9 +36,7 @@ public interface VtClientesConfiguracionesRepository extends JpaRepository<VtCli
     @Query(
             value = "SELECT entity " +
                     "FROM VtClientesConfiguracionesEntity entity " +
-                    "WHERE entity.idData = :idData " +
-
-                    "AND ( :filter IS NULL OR ( " +
+                    "WHERE ( :filter IS NULL OR ( " +
                     "       LOWER(entity.clave) LIKE LOWER(CONCAT('%', :filterContent, '%')) OR " +
                     "       LOWER(entity.ruc) LIKE LOWER(CONCAT('%', :filterContent, '%')) " +
                     ")) " +
@@ -53,9 +46,7 @@ public interface VtClientesConfiguracionesRepository extends JpaRepository<VtCli
             ,
             countQuery = "SELECT COUNT(entity) " +
                     "FROM VtClientesConfiguracionesEntity entity " +
-                    "WHERE entity.idData = :idData " +
-
-                    "AND ( :filter IS NULL OR ( " +
+                    "WHERE ( :filter IS NULL OR ( " +
                     "       LOWER(entity.clave) LIKE LOWER(CONCAT('%', :filterContent, '%')) OR " +
                     "       LOWER(entity.ruc) LIKE LOWER(CONCAT('%', :filterContent, '%')) " +
                     ")) " +
@@ -63,8 +54,7 @@ public interface VtClientesConfiguracionesRepository extends JpaRepository<VtCli
                     "AND entity.fechaVencimiento >= COALESCE(:fechaVencimientoDesde, entity.fechaVencimiento) " +
                     "AND entity.fechaVencimiento <= COALESCE(:fechaVencimientoHasta, entity.fechaVencimiento) "
     )
-    Page<VtClientesConfiguracionesEntity> findAllPaginateVencimiento(@Param("idData") Long idData,
-                                                                     @Param("filter") String filter,
+    Page<VtClientesConfiguracionesEntity> findAllPaginateVencimiento(@Param("filter") String filter,
                                                                      @Param("filterContent") String filterContent,
                                                                      @Param("fechaVencimientoDesde") LocalDate fechaVencimientoDesde,
                                                                      @Param("fechaVencimientoHasta") LocalDate fechaVencimientoHasta,
@@ -73,9 +63,7 @@ public interface VtClientesConfiguracionesRepository extends JpaRepository<VtCli
     @Query(
             value = "SELECT entity " +
                     "FROM VtClientesConfiguracionesEntity entity " +
-                    "WHERE entity.idData = :idData " +
-
-                    "AND ( :filter IS NULL OR ( " +
+                    "WHERE ( :filter IS NULL OR ( " +
                     "       LOWER(entity.clave) LIKE LOWER(CONCAT('%', :filterContent, '%')) OR " +
                     "       LOWER(entity.ruc) LIKE LOWER(CONCAT('%', :filterContent, '%')) " +
                     ")) " +
@@ -85,9 +73,7 @@ public interface VtClientesConfiguracionesRepository extends JpaRepository<VtCli
             ,
             countQuery = "SELECT COUNT(entity) " +
                     "FROM VtClientesConfiguracionesEntity entity " +
-                    "WHERE entity.idData = :idData " +
-
-                    "AND ( :filter IS NULL OR ( " +
+                    "WHERE ( :filter IS NULL OR ( " +
                     "       LOWER(entity.clave) LIKE LOWER(CONCAT('%', :filterContent, '%')) OR " +
                     "       LOWER(entity.ruc) LIKE LOWER(CONCAT('%', :filterContent, '%')) " +
                     ")) " +
@@ -95,8 +81,7 @@ public interface VtClientesConfiguracionesRepository extends JpaRepository<VtCli
                     "AND entity.fechaBlo >= COALESCE(:fechaBloqueoDesde, entity.fechaBlo) " +
                     "AND entity.fechaBlo <= COALESCE(:fechaBloqueoHasta, entity.fechaBlo) "
     )
-    Page<VtClientesConfiguracionesEntity> findAllPaginateBloqueo(@Param("idData") Long idData,
-                                                                 @Param("filter") String filter,
+    Page<VtClientesConfiguracionesEntity> findAllPaginateBloqueo(@Param("filter") String filter,
                                                                  @Param("filterContent") String filterContent,
                                                                  @Param("fechaBloqueoDesde") LocalDate fechaVencimientoDesde,
                                                                  @Param("fechaBloqueoHasta") LocalDate fechaVencimientoHasta,
@@ -105,20 +90,17 @@ public interface VtClientesConfiguracionesRepository extends JpaRepository<VtCli
 
     @Query(value = "SELECT entity " +
             "FROM VtClientesConfiguracionesEntity entity " +
-            "where entity.idData = :idData AND " +
-            "entity.clave = :clave ")
-    Optional<VtClientesConfiguracionesEntity> findById(@Param("idData") Long idData, @Param("clave") String clave);
+            "where entity.idConfiguracion = :idConfiguracion ")
+    Optional<VtClientesConfiguracionesEntity> findById(@Param("idConfiguracion") UUID idConfiguracion);
 
     @Query(value = "SELECT entity " +
             "FROM VtClientesConfiguracionesEntity entity " +
-            "where entity.idData = :idData AND " +
-            "entity.clave = :clave")
-    Optional<VtClientesConfiguracionesEntity> findByClave(@Param("idData") Long idData, @Param("clave") String clave);
+            "where entity.clave = :clave ")
+    Optional<VtClientesConfiguracionesEntity> findByClave(@Param("clave") String clave);
 
     @Query(value = "SELECT entity " +
             "FROM VtClientesConfiguracionesEntity entity " +
-            "where entity.idData = :idData AND " +
-            "entity.ruc = :ruc")
-    Optional<VtClientesConfiguracionesEntity> findByRuc(@Param("idData") Long idData, @Param("ruc") String ruc);
+            "where entity.ruc = :ruc ")
+    Optional<VtClientesConfiguracionesEntity> findByRuc(@Param("ruc") String ruc);
 
 }

@@ -54,7 +54,7 @@ public class StFechaActualizacionServiceImpl {
         if (!clave.equals("XXXXXXXXXX") ) {
             System.out.println(clave);
             Long idData = Long.valueOf(1);
-            Optional<VtClientesConfiguracionesEntity> usuario = adStEmpresas.findById(idData, clave);
+            Optional<VtClientesConfiguracionesEntity> usuario = adStEmpresas.findByClave( clave);
             if (usuario.isPresent()) {
                 dto.setFechaVencimiento(DateUtils.toString(usuario.get().getFechaVencimiento()));
                 dto.setFechaVencimiento(dto.getFechaVencimiento().substring(6,10)+"-"+dto.getFechaVencimiento().substring(3,5)+"-"+dto.getFechaVencimiento().substring(0,2));
@@ -137,7 +137,7 @@ public class StFechaActualizacionServiceImpl {
             dto.setInfoRuc("Version gratuita");
         }else{
             Long idData = Long.valueOf(1);
-            Optional<VtClientesConfiguracionesEntity> usuario = adStEmpresas.findByRuc(idData, ruc);
+            Optional<VtClientesConfiguracionesEntity> usuario = adStEmpresas.findByRuc(ruc);
             if (usuario.isPresent()) {
                 dto.setInfoRuc("Ruc encontrado, dentro del periodo");
                 dto.setEnviarCorreos(usuario.get().getEnviarCorreos());

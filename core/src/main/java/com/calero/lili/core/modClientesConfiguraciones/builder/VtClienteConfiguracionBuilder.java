@@ -15,10 +15,10 @@ import java.util.UUID;
 @Component
 public class VtClienteConfiguracionBuilder {
 
-    public VtClientesConfiguracionesEntity builderEntity(Long idData, VtClientesConfiguracionesRequestDto model) {
+    public VtClientesConfiguracionesEntity builderEntity(VtClientesConfiguracionesRequestDto model) {
         return VtClientesConfiguracionesEntity.builder()
-                .clave(UUID.randomUUID().toString())
-                .idData(idData)
+                .idConfiguracion(UUID.randomUUID())
+                .clave(model.getClave())
                 .fechaVencimiento(DateUtils.toLocalDate(model.getFechaVencimiento()))
                 .ruc(model.getRuc())
                 .enviarCorreos(model.getEnviarCorreos())
@@ -52,8 +52,8 @@ public class VtClienteConfiguracionBuilder {
     public VtClientesConfiguracionesEntity builderUpdateEntity(VtClientesConfiguracionesRequestDto model,
                                                                VtClientesConfiguracionesEntity item) {
         return VtClientesConfiguracionesEntity.builder()
-                .clave(item.getClave())
-                .idData(item.getIdData())
+                .idConfiguracion(item.getIdConfiguracion())
+                .clave(model.getClave())
                 .fechaVencimiento(DateUtils.toLocalDate(model.getFechaVencimiento()))
                 .ruc(model.getRuc())
                 .enviarCorreos(model.getEnviarCorreos())
@@ -87,6 +87,7 @@ public class VtClienteConfiguracionBuilder {
 
     public VtClientesConfiguracionesGetOneDto builderResponse(VtClientesConfiguracionesEntity model) {
         return VtClientesConfiguracionesGetOneDto.builder()
+                .idConfiguracion(model.getIdConfiguracion())
                 .clave(model.getClave())
                 .fechaVencimiento(Objects.nonNull(model.getFechaVencimiento()) ? DateUtils.toString(model.getFechaVencimiento()) : null)
                 .ruc(model.getRuc())
@@ -114,6 +115,7 @@ public class VtClienteConfiguracionBuilder {
 
     public VtClientesConfiguracionesGetListDto builderListResponse(VtClientesConfiguracionesEntity model) {
         return VtClientesConfiguracionesGetListDto.builder()
+                .idConfiguracion(model.getIdConfiguracion())
                 .clave(model.getClave())
                 .fechaVencimiento(Objects.nonNull(model.getFechaVencimiento())
                         ? DateUtils.toString(model.getFechaVencimiento())
@@ -157,10 +159,10 @@ public class VtClienteConfiguracionBuilder {
                 .build();
     }
 
-    public VtClientesConfiguracionesEntity builderListEntity(Long idData, VtClientesConfiguracionesRequestDto model) {
+    public VtClientesConfiguracionesEntity builderListEntity(VtClientesConfiguracionesRequestDto model) {
         return VtClientesConfiguracionesEntity.builder()
-                .clave(UUID.randomUUID().toString())
-                .idData(idData)
+                .idConfiguracion(UUID.randomUUID())
+                .clave(model.getClave())
                 .fechaVencimiento(DateUtils.toLocalDate(model.getFechaVencimiento()))
                 .ruc(model.getRuc())
                 .enviarCorreos("N")
@@ -186,8 +188,8 @@ public class VtClienteConfiguracionBuilder {
     public VtClientesConfiguracionesEntity builderListUpdate(VtClientesConfiguracionesRequestDto model,
                                                              VtClientesConfiguracionesEntity item) {
         return VtClientesConfiguracionesEntity.builder()
-                .idData(item.getIdData())
-                .clave(item.getClave())
+                .idConfiguracion(item.getIdConfiguracion())
+                .clave(model.getClave())
                 .fechaVencimiento(DateUtils.toLocalDate(model.getFechaVencimiento()))
                 .ruc(model.getRuc())
                 .enviarCorreos(item.getEnviarCorreos())
@@ -207,13 +209,6 @@ public class VtClienteConfiguracionBuilder {
                 .tipoBlo(item.getTipoBlo())
                 .fechaBlo(item.getFechaBlo())
                 .tercero(item.getTercero())
-                .build();
-    }
-
-    public VtClientesConfiguracionesEntity builderConfiguracionAdData(Long idData, String clave){
-        return VtClientesConfiguracionesEntity.builder()
-                .clave(clave)
-                .idData(idData)
                 .build();
     }
 }

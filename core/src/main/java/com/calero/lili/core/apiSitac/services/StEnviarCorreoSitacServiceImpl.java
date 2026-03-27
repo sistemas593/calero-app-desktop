@@ -38,7 +38,7 @@ public class StEnviarCorreoSitacServiceImpl {
         String enviar="S";
         StEmpresasEnviarCorreoResponseDto dto = new StEmpresasEnviarCorreoResponseDto();
         Long idData = Long.valueOf(1);
-        Optional<VtClientesConfiguracionesEntity> usuario = clientesConfiguracionesRepository.findById(idData, clave);
+        Optional<VtClientesConfiguracionesEntity> usuario = clientesConfiguracionesRepository.findByClave(clave);
         if (usuario.isPresent()) {
             if (usuario.get().getEnviarCorreos().equals("S")){
                 if (usuario.get().getFechaVencimiento().isBefore(LocalDate.now())){
