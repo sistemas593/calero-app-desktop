@@ -123,7 +123,7 @@ public class VtVentasFacturasController {
                 auditorAware.getTipoPermisoFacturaVer(), auditorAware.getCurrentAuditor().orElse("SYSTEM") ,pageable);
     }
 
-    @GetMapping("excel/{idEmpresa}")
+  /*  @GetMapping("excel/{idEmpresa}")
     @PreAuthorize("hasAuthority('VT_FC_EX')")
     public void exportarExcel(HttpServletResponse response,
                               @PathVariable("idEmpresa") Long idEmpresa,
@@ -138,7 +138,7 @@ public class VtVentasFacturasController {
                             @PathVariable("idEmpresa") Long idEmpresa,
                             FilterListDto filters) throws DocumentException, IOException {
         vtVentasService.exportarPDF(idDataService.getIdData(), idEmpresa, response, filters);
-    }
+    }*/
 
     @PostMapping("facturas/anulada/{idEmpresa}/{idVenta}")
     @PreAuthorize("hasAuthority('VT_FC_AN_PR ,VT_FC_AN_SC, VT_FC_AN_TD')")
