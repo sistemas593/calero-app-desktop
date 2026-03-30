@@ -47,6 +47,12 @@ import com.calero.lili.desktop.ui.terceros.ClienteFormScreen
 import com.calero.lili.desktop.ui.terceros.ClienteFormViewModel
 import com.calero.lili.desktop.ui.terceros.ClientesScreen
 import com.calero.lili.desktop.ui.terceros.ClientesViewModel
+import java.awt.Color as AwtColor
+import java.awt.Font as AwtFont
+import java.awt.RenderingHints
+import java.awt.Toolkit
+import javax.swing.JPanel
+import javax.swing.JWindow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.springframework.boot.SpringApplication
@@ -61,6 +67,50 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 @EntityScan(basePackages = ["com.calero.lili.core"])
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider")
 open class DesktopApplication
+
+private fun crearPantallaCarga(): JWindow {
+    val screenSize = Toolkit.getDefaultToolkit().screenSize
+    val ancho = 400
+    val alto  = 220
+
+    val panel = object : JPanel() {
+        override fun paintComponent(g: java.awt.Graphics) {
+            super.paintComponent(g)
+            val g2 = g as java.awt.Graphics2D
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+            g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON)
+
+            // Fondo azul primario (igual que Color(0xFF1565C0) en Compose)
+            g2.color = AwtColor(0x15, 0x65, 0xC0)
+            g2.fillRect(0, 0, width, height)
+
+            // Título
+            g2.color = AwtColor.WHITE
+            g2.font  = AwtFont("SansSerif", AwtFont.BOLD, 40)
+            val titulo = "Calero"
+            val fm1 = g2.fontMetrics
+            g2.drawString(titulo, (width - fm1.stringWidth(titulo)) / 2, 110)
+
+            // Subtítulo
+            g2.color = AwtColor(255, 255, 255, 180)
+            g2.font  = AwtFont("SansSerif", AwtFont.PLAIN, 14)
+            val subtitulo = "Iniciando aplicación..."
+            val fm2 = g2.fontMetrics
+            g2.drawString(subtitulo, (width - fm2.stringWidth(subtitulo)) / 2, 150)
+        }
+    }
+
+    val ventana = JWindow()
+    ventana.contentPane.add(panel)
+    ventana.setSize(ancho, alto)
+    ventana.setLocation(
+        (screenSize.width  - ancho) / 2,
+        (screenSize.height - alto)  / 2
+    )
+    ventana.isAlwaysOnTop = true
+    ventana.isVisible = true
+    return ventana
+}
 
 private const val ID_DATA = 1L
 
@@ -82,6 +132,8 @@ private sealed class AppState {
 }
 
 fun main() {
+    val splash = crearPantallaCarga()
+
     // Sin código Spring en el hilo main — la ventana abre inmediatamente.
     application {
         Window(
@@ -89,6 +141,10 @@ fun main() {
             title = "Calero - Sistema de Gestión",
             state = WindowState(placement = WindowPlacement.Maximized)
         ) {
+            LaunchedEffect(Unit) {
+                splash.dispose()
+            }
+
             MaterialTheme(
                 colorScheme = lightColorScheme(
                     primary      = Color(0xFF1565C0),

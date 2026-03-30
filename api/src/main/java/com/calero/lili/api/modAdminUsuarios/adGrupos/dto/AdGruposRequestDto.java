@@ -18,7 +18,6 @@ public class AdGruposRequestDto {
     @NotEmpty(message = "El nombre del grupo requerido")
     @NotNull(message = "El nombre del grupo es requerido")
     private String nombre;
-    private String descripcion;
 
     private List<Permisos> permisos;
 
