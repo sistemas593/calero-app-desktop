@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.sp
 import com.calero.lili.core.modComprasItemsMedidas.dto.GeItemMedidaReportDto
 import java.util.UUID
 
-private val COL_NUM      = 50.dp
 private val COL_MEDIDA   = 400.dp
 private val COL_ACCIONES = 70.dp
 
@@ -136,7 +135,6 @@ fun MedidasScreen(
 private fun TablaMedidas(medidas: List<GeItemMedidaReportDto>, onEditar: (UUID) -> Unit) {
     Column {
         Row(modifier = Modifier.background(ColorHeader).padding(vertical = 10.dp, horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-            CeldaHeader("#",                COL_NUM,      TextAlign.Center)
             CeldaHeader("Unidad de Medida", COL_MEDIDA,   TextAlign.Start)
             CeldaHeader("Acciones",         COL_ACCIONES, TextAlign.Center)
         }
@@ -144,7 +142,6 @@ private fun TablaMedidas(medidas: List<GeItemMedidaReportDto>, onEditar: (UUID) 
         LazyColumn {
             itemsIndexed(medidas) { idx, medida ->
                 Row(modifier = Modifier.background(if (idx % 2 == 0) ColorRowPar else ColorRowImpar).padding(vertical = 4.dp, horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    CeldaDato((idx + 1).toString(),       COL_NUM,      TextAlign.Center)
                     CeldaDato(medida.unidadMedida ?: "-", COL_MEDIDA,   TextAlign.Start)
                     Box(modifier = Modifier.width(COL_ACCIONES).height(36.dp), contentAlignment = Alignment.Center) {
                         IconButton(onClick = { onEditar(medida.idUnidadMedida) }, modifier = Modifier.size(36.dp)) {

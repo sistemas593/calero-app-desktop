@@ -47,7 +47,6 @@ private val ColorSub       = Color(0xFF6B7A99)
 private data class Columna(val titulo: String, val ancho: Dp)
 
 private val COLUMNAS = listOf(
-    Columna("#",                  40.dp),
     Columna("Tipo Venta",         90.dp),
     Columna("Ambiente",           90.dp),
     Columna("Estado",             100.dp),
@@ -243,30 +242,29 @@ private fun FilaFactura(idx: Int, f: GetListDto, onFirmar: () -> Unit) {
         modifier          = Modifier.background(bg).padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        CeldaDato((idx + 1).toString(),                  COLUMNAS[0].ancho,  TextAlign.Center)
-        CeldaDato(tipoVentaLabel(f.tipoVenta),           COLUMNAS[1].ancho)
-        CeldaDato(ambienteLabel(f.ambiente),             COLUMNAS[2].ancho)
-        CeldaDato(estadoDocumentoLabel(f.estadoDocumento), COLUMNAS[3].ancho)
-        CeldaDato(f.serie ?: "—",                        COLUMNAS[4].ancho)
-        CeldaDato(f.secuencial ?: "—",                   COLUMNAS[5].ancho)
-        CeldaDato(f.numeroAutorizacion ?: "—",           COLUMNAS[6].ancho)
-        CeldaDato(f.fechaEmision ?: "—",                 COLUMNAS[7].ancho)
-        CeldaDato(f.numeroIdentificacion ?: "—",         COLUMNAS[8].ancho)
-        CeldaDato(f.terceroNombre ?: "—",                COLUMNAS[9].ancho)
-        CeldaDato(f.email ?: "—",                        COLUMNAS[10].ancho)
-        CeldaDato(estadoEmailLabel(f.emailEstado),       COLUMNAS[11].ancho)
-        CeldaDato(fmtDecimal(f.subtotal),                COLUMNAS[12].ancho, TextAlign.End)
-        CeldaDato(fmtDecimal(f.totalDescuento),          COLUMNAS[13].ancho, TextAlign.End)
-        CeldaDato(baseIva(f.valores, "0"),               COLUMNAS[14].ancho, TextAlign.End)
-        CeldaDato(baseIva(f.valores, "6"),               COLUMNAS[15].ancho, TextAlign.End)
-        CeldaDato(baseIva(f.valores, "7"),               COLUMNAS[16].ancho, TextAlign.End)
-        CeldaDato(baseIva(f.valores, "5"),               COLUMNAS[17].ancho, TextAlign.End)
-        CeldaDato(baseIva(f.valores, "8"),               COLUMNAS[18].ancho, TextAlign.End)
-        CeldaDato(baseIva(f.valores, "4"),               COLUMNAS[19].ancho, TextAlign.End)
-        CeldaDato(fmtDecimal(f.total),                   COLUMNAS[20].ancho, TextAlign.End)
+        CeldaDato(tipoVentaLabel(f.tipoVenta),             COLUMNAS[0].ancho)
+        CeldaDato(ambienteLabel(f.ambiente),               COLUMNAS[1].ancho)
+        CeldaDato(estadoDocumentoLabel(f.estadoDocumento), COLUMNAS[2].ancho)
+        CeldaDato(f.serie ?: "—",                          COLUMNAS[3].ancho)
+        CeldaDato(f.secuencial ?: "—",                     COLUMNAS[4].ancho)
+        CeldaDato(f.numeroAutorizacion ?: "—",             COLUMNAS[5].ancho)
+        CeldaDato(f.fechaEmision ?: "—",                   COLUMNAS[6].ancho)
+        CeldaDato(f.numeroIdentificacion ?: "—",           COLUMNAS[7].ancho)
+        CeldaDato(f.terceroNombre ?: "—",                  COLUMNAS[8].ancho)
+        CeldaDato(f.email ?: "—",                          COLUMNAS[9].ancho)
+        CeldaDato(estadoEmailLabel(f.emailEstado),         COLUMNAS[10].ancho)
+        CeldaDato(fmtDecimal(f.subtotal),                  COLUMNAS[11].ancho, TextAlign.End)
+        CeldaDato(fmtDecimal(f.totalDescuento),            COLUMNAS[12].ancho, TextAlign.End)
+        CeldaDato(baseIva(f.valores, "0"),                 COLUMNAS[13].ancho, TextAlign.End)
+        CeldaDato(baseIva(f.valores, "6"),                 COLUMNAS[14].ancho, TextAlign.End)
+        CeldaDato(baseIva(f.valores, "7"),                 COLUMNAS[15].ancho, TextAlign.End)
+        CeldaDato(baseIva(f.valores, "5"),                 COLUMNAS[16].ancho, TextAlign.End)
+        CeldaDato(baseIva(f.valores, "8"),                 COLUMNAS[17].ancho, TextAlign.End)
+        CeldaDato(baseIva(f.valores, "4"),                 COLUMNAS[18].ancho, TextAlign.End)
+        CeldaDato(fmtDecimal(f.total),                     COLUMNAS[19].ancho, TextAlign.End)
 
         // ── Acciones
-        Box(modifier = Modifier.width(COLUMNAS[21].ancho), contentAlignment = Alignment.Center) {
+        Box(modifier = Modifier.width(COLUMNAS[20].ancho), contentAlignment = Alignment.Center) {
             Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                 IconButton(onClick = { /* editar — pendiente */ }, modifier = Modifier.size(28.dp)) {
                     Icon(Icons.Default.Edit, contentDescription = "Editar",

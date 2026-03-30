@@ -28,7 +28,7 @@ VALUES
 
 
 INSERT INTO public.ad_permisos
-(id_permiso, descripcion, permiso)
+(id_permiso, nombre, permiso)
 VALUES
 (nextval('ad_permisos_id_permiso_seq'),  'VENTAS	FACTURAS CREAR','VT_FC_CR'),
 (nextval('ad_permisos_id_permiso_seq'),  'VENTAS	FACTURAS MODIFCAR','VT_FC_MO'),

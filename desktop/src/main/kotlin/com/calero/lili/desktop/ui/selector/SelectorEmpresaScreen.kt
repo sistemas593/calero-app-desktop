@@ -7,10 +7,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -36,7 +36,7 @@ private val ColorSubtexto  = Color(0xFF6B7A99)
 fun SelectorEmpresaScreen(
     viewModel: SelectorEmpresaViewModel,
     onEmpresaSeleccionada: (idEmpresa: Long, razonSocial: String) -> Unit,
-    onNuevaEmpresa: () -> Unit
+    onAdminEmpresas: () -> Unit
 ) {
     val state    by viewModel.state.collectAsState()
     val q        = state.busqueda.trim().lowercase()
@@ -127,6 +127,26 @@ fun SelectorEmpresaScreen(
 
                     Spacer(Modifier.height(16.dp))
 
+                    // Botón Administración siempre visible
+                    Row(
+                        modifier              = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        Button(
+                            onClick        = onAdminEmpresas,
+                            colors         = ButtonDefaults.buttonColors(containerColor = ColorPrimario),
+                            contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp)
+                        ) {
+                            Icon(
+                                imageVector        = Icons.Default.Settings,
+                                contentDescription = null,
+                                modifier           = Modifier.size(16.dp)
+                            )
+                            Spacer(Modifier.width(6.dp))
+                            Text("Administración empresas", fontSize = 13.sp)
+                        }
+                    }
+
                     when {
                         state.isLoading -> {
                             Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
@@ -148,32 +168,12 @@ fun SelectorEmpresaScreen(
                             }
                         }
                         else -> {
-                            // Contador + botón Nueva Empresa
-                            Row(
-                                modifier              = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment     = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text     = "${empresas.size} empresa(s) disponible(s)",
-                                    color    = ColorSubtexto,
-                                    fontSize = 12.sp
-                                )
-                                Button(
-                                    onClick = onNuevaEmpresa,
-                                    colors  = ButtonDefaults.buttonColors(containerColor = ColorPrimario),
-                                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp)
-                                ) {
-                                    Icon(
-                                        imageVector        = Icons.Default.Add,
-                                        contentDescription = null,
-                                        modifier           = Modifier.size(16.dp)
-                                    )
-                                    Spacer(Modifier.width(6.dp))
-                                    Text("Nueva Empresa", fontSize = 13.sp)
-                                }
-                            }
-                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                text     = "${empresas.size} empresa(s) disponible(s)",
+                                color    = ColorSubtexto,
+                                fontSize = 12.sp,
+                                modifier = Modifier.padding(bottom = 8.dp)
+                            )
 
                             LazyColumn(
                                 modifier           = Modifier.weight(1f),

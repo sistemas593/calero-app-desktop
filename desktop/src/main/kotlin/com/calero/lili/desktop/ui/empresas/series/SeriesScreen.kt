@@ -21,7 +21,6 @@ import com.calero.lili.core.modAdminEmpresasSeries.dto.AdEmpresaSerieGetListDto
 import java.util.UUID
 
 private val COL_ACCIONES  = 70.dp
-private val COL_NUM       = 50.dp
 private val COL_SERIE     = 120.dp
 private val COL_NOMBRE    = 220.dp
 private val COL_DIRECCION = 260.dp
@@ -202,7 +201,6 @@ private fun TablaSeries(
                 .padding(vertical = 10.dp, horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            CeldaHeader("#",                COL_NUM,       TextAlign.Center)
             CeldaHeader("Serie",            COL_SERIE,     TextAlign.Start)
             CeldaHeader("Nombre Comercial", COL_NOMBRE,    TextAlign.Start)
             CeldaHeader("Dirección",        COL_DIRECCION, TextAlign.Start)
@@ -218,7 +216,6 @@ private fun TablaSeries(
                         .padding(vertical = 4.dp, horizontal = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    CeldaDato((idx + 1).toString(),                   COL_NUM,       TextAlign.Center)
                     CeldaDato(serie.serie ?: "-",                     COL_SERIE,     TextAlign.Start)
                     CeldaDato(serie.nombreComercial ?: "-",           COL_NOMBRE,    TextAlign.Start)
                     CeldaDato(serie.direccionEstablecimiento ?: "-",  COL_DIRECCION, TextAlign.Start)

@@ -52,15 +52,33 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.calero.lili.core.modVentas.VtVentaValoresEntity;
+import com.lowagie.text.Document;
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.Phrase;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import java.awt.Color;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -417,16 +435,10 @@ public class VtVentasFacturasServiceImpl {
     }
 
 
-    /*public void exportarExcel(Long idData, Long idEmpresa, HttpServletResponse response, FilterListDto filter) throws IOException {
+    public void exportarExcel(Long idData, Long idEmpresa, OutputStream outputStream, FilterListDto filter) throws IOException {
 
         log.info("Iniciando la exportación a Excel con el filtro: {}", filter);
         List<VtVentaEntity> facturas = vtVentaRepository.findAll(idData, idEmpresa, filter.getSucursal(), filter.getFechaEmisionDesde(), filter.getFechaEmisionHasta(), filter.getTipoVenta(), filter.getSerie(), filter.getSecuencial());
-
-        DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
-        String currentDateTime = dateFormatter.format(new Date());
-
-        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setHeader("Content-Disposition", "attachment; filename=\"" + "Facturas_" + currentDateTime + ".xlsx" + "\"");
 
         if (!facturas.isEmpty()) {
             log.info("Facturas obtenidas satisfactoriamente.");
@@ -558,7 +570,7 @@ public class VtVentasFacturasServiceImpl {
 
                 }
 
-                try (OutputStream os = response.getOutputStream()) {
+                try (OutputStream os = outputStream) {
                     workbook.write(os);
                 }
             } catch (IOException e) {
@@ -567,30 +579,21 @@ public class VtVentasFacturasServiceImpl {
             }
         } else {
             log.warn("No se encontraron facturas con los filtros proporcionados.");
-            response.setContentType("text/plain");
-            response.setCharacterEncoding("UTF-8");
-            OutputStream os = response.getOutputStream();
-            os.write("No se encontraron facturas con los filtros proporcionados".getBytes());
-            os.flush();
-            os.close();
+            outputStream.write("No se encontraron facturas con los filtros proporcionados".getBytes());
+            outputStream.flush();
+            outputStream.close();
         }
     }
 
-    public void exportarPDF(Long idData, Long idEmpresa, HttpServletResponse response, FilterListDto filters) throws DocumentException, IOException {
-
+    public void exportarPDF(Long idData, Long idEmpresa, OutputStream outputStream, FilterListDto filters) throws DocumentException, IOException {
 
         List<VtVentaEntity> facturas = vtVentaRepository.findAll(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getTipoVenta(), filters.getSerie(), filters.getSecuencial());
-
-        response.setContentType("application/pdf");
-        String headerKey = "Content-Disposition";
-        String headerValue = "attachment; filename=facturas_" + LocalDateTime.now() + ".pdf";
-        response.setHeader(headerKey, headerValue);
 
         if (!facturas.isEmpty()) {
 
             // Iniciar el documento PDF
             Document document = new Document();
-            PdfWriter.getInstance(document, response.getOutputStream());
+            PdfWriter.getInstance(document, outputStream);
             document.open();
 
             // Crear la tabla y los encabezados del PDF
@@ -694,16 +697,15 @@ public class VtVentasFacturasServiceImpl {
         } else {
             // Manejar el caso en el que no se encuentren facturas
             try {
-                OutputStream os = response.getOutputStream();
-                os.write("No se encontraron facturas con los filtros proporcionados".getBytes());
-                os.flush();
-                os.close();
+                outputStream.write("No se encontraron facturas con los filtros proporcionados".getBytes());
+                outputStream.flush();
+                outputStream.close();
             } catch (IOException e) {
                 log.error("Error al escribir el archivo PDF", e);
             }
 
         }
-    }*/
+    }
 
     private void validarAmbiente(CreationFacturaRequestDto request) {
         if (request.getFormatoDocumento().equals(FormatoDocumento.E) && Objects.isNull(request.getAmbiente())) {

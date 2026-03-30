@@ -34,6 +34,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -123,13 +126,16 @@ public class VtVentasFacturasController {
                 auditorAware.getTipoPermisoFacturaVer(), auditorAware.getCurrentAuditor().orElse("SYSTEM") ,pageable);
     }
 
-  /*  @GetMapping("excel/{idEmpresa}")
+   @GetMapping("excel/{idEmpresa}")
     @PreAuthorize("hasAuthority('VT_FC_EX')")
     public void exportarExcel(HttpServletResponse response,
                               @PathVariable("idEmpresa") Long idEmpresa,
                               FilterListDto filter) throws IOException {
+        String fileName = "Facturas_" + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + ".xlsx";
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
         log.info("Iniciando la exportación a Excel con el filtro: {}", filter);
-        vtVentasService.exportarExcel(idDataService.getIdData(), idEmpresa, response, filter);
+        vtVentasService.exportarExcel(idDataService.getIdData(), idEmpresa, response.getOutputStream(), filter);
     }
 
     @GetMapping("pdf/{idEmpresa}")
@@ -137,8 +143,11 @@ public class VtVentasFacturasController {
     public void exportarPDF(HttpServletResponse response,
                             @PathVariable("idEmpresa") Long idEmpresa,
                             FilterListDto filters) throws DocumentException, IOException {
-        vtVentasService.exportarPDF(idDataService.getIdData(), idEmpresa, response, filters);
-    }*/
+        String fileName = "facturas_" + LocalDateTime.now() + ".pdf";
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+        vtVentasService.exportarPDF(idDataService.getIdData(), idEmpresa, response.getOutputStream(), filters);
+    }
 
     @PostMapping("facturas/anulada/{idEmpresa}/{idVenta}")
     @PreAuthorize("hasAuthority('VT_FC_AN_PR ,VT_FC_AN_SC, VT_FC_AN_TD')")

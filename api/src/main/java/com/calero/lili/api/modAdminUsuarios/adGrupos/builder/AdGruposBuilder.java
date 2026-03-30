@@ -41,7 +41,7 @@ public class AdGruposBuilder {
     private AdGruposResponseDto.Permisos builderPermiso(AdPermisosEntity model) {
         return AdGruposResponseDto.Permisos.builder()
                 .idPermiso(model.getIdPermiso())
-                .descripcion(model.getDescripcion())
+                .descripcion(model.getNombre())
                 .permiso(model.getPermiso())
                 .build();
     }

@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.sp
 import com.calero.lili.core.modTerceros.dto.GeTerceroGetListDto
 import java.util.UUID
 
-private val COL_NUM     = 50.dp
 private val COL_NOMBRE  = 220.dp
 private val COL_TIPOID  = 110.dp
 private val COL_NUMID   = 140.dp
@@ -199,7 +198,6 @@ private fun TablaClientes(
                 .padding(vertical = 10.dp, horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            CCeldaHeader("#",                  COL_NUM,      TextAlign.Center)
             CCeldaHeader("Nombre",             COL_NOMBRE,   TextAlign.Start)
             CCeldaHeader("Tipo ID",            COL_TIPOID,   TextAlign.Start)
             CCeldaHeader("Número ID",          COL_NUMID,    TextAlign.Start)
@@ -216,7 +214,6 @@ private fun TablaClientes(
                         .padding(vertical = 4.dp, horizontal = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    CCeldaDato((idx + 1).toString(),           COL_NUM,      TextAlign.Center)
                     CCeldaDato(cliente.tercero ?: "-",         COL_NOMBRE,   TextAlign.Start)
                     CCeldaDato(cliente.tipoIdentificacion ?: "-", COL_TIPOID, TextAlign.Start)
                     CCeldaDato(cliente.numeroIdentificacion ?: "-", COL_NUMID, TextAlign.Start)

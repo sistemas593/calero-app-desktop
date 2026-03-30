@@ -12,7 +12,7 @@ public class AdPermisosBuilder {
     public AdPermisosEntity builderEntity(AdPermisosRequestDto model) {
         return AdPermisosEntity.builder()
                 .permiso(model.getPermiso())
-                .descripcion(model.getDescripcion())
+                .nombre(model.getNombre())
                 .build();
     }
 
@@ -20,7 +20,7 @@ public class AdPermisosBuilder {
         return AdPermisosEntity.builder()
                 .idPermiso(item.getIdPermiso())
                 .permiso(model.getPermiso())
-                .descripcion(model.getDescripcion())
+                .nombre(model.getNombre())
                 .build();
     }
 
@@ -28,7 +28,7 @@ public class AdPermisosBuilder {
         return AdPermisosResponseDto.builder()
                 .idPermiso(model.getIdPermiso())
                 .permiso(model.getPermiso())
-                .descripcion(model.getDescripcion())
+                .nombre(model.getNombre())
                 .build();
     }
 

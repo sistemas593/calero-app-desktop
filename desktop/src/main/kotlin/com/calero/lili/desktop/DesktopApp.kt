@@ -330,18 +330,35 @@ fun main() {
                         }
                     }
                     empresaActiva == null -> {
-                        var mostrarFormNuevaEmpresa by remember { mutableStateOf(false) }
-                        if (mostrarFormNuevaEmpresa) {
-                            // ── Formulario para crear nueva empresa desde el selector
-                            val formViewModel = remember { EmpresaFormViewModel(service = empresasService, idEmpresa = null) }
-                            DisposableEffect(Unit) { onDispose { formViewModel.onDestroy() } }
-                            EmpresaFormScreen(
-                                viewModel = formViewModel,
-                                onCerrar  = {
-                                    mostrarFormNuevaEmpresa = false
-                                    selectorViewModel.recargar()
+                        var mostrarAdminEmpresas by remember { mutableStateOf(false) }
+
+                        if (mostrarAdminEmpresas) {
+                            // ── Pantalla de administración de empresas
+                            val adminViewModel = remember { EmpresasViewModel(empresasService) }
+                            val adminState     by adminViewModel.state.collectAsState()
+
+                            DisposableEffect(Unit) { onDispose { adminViewModel.onDestroy() } }
+
+                            if (adminState.showForm) {
+                                val formViewModel = remember(adminState.editingId) {
+                                    EmpresaFormViewModel(service = empresasService, idEmpresa = adminState.editingId)
                                 }
-                            )
+                                DisposableEffect(adminState.editingId) { onDispose { formViewModel.onDestroy() } }
+                                EmpresaFormScreen(
+                                    viewModel = formViewModel,
+                                    onCerrar  = adminViewModel::cerrarFormulario
+                                )
+                            } else {
+                                EmpresasScreen(
+                                    viewModel       = adminViewModel,
+                                    onNuevaEmpresa  = { adminViewModel.abrirFormulario() },
+                                    onEditarEmpresa = { id -> adminViewModel.abrirFormulario(id) },
+                                    onVolver        = {
+                                        mostrarAdminEmpresas = false
+                                        selectorViewModel.recargar()
+                                    }
+                                )
+                            }
                         } else {
                             // ── Pantalla de selección de empresa
                             SelectorEmpresaScreen(
@@ -350,7 +367,7 @@ fun main() {
                                     AppPreferences.guardarEmpresa(idEmpresa, razonSocial)
                                     empresaActiva = EmpresaActiva(idEmpresa, razonSocial)
                                 },
-                                onNuevaEmpresa = { mostrarFormNuevaEmpresa = true }
+                                onAdminEmpresas = { mostrarAdminEmpresas = true }
                             )
                         }
                     }

@@ -29,7 +29,7 @@ VALUES
 (10, 'GRUPO_DE_TODOS_LOS_PERMISOS', '0');
 
 INSERT INTO public.ad_permisos
-(id_permiso, descripcion, permiso, deleted)
+(id_permiso, nombre, permiso, deleted)
 VALUES
 (1,  'VENTAS FACTURAS CREAR','VT_FC_CR', '0'),
 (2,  'VENTAS FACTURAS MODIFCAR PROPIAS','VT_FC_MO_PR','0'),

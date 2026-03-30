@@ -25,7 +25,7 @@ public class AdPermisosEntity extends Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idPermiso;
 
-    private String descripcion;
+    private String nombre;
 
     private String permiso;
 

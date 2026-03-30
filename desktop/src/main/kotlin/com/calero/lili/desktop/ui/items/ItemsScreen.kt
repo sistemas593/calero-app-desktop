@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.sp
 import com.calero.lili.core.modComprasItems.dto.GeItemGetListDto
 import java.util.UUID
 
-private val COL_NUM         = 50.dp
 private val COL_CODIGO      = 150.dp
 private val COL_AUX         = 130.dp
 private val COL_DESCRIPCION = 320.dp
@@ -139,7 +138,6 @@ fun ItemsScreen(
 private fun TablaItems(items: List<GeItemGetListDto>, onEditar: (UUID) -> Unit) {
     Column {
         Row(modifier = Modifier.background(ColorHeader).padding(vertical = 10.dp, horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-            CeldaHeader("#",              COL_NUM,         TextAlign.Center)
             CeldaHeader("Código",         COL_CODIGO,      TextAlign.Start)
             CeldaHeader("Cód. Auxiliar",  COL_AUX,         TextAlign.Start)
             CeldaHeader("Descripción",    COL_DESCRIPCION, TextAlign.Start)
@@ -150,7 +148,6 @@ private fun TablaItems(items: List<GeItemGetListDto>, onEditar: (UUID) -> Unit) 
         LazyColumn {
             itemsIndexed(items) { idx, item ->
                 Row(modifier = Modifier.background(if (idx % 2 == 0) ColorRowPar else ColorRowImpar).padding(vertical = 4.dp, horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    CeldaDato((idx + 1).toString(),          COL_NUM,         TextAlign.Center)
                     CeldaDato(item.codigoPrincipal ?: "-",   COL_CODIGO,      TextAlign.Start)
                     CeldaDato(item.codigoAuxiliar ?: "-",    COL_AUX,         TextAlign.Start)
                     CeldaDato(item.descripcion ?: "-",       COL_DESCRIPCION, TextAlign.Start)

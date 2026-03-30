@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AdPermisosRequestDto {
 
-    private String descripcion;
+    private String nombre;
     private String permiso;
 }

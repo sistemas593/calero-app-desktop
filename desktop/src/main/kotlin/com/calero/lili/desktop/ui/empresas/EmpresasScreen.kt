@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.sp
 import com.calero.lili.core.modAdminEmpresas.dto.AdEmpresaGetListDto
 
 private val COL_ACCIONES   = 70.dp
-private val COL_NUM        = 50.dp
 private val COL_RUC        = 140.dp
 private val COL_RAZON      = 260.dp
 private val COL_CIUDAD     = 120.dp
@@ -42,7 +41,8 @@ private val ColorTextoSub   = Color(0xFF555577)
 fun EmpresasScreen(
     viewModel: EmpresasViewModel,
     onNuevaEmpresa: () -> Unit,
-    onEditarEmpresa: (Long) -> Unit = {}
+    onEditarEmpresa: (Long) -> Unit = {},
+    onVolver: (() -> Unit)? = null
 ) {
     val state by viewModel.state.collectAsState()
 
@@ -53,13 +53,23 @@ fun EmpresasScreen(
             .padding(20.dp)
     ) {
         // ── Título
-        Text(
-            text = "Administración de Empresas",
-            fontSize = 22.sp,
-            fontWeight = FontWeight.Bold,
-            color = ColorTexto,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
+        Row(
+            modifier              = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+            verticalAlignment     = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text       = "Administración de Empresas",
+                fontSize   = 22.sp,
+                fontWeight = FontWeight.Bold,
+                color      = ColorTexto
+            )
+            if (onVolver != null) {
+                OutlinedButton(onClick = onVolver) {
+                    Text("← Volver al selector")
+                }
+            }
+        }
 
         // ── Barra de filtros
         FiltrosBar(
@@ -241,9 +251,8 @@ private fun TablaEmpresas(
         LazyColumn {
             itemsIndexed(empresas) { idx, empresa ->
                 FilaEmpresa(
-                    indice  = idx + 1,
-                    empresa = empresa,
-                    bgColor = if (idx % 2 == 0) ColorRowPar else ColorRowImpar,
+                    empresa  = empresa,
+                    bgColor  = if (idx % 2 == 0) ColorRowPar else ColorRowImpar,
                     onEditar = { onEditar(empresa.idEmpresa) }
                 )
                 HorizontalDivider(color = ColorBorde, thickness = 0.5.dp)
@@ -260,7 +269,6 @@ private fun EncabezadoTabla() {
             .padding(vertical = 10.dp, horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        CeldaHeader("#",             COL_NUM,       TextAlign.Center)
         CeldaHeader("RUC",           COL_RUC,       TextAlign.Start)
         CeldaHeader("Razón Social",  COL_RAZON,     TextAlign.Start)
         CeldaHeader("Ciudad",        COL_CIUDAD,    TextAlign.Start)
@@ -274,7 +282,6 @@ private fun EncabezadoTabla() {
 
 @Composable
 private fun FilaEmpresa(
-    indice  : Int,
     empresa : AdEmpresaGetListDto,
     bgColor : Color,
     onEditar: () -> Unit
@@ -285,7 +292,6 @@ private fun FilaEmpresa(
             .padding(vertical = 4.dp, horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        CeldaDato(indice.toString(),                    COL_NUM,       TextAlign.Center)
         CeldaDato(empresa.ruc ?: "-",                  COL_RUC,       TextAlign.Start)
         CeldaDato(empresa.razonSocial ?: "-",           COL_RAZON,     TextAlign.Start)
         CeldaDato(empresa.ciudad ?: "-",               COL_CIUDAD,    TextAlign.Start)

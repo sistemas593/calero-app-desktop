@@ -18,14 +18,12 @@ public interface AdPermisosRepository extends JpaRepository<AdPermisosEntity, Lo
     @Query("select u from AdPermisosEntity u where u.idPermiso =:idPermiso ")
     Optional<AdPermisosEntity> getFindId(@Param("idPermiso") Long idPermiso);
 
-    // descripcion
-
     @Query(value = "SELECT entity FROM AdPermisosEntity entity " +
             "WHERE (:filter IS NULL OR " +
-            "LOWER(entity.descripcion) LIKE CONCAT('%', LOWER(:filter), '%'))",
+            "LOWER(entity.nombre) LIKE CONCAT('%', LOWER(:filter), '%'))",
             countQuery = "SELECT COUNT(entity) FROM AdPermisosEntity entity " +
                     "WHERE (:filter IS NULL OR " +
-                    "LOWER(entity.descripcion) LIKE CONCAT('%', LOWER(:filter), '%'))")
+                    "LOWER(entity.nombre) LIKE CONCAT('%', LOWER(:filter), '%'))")
     Page<AdPermisosEntity> findAllPaginate(@Param("filter") String filter, Pageable pageable);
 
 }
