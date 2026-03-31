@@ -22,7 +22,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @org.springframework.stereotype.Repository
-public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, UUID>, JpaSpecificationExecutor<CpImpuestosEntity> {
+    public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, UUID>, JpaSpecificationExecutor<CpImpuestosEntity> {
 
     @Query(value = "SELECT entity " +
             "FROM CpImpuestosEntity entity " +
@@ -42,7 +42,7 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
     @Modifying
     @Query("DELETE FROM CpImpuestosEntity e " +
             "WHERE e.idData = :idData AND e.idEmpresa = :idEmpresa AND e.idImpuestos = :id")
-    void deleteById(Long idData, Long idEmpresa, UUID id);
+    void deleteById(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("id") UUID id);
 
     @Query(value = "SELECT id_impuestos as idImpuestos " +
             "FROM cp_impuestos entity " +
@@ -118,8 +118,17 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
                     "( cast(:fechaRegistroHasta as date) is null OR entity.fecha_registro <= :fechaRegistroHasta ) " +
                     "GROUP BY valoresEntity.codigo, valoresEntity.codigo_porcentaje ", nativeQuery = true
     )
-    List<TotalesProjection> totalValores(Long idData, Long idEmpresa, String codigoDocumento, String numeroIdentificacion, String serie, String secuencial, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta,
-                                         LocalDate fechaRegistroDesde, LocalDate fechaRegistroHasta, String numeroAutorizacion, String destino);
+    List<TotalesProjection> totalValores(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa,
+                                         @Param("codigoDocumento") String codigoDocumento,
+                                         @Param("numeroIdentificacion") String numeroIdentificacion,
+                                         @Param("serie") String serie,
+                                         @Param("secuencial") String secuencial,
+                                         @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
+                                         @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
+                                         @Param("fechaRegistroDesde") LocalDate fechaRegistroDesde,
+                                         @Param("fechaRegistroHasta") LocalDate fechaRegistroHasta,
+                                         @Param("numeroAutorizacion") String numeroAutorizacion,
+                                         @Param("destino") String destino);
 
 
     @Query(value = "SELECT entity " +
@@ -134,14 +143,21 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
             "( cast(:fechaEmisionHasta as date) is null OR entity.fechaEmision <= :fechaEmisionHasta )  " +
             ")"
     )
-    List<CpImpuestosEntity> findAll(Long idData, Long idEmpresa, LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta, String numeroIdentificacion, String serie, String secuencial);
+    List<CpImpuestosEntity> findAll(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa,
+                                    @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
+                                    @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
+                                    @Param("numeroIdentificacion") String numeroIdentificacion,
+                                    @Param("serie") String serie,
+                                    @Param("secuencial") String secuencial);
 
     @Query(value = "SELECT entity.id_impuestos as idImpuestos " +
             "FROM cp_impuestos entity " +
             "WHERE (entity.id_data = :idData)  AND " +
             "(entity.id_empresa = :idEmpresa) AND " +
             "entity.numero_autorizacion = :numeroAutorizacion", nativeQuery = true)
-    Optional<CpImpuestosFacturasOneProjection> findExistByNumeroAutorizacion(Long idData, Long idEmpresa, String numeroAutorizacion);
+    Optional<CpImpuestosFacturasOneProjection> findExistByNumeroAutorizacion(@Param("idData") Long idData,
+                                                                              @Param("idEmpresa") Long idEmpresa,
+                                                                              @Param("numeroAutorizacion") String numeroAutorizacion);
 
 
     @Modifying
@@ -153,7 +169,10 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
             "WHERE (cp_impuestos.id_data = :idData)  AND " +
             "(cp_impuestos.id_empresa = :idEmpresa) AND " +
             "cp_impuestos.id_impuestos = :id ", nativeQuery = true)
-    int updateDatosById(Long idData, Long idEmpresa, UUID id, String destino, String codigoSustento, LocalDate fechaRegistro);
+    int updateDatosById(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa,
+                        @Param("id") UUID id, @Param("destino") String destino,
+                        @Param("codigoSustento") String codigoSustento,
+                        @Param("fechaRegistro") LocalDate fechaRegistro);
 
     @Query(value = "SELECT " +
             "entity.id_impuestos as idImpuestos,  " +
@@ -166,14 +185,18 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
             "WHERE (entity.id_data = :idData)  AND " +
             "(entity.id_empresa = :idEmpresa) AND " +
             "entity.id_impuestos = :id ", nativeQuery = true)
-    Optional<CpImpuestosFacturasOneProjection> findXMLById(Long idData, Long idEmpresa, UUID id);
+    Optional<CpImpuestosFacturasOneProjection> findXMLById(@Param("idData") Long idData,
+                                                            @Param("idEmpresa") Long idEmpresa,
+                                                            @Param("id") UUID id);
 
     @Query(value = "SELECT entity " +
             "FROM CpImpuestosEntity entity " +
             "WHERE (entity.idData = :idData)  AND " +
             "(entity.idEmpresa = :idEmpresa) AND " +
             "entity.idImpuestos = :id ")
-    Optional<CpImpuestosEntity> findById(Long idData, Long idEmpresa, UUID id);
+    Optional<CpImpuestosEntity> findById(@Param("idData") Long idData,
+                                         @Param("idEmpresa") Long idEmpresa,
+                                         @Param("id") UUID id);
 
 
     @Query(
@@ -193,9 +216,17 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
                     "( cast(:fechaRegistroHasta as date) is null OR entity.fechaRegistro <= :fechaRegistroHasta )"
 
     )
-    List<CpImpuestosEntity> findAll(Long idData, Long idEmpresa, String codigoDocumento, String numeroIdentificacion, String serie, String secuencial,
-                                    LocalDate fechaEmisionDesde, LocalDate fechaEmisionHasta, LocalDate fechaRegistroDesde, LocalDate fechaRegistroHasta,
-                                    String numeroAutorizacion, String destino);
+    List<CpImpuestosEntity> findAll(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa,
+                                    @Param("codigoDocumento") String codigoDocumento,
+                                    @Param("numeroIdentificacion") String numeroIdentificacion,
+                                    @Param("serie") String serie,
+                                    @Param("secuencial") String secuencial,
+                                    @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
+                                    @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
+                                    @Param("fechaRegistroDesde") LocalDate fechaRegistroDesde,
+                                    @Param("fechaRegistroHasta") LocalDate fechaRegistroHasta,
+                                    @Param("numeroAutorizacion") String numeroAutorizacion,
+                                    @Param("destino") String destino);
 
 
     @Query(value = "SELECT entity " +
@@ -343,7 +374,9 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
             "( cast(:fechaRegistroDesde as date) is null OR entity.fechaRegistro >= :fechaRegistroDesde ) AND " +
             "( cast(:fechaRegistroHasta as date) is null OR entity.fechaRegistro <= :fechaRegistroHasta )"
     )
-    List<CpImpuestosEntity> findAllByDates(Long idData, Long idEmpresa, LocalDate fechaRegistroDesde, LocalDate fechaRegistroHasta);
+    List<CpImpuestosEntity> findAllByDates(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa,
+                                            @Param("fechaRegistroDesde") LocalDate fechaRegistroDesde,
+                                            @Param("fechaRegistroHasta") LocalDate fechaRegistroHasta);
 
 
     @Query(value = "SELECT ci.fecha_emision, " +

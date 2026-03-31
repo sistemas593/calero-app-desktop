@@ -3,6 +3,7 @@ package com.calero.lili.core.modComprasItems;
 import com.calero.lili.core.Auditable;
 import com.calero.lili.core.modComprasItemsCategorias.GeItemsCategoriaEntity;
 import com.calero.lili.core.modComprasItemsGrupos.GeItemGrupoEntity;
+import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosEntity;
 import com.calero.lili.core.modComprasItemsMarcas.GeItemsMarcasEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -111,6 +112,7 @@ public class GeItemEntity extends Auditable {
     @NoArgsConstructor
     @Builder
     public static class DetalleAdicional {
+        @Column(length = 30)
         private String nombre;
         @Column(length = 300)
         private String valor;

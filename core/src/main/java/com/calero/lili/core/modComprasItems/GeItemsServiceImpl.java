@@ -25,7 +25,9 @@ import org.springframework.stereotype.Service;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -45,6 +47,7 @@ public class GeItemsServiceImpl {
     @Transactional
     public GeItemGetListDto create(Long idData, Long idEmpresa, GeItemRequestDto request, String usuario) {
 
+        validateDetalleAdicionalSize(request);
         ValidarCampoAscii.validarStrings(request);
         adEmpresasRepository
                 .findById(idData, idEmpresa)
@@ -77,6 +80,7 @@ public class GeItemsServiceImpl {
         IntStream.range(0, listaItems.size())
                 .forEach(index -> {
                     GeItemRequestDto requestDto = listaItems.get(index);
+                    validateDetalleAdicionalSize(requestDto);
                     System.out.println("salio");
 
                     String valido = "";
@@ -186,6 +190,7 @@ public class GeItemsServiceImpl {
     @Transactional
     public GeItemGetListDto update(Long idData, Long idEmpresa, UUID id, GeItemRequestDto request, String usuario) {
 
+        validateDetalleAdicionalSize(request);
         ValidarCampoAscii.validarStrings(request);
 
         GeItemEntity entidad = geItemsRepository.findByIdItem(idData, idEmpresa, id)
@@ -268,5 +273,14 @@ public class GeItemsServiceImpl {
 
         return items;
 
+    }
+
+    private void validateDetalleAdicionalSize(GeItemRequestDto request) {
+
+        if (Objects.nonNull(request.getDetallesAdicionales())) {
+            if(request.getDetallesAdicionales().size() > 3) {
+                throw new GeneralException("No se pueden agregar mas de 3 detalles adicionales");
+            }
+        }
     }
 }

@@ -47,6 +47,8 @@ public class AdUsuarioServiceImpl {
     // ESTA INCORRECTO ESTOY RECIBIENTO DIRECTAMENTE LA ENTIDAD, CAMBIAR Y RECIBIR DTO
     public AdUsuarioCreationResponseDto create(AdUsuarioRequestDto request, String usuario) {
 
+        validarUsernameSize(request.getUsername());
+
         AdUsuarioEntity adUsuarioExist = adUsuarioRepository.findByUsername(request.getUsername());
         if (adUsuarioExist != null) {
             throw new GeneralException(MessageFormat.format("El username {0} ya existe", request.getUsername()));
@@ -114,6 +116,9 @@ public class AdUsuarioServiceImpl {
 //    }
 
     public AdUsuarioCreationResponseDto update(Long id, AdUsuarioRequestDto request, String usuario) {
+
+        validarUsernameSize(request.getUsername());
+
         AdUsuarioEntity entidad = adUsuarioRepository.findByIdUsuario(id);
         if (entidad != null) {
             AdUsuarioEntity entity = toEntity(request, entidad);
@@ -251,6 +256,12 @@ public class AdUsuarioServiceImpl {
         return AdUsuarioPermisosDtoResponse.Roles.builder()
                 .rol(rol.getNombre())
                 .build();
+    }
+
+    public void validarUsernameSize(String username) {
+        if (username.length() < 4 || username.length() > 30) {
+            throw new GeneralException("El username debe tener entre 4 y 30 caracteres");
+        }
     }
 
 }

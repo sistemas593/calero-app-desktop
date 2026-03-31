@@ -1,6 +1,6 @@
 package com.calero.lili.core.modComprasItems.builder;
 
-import com.calero.lili.core.modComprasItems.GeImpuestosEntity;
+import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosEntity;
 import com.calero.lili.core.modComprasItems.GeItemEntity;
 import com.calero.lili.core.modComprasItems.GeItemsPreciosEntity;
 import com.calero.lili.core.modComprasItems.GeMedidasItemsEntity;

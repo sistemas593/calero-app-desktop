@@ -23,8 +23,8 @@ public interface ProvinciaRepository extends JpaRepository<ProvinciaEntity, UUID
 
 
     @Query(
-            value = "SELECT c FROM ProvinciaEntity c WHERE :filterContent IS NULL OR LOWER(c.provincia) LIKE LOWER(CONCAT('%', :filterContent, '%'))",
-            countQuery = "SELECT COUNT(c) FROM ProvinciaEntity c WHERE :filterContent IS NULL OR LOWER(c.provincia) LIKE LOWER(CONCAT('%', :filterContent, '%'))"
+            value = "SELECT c FROM ProvinciaEntity c WHERE (:filterContent IS NULL OR LOWER(c.provincia) LIKE LOWER(CONCAT('%', :filterContent, '%')))",
+            countQuery = "SELECT COUNT(c) FROM ProvinciaEntity c WHERE (:filterContent IS NULL OR LOWER(c.provincia) LIKE LOWER(CONCAT('%', :filterContent, '%')))"
     )
     Page<ProvinciaEntity> findAllPaginate(@Param("filterContent") String filterContent, Pageable pageable);
 

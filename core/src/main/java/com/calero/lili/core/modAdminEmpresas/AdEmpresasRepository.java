@@ -26,15 +26,15 @@ public interface AdEmpresasRepository extends JpaRepository<AdEmpresaEntity, Lon
             value = "SELECT entity " +
                     "FROM AdEmpresaEntity entity " +
                     "WHERE entity.idData = :idData AND " +
-                    "(:filter IS NULL OR LOWER(entity.razonSocial) LIKE LOWER(CONCAT('%', :filterContent, '%')) ) OR " +
-                    "(:filter IS NULL OR LOWER(entity.ruc) LIKE LOWER(CONCAT('%', :filterContent, '%')) ) AND " +
+                    "((:filter IS NULL OR LOWER(entity.razonSocial) LIKE LOWER(CONCAT('%', :filterContent, '%')) ) OR " +
+                    "(:filter IS NULL OR LOWER(entity.ruc) LIKE LOWER(CONCAT('%', :filterContent, '%')) )) AND " +
                     "(:estado IS NULL OR entity.estado = :estado ) "
             ,
             countQuery = "SELECT COUNT(1) " +
                     "FROM AdEmpresaEntity  entity " +
                     "WHERE ( entity.idData = :idData) AND " +
-                    "(:filter IS NULL OR LOWER(entity.razonSocial) LIKE LOWER(CONCAT('%', :filterContent, '%')) ) OR " +
-                    "(:filter IS NULL OR LOWER(entity.ruc) LIKE LOWER(CONCAT('%', :filterContent, '%')) ) AND " +
+                    "((:filter IS NULL OR LOWER(entity.razonSocial) LIKE LOWER(CONCAT('%', :filterContent, '%')) ) OR " +
+                    "(:filter IS NULL OR LOWER(entity.ruc) LIKE LOWER(CONCAT('%', :filterContent, '%')) )) AND " +
                     "(:estado IS NULL OR entity.estado = :estado ) "
     )
     Page<AdEmpresaEntity> findAllPaginate(@Param("idData") Long idData,

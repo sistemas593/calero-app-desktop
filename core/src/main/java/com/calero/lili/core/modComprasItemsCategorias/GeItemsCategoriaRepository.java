@@ -30,11 +30,11 @@ public interface GeItemsCategoriaRepository extends JpaRepository<GeItemsCategor
             value = "SELECT entity " +
                     "FROM GeItemsCategoriaEntity entity " +
                     "WHERE entity.idData = :idData AND " +
-                    ":filter IS NULL OR LOWER(entity.categoria) LIKE LOWER(CONCAT('%', :filterContent, '%')) "
+                    "(:filter IS NULL OR LOWER(entity.categoria) LIKE LOWER(CONCAT('%', :filterContent, '%'))) "
             ,
             countQuery = "SELECT COUNT(1) FROM GeItemsCategoriaEntity entity " +
                     "WHERE entity.idData = :idData AND " +
-                    ":filter IS NULL OR LOWER(entity.categoria) LIKE LOWER(CONCAT('%', :filterContent, '%')) "
+                    "(:filter IS NULL OR LOWER(entity.categoria) LIKE LOWER(CONCAT('%', :filterContent, '%'))) "
     )
     Page<GeItemsCategoriaEntity> findAllPaginate(@Param("idData") Long idData, @Param("filter") String filter, @Param("filterContent") String filterContent, Pageable pageable);
 

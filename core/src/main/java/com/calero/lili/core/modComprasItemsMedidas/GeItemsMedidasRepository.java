@@ -23,11 +23,11 @@ public interface GeItemsMedidasRepository extends JpaRepository<GeItemsMedidasEn
             value = "SELECT entity " +
                     "FROM GeItemsMedidasEntity entity " +
                     "WHERE entity.idData = :idData AND " +
-                    ":filter IS NULL OR LOWER(entity.unidadMedida) LIKE LOWER(CONCAT('%', :filterContent, '%')) "
+                    "(:filter IS NULL OR LOWER(entity.unidadMedida) LIKE LOWER(CONCAT('%', :filterContent, '%'))) "
             ,
             countQuery = "SELECT COUNT(1) FROM GeItemsMedidasEntity entity " +
                     "WHERE entity.idData = :idData AND " +
-                    ":filter IS NULL OR LOWER(entity.unidadMedida) LIKE LOWER(CONCAT('%', :filterContent, '%')) "
+                    "(:filter IS NULL OR LOWER(entity.unidadMedida) LIKE LOWER(CONCAT('%', :filterContent, '%'))) "
     )
     Page<GeItemsMedidasEntity> findAllPaginate(@Param("idData") Long idData, @Param("filter") String filter,
                                                @Param("filterContent") String filterContent, Pageable pageable);

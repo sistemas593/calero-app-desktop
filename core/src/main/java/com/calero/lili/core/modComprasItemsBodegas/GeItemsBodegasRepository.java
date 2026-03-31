@@ -37,12 +37,12 @@ public interface GeItemsBodegasRepository extends JpaRepository<IvBodegaEntity, 
                     "WHERE " +
                     "entity.idData = :idData AND " +
                     "entity.idEmpresa = :idEmpresa AND " +
-                    ":filter IS NULL OR LOWER(entity.bodega) LIKE LOWER(CONCAT('%', :filterContent, '%')) "
+                    "(:filter IS NULL OR LOWER(entity.bodega) LIKE LOWER(CONCAT('%', :filterContent, '%'))) "
             ,
             countQuery = "SELECT COUNT(1) FROM IvBodegaEntity entity " +
                     "WHERE entity.idData = :idData AND " +
                     "entity.idEmpresa = :idEmpresa AND " +
-                    ":filter IS NULL OR LOWER(entity.bodega) LIKE LOWER(CONCAT('%', :filterContent, '%')) "
+                    "(:filter IS NULL OR LOWER(entity.bodega) LIKE LOWER(CONCAT('%', :filterContent, '%'))) "
     )
     Page<IvBodegaEntity> findAllPaginate(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("filter") String filter, @Param("filterContent") String filterContent, Pageable pageable);
 }

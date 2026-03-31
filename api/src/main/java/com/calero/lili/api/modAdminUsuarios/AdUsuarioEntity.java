@@ -41,7 +41,7 @@ public class AdUsuarioEntity extends Auditable implements IUser {
     private Long idUsuario;
 
     //@NotBlank
-    @Size(min = 4, max = 8)
+    @Size(min = 4, max = 30)
     @Column(unique = true)
     private String username;
 

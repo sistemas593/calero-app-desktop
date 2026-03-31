@@ -17,17 +17,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
+import java.math.BigDecimal
 import java.util.UUID
 
 data class DetalleAdicionalUi(val nombre: String = "", val valor: String = "")
-
-data class PreciosUi(
-    val precio1: String = "",
-    val precio2: String = "",
-    val precio3: String = "",
-    val precio4: String = "",
-    val precio5: String = ""
-)
 
 data class ItemFormUiState(
     val codigoPrincipal: String = "",
@@ -37,7 +30,7 @@ data class ItemFormUiState(
     val caracteristicas: String = "",
     val medidasDisponibles: List<GeItemMedidaReportDto> = emptyList(),
     val medidaSeleccionada: GeItemMedidaReportDto? = null,
-    val precios: List<PreciosUi> = emptyList(),
+    val precio: String = "",
     val detallesAdicionales: List<DetalleAdicionalUi> = emptyList(),
     val isLoading: Boolean = false,
     val isSaving: Boolean = false,
@@ -87,15 +80,9 @@ class ItemFormViewModel(
                 val medidaPrevia = if (primeraIdMedida != null)
                     _state.value.medidasDisponibles.firstOrNull { it.idUnidadMedida == primeraIdMedida }
                 else null
-                val preciosCargados = dto.precios?.map { p ->
-                    PreciosUi(
-                        precio1 = p.precio1?.toPlainString() ?: "",
-                        precio2 = p.precio2?.toPlainString() ?: "",
-                        precio3 = p.precio3?.toPlainString() ?: "",
-                        precio4 = p.precio4?.toPlainString() ?: "",
-                        precio5 = p.precio5?.toPlainString() ?: ""
-                    )
-                } ?: emptyList()
+                val precioCargado = dto.precios?.firstOrNull()?.precio1
+                    ?.takeIf { it.compareTo(BigDecimal.ZERO) != 0 }
+                    ?.toPlainString() ?: ""
                 val detalles = dto.detallesAdicionales
                     ?.map { DetalleAdicionalUi(it.nombre ?: "", it.valor ?: "") } ?: emptyList()
                 _state.update {
@@ -107,7 +94,7 @@ class ItemFormViewModel(
                         descripcion         = dto.descripcion ?: "",
                         caracteristicas     = dto.caracteristicas ?: "",
                         medidaSeleccionada  = medidaPrevia,
-                        precios             = preciosCargados,
+                        precio              = precioCargado,
                         detallesAdicionales = detalles
                     )
                 }
@@ -117,7 +104,7 @@ class ItemFormViewModel(
         }
     }
 
-    private fun parsePrecio(v: String): java.math.BigDecimal? =
+    private fun parsePrecio(v: String): BigDecimal? =
         v.trim().replace(",", ".").toBigDecimalOrNull()
 
     fun guardar() {
@@ -133,17 +120,17 @@ class ItemFormViewModel(
         val medidas = current.medidaSeleccionada?.let { m ->
             listOf(GeMedidasItemsDto.builder().idMedida(m.idUnidadMedida).factor(1).build())
         }
-        val precios = current.precios
-            .filter { p -> listOf(p.precio1, p.precio2, p.precio3, p.precio4, p.precio5).any { it.isNotBlank() } }
-            .map { p ->
+        val precios = if (current.precio.isNotBlank()) {
+            listOf(
                 GeItemRequestDto.Precios(
-                    parsePrecio(p.precio1),
-                    parsePrecio(p.precio2),
-                    parsePrecio(p.precio3),
-                    parsePrecio(p.precio4),
-                    parsePrecio(p.precio5)
+                    parsePrecio(current.precio),
+                    BigDecimal.ZERO,
+                    BigDecimal.ZERO,
+                    BigDecimal.ZERO,
+                    BigDecimal.ZERO
                 )
-            }.ifEmpty { null }
+            )
+        } else null
         val detalles = current.detallesAdicionales
             .filter { it.nombre.isNotBlank() }
             .map { GeItemRequestDto.DetalleAdicional.builder()
@@ -182,28 +169,7 @@ class ItemFormViewModel(
     fun setDescripcion(v: String)              = _state.update { it.copy(descripcion = v, errorMessage = null) }
     fun setCaracteristicas(v: String)          = _state.update { it.copy(caracteristicas = v) }
     fun setMedida(v: GeItemMedidaReportDto?)   = _state.update { it.copy(medidaSeleccionada = v) }
-
-    fun agregarPrecio() = _state.update {
-        it.copy(precios = it.precios + PreciosUi())
-    }
-    fun eliminarPrecio(idx: Int) = _state.update {
-        it.copy(precios = it.precios.toMutableList().also { l -> l.removeAt(idx) })
-    }
-    fun setPrecio1(idx: Int, v: String) = _state.update {
-        it.copy(precios = it.precios.toMutableList().also { l -> l[idx] = l[idx].copy(precio1 = v) })
-    }
-    fun setPrecio2(idx: Int, v: String) = _state.update {
-        it.copy(precios = it.precios.toMutableList().also { l -> l[idx] = l[idx].copy(precio2 = v) })
-    }
-    fun setPrecio3(idx: Int, v: String) = _state.update {
-        it.copy(precios = it.precios.toMutableList().also { l -> l[idx] = l[idx].copy(precio3 = v) })
-    }
-    fun setPrecio4(idx: Int, v: String) = _state.update {
-        it.copy(precios = it.precios.toMutableList().also { l -> l[idx] = l[idx].copy(precio4 = v) })
-    }
-    fun setPrecio5(idx: Int, v: String) = _state.update {
-        it.copy(precios = it.precios.toMutableList().also { l -> l[idx] = l[idx].copy(precio5 = v) })
-    }
+    fun setPrecio(v: String)                   = _state.update { it.copy(precio = v) }
 
     fun agregarDetalle() = _state.update {
         it.copy(detallesAdicionales = it.detallesAdicionales + DetalleAdicionalUi())

@@ -30,11 +30,11 @@ public interface GeItemsMarcasRepository extends JpaRepository<GeItemsMarcasEnti
             value = "SELECT entity " +
                     "FROM GeItemsMarcasEntity entity " +
                     "WHERE entity.idData = :idData AND " +
-                    ":filter IS NULL OR LOWER(entity.marca) LIKE LOWER(CONCAT('%', :filterContent, '%')) "
+                    "(:filter IS NULL OR LOWER(entity.marca) LIKE LOWER(CONCAT('%', :filterContent, '%'))) "
             ,
             countQuery = "SELECT COUNT(1) FROM GeItemsMarcasEntity entity " +
                     "WHERE entity.idData = :idData AND " +
-                    ":filter IS NULL OR LOWER(entity.marca) LIKE LOWER(CONCAT('%', :filterContent, '%')) "
+                    "(:filter IS NULL OR LOWER(entity.marca) LIKE LOWER(CONCAT('%', :filterContent, '%'))) "
     )
     Page<GeItemsMarcasEntity> findAllPaginate(@Param("idData") Long idData, @Param("filter") String filter, @Param("filterContent") String filterContent, Pageable pageable);
 

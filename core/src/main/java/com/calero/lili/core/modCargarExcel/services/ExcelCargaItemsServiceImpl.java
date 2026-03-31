@@ -1,7 +1,7 @@
 package com.calero.lili.core.modCargarExcel.services;
 
-import com.calero.lili.core.modComprasItems.GeImpuestosEntity;
-import com.calero.lili.core.modComprasItems.GeImpuestosRepository;
+import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosEntity;
+import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosRepository;
 import com.calero.lili.core.modComprasItems.GeItemEntity;
 import com.calero.lili.core.modComprasItems.GeItemsRepository;
 import com.calero.lili.core.modComprasItems.GeMedidasItemsEntity;

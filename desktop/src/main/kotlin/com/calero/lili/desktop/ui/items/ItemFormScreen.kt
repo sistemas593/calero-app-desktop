@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
@@ -24,12 +23,9 @@ private val FColorTexto  = Color(0xFF1A1A2E)
 private val FColorBg     = Color(0xFFF0F4FF)
 private val FColorExito  = Color(0xFF2E7D32)
 
-private val tabTitles = listOf("Datos del Item", "Precios", "Detalles Adicionales")
+private val COL_ACCIONES = 60.dp
 
-// Columnas tabla detalles adicionales
-private val COL_NOMBRE_DET   = 220.dp
-private val COL_VALOR_DET    = 400.dp
-private val COL_ACCIONES_DET = 60.dp
+private val tabTitles = listOf("Datos del Item", "Detalles Adicionales")
 
 @Composable
 fun ItemFormScreen(
@@ -125,8 +121,7 @@ fun ItemFormScreen(
             ) {
                 when (selectedTab) {
                     0 -> TabDatos(state, viewModel)
-                    1 -> TabPrecios(state, viewModel)
-                    2 -> TabDetalles(state, viewModel)
+                    1 -> TabDetalles(state, viewModel)
                 }
             }
         }
@@ -208,6 +203,15 @@ private fun TabDatos(state: ItemFormUiState, viewModel: ItemFormViewModel) {
         colors        = campoColors()
     )
 
+    OutlinedTextField(
+        value         = state.precio,
+        onValueChange = viewModel::setPrecio,
+        label         = { Text("Precio", fontSize = 13.sp) },
+        singleLine    = true,
+        modifier      = Modifier.fillMaxWidth(0.25f),
+        colors        = campoColors()
+    )
+
     Spacer(Modifier.height(4.dp))
     Text("Medidas", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = FColorHeader)
     HorizontalDivider(color = FColorBorde, thickness = 1.dp)
@@ -219,37 +223,7 @@ private fun TabDatos(state: ItemFormUiState, viewModel: ItemFormViewModel) {
     )
 }
 
-// ── Pestaña 1: Precios ─────────────────────────────────────────────────────────
-@Composable
-private fun TabPrecios(state: ItemFormUiState, viewModel: ItemFormViewModel) {
-    Text("Precios", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = FColorHeader)
-    HorizontalDivider(color = FColorBorde, thickness = 1.dp)
-
-    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-        PrecioCampo("Precio 1", state.precio1, viewModel::setPrecio1, Modifier.weight(1f))
-        PrecioCampo("Precio 2", state.precio2, viewModel::setPrecio2, Modifier.weight(1f))
-        PrecioCampo("Precio 3", state.precio3, viewModel::setPrecio3, Modifier.weight(1f))
-    }
-    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-        PrecioCampo("Precio 4", state.precio4, viewModel::setPrecio4, Modifier.weight(1f))
-        PrecioCampo("Precio 5", state.precio5, viewModel::setPrecio5, Modifier.weight(1f))
-        Spacer(Modifier.weight(1f))
-    }
-}
-
-@Composable
-private fun PrecioCampo(label: String, value: String, onChange: (String) -> Unit, modifier: Modifier) {
-    OutlinedTextField(
-        value         = value,
-        onValueChange = onChange,
-        label         = { Text(label, fontSize = 13.sp) },
-        singleLine    = true,
-        modifier      = modifier,
-        colors        = campoColors()
-    )
-}
-
-// ── Pestaña 2: Detalles Adicionales ───────────────────────────────────────────
+// ── Pestaña 1: Detalles Adicionales ───────────────────────────────────────────
 @Composable
 private fun TabDetalles(state: ItemFormUiState, viewModel: ItemFormViewModel) {
     Row(
@@ -273,14 +247,13 @@ private fun TabDetalles(state: ItemFormUiState, viewModel: ItemFormViewModel) {
         color           = Color.White
     ) {
         Column {
-            // Encabezado azul (igual que SeriesScreen)
             Row(
-                modifier          = Modifier.background(FColorHeader).padding(vertical = 10.dp, horizontal = 8.dp),
+                modifier          = Modifier.fillMaxWidth().background(FColorHeader).padding(vertical = 10.dp, horizontal = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                CeldaHeaderDet("Nombre",   COL_NOMBRE_DET)
-                CeldaHeaderDet("Valor",    COL_VALOR_DET)
-                CeldaHeaderDet("Acciones", COL_ACCIONES_DET)
+                CeldaHeaderPeso("Nombre",   Modifier.weight(2f))
+                CeldaHeaderPeso("Valor",    Modifier.weight(4f))
+                Spacer(Modifier.width(COL_ACCIONES))
             }
             HorizontalDivider(color = FColorBorde)
 
@@ -295,6 +268,7 @@ private fun TabDetalles(state: ItemFormUiState, viewModel: ItemFormViewModel) {
                 state.detallesAdicionales.forEachIndexed { idx, detalle ->
                     Row(
                         modifier          = Modifier
+                            .fillMaxWidth()
                             .background(if (idx % 2 == 0) Color(0xFFF5F7FF) else Color.White)
                             .padding(vertical = 4.dp, horizontal = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
@@ -303,18 +277,18 @@ private fun TabDetalles(state: ItemFormUiState, viewModel: ItemFormViewModel) {
                             value         = detalle.nombre,
                             onValueChange = { viewModel.setDetalleNombre(idx, it) },
                             singleLine    = true,
-                            modifier      = Modifier.width(COL_NOMBRE_DET).padding(end = 8.dp),
+                            modifier      = Modifier.weight(2f).padding(end = 8.dp),
                             colors        = campoColors()
                         )
                         OutlinedTextField(
                             value         = detalle.valor,
                             onValueChange = { viewModel.setDetalleValor(idx, it) },
                             singleLine    = true,
-                            modifier      = Modifier.width(COL_VALOR_DET).padding(end = 8.dp),
+                            modifier      = Modifier.weight(4f).padding(end = 8.dp),
                             colors        = campoColors()
                         )
                         Box(
-                            modifier         = Modifier.width(COL_ACCIONES_DET).height(48.dp),
+                            modifier         = Modifier.width(COL_ACCIONES).height(48.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             IconButton(
@@ -346,7 +320,7 @@ private fun campoColors() = OutlinedTextFieldDefaults.colors(
 )
 
 @Composable
-private fun CeldaHeaderDet(texto: String, ancho: Dp) {
+private fun CeldaHeaderPeso(texto: String, modifier: Modifier) {
     Text(
         text       = texto,
         color      = Color.White,
@@ -354,7 +328,7 @@ private fun CeldaHeaderDet(texto: String, ancho: Dp) {
         fontSize   = 13.sp,
         maxLines   = 1,
         overflow   = TextOverflow.Ellipsis,
-        modifier   = Modifier.width(ancho).padding(end = 8.dp)
+        modifier   = modifier.padding(end = 8.dp)
     )
 }
 

@@ -40,14 +40,14 @@ public class VtClientesConfiguracionesController {
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAuthority('CR_CC_CR')")
+    @PreAuthorize("hasAuthority('CF_CC_CR')")
     public ResponseDto create(@RequestBody @Valid VtClientesConfiguracionesRequestDto request) {
         return clientesConfiguracionesService.create( request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{id}")
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasAuthority('CR_CC_MO')")
+    @PreAuthorize("hasAuthority('CF_CC_MO')")
     public ResponseDto update(@PathVariable("id") UUID id,
                               @RequestBody @Valid VtClientesConfiguracionesRequestDto request) {
         return clientesConfiguracionesService.update( id, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
@@ -55,21 +55,21 @@ public class VtClientesConfiguracionesController {
 
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAuthority('CR_CC_EL')")
+    @PreAuthorize("hasAuthority('CF_CC_EL')")
     public void delete(@PathVariable("id") UUID id) {
         clientesConfiguracionesService.delete(id, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{id}")
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasAuthority('CR_CC_VR')")
+    @PreAuthorize("hasAuthority('CF_CC_VR')")
     public VtClientesConfiguracionesGetOneDto findById(@PathVariable("id") UUID id) {
         return clientesConfiguracionesService.findById(id);
     }
 
     @GetMapping("listar")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('CR_CC_VR')")
+    @PreAuthorize("hasAuthority('CF_CC_VR')")
     public PaginatedDto<VtClientesConfiguracionesGetListDto> findAllPaginate(
             VtClientesConfiguracionesListFilterDto filters,
             Pageable pageable) {
@@ -80,7 +80,7 @@ public class VtClientesConfiguracionesController {
     // Actualiza solo la fecha vencimiento y enviar correos, se usa para actualizar en lista
     @PostMapping("vencimiento/list")
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAuthority('CR_CC_MO')")
+    @PreAuthorize("hasAuthority('CF_CC_MO')")
     public StEmpresasListCreationResponseDto createUpdateList(@RequestBody @Valid VtClientesConfiguracionesListCreationRequestDto request) {
         System.out.println(request);
         return clientesConfiguracionesService.createUpdateList(request);
