@@ -19,6 +19,16 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import java.util.UUID
 
+data class DetalleAdicionalUi(val nombre: String = "", val valor: String = "")
+
+data class PreciosUi(
+    val precio1: String = "",
+    val precio2: String = "",
+    val precio3: String = "",
+    val precio4: String = "",
+    val precio5: String = ""
+)
+
 data class ItemFormUiState(
     val codigoPrincipal: String = "",
     val codigoAuxiliar: String = "",
@@ -27,6 +37,8 @@ data class ItemFormUiState(
     val caracteristicas: String = "",
     val medidasDisponibles: List<GeItemMedidaReportDto> = emptyList(),
     val medidaSeleccionada: GeItemMedidaReportDto? = null,
+    val precios: List<PreciosUi> = emptyList(),
+    val detallesAdicionales: List<DetalleAdicionalUi> = emptyList(),
     val isLoading: Boolean = false,
     val isSaving: Boolean = false,
     val errorMessage: String? = null,
@@ -75,15 +87,28 @@ class ItemFormViewModel(
                 val medidaPrevia = if (primeraIdMedida != null)
                     _state.value.medidasDisponibles.firstOrNull { it.idUnidadMedida == primeraIdMedida }
                 else null
+                val preciosCargados = dto.precios?.map { p ->
+                    PreciosUi(
+                        precio1 = p.precio1?.toPlainString() ?: "",
+                        precio2 = p.precio2?.toPlainString() ?: "",
+                        precio3 = p.precio3?.toPlainString() ?: "",
+                        precio4 = p.precio4?.toPlainString() ?: "",
+                        precio5 = p.precio5?.toPlainString() ?: ""
+                    )
+                } ?: emptyList()
+                val detalles = dto.detallesAdicionales
+                    ?.map { DetalleAdicionalUi(it.nombre ?: "", it.valor ?: "") } ?: emptyList()
                 _state.update {
                     it.copy(
-                        isLoading          = false,
-                        codigoPrincipal    = dto.codigoPrincipal ?: "",
-                        codigoAuxiliar     = dto.codigoAuxiliar ?: "",
-                        codigoBarras       = dto.codigoBarras ?: "",
-                        descripcion        = dto.descripcion ?: "",
-                        caracteristicas    = dto.caracteristicas ?: "",
-                        medidaSeleccionada = medidaPrevia
+                        isLoading           = false,
+                        codigoPrincipal     = dto.codigoPrincipal ?: "",
+                        codigoAuxiliar      = dto.codigoAuxiliar ?: "",
+                        codigoBarras        = dto.codigoBarras ?: "",
+                        descripcion         = dto.descripcion ?: "",
+                        caracteristicas     = dto.caracteristicas ?: "",
+                        medidaSeleccionada  = medidaPrevia,
+                        precios             = preciosCargados,
+                        detallesAdicionales = detalles
                     )
                 }
             } catch (e: Exception) {
@@ -91,6 +116,9 @@ class ItemFormViewModel(
             }
         }
     }
+
+    private fun parsePrecio(v: String): java.math.BigDecimal? =
+        v.trim().replace(",", ".").toBigDecimalOrNull()
 
     fun guardar() {
         val current = _state.value
@@ -105,6 +133,22 @@ class ItemFormViewModel(
         val medidas = current.medidaSeleccionada?.let { m ->
             listOf(GeMedidasItemsDto.builder().idMedida(m.idUnidadMedida).factor(1).build())
         }
+        val precios = current.precios
+            .filter { p -> listOf(p.precio1, p.precio2, p.precio3, p.precio4, p.precio5).any { it.isNotBlank() } }
+            .map { p ->
+                GeItemRequestDto.Precios(
+                    parsePrecio(p.precio1),
+                    parsePrecio(p.precio2),
+                    parsePrecio(p.precio3),
+                    parsePrecio(p.precio4),
+                    parsePrecio(p.precio5)
+                )
+            }.ifEmpty { null }
+        val detalles = current.detallesAdicionales
+            .filter { it.nombre.isNotBlank() }
+            .map { GeItemRequestDto.DetalleAdicional.builder()
+                .nombre(it.nombre.trim()).valor(it.valor.trim()).build() }
+            .ifEmpty { null }
         val request = GeItemRequestDto.builder()
             .codigoPrincipal(current.codigoPrincipal.trim())
             .codigoAuxiliar(current.codigoAuxiliar.trim().ifBlank { null })
@@ -113,6 +157,8 @@ class ItemFormViewModel(
             .tipoItem("SER")
             .caracteristicas(current.caracteristicas.trim().ifBlank { null })
             .medidas(medidas)
+            .precios(precios)
+            .detallesAdicionales(detalles)
             .build()
         scope.launch {
             _state.update { it.copy(isSaving = true, errorMessage = null, successMessage = null) }
@@ -136,6 +182,45 @@ class ItemFormViewModel(
     fun setDescripcion(v: String)              = _state.update { it.copy(descripcion = v, errorMessage = null) }
     fun setCaracteristicas(v: String)          = _state.update { it.copy(caracteristicas = v) }
     fun setMedida(v: GeItemMedidaReportDto?)   = _state.update { it.copy(medidaSeleccionada = v) }
-    fun dismissError()                         = _state.update { it.copy(errorMessage = null) }
-    fun onDestroy()                            = scope.cancel()
+
+    fun agregarPrecio() = _state.update {
+        it.copy(precios = it.precios + PreciosUi())
+    }
+    fun eliminarPrecio(idx: Int) = _state.update {
+        it.copy(precios = it.precios.toMutableList().also { l -> l.removeAt(idx) })
+    }
+    fun setPrecio1(idx: Int, v: String) = _state.update {
+        it.copy(precios = it.precios.toMutableList().also { l -> l[idx] = l[idx].copy(precio1 = v) })
+    }
+    fun setPrecio2(idx: Int, v: String) = _state.update {
+        it.copy(precios = it.precios.toMutableList().also { l -> l[idx] = l[idx].copy(precio2 = v) })
+    }
+    fun setPrecio3(idx: Int, v: String) = _state.update {
+        it.copy(precios = it.precios.toMutableList().also { l -> l[idx] = l[idx].copy(precio3 = v) })
+    }
+    fun setPrecio4(idx: Int, v: String) = _state.update {
+        it.copy(precios = it.precios.toMutableList().also { l -> l[idx] = l[idx].copy(precio4 = v) })
+    }
+    fun setPrecio5(idx: Int, v: String) = _state.update {
+        it.copy(precios = it.precios.toMutableList().also { l -> l[idx] = l[idx].copy(precio5 = v) })
+    }
+
+    fun agregarDetalle() = _state.update {
+        it.copy(detallesAdicionales = it.detallesAdicionales + DetalleAdicionalUi())
+    }
+    fun eliminarDetalle(idx: Int) = _state.update {
+        it.copy(detallesAdicionales = it.detallesAdicionales
+            .toMutableList().also { l -> l.removeAt(idx) })
+    }
+    fun setDetalleNombre(idx: Int, v: String) = _state.update {
+        it.copy(detallesAdicionales = it.detallesAdicionales
+            .toMutableList().also { l -> l[idx] = l[idx].copy(nombre = v) })
+    }
+    fun setDetalleValor(idx: Int, v: String) = _state.update {
+        it.copy(detallesAdicionales = it.detallesAdicionales
+            .toMutableList().also { l -> l[idx] = l[idx].copy(valor = v) })
+    }
+
+    fun dismissError() = _state.update { it.copy(errorMessage = null) }
+    fun onDestroy()    = scope.cancel()
 }

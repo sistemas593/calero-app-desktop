@@ -23,7 +23,7 @@ public class AdGruposResponseDto {
     @Builder
     public static class Permisos {
         private Long idPermiso;
-        private String descripcion;
+        private String nombre;
         private String permiso;
 
     }
