@@ -14,6 +14,7 @@ import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Lock
@@ -67,7 +68,7 @@ private val COLUMNAS = listOf(
     Columna("Base Grav. 8%",      100.dp),
     Columna("Base Grav. 15%",     100.dp),
     Columna("Total",              100.dp),
-    Columna("Acciones",           80.dp)
+    Columna("Acciones",           120.dp)
 )
 
 // ── Screen ────────────────────────────────────────────────────────────────────
@@ -92,6 +93,30 @@ fun FacturasScreen(viewModel: FacturasViewModel) {
             title            = { Text("Firma Electrónica") },
             text             = { Text(state.firmaResultado ?: "") },
             confirmButton    = { TextButton(onClick = viewModel::dismissFirmaResultado) { Text("Aceptar") } }
+        )
+    }
+
+    // ── Diálogo resultado XML/PDF
+    if (state.xmlPdfResultado != null) {
+        AlertDialog(
+            onDismissRequest = viewModel::dismissXmlPdfResultado,
+            title            = { Text("Descarga") },
+            text             = { Text(state.xmlPdfResultado ?: "") },
+            confirmButton    = {
+                TextButton(onClick = viewModel::dismissXmlPdfResultado) { Text("Aceptar") }
+            }
+        )
+    }
+
+    // ── Diálogo resultado de exportación
+    if (state.exportResultado != null) {
+        AlertDialog(
+            onDismissRequest = viewModel::dismissExportResultado,
+            title            = { Text("Exportar Excel") },
+            text             = { Text(state.exportResultado ?: "") },
+            confirmButton    = {
+                TextButton(onClick = viewModel::dismissExportResultado) { Text("Aceptar") }
+            }
         )
     }
 
@@ -188,7 +213,10 @@ fun FacturasScreen(viewModel: FacturasViewModel) {
                                         FilaFactura(
                                             idx      = idx,
                                             f        = factura,
-                                            onFirmar = { viewModel.abrirDialogoFirma(factura) }
+                                            cargando = state.xmlPdfCargando == factura.idVenta,
+                                            onFirmar = { viewModel.abrirDialogoFirma(factura) },
+                                            onXml    = { viewModel.descargarXml(factura) },
+                                            onPdf    = { viewModel.descargarPdf(factura) }
                                         )
                                         HorizontalDivider(color = ColorBorde, thickness = 0.5.dp)
                                     }
@@ -230,13 +258,45 @@ fun FacturasScreen(viewModel: FacturasViewModel) {
                 onSiguiente  = { if (state.currentPage < (pag.totalPages ?: 1) - 1) viewModel.irPagina(state.currentPage + 1) }
             )
         }
+
+        // ── Exportar
+        Spacer(Modifier.height(8.dp))
+        Row(
+            modifier              = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment     = Alignment.CenterVertically
+        ) {
+            if (state.isExporting) {
+                CircularProgressIndicator(
+                    modifier    = Modifier.size(20.dp),
+                    strokeWidth = 2.dp,
+                    color       = ColorHeader
+                )
+                Spacer(Modifier.width(8.dp))
+            }
+            Button(
+                onClick  = viewModel::exportarExcel,
+                enabled  = !state.isExporting,
+                colors   = ButtonDefaults.buttonColors(containerColor = ColorHeader)
+            ) {
+                Text("Exportar Excel", fontSize = 13.sp)
+            }
+        }
     }
 }
 
 // ── Fila de datos ─────────────────────────────────────────────────────────────
 @Composable
-private fun FilaFactura(idx: Int, f: GetListDto, onFirmar: () -> Unit) {
-    val bg = if (idx % 2 == 0) ColorFilaPar else ColorFilaImpar
+private fun FilaFactura(
+    idx      : Int,
+    f        : GetListDto,
+    cargando : Boolean,
+    onFirmar : () -> Unit,
+    onXml    : () -> Unit,
+    onPdf    : () -> Unit
+) {
+    val bg             = if (idx % 2 == 0) ColorFilaPar else ColorFilaImpar
+    var comboExpanded by remember { mutableStateOf(false) }
 
     Row(
         modifier          = Modifier.background(bg).padding(vertical = 4.dp),
@@ -265,14 +325,52 @@ private fun FilaFactura(idx: Int, f: GetListDto, onFirmar: () -> Unit) {
 
         // ── Acciones
         Box(modifier = Modifier.width(COLUMNAS[20].ancho), contentAlignment = Alignment.Center) {
-            Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(2.dp),
+                verticalAlignment     = Alignment.CenterVertically
+            ) {
                 IconButton(onClick = { /* editar — pendiente */ }, modifier = Modifier.size(28.dp)) {
-                    Icon(Icons.Default.Edit, contentDescription = "Editar",
-                        tint = ColorHeader, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Default.Edit, "Editar", tint = ColorHeader, modifier = Modifier.size(16.dp))
                 }
                 IconButton(onClick = onFirmar, modifier = Modifier.size(28.dp)) {
-                    Icon(Icons.Default.Lock, contentDescription = "Firma electrónica",
-                        tint = Color(0xFF2E7D32), modifier = Modifier.size(16.dp))
+                    Icon(Icons.Default.Lock, "Firma electrónica", tint = Color(0xFF2E7D32), modifier = Modifier.size(16.dp))
+                }
+                // ── Botón combo XML / PDF
+                Box {
+                    if (cargando) {
+                        CircularProgressIndicator(
+                            modifier    = Modifier.size(20.dp).padding(2.dp),
+                            strokeWidth = 2.dp,
+                            color       = ColorHeader
+                        )
+                    } else {
+                        IconButton(
+                            onClick  = { comboExpanded = true },
+                            modifier = Modifier.size(28.dp)
+                        ) {
+                            Icon(
+                                imageVector        = Icons.Default.ArrowDropDown,
+                                contentDescription = "Descargar",
+                                tint               = Color.White,
+                                modifier           = Modifier
+                                    .size(20.dp)
+                                    .background(ColorHeader, shape = RoundedCornerShape(4.dp))
+                            )
+                        }
+                    }
+                    DropdownMenu(
+                        expanded         = comboExpanded,
+                        onDismissRequest = { comboExpanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text    = { Text("XML", fontWeight = FontWeight.Medium) },
+                            onClick = { comboExpanded = false; onXml() }
+                        )
+                        DropdownMenuItem(
+                            text    = { Text("PDF", fontWeight = FontWeight.Medium) },
+                            onClick = { comboExpanded = false; onPdf() }
+                        )
+                    }
                 }
             }
         }

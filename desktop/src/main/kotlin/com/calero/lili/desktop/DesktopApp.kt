@@ -19,6 +19,8 @@ import com.calero.lili.core.modVentas.facturas.VtVentasFacturasServiceImpl
 import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesServiceImpl
 import com.calero.lili.core.modComprasItems.GeItemsServiceImpl
 import com.calero.lili.core.modComprasItemsMedidas.GeItemsMedidasServiceImpl
+import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestoItemsServiceImpl
+import com.calero.lili.core.comprobantesWs.services.GetXmlVtVentasFacturasServiceImpl
 import com.calero.lili.core.modTerceros.GeTercerosServiceImpl
 import com.calero.lili.desktop.ui.components.MenuOpcion
 import com.calero.lili.desktop.ui.components.Sidebar
@@ -126,8 +128,10 @@ private sealed class AppState {
         val procesarService : ProcesarDocumentosServiceImpl,
         val seriesService   : AdEmpresasSeriesServiceImpl,
         val tercerosService : GeTercerosServiceImpl,
-        val medidasService  : GeItemsMedidasServiceImpl,
-        val itemsService    : GeItemsServiceImpl
+        val medidasService    : GeItemsMedidasServiceImpl,
+        val itemsService      : GeItemsServiceImpl,
+        val impuestosService  : GeImpuestoItemsServiceImpl,
+        val xmlPdfService     : GetXmlVtVentasFacturasServiceImpl
     ) : AppState()
 }
 
@@ -174,7 +178,9 @@ fun main() {
                             ctx.getBean(AdEmpresasSeriesServiceImpl::class.java),
                             ctx.getBean(GeTercerosServiceImpl::class.java),
                             ctx.getBean(GeItemsMedidasServiceImpl::class.java),
-                            ctx.getBean(GeItemsServiceImpl::class.java)
+                            ctx.getBean(GeItemsServiceImpl::class.java),
+                            ctx.getBean(GeImpuestoItemsServiceImpl::class.java),
+                            ctx.getBean(GetXmlVtVentasFacturasServiceImpl::class.java)
                         )
                     }
                 }
@@ -202,6 +208,8 @@ fun main() {
                         val tercerosService   = state.tercerosService
                         val medidasService    = state.medidasService
                         val itemsService      = state.itemsService
+                        val impuestosService  = state.impuestosService
+                        val xmlPdfService     = state.xmlPdfService
 
                         val selectorViewModel      = remember { SelectorEmpresaViewModel(empresasService, ID_DATA) }
                         val actualizacionViewModel = remember { ActualizacionViewModel() }
@@ -381,7 +389,7 @@ fun main() {
                     val clientesViewModel  = remember(idEmpresa) { ClientesViewModel(tercerosService) }
                     val medidasViewModel   = remember(idEmpresa) { MedidasViewModel(medidasService) }
                     val itemsViewModel     = remember(idEmpresa) { ItemsViewModel(itemsService, idData = ID_DATA, idEmpresa = idEmpresa) }
-                    val facturasViewModel  = remember(idEmpresa) { FacturasViewModel(facturasService, procesarService, tercerosService, idData = ID_DATA, idEmpresa = idEmpresa) }
+                    val facturasViewModel  = remember(idEmpresa) { FacturasViewModel(facturasService, procesarService, tercerosService, xmlPdfService, idData = ID_DATA, idEmpresa = idEmpresa) }
 
                     DisposableEffect(idEmpresa) {
                         onDispose {
@@ -522,11 +530,12 @@ fun main() {
                                 if (itemsState.showForm) {
                                     val formViewModel = remember(itemsState.editingId) {
                                         ItemFormViewModel(
-                                            service        = itemsService,
-                                            medidasService = medidasService,
-                                            idItem         = itemsState.editingId,
-                                            idData         = ID_DATA,
-                                            idEmpresa      = idEmpresa
+                                            service          = itemsService,
+                                            medidasService   = medidasService,
+                                            impuestosService = impuestosService,
+                                            idItem           = itemsState.editingId,
+                                            idData           = ID_DATA,
+                                            idEmpresa        = idEmpresa
                                         )
                                     }
                                     DisposableEffect(itemsState.editingId) {

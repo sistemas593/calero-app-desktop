@@ -9,7 +9,18 @@ import com.calero.lili.core.modTerceros.dto.GeTerceroFilterDto
 import com.calero.lili.core.modTerceros.dto.GeTerceroGetListDto
 import com.calero.lili.core.modVentas.dto.GetListDto
 import com.calero.lili.core.modVentas.facturas.VtVentasFacturasServiceImpl
+import com.calero.lili.core.comprobantesWs.services.GetXmlVtVentasFacturasServiceImpl
+import com.calero.lili.core.comprobantes.objetosXml.factura.Factura
+import jakarta.xml.bind.JAXBContext
+import jakarta.xml.bind.Marshaller
+import java.io.StringWriter
 import com.calero.lili.core.modVentas.facturas.dto.FilterListDto
+import java.io.FileOutputStream
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import javax.swing.JFileChooser
+import javax.swing.SwingUtilities
+import javax.swing.filechooser.FileNameExtensionFilter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -59,15 +70,22 @@ data class FacturasUiState(
     val firmaDialogFactura: GetListDto? = null,   // null = cerrado
     val firmando: Boolean = false,
     val firmaResultado: String? = null,
-    val firmaError: String? = null
+    val firmaError: String? = null,
+    // exportación
+    val isExporting     : Boolean = false,
+    val exportResultado : String? = null,
+    // descarga XML / PDF por fila
+    val xmlPdfCargando  : UUID?   = null,
+    val xmlPdfResultado : String? = null
 )
 
 class FacturasViewModel(
-    private val service: VtVentasFacturasServiceImpl,
+    private val service        : VtVentasFacturasServiceImpl,
     private val procesarService: ProcesarDocumentosServiceImpl,
     private val tercerosService: GeTercerosServiceImpl,
-    private val idData: Long = 1L,
-    private val idEmpresa: Long
+    private val xmlPdfService  : GetXmlVtVentasFacturasServiceImpl,
+    private val idData         : Long = 1L,
+    private val idEmpresa      : Long
 ) {
     private val _state = MutableStateFlow(FacturasUiState(isLoading = true))
     val state: StateFlow<FacturasUiState> = _state.asStateFlow()
@@ -247,6 +265,134 @@ class FacturasViewModel(
 
     fun cerrarDropdownTercero() =
         _state.update { it.copy(terceroDropdownVisible = false) }
+
+    fun dismissExportResultado()  = _state.update { it.copy(exportResultado = null) }
+    fun dismissXmlPdfResultado()  = _state.update { it.copy(xmlPdfResultado = null) }
+
+    fun descargarXml(factura: GetListDto) {
+        val id = factura.idVenta ?: return
+        if (_state.value.xmlPdfCargando != null) return
+        scope.launch {
+            _state.update { it.copy(xmlPdfCargando = id) }
+            try {
+                val dto = xmlPdfService.findXMLFacturaById(idData, idEmpresa, id)
+
+                // Serializar Factura → XML string con JAXB
+                val context    = JAXBContext.newInstance(Factura::class.java)
+                val marshaller = context.createMarshaller()
+                marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true)
+                val sw = StringWriter()
+                marshaller.marshal(dto.comprobante, sw)
+                val xmlContent = sw.toString()
+
+                val nombre = "Factura_${factura.serie}_${factura.secuencial}.xml"
+
+                var chosenPath: String? = null
+                SwingUtilities.invokeAndWait {
+                    val chooser = JFileChooser()
+                    chooser.dialogTitle       = "Guardar XML"
+                    chooser.fileSelectionMode = JFileChooser.FILES_ONLY
+                    chooser.fileFilter        = FileNameExtensionFilter("XML (*.xml)", "xml")
+                    chooser.selectedFile      = java.io.File(nombre)
+                    if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION)
+                        chosenPath = chooser.selectedFile.absolutePath
+                }
+
+                if (chosenPath == null) { _state.update { it.copy(xmlPdfCargando = null) }; return@launch }
+
+                val finalPath = if (chosenPath!!.endsWith(".xml", ignoreCase = true)) chosenPath!! else "$chosenPath.xml"
+                java.io.File(finalPath).writeText(xmlContent, Charsets.UTF_8)
+
+                _state.update { it.copy(xmlPdfCargando = null, xmlPdfResultado = "XML guardado:\n$finalPath") }
+            } catch (e: Exception) {
+                _state.update { it.copy(xmlPdfCargando = null, xmlPdfResultado = "Error al descargar XML: ${e.message ?: "Error desconocido"}") }
+            }
+        }
+    }
+
+    fun descargarPdf(factura: GetListDto) {
+        val id = factura.idVenta ?: return
+        if (_state.value.xmlPdfCargando != null) return
+        scope.launch {
+            _state.update { it.copy(xmlPdfCargando = id) }
+            try {
+                val pdfBytes = xmlPdfService.findPDFFacturaById(idData, idEmpresa, id)
+                val nombre   = "Factura_${factura.serie}_${factura.secuencial}.pdf"
+
+                var chosenPath: String? = null
+                SwingUtilities.invokeAndWait {
+                    val chooser = JFileChooser()
+                    chooser.dialogTitle       = "Guardar PDF"
+                    chooser.fileSelectionMode = JFileChooser.FILES_ONLY
+                    chooser.fileFilter        = FileNameExtensionFilter("PDF (*.pdf)", "pdf")
+                    chooser.selectedFile      = java.io.File(nombre)
+                    if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION)
+                        chosenPath = chooser.selectedFile.absolutePath
+                }
+
+                if (chosenPath == null) { _state.update { it.copy(xmlPdfCargando = null) }; return@launch }
+
+                val finalPath = if (chosenPath!!.endsWith(".pdf", ignoreCase = true)) chosenPath!! else "$chosenPath.pdf"
+                FileOutputStream(finalPath).use { it.write(pdfBytes) }
+
+                _state.update { it.copy(xmlPdfCargando = null, xmlPdfResultado = "PDF guardado:\n$finalPath") }
+            } catch (e: Exception) {
+                _state.update { it.copy(xmlPdfCargando = null, xmlPdfResultado = "Error al descargar PDF: ${e.message ?: "Error desconocido"}") }
+            }
+        }
+    }
+
+    fun exportarExcel() {
+        if (_state.value.isExporting) return
+        scope.launch {
+            _state.update { it.copy(isExporting = true, exportResultado = null) }
+            try {
+                val s = _state.value
+
+                // Mismo FilterListDto que cargar()
+                val filtro = FilterListDto()
+                filtro.serie      = s.filterSerie.trim().ifBlank { null }
+                filtro.secuencial = s.filterSecuencial.trim().ifBlank { null }
+                filtro.anulada    = s.filterEstado.anulada
+                s.filterIdTercero?.let { filtro.idTercero = it }
+                if (s.filterIdTercero == null) filtro.setTerceroNombre(s.filterTercero.trim().ifBlank { null })
+                filtro.setFechaEmisionDesde(digitosAFecha(s.filterFechaDesde))
+                filtro.setFechaEmisionHasta(digitosAFecha(s.filterFechaHasta))
+
+                // Nombre de archivo sugerido
+                val ts        = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))
+                val suggested = "Facturas_$ts.xlsx"
+
+                // JFileChooser debe correr en el EDT de Swing
+                var chosenPath: String? = null
+                SwingUtilities.invokeAndWait {
+                    val chooser = JFileChooser()
+                    chooser.dialogTitle       = "Exportar Facturas a Excel"
+                    chooser.fileSelectionMode = JFileChooser.FILES_ONLY
+                    chooser.fileFilter        = FileNameExtensionFilter("Excel (*.xlsx)", "xlsx")
+                    chooser.selectedFile      = java.io.File(suggested)
+                    if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION)
+                        chosenPath = chooser.selectedFile.absolutePath
+                }
+
+                if (chosenPath == null) {
+                    _state.update { it.copy(isExporting = false) }
+                    return@launch
+                }
+
+                val finalPath = if (chosenPath!!.endsWith(".xlsx", ignoreCase = true))
+                    chosenPath!! else "$chosenPath.xlsx"
+
+                FileOutputStream(finalPath).use { fos ->
+                    service.exportarExcel(idData, idEmpresa, fos, filtro)
+                }
+
+                _state.update { it.copy(isExporting = false, exportResultado = "Archivo exportado:\n$finalPath") }
+            } catch (e: Exception) {
+                _state.update { it.copy(isExporting = false, exportResultado = "Error al exportar: ${e.message ?: "Error desconocido"}") }
+            }
+        }
+    }
 
     fun dismissError()                                   = _state.update { it.copy(errorMessage = null) }
     fun onDestroy()                                      = scope.cancel()

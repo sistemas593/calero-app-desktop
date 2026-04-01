@@ -9,6 +9,7 @@ import com.calero.lili.core.tablas.tbPaises.TbPaisesServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,38 +34,38 @@ public class TbPaisesCrudController {
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseDto create(
-            @RequestBody TbPaisCreationRequestDto request) {
+    @PreAuthorize("hasAuthority('CF_TBC_GR')")
+    public ResponseDto create(@RequestBody TbPaisCreationRequestDto request) {
         return tbService.create(request);
     }
 
     @PutMapping("{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseDto update(
-            @PathVariable("id") String id,
-            @RequestBody TbPaisCreationRequestDto request) {
+    @PreAuthorize("hasAuthority('CF_TBC_GR')")
+    public ResponseDto update(@PathVariable("id") String id,
+                              @RequestBody TbPaisCreationRequestDto request) {
         return tbService.update(id, request);
     }
 
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(
-            @PathVariable("id") String id) {
+    @PreAuthorize("hasAuthority('CF_TBC_GR')")
+    public void delete(@PathVariable("id") String id) {
         tbService.delete(id);
     }
 
     @GetMapping("{id}")
     @ResponseStatus(HttpStatus.OK)
-    public TbPaisGetOneDto findById(
-            @PathVariable("id") String id) {
+    @PreAuthorize("hasAuthority('CF_TBC_GR')")
+    public TbPaisGetOneDto findById(@PathVariable("id") String id) {
         return tbService.findById(id);
     }
 
     @GetMapping("listar")
     @ResponseStatus(code = HttpStatus.OK)
-    public List<TbPaisGetListDto> findAllPaginate(
-            FilterDto filters,
-            Pageable pageable) {
+    @PreAuthorize("hasAuthority('CF_TBC_GR')")
+    public List<TbPaisGetListDto> findAllPaginate(FilterDto filters,
+                                                  Pageable pageable) {
         return tbService.findAll(filters, pageable);
     }
 

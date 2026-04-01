@@ -11,6 +11,7 @@ import com.calero.lili.core.tablas.tbDocumentos.TbDocumentosServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,38 +35,38 @@ public class TbDocumentosCrudController {
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseDto create(
-            @RequestBody TbDocumentosCreationRequestDto request) {
+    @PreAuthorize("hasAuthority('CF_TBC_GR')")
+    public ResponseDto create(@RequestBody TbDocumentosCreationRequestDto request) {
         return tbService.create(request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseDto update(
-            @PathVariable("id") String id,
-            @RequestBody TbDocumentosCreationRequestDto request) {
+    @PreAuthorize("hasAuthority('CF_TBC_GR')")
+    public ResponseDto update(@PathVariable("id") String id,
+                              @RequestBody TbDocumentosCreationRequestDto request) {
         return tbService.update(id, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(
-            @PathVariable("id") String id) {
+    @PreAuthorize("hasAuthority('CF_TBC_GR')")
+    public void delete(@PathVariable("id") String id) {
         tbService.delete(id, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{id}")
     @ResponseStatus(HttpStatus.OK)
-    public TbDocumentosGetOneDto findById(
-            @PathVariable("id") String id) {
+    @PreAuthorize("hasAuthority('CF_TBC_GR')")
+    public TbDocumentosGetOneDto findById(@PathVariable("id") String id) {
         return tbService.findById(id);
     }
 
     @GetMapping("listar")
     @ResponseStatus(code = HttpStatus.OK)
-    public PaginatedDto<TbDocumentosGetListDto> findAllPaginate(
-            FilterDto filters,
-            Pageable pageable) {
+    @PreAuthorize("hasAuthority('CF_TBC_GR')")
+    public PaginatedDto<TbDocumentosGetListDto> findAllPaginate(FilterDto filters,
+                                                                Pageable pageable) {
         return tbService.findAllPaginate(filters, pageable);
     }
 

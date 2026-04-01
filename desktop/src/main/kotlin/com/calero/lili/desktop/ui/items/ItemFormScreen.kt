@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.calero.lili.core.modComprasItemsImpuesto.dto.GeImpuestoResponseDto
 import kotlinx.coroutines.delay
 
 private val FColorHeader = Color(0xFF1565C0)
@@ -221,6 +222,16 @@ private fun TabDatos(state: ItemFormUiState, viewModel: ItemFormViewModel) {
         seleccionada  = state.medidaSeleccionada,
         onSeleccionar = viewModel::setMedida
     )
+
+    Spacer(Modifier.height(4.dp))
+    Text("Impuesto", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = FColorHeader)
+    HorizontalDivider(color = FColorBorde, thickness = 1.dp)
+
+    ImpuestoDropdown(
+        disponibles   = state.impuestosDisponibles,
+        seleccionado  = state.impuestoSeleccionado,
+        onSeleccionar = viewModel::setImpuesto
+    )
 }
 
 // ── Pestaña 1: Detalles Adicionales ───────────────────────────────────────────
@@ -330,6 +341,62 @@ private fun CeldaHeaderPeso(texto: String, modifier: Modifier) {
         overflow   = TextOverflow.Ellipsis,
         modifier   = modifier.padding(end = 8.dp)
     )
+}
+
+private fun nombreImpuesto(imp: GeImpuestoResponseDto): String {
+    val tipo = when (imp.codigo) {
+        "2"  -> "IVA"
+        "3"  -> "ICE"
+        "5"  -> "IRBPNR"
+        else -> "Impuesto ${imp.codigo}"
+    }
+    val porcentaje = when (imp.codigoPorcentaje) {
+        "0"  -> "0%"
+        "2"  -> "12%"
+        "3"  -> "14%"
+        "4"  -> "15%"
+        "5"  -> "5%"
+        "6"  -> "No Objeto de Impuesto"
+        "7"  -> "Exento de IVA"
+        "8"  -> "IVA diferenciado"
+        "10" -> "13%"
+        else -> imp.codigoPorcentaje ?: ""
+    }
+    return if (porcentaje.isNotEmpty()) "$tipo - $porcentaje" else tipo
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ImpuestoDropdown(
+    disponibles   : List<GeImpuestoResponseDto>,
+    seleccionado  : GeImpuestoResponseDto?,
+    onSeleccionar : (GeImpuestoResponseDto?) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded         = expanded,
+        onExpandedChange = { expanded = !expanded },
+        modifier         = Modifier.fillMaxWidth(0.4f)
+    ) {
+        OutlinedTextField(
+            value         = seleccionado?.let { nombreImpuesto(it) } ?: "",
+            onValueChange = {},
+            readOnly      = true,
+            label         = { Text("Tarifa IVA", fontSize = 13.sp) },
+            trailingIcon  = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+            modifier      = Modifier.menuAnchor().fillMaxWidth(),
+            colors        = campoColors()
+        )
+        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            disponibles.forEach { imp ->
+                DropdownMenuItem(
+                    text    = { Text(nombreImpuesto(imp), fontSize = 13.sp) },
+                    onClick = { onSeleccionar(imp); expanded = false }
+                )
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
