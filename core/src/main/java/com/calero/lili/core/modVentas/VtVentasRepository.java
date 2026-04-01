@@ -186,7 +186,8 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             "entity.id_venta as idVenta,  " +
             "entity.estado_documento as estadoDocumento,  " +
             "entity.numero_autorizacion as numeroAutorizacion, " +
-            "entity.comprobante as comprobante " +
+            "entity.comprobante as comprobante, " +
+            "entity.tipo_venta as tipoVenta " +
             "FROM vt_ventas  entity " +
             "WHERE (entity.id_data = :idData)  AND " +
             "(entity.id_empresa = :idEmpresa) AND " +

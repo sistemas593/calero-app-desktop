@@ -157,6 +157,9 @@ public interface VtVentasFacturaOneProjection {
     String getDestino();
     void setDestino(BigDecimal destino);
 
+    String getTipoVenta();
+    void setTipoVenta(String tipoVenta);
+
     String getComprobante();
 
 

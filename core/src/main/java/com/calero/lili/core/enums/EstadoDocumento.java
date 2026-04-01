@@ -11,6 +11,6 @@ public enum EstadoDocumento {
     REC("RECIBIDA"),
     AUT("AUTORIZADA"),
     DEV("DEVUELTA"),
-    NOA("NO AUTORIZDA");
+    NOA("NO AUTORIZADA");
     private final String estadoDocumento;
 }

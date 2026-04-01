@@ -215,7 +215,7 @@ fun FacturasScreen(viewModel: FacturasViewModel) {
                                             f        = factura,
                                             cargando = state.xmlPdfCargando == factura.idVenta,
                                             onFirmar = { viewModel.abrirDialogoFirma(factura) },
-                                            onXml    = {  },
+                                            onXml    = { viewModel.descargarXml(factura) },
                                             onPdf    = { viewModel.descargarPdf(factura) }
                                         )
                                         HorizontalDivider(color = ColorBorde, thickness = 0.5.dp)

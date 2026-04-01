@@ -15,7 +15,6 @@ import com.calero.lili.core.comprobantesWs.ws.services.RecepcionServiceImpl;
 import com.calero.lili.core.dtos.Mensajes;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.errors.exceptions.GeneralException;
-import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.CpLiquidacionesEntity;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.LiquidacionesRepository;
@@ -25,7 +24,6 @@ import com.calero.lili.core.modVentas.VtVentaEntity;
 import com.calero.lili.core.modVentas.VtVentasRepository;
 import com.calero.lili.core.modVentasGuias.VtGuiaEntity;
 import com.calero.lili.core.modVentasGuias.VtGuiasRepository;
-import com.calero.lili.core.utils.AESUtils;
 import com.calero.lili.core.utils.DateUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,12 +34,8 @@ import recepcion.ws.sri.gob.ec.Mensaje;
 import recepcion.ws.sri.gob.ec.RespuestaSolicitud;
 import xades4j.SignXmlString;
 
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -115,7 +109,7 @@ public class ProcesarDocumentosServiceImpl {
 
             case "WEB" -> datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(idData, idEmpresa);
 
-            case "LOC" -> datosEmpresaDto = obtenerLocalDatosEmpresa(idData, idEmpresa);
+            case "LOC" -> datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(idData, idEmpresa);
         }
 
 
@@ -208,83 +202,6 @@ public class ProcesarDocumentosServiceImpl {
 
     }
 
-
-    /**
-     * Obtiene los datos de la empresa desde archivos locales (modo LOC).
-     * Lee el .p12 y el logo desde las rutas almacenadas en la entidad empresa.
-     *
-     * @param idData    identificador del tenant
-     * @param idEmpresa identificador de la empresa
-     * @param password  contraseña del certificado .p12 proporcionada por el llamador
-     * @return DatosEmpresaDto con el stream del certificado, la contraseña y los bytes del logo
-     */
-    /**
-     * Carga el certificado .p12 y el logo desde cualquier ruta del sistema de archivos local.
-     * Las rutas se configuran en la entidad empresa (rutaArchivoFirma, rutaLogo).
-     *
-     * Ejemplos de rutas válidas:
-     *   Windows : C:\Users\Ismael\Documents\firma.p12
-     *   Linux   : /home/ismael/firmas/empresa.p12
-     *   Relativa: firmas/empresa.p12  (relativa al directorio de trabajo)
-     *
-     * @param idData    identificador del tenant
-     * @param idEmpresa identificador de la empresa
-     * @param password  contraseña del certificado .p12
-     * @return DatosEmpresaDto con el stream del certificado, la contraseña y los bytes del logo
-     */
-    /**
-     * Lee el .p12 y el logo desde las rutas guardadas en la entidad empresa (BD).
-     * La contraseña viene por parámetro; si es nula usa la almacenada en la entidad.
-     */
-    private DatosEmpresaDto obtenerLocalDatosEmpresa(Long idData, Long idEmpresa) {
-
-        AdEmpresaEntity empresa = adEmpresasRepository.findById(idData, idEmpresa)
-                .orElseThrow(() -> new GeneralException(
-                        MessageFormat.format("Data {0}, Empresa {1} no existe", idData, idEmpresa)));
-
-        String pwd = AESUtils.decrypt(empresa.getContraseniaFirma());
-
-        String rutaFirma = empresa.getRutaArchivoFirma();
-        if (rutaFirma == null || rutaFirma.isBlank()) {
-            throw new GeneralException(
-                    "La empresa no tiene configurada la ruta del archivo de firma (.p12). " +
-                            "Configure la ruta en la sección 'Firma y Envío' del formulario de empresa.");
-        }
-
-        Path pathP12 = Paths.get(rutaFirma);
-        if (!Files.exists(pathP12)) {
-            throw new GeneralException(MessageFormat.format(
-                    "El archivo .p12 no existe en la ruta configurada: {0}", pathP12.toAbsolutePath()));
-        }
-
-        InputStream inputStreamFirma;
-        try {
-            inputStreamFirma = new FileInputStream(pathP12.toFile());
-        } catch (Exception e) {
-            throw new GeneralException(MessageFormat.format(
-                    "Error al leer el archivo .p12: {0}", e.getMessage()));
-        }
-
-        // ── 4. Leer logo desde la ruta guardada en BD (opcional) ──────────────
-        byte[] imageBytes = null;
-        String rutaLogo = empresa.getRutaLogo();
-        if (rutaLogo != null && !rutaLogo.isBlank()) {
-            Path pathLogo = Paths.get(rutaLogo);
-            if (Files.exists(pathLogo)) {
-                try {
-                    imageBytes = Files.readAllBytes(pathLogo);
-                } catch (Exception e) {
-                    System.out.println("Advertencia: no se pudo leer el logo: " + e.getMessage());
-                }
-            }
-        }
-
-        return DatosEmpresaDto.builder()
-                .inputStreamFileSgn(inputStreamFirma)
-                .imageBytes(imageBytes)
-                .pwd(pwd)
-                .build();
-    }
 
     public RespuestaProcesoGetDto procesarGuiaRemision(Long idData, Long idEmpresa, UUID id) {
 
