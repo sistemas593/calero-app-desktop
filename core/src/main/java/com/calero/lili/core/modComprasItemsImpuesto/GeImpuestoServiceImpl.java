@@ -47,4 +47,12 @@ public class GeImpuestoServiceImpl {
     }
 
 
+    public void delete(Long idImpuesto) {
+
+        GeImpuestosEntity entity = geImpuestoRepository.findById(idImpuesto)
+                .orElseThrow(() -> new GeneralException(
+                        MessageFormat.format("Id impuesto no existe {0}", idImpuesto)));
+        geImpuestoRepository.delete(entity);
+
+    }
 }
