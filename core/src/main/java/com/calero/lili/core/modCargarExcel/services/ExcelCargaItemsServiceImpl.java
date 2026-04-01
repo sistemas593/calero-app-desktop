@@ -1,7 +1,7 @@
 package com.calero.lili.core.modCargarExcel.services;
 
 import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosEntity;
-import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosRepository;
+import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosItemsRepository;
 import com.calero.lili.core.modComprasItems.GeItemEntity;
 import com.calero.lili.core.modComprasItems.GeItemsRepository;
 import com.calero.lili.core.modComprasItems.GeMedidasItemsEntity;
@@ -41,7 +41,7 @@ public class ExcelCargaItemsServiceImpl {
     private final DetalleErrorBuilder detalleErrorBuilder;
     private final GeItemsRepository getItemRepository;
     private final GeItemsGruposRepository geItemsGruposRepository;
-    private final GeImpuestosRepository geImpuestosRepository;
+    private final GeImpuestosItemsRepository geImpuestosItemsRepository;
     private final GeItemsMarcasRepository geItemsMarcasRepository;
     private final GeItemsCategoriaRepository geItemsCategoriaRepository;
     private final GeItemsMedidasRepository geItemsMedidasRepository;
@@ -109,7 +109,7 @@ public class ExcelCargaItemsServiceImpl {
 
 
     private void getImpuestoProductos(Row row, List<DetalleError> detalleErrores, int linea, GeItemEntity item) {
-        GeImpuestosEntity geImpuestosEntity = geImpuestosRepository
+        GeImpuestosEntity geImpuestosEntity = geImpuestosItemsRepository
                 .findByCodigoAndCodigoPorcentaje(row.getCell(5).getStringCellValue(),
                         row.getCell(6).getStringCellValue());
 

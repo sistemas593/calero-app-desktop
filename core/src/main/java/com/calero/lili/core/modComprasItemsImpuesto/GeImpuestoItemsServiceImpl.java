@@ -12,10 +12,10 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class GeImpuestoServiceImpl {
+public class GeImpuestoItemsServiceImpl {
 
     private final GeImpuestosBuilder geImpuestosBuilder;
-    private final GeImpuestosRepository geImpuestoRepository;
+    private final GeImpuestosItemsRepository geImpuestoRepository;
 
 
     public GeImpuestoResponseDto create(GeImpuestoRequestDto model) {

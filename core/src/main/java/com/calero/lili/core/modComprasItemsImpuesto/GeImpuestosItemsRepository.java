@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface GeImpuestosRepository extends JpaRepository<GeImpuestosEntity, Long> {
+public interface GeImpuestosItemsRepository extends JpaRepository<GeImpuestosEntity, Long> {
 
 
     @Query(value = "SELECT entity " +

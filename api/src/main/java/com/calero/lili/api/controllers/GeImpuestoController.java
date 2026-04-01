@@ -1,6 +1,6 @@
 package com.calero.lili.api.controllers;
 
-import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestoServiceImpl;
+import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestoItemsServiceImpl;
 import com.calero.lili.core.modComprasItemsImpuesto.dto.GeImpuestoRequestDto;
 import com.calero.lili.core.modComprasItemsImpuesto.dto.GeImpuestoResponseDto;
 import jakarta.validation.Valid;
@@ -27,7 +27,7 @@ import java.util.List;
 @CrossOrigin(originPatterns = "*")
 public class GeImpuestoController {
 
-    private final GeImpuestoServiceImpl geImpuestoService;
+    private final GeImpuestoItemsServiceImpl geImpuestoService;
 
 
     @PostMapping("")

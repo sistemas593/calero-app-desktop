@@ -6,7 +6,7 @@ import com.calero.lili.core.dtos.errors.DetalleError;
 import com.calero.lili.core.dtos.errors.EnumError;
 import com.calero.lili.core.errors.exceptions.ListErrorException;
 import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosEntity;
-import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosRepository;
+import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosItemsRepository;
 import com.calero.lili.core.modComprasItems.GeItemEntity;
 import com.calero.lili.core.modComprasItems.GeItemsRepository;
 import com.calero.lili.core.modComprasItemsGrupos.GeItemGrupoEntity;
@@ -33,7 +33,7 @@ public class ExcelCargaServiciosServiceImpl {
     private final DetalleErrorBuilder detalleErrorBuilder;
     private final GeItemsRepository getItemRepository;
     private final GeItemsGruposRepository geItemsGruposRepository;
-    private final GeImpuestosRepository geImpuestosRepository;
+    private final GeImpuestosItemsRepository geImpuestosItemsRepository;
 
 
     public void cargarItemsServicios(Long idData, MultipartFile file, Long idEmpresa) throws IOException {
@@ -87,7 +87,7 @@ public class ExcelCargaServiciosServiceImpl {
     }
 
     private void getImpuestoServicios(Row row, List<DetalleError> detalleErrores, int linea, GeItemEntity item) {
-        GeImpuestosEntity geImpuestosEntity = geImpuestosRepository
+        GeImpuestosEntity geImpuestosEntity = geImpuestosItemsRepository
                 .findByCodigoAndCodigoPorcentaje(row.getCell(3).getStringCellValue(),
                         row.getCell(4).getStringCellValue());
 
