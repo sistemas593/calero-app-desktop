@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -37,6 +38,13 @@ public class GeImpuestoServiceImpl {
                         MessageFormat.format("Id impuesto no existe {0}", idImpuesto))));
     }
 
+
+    public List<GeImpuestoResponseDto> findAll() {
+        return geImpuestoRepository.findAll()
+                .stream()
+                .map(geImpuestosBuilder::builderResponse)
+                .toList();
+    }
 
 
 }

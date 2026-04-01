@@ -18,13 +18,6 @@ public interface GeImpuestosRepository extends JpaRepository<GeImpuestosEntity, 
     GeImpuestosEntity findByCodigoAndCodigoPorcentaje(String codigo, String codigoPorcentaje);
 
 
-    @Query(value = "SELECT entity " +
-            "FROM GeImpuestosEntity entity " +
-            "where " +
-            "entity.idImpuesto = :idImpuesto ")
-    Optional<GeImpuestosEntity> findById(Long idImpuesto);
-
-
     //    @Transactional
 //    @Modifying
 //    @Query("DELETE FROM GeItemEntity e " +
