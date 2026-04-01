@@ -3,7 +3,6 @@ package com.calero.lili.api.controllers;
 import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.core.dtos.FilterDto;
 import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.modAdminDatas.AdDatasServiceImpl;
 import com.calero.lili.core.modAdminDatas.dto.AdDataResponseConfiguracionDto;
 import com.calero.lili.core.modAdminDatas.dto.AdDatasCreationRequestDto;
@@ -68,7 +67,6 @@ public class AdDatasController {
 
     @GetMapping("cliente-configuracion/{idData}")
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasAuthority('CF_DT_VR')")
     public VtClientesConfiguracionesGetOneDto findByIdDataConfiguracion(@PathVariable("idData") Long idData) {
         return adDatasService.findByIdDataConfiguracion(idData);
     }

@@ -11,8 +11,8 @@ import com.calero.lili.core.modVentas.dto.GetListDto
 import com.calero.lili.core.modVentas.facturas.VtVentasFacturasServiceImpl
 import com.calero.lili.core.comprobantesWs.services.GetXmlVtVentasFacturasServiceImpl
 import com.calero.lili.core.comprobantes.objetosXml.factura.Factura
-import jakarta.xml.bind.JAXBContext
-import jakarta.xml.bind.Marshaller
+//import jakarta.xml.bind.JAXBContext
+//import jakarta.xml.bind.Marshaller
 import java.io.StringWriter
 import com.calero.lili.core.modVentas.facturas.dto.FilterListDto
 import java.io.FileOutputStream
@@ -269,7 +269,7 @@ class FacturasViewModel(
     fun dismissExportResultado()  = _state.update { it.copy(exportResultado = null) }
     fun dismissXmlPdfResultado()  = _state.update { it.copy(xmlPdfResultado = null) }
 
-    fun descargarXml(factura: GetListDto) {
+    /*fun descargarXml(factura: GetListDto) {
         val id = factura.idVenta ?: return
         if (_state.value.xmlPdfCargando != null) return
         scope.launch {
@@ -308,7 +308,7 @@ class FacturasViewModel(
                 _state.update { it.copy(xmlPdfCargando = null, xmlPdfResultado = "Error al descargar XML: ${e.message ?: "Error desconocido"}") }
             }
         }
-    }
+    }*/
 
     fun descargarPdf(factura: GetListDto) {
         val id = factura.idVenta ?: return
