@@ -130,7 +130,10 @@ public interface ComprasRetencionesRepository extends JpaRepository<CpRetencione
     @Query(value = "SELECT " +
             "entity.id_retencion as idRetencion,  " +
             "entity.numero_autorizacion as numeroAutorizacion, " +
-            "entity.comprobante as comprobante " +
+            "entity.comprobante as comprobante, " +
+            "entity.serie as serie, " +
+            "entity.secuencial as secuencial, " +
+            "entity.estado_documento as estadoDocumento,  " +
             "FROM cp_retenciones  entity " +
             "WHERE (entity.id_data = :idData)  AND " +
             "(entity.id_empresa = :idEmpresa) AND " +

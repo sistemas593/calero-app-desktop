@@ -64,10 +64,8 @@ public class TbFormasPagoSriCrudController {
 
     @GetMapping("listar")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('CF_TBC_GR')")
-    public PaginatedDto<TbFormaPagoSriGetListDto> findAllPaginate(
-            FilterDto filters,
-            Pageable pageable) {
+    public PaginatedDto<TbFormaPagoSriGetListDto> findAllPaginate(FilterDto filters,
+                                                                  Pageable pageable) {
         return tbDocumentosService.findAllPaginate(filters, pageable);
     }
 

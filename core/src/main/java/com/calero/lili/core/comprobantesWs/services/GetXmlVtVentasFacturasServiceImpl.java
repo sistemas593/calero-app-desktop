@@ -64,6 +64,10 @@ public class GetXmlVtVentasFacturasServiceImpl {
         VtVentasFacturaOneProjection entidad = vtVentaRepository.findXMLById(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
 
+        if (!entidad.getEstadoDocumento().equals(EstadoDocumento.AUT.name())) {
+            throw new GeneralException("El documento con id {0} no esta autorizado " + id);
+        }
+
         validarFactura(entidad);
 
         String nombreArchivo = "FAC-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".xml";

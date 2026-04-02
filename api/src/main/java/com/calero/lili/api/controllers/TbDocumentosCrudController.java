@@ -64,7 +64,6 @@ public class TbDocumentosCrudController {
 
     @GetMapping("listar")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('CF_TBC_GR')")
     public PaginatedDto<TbDocumentosGetListDto> findAllPaginate(FilterDto filters,
                                                                 Pageable pageable) {
         return tbService.findAllPaginate(filters, pageable);

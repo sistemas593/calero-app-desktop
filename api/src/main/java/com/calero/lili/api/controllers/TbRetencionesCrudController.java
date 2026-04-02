@@ -62,7 +62,6 @@ public class TbRetencionesCrudController {
 
     @GetMapping("listar")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('CF_TBC_GR')")
     public PaginatedDto<TbRetencionesGetListDto> findAllPaginate(FilterDto filters,
                                                                  Pageable pageable) {
         return tbService.findAllPaginate(filters, pageable);

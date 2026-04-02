@@ -187,14 +187,16 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             "entity.estado_documento as estadoDocumento,  " +
             "entity.numero_autorizacion as numeroAutorizacion, " +
             "entity.comprobante as comprobante, " +
-            "entity.tipo_venta as tipoVenta " +
+            "entity.tipo_venta as tipoVenta, " +
+            "entity.serie as serie, " +
+            "entity.secuencial as secuencial " +
             "FROM vt_ventas  entity " +
             "WHERE (entity.id_data = :idData)  AND " +
             "(entity.id_empresa = :idEmpresa) AND " +
             "entity.id_venta = :id ", nativeQuery = true)
     Optional<VtVentasFacturaOneProjection> findXMLById(@Param("idData") Long idData,
-                                                        @Param("idEmpresa") Long idEmpresa,
-                                                        @Param("id") UUID id);
+                                                       @Param("idEmpresa") Long idEmpresa,
+                                                       @Param("id") UUID id);
 
 
     @Query(

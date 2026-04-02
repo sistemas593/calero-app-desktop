@@ -63,7 +63,6 @@ public class TbPaisesCrudController {
 
     @GetMapping("listar")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('CF_TBC_GR')")
     public List<TbPaisGetListDto> findAllPaginate(FilterDto filters,
                                                   Pageable pageable) {
         return tbService.findAll(filters, pageable);

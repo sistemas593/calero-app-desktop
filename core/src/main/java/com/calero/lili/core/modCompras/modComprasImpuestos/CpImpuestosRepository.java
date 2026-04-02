@@ -180,7 +180,9 @@ import java.util.UUID;
             "entity.fecha_autorizacion as fechaAutorizacion, " +
             "entity.codigo_documento as codigoDocumento, " +
             "entity.destino as destino, " +
-            "entity.comprobante as comprobante " +
+            "entity.comprobante as comprobante, " +
+            "entity.serie as serie, " +
+            "entity.secuencial as secuencial " +
             "FROM cp_impuestos  entity " +
             "WHERE (entity.id_data = :idData)  AND " +
             "(entity.id_empresa = :idEmpresa) AND " +
