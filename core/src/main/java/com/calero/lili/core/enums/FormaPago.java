@@ -8,8 +8,7 @@ import lombok.RequiredArgsConstructor;
 public enum FormaPago {
 
     CR("CREDITO"),
-    CO("CONTADO"),
-    ;
+    CO("CONTADO"),;
 
     private final String formaPago;
 

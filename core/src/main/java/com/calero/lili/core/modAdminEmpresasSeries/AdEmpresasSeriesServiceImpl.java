@@ -4,8 +4,10 @@ import com.calero.lili.core.modAdminEmpresasSeries.builder.AdEmpresasSeriesBuild
 import com.calero.lili.core.modAdminEmpresasSeries.dto.AdEmpresaSerieCreationRequestDto;
 import com.calero.lili.core.modAdminEmpresasSeries.dto.AdEmpresaSerieGetDto;
 import com.calero.lili.core.modAdminEmpresasSeries.dto.AdEmpresaSerieGetListDto;
+import com.calero.lili.core.modAdminEmpresasSeries.dto.AdEmpresaSerieFacturaDto;
 import com.calero.lili.core.modAdminEmpresasSeries.dto.AdEmpresaSerieListFilterDto;
 import com.calero.lili.core.builder.ResponseApiBuilder;
+import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosEntity;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.dtos.ResponseDto;
@@ -24,6 +26,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -144,5 +147,25 @@ public class AdEmpresasSeriesServiceImpl {
 
         paginatedDto.setPaginator(paginated);
         return paginatedDto;
+    }
+
+    public List<AdEmpresaSerieFacturaDto> findSeriesParaFacturas(Long idData, Long idEmpresa) {
+        List<AdEmpresasSeriesEntity> all = adEmpresasSeriesRepository.findAllWithDocumentos(idData, idEmpresa);
+        return all.stream()
+                .filter(s -> s.getDocumentosEntity().stream()
+                        .anyMatch(d -> "FAC".equals(d.getDocumento())))
+                .map(s -> {
+                    String secuencial = s.getDocumentosEntity().stream()
+                            .filter(d -> "FAC".equals(d.getDocumento()))
+                            .map(AdEmpresasSeriesDocumentosEntity::getSecuencial)
+                            .findFirst()
+                            .orElse("");
+                    return AdEmpresaSerieFacturaDto.builder()
+                            .idSerie(s.getIdSerie())
+                            .serie(s.getSerie())
+                            .secuencial(secuencial)
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 }

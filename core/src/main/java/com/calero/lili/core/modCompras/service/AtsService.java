@@ -10,7 +10,6 @@ import com.calero.lili.core.modCompras.dto.FilterDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosCodigosEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosRepository;
-import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosValoresEntity;
 import com.calero.lili.core.modCompras.modComprasRetenciones.CpRetencionesEntity;
 import com.calero.lili.core.modCompras.projection.AtsProjection;
 import com.calero.lili.core.modCompras.projection.AtsRetencionResumenProjection;
@@ -37,7 +36,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.io.OutputStream;
+import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -73,7 +72,7 @@ public class AtsService {
             if (Objects.nonNull(comprasImpuesto)) {
                 comprasImpuesto.forEach(cpImpuestosEntity -> {
 
-                    DetalleCompras detalleCompra = atsBuilder.builderDetalleCompraLiquidacion(cpImpuestosEntity);
+                    DetalleCompras detalleCompra = atsBuilder.builderDetalleCompra(cpImpuestosEntity);
                     validateValores(detalleCompra, cpImpuestosEntity);
                     if (Objects.nonNull(cpImpuestosEntity.getCodigosEntity())) {
                         validateRetencionesIva(detalleCompra, cpImpuestosEntity.getCodigosEntity());
@@ -97,42 +96,7 @@ public class AtsService {
 
     private void validateValores(DetalleCompras detalleCompra,
                                  CpImpuestosEntity model) {
-
-        for (CpImpuestosValoresEntity impuestos : model.getValoresEntity()) {
-
-            if (impuestos.getCodigo().equals("2")
-                    && impuestos.getCodigoPorcentaje().equals("0")) {
-
-                detalleCompra.setBaseImponible(impuestos.getBaseImponible());
-
-            }
-
-            if (impuestos.getCodigo().equals("2")
-                    && impuestos.getCodigoPorcentaje().equals("6")) {
-                detalleCompra.setBaseNoGraIva(impuestos.getBaseImponible());
-            }
-
-
-            if (impuestos.getCodigo().equals("2")
-                    && impuestos.getCodigoPorcentaje().equals("7")) {
-
-                detalleCompra.setBaseImpExe(impuestos.getBaseImponible());
-
-            }
-
-            if (impuestos.getCodigo().equals("2")
-                    && impuestos.getCodigoPorcentaje().equals("2")
-                    || impuestos.getCodigoPorcentaje().equals("4")
-                    || impuestos.getCodigoPorcentaje().equals("5")
-                    || impuestos.getCodigoPorcentaje().equals("8")) {
-
-                detalleCompra.setBaseImpGrav(impuestos.getBaseImponible());
-                detalleCompra.setMontoIva(impuestos.getValor());
-            }
-        }
-
         validarSeccionPago(detalleCompra, model.getFormasPagoSri());
-
     }
 
     private void validarSeccionPago(DetalleCompras detalleCompra, List<FormasPagoSri> list) {
@@ -228,36 +192,35 @@ public class AtsService {
 
     private void generarXml(Iva iva, HttpServletResponse response, LocalDate fechaRegistroHasta) {
         try {
-
             String mes = fechaRegistroHasta.format(DateTimeFormatter.ofPattern("MM"));
-
             String fileName = "AT-" + mes + fechaRegistroHasta.getYear() + ".xml";
             String zipFileName = "AT-" + mes + fechaRegistroHasta.getYear() + ".zip";
 
+            // 1. Generar el XML en memoria primero para detectar errores antes de escribir la respuesta
+            JAXBContext context = JAXBContext.newInstance(Iva.class);
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+
+            ByteArrayOutputStream xmlBuffer = new ByteArrayOutputStream();
+            marshaller.marshal(iva, xmlBuffer);
+            byte[] xmlBytes = xmlBuffer.toByteArray();
+
+            // 2. Escribir al ZIP solo si el marshal fue exitoso
             response.setContentType("application/zip");
             response.setHeader("Content-Disposition", "attachment; filename=" + zipFileName);
 
             try (ZipOutputStream zipOut = new ZipOutputStream(response.getOutputStream())) {
-
                 ZipEntry zipEntry = new ZipEntry(fileName);
+                zipEntry.setSize(xmlBytes.length);
                 zipOut.putNextEntry(zipEntry);
-
-                JAXBContext context = JAXBContext.newInstance(Iva.class);
-                Marshaller marshaller = context.createMarshaller();
-                marshaller.setProperty("jaxb.encoding", "UTF-8");
-                marshaller.setProperty("jaxb.formatted.output", Boolean.valueOf(true));
-
-                OutputStream out = response.getOutputStream();
-                marshaller.marshal(iva, zipOut);
-                out.flush();
-
+                zipOut.write(xmlBytes);
                 zipOut.closeEntry();
             }
 
-
             System.out.println("XML Generado con exito a partir de objeto: xml");
         } catch (Exception ex) {
-            ex.printStackTrace();
+            throw new GeneralException("Error generando el XML ATS: " + ex.getMessage());
         }
     }
 

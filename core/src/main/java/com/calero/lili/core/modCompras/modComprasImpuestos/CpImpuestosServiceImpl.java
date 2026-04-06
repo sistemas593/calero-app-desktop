@@ -24,6 +24,8 @@ import com.calero.lili.core.modCompras.modComprasImpuestos.projection.ComprasImp
 import com.calero.lili.core.modCompras.modComprasImpuestos.projection.OneProjection;
 import com.calero.lili.core.modCompras.modComprasImpuestos.projection.TotalesProjection;
 import com.calero.lili.core.modCompras.modComprasRetenciones.CpRetencionesEntity;
+import com.calero.lili.core.tablas.tbPaises.TbPaisEntity;
+import com.calero.lili.core.tablas.tbPaises.TbPaisesRepository;
 import com.calero.lili.core.utils.ComprobanteSustentoService;
 import com.calero.lili.core.utils.DateUtils;
 import com.calero.lili.core.utils.validaciones.ValidarValoresComprobantesPdf;
@@ -84,6 +86,7 @@ public class CpImpuestosServiceImpl {
     private final AdEmpresasRepository adEmpresasRepository;
     private final ComprobanteSustentoService comprobanteSustentoService;
     private final AdIvaPorcentajeServiceImpl adIvaPorcentajeService;
+    private final TbPaisesRepository tbPaisesRepository;
 
     public ResponseDto create(Long idData, Long idEmpresa, CreationCompraImpuestoRequestDto request, String usuario) {
 
@@ -95,7 +98,7 @@ public class CpImpuestosServiceImpl {
                         request.getSerie(), request.getSecuencial(), request.getNumeroAutorizacion(), request.getCodigoSustento());
 
         if (existingFactura.isPresent()) {
-            throw new GeneralException(MessageFormat.format("El registro ya existe - numeroIdentificacion{0} Serie: {1} Secuencia: {2} numeroAutorizacion {3} codigoSustento {4}", request.getNumeroIdentificacion(), request.getSerie(), request.getSecuencial(), request.getNumeroAutorizacion(), request.getCodigoSustento()));
+            throw new GeneralException(MessageFormat.format("El registro ya existe - numeroIdentificacion: {0} Serie: {1} Secuencia: {2} numeroAutorizacion: {3}, codigoSustento: {4}", request.getNumeroIdentificacion(), request.getSerie(), request.getSecuencial(), request.getNumeroAutorizacion(), request.getCodigoSustento()));
         }
 
         validacionCodigoImpuesto(request);
@@ -111,9 +114,22 @@ public class CpImpuestosServiceImpl {
     }
 
     private void validarPagoExterior(CreationCompraImpuestoRequestDto request) {
+
+        if (request.getPagoLocExt().equals("01") && Objects.nonNull(request.getPagoExterior())) {
+            throw new GeneralException("No es requerido el pago exterior");
+        }
+
         if (request.getPagoLocExt().equals("02") && Objects.isNull(request.getPagoExterior())) {
             throw new GeneralException("No existe pago exterior");
         }
+
+        if (request.getPagoLocExt().equals("02")) {
+
+            String codigoPais = request.getPagoExterior().getPaisEfecPago();
+            tbPaisesRepository.findById(codigoPais)
+                    .orElseThrow(() -> new GeneralException(MessageFormat.format("El pais con codigo {0}, no existe", codigoPais)));
+        }
+
     }
 
     private void validarReembolso(CreationCompraImpuestoRequestDto request) {
@@ -135,7 +151,9 @@ public class CpImpuestosServiceImpl {
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
                 DateUtils.toLocalDate(request.getFechaEmision()));
 
+        validarPagoExterior(request);
         CpImpuestosEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
+
 
         if (!vtVentaEntity.getNumeroIdentificacion().equals(request.getNumeroIdentificacion())
                 || !vtVentaEntity.getSerie().equals(request.getSerie())
@@ -186,7 +204,16 @@ public class CpImpuestosServiceImpl {
                            FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         CpImpuestosEntity entity = validacionTipoBusqueda(idData, idEmpresa, id, filters, tipoBusqueda, usuario);
-        return cpImpuestosBuilder.builderDto(entity);
+        GetDto dto = cpImpuestosBuilder.builderDto(entity);
+
+        if (Objects.nonNull(dto.getPagoExterior())) {
+            String codigoPais = dto.getPagoExterior().getPaisEfecPago();
+            TbPaisEntity pais = tbPaisesRepository.findById(codigoPais)
+                    .orElseThrow(() -> new GeneralException(MessageFormat.format("El pais con codigo {0}, no existe", codigoPais)));
+            dto.getPagoExterior().setNombrePaisEfecPago(pais.getPais());
+        }
+
+        return dto;
     }
 
     public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable,

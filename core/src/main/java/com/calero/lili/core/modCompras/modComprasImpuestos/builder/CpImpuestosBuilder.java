@@ -6,6 +6,7 @@ import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CreationCompraImpuestoRequestDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetListDto;
+import com.calero.lili.core.modCompras.modComprasImpuestos.dto.PagoExterior;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.tablas.tbDocumentos.TbDocumentoEntity;
 import com.calero.lili.core.tablas.tbSustentos.TbSustentosEntity;
@@ -62,7 +63,7 @@ public class CpImpuestosBuilder {
                 .reembolsosEntity(Objects.nonNull(model.getReembolsos())
                         ? reembolsoBuilder.builderListEntity(model.getReembolsos(), idData, idEmpresa)
                         : null)
-                .pagoExterior(model.getPagoExterior())
+                .pagoExterior(Objects.nonNull(model.getPagoExterior()) ? model.getPagoExterior() : null)
                 .tercero(builderProveedor(model.getIdTercero()))
                 .codigosEntity(Objects.nonNull(model.getImpuestoCodigos())
                         ? impuestoCodigoBuilder.builderList(model.getImpuestoCodigos(), idData, idEmpresa)
@@ -109,7 +110,7 @@ public class CpImpuestosBuilder {
                 .reembolsosEntity(Objects.nonNull(model.getReembolsos())
                         ? reembolsoBuilder.builderListEntity(model.getReembolsos(), item.getIdData(), item.getIdEmpresa())
                         : item.getReembolsosEntity())
-                .pagoExterior(model.getPagoExterior())
+                .pagoExterior(Objects.nonNull(model.getPagoExterior()) ? model.getPagoExterior() : null)
                 .tercero(builderProveedor(model.getIdTercero()))
                 .codigosEntity(Objects.nonNull(model.getImpuestoCodigos())
                         ? impuestoCodigoBuilder.builderList(model.getImpuestoCodigos(), item.getIdData(), item.getIdEmpresa())
@@ -174,20 +175,13 @@ public class CpImpuestosBuilder {
                         ? impuestoCodigoBuilder.builderListResponse(model.getCodigosEntity())
                         : null)
                 .pagoLocExt(model.getPagoLocExt())
-                .paisEfecPago(Objects.nonNull(model.getPagoExterior())
-                        ? model.getPagoExterior().getPaisEfecPago()
-                        : null)
-                .aplicConvDobTrib(Objects.nonNull(model.getPagoExterior())
-                        ? model.getPagoExterior().getAplicConvDobTrib()
-                        : null)
-                .pagExtSujRetNorLeg(Objects.nonNull(model.getPagoExterior())
-                        ? model.getPagoExterior().getPagExtSujRetNorLeg()
-                        : null)
+                .pagoExterior(builderResponsePagoExterior(model.getPagoExterior()))
                 .destino(model.getDestino())
                 .terceroNombre(Objects.nonNull(model.getTercero()) ? model.getTercero().getTercero() : null)
                 .numeroIdentificacion(Objects.nonNull(model.getTercero()) ? model.getTercero().getNumeroIdentificacion() : null)
                 .build();
     }
+
 
     public GetListDto builderGetListDto(CpImpuestosEntity model) {
         return GetListDto.builder()
@@ -250,6 +244,16 @@ public class CpImpuestosBuilder {
         if (Objects.isNull(codigoDocumento)) return null;
         return TbSustentosEntity.builder()
                 .codigoSustento(codigoDocumento)
+                .build();
+    }
+
+
+    private PagoExterior builderResponsePagoExterior(PagoExterior model) {
+        if (Objects.isNull(model)) return null;
+        return PagoExterior.builder()
+                .paisEfecPago(model.getPaisEfecPago())
+                .aplicConvDobTrib(model.getAplicConvDobTrib())
+                .pagExtSujRetNorLeg(model.getPagExtSujRetNorLeg())
                 .build();
     }
 

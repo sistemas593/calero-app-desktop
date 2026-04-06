@@ -126,7 +126,10 @@ public class AdIvaPorcentajeServiceImpl {
             }
         }
 
+        Set<Integer> tarifasExentas = Set.of(0, 6, 7); // 0%=0, No Objeto=6, Exento=7
+
         for (Integer tarifa : valores) {
+            if (tarifasExentas.contains(tarifa)) continue;
             if (!tarifasVigentes.contains(tarifa)) {
                 throw new GeneralException(MessageFormat
                         .format("La tarifa de IVA: {0}, no está vigente para la fecha {1}", tarifa, fechaFactura));

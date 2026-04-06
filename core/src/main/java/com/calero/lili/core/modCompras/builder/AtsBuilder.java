@@ -4,6 +4,7 @@ import com.calero.lili.core.dtos.FormasPagoSri;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosCodigosEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosEntity;
+import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosValoresEntity;
 import com.calero.lili.core.modCompras.modComprasRetenciones.CpRetencionesEntity;
 import com.calero.lili.core.modImpuestosAnexos.ats.Air;
 import com.calero.lili.core.modImpuestosAnexos.ats.DetalleAir;
@@ -67,7 +68,39 @@ public class AtsBuilder {
                 .build();
     }
 
-    public DetalleCompras builderDetalleCompraLiquidacion(CpImpuestosEntity model) {
+    public DetalleCompras builderDetalleCompra(CpImpuestosEntity model) {
+        List<CpImpuestosValoresEntity> valores = model.getValoresEntity();
+
+        // Base no objeto de IVA — codigoPorcentaje "6"
+        BigDecimal baseNoGraIva = valores.stream()
+                .filter(v -> "2".equals(v.getCodigo()) && "6".equals(v.getCodigoPorcentaje()))
+                .map(CpImpuestosValoresEntity::getBaseImponible)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        // Base imponible tarifa 0% — codigoPorcentaje "0"
+        BigDecimal baseImponible = valores.stream()
+                .filter(v -> "2".equals(v.getCodigo()) && "0".equals(v.getCodigoPorcentaje()))
+                .map(CpImpuestosValoresEntity::getBaseImponible)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        // Base gravada acumulada (tarifas 12%, 5%, 8%, 15%) — codigoPorcentaje "2", "4", "5", "8"
+        BigDecimal baseImpGrav = valores.stream()
+                .filter(v -> "2".equals(v.getCodigo()) && List.of("2", "4", "5", "8").contains(v.getCodigoPorcentaje()))
+                .map(CpImpuestosValoresEntity::getBaseImponible)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        // Base exenta de IVA — codigoPorcentaje "7"
+        BigDecimal baseImpExe = valores.stream()
+                .filter(v -> "2".equals(v.getCodigo()) && "7".equals(v.getCodigoPorcentaje()))
+                .map(CpImpuestosValoresEntity::getBaseImponible)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        // Monto IVA: suma del valor para las tarifas gravadas — codigoPorcentaje "2", "4", "5", "8"
+        BigDecimal montoIva = valores.stream()
+                .filter(v -> "2".equals(v.getCodigo()) && List.of("4", "5", "8").contains(v.getCodigoPorcentaje()))
+                .map(CpImpuestosValoresEntity::getValor)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
         return DetalleCompras.builder()
                 .codSustento(model.getSustento().getCodigoSustento())
                 .tpIdProv(model.getTipoProveedor())
@@ -80,11 +113,11 @@ public class AtsBuilder {
                 .secuencial(new java.math.BigInteger(model.getSecuencial()).toString())
                 .fechaEmision(DateUtils.toString(model.getFechaEmision()))
                 .autorizacion(model.getNumeroAutorizacion())
-                .baseNoGraIva(new BigDecimal("0.00"))
-                .baseImponible(new BigDecimal("0.00"))
-                .baseImpGrav(new BigDecimal("0.00"))
-                .baseImpExe(new BigDecimal("0.00"))
-                .montoIva(new BigDecimal("0.00"))
+                .baseNoGraIva(baseNoGraIva)
+                .baseImponible(baseImponible)
+                .baseImpGrav(baseImpGrav)
+                .baseImpExe(baseImpExe)
+                .montoIva(montoIva)
                 .pagoExterior(builderPagoExterior(model.getPagoLocExt(), model.getPagoExterior()))
                 .montoIce(new BigDecimal("0.00"))
                 .valRetBien10(new BigDecimal("0.00"))
@@ -94,6 +127,7 @@ public class AtsBuilder {
                 .valorRetServicios(new BigDecimal("0.00"))
                 .valRetServ100(new BigDecimal("0.00"))
                 .totbasesImpReemb(new BigDecimal("0.00"))
+                .formasDePago(builderFormaDePago(model.getFormasPagoSri()))
                 .build();
     }
 
@@ -116,11 +150,13 @@ public class AtsBuilder {
                     .build();
         }
 
+        // TODO REVISAR
+
         return PagoExterior.builder()
                 .pagoLocExt(pagoCode)
-                .aplicConvDobTrib(model.getAplicConvDobTrib())
+              //  .aplicConvDobTrib(model.getAplicConvDobTrib())
                 .paisEfecPago(model.getPaisEfecPago())
-                .pagExtSujRetNorLeg(model.getPagExtSujRetNorLeg())
+               // .pagExtSujRetNorLeg(model.getPagExtSujRetNorLeg())
                 .build();
     }
 

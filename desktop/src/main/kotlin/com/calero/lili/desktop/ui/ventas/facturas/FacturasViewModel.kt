@@ -72,7 +72,10 @@ data class FacturasUiState(
     val exportResultado : String? = null,
     // descarga XML / PDF por fila
     val xmlPdfCargando  : UUID?   = null,
-    val xmlPdfResultado : String? = null
+    val xmlPdfResultado : String? = null,
+    // navegación al formulario
+    val showForm  : Boolean = false,
+    val editingId : UUID?   = null
 )
 
 class FacturasViewModel(
@@ -264,6 +267,10 @@ class FacturasViewModel(
 
     fun dismissExportResultado()  = _state.update { it.copy(exportResultado = null) }
     fun dismissXmlPdfResultado()  = _state.update { it.copy(xmlPdfResultado = null) }
+
+    // ── Navegación al formulario ──────────────────────────────────────────────
+    fun abrirFormulario(id: UUID? = null) = _state.update { it.copy(showForm = true, editingId = id) }
+    fun cerrarFormulario() { _state.update { it.copy(showForm = false, editingId = null) }; cargar() }
 
     fun descargarXml(factura: GetListDto) {
         val id = factura.idVenta ?: return

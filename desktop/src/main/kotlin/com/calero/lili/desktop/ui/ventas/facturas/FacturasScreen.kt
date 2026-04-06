@@ -73,7 +73,11 @@ private val COLUMNAS = listOf(
 
 // ── Screen ────────────────────────────────────────────────────────────────────
 @Composable
-fun FacturasScreen(viewModel: FacturasViewModel) {
+fun FacturasScreen(
+    viewModel: FacturasViewModel,
+    onNuevaFactura: () -> Unit = {},
+    onEditarFactura: (java.util.UUID) -> Unit = {}
+) {
     val state by viewModel.state.collectAsState()
 
     // ── Diálogo de error general
@@ -148,6 +152,10 @@ fun FacturasScreen(viewModel: FacturasViewModel) {
                 Text("Facturas", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = ColorTexto)
                 Text("Listado de ventas / facturas", fontSize = 13.sp, color = ColorSub)
             }
+            Button(
+                onClick = onNuevaFactura,
+                colors  = ButtonDefaults.buttonColors(containerColor = ColorHeader)
+            ) { Text("+ Nueva Factura", fontSize = 13.sp) }
         }
 
         Spacer(Modifier.height(12.dp))
@@ -214,6 +222,7 @@ fun FacturasScreen(viewModel: FacturasViewModel) {
                                             idx      = idx,
                                             f        = factura,
                                             cargando = state.xmlPdfCargando == factura.idVenta,
+                                            onEditar = { factura.idVenta?.let { onEditarFactura(it) } },
                                             onFirmar = { viewModel.abrirDialogoFirma(factura) },
                                             onXml    = { viewModel.descargarXml(factura) },
                                             onPdf    = { viewModel.descargarPdf(factura) }
@@ -291,6 +300,7 @@ private fun FilaFactura(
     idx      : Int,
     f        : GetListDto,
     cargando : Boolean,
+    onEditar : () -> Unit,
     onFirmar : () -> Unit,
     onXml    : () -> Unit,
     onPdf    : () -> Unit
@@ -329,7 +339,7 @@ private fun FilaFactura(
                 horizontalArrangement = Arrangement.spacedBy(2.dp),
                 verticalAlignment     = Alignment.CenterVertically
             ) {
-                IconButton(onClick = { /* editar — pendiente */ }, modifier = Modifier.size(28.dp)) {
+                IconButton(onClick = onEditar, modifier = Modifier.size(28.dp)) {
                     Icon(Icons.Default.Edit, "Editar", tint = ColorHeader, modifier = Modifier.size(16.dp))
                 }
                 IconButton(onClick = onFirmar, modifier = Modifier.size(28.dp)) {

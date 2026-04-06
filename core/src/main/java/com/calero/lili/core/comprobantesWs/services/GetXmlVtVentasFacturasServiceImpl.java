@@ -70,7 +70,7 @@ public class GetXmlVtVentasFacturasServiceImpl {
 
         validarFactura(entidad);
 
-        String nombreArchivo = "FAC-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".xml";
+        String nombreArchivo = "FAC-" + entidad.getSerie() + "-" + entidad.getSecuencial();
 
         switch (origenCertificado) {
 
@@ -114,7 +114,7 @@ public class GetXmlVtVentasFacturasServiceImpl {
 
         if (entidad.getEstadoDocumento().equals(EstadoDocumento.AUT.name())) {
 
-            String nombreArchivo = "FAC-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".xml";
+            String nombreArchivo = "FAC-" + entidad.getSerie() + "-" + entidad.getSecuencial();
 
             Autorizacion aut = new Autorizacion();
             aut.setComprobante(entidad.getComprobante()); //"<![CDATA[" + + "]]>"

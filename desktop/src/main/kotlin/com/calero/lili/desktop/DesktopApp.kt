@@ -21,6 +21,8 @@ import com.calero.lili.core.modComprasItems.GeItemsServiceImpl
 import com.calero.lili.core.modComprasItemsMedidas.GeItemsMedidasServiceImpl
 import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestoItemsServiceImpl
 import com.calero.lili.core.comprobantesWs.services.GetXmlVtVentasFacturasServiceImpl
+import com.calero.lili.core.modContabilidad.modCentroCostos.CnCentroCostosServiceImpl
+import com.calero.lili.core.tablas.tbFormasPagoSri.TbFormasPagoSriServiceImpl
 import com.calero.lili.core.modTerceros.GeTercerosServiceImpl
 import com.calero.lili.desktop.ui.components.MenuOpcion
 import com.calero.lili.desktop.ui.components.Sidebar
@@ -42,6 +44,8 @@ import com.calero.lili.desktop.ui.items.medidas.MedidasScreen
 import com.calero.lili.desktop.ui.items.medidas.MedidasViewModel
 import com.calero.lili.desktop.ui.inicio.InicioScreen
 import com.calero.lili.desktop.ui.selector.SelectorEmpresaScreen
+import com.calero.lili.desktop.ui.ventas.facturas.FacturaFormScreen
+import com.calero.lili.desktop.ui.ventas.facturas.FacturaFormViewModel
 import com.calero.lili.desktop.ui.ventas.facturas.FacturasScreen
 import com.calero.lili.desktop.ui.ventas.facturas.FacturasViewModel
 import com.calero.lili.desktop.ui.selector.SelectorEmpresaViewModel
@@ -130,8 +134,10 @@ private sealed class AppState {
         val tercerosService : GeTercerosServiceImpl,
         val medidasService    : GeItemsMedidasServiceImpl,
         val itemsService      : GeItemsServiceImpl,
-        val impuestosService  : GeImpuestoItemsServiceImpl,
-        val xmlPdfService     : GetXmlVtVentasFacturasServiceImpl
+        val impuestosService     : GeImpuestoItemsServiceImpl,
+        val xmlPdfService           : GetXmlVtVentasFacturasServiceImpl,
+        val centroCostosService     : CnCentroCostosServiceImpl,
+        val formasPagoSriService    : TbFormasPagoSriServiceImpl
     ) : AppState()
 }
 
@@ -180,7 +186,9 @@ fun main() {
                             ctx.getBean(GeItemsMedidasServiceImpl::class.java),
                             ctx.getBean(GeItemsServiceImpl::class.java),
                             ctx.getBean(GeImpuestoItemsServiceImpl::class.java),
-                            ctx.getBean(GetXmlVtVentasFacturasServiceImpl::class.java)
+                            ctx.getBean(GetXmlVtVentasFacturasServiceImpl::class.java),
+                            ctx.getBean(CnCentroCostosServiceImpl::class.java),
+                            ctx.getBean(TbFormasPagoSriServiceImpl::class.java)
                         )
                     }
                 }
@@ -208,8 +216,10 @@ fun main() {
                         val tercerosService   = state.tercerosService
                         val medidasService    = state.medidasService
                         val itemsService      = state.itemsService
-                        val impuestosService  = state.impuestosService
-                        val xmlPdfService     = state.xmlPdfService
+                        val impuestosService    = state.impuestosService
+                        val xmlPdfService        = state.xmlPdfService
+                        val centroCostosService  = state.centroCostosService
+                        val formasPagoSriService = state.formasPagoSriService
 
                         val selectorViewModel      = remember { SelectorEmpresaViewModel(empresasService, ID_DATA) }
                         val actualizacionViewModel = remember { ActualizacionViewModel() }
@@ -555,7 +565,35 @@ fun main() {
                             }
 
                             MenuOpcion.LISTA_FACTURAS -> {
-                                FacturasScreen(viewModel = facturasViewModel)
+                                if (facturasState.showForm) {
+                                    val formViewModel = remember(facturasState.editingId) {
+                                        FacturaFormViewModel(
+                                            service              = facturasService,
+                                            tercerosService      = tercerosService,
+                                            itemsService         = itemsService,
+                                            impuestosService     = impuestosService,
+                                            centroCostosService  = centroCostosService,
+                                            formasPagoSriService = formasPagoSriService,
+                                            seriesService        = seriesService,
+                                            idFactura            = facturasState.editingId,
+                                            idData               = ID_DATA,
+                                            idEmpresa            = idEmpresa
+                                        )
+                                    }
+                                    DisposableEffect(facturasState.editingId) {
+                                        onDispose { formViewModel.onDestroy() }
+                                    }
+                                    FacturaFormScreen(
+                                        viewModel = formViewModel,
+                                        onCerrar  = facturasViewModel::cerrarFormulario
+                                    )
+                                } else {
+                                    FacturasScreen(
+                                        viewModel       = facturasViewModel,
+                                        onNuevaFactura  = { facturasViewModel.abrirFormulario() },
+                                        onEditarFactura = { id -> facturasViewModel.abrirFormulario(id) }
+                                    )
+                                }
                             }
                         }
                     }

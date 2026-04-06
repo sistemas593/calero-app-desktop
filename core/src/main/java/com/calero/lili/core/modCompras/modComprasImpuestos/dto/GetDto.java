@@ -1,10 +1,13 @@
 package com.calero.lili.core.modCompras.modComprasImpuestos.dto;
 
 import com.calero.lili.core.modCompras.dto.ImpuestoCodigoDto;
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -65,14 +68,10 @@ public class GetDto {
     private String devolucionIva;
 
     private String pagoLocExt;
-    private String paisEfecPago;
-    private String aplicConvDobTrib;
-    private String pagExtSujRetNorLeg;
 
-
-    /*@JdbcTypeCode(SqlTypes.JSON)
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
-    private PagoExterior pagoExterior;*/
+    private PagoExterior pagoExterior;
 
     private String numeroAutorizacion;
 

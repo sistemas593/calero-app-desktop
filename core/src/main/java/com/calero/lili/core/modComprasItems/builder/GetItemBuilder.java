@@ -247,7 +247,7 @@ public class GetItemBuilder {
 
 
     private List<GeItemGetOneDto.Precios> builderListResponsePrecios(List<GeItemsPreciosEntity> geItemsPreciosEntities) {
-        if (Objects.nonNull(geItemsPreciosEntities) || geItemsPreciosEntities.isEmpty()) return null;
+        if (Objects.isNull(geItemsPreciosEntities) || geItemsPreciosEntities.isEmpty()) return null;
         return geItemsPreciosEntities.stream()
                 .map(this::builderPrecioResponse)
                 .toList();

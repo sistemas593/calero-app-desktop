@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -56,4 +57,11 @@ public interface AdEmpresasSeriesRepository extends JpaRepository<AdEmpresasSeri
                                                  @Param("filter") String filter,
                                                  @Param("filterContent") String filterContent,
                                                  Pageable pageable);
+
+    @Query("SELECT DISTINCT entity " +
+            "FROM AdEmpresasSeriesEntity entity " +
+            "LEFT JOIN FETCH entity.documentosEntity " +
+            "WHERE entity.idData = :idData AND entity.idEmpresa = :idEmpresa")
+    List<AdEmpresasSeriesEntity> findAllWithDocumentos(@Param("idData") Long idData,
+                                                       @Param("idEmpresa") Long idEmpresa);
 }
