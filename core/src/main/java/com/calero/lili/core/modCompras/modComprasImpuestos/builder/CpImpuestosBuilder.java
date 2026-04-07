@@ -254,6 +254,11 @@ public class CpImpuestosBuilder {
                 .paisEfecPago(model.getPaisEfecPago())
                 .aplicConvDobTrib(model.getAplicConvDobTrib())
                 .pagExtSujRetNorLeg(model.getPagExtSujRetNorLeg())
+                .tipoRegi(model.getTipoRegi())
+                .paisEfecPagoGen(model.getPaisEfecPagoGen())
+                .paisEfecPagoParFis(model.getPaisEfecPagoParFis())
+                .denoPagoRegFis(model.getDenoPagoRegFis())
+                .pagoRegFis(model.getPagoRegFis())
                 .build();
     }
 

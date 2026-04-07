@@ -150,13 +150,12 @@ public class AtsBuilder {
                     .build();
         }
 
-        // TODO REVISAR
 
         return PagoExterior.builder()
                 .pagoLocExt(pagoCode)
-              //  .aplicConvDobTrib(model.getAplicConvDobTrib())
+                .aplicConvDobTrib(model.getAplicConvDobTrib() ? "SI" : "NO")
                 .paisEfecPago(model.getPaisEfecPago())
-               // .pagExtSujRetNorLeg(model.getPagExtSujRetNorLeg())
+                .pagExtSujRetNorLeg(model.getPagExtSujRetNorLeg() ? "SI" : "NO")
                 .build();
     }
 

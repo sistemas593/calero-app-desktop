@@ -19,6 +19,7 @@ import com.calero.lili.core.modCompras.modComprasImpuestos.dto.FilterListDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetListDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetListDtoTotalizado;
+import com.calero.lili.core.modCompras.modComprasImpuestos.dto.PagoExterior;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.ValoresDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.projection.ComprasImpuestoProjection;
 import com.calero.lili.core.modCompras.modComprasImpuestos.projection.OneProjection;
@@ -26,6 +27,8 @@ import com.calero.lili.core.modCompras.modComprasImpuestos.projection.TotalesPro
 import com.calero.lili.core.modCompras.modComprasRetenciones.CpRetencionesEntity;
 import com.calero.lili.core.tablas.tbPaises.TbPaisEntity;
 import com.calero.lili.core.tablas.tbPaises.TbPaisesRepository;
+import com.calero.lili.core.tablas.tbPaises.tbParaisosFiscales.TbParaisoFiscalEntity;
+import com.calero.lili.core.tablas.tbPaises.tbParaisosFiscales.TbParaisoFiscalRepository;
 import com.calero.lili.core.utils.ComprobanteSustentoService;
 import com.calero.lili.core.utils.DateUtils;
 import com.calero.lili.core.utils.validaciones.ValidarValoresComprobantesPdf;
@@ -87,6 +90,7 @@ public class CpImpuestosServiceImpl {
     private final ComprobanteSustentoService comprobanteSustentoService;
     private final AdIvaPorcentajeServiceImpl adIvaPorcentajeService;
     private final TbPaisesRepository tbPaisesRepository;
+    private final TbParaisoFiscalRepository tbParaisoFiscalRepository;
 
     public ResponseDto create(Long idData, Long idEmpresa, CreationCompraImpuestoRequestDto request, String usuario) {
 
@@ -123,13 +127,83 @@ public class CpImpuestosServiceImpl {
             throw new GeneralException("No existe pago exterior");
         }
 
-        if (request.getPagoLocExt().equals("02")) {
+        validacionGeneralPagoExterior(request.getPagoLocExt(), request.getPagoExterior());
 
-            String codigoPais = request.getPagoExterior().getPaisEfecPago();
+    }
+
+    private void validacionGeneralPagoExterior(String pagoLocExt, PagoExterior request) {
+        if (pagoLocExt.equals("02")) {
+
+            switch (request.getTipoRegi()) {
+                case "01" -> {
+
+                    if (Objects.isNull(request.getPaisEfecPagoGen()) || request.getPaisEfecPagoGen().isEmpty()) {
+                        throw new GeneralException("No existe pais al que se realiza el pago en régimen general");
+                    }
+
+                    if (Objects.nonNull(request.getPaisEfecPagoParFis()) ||
+                            Objects.nonNull(request.getDenoPagoRegFis())) {
+
+                        throw new GeneralException("No debe existir pago para paraiso fiscal " +
+                                " ni para denominacion del régimen fiscal preferente, si el tipo de registro es 01");
+                    }
+
+                    tbPaisesRepository.findById(request.getPaisEfecPago())
+                            .orElseThrow(() -> new GeneralException(MessageFormat.format("El pais con codigo {0}, no existe", request.getPaisEfecPago())));
+
+                    if (!request.getPaisEfecPago().equals(request.getPaisEfecPagoGen())) {
+                        throw new GeneralException("El pais de pago debe ser igual al pais de pago régimen general");
+                    }
+
+
+                }
+                case "02" -> {
+
+                    if (Objects.isNull(request.getPaisEfecPagoParFis()) || request.getPaisEfecPagoParFis().isEmpty()) {
+                        throw new GeneralException("No existe pais al que se realiza el pago en paraiso fiscal");
+                    }
+
+                    if (Objects.nonNull(request.getPaisEfecPagoGen()) ||
+                            Objects.nonNull(request.getDenoPagoRegFis())) {
+
+                        throw new GeneralException("No debe existir pago para régimen general " +
+                                " ni para denominacion del régimen fiscal preferente, si el tipo de registro es 02");
+                    }
+
+                    TbParaisoFiscalEntity entidad = tbParaisoFiscalRepository.findByCodigo(request.getPaisEfecPagoParFis())
+                            .orElseThrow(() -> new GeneralException(MessageFormat.format("El paraiso fiscal con codigo {0}, no existe",
+                                    request.getPaisEfecPagoParFis())));
+
+                    if (!entidad.getPais().getCodigoPais().equals(request.getPaisEfecPago())) {
+                        throw new GeneralException("El pais de pago debe ser igual al pais asignado al paraiso fiscal");
+                    }
+
+                }
+                case "03" -> {
+                    if (Objects.isNull(request.getDenoPagoRegFis()) || request.getDenoPagoRegFis().isEmpty()) {
+                        throw new GeneralException("No existe pago denominacion del régimen fiscal preferente");
+                    }
+
+                    if (Objects.nonNull(request.getPaisEfecPagoParFis()) ||
+                            Objects.nonNull(request.getPaisEfecPagoGen())) {
+
+                        throw new GeneralException("No debe existir pago para paraiso fiscal " +
+                                " ni para régimen general, si el tipo de registro es 03");
+                    }
+
+                    tbPaisesRepository.findById(request.getPaisEfecPago())
+                            .orElseThrow(() -> new GeneralException(MessageFormat.format("El pais con codigo {0}, no existe", request.getPaisEfecPago())));
+
+                }
+                default -> throw new GeneralException("El tipo de registro del pago exterior no es valido");
+            }
+
+
+           /* String codigoPais = request.getPagoExterior().getPaisEfecPago();
             tbPaisesRepository.findById(codigoPais)
-                    .orElseThrow(() -> new GeneralException(MessageFormat.format("El pais con codigo {0}, no existe", codigoPais)));
-        }
+                    .orElseThrow(() -> new GeneralException(MessageFormat.format("El pais con codigo {0}, no existe", codigoPais)));*/
 
+        }
     }
 
     private void validarReembolso(CreationCompraImpuestoRequestDto request) {
@@ -207,10 +281,26 @@ public class CpImpuestosServiceImpl {
         GetDto dto = cpImpuestosBuilder.builderDto(entity);
 
         if (Objects.nonNull(dto.getPagoExterior())) {
+
+
             String codigoPais = dto.getPagoExterior().getPaisEfecPago();
             TbPaisEntity pais = tbPaisesRepository.findById(codigoPais)
                     .orElseThrow(() -> new GeneralException(MessageFormat.format("El pais con codigo {0}, no existe", codigoPais)));
             dto.getPagoExterior().setNombrePaisEfecPago(pais.getPais());
+
+            switch (dto.getPagoExterior().getTipoRegi()) {
+
+                case "01" -> {
+                    dto.getPagoExterior().setNombrePaisEfecPagoGen(pais.getPais());
+                }
+                case "02" -> {
+                    String codigoParaiso = dto.getPagoExterior().getPaisEfecPagoParFis();
+                    TbParaisoFiscalEntity paraiso = tbParaisoFiscalRepository.findByCodigo(codigoParaiso)
+                            .orElseThrow(() -> new GeneralException(MessageFormat.format("El paraiso fiscal con codigo {0}, no existe", codigoParaiso)));
+                    dto.getPagoExterior().setNombrePaisEfecPagoParFis(paraiso.getParaisoFiscal());
+                }
+            }
+
         }
 
         return dto;

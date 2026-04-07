@@ -16,15 +16,20 @@ public class PagoExterior {
 
     private String tipoRegi; // validar si es 01,02,03
 
-    private String paisEfecPagoGen; // 01
-    private String paisEfecPagoParFis; // 02 1
-    private String denoPagoRegFis;// 03
+    private String paisEfecPagoGen;
+    private String nombrePaisEfecPagoGen;
+
+    private String paisEfecPagoParFis;
+    private String nombrePaisEfecPagoParFis;
+
+    private String denoPagoRegFis;
+
     private String paisEfecPago;
     private String nombrePaisEfecPago;
 
     private Boolean pagoRegFis; // siempre ser falso
-    private Boolean aplicConvDovTrib;
-    private Boolean pagoExtSujRetNorLeg;
+    private Boolean aplicConvDobTrib;
+    private Boolean pagExtSujRetNorLeg;
 
 
     // Validar en base al tipoRegi
