@@ -74,6 +74,8 @@ public class EmailPrepare {
                     break;
             }
 
+            // TODO PENDIENTE REVISAR COMO ENVIAR EL CORREO EN API Y DESKTOP
+
             AdMailConfigEntity adConfigMailEntity = adConfigRepository.findByIdConfig(Long.valueOf(1));
             //String user = adConfigMailEntity.getUsuario();
             //String password = adConfigMailEntity.getPassword();

@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -23,29 +24,42 @@ public class TbRetencionesCodigosServiceImpl {
     private final ResponseApiBuilder responseApiBuilder;
     private final TbRetencionesCodigosBuilder tbRetencionesCodigosBuilder;
 
-    public ResponseDto create(TbRetencionesCodigosCreationRequestDto request) {
-        Optional<TbRetencionesCodigosEntity> existing = tbRepository.findById(request.getCodigoRetencion());
+    public ResponseDto create(String username, TbRetencionesCodigosCreationRequestDto request) {
+        Optional<TbRetencionesCodigosEntity> existing = tbRepository.findByCodigo(request.getCodigoRetencion());
         if (existing.isPresent()) {
             throw new GeneralException(MessageFormat.format("Documento {0} ya existe", request.getCodigoRetencion()));
         }
 
-        return responseApiBuilder.builderResponse(tbRepository.save(tbRetencionesCodigosBuilder
-                .builderEntity(request)).getCodigoRetencion());
+        TbRetencionesCodigosEntity entity = tbRetencionesCodigosBuilder.builderEntity(request);
+        entity.setCreatedBy(username);
+        entity.setCreatedDate(LocalDateTime.now());
+        return responseApiBuilder.builderResponse(tbRepository.save(entity).getId().toString());
     }
 
-    public ResponseDto update(String id, TbRetencionesCodigosCreationRequestDto request) {
+    public ResponseDto update(String username, Long id, TbRetencionesCodigosCreationRequestDto request) {
         TbRetencionesCodigosEntity entidad = tbRepository.findById(id).
                 orElseThrow(() -> new GeneralException(MessageFormat.format("Documento {0} no exists", id)));
 
+        entidad.setModifiedBy(username);
+        entidad.setModifiedDate(LocalDateTime.now());
+
         return responseApiBuilder.builderResponse(tbRepository.save(tbRetencionesCodigosBuilder
-                .builderUpdateEntity(request, entidad)).getCodigoRetencion());
+                .builderUpdateEntity(request, entidad)).getId().toString());
     }
 
-    public void delete(String codigoDocumento) {
-        tbRepository.deleteById(codigoDocumento);
+    public void delete(String username, Long id) {
+
+        TbRetencionesCodigosEntity entidad = tbRepository.findById(id).
+                orElseThrow(() -> new GeneralException(MessageFormat.format("Documento {0} no exists", id)));
+
+        entidad.setDeletedBy(username);
+        entidad.setDeletedDate(LocalDateTime.now());
+        entidad.setDelete(true);
+
+        tbRepository.deleteById(id);
     }
 
-    public TbRetencionesCodigosGetOneDto findById(String id) {
+    public TbRetencionesCodigosGetOneDto findById(Long id) {
         TbRetencionesCodigosEntity entidad = tbRepository.findById(id).
                 orElseThrow(() -> new GeneralException(MessageFormat.format("Documento {0} no exists", id)));
 

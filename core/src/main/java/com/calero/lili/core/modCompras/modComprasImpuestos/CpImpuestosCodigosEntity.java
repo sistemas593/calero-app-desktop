@@ -38,9 +38,7 @@ public class CpImpuestosCodigosEntity {
     @JoinColumn(name = "codigo", referencedColumnName = "codigo")
     private TbRetencionEntity retencion;
 
-    @ManyToOne()
-    @JoinColumn(name = "codigoRetencion", referencedColumnName = "codigoRetencion")
-    private TbRetencionesCodigosEntity retencionCodigos;
+    private String codigoRetencion;
 
     @Column(name = "id_data")
     private Long idData;

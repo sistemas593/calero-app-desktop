@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -13,5 +16,9 @@ public class TbRetencionesCodigosGetListDto {
 
     private String codigoRetencion;
     private String nombreRetencion;
+    private LocalDate vigenteDesde;
+    private LocalDate vigenteHasta;
+    private BigDecimal porcentaje;
+    private String codigo;
 
 }

@@ -35,7 +35,7 @@ public class ImpuestoCodigoBuilder {
                 .idData(idData)
                 .idEmpresa(idEmpresa)
                 .retencion(builderRetencion(model.getCodigo()))
-                .retencionCodigos(builderCodigosRetencion(model.getCodigoRetencion()))
+                .codigoRetencion(model.getCodigoRetencion())
                 .baseImponible(model.getBaseImponible())
                 .porcentajeRetener(model.getPorcentajeRetener())
                 .valorRetenido(model.getValorRetenido())
@@ -52,7 +52,7 @@ public class ImpuestoCodigoBuilder {
         return ImpuestoCodigoDto.builder()
                 .idImpuestos(model.getIdImpuestosCodigo())
                 .retencion(builderRetencionResponse(model.getRetencion()))
-                .retencionCodigo(builderCodigosRetencionResponse(model.getRetencionCodigos()))
+//                .retencionCodigo(builderCodigosRetencionResponse(model.getCodigoRetencion()))
                 .baseImponible(model.getBaseImponible())
                 .porcentajeRetener(model.getPorcentajeRetener())
                 .valorRetenido(model.getValorRetenido())
@@ -78,6 +78,7 @@ public class ImpuestoCodigoBuilder {
                 .build();
     }
 
+    // TODO VERIFICAR
     public TbRetencionesCodigosGetOneDto builderCodigosRetencionResponse(TbRetencionesCodigosEntity model) {
         return TbRetencionesCodigosGetOneDto.builder()
                 .codigoRetencion(model.getCodigoRetencion())

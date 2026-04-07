@@ -111,9 +111,9 @@ public class ImpuestoProcesoBuilder {
                 .baseImponible(model.getBaseImponible())
                 .porcentajeRetener(model.getPorcentajeRetener())
                 .valorRetenido(model.getValorRetenido())
-                .retencionCodigos(TbRetencionesCodigosEntity.builder()
+                /*.retencionCodigos(TbRetencionesCodigosEntity.builder()
                         .codigoRetencion(model.getCodigoRetencion())
-                        .build())
+                        .build())*/
                 .retencion(TbRetencionEntity.builder()
                         .codigo(model.getCodigo())
                         .build())

@@ -54,7 +54,6 @@ public interface ComprasRetencionesRepository extends JpaRepository<CpRetencione
             "vtVentasEntity.idEmpresa = :idEmpresa AND " +
             "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
             "(:usuario IS NULL OR vtVentasEntity.createdBy = :usuario) AND " +
-            "(:numeroIdentificacion IS NULL OR vtVentasEntity.numeroIdentificacion = :numeroIdentificacion ) AND " +
             "(:serie IS NULL OR vtVentasEntity.serieRetencion = :serie) AND " +
             "(:secuencial IS NULL OR vtVentasEntity.secuencialRetencion = :secuencial) AND " +
             "(:numeroAutorizacion IS NULL OR vtVentasEntity.numeroAutorizacionRetencion = :numeroAutorizacion ) AND " +
@@ -67,7 +66,6 @@ public interface ComprasRetencionesRepository extends JpaRepository<CpRetencione
                     "(vtVentasEntity.idEmpresa = :idEmpresa) AND " +
                     "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
                     "(:usuario IS NULL OR vtVentasEntity.createdBy = :usuario) AND " +
-                    "(:numeroIdentificacion IS NULL OR vtVentasEntity.numeroIdentificacion = :numeroIdentificacion ) AND " +
                     "(:serie IS NULL OR vtVentasEntity.serieRetencion = :serie ) AND " +
                     "(:secuencial IS NULL OR vtVentasEntity.secuencialRetencion = :secuencial ) AND " +
                     "(:numeroAutorizacion IS NULL OR vtVentasEntity.numeroAutorizacionRetencion = :numeroAutorizacion ) AND " +
@@ -78,7 +76,6 @@ public interface ComprasRetencionesRepository extends JpaRepository<CpRetencione
                                               @Param("sucursal") String sucursal,
                                               @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
                                               @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
-                                              @Param("numeroIdentificacion") String numeroIdentificacion,
                                               @Param("serie") String serie,
                                               @Param("secuencial") String secuencial,
                                               @Param("numeroAutorizacion") String numeroAutorizacion,
@@ -99,7 +96,6 @@ public interface ComprasRetencionesRepository extends JpaRepository<CpRetencione
                     "AND cpr.anulada = false " +
                     "AND cpr.id_empresa = :idEmpresa " +
                     "AND (:sucursal IS NULL OR cpr.sucursal = :sucursal) " +
-                    "AND (:numeroIdentificacion IS NULL OR cpr.numero_identificacion = :numeroIdentificacion) " +
                     "AND (:serie IS NULL OR cpr.serie_retencion = :serie) " +
                     "AND (:secuencial IS NULL OR cpr.secuencial_retencion = :secuencial) " +
                     "AND (:fechaEmisionDesde IS NULL OR cpr.fecha_emision_retencion >= :fechaEmisionDesde) " +
@@ -107,8 +103,11 @@ public interface ComprasRetencionesRepository extends JpaRepository<CpRetencione
                     "GROUP BY cpiv.codigo, cpiv.codigo_porcentaje",
             nativeQuery = true
     )
-    List<TotalesProjection> totalValores(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("sucursal") String sucursal, @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
-                                         @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta, @Param("numeroIdentificacion") String numeroIdentificacion, @Param("serie") String serie,
+    List<TotalesProjection> totalValores(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa,
+                                         @Param("sucursal") String sucursal,
+                                         @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
+                                         @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
+                                         @Param("serie") String serie,
                                          @Param("secuencial") String secuencial);
 
 
@@ -118,14 +117,16 @@ public interface ComprasRetencionesRepository extends JpaRepository<CpRetencione
             "vtVentasEntity.idEmpresa = :idEmpresa AND " +
             "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
             "(" +
-            "(:numeroIdentificacion IS NULL OR vtVentasEntity.numeroIdentificacion = :numeroIdentificacion) AND " +
             "(:serie IS NULL OR vtVentasEntity.serieRetencion = :serie) AND " +
             "(:secuencial IS NULL OR vtVentasEntity.secuencialRetencion = :secuencial) AND " +
             "( cast(:fechaEmisionDesde as date) is null OR vtVentasEntity.fechaEmisionRetencion >= :fechaEmisionDesde ) AND " +
             "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmisionRetencion <= :fechaEmisionHasta )  " +
             ")"
     )
-    List<CpRetencionesEntity> findAll(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("sucursal") String sucursal, @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde, @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta, @Param("numeroIdentificacion") String numeroIdentificacion, @Param("serie") String serie, @Param("secuencial") String secuencial);
+    List<CpRetencionesEntity> findAll(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa,
+                                      @Param("sucursal") String sucursal, @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
+                                      @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
+                                      @Param("serie") String serie, @Param("secuencial") String secuencial);
 
     @Query(value = "SELECT " +
             "entity.id_retencion as idRetencion,  " +

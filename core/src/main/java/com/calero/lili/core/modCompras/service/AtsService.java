@@ -118,10 +118,11 @@ public class AtsService {
     private void validateRetencionesIva(DetalleCompras detalleCompra,
                                         List<CpImpuestosCodigosEntity> listCodigos) {
 
+        // TODO REVISAR QUE HACE
         if (!listCodigos.isEmpty()) {
             for (CpImpuestosCodigosEntity impuesto : listCodigos) {
 
-                if (impuesto.getRetencion().getCodigo().equals("2")
+                /*if (impuesto.getRetencion().getCodigo().equals("2")
                         && impuesto.getRetencionCodigos().getCodigoRetencion().equals("9")) {
 
                     detalleCompra.setValRetBien10(impuesto.getValorRetenido());
@@ -161,7 +162,7 @@ public class AtsService {
 
                     detalleCompra.setValRetServ100(impuesto.getValorRetenido());
 
-                }
+                }*/
             }
         }
 

@@ -10,13 +10,12 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface TbRetencionesCodigosRepository extends JpaRepository<TbRetencionesCodigosEntity, String> {
+public interface TbRetencionesCodigosRepository extends JpaRepository<TbRetencionesCodigosEntity, Long> {
 
     @Query(value = "SELECT entity "+
             "FROM TbRetencionesCodigosEntity entity " +
             "where entity.codigoRetencion = :codigoDocumento " )
-
-    Optional<TbRetencionesCodigosEntity> findById(@Param("codigoDocumento") String codigoDocumento);
+    Optional<TbRetencionesCodigosEntity> findByCodigo(@Param("codigoDocumento") String codigoDocumento);
 
     @Query(
             value = "SELECT entity "+

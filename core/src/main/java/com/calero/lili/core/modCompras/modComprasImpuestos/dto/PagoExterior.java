@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 public class PagoExterior {
 
 
-
     private String tipoRegi; // validar si es 01,02,03
 
     private String paisEfecPagoGen;
@@ -22,18 +21,14 @@ public class PagoExterior {
     private String paisEfecPagoParFis;
     private String nombrePaisEfecPagoParFis;
 
-    private String denoPagoRegFis;
+    private String denopagoRegFis;
 
     private String paisEfecPago;
     private String nombrePaisEfecPago;
 
-    private Boolean pagoRegFis; // siempre ser falso
+    private Boolean pagoRegFis = false;
     private Boolean aplicConvDobTrib;
     private Boolean pagExtSujRetNorLeg;
 
-
-    // Validar en base al tipoRegi
-
-    // todo nombres de los paises paisEfecPagoGen y paisEfecPagoParFis
 
 }

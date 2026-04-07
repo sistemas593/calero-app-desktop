@@ -1,5 +1,6 @@
 package com.calero.lili.api.controllers;
 
+import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.core.dtos.FilterDto;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.ResponseDto;
@@ -30,33 +31,34 @@ import org.springframework.web.bind.annotation.RestController;
 public class TbRetencionesCodigosCrudController {
 
     private final TbRetencionesCodigosServiceImpl tbService;
+    private final AuditorAwareImpl auditorAware;
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('CF_TBC_GR')")
     public ResponseDto create(@RequestBody TbRetencionesCodigosCreationRequestDto request) {
-        return tbService.create(request);
+        return tbService.create(auditorAware.getCurrentAuditor().orElse("SYSTEM"), request);
     }
 
     @PutMapping("{id}")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAuthority('CF_TBC_GR')")
-    public ResponseDto update(@PathVariable("id") String id,
+    public ResponseDto update(@PathVariable("id") Long id,
                               @RequestBody TbRetencionesCodigosCreationRequestDto request) {
-        return tbService.update(id, request);
+        return tbService.update(auditorAware.getCurrentAuditor().orElse("SYSTEM"), id, request);
     }
 
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasAuthority('CF_TBC_GR')")
-    public void delete(@PathVariable("id") String id) {
-        tbService.delete(id);
+    public void delete(@PathVariable("id") Long id) {
+        tbService.delete(auditorAware.getCurrentAuditor().orElse("SYSTEM"), id);
     }
 
     @GetMapping("{id}")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAuthority('CF_TBC_GR')")
-    public TbRetencionesCodigosGetOneDto findById(@PathVariable("id") String id) {
+    public TbRetencionesCodigosGetOneDto findById(@PathVariable("id") Long id) {
         return tbService.findById(id);
     }
 

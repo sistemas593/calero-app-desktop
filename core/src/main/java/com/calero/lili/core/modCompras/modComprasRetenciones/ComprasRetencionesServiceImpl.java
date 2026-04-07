@@ -62,7 +62,7 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor
 @Transactional
 @Slf4j
-    public class ComprasRetencionesServiceImpl {
+public class ComprasRetencionesServiceImpl {
 
     private final ComprasRetencionesRepository comprasRetencionesRepository;
     private final ResponseApiBuilder responseApiBuilder;
@@ -239,7 +239,9 @@ import java.util.stream.IntStream;
 
     public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable) {
 
-        Page<CpRetencionesEntity> page = comprasRetencionesRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getSerie(), filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
+        Page<CpRetencionesEntity> page = comprasRetencionesRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(),
+                filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(),
+                filters.getSerie(), filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
 
         List<GetListDto> dtoList = page.stream().map(entidad -> {
                     GetListDto response = cpRetencionesBuilder.builderListResponse(entidad);
@@ -248,7 +250,8 @@ import java.util.stream.IntStream;
                     return response;
                 }
         ).toList();
-        List<TotalesProjection> totalValoresProjection = comprasRetencionesRepository.totalValores(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getSerie(), filters.getSecuencial());
+        List<TotalesProjection> totalValoresProjection = comprasRetencionesRepository.totalValores(idData, idEmpresa, filters.getSucursal(),
+                filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getSerie(), filters.getSecuencial());
 
         GetListDtoTotalizado totalesDto = new GetListDtoTotalizado<>();
         totalesDto.setContent(dtoList);
@@ -279,7 +282,8 @@ import java.util.stream.IntStream;
 
 
         log.info("Iniciando la exportación a Excel con el filtro: {}", filter);
-        List<CpRetencionesEntity> facturas = comprasRetencionesRepository.findAll(idData, idEmpresa, filter.getSucursal(), filter.getFechaEmisionDesde(), filter.getFechaEmisionHasta(), filter.getNumeroIdentificacion(), filter.getSerie(), filter.getSecuencial());
+        List<CpRetencionesEntity> facturas = comprasRetencionesRepository.findAll(idData, idEmpresa, filter.getSucursal(),
+                filter.getFechaEmisionDesde(), filter.getFechaEmisionHasta(), filter.getSerie(), filter.getSecuencial());
 
         DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
         String currentDateTime = dateFormatter.format(new Date());
@@ -325,7 +329,7 @@ import java.util.stream.IntStream;
                     row.createCell(2).setCellValue(factura.getSecuencialRetencion());
                     row.createCell(3).setCellValue(DateUtils.toString(factura.getFechaEmisionRetencion()));
                     row.createCell(4).setCellValue(factura.getNumeroAutorizacionRetencion());
-                    row.createCell(5).setCellValue(factura.getNumeroIdentificacion());
+                    row.createCell(5).setCellValue(factura.getProveedor().getNumeroIdentificacion());
 
                     row.createCell(6).setCellValue(baseCero.doubleValue());
 
@@ -365,7 +369,8 @@ import java.util.stream.IntStream;
     public void exportarPDF(Long idData, Long idEmpresa, HttpServletResponse response, FilterListDto filters) throws
             DocumentException, IOException {
 
-        List<CpRetencionesEntity> facturas = comprasRetencionesRepository.findAll(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getSerie(), filters.getSecuencial());
+        List<CpRetencionesEntity> facturas = comprasRetencionesRepository.findAll(idData, idEmpresa, filters.getSucursal(),
+                filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getSerie(), filters.getSecuencial());
 
         response.setContentType("application/pdf");
         String headerKey = "Content-Disposition";
@@ -422,7 +427,7 @@ import java.util.stream.IntStream;
                 table.addCell(factura.getSecuencialRetencion());
                 table.addCell(factura.getFechaEmisionRetencion().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
                 table.addCell(factura.getNumeroAutorizacionRetencion());
-                table.addCell(factura.getNumeroIdentificacion());
+                table.addCell(factura.getProveedor().getNumeroIdentificacion());
 
                 table.addCell(String.valueOf(baseCero));
 
@@ -505,14 +510,14 @@ import java.util.stream.IntStream;
             case TODAS -> {
                 return comprasRetencionesRepository.findAllPaginate(idData, idEmpresa, null,
                         filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(),
-                        filters.getNumeroIdentificacion(), filters.getSerie(),
+                        filters.getSerie(),
                         filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
             }
             case SUCURSAL -> {
                 if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
                     return comprasRetencionesRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(),
                             filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(),
-                            filters.getNumeroIdentificacion(), filters.getSerie(),
+                            filters.getSerie(),
                             filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
                 } else {
                     throw new GeneralException("Es requerido el parametro de la sucursal");
@@ -521,8 +526,7 @@ import java.util.stream.IntStream;
             case PROPIAS -> {
                 return comprasRetencionesRepository.findAllPaginate(idData, idEmpresa, null,
                         filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(),
-                        filters.getNumeroIdentificacion(), filters.getSerie(),
-                        filters.getSecuencial(), filters.getNumeroAutorizacion(), usuario, pageable);
+                        filters.getSerie(), filters.getSecuencial(), filters.getNumeroAutorizacion(), usuario, pageable);
             }
         }
         throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));

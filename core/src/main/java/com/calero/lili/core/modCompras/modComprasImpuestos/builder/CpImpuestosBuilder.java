@@ -257,7 +257,7 @@ public class CpImpuestosBuilder {
                 .tipoRegi(model.getTipoRegi())
                 .paisEfecPagoGen(model.getPaisEfecPagoGen())
                 .paisEfecPagoParFis(model.getPaisEfecPagoParFis())
-                .denoPagoRegFis(model.getDenoPagoRegFis())
+                .denopagoRegFis(model.getDenopagoRegFis())
                 .pagoRegFis(model.getPagoRegFis())
                 .build();
     }

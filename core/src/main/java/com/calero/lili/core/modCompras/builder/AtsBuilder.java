@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Objects;
 
 @Component
 public class AtsBuilder {
@@ -141,22 +140,36 @@ public class AtsBuilder {
 
     private PagoExterior builderPagoExterior(String pagoCode, com.calero.lili.core.modCompras.modComprasImpuestos.dto.PagoExterior model) {
 
-        if (Objects.isNull(model)) {
+        if (pagoCode.equals("01")) {
             return PagoExterior.builder()
                     .pagoLocExt(pagoCode)
                     .aplicConvDobTrib("NA")
                     .paisEfecPago("NA")
                     .pagExtSujRetNorLeg("NA")
                     .build();
+        } else {
+
+            PagoExterior pagoExterior = new PagoExterior();
+
+            pagoExterior.setPagoLocExt(pagoCode);
+            pagoExterior.setTipoRegi(model.getTipoRegi());
+            pagoExterior.setAplicConvDobTrib(model.getAplicConvDobTrib() ? "SI" : "NO");
+            pagoExterior.setPagExtSujRetNorLeg(model.getPagExtSujRetNorLeg() ? "SI" : "NO");
+            // Este dato no va en el ATS, pero se usa en las retenciones electronicas.
+            //pagoExterior.setPagoRegFis(model.getPagoRegFis() ? "SI" : "NO");
+            pagoExterior.setPaisEfecPago(model.getPaisEfecPago());
+
+            switch (model.getTipoRegi()) {
+                case "01" -> pagoExterior.setPaisEfecPagoGen(model.getPaisEfecPagoGen());
+
+                case "02" -> pagoExterior.setPaisEfecPagoParFis(model.getPaisEfecPagoParFis());
+
+                case "03" -> pagoExterior.setDenopagoRegFis(model.getDenopagoRegFis());
+            }
+
+            return pagoExterior;
         }
 
-
-        return PagoExterior.builder()
-                .pagoLocExt(pagoCode)
-                .aplicConvDobTrib(model.getAplicConvDobTrib() ? "SI" : "NO")
-                .paisEfecPago(model.getPaisEfecPago())
-                .pagExtSujRetNorLeg(model.getPagExtSujRetNorLeg() ? "SI" : "NO")
-                .build();
     }
 
 
@@ -168,7 +181,7 @@ public class AtsBuilder {
 
     public DetalleAir builderDetalleAir(CpImpuestosCodigosEntity model) {
         return DetalleAir.builder()
-                .codRetAir(model.getRetencionCodigos().getCodigoRetencion())
+                .codRetAir(model.getCodigoRetencion())
                 .baseImpAir(model.getBaseImponible())
                 .porcentajeAir(model.getPorcentajeRetener())
                 .valRetAir(model.getValorRetenido())

@@ -142,7 +142,7 @@ public class CpImpuestosServiceImpl {
                     }
 
                     if (Objects.nonNull(request.getPaisEfecPagoParFis()) ||
-                            Objects.nonNull(request.getDenoPagoRegFis())) {
+                            Objects.nonNull(request.getDenopagoRegFis())) {
 
                         throw new GeneralException("No debe existir pago para paraiso fiscal " +
                                 " ni para denominacion del régimen fiscal preferente, si el tipo de registro es 01");
@@ -164,7 +164,7 @@ public class CpImpuestosServiceImpl {
                     }
 
                     if (Objects.nonNull(request.getPaisEfecPagoGen()) ||
-                            Objects.nonNull(request.getDenoPagoRegFis())) {
+                            Objects.nonNull(request.getDenopagoRegFis())) {
 
                         throw new GeneralException("No debe existir pago para régimen general " +
                                 " ni para denominacion del régimen fiscal preferente, si el tipo de registro es 02");
@@ -180,7 +180,7 @@ public class CpImpuestosServiceImpl {
 
                 }
                 case "03" -> {
-                    if (Objects.isNull(request.getDenoPagoRegFis()) || request.getDenoPagoRegFis().isEmpty()) {
+                    if (Objects.isNull(request.getDenopagoRegFis()) || request.getDenopagoRegFis().isEmpty()) {
                         throw new GeneralException("No existe pago denominacion del régimen fiscal preferente");
                     }
 

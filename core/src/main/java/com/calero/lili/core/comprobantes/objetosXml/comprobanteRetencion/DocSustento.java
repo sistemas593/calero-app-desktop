@@ -10,7 +10,8 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-@XmlType(propOrder = {"codSustento", "codDocSustento", "numDocSustento", "fechaEmisionDocSustento", "fechaRegistroContable", "numAutDocSustento", "pagoLocExt","paisEfecPago","totalComprobantesReembolso","totalBaseImponibleReembolso","totalImpuestoReembolso","totalSinImpuestos","importeTotal", "impuestoDocSustento","retencion", "pago"})
+@XmlType(propOrder = {"codSustento", "codDocSustento", "numDocSustento", "fechaEmisionDocSustento", "fechaRegistroContable", "numAutDocSustento", "pagoLocExt", "tipoRegi", "paisEfecPago",
+        "aplicConvDobTrib", "pagExtSujRetNorLeg", "pagoRegFis", "totalComprobantesReembolso", "totalBaseImponibleReembolso", "totalImpuestoReembolso", "totalSinImpuestos", "importeTotal", "impuestoDocSustento", "retencion", "pago"})
 @Data
 @Builder
 @AllArgsConstructor
@@ -23,7 +24,12 @@ public class DocSustento {
     private String fechaRegistroContable;
     private String numAutDocSustento;
     private String pagoLocExt;
+    private String tipoRegi;
     private String paisEfecPago;
+    private String aplicConvDobTrib;
+    private String pagExtSujRetNorLeg;
+    private String pagoRegFis;
+
     private String totalComprobantesReembolso;
     private String totalBaseImponibleReembolso;
     private String totalImpuestoReembolso;
@@ -34,7 +40,6 @@ public class DocSustento {
     private List<Pago> pago;
 
 
-
     @XmlElementWrapper(name = "impuestosDocSustento") // envoltorio
     public List<ImpuestoDocSustento> getImpuestoDocSustento() {
         return impuestoDocSustento;
@@ -43,6 +48,7 @@ public class DocSustento {
     public void setImpuestoDocSustento(List<ImpuestoDocSustento> impuestoDocSustento) {
         this.impuestoDocSustento = impuestoDocSustento;
     }
+
     @XmlElementWrapper(name = "retenciones") // envoltorio
     public List<Retencion> getRetencion() {
         return retencion;

@@ -16,14 +16,13 @@ import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosValoresEntity;
 import com.calero.lili.core.modCompras.modComprasRetenciones.CpRetencionesEntity;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
-import com.calero.lili.core.utils.validaciones.ObligadoContabilidad;
 import com.calero.lili.core.utils.DateUtils;
+import com.calero.lili.core.utils.validaciones.ObligadoContabilidad;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
@@ -62,7 +61,7 @@ public class ComprobanteRetencionBuilder {
         BigDecimal totalSinImpuestos = validarTotalSinImpuesto(impuesto.getValoresEntity());
         BigDecimal importeTotal = validarImporteTotal(impuesto.getValoresEntity(), totalSinImpuestos);
 
-        return DocSustento.builder()
+        DocSustento docSustento = DocSustento.builder()
                 .codSustento(impuesto.getSustento().getCodigoSustento())
                 .codDocSustento(impuesto.getDocumento().getCodigoDocumento())
                 .numDocSustento(impuesto.getSerie() + impuesto.getSecuencial())
@@ -70,9 +69,6 @@ public class ComprobanteRetencionBuilder {
                 .fechaRegistroContable(DateUtils.toString(impuesto.getFechaRegistro()))
                 .numAutDocSustento(impuesto.getNumeroAutorizacion())
                 .pagoLocExt(impuesto.getPagoLocExt())
-                .paisEfecPago(Objects.nonNull(impuesto.getPagoExterior())
-                        ? impuesto.getPagoExterior().getPaisEfecPago()
-                        : "NA")
                 .totalComprobantesReembolso(formatoValores.convertirBigDecimalToString(new BigDecimal("0.00")))
                 .totalBaseImponibleReembolso(formatoValores.convertirBigDecimalToString(new BigDecimal("0.00")))
                 .totalImpuestoReembolso(formatoValores.convertirBigDecimalToString(new BigDecimal("0.00")))
@@ -82,6 +78,22 @@ public class ComprobanteRetencionBuilder {
                 .retencion(builderListRetencion(impuesto.getCodigosEntity()))
                 .pago(formaDePagoBuilder.builderListFormaPagos(impuesto.getFormasPagoSri()))
                 .build();
+
+        switch (impuesto.getPagoLocExt()) {
+            case "01" -> {
+                docSustento.setPaisEfecPago("593");
+            }
+            case "02" -> {
+                docSustento.setTipoRegi(impuesto.getPagoExterior().getTipoRegi());
+                docSustento.setPaisEfecPago(impuesto.getPagoExterior().getPaisEfecPago());
+                docSustento.setAplicConvDobTrib(impuesto.getPagoExterior().getAplicConvDobTrib() ? "SI" : "NO");
+                docSustento.setPagExtSujRetNorLeg(impuesto.getPagoExterior().getPagExtSujRetNorLeg() ? "SI" : "NO");
+                docSustento.setPagoRegFis(impuesto.getPagoExterior().getPagoRegFis() ? "SI" : "NO");
+            }
+        }
+
+
+        return docSustento;
     }
 
     private List<Retencion> builderListRetencion(List<CpImpuestosCodigosEntity> codigosEntity) {
@@ -93,7 +105,7 @@ public class ComprobanteRetencionBuilder {
     private Retencion builderRetencion(CpImpuestosCodigosEntity retencion) {
         return Retencion.builder()
                 .codigo(retencion.getRetencion().getCodigo())
-                .codigoRetencion(retencion.getRetencionCodigos().getCodigoRetencion())
+                .codigoRetencion(retencion.getCodigoRetencion())
                 .baseImponible(formatoValores.convertirBigDecimalToString(retencion.getBaseImponible()))
                 .porcentajeRetener(formatoValores.convertirBigDecimalToString(retencion.getPorcentajeRetener()))
                 .valorRetenido(formatoValores.convertirBigDecimalToString(retencion.getValorRetenido()))
@@ -125,10 +137,10 @@ public class ComprobanteRetencionBuilder {
                 .dirEstablecimiento(serie.getDireccionEstablecimiento())
                 .contribuyenteEspecial(empresa.getContribuyenteEspecial())
                 .obligadoContabilidad(ObligadoContabilidad.getObligadoContabilidad(empresa.getObligadoContabilidad()))
-                .tipoIdentificacionSujetoRetenido(retencion.getTipoIdentificacion().getCodigo())
+                .tipoIdentificacionSujetoRetenido(retencion.getProveedor().getTipoIdentificacion())
                 .parteRel(retencion.getRelacionado())
                 .razonSocialSujetoRetenido(proveedor.getTercero())
-                .identificacionSujetoRetenido(retencion.getNumeroIdentificacion())
+                .identificacionSujetoRetenido(retencion.getProveedor().getNumeroIdentificacion())
                 .periodoFiscal(retencion.getPeriodoFiscal())
                 .build();
     }

@@ -101,9 +101,6 @@ public class CpRetencionesEntity extends Auditable {
     @Column(name = "impresa")
     private Boolean impresa;
 
-    private TipoIdentificacion tipoIdentificacion;
-    private String numeroIdentificacion;
-
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     private List<InformacionAdicional> informacionAdicional;
