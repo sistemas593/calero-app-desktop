@@ -1,10 +1,10 @@
 package com.calero.lili.core.modContabilidad.modAsientos;
 
-import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.dtos.ResponseDto;
+import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresasSucursales.AdEmpresasSucursalesRepository;
 import com.calero.lili.core.modContabilidad.modAsientos.builder.CnAsientosBuilder;
@@ -98,10 +98,6 @@ public class CnAsientosServiceImpl {
                                                     TipoPermiso tipoBusqueda, String usuario) {
 
         Page<CnAsientosEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
-
-        if (page.isEmpty()) {
-            throw new GeneralException("No existen datos a mostrar");
-        }
 
         List<GetListDto> dtoList = page.stream().map(cnAsientosBuilder::builderListResponse).toList();
 

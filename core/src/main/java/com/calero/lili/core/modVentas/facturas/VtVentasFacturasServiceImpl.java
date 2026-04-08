@@ -356,10 +356,6 @@ public class VtVentasFacturasServiceImpl {
 
         Page<VtVentaEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
 
-        if (page.isEmpty()) {
-            throw new GeneralException("No existen datos a mostrar");
-        }
-
         List<GetListDto> dtoList = page.stream().map(item -> {
             if (item.getAnulada()) {
                 return getListResponseBuilder.builderAnuladoListResponse(item);
@@ -393,10 +389,6 @@ public class VtVentasFacturasServiceImpl {
                                                                       Pageable pageable) {
 
         Page<VtVentaEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
-
-        if (page.isEmpty()) {
-            throw new GeneralException("No existen datos a mostrar");
-        }
 
         List<GetListDto> dtoList = page.stream().map(item -> {
             if (item.getAnulada()) {

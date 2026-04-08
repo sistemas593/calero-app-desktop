@@ -64,7 +64,7 @@ public class VtVentasFacturasController {
 
     @PutMapping("facturas/{idEmpresa}/{idVenta}")
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasAuthority('VT_FC_MO_PR, VT_FC_MO_SC, VT_FC_MO_TD')")
+    @PreAuthorize("hasAnyAuthority('VT_FC_MO_PR', 'VT_FC_MO_SC', 'VT_FC_MO_TD')")
     public ResponseDto updateFactura(@PathVariable("idEmpresa") Long idEmpresa,
                                      @PathVariable("idVenta") UUID idVenta,
                                      @RequestBody CreationFacturaRequestDto request,
@@ -75,7 +75,7 @@ public class VtVentasFacturasController {
 
     @DeleteMapping("facturas/{idEmpresa}/{idVenta}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAuthority('VT_FC_EL_PR, VT_FC_EL_SC, VT_FC_EL_TD')")
+    @PreAuthorize("hasAnyAuthority('VT_FC_EL_PR', 'VT_FC_EL_SC', 'VT_FC_EL_TD')")
     public void deleteFactura(@PathVariable("idEmpresa") Long idEmpresa,
                               @PathVariable("idVenta") UUID idVenta,
                               FilterListDto filters) {
@@ -91,6 +91,7 @@ public class VtVentasFacturasController {
                                          FilterListDto filters) {
         return vtVentasService.findById(idDataService.getIdData(), idEmpresa, idVenta, filters,
                 auditorAware.getTipoPermisoFacturaVer(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+
     }
 
 
@@ -150,7 +151,7 @@ public class VtVentasFacturasController {
     }
 
     @PostMapping("facturas/anulada/{idEmpresa}/{idVenta}")
-    @PreAuthorize("hasAuthority('VT_FC_AN_PR ,VT_FC_AN_SC, VT_FC_AN_TD')")
+    @PreAuthorize("hasAnyAuthority('VT_FC_AN_PR', 'VT_FC_AN_SC', 'VT_FC_AN_TD')")
     public ResponseDto updateAnulada(@PathVariable("idEmpresa") Long idEmpresa,
                                      @PathVariable("idVenta") UUID idVenta,
                                      FilterListDto filters) {

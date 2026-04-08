@@ -1,10 +1,20 @@
 package com.calero.lili.core.modCompras.modComprasLiquidaciones;
 
+import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.core.comprobantes.services.ComprobanteServiceImpl;
 import com.calero.lili.core.dtos.CompraImpuestosDto;
+import com.calero.lili.core.dtos.Mensajes;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.Paginator;
+import com.calero.lili.core.dtos.ResponseDto;
+import com.calero.lili.core.enums.CodigoImpuesto;
+import com.calero.lili.core.enums.EstadoDocumento;
+import com.calero.lili.core.enums.FormatoDocumento;
+import com.calero.lili.core.enums.TipoEmision;
+import com.calero.lili.core.enums.TipoPermiso;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosEntity;
 import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosRepository;
-import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosServiceImpl;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CreationCompraImpuestoRequestDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.builder.CpLiquidacionesBuilder;
@@ -20,16 +30,6 @@ import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.Liquid
 import com.calero.lili.core.modComprasItems.GeItemsRepository;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
-import com.calero.lili.core.builder.ResponseApiBuilder;
-import com.calero.lili.core.dtos.Mensajes;
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.Paginator;
-import com.calero.lili.core.dtos.ResponseDto;
-import com.calero.lili.core.enums.CodigoImpuesto;
-import com.calero.lili.core.enums.EstadoDocumento;
-import com.calero.lili.core.enums.FormatoDocumento;
-import com.calero.lili.core.enums.TipoEmision;
-import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.utils.DateUtils;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -285,10 +285,6 @@ public class LiquidacionesServiceImpl {
                                                     TipoPermiso tipoBusqueda, String usuario) {
 
         Page<CpLiquidacionesEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
-
-        if (page.isEmpty()) {
-            throw new GeneralException("No existen datos a mostrar");
-        }
 
         List<GetListDto> dtoList = page.stream().map(entidad -> {
 

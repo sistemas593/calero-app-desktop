@@ -1,9 +1,19 @@
 package com.calero.lili.core.modVentasGuias;
 
+import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.core.comprobantes.services.ComprobanteServiceImpl;
+import com.calero.lili.core.dtos.Mensajes;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.Paginator;
+import com.calero.lili.core.dtos.ResponseDto;
+import com.calero.lili.core.enums.EstadoDocumento;
+import com.calero.lili.core.enums.FormatoDocumento;
+import com.calero.lili.core.enums.TipoEmision;
+import com.calero.lili.core.enums.TipoPermiso;
+import com.calero.lili.core.enums.TipoTercero;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosEntity;
 import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosRepository;
-import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.modComprasItems.GeItemsRepository;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
@@ -13,16 +23,6 @@ import com.calero.lili.core.modVentasGuias.dto.FilterListDto;
 import com.calero.lili.core.modVentasGuias.dto.GetDto;
 import com.calero.lili.core.modVentasGuias.dto.GetListDto;
 import com.calero.lili.core.modVentasGuias.projection.OneProjection;
-import com.calero.lili.core.builder.ResponseApiBuilder;
-import com.calero.lili.core.dtos.Mensajes;
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.Paginator;
-import com.calero.lili.core.dtos.ResponseDto;
-import com.calero.lili.core.enums.EstadoDocumento;
-import com.calero.lili.core.enums.FormatoDocumento;
-import com.calero.lili.core.enums.TipoEmision;
-import com.calero.lili.core.enums.TipoTercero;
-import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.utils.DateUtils;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -201,10 +201,6 @@ public class VtGuiasServiceImpl {
                                                     TipoPermiso tipoBusqueda, String usuario) {
 
         Page<VtGuiaEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
-
-        if (page.isEmpty()) {
-            throw new GeneralException("No existen datos a mostrar");
-        }
 
         List<GetListDto> dtoList = page.stream().map(vtGuiaBuilder::builderListResponse).toList();
 

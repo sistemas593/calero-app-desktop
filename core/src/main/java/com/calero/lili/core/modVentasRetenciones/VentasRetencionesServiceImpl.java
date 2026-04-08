@@ -1,6 +1,11 @@
 package com.calero.lili.core.modVentasRetenciones;
 
+import com.calero.lili.core.builder.ResponseApiBuilder;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.Paginator;
+import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.enums.TipoPermiso;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
 import com.calero.lili.core.modVentasRetenciones.builder.VtRetencionesBuilder;
@@ -10,11 +15,6 @@ import com.calero.lili.core.modVentasRetenciones.dto.GetDto;
 import com.calero.lili.core.modVentasRetenciones.dto.GetListDto;
 import com.calero.lili.core.modVentasRetenciones.dto.GetListDtoTotalizado;
 import com.calero.lili.core.modVentasRetenciones.projection.TotalesProjection;
-import com.calero.lili.core.builder.ResponseApiBuilder;
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.Paginator;
-import com.calero.lili.core.dtos.ResponseDto;
-import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.utils.DateUtils;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -124,10 +124,6 @@ public class VentasRetencionesServiceImpl {
                                                      TipoPermiso tipoBusqueda, String usuario) {
 
         Page<VtRetencionesEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
-
-        if (page.isEmpty()) {
-            throw new GeneralException("No existen datos a mostrar");
-        }
 
         List<GetListDto> dtoList = page.stream().map(vtRetencionesBuilder::builderListResponse).toList();
 

@@ -1,6 +1,11 @@
 package com.calero.lili.core.modComprasOrden;
 
+import com.calero.lili.core.builder.ResponseApiBuilder;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.Paginator;
+import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.enums.TipoPermiso;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modComprasOrden.builder.CpOrdenComprasBuilder;
 import com.calero.lili.core.modComprasOrden.dto.FilterListDto;
 import com.calero.lili.core.modComprasOrden.dto.GetDto;
@@ -10,11 +15,6 @@ import com.calero.lili.core.modComprasOrden.dto.OrdenCompraRequestDto;
 import com.calero.lili.core.modComprasOrden.projection.TotalesProjection;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
-import com.calero.lili.core.builder.ResponseApiBuilder;
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.Paginator;
-import com.calero.lili.core.dtos.ResponseDto;
-import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.utils.DateUtils;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -121,10 +121,6 @@ public class OrdenComprasServiceImpl {
                                                     TipoPermiso tipoBusqueda, String usuario) {
 
         Page<CpOrdenComprasEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
-
-        if (page.isEmpty()) {
-            throw new GeneralException("No existen datos a mostrar");
-        }
 
         List<GetListDto> dtoList = page.stream().map(item -> {
             if (item.getAnulada()) {

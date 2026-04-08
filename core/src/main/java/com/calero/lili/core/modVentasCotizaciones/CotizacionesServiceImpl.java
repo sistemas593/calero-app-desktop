@@ -1,6 +1,11 @@
 package com.calero.lili.core.modVentasCotizaciones;
 
+import com.calero.lili.core.builder.ResponseApiBuilder;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.Paginator;
+import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.enums.TipoPermiso;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
 import com.calero.lili.core.modVentasCotizaciones.builder.VtCotizacionBuilder;
@@ -11,11 +16,6 @@ import com.calero.lili.core.modVentasCotizaciones.dto.GetListDto;
 import com.calero.lili.core.modVentasCotizaciones.dto.GetListDtoTotalizado;
 import com.calero.lili.core.modVentasCotizaciones.projection.OneProjection;
 import com.calero.lili.core.modVentasCotizaciones.projection.TotalesProjection;
-import com.calero.lili.core.builder.ResponseApiBuilder;
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.Paginator;
-import com.calero.lili.core.dtos.ResponseDto;
-import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.utils.DateUtils;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -147,10 +147,6 @@ public class CotizacionesServiceImpl {
                                                      TipoPermiso tipoBusqueda, String usuario) {
 
         Page<VtCotizacionEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
-
-        if (page.isEmpty()) {
-            throw new GeneralException("No existen datos a mostrar");
-        }
 
         List<GetListDto> dtoList = page.stream().map(vtCotizacionBuilder::builderListResponse).toList();
 

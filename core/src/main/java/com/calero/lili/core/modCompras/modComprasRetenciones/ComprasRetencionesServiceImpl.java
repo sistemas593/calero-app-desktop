@@ -1,7 +1,17 @@
 package com.calero.lili.core.modCompras.modComprasRetenciones;
 
+import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.core.comprobantes.services.ComprobanteServiceImpl;
+import com.calero.lili.core.dtos.Mensajes;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.Paginator;
+import com.calero.lili.core.dtos.ResponseDto;
+import com.calero.lili.core.enums.CodigoImpuesto;
+import com.calero.lili.core.enums.EstadoDocumento;
+import com.calero.lili.core.enums.FormatoDocumento;
+import com.calero.lili.core.enums.TipoEmision;
 import com.calero.lili.core.enums.TipoPermiso;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modCompras.modCompras.dto.CompraImpuestosDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosServiceImpl;
 import com.calero.lili.core.modCompras.modComprasRetenciones.builder.CpRetencionesBuilder;
@@ -13,16 +23,6 @@ import com.calero.lili.core.modCompras.modComprasRetenciones.dto.GetListDtoTotal
 import com.calero.lili.core.modCompras.modComprasRetenciones.projection.TotalesProjection;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
-import com.calero.lili.core.builder.ResponseApiBuilder;
-import com.calero.lili.core.dtos.Mensajes;
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.Paginator;
-import com.calero.lili.core.dtos.ResponseDto;
-import com.calero.lili.core.enums.CodigoImpuesto;
-import com.calero.lili.core.enums.EstadoDocumento;
-import com.calero.lili.core.enums.FormatoDocumento;
-import com.calero.lili.core.enums.TipoEmision;
-import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.utils.DateUtils;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -204,11 +204,6 @@ public class ComprasRetencionesServiceImpl {
                                                     TipoPermiso tipoBusqueda, String usuario) {
 
         Page<CpRetencionesEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
-
-        if (page.isEmpty()) {
-            throw new GeneralException("No existen datos a mostrar");
-        }
-
         List<GetListDto> dtoList = page.stream().map(entidad -> {
                     GetListDto response = cpRetencionesBuilder.builderListResponse(entidad);
                     response.setListCompraImpuesto(cpImpuestosService.getListCompraImpuestoForIdParent(

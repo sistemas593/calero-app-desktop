@@ -1,7 +1,12 @@
 package com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos;
 
-import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
+import com.calero.lili.core.builder.ResponseApiBuilder;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.Paginator;
+import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.enums.TipoPermiso;
+import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.FilterListDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.GetListDtoTotalizado;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.detalles.ValoresDto;
@@ -9,11 +14,6 @@ import com.calero.lili.core.modCompras.modComprasLiquidaciones.projection.Totale
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.builder.CpLiquidacionesReembolsosBuilder;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.dto.GetReembolsoDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.dto.ReembolsoRequestDto;
-import com.calero.lili.core.builder.ResponseApiBuilder;
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.Paginator;
-import com.calero.lili.core.dtos.ResponseDto;
-import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.utils.DateUtils;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -132,9 +132,6 @@ public class LiquidacionesReembolsosServiceImpl {
 
         Page<CpLiquidacionesReembolsosEntity> page = getTipoBusquedaPaginado(filtro, pageable, tipoBusqueda, usuario);
 
-        if (page.isEmpty()) {
-            throw new GeneralException("No existen datos a mostrar");
-        }
 
         List<GetReembolsoDto> dtoList = page.stream()
                 .map(cpLiquidacionesReembolsosBuilder::builderResponse)

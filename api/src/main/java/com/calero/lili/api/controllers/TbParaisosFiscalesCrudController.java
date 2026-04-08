@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -34,7 +35,7 @@ public class TbParaisosFiscalesCrudController {
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('CF_TBC_GR')")
-    public TbParaisoFiscalResponseDto create(@RequestBody TbParaisoFiscalRequestDto request) {
+    public TbParaisoFiscalResponseDto create(@Valid @RequestBody TbParaisoFiscalRequestDto request) {
         return tbParaisoFiscalService.create(auditorAware.getCurrentAuditor().orElse("SYSTEM"), request);
     }
 

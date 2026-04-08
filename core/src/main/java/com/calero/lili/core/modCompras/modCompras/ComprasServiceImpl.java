@@ -174,14 +174,9 @@ public class ComprasServiceImpl {
     }
 
     public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable,
-                                                     TipoPermiso tipoBusqueda, String usuario) {
+                                                    TipoPermiso tipoBusqueda, String usuario) {
 
         Page<CpComprasEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
-
-        if (page.isEmpty()) {
-            throw new GeneralException("No existen datos a mostrar");
-        }
-
         List<GetListDto> dtoList = page.stream().map(entidad -> {
             GetListDto response = cpComprasBuilder.builderGetListDto(entidad);
             response.setListCompraImpuesto(cpImpuestosService.getListCompraImpuestoForIdParent

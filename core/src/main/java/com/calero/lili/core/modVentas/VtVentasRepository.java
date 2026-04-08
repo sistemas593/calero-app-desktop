@@ -41,7 +41,8 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             "(vtVentasEntity.id_Empresa = :idEmpresa) AND " +
             "vtVentasEntity.tipo_Venta = :tipoVenta AND " +
             "vtVentasEntity.serie = :serie AND " +
-            "vtVentasEntity.secuencial = :secuencial LIMIT 1", nativeQuery = true)
+            "vtVentasEntity.secuencial = :secuencial AND " +
+            "vtVentasEntity.deleted = false LIMIT 1", nativeQuery = true)
     Optional<OneProjection> findExistBySecuencial(@Param("idData") Long idData,
                                                   @Param("idEmpresa") Long idEmpresa,
                                                   @Param("tipoVenta") String tipoVenta,
