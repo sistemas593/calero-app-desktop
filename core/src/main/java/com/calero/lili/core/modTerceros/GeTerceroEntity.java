@@ -15,6 +15,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
 
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -75,18 +77,22 @@ public class GeTerceroEntity extends Auditable implements Serializable {
     @Column(name = "email", length = 150)
     private String email;
 
+    @Builder.Default
     @OneToMany(mappedBy = "tercero")
     @JsonIgnore
     private List<VtVentaEntity> vtFacturaEntity = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "tercero")
     @JsonIgnore
     private List<VtClientesConfiguracionesEntity> stEmpresasEntities = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "proveedor")
     @JsonIgnore
     private List<CpLiquidacionesEntity> cpLiquidacionesEntity = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "tercero")
     @JsonIgnore
     private List<GeTercerosTipoEntity> geTercerosTipoEntities = new ArrayList<>();

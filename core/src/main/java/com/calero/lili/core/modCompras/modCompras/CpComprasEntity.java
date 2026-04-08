@@ -15,6 +15,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
 
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -95,10 +97,12 @@ public class CpComprasEntity extends Auditable {
     private String modSerie;
     private String modSecuencial;
 
+    @Builder.Default
     @JoinColumn(name = "id_compra", referencedColumnName = "idCompra")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CpComprasValoresEntity> valoresEntity = new ArrayList<>();
 
+    @Builder.Default
     @JoinColumn(name = "id_compra", referencedColumnName = "idCompra")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CpComprasDetalleEntity> detalle = new ArrayList<>();

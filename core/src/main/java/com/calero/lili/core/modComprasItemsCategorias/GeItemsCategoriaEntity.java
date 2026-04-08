@@ -10,6 +10,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
 
@@ -19,6 +20,7 @@ import java.util.UUID;
 
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 @Entity
 @Table(name = "ge_categorias")
 @Builder
@@ -38,6 +40,7 @@ public class GeItemsCategoriaEntity extends Auditable {
 
     private String nivel;
 
+    @Builder.Default
     @OneToMany(mappedBy = "categorias" )
     private List<GeItemEntity> geItemsEntities = new ArrayList<>();
 

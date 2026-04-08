@@ -26,6 +26,7 @@ public class PagoExterior {
     private String paisEfecPago;
     private String nombrePaisEfecPago;
 
+    @Builder.Default
     private Boolean pagoRegFis = false;
     private Boolean aplicConvDobTrib;
     private Boolean pagExtSujRetNorLeg;

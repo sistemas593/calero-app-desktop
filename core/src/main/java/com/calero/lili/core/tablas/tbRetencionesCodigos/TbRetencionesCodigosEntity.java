@@ -9,12 +9,14 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 @Entity
 @Table(name = "tb_retenciones_codigos")
 @Builder

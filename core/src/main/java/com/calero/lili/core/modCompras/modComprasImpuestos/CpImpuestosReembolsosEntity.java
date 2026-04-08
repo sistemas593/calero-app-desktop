@@ -13,6 +13,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
 
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 @Entity
 @Builder
 @AllArgsConstructor
@@ -43,6 +45,7 @@ public class CpImpuestosReembolsosEntity extends Auditable {
     private String numeroAutorizacionReemb;
 
 
+    @Builder.Default
     @JoinColumn(name = "id_impuestosReembolsos", referencedColumnName = "idImpuestosReembolsos")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CpImpuestosReembolsosValoresEntity> reembolsosValores = new ArrayList<>();

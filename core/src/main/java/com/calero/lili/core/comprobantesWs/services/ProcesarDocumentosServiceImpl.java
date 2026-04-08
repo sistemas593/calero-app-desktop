@@ -170,9 +170,10 @@ public class ProcesarDocumentosServiceImpl {
                             envioCorreoDto.setFechaEmision(DateUtils.toString(venta1.getFechaEmision()));
                             envioCorreoDto.setClaveAcceso(venta1.getClaveAcceso());
                             envioCorreoDto.setEmail(venta1.getEmail());
-                            Integer respuestaEnvioCorreo = procesarEnvioCorreo.enviarCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
-                            venta1.setEmailEstado(respuestaEnvioCorreo);
-                            respuestaProceso.setEmailEstado(respuestaEnvioCorreo);
+                            System.out.println("Enviar correo con la siguiente informacion: " + envioCorreoDto.toString());
+                           // Integer respuestaEnvioCorreo = procesarEnvioCorreo.enviarCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
+                            venta1.setEmailEstado(1);
+                            respuestaProceso.setEmailEstado(1);
 
                         }
                     }

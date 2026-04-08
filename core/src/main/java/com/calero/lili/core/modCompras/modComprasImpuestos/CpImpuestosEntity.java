@@ -22,6 +22,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Where;
@@ -33,6 +34,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 @Entity
 @Builder
 @AllArgsConstructor
@@ -125,14 +127,17 @@ public class CpImpuestosEntity extends Auditable {
     @Column(columnDefinition = "jsonb")
     private PagoExterior pagoExterior; // Se cambio a una clase sola
 
+    @Builder.Default
     @JoinColumn(name = "id_impuestos", referencedColumnName = "idImpuestos")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CpImpuestosValoresEntity> valoresEntity = new ArrayList<>(); // IMPUESTOS DOC SUSTENTO
 
+    @Builder.Default
     @JoinColumn(name = "idImpuestos", referencedColumnName = "idImpuestos")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CpImpuestosCodigosEntity> codigosEntity = new ArrayList<>(); // RETENCIONES
 
+    @Builder.Default
     @JoinColumn(name = "id_impuestos", referencedColumnName = "idImpuestos")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CpImpuestosReembolsosEntity> reembolsosEntity = new ArrayList<>();

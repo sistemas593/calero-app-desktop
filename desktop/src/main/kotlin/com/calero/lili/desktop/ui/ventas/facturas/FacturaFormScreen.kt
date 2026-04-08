@@ -143,7 +143,7 @@ private fun SeccionDocumento(state: FacturaFormUiState, vm: FacturaFormViewModel
             ExposedDropdownMenuBox(
                 expanded        = expandedSerie,
                 onExpandedChange = { expandedSerie = !expandedSerie },
-                modifier        = Modifier.width(150.dp)
+                modifier        = Modifier.width(280.dp)
             ) {
                 OutlinedTextField(
                     value         = state.serie.ifBlank { "" },
@@ -164,14 +164,14 @@ private fun SeccionDocumento(state: FacturaFormUiState, vm: FacturaFormViewModel
                     } else {
                         state.seriesDisponibles.forEach { serie ->
                             DropdownMenuItem(
-                                text    = { Text(serie.serie, fontSize = 13.sp) },
+                                text    = { Text("${serie.serie} | ${serie.nombreComercial ?: ""}", fontSize = 13.sp) },
                                 onClick = { vm.seleccionarSerie(serie); expandedSerie = false }
                             )
                         }
                     }
                 }
             }
-            FormField("Secuencial *", state.secuencial,  vm::setSecuencial, Modifier.width(180.dp))
+            FormField("Secuencial *", state.secuencial,  vm::setSecuencial, Modifier.width(180.dp), readOnly = true)
             FormField("Fecha emisión", state.fechaEmision, {}, Modifier.width(200.dp), readOnly = true)
         }
 
@@ -471,10 +471,7 @@ private fun SeccionPagoYCampos(state: FacturaFormUiState, vm: FacturaFormViewMod
     if (state.showFormaPagoDialog)     { DialogoFormaPago(state = state, vm = vm) }
     if (state.showCampoAdicionalDialog) { DialogoCampoAdicional(state = state, vm = vm) }
 
-    val propinaValor = if (state.propina10)
-        state.subtotal.multiply(java.math.BigDecimal("0.10")).setScale(2, java.math.RoundingMode.HALF_UP)
-    else java.math.BigDecimal.ZERO
-    val valorAPagar = state.total.add(propinaValor)
+    val valorAPagar = state.total
 
     Row(
         modifier              = Modifier.fillMaxWidth(),
@@ -614,23 +611,9 @@ private fun SeccionPagoYCampos(state: FacturaFormUiState, vm: FacturaFormViewMod
                 FilaTotalDetalle("Subtotal no objeto de IVA:", state.subtotalNoObjeto)
                 FilaTotalDetalle("Subtotal exento de IVA:",  state.subtotalExento)
                 FilaTotalDetalle("Total descuento:",         state.totalDescuento)
-                FilaTotalDetalle("Valor ICE:",               state.valorIce)
                 FilaTotalDetalle("IVA 15% :",                state.iva15)
                 FilaTotalDetalle("IVA 5% :",                 state.iva5)
                 FilaTotalDetalle("IVA tarifa especial:",     state.ivaTarifaEspecial)
-
-                // Propina 10%
-                Row(
-                    modifier          = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("Propina 10%:", fontSize = 12.sp, color = FColorTexto, modifier = Modifier.weight(1f))
-                    Checkbox(
-                        checked         = state.propina10,
-                        onCheckedChange = { vm.togglePropina() },
-                        modifier        = Modifier.size(20.dp)
-                    )
-                }
 
                 HorizontalDivider(color = FColorBorde, modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp))
 

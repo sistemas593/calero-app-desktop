@@ -57,6 +57,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * DOM and XML accessibility and comfort functions.
  *
  */
+@SuppressWarnings("removal")
 public final class XMLUtils {
 
     private static boolean ignoreLineBreaks =

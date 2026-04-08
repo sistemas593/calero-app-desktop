@@ -68,7 +68,7 @@ public class AdEmpresasSeriesServiceImpl {
 
             for (AdEmpresaSerieCreationRequestDto.Documentos model : request.getDocumentos()) {
 
-                if(Objects.isNull(model.getSecuencial()) || !model.getSecuencial().isEmpty()){
+                if(Objects.isNull(model.getSecuencial()) || model.getSecuencial().isEmpty()){
                     throw new GeneralException("El secuencial no puede ser nulo, ni vacío");
                 }
 
@@ -163,6 +163,7 @@ public class AdEmpresasSeriesServiceImpl {
                     return AdEmpresaSerieFacturaDto.builder()
                             .idSerie(s.getIdSerie())
                             .serie(s.getSerie())
+                            .nombreComercial(s.getNombreComercial())
                             .secuencial(secuencial)
                             .build();
                 })

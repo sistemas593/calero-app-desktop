@@ -18,6 +18,7 @@ import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
 import org.springframework.data.domain.Persistable;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -84,6 +86,7 @@ public class CnAsientosEntity extends Auditable implements Persistable<UUID> {
     @Column(name = "observaciones")
     private String observaciones;
 
+    @Builder.Default
     @JoinColumn(name = "idAsiento", referencedColumnName = "idAsiento")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CnAsientosDetalleEntity> detalleEntity = new ArrayList<>();

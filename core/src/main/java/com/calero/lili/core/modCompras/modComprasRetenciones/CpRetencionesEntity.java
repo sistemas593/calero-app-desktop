@@ -21,6 +21,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Where;
@@ -33,6 +34,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -117,6 +119,7 @@ public class CpRetencionesEntity extends Auditable {
 
     private String periodoFiscal;
 
+    @Builder.Default
     @JoinColumn(name = "idRetencion", referencedColumnName = "idRetencion")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CpRetencionReferencias> referencias = new ArrayList<>();

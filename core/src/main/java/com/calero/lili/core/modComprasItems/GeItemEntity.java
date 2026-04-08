@@ -21,6 +21,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Where;
@@ -32,6 +33,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -83,6 +85,7 @@ public class GeItemEntity extends Auditable {
     @Column(name = "estado")
     private Long estado;
 
+    @Builder.Default
     @JoinColumn(name = "id_item", referencedColumnName = "idItem")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<GeItemsPreciosEntity> geItemsPreciosEntities = new ArrayList<>();

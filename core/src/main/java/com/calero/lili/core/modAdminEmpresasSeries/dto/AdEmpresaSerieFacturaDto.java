@@ -14,5 +14,6 @@ import java.util.UUID;
 public class AdEmpresaSerieFacturaDto {
     private UUID idSerie;
     private String serie;
+    private String nombreComercial;
     private String secuencial;
 }

@@ -18,7 +18,7 @@ public class FormatoValores {
     }
 
     public String convertirTarifaToString(BigDecimal valor) {
-        DecimalFormat df = new DecimalFormat("0");
+        DecimalFormat df = new DecimalFormat("0.0");
         String formatted = df.format(valor.abs());
         return formatted.replace(",", ".");
     }

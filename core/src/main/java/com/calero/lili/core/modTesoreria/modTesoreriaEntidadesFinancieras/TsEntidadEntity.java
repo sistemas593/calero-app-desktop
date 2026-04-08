@@ -15,6 +15,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
 
@@ -25,6 +26,7 @@ import java.util.UUID;
 
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 @Entity
 @Table(name = "ts_entidades")
 @Builder
@@ -73,6 +75,7 @@ public class TsEntidadEntity extends Auditable {
     private BigDecimal saldo;
 
 
+    @Builder.Default
     @OneToMany(mappedBy = "tsEntidadEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TsEstadosCuentaEntity> estadoCuentas = new ArrayList<>();
 
