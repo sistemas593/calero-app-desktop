@@ -118,25 +118,25 @@ public class AtsService {
     private void validateRetencionesIva(DetalleCompras detalleCompra,
                                         List<CpImpuestosCodigosEntity> listCodigos) {
 
-        // TODO REVISAR QUE HACE
+
         if (!listCodigos.isEmpty()) {
             for (CpImpuestosCodigosEntity impuesto : listCodigos) {
 
-                /*if (impuesto.getRetencion().getCodigo().equals("2")
-                        && impuesto.getRetencionCodigos().getCodigoRetencion().equals("9")) {
+                if (impuesto.getRetencion().getCodigo().equals("2")
+                        && impuesto.getCodigoRetencion().equals("9")) {
 
                     detalleCompra.setValRetBien10(impuesto.getValorRetenido());
 
                 }
 
                 if (impuesto.getRetencion().getCodigo().equals("2")
-                        && impuesto.getRetencionCodigos().getCodigoRetencion().equals("10")) {
+                        && impuesto.getCodigoRetencion().equals("10")) {
                     detalleCompra.setValRetServ20(impuesto.getValorRetenido());
                 }
 
 
                 if (impuesto.getRetencion().getCodigo().equals("2")
-                        && impuesto.getRetencionCodigos().getCodigoRetencion().equals("1")) {
+                        && impuesto.getCodigoRetencion().equals("1")) {
 
                     detalleCompra.setValorRetBienes(impuesto.getValorRetenido());
 
@@ -144,25 +144,25 @@ public class AtsService {
 
 
                 if (impuesto.getRetencion().getCodigo().equals("2")
-                        && impuesto.getRetencionCodigos().getCodigoRetencion().equals("11")) {
+                        && impuesto.getCodigoRetencion().equals("11")) {
 
                     detalleCompra.setValRetServ50(impuesto.getValorRetenido());
 
                 }
 
                 if (impuesto.getRetencion().getCodigo().equals("2")
-                        && impuesto.getRetencionCodigos().getCodigoRetencion().equals("2")) {
+                        && impuesto.getCodigoRetencion().equals("2")) {
 
                     detalleCompra.setValorRetServicios(impuesto.getValorRetenido());
 
                 }
 
                 if (impuesto.getRetencion().getCodigo().equals("2")
-                        && impuesto.getRetencionCodigos().getCodigoRetencion().equals("3")) {
+                        && impuesto.getCodigoRetencion().equals("3")) {
 
                     detalleCompra.setValRetServ100(impuesto.getValorRetenido());
 
-                }*/
+                }
             }
         }
 

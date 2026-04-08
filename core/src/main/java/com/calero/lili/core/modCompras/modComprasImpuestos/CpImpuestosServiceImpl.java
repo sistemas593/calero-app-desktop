@@ -311,10 +311,6 @@ public class CpImpuestosServiceImpl {
 
         Page<CpImpuestosEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
 
-        if (page.isEmpty()) {
-            throw new GeneralException("No existen datos a mostrar");
-        }
-
         List<GetListDto> dtoList = page.stream().map(cpImpuestosBuilder::builderGetListDto).toList();
 
         List<TotalesProjection> totalValoresProjection = cpImpuestosRepository.totalValores(idData, idEmpresa, filters.getTipoDocumento(), filters.getNumeroIdentificacion(), filters.getSerie(), filters.getSecuencial(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getFechaRegistroDesde(), filters.getFechaRegistroHasta(), filters.getNumeroAutorizacion(), filters.getDestino());

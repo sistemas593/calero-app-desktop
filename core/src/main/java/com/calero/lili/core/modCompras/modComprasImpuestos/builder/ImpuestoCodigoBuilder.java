@@ -78,7 +78,6 @@ public class ImpuestoCodigoBuilder {
                 .build();
     }
 
-    // TODO VERIFICAR
     public TbRetencionesCodigosGetOneDto builderCodigosRetencionResponse(TbRetencionesCodigosEntity model) {
         return TbRetencionesCodigosGetOneDto.builder()
                 .codigoRetencion(model.getCodigoRetencion())

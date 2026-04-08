@@ -8,7 +8,6 @@ import com.calero.lili.core.modImpuestosProcesos.dto.ImpuestoProcesoResponseDto;
 import com.calero.lili.core.modImpuestosProcesos.projection.RetencionReferenciaProjection;
 import com.calero.lili.core.tablas.tbDocumentos.TbDocumentoEntity;
 import com.calero.lili.core.tablas.tbRetenciones.TbRetencionEntity;
-import com.calero.lili.core.tablas.tbRetencionesCodigos.TbRetencionesCodigosEntity;
 import com.calero.lili.core.tablas.tbSustentos.TbSustentosEntity;
 import org.springframework.stereotype.Component;
 
@@ -111,9 +110,7 @@ public class ImpuestoProcesoBuilder {
                 .baseImponible(model.getBaseImponible())
                 .porcentajeRetener(model.getPorcentajeRetener())
                 .valorRetenido(model.getValorRetenido())
-                /*.retencionCodigos(TbRetencionesCodigosEntity.builder()
-                        .codigoRetencion(model.getCodigoRetencion())
-                        .build())*/
+                .codigoRetencion(model.getCodigoRetencion())
                 .retencion(TbRetencionEntity.builder()
                         .codigo(model.getCodigo())
                         .build())
