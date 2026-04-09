@@ -6,16 +6,21 @@ import com.calero.lili.core.comprobantesWs.ws.services.AutorizacionServiceImpl;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public class ProbarDescargar
-{
+public class ProbarDescargar {
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         AutorizacionRequestDto aut = new AutorizacionRequestDto();
         aut.setClaveAcceso("0703202601179270558400120010040000078690000805610");
         aut.setAmbiente("2");
         AutorizacionServiceImpl service = new AutorizacionServiceImpl();
-        RespuestaComprobante res = service.consulta(aut);
+
+        RespuestaComprobante res = null;
+        try {
+            res = service.consulta(aut);
+        } catch (Exception ex) {
+            System.out.println("El ws del SRI no esta disponible: " + ex.getMessage());
+        }
+
         System.out.println(res);
 
     }

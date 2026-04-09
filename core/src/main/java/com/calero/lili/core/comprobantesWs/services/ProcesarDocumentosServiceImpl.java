@@ -2,6 +2,8 @@ package com.calero.lili.core.comprobantesWs.services;
 
 import autorizacion.ws.sri.gob.ec.Autorizacion;
 import autorizacion.ws.sri.gob.ec.RespuestaComprobante;
+import com.calero.lili.core.adLogs.AdLogsServiceImpl;
+import com.calero.lili.core.adLogs.dto.AdLogsRequestDto;
 import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.EnvioCorreoDto;
 import com.calero.lili.core.comprobantesWs.RespuestaAutorizacion;
 import com.calero.lili.core.comprobantesWs.RespuestaEnvio;
@@ -26,6 +28,7 @@ import com.calero.lili.core.modVentasGuias.VtGuiaEntity;
 import com.calero.lili.core.modVentasGuias.VtGuiasRepository;
 import com.calero.lili.core.utils.DateUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +46,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 
@@ -61,6 +65,7 @@ public class ProcesarDocumentosServiceImpl {
     private final SignXmlString signXmlString;
 
     private final ProcesarPausarServiceImpl procesarPausarService;
+    private final AdLogsServiceImpl adLogsService;
 
 //    private static String projectId = "caleroapp";
 //    private static String bucketName = "caleroapp-bucket-sgn";
@@ -121,6 +126,9 @@ public class ProcesarDocumentosServiceImpl {
             throw new GeneralException("El estado de documento no es para enviar o recibido");
         }
 
+        AdLogsRequestDto logs = generateLogsRequest(venta1.getIdVenta(), venta1.getSerie(), venta1.getSecuencial(),
+                venta1.getTipoVenta(), venta1.getIdData(), venta1.getIdEmpresa(), Boolean.FALSE);
+
         System.out.println("1. estado del documento en la base de datos:" + venta1.getEstadoDocumento());
         String claveAcceso = venta1.getClaveAcceso();
         Integer ambiente = Integer.valueOf(venta1.getAmbiente());
@@ -128,11 +136,14 @@ public class ProcesarDocumentosServiceImpl {
         String comprobante = venta1.getComprobante();
 
         RespuestaProceso respuestaProceso = null;
-        respuestaProceso = procesarDocumento(estadoDocumento, claveAcceso, ambiente, comprobante, datosEmpresaDto.getInputStreamFileSgn(), datosEmpresaDto.getPwd());
+        respuestaProceso = procesarDocumento(estadoDocumento, claveAcceso, ambiente, comprobante,
+                datosEmpresaDto.getInputStreamFileSgn(), datosEmpresaDto.getPwd(), logs);
         respuestaProceso.setEmailEstado(0);
 
         System.out.println("Respuesta envio:" + respuestaProceso.getEstadoEnvio());
         System.out.println("Respuesta autorizacion:" + respuestaProceso.getEstadoAutorizacion());
+
+
         switch (respuestaProceso.getEstadoEnvio()) {
             case "REC":
                 System.out.println("procesarFacNcNd 1. Guardar fc/nc/nd como recibida");
@@ -171,7 +182,7 @@ public class ProcesarDocumentosServiceImpl {
                             envioCorreoDto.setClaveAcceso(venta1.getClaveAcceso());
                             envioCorreoDto.setEmail(venta1.getEmail());
                             System.out.println("Enviar correo con la siguiente informacion: " + envioCorreoDto.toString());
-                           // Integer respuestaEnvioCorreo = procesarEnvioCorreo.enviarCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
+                            // Integer respuestaEnvioCorreo = procesarEnvioCorreo.enviarCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
                             venta1.setEmailEstado(1);
                             respuestaProceso.setEmailEstado(1);
 
@@ -203,6 +214,19 @@ public class ProcesarDocumentosServiceImpl {
 
     }
 
+    private AdLogsRequestDto generateLogsRequest(UUID idDocumento, String serie, String secuencial,
+                                                 String tipoDocumento, Long idData, Long idEmpresa, Boolean validacionPrevia) {
+        AdLogsRequestDto logs = new AdLogsRequestDto();
+        logs.setIdDocumento(idDocumento);
+        logs.setSerie(serie);
+        logs.setSecuencial(secuencial);
+        logs.setTipoDocumento(tipoDocumento);
+        logs.setIdData(idData);
+        logs.setIdEmpresa(idEmpresa);
+        logs.setValidacionPrevia(validacionPrevia);
+        return logs;
+    }
+
 
     public RespuestaProcesoGetDto procesarGuiaRemision(Long idData, Long idEmpresa, UUID id) {
 
@@ -218,6 +242,9 @@ public class ProcesarDocumentosServiceImpl {
             throw new GeneralException("El estado de documento no es para enviar o recibido");
         }
 
+        AdLogsRequestDto logs = generateLogsRequest(venta1.getIdGuia(), venta1.getSerie(), venta1.getSecuencial(),
+                "GUIA", venta1.getIdData(), venta1.getIdEmpresa(), Boolean.TRUE);
+
 
         // SI EL DOCUMENTO ESTA PARA ENVIAR
         System.out.println("1. estado del documento en la base de datos:" + venta1.getEstadoDocumento());
@@ -227,7 +254,8 @@ public class ProcesarDocumentosServiceImpl {
         String comprobante = venta1.getComprobante();
 
         // OJOOOOO ENVIAR DOCUMENTOS CON ESTADO ENV O REC
-        RespuestaProceso respuestaProceso = procesarDocumento(estadoDocumento, claveAcceso, ambiente, comprobante, datosEmpresaDto.getInputStreamFileSgn(), datosEmpresaDto.getPwd());
+        RespuestaProceso respuestaProceso = procesarDocumento(estadoDocumento, claveAcceso, ambiente, comprobante,
+                datosEmpresaDto.getInputStreamFileSgn(), datosEmpresaDto.getPwd(), logs);
         respuestaProceso.setEmailEstado(0);
 
         System.out.println("Respuesta envio:" + respuestaProceso.getEstadoEnvio());
@@ -301,6 +329,10 @@ public class ProcesarDocumentosServiceImpl {
             throw new GeneralException("El estado de documento no es para enviar o recibido");
         }
 
+        AdLogsRequestDto log = generateLogsRequest(venta1.getIdLiquidacion(), venta1.getSerie(), venta1.getSecuencial(),
+                "LIQ", venta1.getIdData(), venta1.getIdEmpresa(), Boolean.TRUE);
+
+
         // SI EL DOCUMENTO ESTA PARA ENVIAR
         System.out.println("1. estado del documento en la base de datos:" + venta1.getEstadoDocumento());
         String claveAcceso = venta1.getClaveAcceso();
@@ -309,7 +341,8 @@ public class ProcesarDocumentosServiceImpl {
         String comprobante = venta1.getComprobante();
 
         // OJOOOOO ENVIAR DOCUMENTOS CON ESTADO ENV O REC
-        RespuestaProceso respuestaProceso = procesarDocumento(estadoDocumento, claveAcceso, ambiente, comprobante, datosEmpresaDto.getInputStreamFileSgn(), datosEmpresaDto.getPwd());
+        RespuestaProceso respuestaProceso = procesarDocumento(estadoDocumento, claveAcceso, ambiente, comprobante,
+                datosEmpresaDto.getInputStreamFileSgn(), datosEmpresaDto.getPwd(), log);
         respuestaProceso.setEmailEstado(0);
 
         System.out.println("Respuesta envio:" + respuestaProceso.getEstadoEnvio());
@@ -380,6 +413,10 @@ public class ProcesarDocumentosServiceImpl {
             throw new GeneralException("El estado de documento no es para enviar o recibido");
         }
 
+        AdLogsRequestDto log = generateLogsRequest(venta1.getIdRetencion(), venta1.getSerieRetencion(),
+                venta1.getSecuencialRetencion(), "RET", venta1.getIdData(), venta1.getIdEmpresa(), Boolean.TRUE);
+
+
         // SI EL DOCUMENTO ESTA PARA ENVIAR
         System.out.println("1. estado del documento en la base de datos:" + venta1.getEstadoDocumento());
         String claveAcceso = venta1.getClaveAcceso();
@@ -388,7 +425,8 @@ public class ProcesarDocumentosServiceImpl {
         String comprobante = venta1.getComprobante();
 
         // OJOOOOO ENVIAR DOCUMENTOS CON ESTADO ENV O REC
-        RespuestaProceso respuestaProceso = procesarDocumento(estadoDocumento, claveAcceso, ambiente, comprobante, datosEmpresaDto.getInputStreamFileSgn(), datosEmpresaDto.getPwd());
+        RespuestaProceso respuestaProceso = procesarDocumento(estadoDocumento, claveAcceso, ambiente, comprobante,
+                datosEmpresaDto.getInputStreamFileSgn(), datosEmpresaDto.getPwd(), log);
 
         System.out.println("Respuesta envio:" + respuestaProceso.getEstadoEnvio());
         System.out.println("Respuesta autorizacion:" + respuestaProceso.getEstadoAutorizacion());
@@ -445,19 +483,24 @@ public class ProcesarDocumentosServiceImpl {
         return responderProceso(respuestaProceso);
     }
 
-    public RespuestaProceso procesarDocumento(String estadoDocumento, String claveAcceso, Integer ambiente, String comprobante, InputStream inputStreamFileSgn, String pwd) {
+    public RespuestaProceso procesarDocumento(String estadoDocumento, String claveAcceso, Integer ambiente,
+                                              String comprobante, InputStream inputStreamFileSgn, String pwd, AdLogsRequestDto logs) {
         RespuestaProceso respuestaProceso = new RespuestaProceso();
         switch (estadoDocumento) {
             case "ENV":
                 System.out.println("procesarDocumento 1. Estado en la BDD ENV Enviar documento electronico");
 
-                RespuestaProceso respuestaEnvio = procesarEnvio(claveAcceso, ambiente, comprobante, inputStreamFileSgn, pwd);
+                adLogsService.saveLog(logs, "Inicio proceso de envio al WS del SRI");
 
-                respuestaProceso.setEstadoEnvio(respuestaEnvio.getEstadoEnvio().toString());
+                RespuestaProceso respuestaEnvio = procesarEnvio(claveAcceso, ambiente, comprobante, inputStreamFileSgn, pwd, logs);
+
+
+                respuestaProceso.setEstadoEnvio(Objects.nonNull(respuestaEnvio.getEstadoEnvio()) ? respuestaEnvio.getEstadoEnvio() : "");
 
                 // SI ESTA DEVUELTA AQUI ASIGNO LOS MENSAJES SI EXISTEN
                 if (!Objects.isNull(respuestaEnvio.getMensajes())) {
                     respuestaProceso.setMensajes(respuestaEnvio.getMensajes());
+                    respuestaProceso.setMensajesRecepcion(respuestaEnvio.getMensajes());
                 }
 
                 System.out.println(respuestaProceso.getEstadoEnvio());
@@ -465,7 +508,7 @@ public class ProcesarDocumentosServiceImpl {
                 if (respuestaProceso.getEstadoEnvio().equals("REC")) {
                     System.out.println("procesarDocumento: PROCESO DE AUTORIZACION");
                     //////////// PASO 2 AUTORIZACION
-                    RespuestaAutorizacion respuestaAutorizacion1 = procesarAutorizacion(claveAcceso, ambiente);
+                    RespuestaAutorizacion respuestaAutorizacion1 = procesarAutorizacion(claveAcceso, ambiente, logs);
 
                     if (respuestaAutorizacion1.getEstadoAutorizacion().equals("AUT")) {
                         respuestaProceso.setEstadoAutorizacion(respuestaAutorizacion1.getEstadoAutorizacion());
@@ -497,7 +540,7 @@ public class ProcesarDocumentosServiceImpl {
 
                 System.out.println("procesarDocumento: PROCESO DE AUTORIZACION");
                 //////////// PASO 2 AUTORIZACION
-                RespuestaAutorizacion respuestaAutorizacion1 = procesarAutorizacion(claveAcceso, ambiente);
+                RespuestaAutorizacion respuestaAutorizacion1 = procesarAutorizacion(claveAcceso, ambiente, logs);
 
                 if (respuestaAutorizacion1.getEstadoAutorizacion().equals("AUT")) {
                     respuestaProceso.setEstadoAutorizacion(respuestaAutorizacion1.getEstadoAutorizacion());
@@ -524,10 +567,20 @@ public class ProcesarDocumentosServiceImpl {
         return respuestaProceso;
     }
 
-    public RespuestaProceso procesarEnvio(String claveAcceso, Integer ambiente, String comprobante, InputStream inputStreamFileSgn, String pwd) {
+    public RespuestaProceso procesarEnvio(String claveAcceso, Integer ambiente, String comprobante,
+                                          InputStream inputStreamFileSgn, String pwd, AdLogsRequestDto log) {
         RespuestaProceso respuestaProceso = new RespuestaProceso();
 
-        RespuestaComprobante result = consultarDocumento(claveAcceso, ambiente);
+        RespuestaComprobante result = new RespuestaComprobante();
+        if (log.getValidacionPrevia()) {
+            result = consultarDocumento(claveAcceso, ambiente, log);
+            if (Objects.isNull(result)) {
+                return respuestaProceso;
+            }
+        } else {
+            result.setNumeroComprobantes("0");
+        }
+
 
         if (result.getNumeroComprobantes() == null || result.getNumeroComprobantes().equals("0")) {
             System.out.println("procesarEnvioTodos Validacion previa, no existe un documento con la clave de acceso.");
@@ -571,17 +624,20 @@ public class ProcesarDocumentosServiceImpl {
 
             requestDto.setAmbiente(ambiente.toString());
 
-            RespuestaEnvio respuestaEnvio = enviarAutorizar(requestDto);
+            RespuestaEnvio respuestaEnvio = enviarAutorizar(requestDto, log);
             // si esta devuelta aqui seteo los mensajes si existen auto
             if (!Objects.isNull(respuestaEnvio.getMensajes())) {
                 respuestaProceso.setMensajes(respuestaEnvio.getMensajes());
             }
 
+            // TODO INCLUIR EL LOG EN
+
             procesarPausarService.pausar();
 
             if (respuestaEnvio.getEstadoEnvio().equals(EstadoDocumento.REC)) {
                 respuestaProceso.setEstadoEnvio("REC");
-                RespuestaComprobante result2 = consultarDocumento(claveAcceso, ambiente);
+                // TODO INCLUIR EL LOG AQUIDE CONSULTA DE DOCUMENTO DE QUE YA SE RECIBIO
+                RespuestaComprobante result2 = consultarDocumento(claveAcceso, ambiente, log);
                 if (result2.getNumeroComprobantes() == null || result2.getNumeroComprobantes().equals("0")) {
                     System.out.println("procesarEnvioTodos ENVIADO ESTE MOMENTO / No existe aun un documento con la clave de acceso.");
                 } else {
@@ -589,6 +645,7 @@ public class ProcesarDocumentosServiceImpl {
                 }
             }
             if (respuestaEnvio.getEstadoEnvio().equals(EstadoDocumento.DEV)) {
+                // TODO INCLUIR EL LOG AQUIDE CONSULTA DE DOCUMENTO DE QUE SE DEVOLVIO, INCLUIR MENSAJES DE DEVOLUCION
                 respuestaProceso.setEstadoEnvio("DEV");
 
             }
@@ -604,9 +661,10 @@ public class ProcesarDocumentosServiceImpl {
     }
 
 
-    public RespuestaAutorizacion procesarAutorizacion(String claveAcceso, Integer ambiente) {
+    public RespuestaAutorizacion procesarAutorizacion(String claveAcceso, Integer ambiente, AdLogsRequestDto log) {
+
         RespuestaAutorizacion respuestaAutorizacion = new RespuestaAutorizacion();
-        RespuestaComprobante result = consultarDocumento(claveAcceso, ambiente);
+        RespuestaComprobante result = consultarDocumento(claveAcceso, ambiente, log);
         if (result.getNumeroComprobantes() == null || result.getNumeroComprobantes().equals("0")) {
             System.out.println("No existe un documento con la clave de acceso.");
         } else {
@@ -678,50 +736,72 @@ public class ProcesarDocumentosServiceImpl {
 //    }
 
     @Transactional
-    public RespuestaComprobante consultarDocumento(String claveAcceso, Integer ambiente) {
+    public RespuestaComprobante consultarDocumento(String claveAcceso, Integer ambiente, AdLogsRequestDto log) {
+
+        // CONSULTA DOCUMENTO LOG
+        adLogsService.saveLog(log, "Inicia proceso previo de consulta de documento existente en el SRI con clave de acceso: " + claveAcceso);
         System.out.println("consultarDocumento. " + claveAcceso);
+
         //Consultar el documento
         AutorizacionRequestDto request = new AutorizacionRequestDto();
         request.setAmbiente(ambiente.toString());
         request.setClaveAcceso(claveAcceso);
-        RespuestaComprobante result = autorizacionService.consulta(request);
+        RespuestaComprobante result = null;
+        try {
+            result = autorizacionService.consulta(request);
+        } catch (Exception ex) {
+            adLogsService.saveLog(log, "El WS de consulta de documentos del SRI no esta disponible");
+        }
         return result;
+
     }
 
-    public RespuestaEnvio enviarAutorizar(RecepcionRequestDto requestDto) {
+    public RespuestaEnvio enviarAutorizar(RecepcionRequestDto requestDto, AdLogsRequestDto log) {
+
         RespuestaEnvio respuestaEnvio = new RespuestaEnvio();
         System.out.println("Enviando documento");
 
-        RespuestaSolicitud responseDto = recepcionService.enviar(requestDto);
+        RespuestaSolicitud responseDto = null;
+        try {
+            responseDto = recepcionService.enviar(requestDto);
+        } catch (Exception ex) {
+            adLogsService.saveLog(log, "El WS de recepcion de documentos del SRI no esta disponible");
+        }
+
         List<Mensajes> mensajesLista = new ArrayList<>();
-        if (responseDto.getEstado().equals("RECIBIDA")) {
-            System.out.println("RECIBIDA");
-            respuestaEnvio.setEstadoEnvio(EstadoDocumento.REC);
-        }
-
-        if (responseDto.getEstado().equals("DEVUELTA")) {
-            System.out.println("DEVUELTA");
-            respuestaEnvio.setEstadoEnvio(EstadoDocumento.DEV);
-            List<Comprobante> comprobante = responseDto.getComprobantes().getComprobante();
-            for (Comprobante com : comprobante) {
-                System.out.println(com.getMensajes().getMensaje());
-                List<Mensaje> listaMensajes = com.getMensajes().getMensaje();
-                for (Mensaje men : listaMensajes) {
-
-                    System.out.println(men.getIdentificador());
-                    System.out.println(men.getMensaje());
-
-                    Mensajes mensajesPer = new Mensajes();
-                    mensajesPer.setIdentificador(men.getIdentificador());
-                    mensajesPer.setTipo(men.getTipo());
-                    mensajesPer.setInformacionAdicional(men.getInformacionAdicional());
-                    mensajesPer.setMensaje(men.getMensaje());
-
-                    mensajesLista.add(mensajesPer);
-                }
-                respuestaEnvio.setMensajes(mensajesLista);
+        if (Objects.nonNull(responseDto)) {
+            if (responseDto.getEstado().equals("RECIBIDA")) {
+                System.out.println("RECIBIDA");
+                respuestaEnvio.setEstadoEnvio(EstadoDocumento.REC);
             }
+
+            if (responseDto.getEstado().equals("DEVUELTA")) {
+                System.out.println("DEVUELTA");
+                respuestaEnvio.setEstadoEnvio(EstadoDocumento.DEV);
+                List<Comprobante> comprobante = responseDto.getComprobantes().getComprobante();
+                for (Comprobante com : comprobante) {
+                    System.out.println(com.getMensajes().getMensaje());
+                    List<Mensaje> listaMensajes = com.getMensajes().getMensaje();
+                    for (Mensaje men : listaMensajes) {
+
+                        System.out.println(men.getIdentificador());
+                        System.out.println(men.getMensaje());
+
+                        Mensajes mensajesPer = new Mensajes();
+                        mensajesPer.setIdentificador(men.getIdentificador());
+                        mensajesPer.setTipo(men.getTipo());
+                        mensajesPer.setInformacionAdicional(men.getInformacionAdicional());
+                        mensajesPer.setMensaje(men.getMensaje());
+
+                        mensajesLista.add(mensajesPer);
+                    }
+                    respuestaEnvio.setMensajes(mensajesLista);
+                }
+            }
+        }else{
+            respuestaEnvio.setEstadoEnvio(EstadoDocumento.ENV);
         }
+
         respuestaEnvio.setMensajes(mensajesLista);
         return respuestaEnvio;
     }

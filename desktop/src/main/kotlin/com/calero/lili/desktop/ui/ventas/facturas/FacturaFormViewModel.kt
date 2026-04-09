@@ -509,7 +509,11 @@ class FacturaFormViewModel(
             idTercero              = null,
             terceroNombre          = "",
             terceroQuery           = "",
+            tipoIdentificacion     = TipoIdentificacion.R,
             numeroIdentificacion   = "",
+            email                  = "",
+            direccion              = "",
+            telefonos              = "",
             terceroSugerencias     = emptyList(),
             terceroDropdownVisible = false
         )}

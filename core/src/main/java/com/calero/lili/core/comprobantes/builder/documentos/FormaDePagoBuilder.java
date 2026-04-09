@@ -24,8 +24,8 @@ public class FormaDePagoBuilder {
         return Pago.builder()
                 .formaPago(formasPagoSri.getFormaPago())
                 .total(formatoValores.convertirBigDecimalToString(formasPagoSri.getTotal()))
-                .plazo(formasPagoSri.getPlazo())
-                .unidadTiempo(formasPagoSri.getUnidadTiempo())
+                .plazo(Objects.isNull(formasPagoSri.getPlazo()) || formasPagoSri.getPlazo().isEmpty() ? null : formasPagoSri.getPlazo())
+                .unidadTiempo(Objects.isNull(formasPagoSri.getUnidadTiempo()) || formasPagoSri.getUnidadTiempo().isEmpty() ? null : formasPagoSri.getUnidadTiempo())
                 .build();
     }
 

@@ -12,7 +12,7 @@ import java.util.Base64;
 public class RecepcionServiceImpl {
     public static final String ESTADO_RECIBIDA = "RECIBIDA";
     public static final String ESTADO_DEVUELTA = "DEVUELTA";
-    public RespuestaSolicitud enviar(RecepcionRequestDto request) {
+    public RespuestaSolicitud enviar(RecepcionRequestDto request) throws Exception {
 
         byte[] decodedBytes = Base64.getDecoder().decode(request.getFileXml());
 

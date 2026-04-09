@@ -34,15 +34,15 @@ public class DeEmitidasWsServiceImpl {
         log.info("xxxxxx");
 
         request.getListaClavesAcceso().stream().forEach((c) -> {
-            if (c.getClaveAcceso().length()==49){
+            if (c.getClaveAcceso().length() == 49) {
 
                 Boolean existeBdd = deEmitidasComponentsService.verificarExisteDocumentoElectronicoBdd(idData, idEmpresa, c.getClaveAcceso());
                 if (existeBdd) {
                     c.setExiste("S");
-                }else{
+                } else {
                     c.setExiste("N");
                 }
-            }else{
+            } else {
                 c.setExiste("N");
             }
         });
@@ -52,49 +52,54 @@ public class DeEmitidasWsServiceImpl {
 
     public CpImpuestosRecibirListCreationResponseDto createListClavesAcceso(Long idData, Long idEmpresa, CpImpuestosRecibirListCreationRequestDto request) {
         log.info("xxxxxx");
-        List<CpImpuestosRecibirResponseDto> listaRespuestas=new ArrayList<>();
+        List<CpImpuestosRecibirResponseDto> listaRespuestas = new ArrayList<>();
 
         request.getListaClavesAcceso().stream().forEach((c) -> {
 
-            if (c.getClaveAcceso().length()==49){
+            if (c.getClaveAcceso().length() == 49) {
                 if ((c.getClaveAcceso().startsWith("07", 8))) {
 
-                            Boolean existeBdd = deEmitidasComponentsService.verificarExisteDocumentoElectronicoBdd(idData, idEmpresa, c.getClaveAcceso());
-                        if (existeBdd.equals(Boolean.FALSE)){
-                            AutorizacionRequestDto autorizacion = new AutorizacionRequestDto();
-                                autorizacion.setClaveAcceso(c.getClaveAcceso());
-                                autorizacion.setAmbiente("2");
+                    Boolean existeBdd = deEmitidasComponentsService.verificarExisteDocumentoElectronicoBdd(idData, idEmpresa, c.getClaveAcceso());
+                    if (existeBdd.equals(Boolean.FALSE)) {
+                        AutorizacionRequestDto autorizacion = new AutorizacionRequestDto();
+                        autorizacion.setClaveAcceso(c.getClaveAcceso());
+                        autorizacion.setAmbiente("2");
 
-                                RespuestaComprobante result = autorizacionService.consulta(autorizacion);
+                        RespuestaComprobante result = null;
+                        try {
+                            result = autorizacionService.consulta(autorizacion);
+                        } catch (Exception exception) {
+                            log.info("El ws del SRI no esta disponible: " + exception.getMessage());
+                        }
 
-                                System.out.println("Comprobantes: " + result.getNumeroComprobantes());
-                                System.out.println("Clave de acceso: " + result.getClaveAccesoConsultada());
-                                System.out.println("Autorizaciones: " + result.getAutorizaciones());
-                                System.out.println(result.getAutorizaciones().getAutorizacion());
-                                List<autorizacion.ws.sri.gob.ec.Autorizacion> listaAutorizaciones = result.getAutorizaciones().getAutorizacion();
-                                if (result.getNumeroComprobantes() == null) {
+                        System.out.println("Comprobantes: " + result.getNumeroComprobantes());
+                        System.out.println("Clave de acceso: " + result.getClaveAccesoConsultada());
+                        System.out.println("Autorizaciones: " + result.getAutorizaciones());
+                        System.out.println(result.getAutorizaciones().getAutorizacion());
+                        List<autorizacion.ws.sri.gob.ec.Autorizacion> listaAutorizaciones = result.getAutorizaciones().getAutorizacion();
+                        if (result.getNumeroComprobantes() == null) {
+                            listaRespuestas.add(CpImpuestosRecibirResponseDto.builder()
+                                    .claveAcceso(c.getClaveAcceso())
+                                    .error("Clave de acceso no encontrada")
+                                    .exitoso("N")
+                                    .build());
+                        } else {
+                            Autorizacion autorizacionDto = ProcesarClavesAutorizadoSri(listaAutorizaciones, listaRespuestas);
+                            if (autorizacionDto.getEstado() != null) {
+
+                                String message = deEmitidasComponentsService.guardarComprobante(idData, idEmpresa, autorizacionDto, "001");
+
+                                if (!message.isEmpty()) {
                                     listaRespuestas.add(CpImpuestosRecibirResponseDto.builder()
                                             .claveAcceso(c.getClaveAcceso())
-                                            .error("Clave de acceso no encontrada")
                                             .exitoso("N")
+                                            .error(message)
                                             .build());
-                                } else {
-                                    Autorizacion autorizacionDto = ProcesarClavesAutorizadoSri(listaAutorizaciones, listaRespuestas);
-                                    if (autorizacionDto.getEstado() != null) {
-
-                                        String message = deEmitidasComponentsService.guardarComprobante(idData, idEmpresa, autorizacionDto, "001" );
-
-                                        if (!message.isEmpty()){
-                                            listaRespuestas.add(CpImpuestosRecibirResponseDto.builder()
-                                                    .claveAcceso(c.getClaveAcceso())
-                                                    .exitoso("N")
-                                                    .error(message)
-                                                    .build());
-                                        }
-                                    }
                                 }
+                            }
                         }
-                }else{
+                    }
+                } else {
                     listaRespuestas.add(CpImpuestosRecibirResponseDto.builder()
                             .claveAcceso(c.getClaveAcceso())
                             .exitoso("N")
@@ -102,7 +107,7 @@ public class DeEmitidasWsServiceImpl {
                             .build());
 
                 }
-            }else{
+            } else {
                 listaRespuestas.add(CpImpuestosRecibirResponseDto.builder()
                         .claveAcceso(c.getClaveAcceso())
                         .exitoso("N")
@@ -119,8 +124,8 @@ public class DeEmitidasWsServiceImpl {
     }
 
 
-    public Autorizacion ProcesarClavesAutorizadoSri(List<autorizacion.ws.sri.gob.ec.Autorizacion> listaAutorizaciones, List<CpImpuestosRecibirResponseDto> listaRespuestas ){
-        Autorizacion autorizacionDto= new Autorizacion();
+    public Autorizacion ProcesarClavesAutorizadoSri(List<autorizacion.ws.sri.gob.ec.Autorizacion> listaAutorizaciones, List<CpImpuestosRecibirResponseDto> listaRespuestas) {
+        Autorizacion autorizacionDto = new Autorizacion();
         for (autorizacion.ws.sri.gob.ec.Autorizacion autorizacion : listaAutorizaciones) {
 
             if (autorizacion.getEstado().toUpperCase().compareTo("AUTORIZADO") == 0) {
@@ -132,12 +137,12 @@ public class DeEmitidasWsServiceImpl {
                 autorizacionDto.setAmbiente(autorizacion.getAmbiente());
                 autorizacionDto.setComprobante((new StringBuilder()).append(autorizacion.getComprobante()).toString());
 
-                Mensaje Det1=new Mensaje();
+                Mensaje Det1 = new Mensaje();
                 Det1.setIdentificador("60");
                 Det1.setMensaje("ESTE PROCESO FUE REALIZADO EN EL AMBIENTE DE PRUEBAS");
                 Det1.setTipo("INFORMATIVO");
 
-                List<Mensaje> listaMensaje=new ArrayList<Mensaje>();
+                List<Mensaje> listaMensaje = new ArrayList<Mensaje>();
                 listaMensaje.add(Det1);
                 autorizacionDto.setMensaje(listaMensaje);
 

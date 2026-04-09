@@ -15,10 +15,11 @@ import org.springframework.web.bind.annotation.*;
 public class AutorizacionController {
 
     private final AutorizacionServiceImpl consultaClaveAccesoService;
+
     @GetMapping("")
     @ResponseStatus(HttpStatus.CREATED)
     public RespuestaComprobante create(
-            @RequestBody AutorizacionRequestDto request) {
+            @RequestBody AutorizacionRequestDto request) throws Exception {
         return consultaClaveAccesoService.consulta(request);
     }
 

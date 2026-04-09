@@ -272,10 +272,10 @@ private fun SeccionDetalle(state: FacturaFormUiState, vm: FacturaFormViewModel) 
         shadowElevation = 1.dp,
         color           = Color.White
     ) {
-        Column {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             // Encabezado: título + botón
             Row(
-                modifier              = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
+                modifier              = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment     = Alignment.CenterVertically
             ) {
@@ -289,21 +289,17 @@ private fun SeccionDetalle(state: FacturaFormUiState, vm: FacturaFormViewModel) 
 
             HorizontalDivider(color = FColorBorde)
 
-            val scrollH = rememberScrollState()
-
             // Cabecera de la tabla
-            Box(modifier = Modifier.horizontalScroll(scrollH)) {
-                Row(modifier = Modifier.background(FColorHeader).padding(vertical = 8.dp)) {
-                    CabeceraCelda("Cód. Principal",  120.dp)
-                    CabeceraCelda("Cód. Auxiliar",   100.dp)
-                    CabeceraCelda("Cantidad",         80.dp)
-                    CabeceraCelda("Descripción",     180.dp)
-                    CabeceraCelda("Precio unitario", 110.dp)
-                    CabeceraCelda("Tarifa",          110.dp)
-                    CabeceraCelda("Descuento",        90.dp)
-                    CabeceraCelda("Valor total",     100.dp)
-                    CabeceraCelda("Acciones",         80.dp)
-                }
+            Row(modifier = Modifier.fillMaxWidth().background(FColorHeader).padding(vertical = 8.dp)) {
+                Text("Cód. Principal",  color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1.5f).padding(horizontal = 8.dp))
+                Text("Cód. Auxiliar",  color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1.2f).padding(horizontal = 8.dp))
+                Text("Cantidad",       color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f).padding(horizontal = 8.dp))
+                Text("Descripción",    color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(2.2f).padding(horizontal = 8.dp))
+                Text("Precio unitario",color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1.4f).padding(horizontal = 8.dp))
+                Text("Tarifa",         color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1.3f).padding(horizontal = 8.dp))
+                Text("Descuento",      color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1.1f).padding(horizontal = 8.dp))
+                Text("Valor total",    color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1.2f).padding(horizontal = 8.dp))
+                Text("Acciones",       color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.width(70.dp).padding(horizontal = 8.dp))
             }
 
             if (state.detalle.isEmpty()) {
@@ -313,18 +309,15 @@ private fun SeccionDetalle(state: FacturaFormUiState, vm: FacturaFormViewModel) 
             } else {
                 state.detalle.forEachIndexed { idx, d ->
                     key(d.key) {
-                        Box(modifier = Modifier.horizontalScroll(scrollH)) {
-                            FilaDetalle(
-                                d  = d,
-                                bg = if (idx % 2 == 0) Color(0xFFF5F7FF) else Color.White,
-                                vm = vm
-                            )
-                        }
+                        FilaDetalle(
+                            d  = d,
+                            bg = if (idx % 2 == 0) Color(0xFFF5F7FF) else Color.White,
+                            vm = vm
+                        )
                         HorizontalDivider(color = FColorBorde, thickness = 0.5.dp)
                     }
                 }
             }
-
         }
     }
 }
@@ -336,51 +329,42 @@ private fun FilaDetalle(
     vm: FacturaFormViewModel
 ) {
     Row(
-        modifier          = Modifier.background(bg).padding(vertical = 6.dp),
+        modifier          = Modifier.fillMaxWidth().background(bg).padding(vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Cód. Principal (120dp)
         Text(
             text     = d.codigoPrincipal.ifBlank { "—" },
             fontSize = 12.sp, color = FColorTexto, maxLines = 1,
-            modifier = Modifier.width(120.dp).padding(horizontal = 6.dp)
+            modifier = Modifier.weight(1.5f).padding(horizontal = 8.dp)
         )
-        // Cód. Auxiliar (100dp)
         Text(
             text     = d.codigoAuxiliar.ifBlank { "—" },
             fontSize = 12.sp, color = FColorTexto, maxLines = 1,
-            modifier = Modifier.width(100.dp).padding(horizontal = 6.dp)
+            modifier = Modifier.weight(1.2f).padding(horizontal = 8.dp)
         )
-        // Cantidad (80dp) — editable
-        FilaCampoDecimal(d.cantidad, 80.dp) { vm.setDetalleCantidad(d.key, it) }
-        // Descripción (180dp)
+        FilaCampoDecimal(d.cantidad,      Modifier.weight(1f))   { vm.setDetalleCantidad(d.key, it) }
         Text(
             text     = d.descripcion.ifBlank { "—" },
             fontSize = 11.sp, color = FColorTexto, maxLines = 2,
-            modifier = Modifier.width(180.dp).padding(horizontal = 6.dp)
+            modifier = Modifier.weight(2.2f).padding(horizontal = 8.dp)
         )
-        // Precio unitario (110dp) — editable
-        FilaCampoDecimal(d.precioUnitario, 110.dp) { vm.setDetallePrecio(d.key, it) }
-        // Tarifa (110dp) — read-only, from impuesto
+        FilaCampoDecimal(d.precioUnitario, Modifier.weight(1.4f)) { vm.setDetallePrecio(d.key, it) }
         Text(
             text     = d.impuesto?.let { nombreImpuesto(it) } ?: "—",
             fontSize = 11.sp, color = FColorTexto, maxLines = 1,
-            modifier = Modifier.width(110.dp).padding(horizontal = 6.dp)
+            modifier = Modifier.weight(1.3f).padding(horizontal = 8.dp)
         )
-        // Descuento (90dp) — editable
-        FilaCampoDecimal(d.descuento, 90.dp) { vm.setDetalleDescuento(d.key, it) }
-        // Valor total (100dp) — read-only
+        FilaCampoDecimal(d.descuento,     Modifier.weight(1.1f)) { vm.setDetalleDescuento(d.key, it) }
         Text(
             text      = "%.2f".format(d.subtotalItem),
             fontSize  = 12.sp, color = FColorTexto, textAlign = TextAlign.End,
-            modifier  = Modifier.width(100.dp).padding(horizontal = 6.dp)
+            modifier  = Modifier.weight(1.2f).padding(horizontal = 8.dp)
         )
-        // Acciones (80dp)
-        Row(modifier = Modifier.width(80.dp), horizontalArrangement = Arrangement.Center) {
-            IconButton(onClick = { vm.abrirDialogoItem(d.key) }, modifier = Modifier.size(36.dp)) {
+        Row(modifier = Modifier.width(70.dp), horizontalArrangement = Arrangement.Center) {
+            IconButton(onClick = { vm.abrirDialogoItem(d.key) }, modifier = Modifier.size(32.dp)) {
                 Icon(Icons.Default.Edit, "Editar", tint = FColorHeader, modifier = Modifier.size(16.dp))
             }
-            IconButton(onClick = { vm.eliminarDetalle(d.key) }, modifier = Modifier.size(36.dp)) {
+            IconButton(onClick = { vm.eliminarDetalle(d.key) }, modifier = Modifier.size(32.dp)) {
                 Icon(Icons.Default.Delete, "Eliminar", tint = Color(0xFFB00020), modifier = Modifier.size(16.dp))
             }
         }
@@ -829,9 +813,8 @@ private fun FilaCampoTexto(value: String, ancho: Dp, onChange: (String) -> Unit)
 }
 
 @Composable
-private fun FilaCampoDecimal(value: BigDecimal, ancho: Dp, onChange: (BigDecimal) -> Unit) {
+private fun FilaCampoDecimal(value: BigDecimal, modifier: Modifier = Modifier, onChange: (BigDecimal) -> Unit) {
     var text by remember { mutableStateOf(value.toPlainString()) }
-    // Sincronizar si el valor externo cambia y no coincide con lo escrito
     val valueStr = value.toPlainString()
     if (text.toBigDecimalOrNull()?.compareTo(value) != 0 && text != "" && !text.endsWith(".")) {
         text = valueStr
@@ -843,7 +826,7 @@ private fun FilaCampoDecimal(value: BigDecimal, ancho: Dp, onChange: (BigDecimal
             nuevo.toBigDecimalOrNull()?.let { v -> onChange(v) }
         },
         singleLine    = true,
-        modifier      = Modifier.width(ancho).padding(horizontal = 4.dp),
+        modifier      = modifier.padding(horizontal = 4.dp),
         textStyle     = LocalTextStyle.current.copy(fontSize = 12.sp, textAlign = TextAlign.End),
         colors        = fieldColors()
     )

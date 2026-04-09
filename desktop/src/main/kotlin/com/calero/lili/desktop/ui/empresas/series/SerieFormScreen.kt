@@ -12,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -233,18 +234,39 @@ private fun DocumentoCard(
 
             // Fila 1: tipo documento + formato
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedTextField(
-                    value         = doc.documento,
-                    onValueChange = { onUpdate(doc.copy(documento = it)) },
-                    label         = { Text("Tipo Documento", fontSize = 13.sp) },
-                    singleLine    = true,
-                    modifier      = Modifier.weight(1f).fillMaxWidth(),
-                    colors        = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor   = FColorHeader,
-                        unfocusedBorderColor = FColorBorde,
-                        focusedLabelColor    = FColorHeader
+                // Dropdown Tipo Documento
+                var expandedTipo by remember { mutableStateOf(false) }
+                ExposedDropdownMenuBox(
+                    expanded         = expandedTipo,
+                    onExpandedChange = { expandedTipo = it },
+                    modifier         = Modifier.weight(1f)
+                ) {
+                    OutlinedTextField(
+                        value         = doc.documento.ifBlank { "— Seleccione —" },
+                        onValueChange = {},
+                        readOnly      = true,
+                        label         = { Text("Tipo Documento *", fontSize = 13.sp) },
+                        trailingIcon  = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedTipo) },
+                        modifier      = Modifier.menuAnchor().fillMaxWidth(),
+                        colors        = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor   = FColorHeader,
+                            unfocusedBorderColor = FColorBorde,
+                            focusedLabelColor    = FColorHeader
+                        )
                     )
-                )
+                    ExposedDropdownMenu(
+                        expanded         = expandedTipo,
+                        onDismissRequest = { expandedTipo = false }
+                    ) {
+                        DropdownMenuItem(
+                            text    = { Text("FAC") },
+                            onClick = {
+                                onUpdate(doc.copy(documento = "FAC"))
+                                expandedTipo = false
+                            }
+                        )
+                    }
+                }
                 // Dropdown FormatoDocumento
                 var expandedFormato by remember { mutableStateOf(false) }
                 ExposedDropdownMenuBox(
@@ -273,7 +295,11 @@ private fun DocumentoCard(
                             DropdownMenuItem(
                                 text    = { Text("${fmt.name} — ${fmt.formatoDocumento}") },
                                 onClick = {
-                                    onUpdate(doc.copy(formatoDocumento = fmt))
+                                    val updated = if (fmt == FormatoDocumento.E)
+                                        doc.copy(formatoDocumento = fmt, numeroAutorizacion = "", desde = "", hasta = "", fechaVencimiento = "")
+                                    else
+                                        doc.copy(formatoDocumento = fmt)
+                                    onUpdate(updated)
                                     expandedFormato = false
                                 }
                             )
@@ -284,44 +310,62 @@ private fun DocumentoCard(
 
             Spacer(Modifier.height(10.dp))
 
-            // Fila 2: secuencial + numero autorización
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            // Fila 2: secuencial (9 dígitos, ceros a la izquierda al salir del campo)
+            OutlinedTextField(
+                value         = doc.secuencial,
+                onValueChange = { input ->
+                    val soloDigitos = input.filter { it.isDigit() }.take(9)
+                    onUpdate(doc.copy(secuencial = soloDigitos))
+                },
+                label      = { Text("Secuencial", fontSize = 13.sp) },
+                singleLine = true,
+                modifier   = Modifier
+                    .fillMaxWidth()
+                    .onFocusChanged { focus ->
+                        if (!focus.isFocused && doc.secuencial.isNotEmpty()) {
+                            onUpdate(doc.copy(secuencial = doc.secuencial.padStart(9, '0')))
+                        }
+                    },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor   = FColorHeader,
+                    unfocusedBorderColor = FColorBorde,
+                    focusedLabelColor    = FColorHeader
+                )
+            )
+
+            // Campos exclusivos de documento físico
+            if (doc.formatoDocumento == FormatoDocumento.F) {
+                Spacer(Modifier.height(10.dp))
+
                 FormTextField(
                     value         = doc.numeroAutorizacion,
                     onValueChange = { onUpdate(doc.copy(numeroAutorizacion = it)) },
                     label         = "Número Autorización",
-                    modifier      = Modifier.weight(1f)
+                    modifier      = Modifier.fillMaxWidth()
                 )
-                FormTextField(
-                    value         = doc.secuencial,
-                    onValueChange = { onUpdate(doc.copy(secuencial = it)) },
-                    label         = "Secuencial",
-                    modifier      = Modifier.weight(1f)
-                )
-            }
 
-            Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(10.dp))
 
-            // Fila 3: desde + hasta + fechaVencimiento
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                FormTextField(
-                    value         = doc.desde,
-                    onValueChange = { onUpdate(doc.copy(desde = it)) },
-                    label         = "Desde",
-                    modifier      = Modifier.weight(1f)
-                )
-                FormTextField(
-                    value         = doc.hasta,
-                    onValueChange = { onUpdate(doc.copy(hasta = it)) },
-                    label         = "Hasta",
-                    modifier      = Modifier.weight(1f)
-                )
-                FormTextField(
-                    value         = doc.fechaVencimiento,
-                    onValueChange = { onUpdate(doc.copy(fechaVencimiento = it)) },
-                    label         = "Fecha Vencimiento (dd/MM/yyyy)",
-                    modifier      = Modifier.weight(1.4f)
-                )
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    FormTextField(
+                        value         = doc.desde,
+                        onValueChange = { onUpdate(doc.copy(desde = it)) },
+                        label         = "Desde",
+                        modifier      = Modifier.weight(1f)
+                    )
+                    FormTextField(
+                        value         = doc.hasta,
+                        onValueChange = { onUpdate(doc.copy(hasta = it)) },
+                        label         = "Hasta",
+                        modifier      = Modifier.weight(1f)
+                    )
+                    FormTextField(
+                        value         = doc.fechaVencimiento,
+                        onValueChange = { onUpdate(doc.copy(fechaVencimiento = it)) },
+                        label         = "Fecha Vencimiento (dd/MM/yyyy)",
+                        modifier      = Modifier.weight(1.4f)
+                    )
+                }
             }
         }
     }

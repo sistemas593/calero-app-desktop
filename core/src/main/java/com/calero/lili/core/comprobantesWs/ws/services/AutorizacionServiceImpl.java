@@ -12,7 +12,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AutorizacionServiceImpl {
 
-    public RespuestaComprobante consulta(AutorizacionRequestDto request) {
+    public RespuestaComprobante consulta(AutorizacionRequestDto request) throws Exception {
+
 
         // autorizacionComprobantesOfflineService
         //final String AUTORIZACIONCOMPROBANTESOFFLINESERVICE_WSDL_LOCATION = "https://celcer.sri.gob.ec/comprobantes-electronicos-ws/AutorizacionComprobantesOffline?wsdl" ;
@@ -28,8 +29,8 @@ public class AutorizacionServiceImpl {
         AutorizacionComprobantesOffline port = service.getAutorizacionComprobantesOfflinePort();
         RespuestaComprobante result = port.autorizacionComprobante(claveAccesoComprobante);
 
-        System.out.println("Comprobantes: "+result.getNumeroComprobantes());
-        System.out.println("Clave de acceso: "+result.getClaveAccesoConsultada());
+        System.out.println("Comprobantes: " + result.getNumeroComprobantes());
+        System.out.println("Clave de acceso: " + result.getClaveAccesoConsultada());
         //System.out.println("Autorizaciones: "+result.getAutorizaciones());
         //System.out.println(result.getAutorizaciones().getAutorizacion());
 
@@ -131,6 +132,8 @@ public class AutorizacionServiceImpl {
 //        }
 
         return result;
+
+
     }
 
 }

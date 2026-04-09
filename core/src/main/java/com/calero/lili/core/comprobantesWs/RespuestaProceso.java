@@ -18,6 +18,7 @@ public class RespuestaProceso {
     private String estadoAutorizacion;
     private Integer emailEstado;
     private List<Mensajes> mensajes;
+    private List<Mensajes> mensajesRecepcion;
     private String comprobante;
     private String numeroAutorizacion;
     private String fechaAutorizacion;

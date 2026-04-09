@@ -18,7 +18,7 @@ public class RecepcionController {
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
     public RespuestaSolicitud create(
-            @RequestBody RecepcionRequestDto request) {
+            @RequestBody RecepcionRequestDto request) throws Exception {
         return recepcionService.enviar(request);
     }
 

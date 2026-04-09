@@ -118,7 +118,7 @@ class SerieFormViewModel(
             AdEmpresaSerieCreationRequestDto.Documentos.builder()
                 .documento(doc.documento.trim())
                 .numeroAutorizacion(doc.numeroAutorizacion.trim())
-                .secuencial(doc.secuencial.trim())
+                .secuencial(doc.secuencial.trim().padStart(9, '0'))
                 .formatoDocumento(doc.formatoDocumento)
                 .desde(doc.desde.trim())
                 .hasta(doc.hasta.trim())
