@@ -2,10 +2,9 @@ package com.calero.lili.api.controllers;
 
 import com.calero.lili.api.utils.IdDataServiceImpl;
 import com.calero.lili.core.comprobantesWs.RespuestaProcesoGetDto;
-import com.calero.lili.core.comprobantesWs.services.ProcesarDocumentosServiceImpl;
+import com.calero.lili.core.comprobantesWs.services.DocumentosService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,45 +20,38 @@ import java.util.UUID;
 @RequestMapping(value = "api/v1.0/procesar-documentos")
 @RequiredArgsConstructor
 @CrossOrigin(originPatterns = "*")
-
-// TODO REVISAR
-
 public class ProcesarDocumentosController {
 
-    @Autowired
-    private ProcesarDocumentosServiceImpl procesarDocumentosService;
+    private final DocumentosService documentosService;
     private final IdDataServiceImpl idDataService;
 
     @PostMapping("ventas/{idEmpresa}/{id}")
     @ResponseStatus(HttpStatus.CREATED)
     public RespuestaProcesoGetDto procesarFacNcNd(@PathVariable("idEmpresa") Long idEmpresa,
                                                   @PathVariable("id") UUID id) {
-        return procesarDocumentosService.procesarFacNcNd(idDataService.getIdData(), idEmpresa, id, "WEB");
+        return documentosService.procesarDocumentoVenta(idDataService.getIdData(), idEmpresa, id, "WEB");
 
     }
 
     @PostMapping("guias-remision/{idEmpresa}/{id}")
     @ResponseStatus(HttpStatus.CREATED)
-    public RespuestaProcesoGetDto procesarGuiaRemision(
-            @PathVariable("idEmpresa") Long idEmpresa,
-            @PathVariable("id") UUID id) {
-        return procesarDocumentosService.procesarGuiaRemision(idDataService.getIdData(), idEmpresa, id);
+    public RespuestaProcesoGetDto procesarGuiaRemision(@PathVariable("idEmpresa") Long idEmpresa,
+                                                       @PathVariable("id") UUID id) {
+        return documentosService.procesarGuiaRemision(idDataService.getIdData(), idEmpresa, id, "WEB");
     }
 
     @PostMapping("liquidaciones/{idEmpresa}/{id}")
     @ResponseStatus(HttpStatus.CREATED)
-    public RespuestaProcesoGetDto procesarLiquidacion(
-            @PathVariable("idEmpresa") Long idEmpresa,
-            @PathVariable("id") UUID id) {
-        return procesarDocumentosService.procesarLiquidacion(idDataService.getIdData(), idEmpresa, id);
+    public RespuestaProcesoGetDto procesarLiquidacion(@PathVariable("idEmpresa") Long idEmpresa,
+                                                      @PathVariable("id") UUID id) {
+        return documentosService.procesarLiquidacion(idDataService.getIdData(), idEmpresa, id, "WEB");
     }
 
     @PostMapping("comprobantes-retencion/{idEmpresa}/{id}")
     @ResponseStatus(HttpStatus.CREATED)
-    public RespuestaProcesoGetDto procesarComprobanteRetencion(
-            @PathVariable("idEmpresa") Long idEmpresa,
-            @PathVariable("id") UUID id) {
-        return procesarDocumentosService.procesarComprobanteRetencion(idDataService.getIdData(), idEmpresa, id);
+    public RespuestaProcesoGetDto procesarComprobanteRetencion(@PathVariable("idEmpresa") Long idEmpresa,
+                                                               @PathVariable("id") UUID id) {
+        return documentosService.procesarComprobanteRetencion(idDataService.getIdData(), idEmpresa, id, "WEB");
     }
 
 //    @PostMapping()

@@ -1,7 +1,11 @@
 package com.calero.lili.core.modCompras.modComprasRetenciones;
 
+import com.calero.lili.core.adLogs.builder.AdLogsBuilder;
 import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.core.comprobantes.services.ComprobanteServiceImpl;
+import com.calero.lili.core.comprobantesWs.dto.DatosEmpresaDto;
+import com.calero.lili.core.comprobantesWs.services.BuscarDatosEmpresa;
+import com.calero.lili.core.comprobantesWs.services.ProcesarDocumentosServiceImpl;
 import com.calero.lili.core.dtos.Mensajes;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
@@ -70,9 +74,14 @@ public class ComprasRetencionesServiceImpl {
     private final CpImpuestosServiceImpl cpImpuestosService;
     private final ComprobanteServiceImpl comprobanteService;
     private final GeTercerosRepository geTercerosRepository;
+    private final CpRetencionPersistenceService cpRetencionPersistenceService;
+    private final BuscarDatosEmpresa buscarDatosEmpresa;
+    private final AdLogsBuilder adLogsBuilder;
+    private final ProcesarDocumentosServiceImpl procesarDocumentosService;
 
 
-    public ResponseDto create(Long idData, Long idEmpresa, CreationRetencionRequestDto request, String usuario) {
+    public ResponseDto create(Long idData, Long idEmpresa, CreationRetencionRequestDto request,
+                              String usuario, String origenCertificado) {
 
 
         DateUtils.validarFechaEmision(request.getFechaEmisionRetencion());
@@ -91,42 +100,27 @@ public class ComprasRetencionesServiceImpl {
         retencionesEntity.setCreatedDate(LocalDateTime.now());
 
         comprobanteService.getComprobanteXmlRetencion(idData, idEmpresa, retencionesEntity, request);
-        CpRetencionesEntity saved = comprasRetencionesRepository.save(retencionesEntity);
+        CpRetencionesEntity saved = cpRetencionPersistenceService.guardarRetencion(retencionesEntity, request);
 
-        validarImpuesto(request, saved);
+        DatosEmpresaDto datosEmpresaDto = null;
+
+        switch (origenCertificado) {
+
+            case "WEB" -> datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(saved.getIdData(), saved.getIdEmpresa());
+
+            case "LOC" ->
+                    datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(saved.getIdData(), saved.getIdEmpresa());
+        }
+
+        if (Objects.nonNull(datosEmpresaDto)) {
+            if (datosEmpresaDto.getMomentoEnvioFactura() == 2) {
+                procesarDocumentosService.procesarComprobanteRetencion(saved,
+                        adLogsBuilder.builderComprobanteRetencion(saved, Boolean.FALSE), datosEmpresaDto);
+            }
+        }
+
+
         return responseApiBuilder.builderResponse(saved.getIdRetencion().toString());
-    }
-
-
-    private void validarImpuesto(CreationRetencionRequestDto request,
-                                 CpRetencionesEntity entidad) {
-        if (Objects.nonNull(request.getCompraImpuestos())) {
-            builderListSave(request).forEach(item -> {
-                cpImpuestosService.updateImpuestoRetencion(entidad, item);
-            });
-        }
-    }
-
-    private List<com.calero.lili.core.dtos.CompraImpuestosDto> builderListSave(CreationRetencionRequestDto request) {
-        List<com.calero.lili.core.dtos.CompraImpuestosDto> listImpuesto = new ArrayList<>();
-
-        request.getCompraImpuestos().forEach(item -> {
-            listImpuesto.add(com.calero.lili.core.dtos.CompraImpuestosDto.builder()
-                    .idCompraImpuesto(item.getCompraImpuestoId())
-                    .listCodigosImpuesto(Objects.nonNull(item.getImpuestoCodigos())
-                            ? item.getImpuestoCodigos()
-                            : null)
-                    .origen(validarCodigoImpuesto(item))
-                    .build());
-        });
-        return listImpuesto;
-    }
-
-    private String validarCodigoImpuesto(CompraImpuestosDto model) {
-        if (Objects.nonNull(model.getImpuestoCodigos())) {
-            return CodigoImpuesto.IMP.name();
-        }
-        return CodigoImpuesto.IMC.name();
     }
 
 

@@ -35,7 +35,7 @@ public class BuscarDatosEmpresa {
         //String sgn = "data00001/file001.p12";
         Optional<AdEmpresaEntity> empresa = adEmpresasRepository.findById(idData, idEmpresa);
 
-        if (!empresa.isPresent()) {
+        if (empresa.isEmpty()) {
             throw new GeneralException(MessageFormat
                     .format("Data {1}, Empresa {1} no existe", idData, idEmpresa));
         }
@@ -70,6 +70,7 @@ public class BuscarDatosEmpresa {
                 .pwd(empresa.get().getContraseniaFirma())
                 .imageBytes(imageBytes)
                 .inputStreamFileSgn(is1)
+                .momentoEnvioFactura(empresa.get().getMomentoEnvioFactura())
                 .build();
 
     }
@@ -148,6 +149,7 @@ public class BuscarDatosEmpresa {
                 .inputStreamFileSgn(inputStreamFirma)
                 .imageBytes(imageBytes)
                 .pwd(pwd)
+                .momentoEnvioFactura(empresa.getMomentoEnvioFactura())
                 .build();
     }
 }

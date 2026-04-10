@@ -1,7 +1,11 @@
 package com.calero.lili.core.modVentas.facturas;
 
+import com.calero.lili.core.adLogs.builder.AdLogsBuilder;
 import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.core.comprobantes.services.ComprobanteServiceImpl;
+import com.calero.lili.core.comprobantesWs.dto.DatosEmpresaDto;
+import com.calero.lili.core.comprobantesWs.services.BuscarDatosEmpresa;
+import com.calero.lili.core.comprobantesWs.services.ProcesarDocumentosServiceImpl;
 import com.calero.lili.core.dtos.Mensajes;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
@@ -14,8 +18,6 @@ import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.enums.TipoVenta;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.errors.exceptions.NotFoundException;
-import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosEntity;
-import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosRepository;
 import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
 import com.calero.lili.core.modComprasItems.GeItemsRepository;
 import com.calero.lili.core.modContabilidad.modAsientos.CnAsientosEntity;
@@ -29,6 +31,7 @@ import com.calero.lili.core.modTerceros.GeTercerosRepository;
 import com.calero.lili.core.modVentas.GenerarAsientoServiceImpl;
 import com.calero.lili.core.modVentas.VtVentaEntity;
 import com.calero.lili.core.modVentas.VtVentaValoresEntity;
+import com.calero.lili.core.modVentas.VtVentasPersistenceService;
 import com.calero.lili.core.modVentas.VtVentasRepository;
 import com.calero.lili.core.modVentas.builder.GetListResponseBuilder;
 import com.calero.lili.core.modVentas.dto.GetListDto;
@@ -66,7 +69,6 @@ import java.awt.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -79,13 +81,10 @@ import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 @Slf4j
 public class VtVentasFacturasServiceImpl {
 
     private final VtVentasRepository vtVentaRepository;
-    private final AdEmpresasSeriesDocumentosRepository adEmpresasSeriesDocumentosRepository;
-
     private final ResponseApiBuilder responseApiBuilder;
     private final VtFacturasBuilder vtFacturasBuilder;
     private final GetListResponseBuilder getListResponseBuilder;
@@ -100,8 +99,13 @@ public class VtVentasFacturasServiceImpl {
     private final CnAsientosRepository cnAsientosRepository;
     private final GenerarAsientoServiceImpl generarAsientoService;
     private final AdIvaPorcentajeServiceImpl adIvaPorcentajeService;
+    private final VtVentasPersistenceService facturasPersistenceService;
+    private final ProcesarDocumentosServiceImpl procesarDocumentosService;
+    private final AdLogsBuilder adLogsBuilder;
+    private final BuscarDatosEmpresa buscarDatosEmpresa;
 
-    public ResponseDto create(Long idData, Long idEmpresa, CreationFacturaRequestDto request, String usuario) {
+    public ResponseDto create(Long idData, Long idEmpresa,
+                              CreationFacturaRequestDto request, String usuario, String origenCertificado) {
 
 
         DateUtils.validarFechaEmision(request.getFechaEmision());
@@ -137,24 +141,26 @@ public class VtVentasFacturasServiceImpl {
 
         validateReembolso(request, vtVentaEntity);
         vtComprobanteService.getComprobanteXmlFactura(idData, idEmpresa, vtVentaEntity);
-        VtVentaEntity saved = vtVentaRepository.save(vtVentaEntity);
 
-        if (request.getCuentaPorCobrar()) {
-            //xcFacturaService.create(idData, idEmpresa, facturaCuentasXCobrarBuilder.builder(request), vtVentaEntityDto.getIdVenta());
-            // le paso primero al request y luego del request a la entidad esta mal//////////////////////////
-            //RequestXcFacturasDto cxc = facturaCuentasXCobrarBuilder.builder(request);
+        VtVentaEntity saved = facturasPersistenceService.guardarFactura(vtVentaEntity, request, idData, idEmpresa);
 
-            xcFacturasRepository.save(xcFacturasBuilder.builderEntityFac(request, idData, idEmpresa, vtVentaEntity.getIdVenta()));
+
+        DatosEmpresaDto datosEmpresaDto = null;
+
+        switch (origenCertificado) {
+
+            case "WEB" -> datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(saved.getIdData(), saved.getIdEmpresa());
+
+            case "LOC" ->
+                    datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(saved.getIdData(), saved.getIdEmpresa());
         }
 
-        AdEmpresasSeriesDocumentosEntity documentosEntity = adEmpresasSeriesDocumentosRepository
-                .findBySerieAndDocumento(idData, idEmpresa, request.getSerie(), TipoVenta.FAC.name())
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("Serie {0}, Secuencial {1}, documento {2} no existe", request.getSerie(), request.getSecuencial(), TipoVenta.FAC.name())));
-
-        int nuevo = Integer.parseInt(request.getSecuencial()) + 1;
-        String sec = request.getSecuencial();
-        DecimalFormat df = new DecimalFormat(sec.replaceAll("[1-9]", "0"));
-        documentosEntity.setSecuencial(df.format(nuevo));
+        if (Objects.nonNull(datosEmpresaDto)) {
+            if (datosEmpresaDto.getMomentoEnvioFactura() == 2) {
+                procesarDocumentosService.procesarFacNcNd(saved,
+                        adLogsBuilder.builderVentasDocumentos(saved, Boolean.FALSE), datosEmpresaDto);
+            }
+        }
 
 
         return responseApiBuilder.builderResponse(saved.getIdVenta().toString());
@@ -302,6 +308,7 @@ public class VtVentasFacturasServiceImpl {
         }
     }
 
+    @Transactional
     public void delete(Long idData, Long idEmpresa, UUID idVenta, FilterListDto filters,
                        TipoPermiso tipoBusqueda, String usuario) {
 
@@ -315,6 +322,7 @@ public class VtVentasFacturasServiceImpl {
 
     }
 
+    @Transactional(readOnly = true)
     public GetFacturaDto findById(Long idData, Long idEmpresa, UUID idVenta,
                                   FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
@@ -340,6 +348,7 @@ public class VtVentasFacturasServiceImpl {
     }
 
 
+    @Transactional(readOnly = true)
     public List<Mensajes> findMensajeById(Long idData, Long idEmpresa, UUID idVenta,
                                           FilterListDto filters,
                                           TipoPermiso tipoBusqueda, String usuario) {
@@ -349,6 +358,7 @@ public class VtVentasFacturasServiceImpl {
     }
 
 
+    @Transactional(readOnly = true)
     public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa,
                                                     FilterListDto filters, Pageable pageable,
                                                     TipoPermiso tipoBusqueda, String usuario) {
@@ -384,6 +394,7 @@ public class VtVentasFacturasServiceImpl {
     }
 
 
+    @Transactional(readOnly = true)
     public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa,
                                                                       FilterListDto filters, TipoPermiso tipoBusqueda, String usuario,
                                                                       Pageable pageable) {
@@ -424,6 +435,7 @@ public class VtVentasFacturasServiceImpl {
     }
 
 
+    @Transactional(readOnly = true)
     public void exportarExcel(Long idData, Long idEmpresa, OutputStream outputStream, FilterListDto filter) throws IOException {
 
         log.info("Iniciando la exportación a Excel con el filtro: {}", filter);
@@ -574,6 +586,7 @@ public class VtVentasFacturasServiceImpl {
         }
     }
 
+    @Transactional(readOnly = true)
     public void exportarPDF(Long idData, Long idEmpresa, OutputStream outputStream, FilterListDto filters) throws DocumentException, IOException {
 
         List<VtVentaEntity> facturas = vtVentaRepository.findAll(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getTipoVenta(), filters.getSerie(), filters.getSecuencial());
@@ -785,6 +798,7 @@ public class VtVentasFacturasServiceImpl {
 
     }
 
+    @Transactional
     public ResponseDto updateAnulada(Long idData, Long idEmpresa, UUID idVenta, FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         VtVentaEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
@@ -834,6 +848,7 @@ public class VtVentasFacturasServiceImpl {
     }
 
 
+    @Transactional
     public ResponseDto createAsientoVenta(Long idData, Long idEmpresa, UUID idVenta) {
 
         VtVentaEntity vtVentaEntity = vtVentaRepository

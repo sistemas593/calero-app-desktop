@@ -1,6 +1,5 @@
 package com.calero.lili.desktop.ui.ventas.facturas
 
-import com.calero.lili.core.comprobantesWs.services.ProcesarDocumentosServiceImpl
 import java.util.UUID
 import com.calero.lili.core.dtos.Paginator
 import com.calero.lili.core.enums.TipoPermiso
@@ -80,7 +79,6 @@ data class FacturasUiState(
 
 class FacturasViewModel(
     private val service        : VtVentasFacturasServiceImpl,
-    private val procesarService: ProcesarDocumentosServiceImpl,
     private val tercerosService: GeTercerosServiceImpl,
     private val xmlPdfService  : GetXmlVtVentasFacturasServiceImpl,
     private val idData         : Long = 1L,
@@ -181,12 +179,6 @@ class FacturasViewModel(
         scope.launch {
             _state.update { it.copy(firmando = true, firmaError = null) }
             try {
-                procesarService.procesarFacNcNd(
-                    idData,
-                    idEmpresa,
-                    id,
-                    "LOC"
-                )
                 _state.update { it.copy(
                     firmando         = false,
                     firmaDialogFactura = null,

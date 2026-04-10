@@ -17,7 +17,6 @@ import com.calero.lili.core.comprobantesWs.ws.services.RecepcionServiceImpl;
 import com.calero.lili.core.dtos.Mensajes;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.errors.exceptions.GeneralException;
-import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.CpLiquidacionesEntity;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.LiquidacionesRepository;
 import com.calero.lili.core.modCompras.modComprasRetenciones.ComprasRetencionesRepository;
@@ -39,7 +38,6 @@ import xades4j.SignXmlString;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -60,7 +58,6 @@ public class ProcesarDocumentosServiceImpl {
     private final RecepcionServiceImpl recepcionService;
     private final AutorizacionServiceImpl autorizacionService;
     private final ProcesarEnvioCorreoServiceImpl procesarEnvioCorreo;
-    private final ProcesarFirmarXmlServiceImpl procesarFirmarXmlService;
     @Autowired
     private final SignXmlString signXmlString;
 
@@ -70,8 +67,9 @@ public class ProcesarDocumentosServiceImpl {
 //    private static String projectId = "caleroapp";
 //    private static String bucketName = "caleroapp-bucket-sgn";
 
-    private final AdEmpresasRepository adEmpresasRepository;
+
     private final BuscarDatosEmpresa buscarDatosEmpresa;
+
 //    public DatosEmpresaDto buscarEmpresa(Long idData, Long idEmpresa){
 //        String sgn = "data00001/file001.p12";
 //        Optional<AdEmpresaEntity> empresa = adEmpresasRepository.findById(idData,idEmpresa);
@@ -104,36 +102,20 @@ public class ProcesarDocumentosServiceImpl {
 //
 //    }
 
-    public RespuestaProcesoGetDto procesarFacNcNd(Long idData, Long idEmpresa, UUID id, String origenCertificado) {
+    public RespuestaProcesoGetDto procesarFacNcNd(VtVentaEntity documento, AdLogsRequestDto logs, DatosEmpresaDto datosEmpresaDto) {
 
         System.out.println("Inicio del proceso");
 
-        DatosEmpresaDto datosEmpresaDto = null;
-
-        switch (origenCertificado) {
-
-            case "WEB" -> datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(idData, idEmpresa);
-
-            case "LOC" -> datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(idData, idEmpresa);
-        }
-
-
-        // LISTO PARA ENVIAR RECEPCION
-        VtVentaEntity venta1 = vtVentaRepository.findByIdEntity(idData, idEmpresa, id, null, null).
-                orElseThrow(() -> new GeneralException(MessageFormat.format("Documento de venta {0} no exists", id)));
-
-        if (!venta1.getEstadoDocumento().equals(EstadoDocumento.ENV) && !venta1.getEstadoDocumento().equals(EstadoDocumento.REC)) {
+        if (!documento.getEstadoDocumento().equals(EstadoDocumento.ENV) && !documento.getEstadoDocumento().equals(EstadoDocumento.REC)) {
             throw new GeneralException("El estado de documento no es para enviar o recibido");
         }
 
-        AdLogsRequestDto logs = generateLogsRequest(venta1.getIdVenta(), venta1.getSerie(), venta1.getSecuencial(),
-                venta1.getTipoVenta(), venta1.getIdData(), venta1.getIdEmpresa(), Boolean.FALSE);
 
-        System.out.println("1. estado del documento en la base de datos:" + venta1.getEstadoDocumento());
-        String claveAcceso = venta1.getClaveAcceso();
-        Integer ambiente = Integer.valueOf(venta1.getAmbiente());
-        String estadoDocumento = venta1.getEstadoDocumento().toString();
-        String comprobante = venta1.getComprobante();
+        System.out.println("1. estado del documento en la base de datos:" + documento.getEstadoDocumento());
+        String claveAcceso = documento.getClaveAcceso();
+        Integer ambiente = Integer.valueOf(documento.getAmbiente());
+        String estadoDocumento = documento.getEstadoDocumento().toString();
+        String comprobante = documento.getComprobante();
 
         RespuestaProceso respuestaProceso = null;
         respuestaProceso = procesarDocumento(estadoDocumento, claveAcceso, ambiente, comprobante,
@@ -147,25 +129,25 @@ public class ProcesarDocumentosServiceImpl {
         switch (respuestaProceso.getEstadoEnvio()) {
             case "REC":
                 System.out.println("procesarFacNcNd 1. Guardar fc/nc/nd como recibida");
-                venta1.setEstadoDocumento(EstadoDocumento.REC);
+                documento.setEstadoDocumento(EstadoDocumento.REC);
                 if (respuestaProceso.getEstadoAutorizacion().equals("AUT")) {
                     System.out.println("procesarFacNcNd Guardar fc/nc/nd como autorizada");
 
-                    venta1.setEstadoDocumento(EstadoDocumento.AUT);
-                    venta1.setNumeroAutorizacion(respuestaProceso.getNumeroAutorizacion());
-                    venta1.setComprobante(respuestaProceso.getComprobante());
-                    venta1.setFechaAutorizacion(respuestaProceso.getFechaAutorizacion());
+                    documento.setEstadoDocumento(EstadoDocumento.AUT);
+                    documento.setNumeroAutorizacion(respuestaProceso.getNumeroAutorizacion());
+                    documento.setComprobante(respuestaProceso.getComprobante());
+                    documento.setFechaAutorizacion(respuestaProceso.getFechaAutorizacion());
 
-                    if (!Objects.isNull(venta1.getEmail())) {
+                    if (!Objects.isNull(documento.getEmail())) {
 
-                        if (!venta1.getEmail().isEmpty()) {
+                        if (!documento.getEmail().isEmpty()) {
                             EnvioCorreoDto envioCorreoDto = new EnvioCorreoDto();
-                            envioCorreoDto.setComprobante(venta1.getComprobante());
-                            envioCorreoDto.setNumeroAutorizacion(venta1.getNumeroAutorizacion());
-                            envioCorreoDto.setFechaAutorizacion(venta1.getFechaAutorizacion());
-                            envioCorreoDto.setNombreReceptor(venta1.getTercero().getTercero());
+                            envioCorreoDto.setComprobante(documento.getComprobante());
+                            envioCorreoDto.setNumeroAutorizacion(documento.getNumeroAutorizacion());
+                            envioCorreoDto.setFechaAutorizacion(documento.getFechaAutorizacion());
+                            envioCorreoDto.setNombreReceptor(documento.getTercero().getTercero());
 
-                            switch (venta1.getTipoVenta()) {
+                            switch (documento.getTipoVenta()) {
                                 case "FAC":
                                     envioCorreoDto.setCodigoDocumento("01");
                                     break;
@@ -176,14 +158,14 @@ public class ProcesarDocumentosServiceImpl {
                                     envioCorreoDto.setCodigoDocumento("05");
                             }
 
-                            envioCorreoDto.setSecuencial(venta1.getSecuencial());
-                            envioCorreoDto.setSerie(venta1.getSerie());
-                            envioCorreoDto.setFechaEmision(DateUtils.toString(venta1.getFechaEmision()));
-                            envioCorreoDto.setClaveAcceso(venta1.getClaveAcceso());
-                            envioCorreoDto.setEmail(venta1.getEmail());
+                            envioCorreoDto.setSecuencial(documento.getSecuencial());
+                            envioCorreoDto.setSerie(documento.getSerie());
+                            envioCorreoDto.setFechaEmision(DateUtils.toString(documento.getFechaEmision()));
+                            envioCorreoDto.setClaveAcceso(documento.getClaveAcceso());
+                            envioCorreoDto.setEmail(documento.getEmail());
                             System.out.println("Enviar correo con la siguiente informacion: " + envioCorreoDto.toString());
                             // Integer respuestaEnvioCorreo = procesarEnvioCorreo.enviarCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
-                            venta1.setEmailEstado(1);
+                            documento.setEmailEstado(1);
                             respuestaProceso.setEmailEstado(1);
 
                         }
@@ -192,21 +174,21 @@ public class ProcesarDocumentosServiceImpl {
 
                 if (respuestaProceso.getEstadoAutorizacion().equals("NOA")) {
                     System.out.println("procesarFacNcNd Guardar fc/nc/nd como NO autorizada");
-                    venta1.setEstadoDocumento(EstadoDocumento.NOA);
+                    documento.setEstadoDocumento(EstadoDocumento.NOA);
                     if (!Objects.isNull(respuestaProceso.getMensajes())) {
-                        venta1.setMensajes(respuestaProceso.getMensajes());
+                        documento.setMensajes(respuestaProceso.getMensajes());
                     }
                 }
 
-                vtVentaRepository.save(venta1);
+                vtVentaRepository.save(documento);
                 break;
             case "DEV":
                 System.out.println("2. Guardar fc/nc/nd como devuelto");
-                venta1.setEstadoDocumento(EstadoDocumento.DEV);
+                documento.setEstadoDocumento(EstadoDocumento.DEV);
                 if (!Objects.isNull(respuestaProceso.getMensajes())) {
-                    venta1.setMensajes(respuestaProceso.getMensajes());
+                    documento.setMensajes(respuestaProceso.getMensajes());
                 }
-                vtVentaRepository.save(venta1);
+                vtVentaRepository.save(documento);
                 break;
         }
 
@@ -228,30 +210,21 @@ public class ProcesarDocumentosServiceImpl {
     }
 
 
-    public RespuestaProcesoGetDto procesarGuiaRemision(Long idData, Long idEmpresa, UUID id) {
+    public RespuestaProcesoGetDto procesarGuiaRemision(VtGuiaEntity guia, AdLogsRequestDto logs, DatosEmpresaDto datosEmpresaDto) {
 
         System.out.println("Inicio del proceso");
 
-        DatosEmpresaDto datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(idData, idEmpresa);
 
-        // LISTO PARA ENVIAR RECEPCION
-        VtGuiaEntity venta1 = vtGuiasRepository.findByIdEntity(idData, idEmpresa, id, null, null).
-                orElseThrow(() -> new GeneralException(MessageFormat.format("Guia Remision {0} no exists", id)));
-
-        if (!venta1.getEstadoDocumento().equals(EstadoDocumento.ENV) && !venta1.getEstadoDocumento().equals(EstadoDocumento.REC)) {
+        if (!guia.getEstadoDocumento().equals(EstadoDocumento.ENV) && !guia.getEstadoDocumento().equals(EstadoDocumento.REC)) {
             throw new GeneralException("El estado de documento no es para enviar o recibido");
         }
 
-        AdLogsRequestDto logs = generateLogsRequest(venta1.getIdGuia(), venta1.getSerie(), venta1.getSecuencial(),
-                "GUIA", venta1.getIdData(), venta1.getIdEmpresa(), Boolean.TRUE);
-
-
         // SI EL DOCUMENTO ESTA PARA ENVIAR
-        System.out.println("1. estado del documento en la base de datos:" + venta1.getEstadoDocumento());
-        String claveAcceso = venta1.getClaveAcceso();
-        Integer ambiente = Integer.valueOf(venta1.getAmbiente());
-        String estadoDocumento = venta1.getEstadoDocumento().toString();
-        String comprobante = venta1.getComprobante();
+        System.out.println("1. estado del documento en la base de datos:" + guia.getEstadoDocumento());
+        String claveAcceso = guia.getClaveAcceso();
+        Integer ambiente = Integer.valueOf(guia.getAmbiente());
+        String estadoDocumento = guia.getEstadoDocumento().toString();
+        String comprobante = guia.getComprobante();
 
         // OJOOOOO ENVIAR DOCUMENTOS CON ESTADO ENV O REC
         RespuestaProceso respuestaProceso = procesarDocumento(estadoDocumento, claveAcceso, ambiente, comprobante,
@@ -263,30 +236,30 @@ public class ProcesarDocumentosServiceImpl {
         switch (respuestaProceso.getEstadoEnvio()) {
             case "REC":
                 System.out.println("1. Guardar guia como recibida");
-                venta1.setEstadoDocumento(EstadoDocumento.REC);
+                guia.setEstadoDocumento(EstadoDocumento.REC);
                 if (respuestaProceso.getEstadoAutorizacion().equals("AUT")) {
-                    venta1.setEstadoDocumento(EstadoDocumento.AUT);
-                    venta1.setNumeroAutorizacion(respuestaProceso.getNumeroAutorizacion());
-                    venta1.setComprobante(respuestaProceso.getComprobante());
-                    venta1.setFechaAutorizacion(respuestaProceso.getFechaAutorizacion());
+                    guia.setEstadoDocumento(EstadoDocumento.AUT);
+                    guia.setNumeroAutorizacion(respuestaProceso.getNumeroAutorizacion());
+                    guia.setComprobante(respuestaProceso.getComprobante());
+                    guia.setFechaAutorizacion(respuestaProceso.getFechaAutorizacion());
 
-                    if (!Objects.isNull(venta1.getEmail())) {
+                    if (!Objects.isNull(guia.getEmail())) {
 
-                        if (!venta1.getEmail().isEmpty()) {
+                        if (!guia.getEmail().isEmpty()) {
                             EnvioCorreoDto envioCorreoDto = new EnvioCorreoDto();
-                            envioCorreoDto.setComprobante(venta1.getComprobante());
-                            envioCorreoDto.setNumeroAutorizacion(venta1.getNumeroAutorizacion());
-                            envioCorreoDto.setFechaAutorizacion(venta1.getFechaAutorizacion());
-                            envioCorreoDto.setNombreReceptor(venta1.getDestinatario().getTercero());
+                            envioCorreoDto.setComprobante(guia.getComprobante());
+                            envioCorreoDto.setNumeroAutorizacion(guia.getNumeroAutorizacion());
+                            envioCorreoDto.setFechaAutorizacion(guia.getFechaAutorizacion());
+                            envioCorreoDto.setNombreReceptor(guia.getDestinatario().getTercero());
                             envioCorreoDto.setCodigoDocumento("06");
-                            envioCorreoDto.setSecuencial(venta1.getSecuencial());
-                            envioCorreoDto.setSerie(venta1.getSerie());
-                            envioCorreoDto.setFechaEmision(DateUtils.toString(venta1.getFechaEmision()));
-                            envioCorreoDto.setClaveAcceso(venta1.getClaveAcceso());
-                            envioCorreoDto.setEmail(venta1.getEmail());
+                            envioCorreoDto.setSecuencial(guia.getSecuencial());
+                            envioCorreoDto.setSerie(guia.getSerie());
+                            envioCorreoDto.setFechaEmision(DateUtils.toString(guia.getFechaEmision()));
+                            envioCorreoDto.setClaveAcceso(guia.getClaveAcceso());
+                            envioCorreoDto.setEmail(guia.getEmail());
 
                             Integer respuestaEnvioCorreo = procesarEnvioCorreo.enviarCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
-                            venta1.setEmailEstado(respuestaEnvioCorreo);
+                            guia.setEmailEstado(respuestaEnvioCorreo);
                             respuestaProceso.setEmailEstado(respuestaEnvioCorreo);
                         }
                     }
@@ -294,44 +267,37 @@ public class ProcesarDocumentosServiceImpl {
                 }
                 if (respuestaProceso.getEstadoAutorizacion().equals("NOA")) {
                     System.out.println("procesar Guardar guia como NO autorizada");
-                    venta1.setEstadoDocumento(EstadoDocumento.NOA);
+                    guia.setEstadoDocumento(EstadoDocumento.NOA);
                     if (!Objects.isNull(respuestaProceso.getMensajes())) {
-                        venta1.setMensajes(respuestaProceso.getMensajes());
+                        guia.setMensajes(respuestaProceso.getMensajes());
                     }
                 }
 
 
-                vtGuiasRepository.save(venta1);
+                vtGuiasRepository.save(guia);
                 break;
             case "DEV":
                 System.out.println("2. Guardar guia como devuelto");
-                venta1.setEstadoDocumento(EstadoDocumento.DEV);
+                guia.setEstadoDocumento(EstadoDocumento.DEV);
                 if (!Objects.isNull(respuestaProceso.getMensajes())) {
-                    venta1.setMensajes(respuestaProceso.getMensajes());
+                    guia.setMensajes(respuestaProceso.getMensajes());
                 }
-                vtGuiasRepository.save(venta1);
+                vtGuiasRepository.save(guia);
                 break;
         }
         return responderProceso(respuestaProceso);
     }
 
 
-    public RespuestaProcesoGetDto procesarLiquidacion(Long idData, Long idEmpresa, UUID id) {
+    public RespuestaProcesoGetDto procesarLiquidacion(CpLiquidacionesEntity venta1, AdLogsRequestDto log, DatosEmpresaDto datosEmpresaDto) {
 
         System.out.println("Inicio del proceso");
-        DatosEmpresaDto datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(idData, idEmpresa);
 
         // LISTO PARA ENVIAR RECEPCION
-        CpLiquidacionesEntity venta1 = liquidacionesRepository.findByIdEntity(idData, idEmpresa, id, null, null).
-                orElseThrow(() -> new GeneralException(MessageFormat.format("Liquidacion {0} no exists", id)));
 
         if (!venta1.getEstadoDocumento().equals(EstadoDocumento.ENV) && !venta1.getEstadoDocumento().equals(EstadoDocumento.REC)) {
             throw new GeneralException("El estado de documento no es para enviar o recibido");
         }
-
-        AdLogsRequestDto log = generateLogsRequest(venta1.getIdLiquidacion(), venta1.getSerie(), venta1.getSecuencial(),
-                "LIQ", venta1.getIdData(), venta1.getIdEmpresa(), Boolean.TRUE);
-
 
         // SI EL DOCUMENTO ESTA PARA ENVIAR
         System.out.println("1. estado del documento en la base de datos:" + venta1.getEstadoDocumento());
@@ -400,22 +366,13 @@ public class ProcesarDocumentosServiceImpl {
         return responderProceso(respuestaProceso);
     }
 
-    public RespuestaProcesoGetDto procesarComprobanteRetencion(Long idData, Long idEmpresa, UUID id) {
+    public RespuestaProcesoGetDto procesarComprobanteRetencion(CpRetencionesEntity venta1, AdLogsRequestDto log, DatosEmpresaDto datosEmpresaDto) {
 
         System.out.println("Inicio del proceso");
-        DatosEmpresaDto datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(idData, idEmpresa);
-
-        // LISTO PARA ENVIAR RECEPCION
-        CpRetencionesEntity venta1 = comprasRetencionesRepository.findByIdEntity(idData, idEmpresa, id, null, null).
-                orElseThrow(() -> new GeneralException(MessageFormat.format("Comprobante retencion {0} no exists", id)));
 
         if (!venta1.getEstadoDocumento().equals(EstadoDocumento.ENV) && !venta1.getEstadoDocumento().equals(EstadoDocumento.REC)) {
             throw new GeneralException("El estado de documento no es para enviar o recibido");
         }
-
-        AdLogsRequestDto log = generateLogsRequest(venta1.getIdRetencion(), venta1.getSerieRetencion(),
-                venta1.getSecuencialRetencion(), "RET", venta1.getIdData(), venta1.getIdEmpresa(), Boolean.TRUE);
-
 
         // SI EL DOCUMENTO ESTA PARA ENVIAR
         System.out.println("1. estado del documento en la base de datos:" + venta1.getEstadoDocumento());
@@ -630,13 +587,12 @@ public class ProcesarDocumentosServiceImpl {
                 respuestaProceso.setMensajes(respuestaEnvio.getMensajes());
             }
 
-            // TODO INCLUIR EL LOG EN
 
             procesarPausarService.pausar();
 
             if (respuestaEnvio.getEstadoEnvio().equals(EstadoDocumento.REC)) {
                 respuestaProceso.setEstadoEnvio("REC");
-                // TODO INCLUIR EL LOG AQUIDE CONSULTA DE DOCUMENTO DE QUE YA SE RECIBIO
+                adLogsService.saveLog(log, "Documento recibido por WS del SRI");
                 RespuestaComprobante result2 = consultarDocumento(claveAcceso, ambiente, log);
                 if (result2.getNumeroComprobantes() == null || result2.getNumeroComprobantes().equals("0")) {
                     System.out.println("procesarEnvioTodos ENVIADO ESTE MOMENTO / No existe aun un documento con la clave de acceso.");
@@ -645,7 +601,7 @@ public class ProcesarDocumentosServiceImpl {
                 }
             }
             if (respuestaEnvio.getEstadoEnvio().equals(EstadoDocumento.DEV)) {
-                // TODO INCLUIR EL LOG AQUIDE CONSULTA DE DOCUMENTO DE QUE SE DEVOLVIO, INCLUIR MENSAJES DE DEVOLUCION
+                adLogsService.saveLog(log, "Documento devuelto por WS del SRI");
                 respuestaProceso.setEstadoEnvio("DEV");
 
             }
@@ -739,7 +695,7 @@ public class ProcesarDocumentosServiceImpl {
     public RespuestaComprobante consultarDocumento(String claveAcceso, Integer ambiente, AdLogsRequestDto log) {
 
         // CONSULTA DOCUMENTO LOG
-        adLogsService.saveLog(log, "Inicia proceso previo de consulta de documento existente en el SRI con clave de acceso: " + claveAcceso);
+        adLogsService.saveLog(log, "Inicia  de consulta de documento existente en el SRI con clave de acceso: " + claveAcceso);
         System.out.println("consultarDocumento. " + claveAcceso);
 
         //Consultar el documento
@@ -798,7 +754,7 @@ public class ProcesarDocumentosServiceImpl {
                     respuestaEnvio.setMensajes(mensajesLista);
                 }
             }
-        }else{
+        } else {
             respuestaEnvio.setEstadoEnvio(EstadoDocumento.ENV);
         }
 

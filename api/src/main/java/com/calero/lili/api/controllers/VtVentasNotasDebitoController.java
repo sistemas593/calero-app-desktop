@@ -44,7 +44,7 @@ public class VtVentasNotasDebitoController {
     public ResponseDto createNotaDebito(@PathVariable("idEmpresa") Long idEmpresa,
                                         @Valid @RequestBody CreationNotaDebitoRequestDto request) {
         return vtVentasService.create(idDataService.getIdData(), idEmpresa, request,
-                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"), "WEB");
     }
 
     @PutMapping("notas-debito/{idEmpresa}/{idVenta}")

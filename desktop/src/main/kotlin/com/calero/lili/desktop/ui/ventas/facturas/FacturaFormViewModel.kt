@@ -294,7 +294,7 @@ class FacturaFormViewModel(
             try {
                 val request = buildRequest(s)
                 if (idFactura == null) {
-                    service.create(idData, idEmpresa, request, USUARIO)
+                    service.create(idData, idEmpresa, request, USUARIO, "LOC")
                 } else {
                     service.update(idData, idEmpresa, idFactura, request, FilterListDto(), TipoPermiso.TODAS, USUARIO)
                 }

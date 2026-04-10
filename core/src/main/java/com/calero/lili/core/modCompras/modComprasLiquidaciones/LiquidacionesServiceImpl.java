@@ -1,22 +1,21 @@
 package com.calero.lili.core.modCompras.modComprasLiquidaciones;
 
+import com.calero.lili.core.adLogs.builder.AdLogsBuilder;
 import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.core.comprobantes.services.ComprobanteServiceImpl;
-import com.calero.lili.core.dtos.CompraImpuestosDto;
+import com.calero.lili.core.comprobantesWs.dto.DatosEmpresaDto;
+import com.calero.lili.core.comprobantesWs.services.BuscarDatosEmpresa;
+import com.calero.lili.core.comprobantesWs.services.ProcesarDocumentosServiceImpl;
 import com.calero.lili.core.dtos.Mensajes;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.dtos.ResponseDto;
-import com.calero.lili.core.enums.CodigoImpuesto;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.TipoEmision;
 import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.errors.exceptions.GeneralException;
-import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosEntity;
-import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosRepository;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosServiceImpl;
-import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CreationCompraImpuestoRequestDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.builder.CpLiquidacionesBuilder;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.CreationRequestLiquidacionCompraDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.FilterListDto;
@@ -53,13 +52,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.text.DateFormat;
-import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -74,7 +71,7 @@ import java.util.stream.IntStream;
 public class LiquidacionesServiceImpl {
 
     private final LiquidacionesRepository liquidacionesRepository;
-    private final AdEmpresasSeriesDocumentosRepository adEmpresasSeriesDocumentosRepository;
+
     private final ResponseApiBuilder responseApiBuilder;
     private final CpLiquidacionesBuilder cpLiquidacionesBuilder;
     private final CpImpuestosServiceImpl cpImpuestosService;
@@ -82,9 +79,14 @@ public class LiquidacionesServiceImpl {
     private final LiquidacionReembolsosRepository liquidacionReembolsosRepository;
     private final GeTercerosRepository geTercerosRepository;
     private final GeItemsRepository geItemsRepository;
+    private final LiquidacionPersistenceService liquidacionPersistenceService;
+    private final BuscarDatosEmpresa buscarDatosEmpresa;
+    private final AdLogsBuilder adLogsBuilder;
+    private final ProcesarDocumentosServiceImpl procesarDocumentosService;
 
 
-    public ResponseDto create(Long idData, Long idEmpresa, CreationRequestLiquidacionCompraDto request, String usuario) {
+    public ResponseDto create(Long idData, Long idEmpresa, CreationRequestLiquidacionCompraDto request,
+                              String usuario, String origenCertificado) {
 
         DateUtils.validarFechaEmision(request.getFechaEmision());
         Optional<OneProjection> existingFactura = liquidacionesRepository
@@ -115,19 +117,27 @@ public class LiquidacionesServiceImpl {
             cpLiquidacionesEntity.setReembolsosEntity(reembolsos);
         }
         comprobanteService.getComprobanteXmlLiquidacion(idData, idEmpresa, cpLiquidacionesEntity);
-        CpLiquidacionesEntity saved = liquidacionesRepository.save(cpLiquidacionesEntity);
+        CpLiquidacionesEntity saved = liquidacionPersistenceService.guardarLiquidacion(cpLiquidacionesEntity, request, idData, idEmpresa);
 
 
-        AdEmpresasSeriesDocumentosEntity documentosEntity = adEmpresasSeriesDocumentosRepository
-                .findBySerieAndDocumento(idData, idEmpresa, request.getSerie(), "LIQ")
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("Serie {0} no existe", request.getSerie())));
+        DatosEmpresaDto datosEmpresaDto = null;
 
-        int nuevo = Integer.parseInt(request.getSecuencial()) + 1;
-        String sec = request.getSecuencial();
-        DecimalFormat df = new DecimalFormat(sec.replaceAll("[1-9]", "0"));
-        documentosEntity.setSecuencial(df.format(nuevo));
+        switch (origenCertificado) {
 
-        validarImpuesto(request, saved);
+            case "WEB" -> datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(saved.getIdData(), saved.getIdEmpresa());
+
+            case "LOC" ->
+                    datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(saved.getIdData(), saved.getIdEmpresa());
+        }
+
+        if (Objects.nonNull(datosEmpresaDto)) {
+            if (datosEmpresaDto.getMomentoEnvioFactura() == 2) {
+                procesarDocumentosService.procesarLiquidacion(saved,
+                        adLogsBuilder.builderLiquidacion(saved, Boolean.FALSE), datosEmpresaDto);
+            }
+        }
+
+
         return responseApiBuilder.builderResponse(saved.getIdLiquidacion().toString());
 
     }
@@ -170,37 +180,6 @@ public class LiquidacionesServiceImpl {
         return list;
     }
 
-
-    private void validarImpuesto(CreationRequestLiquidacionCompraDto request, CpLiquidacionesEntity entidad) {
-        if (Objects.nonNull(request.getCompraImpuestos())) {
-            builderListSave(request).forEach(item -> {
-                cpImpuestosService.updateImpuestoLiqAndCompra(entidad.getIdData(),
-                        entidad.getIdEmpresa(), entidad.getIdLiquidacion(), item);
-            });
-        }
-    }
-
-    private List<CompraImpuestosDto> builderListSave(CreationRequestLiquidacionCompraDto request) {
-        List<CompraImpuestosDto> listImpuesto = new ArrayList<>();
-        request.getCompraImpuestos().forEach(item -> {
-            listImpuesto.add(CompraImpuestosDto.builder()
-                    .idCompraImpuesto(item.getIdImpuestos())
-                    .listCodigosImpuesto(Objects.nonNull(item.getImpuestoCodigos())
-                            ? item.getImpuestoCodigos()
-                            : null)
-                    .origen(validarCodigoImpuesto(item))
-                    .build());
-        });
-        return listImpuesto;
-    }
-
-
-    private String validarCodigoImpuesto(CreationCompraImpuestoRequestDto model) {
-        if (Objects.nonNull(model.getImpuestoCodigos())) {
-            return CodigoImpuesto.LIC.name();
-        }
-        return CodigoImpuesto.LIQ.name();
-    }
 
     @Transactional
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationRequestLiquidacionCompraDto request,
@@ -758,8 +737,8 @@ public class LiquidacionesServiceImpl {
     }
 
     private Page<CpLiquidacionesEntity> getTipoBusquedaPaginado(Long idData, Long idEmpresa,
-                                                               FilterListDto filters, Pageable pageable,
-                                                               TipoPermiso tipoBusqueda, String usuario) {
+                                                                FilterListDto filters, Pageable pageable,
+                                                                TipoPermiso tipoBusqueda, String usuario) {
         switch (tipoBusqueda) {
             case TODAS -> {
                 return liquidacionesRepository.findAllPaginate(idData, idEmpresa, null,

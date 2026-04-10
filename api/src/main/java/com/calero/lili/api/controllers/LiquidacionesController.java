@@ -51,7 +51,7 @@ public class LiquidacionesController {
     public ResponseDto create(@PathVariable("idEmpresa") Long idEmpresa,
                               @Valid @RequestBody CreationRequestLiquidacionCompraDto request) {
         return vtVentasService.create(idDataService.getIdData(), idEmpresa, request,
-                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"), "WEB");
     }
 
     @PutMapping("{idEmpresa}/{idLiquidacion}")

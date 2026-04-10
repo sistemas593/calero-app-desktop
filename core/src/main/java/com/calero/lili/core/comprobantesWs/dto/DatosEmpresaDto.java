@@ -13,4 +13,11 @@ public class DatosEmpresaDto {
     private String pwd;
     private byte[] imageBytes;
     private InputStream inputStreamFileSgn;
+
+    private int momentoEnvioFactura;
+    private int momentoEnvioNotaCredito;
+    private int momentoEnvioNotaDebito;
+    private int momentoEnvioGuiaRemision;
+    private int momentoEnvioLiquidacion;
+    private int momentoEnvioComprobanteRetencion;
 }

@@ -59,7 +59,8 @@ public class VtVentasFacturasController {
     public ResponseDto create(
             @PathVariable("idEmpresa") Long idEmpresa,
             @Valid @RequestBody CreationFacturaRequestDto request) {
-        return vtVentasService.create(idDataService.getIdData(), idEmpresa, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        return vtVentasService.create(idDataService.getIdData(), idEmpresa,
+                request, auditorAware.getCurrentAuditor().orElse("SYSTEM"), "WEB");
     }
 
     @PutMapping("facturas/{idEmpresa}/{idVenta}")
@@ -124,10 +125,10 @@ public class VtVentasFacturasController {
                                                                       Pageable pageable) {
         log.info("Filters = {}", filters);
         return vtVentasService.findAllPaginateTotalizado(idDataService.getIdData(), idEmpresa, filters,
-                auditorAware.getTipoPermisoFacturaVer(), auditorAware.getCurrentAuditor().orElse("SYSTEM") ,pageable);
+                auditorAware.getTipoPermisoFacturaVer(), auditorAware.getCurrentAuditor().orElse("SYSTEM"), pageable);
     }
 
-   @GetMapping("excel/{idEmpresa}")
+    @GetMapping("excel/{idEmpresa}")
     @PreAuthorize("hasAuthority('VT_FC_EX')")
     public void exportarExcel(HttpServletResponse response,
                               @PathVariable("idEmpresa") Long idEmpresa,

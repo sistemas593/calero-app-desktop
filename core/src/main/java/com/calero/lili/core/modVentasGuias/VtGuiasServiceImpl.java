@@ -1,7 +1,11 @@
 package com.calero.lili.core.modVentasGuias;
 
+import com.calero.lili.core.adLogs.builder.AdLogsBuilder;
 import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.core.comprobantes.services.ComprobanteServiceImpl;
+import com.calero.lili.core.comprobantesWs.dto.DatosEmpresaDto;
+import com.calero.lili.core.comprobantesWs.services.BuscarDatosEmpresa;
+import com.calero.lili.core.comprobantesWs.services.ProcesarDocumentosServiceImpl;
 import com.calero.lili.core.dtos.Mensajes;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
@@ -12,8 +16,6 @@ import com.calero.lili.core.enums.TipoEmision;
 import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.enums.TipoTercero;
 import com.calero.lili.core.errors.exceptions.GeneralException;
-import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosEntity;
-import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosRepository;
 import com.calero.lili.core.modComprasItems.GeItemsRepository;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
@@ -46,7 +48,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.text.DateFormat;
-import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -69,12 +70,16 @@ public class VtGuiasServiceImpl {
     private final VtGuiaBuilder vtGuiaBuilder;
     private final ResponseApiBuilder responseApiBuilder;
     private final ComprobanteServiceImpl comprobanteService;
-    private final AdEmpresasSeriesDocumentosRepository adEmpresasSeriesDocumentosRepository;
     private final GeTercerosRepository geTercerosRepository;
     private final GeItemsRepository geItemsRepository;
+    private final VtGuiasPersistenceService vtGuiasPersistenceService;
+    private final BuscarDatosEmpresa buscarDatosEmpresa;
+    private final AdLogsBuilder adLogsBuilder;
+    private final ProcesarDocumentosServiceImpl procesarDocumentosService;
 
 
-    public ResponseDto create(Long idData, Long idEmpresa, CreationRequestGuiaRemisionDto request, String usuario) {
+    public ResponseDto create(Long idData, Long idEmpresa, CreationRequestGuiaRemisionDto request,
+                              String usuario, String origenCertificado) {
 
         DateUtils.validarFechaEmision(request.getFechaEmision());
         Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData, idEmpresa, request.getSerie(), request.getSecuencial());
@@ -91,9 +96,6 @@ public class VtGuiasServiceImpl {
         GeTerceroEntity destinatario = geTercerosRepository.findByIdCliente(idData, request.getIdDestinatario())
                 .orElseThrow(() -> new GeneralException("No existe destinatario"));
 
-        AdEmpresasSeriesDocumentosEntity documentosEntity = adEmpresasSeriesDocumentosRepository
-                .findBySerieAndDocumento(idData, idEmpresa, request.getSerie(), "GRM")
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("Serie {0}, documento {1} no existe", request.getSerie(), request.getSecuencial())));
 
         validarItem(request, idData, idEmpresa);
         validarInfoAddicional(request);
@@ -108,12 +110,25 @@ public class VtGuiasServiceImpl {
         vtGuiaEntity.setCreatedDate(LocalDateTime.now());
 
         comprobanteService.getComprobanteXmlGuiaRemision(idData, idEmpresa, vtGuiaEntity);
-        VtGuiaEntity saved = vtVentaRepository.save(vtGuiaEntity);
 
-        int nuevo = Integer.parseInt(request.getSecuencial()) + 1;
-        String sec = request.getSecuencial();
-        DecimalFormat df = new DecimalFormat(sec.replaceAll("[1-9]", "0"));
-        documentosEntity.setSecuencial(df.format(nuevo));
+        VtGuiaEntity saved = vtGuiasPersistenceService.guardarGuiaRemision(vtGuiaEntity, request, idData, idEmpresa);
+
+        DatosEmpresaDto datosEmpresaDto = null;
+
+        switch (origenCertificado) {
+
+            case "WEB" -> datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(saved.getIdData(), saved.getIdEmpresa());
+
+            case "LOC" ->
+                    datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(saved.getIdData(), saved.getIdEmpresa());
+        }
+
+        if (Objects.nonNull(datosEmpresaDto)) {
+            if (datosEmpresaDto.getMomentoEnvioFactura() == 2) {
+                procesarDocumentosService.procesarGuiaRemision(saved,
+                        adLogsBuilder.builderGuiaRemision(saved, Boolean.FALSE), datosEmpresaDto);
+            }
+        }
 
         return responseApiBuilder.builderResponse(saved.getIdGuia().toString());
 
@@ -492,7 +507,7 @@ public class VtGuiasServiceImpl {
     }
 
     private Page<VtGuiaEntity> getTipoBusquedaPaginado(Long idData, Long idEmpresa, FilterListDto filters,
-                                                      Pageable pageable, TipoPermiso tipoBusqueda, String usuario) {
+                                                       Pageable pageable, TipoPermiso tipoBusqueda, String usuario) {
         switch (tipoBusqueda) {
             case TODAS -> {
                 return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),

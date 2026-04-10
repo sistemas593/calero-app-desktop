@@ -43,7 +43,8 @@ public class VtVentasNotasCreditoController {
     @PreAuthorize("hasAuthority('VT_NC_CR')")
     public ResponseDto createNotaCredito(@PathVariable("idEmpresa") Long idEmpresa,
                                          @Valid @RequestBody CreationNotaCreditoRequestDto request) {
-        return vtVentasService.create(idDataService.getIdData(), idEmpresa, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        return vtVentasService.create(idDataService.getIdData(), idEmpresa, request,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"), "WEB");
     }
 
     @PutMapping("notas-credito/{idEmpresa}/{idVenta}")

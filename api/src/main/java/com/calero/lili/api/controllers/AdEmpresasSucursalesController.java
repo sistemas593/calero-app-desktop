@@ -68,7 +68,6 @@ public class AdEmpresasSucursalesController {
 
     @GetMapping("{idEmpresa}/{idSucursal}")
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasAuthority('AD_SU_VR')")
     public AdEmpresaSucursalGetOneDto findById(@PathVariable("idEmpresa") Long idEmpresa,
                                                @PathVariable("idSucursal") UUID idSucursal) {
         return adEmpresasSucursalesService.findById(idDataService.getIdData(), idEmpresa, idSucursal);
@@ -76,7 +75,6 @@ public class AdEmpresasSucursalesController {
 
     @GetMapping("listar/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('AD_SU_VR')")
     public PaginatedDto<AdEmpresaSucursalGetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
                                                                      AdEmpresaSucursalListFilterDto filters,
                                                                      Pageable pageable) {

@@ -1,7 +1,11 @@
 package com.calero.lili.core.modVentas.notasDebito;
 
+import com.calero.lili.core.adLogs.builder.AdLogsBuilder;
 import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.core.comprobantes.services.ComprobanteServiceImpl;
+import com.calero.lili.core.comprobantesWs.dto.DatosEmpresaDto;
+import com.calero.lili.core.comprobantesWs.services.BuscarDatosEmpresa;
+import com.calero.lili.core.comprobantesWs.services.ProcesarDocumentosServiceImpl;
 import com.calero.lili.core.dtos.Mensajes;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
@@ -19,6 +23,7 @@ import com.calero.lili.core.modComprasItems.GeItemsRepository;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
 import com.calero.lili.core.modVentas.VtVentaEntity;
+import com.calero.lili.core.modVentas.VtVentasPersistenceService;
 import com.calero.lili.core.modVentas.VtVentasRepository;
 import com.calero.lili.core.modVentas.builder.GetListResponseBuilder;
 import com.calero.lili.core.modVentas.dto.GetListDto;
@@ -63,8 +68,13 @@ public class VtVentasNotasDebitoServiceImpl {
     private final GeItemsRepository geItemsRepository;
     private final GeTercerosRepository geTercerosRepository;
     private final AdIvaPorcentajeServiceImpl adIvaPorcentajeService;
+    private final VtVentasPersistenceService vtVentasPersistenceService;
+    private final BuscarDatosEmpresa buscarDatosEmpresa;
+    private final AdLogsBuilder adLogsBuilder;
+    private final ProcesarDocumentosServiceImpl procesarDocumentosService;
 
-    public ResponseDto create(Long idData, Long idEmpresa, CreationNotaDebitoRequestDto request, String usuario) {
+    public ResponseDto create(Long idData, Long idEmpresa,
+                              CreationNotaDebitoRequestDto request, String usuario, String origenCertificado) {
 
         DateUtils.validarFechaEmision(request.getFechaEmision());
         ValidarCampoAscii.validarStrings(request);
@@ -95,16 +105,25 @@ public class VtVentasNotasDebitoServiceImpl {
 
         vtVentaEntity.setTipoEmision(getTipoEmision(request));
         vtComprobanteService.getComprobanteXmlNotaDebito(idData, idEmpresa, vtVentaEntity);
-        VtVentaEntity saved = vtVentaRepository.save(vtVentaEntity);
 
-        AdEmpresasSeriesDocumentosEntity documentosEntity = adEmpresasSeriesDocumentosRepository
-                .findBySerieAndDocumento(idData, idEmpresa, request.getSerie(), TipoVenta.NDB.name())
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("Serie {0}, documento {1} no existe", request.getSerie(), TipoVenta.NCR.name())));
+        VtVentaEntity saved = vtVentasPersistenceService.guardarNotaDebito(vtVentaEntity, request, idData, idEmpresa);
 
-        int nuevo = Integer.parseInt(request.getSecuencial()) + 1;
-        String sec = request.getSecuencial();
-        DecimalFormat df = new DecimalFormat(sec.replaceAll("[1-9]", "0"));
-        documentosEntity.setSecuencial(df.format(nuevo));
+        DatosEmpresaDto datosEmpresaDto = null;
+
+        switch (origenCertificado) {
+
+            case "WEB" -> datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(saved.getIdData(), saved.getIdEmpresa());
+
+            case "LOC" ->
+                    datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(saved.getIdData(), saved.getIdEmpresa());
+        }
+
+        if (Objects.nonNull(datosEmpresaDto)) {
+            if (datosEmpresaDto.getMomentoEnvioFactura() == 2) {
+                procesarDocumentosService.procesarFacNcNd(saved,
+                        adLogsBuilder.builderVentasDocumentos(saved, Boolean.FALSE), datosEmpresaDto);
+            }
+        }
 
         return responseApiBuilder.builderResponse(saved.getIdVenta().toString());
 

@@ -56,14 +56,12 @@ public class AdEmpresasController {
 
     @GetMapping("{idEmpresa}")
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasAuthority('AD_EM_VR')")
     public AdEmpresaGetOneDto findById(@PathVariable("idEmpresa") Long idEmpresa) {
         return adEmpresasService.findById(idDataService.getIdData(), idEmpresa);
     }
 
     @GetMapping("listar")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('AD_EM_VR')")
     public PaginatedDto<AdEmpresaGetListDto> findAllPaginate(AdEmpresaListFilterDto filters,
                                                              Pageable pageable) {
         return adEmpresasService.findAllPaginate(idDataService.getIdData(), filters, pageable);

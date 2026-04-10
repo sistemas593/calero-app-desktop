@@ -13,7 +13,6 @@ import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
 import com.calero.lili.desktop.ui.actualizacion.ActualizacionViewModel
 import com.calero.lili.desktop.ui.actualizacion.UpdateCheckState
-import com.calero.lili.core.comprobantesWs.services.ProcesarDocumentosServiceImpl
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasServiceImpl
 import com.calero.lili.core.modVentas.facturas.VtVentasFacturasServiceImpl
 import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesServiceImpl
@@ -129,7 +128,6 @@ private sealed class AppState {
     data class Ready(
         val empresasService : AdEmpresasServiceImpl,
         val facturasService : VtVentasFacturasServiceImpl,
-        val procesarService : ProcesarDocumentosServiceImpl,
         val seriesService   : AdEmpresasSeriesServiceImpl,
         val tercerosService : GeTercerosServiceImpl,
         val medidasService    : GeItemsMedidasServiceImpl,
@@ -180,7 +178,6 @@ fun main() {
                         appState = AppState.Ready(
                             ctx.getBean(AdEmpresasServiceImpl::class.java),
                             ctx.getBean(VtVentasFacturasServiceImpl::class.java),
-                            ctx.getBean(ProcesarDocumentosServiceImpl::class.java),
                             ctx.getBean(AdEmpresasSeriesServiceImpl::class.java),
                             ctx.getBean(GeTercerosServiceImpl::class.java),
                             ctx.getBean(GeItemsMedidasServiceImpl::class.java),
@@ -211,7 +208,6 @@ fun main() {
                         // ── Spring listo — exponer servicios y crear ViewModels
                         val empresasService   = state.empresasService
                         val facturasService   = state.facturasService
-                        val procesarService   = state.procesarService
                         val seriesService     = state.seriesService
                         val tercerosService   = state.tercerosService
                         val medidasService    = state.medidasService
@@ -399,7 +395,7 @@ fun main() {
                     val clientesViewModel  = remember(idEmpresa) { ClientesViewModel(tercerosService) }
                     val medidasViewModel   = remember(idEmpresa) { MedidasViewModel(medidasService) }
                     val itemsViewModel     = remember(idEmpresa) { ItemsViewModel(itemsService, idData = ID_DATA, idEmpresa = idEmpresa) }
-                    val facturasViewModel  = remember(idEmpresa) { FacturasViewModel(facturasService, procesarService, tercerosService, xmlPdfService, idData = ID_DATA, idEmpresa = idEmpresa) }
+                    val facturasViewModel  = remember(idEmpresa) { FacturasViewModel(facturasService, tercerosService, xmlPdfService, idData = ID_DATA, idEmpresa = idEmpresa) }
 
                     DisposableEffect(idEmpresa) {
                         onDispose {

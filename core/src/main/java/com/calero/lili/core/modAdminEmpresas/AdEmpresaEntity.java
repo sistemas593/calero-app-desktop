@@ -71,6 +71,7 @@ public class AdEmpresaEntity extends Auditable {
     private int ambienteLiquidacion;
     private int ambienteComprobanteRetencion;
 
+    // 1 para enviar desde la bandeja posteriormente, 2 para enviar al guardar
     @Column(name = "momento_envio_factura")
     private int momentoEnvioFactura;
     @Column(name = "momento_envio_nota_credito")
