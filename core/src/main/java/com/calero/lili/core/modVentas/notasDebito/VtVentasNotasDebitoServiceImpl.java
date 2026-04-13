@@ -3,6 +3,7 @@ package com.calero.lili.core.modVentas.notasDebito;
 import com.calero.lili.core.adLogs.builder.AdLogsBuilder;
 import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.core.comprobantes.services.ComprobanteServiceImpl;
+import com.calero.lili.core.comprobantesWs.RespuestaProcesoGetDto;
 import com.calero.lili.core.comprobantesWs.dto.DatosEmpresaDto;
 import com.calero.lili.core.comprobantesWs.services.BuscarDatosEmpresa;
 import com.calero.lili.core.comprobantesWs.services.ProcesarDocumentosServiceImpl;
@@ -73,7 +74,7 @@ public class VtVentasNotasDebitoServiceImpl {
     private final AdLogsBuilder adLogsBuilder;
     private final ProcesarDocumentosServiceImpl procesarDocumentosService;
 
-    public ResponseDto create(Long idData, Long idEmpresa,
+    public RespuestaProcesoGetDto create(Long idData, Long idEmpresa,
                               CreationNotaDebitoRequestDto request, String usuario, String origenCertificado) {
 
         DateUtils.validarFechaEmision(request.getFechaEmision());
@@ -118,14 +119,23 @@ public class VtVentasNotasDebitoServiceImpl {
                     datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(saved.getIdData(), saved.getIdEmpresa());
         }
 
+        RespuestaProcesoGetDto respuestaProcesoGetDto = new RespuestaProcesoGetDto();
         if (Objects.nonNull(datosEmpresaDto)) {
             if (datosEmpresaDto.getMomentoEnvioNotaDebito() == 2) {
-                procesarDocumentosService.procesarFacNcNd(saved,
+                respuestaProcesoGetDto = procesarDocumentosService.procesarFacNcNd(saved,
                         adLogsBuilder.builderVentasDocumentos(saved, Boolean.FALSE), datosEmpresaDto);
+                respuestaProcesoGetDto.setIdDocumento(saved.getIdVenta());
             }
         }
 
-        return responseApiBuilder.builderResponse(saved.getIdVenta().toString());
+        if (Objects.isNull(respuestaProcesoGetDto.getNumeroAutorizacion())) {
+            respuestaProcesoGetDto.setIdDocumento(saved.getIdVenta());
+            respuestaProcesoGetDto.setNumeroAutorizacion("");
+            respuestaProcesoGetDto.setEmailEstado(saved.getEmailEstado());
+            respuestaProcesoGetDto.setEstadoDocumento(saved.getEstadoDocumento().getEstadoDocumento());
+        }
+
+        return respuestaProcesoGetDto;
 
     }
 

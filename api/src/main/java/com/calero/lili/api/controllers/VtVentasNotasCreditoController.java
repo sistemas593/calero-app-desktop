@@ -2,6 +2,7 @@ package com.calero.lili.api.controllers;
 
 import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.api.utils.IdDataServiceImpl;
+import com.calero.lili.core.comprobantesWs.RespuestaProcesoGetDto;
 import com.calero.lili.core.dtos.Mensajes;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.modVentas.facturas.dto.FilterListDto;
@@ -41,8 +42,8 @@ public class VtVentasNotasCreditoController {
     @PostMapping("notas-credito/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('VT_NC_CR')")
-    public ResponseDto createNotaCredito(@PathVariable("idEmpresa") Long idEmpresa,
-                                         @Valid @RequestBody CreationNotaCreditoRequestDto request) {
+    public RespuestaProcesoGetDto createNotaCredito(@PathVariable("idEmpresa") Long idEmpresa,
+                                                    @Valid @RequestBody CreationNotaCreditoRequestDto request) {
         return vtVentasService.create(idDataService.getIdData(), idEmpresa, request,
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"), "WEB");
     }

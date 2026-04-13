@@ -3,6 +3,7 @@ package com.calero.lili.core.modVentas.notasCredito;
 import com.calero.lili.core.adLogs.builder.AdLogsBuilder;
 import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.core.comprobantes.services.ComprobanteServiceImpl;
+import com.calero.lili.core.comprobantesWs.RespuestaProcesoGetDto;
 import com.calero.lili.core.comprobantesWs.dto.DatosEmpresaDto;
 import com.calero.lili.core.comprobantesWs.services.BuscarDatosEmpresa;
 import com.calero.lili.core.comprobantesWs.services.ProcesarDocumentosServiceImpl;
@@ -17,8 +18,6 @@ import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.enums.TipoVenta;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.errors.exceptions.NotFoundException;
-import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosEntity;
-import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosRepository;
 import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
 import com.calero.lili.core.modComprasItems.GeItemsRepository;
 import com.calero.lili.core.modContabilidad.modAsientos.CnAsientosEntity;
@@ -63,7 +62,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.text.DateFormat;
-import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -78,12 +76,10 @@ import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 @Slf4j
 public class VtVentasNotasCreditoServiceImpl {
 
     private final VtVentasRepository vtVentaRepository;
-    private final AdEmpresasSeriesDocumentosRepository adEmpresasSeriesDocumentosRepository;
     private final ResponseApiBuilder responseApiBuilder;
     private final VtNotasCreditoBuilder vtNotasCreditoBuilder;
     private final GetListResponseBuilder getListResponseBuilder;
@@ -98,8 +94,8 @@ public class VtVentasNotasCreditoServiceImpl {
     private final ProcesarDocumentosServiceImpl procesarDocumentosService;
     private final AdLogsBuilder adLogsBuilder;
 
-    public ResponseDto create(Long idData, Long idEmpresa, CreationNotaCreditoRequestDto request,
-                              String usuario, String origenCertificado) {
+    public RespuestaProcesoGetDto create(Long idData, Long idEmpresa, CreationNotaCreditoRequestDto request,
+                                         String usuario, String origenCertificado) {
 
         DateUtils.validarFechaEmision(request.getFechaEmision());
         ValidarCampoAscii.validarStrings(request);
@@ -141,15 +137,25 @@ public class VtVentasNotasCreditoServiceImpl {
                     datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(saved.getIdData(), saved.getIdEmpresa());
         }
 
+
+        RespuestaProcesoGetDto respuestaProcesoGetDto = new RespuestaProcesoGetDto();
         if (Objects.nonNull(datosEmpresaDto)) {
             if (datosEmpresaDto.getMomentoEnvioNotaCredito() == 2) {
-                procesarDocumentosService.procesarFacNcNd(saved,
+                respuestaProcesoGetDto = procesarDocumentosService.procesarFacNcNd(saved,
                         adLogsBuilder.builderVentasDocumentos(saved, Boolean.FALSE), datosEmpresaDto);
+                respuestaProcesoGetDto.setIdDocumento(saved.getIdVenta());
             }
         }
 
 
-        return responseApiBuilder.builderResponse(saved.getIdVenta().toString());
+        if (Objects.isNull(respuestaProcesoGetDto.getNumeroAutorizacion())) {
+            respuestaProcesoGetDto.setIdDocumento(saved.getIdVenta());
+            respuestaProcesoGetDto.setNumeroAutorizacion("");
+            respuestaProcesoGetDto.setEmailEstado(saved.getEmailEstado());
+            respuestaProcesoGetDto.setEstadoDocumento(saved.getEstadoDocumento().getEstadoDocumento());
+        }
+
+        return respuestaProcesoGetDto;
 
     }
 

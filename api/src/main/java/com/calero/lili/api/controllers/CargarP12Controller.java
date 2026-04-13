@@ -5,12 +5,15 @@ import com.calero.lili.core.varios.CargarP12ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,4 +30,11 @@ public class CargarP12Controller {
 
         return cargarP12Service.uploadCertificado(idDataService.getIdData().toString(), idEmpresa, file);
     }
+
+    @GetMapping("/ver/{idEmpresa}")
+    public void verCertificado(@PathVariable("idEmpresa") Long idEmpresa) throws IOException {
+
+        cargarP12Service.readFile(idDataService.getIdData().toString(), idEmpresa);
+    }
+
 }

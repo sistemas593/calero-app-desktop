@@ -121,10 +121,17 @@ public class CargarP12ServiceImpl {
     }
 
     // read contents of the file
-    public static void readFile() throws IOException {
+    public static void readFile(String idData, Long idEmpresa) throws IOException {
         // Create a new GCS client and get the blob object from the blob ID
+
+
+        idData = StringUtils.leftPad(idData, 5, '0');
+        String idEmp = idEmpresa.toString();
+        idEmp = StringUtils.leftPad(idEmp, 3, '0');
+
+
         Storage storage = StorageOptions.newBuilder().setProjectId(projectId).build().getService();
-        BlobId blobId = BlobId.of(bucketName, "data00001" + "/file001" + ".p12");
+        BlobId blobId = BlobId.of(bucketName, "data" + idData + "/" + "file" + idEmp + ".p12");
         Blob blob = storage.get(blobId);
 
         // read the contents of the file and print it

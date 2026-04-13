@@ -307,15 +307,16 @@ class FacturaFormViewModel(
             _state.update { it.copy(isSaving = true, errorMessage = null) }
             try {
                 val request = buildRequest(s)
-                val responseDto = if (idFactura == null)
-                    service.create(idData, idEmpresa, request, USUARIO, "LOC")
-                else
-                    service.update(idData, idEmpresa, idFactura, request, FilterListDto(), TipoPermiso.TODAS, USUARIO)
+                val facturaId: UUID = if (idFactura == null) {
+                    service.create(idData, idEmpresa, request, USUARIO, "LOC").idDocumento
+                } else {
+                    UUID.fromString(
+                        service.update(idData, idEmpresa, idFactura, request, FilterListDto(), TipoPermiso.TODAS, USUARIO).id
+                    )
+                }
 
                 // Abrir dialog con spinner de forma inmediata
                 _state.update { it.copy(isSaving = false, showPdfViewer = true, pdfLoading = true) }
-
-                val facturaId = UUID.fromString(responseDto.id)
                 try {
                     val archivo = xmlPdfService.findPDFFacturaById(idData, idEmpresa, facturaId, "LOC")
                     _state.update { it.copy(pdfLoading = false, pdfBytes = archivo.contenido, pdfNombre = archivo.nombre) }
