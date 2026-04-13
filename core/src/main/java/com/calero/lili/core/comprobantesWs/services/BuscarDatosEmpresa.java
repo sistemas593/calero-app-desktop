@@ -71,6 +71,11 @@ public class BuscarDatosEmpresa {
                 .imageBytes(imageBytes)
                 .inputStreamFileSgn(is1)
                 .momentoEnvioFactura(empresa.get().getMomentoEnvioFactura())
+                .momentoEnvioNotaDebito(empresa.get().getMomentoEnvioNotaDebito())
+                .momentoEnvioNotaCredito(empresa.get().getMomentoEnvioNotaCredito())
+                .momentoEnvioComprobanteRetencion(empresa.get().getMomentoEnvioComprobanteRetencion())
+                .momentoEnvioGuiaRemision(empresa.get().getMomentoEnvioGuiaRemision())
+                .momentoEnvioLiquidacion(empresa.get().getMomentoEnvioLiquidacion())
                 .build();
 
     }
@@ -150,6 +155,11 @@ public class BuscarDatosEmpresa {
                 .imageBytes(imageBytes)
                 .pwd(pwd)
                 .momentoEnvioFactura(empresa.getMomentoEnvioFactura())
+                .momentoEnvioNotaDebito(empresa.getMomentoEnvioNotaDebito())
+                .momentoEnvioNotaCredito(empresa.getMomentoEnvioNotaCredito())
+                .momentoEnvioComprobanteRetencion(empresa.getMomentoEnvioComprobanteRetencion())
+                .momentoEnvioGuiaRemision(empresa.getMomentoEnvioGuiaRemision())
+                .momentoEnvioLiquidacion(empresa.getMomentoEnvioLiquidacion())
                 .build();
     }
 }

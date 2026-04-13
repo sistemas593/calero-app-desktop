@@ -124,7 +124,7 @@ public class VtGuiasServiceImpl {
         }
 
         if (Objects.nonNull(datosEmpresaDto)) {
-            if (datosEmpresaDto.getMomentoEnvioFactura() == 2) {
+            if (datosEmpresaDto.getMomentoEnvioGuiaRemision() == 2) {
                 procesarDocumentosService.procesarGuiaRemision(saved,
                         adLogsBuilder.builderGuiaRemision(saved, Boolean.FALSE), datosEmpresaDto);
             }

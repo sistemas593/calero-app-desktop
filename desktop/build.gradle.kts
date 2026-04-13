@@ -42,6 +42,9 @@ dependencies {
     // Coroutines (para la UI desktop)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.8.1")
+
+    // Apache PDFBox — renderizado de PDF en visor in-app
+    implementation("org.apache.pdfbox:pdfbox:3.0.2")
 }
 
 tasks.withType<KotlinCompile> {

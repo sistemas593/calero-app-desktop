@@ -83,6 +83,19 @@ fun FacturaFormScreen(viewModel: FacturaFormViewModel, onCerrar: () -> Unit) {
             TextButton(onClick = onCerrar) { Text("✕ Cerrar", color = Color.White, fontSize = 13.sp) }
         }
 
+        // ── Visor PDF — se muestra tras guardar exitosamente
+        if (state.showPdfViewer) {
+            PdfViewerDialog(
+                pdfBytes    = state.pdfBytes,
+                isLoading   = state.pdfLoading,
+                nombre      = state.pdfNombre,
+                onImprimir  = viewModel::imprimirPdfActual,
+                onDescargar = viewModel::descargarPdfActual,
+                onCerrar    = { viewModel.dismissPdfViewer(); onCerrar() }
+            )
+        }
+
+        // ── Mensaje de fallback (cuando PDF no está disponible)
         if (state.successMessage != null) {
             Text(
                 state.successMessage ?: "",

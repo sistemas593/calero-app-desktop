@@ -224,8 +224,9 @@ fun FacturasScreen(
                                             cargando = state.xmlPdfCargando == factura.idVenta,
                                             onEditar = { factura.idVenta?.let { onEditarFactura(it) } },
                                             onFirmar = { viewModel.abrirDialogoFirma(factura) },
-                                            onXml    = { viewModel.descargarXml(factura) },
-                                            onPdf    = { viewModel.descargarPdf(factura) }
+                                            onXml      = { viewModel.descargarXml(factura) },
+                                            onPdf      = { viewModel.descargarPdf(factura) },
+                                            onImprimir = { viewModel.imprimirPdf(factura) }
                                         )
                                         HorizontalDivider(color = ColorBorde, thickness = 0.5.dp)
                                     }
@@ -297,13 +298,14 @@ fun FacturasScreen(
 // ── Fila de datos ─────────────────────────────────────────────────────────────
 @Composable
 private fun FilaFactura(
-    idx      : Int,
-    f        : GetListDto,
-    cargando : Boolean,
-    onEditar : () -> Unit,
-    onFirmar : () -> Unit,
-    onXml    : () -> Unit,
-    onPdf    : () -> Unit
+    idx        : Int,
+    f          : GetListDto,
+    cargando   : Boolean,
+    onEditar   : () -> Unit,
+    onFirmar   : () -> Unit,
+    onXml      : () -> Unit,
+    onPdf      : () -> Unit,
+    onImprimir : () -> Unit
 ) {
     val bg             = if (idx % 2 == 0) ColorFilaPar else ColorFilaImpar
     var comboExpanded by remember { mutableStateOf(false) }
@@ -379,6 +381,10 @@ private fun FilaFactura(
                         DropdownMenuItem(
                             text    = { Text("PDF", fontWeight = FontWeight.Medium) },
                             onClick = { comboExpanded = false; onPdf() }
+                        )
+                        DropdownMenuItem(
+                            text    = { Text("Imprimir", fontWeight = FontWeight.Medium) },
+                            onClick = { comboExpanded = false; onImprimir() }
                         )
                     }
                 }

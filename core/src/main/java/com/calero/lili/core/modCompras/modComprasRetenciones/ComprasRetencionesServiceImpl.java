@@ -113,7 +113,7 @@ public class ComprasRetencionesServiceImpl {
         }
 
         if (Objects.nonNull(datosEmpresaDto)) {
-            if (datosEmpresaDto.getMomentoEnvioFactura() == 2) {
+            if (datosEmpresaDto.getMomentoEnvioComprobanteRetencion() == 2) {
                 procesarDocumentosService.procesarComprobanteRetencion(saved,
                         adLogsBuilder.builderComprobanteRetencion(saved, Boolean.FALSE), datosEmpresaDto);
             }

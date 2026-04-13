@@ -119,7 +119,7 @@ public class VtVentasNotasDebitoServiceImpl {
         }
 
         if (Objects.nonNull(datosEmpresaDto)) {
-            if (datosEmpresaDto.getMomentoEnvioFactura() == 2) {
+            if (datosEmpresaDto.getMomentoEnvioNotaDebito() == 2) {
                 procesarDocumentosService.procesarFacNcNd(saved,
                         adLogsBuilder.builderVentasDocumentos(saved, Boolean.FALSE), datosEmpresaDto);
             }

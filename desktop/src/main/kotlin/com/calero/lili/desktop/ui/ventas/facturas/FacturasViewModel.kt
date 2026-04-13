@@ -10,12 +10,15 @@ import com.calero.lili.core.modVentas.dto.GetListDto
 import com.calero.lili.core.modVentas.facturas.VtVentasFacturasServiceImpl
 import com.calero.lili.core.comprobantesWs.services.GetXmlVtVentasFacturasServiceImpl
 import com.calero.lili.core.modVentas.facturas.dto.FilterListDto
+import java.awt.print.PrinterJob
 import java.io.FileOutputStream
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.swing.JFileChooser
 import javax.swing.SwingUtilities
 import javax.swing.filechooser.FileNameExtensionFilter
+import org.apache.pdfbox.Loader
+import org.apache.pdfbox.printing.PDFPageable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -322,6 +325,33 @@ class FacturasViewModel(
                 _state.update { it.copy(xmlPdfCargando = null, xmlPdfResultado = "PDF guardado:\n$finalPath") }
             } catch (e: Exception) {
                 _state.update { it.copy(xmlPdfCargando = null, xmlPdfResultado = "Error al descargar PDF: ${e.message ?: "Error desconocido"}") }
+            }
+        }
+    }
+
+    fun imprimirPdf(factura: GetListDto) {
+        val id = factura.idVenta ?: return
+        if (_state.value.xmlPdfCargando != null) return
+        scope.launch {
+            _state.update { it.copy(xmlPdfCargando = id) }
+            try {
+                val dto = xmlPdfService.findPDFFacturaById(idData, idEmpresa, id, "LOC")
+                val doc = Loader.loadPDF(dto.contenido)
+                try {
+                    var shouldPrint = false
+                    var printerJob: PrinterJob? = null
+                    SwingUtilities.invokeAndWait {
+                        printerJob = PrinterJob.getPrinterJob()
+                        printerJob!!.setPageable(PDFPageable(doc))
+                        shouldPrint = printerJob!!.printDialog()
+                    }
+                    if (shouldPrint) printerJob!!.print()
+                } finally {
+                    doc.close()
+                }
+                _state.update { it.copy(xmlPdfCargando = null) }
+            } catch (e: Exception) {
+                _state.update { it.copy(xmlPdfCargando = null, xmlPdfResultado = "Error al imprimir: ${e.message ?: "Error desconocido"}") }
             }
         }
     }

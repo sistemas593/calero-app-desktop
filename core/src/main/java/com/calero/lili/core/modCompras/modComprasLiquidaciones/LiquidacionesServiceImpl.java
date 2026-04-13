@@ -131,7 +131,7 @@ public class LiquidacionesServiceImpl {
         }
 
         if (Objects.nonNull(datosEmpresaDto)) {
-            if (datosEmpresaDto.getMomentoEnvioFactura() == 2) {
+            if (datosEmpresaDto.getMomentoEnvioLiquidacion() == 2) {
                 procesarDocumentosService.procesarLiquidacion(saved,
                         adLogsBuilder.builderLiquidacion(saved, Boolean.FALSE), datosEmpresaDto);
             }

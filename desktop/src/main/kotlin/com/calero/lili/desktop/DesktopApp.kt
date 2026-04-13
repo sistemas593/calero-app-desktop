@@ -571,6 +571,7 @@ fun main() {
                                             centroCostosService  = centroCostosService,
                                             formasPagoSriService = formasPagoSriService,
                                             seriesService        = seriesService,
+                                            xmlPdfService        = xmlPdfService,
                                             idFactura            = facturasState.editingId,
                                             idData               = ID_DATA,
                                             idEmpresa            = idEmpresa

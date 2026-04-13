@@ -10,6 +10,7 @@ import com.calero.lili.core.enums.Liquidar
 import com.calero.lili.core.enums.TipoIdentificacion
 import com.calero.lili.core.enums.TipoIngreso
 import com.calero.lili.core.enums.TipoPermiso
+import com.calero.lili.core.comprobantesWs.services.GetXmlVtVentasFacturasServiceImpl
 import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesServiceImpl
 import com.calero.lili.core.modAdminEmpresasSeries.dto.AdEmpresaSerieFacturaDto
 import com.calero.lili.core.modComprasItems.GeItemsServiceImpl
@@ -28,9 +29,16 @@ import com.calero.lili.core.modTerceros.dto.GeTerceroGetListDto
 import com.calero.lili.core.modVentas.facturas.VtVentasFacturasServiceImpl
 import com.calero.lili.core.modVentas.facturas.dto.CreationFacturaRequestDto
 import com.calero.lili.core.modVentas.facturas.dto.FilterListDto
+import java.awt.print.PrinterJob
+import java.io.FileOutputStream
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.UUID
+import javax.swing.JFileChooser
+import javax.swing.SwingUtilities
+import javax.swing.filechooser.FileNameExtensionFilter
+import org.apache.pdfbox.Loader
+import org.apache.pdfbox.printing.PDFPageable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -155,7 +163,12 @@ data class FacturaFormUiState(
     val dialogCaNombre: String = "",
     val dialogCaValor: String = "",
     // Series disponibles para facturas
-    val seriesDisponibles: List<AdEmpresaSerieFacturaDto> = emptyList()
+    val seriesDisponibles: List<AdEmpresaSerieFacturaDto> = emptyList(),
+    // PDF viewer — se muestra tras guardar
+    val pdfBytes      : ByteArray?  = null,
+    val pdfLoading    : Boolean     = false,
+    val pdfNombre     : String      = "",
+    val showPdfViewer : Boolean     = false
 )
 
 // ── ViewModel ─────────────────────────────────────────────────────────────────
@@ -167,6 +180,7 @@ class FacturaFormViewModel(
     private val centroCostosService: CnCentroCostosServiceImpl,
     private val formasPagoSriService: TbFormasPagoSriServiceImpl,
     private val seriesService: AdEmpresasSeriesServiceImpl,
+    private val xmlPdfService: GetXmlVtVentasFacturasServiceImpl,
     private val idFactura: UUID? = null,
     private val idData: Long = 1L,
     private val idEmpresa: Long
@@ -293,17 +307,79 @@ class FacturaFormViewModel(
             _state.update { it.copy(isSaving = true, errorMessage = null) }
             try {
                 val request = buildRequest(s)
-                if (idFactura == null) {
+                val responseDto = if (idFactura == null)
                     service.create(idData, idEmpresa, request, USUARIO, "LOC")
-                } else {
+                else
                     service.update(idData, idEmpresa, idFactura, request, FilterListDto(), TipoPermiso.TODAS, USUARIO)
+
+                // Abrir dialog con spinner de forma inmediata
+                _state.update { it.copy(isSaving = false, showPdfViewer = true, pdfLoading = true) }
+
+                val facturaId = UUID.fromString(responseDto.id)
+                try {
+                    val archivo = xmlPdfService.findPDFFacturaById(idData, idEmpresa, facturaId, "LOC")
+                    _state.update { it.copy(pdfLoading = false, pdfBytes = archivo.contenido, pdfNombre = archivo.nombre) }
+                } catch (pdfEx: Exception) {
+                    // PDF no disponible (ej: documento aún no autorizado)
+                    val msg = if (idFactura == null) "Factura creada correctamente" else "Factura actualizada correctamente"
+                    _state.update { it.copy(pdfLoading = false, showPdfViewer = false, successMessage = msg) }
+                    delay(900)
+                    onGuardado()
                 }
-                val msg = if (idFactura == null) "Factura creada correctamente" else "Factura actualizada correctamente"
-                _state.update { it.copy(isSaving = false, successMessage = msg) }
-                delay(900)
-                onGuardado()
             } catch (e: Exception) {
                 _state.update { it.copy(isSaving = false, errorMessage = e.message ?: "Error al guardar") }
+            }
+        }
+    }
+
+    fun dismissPdfViewer() {
+        _state.update { it.copy(showPdfViewer = false, pdfBytes = null, pdfNombre = "") }
+    }
+
+    fun descargarPdfActual() {
+        val s = _state.value
+        val bytes  = s.pdfBytes ?: return
+        val nombre = s.pdfNombre.ifBlank { "factura" }
+        scope.launch {
+            try {
+                var chosenPath: String? = null
+                SwingUtilities.invokeAndWait {
+                    val chooser = JFileChooser()
+                    chooser.dialogTitle       = "Guardar PDF"
+                    chooser.fileSelectionMode = JFileChooser.FILES_ONLY
+                    chooser.fileFilter        = FileNameExtensionFilter("PDF (*.pdf)", "pdf")
+                    chooser.selectedFile      = java.io.File("$nombre.pdf")
+                    if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION)
+                        chosenPath = chooser.selectedFile.absolutePath
+                }
+                if (chosenPath == null) return@launch
+                val finalPath = if (chosenPath!!.endsWith(".pdf", ignoreCase = true)) chosenPath!! else "$chosenPath.pdf"
+                FileOutputStream(finalPath).use { it.write(bytes) }
+            } catch (e: Exception) {
+                _state.update { it.copy(errorMessage = "Error al guardar PDF: ${e.message}") }
+            }
+        }
+    }
+
+    fun imprimirPdfActual() {
+        val bytes = _state.value.pdfBytes ?: return
+        scope.launch {
+            try {
+                var shouldPrint = false
+                var printerJob: PrinterJob? = null
+                val doc = Loader.loadPDF(bytes)
+                try {
+                    SwingUtilities.invokeAndWait {
+                        printerJob = PrinterJob.getPrinterJob()
+                        printerJob!!.setPageable(PDFPageable(doc))
+                        shouldPrint = printerJob!!.printDialog()
+                    }
+                    if (shouldPrint) printerJob!!.print()
+                } finally {
+                    doc.close()
+                }
+            } catch (e: Exception) {
+                _state.update { it.copy(errorMessage = "Error al imprimir: ${e.message}") }
             }
         }
     }
