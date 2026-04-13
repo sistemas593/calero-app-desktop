@@ -66,4 +66,10 @@ public class AdEmpresaRequestDto {
     private int momentoEnvioLiquidacion;
     private int momentoEnvioComprobanteRetencion;
 
+    private int ambienteFactura;
+    private int ambienteNotaCredito;
+    private int ambienteNotaDebito;
+    private int ambienteGuiaRemision;
+    private int ambienteLiquidacion;
+    private int ambienteComprobanteRetencion;
 }
