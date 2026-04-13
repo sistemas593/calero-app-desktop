@@ -3,6 +3,7 @@ package com.calero.lili.core.modCompras.modComprasRetenciones;
 import com.calero.lili.core.adLogs.builder.AdLogsBuilder;
 import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.core.comprobantes.services.ComprobanteServiceImpl;
+import com.calero.lili.core.comprobantesWs.RespuestaProcesoGetDto;
 import com.calero.lili.core.comprobantesWs.dto.DatosEmpresaDto;
 import com.calero.lili.core.comprobantesWs.services.BuscarDatosEmpresa;
 import com.calero.lili.core.comprobantesWs.services.ProcesarDocumentosServiceImpl;
@@ -10,13 +11,14 @@ import com.calero.lili.core.dtos.Mensajes;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.dtos.ResponseDto;
-import com.calero.lili.core.enums.CodigoImpuesto;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.TipoEmision;
 import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.errors.exceptions.GeneralException;
-import com.calero.lili.core.modCompras.modCompras.dto.CompraImpuestosDto;
+import com.calero.lili.core.errors.exceptions.NotFoundException;
+import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
+import com.calero.lili.core.modAdminEmpresas.projection.MomentoEnvioProjection;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosServiceImpl;
 import com.calero.lili.core.modCompras.modComprasRetenciones.builder.CpRetencionesBuilder;
 import com.calero.lili.core.modCompras.modComprasRetenciones.dto.CreationRetencionRequestDto;
@@ -55,7 +57,6 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -64,7 +65,6 @@ import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 @Slf4j
 public class ComprasRetencionesServiceImpl {
 
@@ -78,10 +78,11 @@ public class ComprasRetencionesServiceImpl {
     private final BuscarDatosEmpresa buscarDatosEmpresa;
     private final AdLogsBuilder adLogsBuilder;
     private final ProcesarDocumentosServiceImpl procesarDocumentosService;
+    private final AdEmpresasRepository adEmpresasRepository;
 
 
-    public ResponseDto create(Long idData, Long idEmpresa, CreationRetencionRequestDto request,
-                              String usuario, String origenCertificado) {
+    public RespuestaProcesoGetDto create(Long idData, Long idEmpresa, CreationRetencionRequestDto request,
+                                         String usuario, String origenCertificado) {
 
 
         DateUtils.validarFechaEmision(request.getFechaEmisionRetencion());
@@ -102,25 +103,39 @@ public class ComprasRetencionesServiceImpl {
         comprobanteService.getComprobanteXmlRetencion(idData, idEmpresa, retencionesEntity, request);
         CpRetencionesEntity saved = cpRetencionPersistenceService.guardarRetencion(retencionesEntity, request);
 
-        DatosEmpresaDto datosEmpresaDto = null;
+        MomentoEnvioProjection momentoEnvio = adEmpresasRepository.obtenerMomentosEnvio(idEmpresa)
+                .orElseThrow(() -> new GeneralException("No se encontraron los momentos de envío para la empresa con id: " + idEmpresa));
 
-        switch (origenCertificado) {
+        RespuestaProcesoGetDto respuestaProcesoGetDto = new RespuestaProcesoGetDto();
 
-            case "WEB" -> datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(saved.getIdData(), saved.getIdEmpresa());
+        if (momentoEnvio.getMomentoEnvioFactura() == 2) {
 
-            case "LOC" ->
-                    datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(saved.getIdData(), saved.getIdEmpresa());
-        }
+            DatosEmpresaDto datosEmpresaDto = null;
 
-        if (Objects.nonNull(datosEmpresaDto)) {
-            if (datosEmpresaDto.getMomentoEnvioComprobanteRetencion() == 2) {
-                procesarDocumentosService.procesarComprobanteRetencion(saved,
-                        adLogsBuilder.builderComprobanteRetencion(saved, Boolean.FALSE), datosEmpresaDto);
+            switch (origenCertificado) {
+
+                case "WEB" ->
+                        datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(saved.getIdData(), saved.getIdEmpresa());
+
+                case "LOC" ->
+                        datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(saved.getIdData(), saved.getIdEmpresa());
             }
+
+            respuestaProcesoGetDto = procesarDocumentosService.procesarComprobanteRetencion(saved,
+                    adLogsBuilder.builderComprobanteRetencion(saved, Boolean.FALSE), datosEmpresaDto);
+            respuestaProcesoGetDto.setIdDocumento(saved.getIdRetencion());
         }
 
+        if (Objects.isNull(respuestaProcesoGetDto.getNumeroAutorizacion())) {
+            respuestaProcesoGetDto.setIdDocumento(saved.getIdRetencion());
+            respuestaProcesoGetDto.setNumeroAutorizacion("");
+            respuestaProcesoGetDto.setEmailEstado(saved.getEmailEstado());
+            respuestaProcesoGetDto.setEstadoDocumento(saved.getEstadoDocumento().getEstadoDocumento());
+        }
 
-        return responseApiBuilder.builderResponse(saved.getIdRetencion().toString());
+        return respuestaProcesoGetDto;
+
+
     }
 
 

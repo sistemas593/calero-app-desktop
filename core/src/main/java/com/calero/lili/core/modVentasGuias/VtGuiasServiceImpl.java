@@ -3,6 +3,7 @@ package com.calero.lili.core.modVentasGuias;
 import com.calero.lili.core.adLogs.builder.AdLogsBuilder;
 import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.core.comprobantes.services.ComprobanteServiceImpl;
+import com.calero.lili.core.comprobantesWs.RespuestaProcesoGetDto;
 import com.calero.lili.core.comprobantesWs.dto.DatosEmpresaDto;
 import com.calero.lili.core.comprobantesWs.services.BuscarDatosEmpresa;
 import com.calero.lili.core.comprobantesWs.services.ProcesarDocumentosServiceImpl;
@@ -16,6 +17,9 @@ import com.calero.lili.core.enums.TipoEmision;
 import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.enums.TipoTercero;
 import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.core.errors.exceptions.NotFoundException;
+import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
+import com.calero.lili.core.modAdminEmpresas.projection.MomentoEnvioProjection;
 import com.calero.lili.core.modComprasItems.GeItemsRepository;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
@@ -62,7 +66,6 @@ import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 @Slf4j
 public class VtGuiasServiceImpl {
 
@@ -76,10 +79,10 @@ public class VtGuiasServiceImpl {
     private final BuscarDatosEmpresa buscarDatosEmpresa;
     private final AdLogsBuilder adLogsBuilder;
     private final ProcesarDocumentosServiceImpl procesarDocumentosService;
+    private final AdEmpresasRepository adEmpresasRepository;
 
-
-    public ResponseDto create(Long idData, Long idEmpresa, CreationRequestGuiaRemisionDto request,
-                              String usuario, String origenCertificado) {
+    public RespuestaProcesoGetDto create(Long idData, Long idEmpresa, CreationRequestGuiaRemisionDto request,
+                                         String usuario, String origenCertificado) {
 
         DateUtils.validarFechaEmision(request.getFechaEmision());
         Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData, idEmpresa, request.getSerie(), request.getSecuencial());
@@ -113,24 +116,37 @@ public class VtGuiasServiceImpl {
 
         VtGuiaEntity saved = vtGuiasPersistenceService.guardarGuiaRemision(vtGuiaEntity, request, idData, idEmpresa);
 
-        DatosEmpresaDto datosEmpresaDto = null;
+        MomentoEnvioProjection momentoEnvio = adEmpresasRepository.obtenerMomentosEnvio(idEmpresa)
+                .orElseThrow(() -> new GeneralException("No se encontraron los momentos de envío para la empresa con id: " + idEmpresa));
 
-        switch (origenCertificado) {
+        RespuestaProcesoGetDto respuestaProcesoGetDto = new RespuestaProcesoGetDto();
 
-            case "WEB" -> datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(saved.getIdData(), saved.getIdEmpresa());
+        if (momentoEnvio.getMomentoEnvioGuiaRemision() == 2) {
 
-            case "LOC" ->
-                    datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(saved.getIdData(), saved.getIdEmpresa());
-        }
+            DatosEmpresaDto datosEmpresaDto = null;
 
-        if (Objects.nonNull(datosEmpresaDto)) {
-            if (datosEmpresaDto.getMomentoEnvioGuiaRemision() == 2) {
-                procesarDocumentosService.procesarGuiaRemision(saved,
-                        adLogsBuilder.builderGuiaRemision(saved, Boolean.FALSE), datosEmpresaDto);
+            switch (origenCertificado) {
+
+                case "WEB" ->
+                        datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(saved.getIdData(), saved.getIdEmpresa());
+
+                case "LOC" ->
+                        datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(saved.getIdData(), saved.getIdEmpresa());
             }
+
+            respuestaProcesoGetDto = procesarDocumentosService.procesarGuiaRemision(saved,
+                    adLogsBuilder.builderGuiaRemision(saved, Boolean.FALSE), datosEmpresaDto);
+            respuestaProcesoGetDto.setIdDocumento(saved.getIdGuia());
         }
 
-        return responseApiBuilder.builderResponse(saved.getIdGuia().toString());
+        if (Objects.isNull(respuestaProcesoGetDto.getNumeroAutorizacion())) {
+            respuestaProcesoGetDto.setIdDocumento(saved.getIdGuia());
+            respuestaProcesoGetDto.setNumeroAutorizacion("");
+            respuestaProcesoGetDto.setEmailEstado(saved.getEmailEstado());
+            respuestaProcesoGetDto.setEstadoDocumento(saved.getEstadoDocumento().getEstadoDocumento());
+        }
+
+        return respuestaProcesoGetDto;
 
     }
 

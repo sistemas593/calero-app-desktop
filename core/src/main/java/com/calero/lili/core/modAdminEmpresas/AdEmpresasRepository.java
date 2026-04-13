@@ -1,5 +1,6 @@
 package com.calero.lili.core.modAdminEmpresas;
 
+import com.calero.lili.core.modAdminEmpresas.projection.MomentoEnvioProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -46,5 +47,18 @@ public interface AdEmpresasRepository extends JpaRepository<AdEmpresaEntity, Lon
             "FROM AdEmpresaEntity entity " +
             "WHERE entity.ruc = :ruc ")
     Optional<AdEmpresaEntity> findByRuc(@Param("ruc") String ruc);
+
+    @Query("""
+                SELECT 
+                    e.momentoEnvioFactura AS momentoEnvioFactura,
+                    e.momentoEnvioNotaCredito AS momentoEnvioNotaCredito,
+                    e.momentoEnvioNotaDebito AS momentoEnvioNotaDebito,
+                    e.momentoEnvioGuiaRemision AS momentoEnvioGuiaRemision,
+                    e.momentoEnvioLiquidacion AS momentoEnvioLiquidacion,
+                    e.momentoEnvioComprobanteRetencion AS momentoEnvioComprobanteRetencion
+                FROM AdEmpresaEntity e
+                WHERE e.id = :id
+            """)
+    Optional<MomentoEnvioProjection> obtenerMomentosEnvio(@Param("id") Long id);
 
 }

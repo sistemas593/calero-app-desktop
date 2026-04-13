@@ -2,6 +2,7 @@ package com.calero.lili.api.controllers;
 
 import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.api.utils.IdDataServiceImpl;
+import com.calero.lili.core.comprobantesWs.RespuestaProcesoGetDto;
 import com.calero.lili.core.dtos.Mensajes;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.ResponseDto;
@@ -47,8 +48,8 @@ public class VtGuiaController {
     @PostMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('VT_GR_CR')")
-    public ResponseDto create(@PathVariable("idEmpresa") Long idEmpresa,
-                              @Valid @RequestBody CreationRequestGuiaRemisionDto request) {
+    public RespuestaProcesoGetDto create(@PathVariable("idEmpresa") Long idEmpresa,
+                                         @Valid @RequestBody CreationRequestGuiaRemisionDto request) {
         return vtVentasService.create(idDataService.getIdData(), idEmpresa, request,
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"), "WEB");
     }

@@ -19,6 +19,8 @@ import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.enums.TipoVenta;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.errors.exceptions.NotFoundException;
+import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
+import com.calero.lili.core.modAdminEmpresas.projection.MomentoEnvioProjection;
 import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
 import com.calero.lili.core.modComprasItems.GeItemsRepository;
 import com.calero.lili.core.modContabilidad.modAsientos.CnAsientosEntity;
@@ -104,6 +106,7 @@ public class VtVentasFacturasServiceImpl {
     private final ProcesarDocumentosServiceImpl procesarDocumentosService;
     private final AdLogsBuilder adLogsBuilder;
     private final BuscarDatosEmpresa buscarDatosEmpresa;
+    private final AdEmpresasRepository adEmpresasRepository;
 
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa,
                                          CreationFacturaRequestDto request, String usuario, String origenCertificado) {
@@ -145,25 +148,27 @@ public class VtVentasFacturasServiceImpl {
 
         VtVentaEntity saved = facturasPersistenceService.guardarFactura(vtVentaEntity, request, idData, idEmpresa);
 
-
-        DatosEmpresaDto datosEmpresaDto = null;
-
-        switch (origenCertificado) {
-
-            case "WEB" -> datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(saved.getIdData(), saved.getIdEmpresa());
-
-            case "LOC" ->
-                    datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(saved.getIdData(), saved.getIdEmpresa());
-        }
-
+        MomentoEnvioProjection momentoEnvio = adEmpresasRepository.obtenerMomentosEnvio(idEmpresa)
+                .orElseThrow(() -> new GeneralException("No se encontraron los momentos de envío para la empresa con id: " + idEmpresa));
 
         RespuestaProcesoGetDto respuestaProcesoGetDto = new RespuestaProcesoGetDto();
-        if (Objects.nonNull(datosEmpresaDto)) {
-            if (datosEmpresaDto.getMomentoEnvioFactura() == 2) {
-                respuestaProcesoGetDto = procesarDocumentosService.procesarFacNcNd(saved,
-                        adLogsBuilder.builderVentasDocumentos(saved, Boolean.FALSE), datosEmpresaDto);
-                respuestaProcesoGetDto.setIdDocumento(saved.getIdVenta());
+
+        if (momentoEnvio.getMomentoEnvioFactura() == 2) {
+
+            DatosEmpresaDto datosEmpresaDto = null;
+
+            switch (origenCertificado) {
+
+                case "WEB" ->
+                        datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(saved.getIdData(), saved.getIdEmpresa());
+
+                case "LOC" ->
+                        datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(saved.getIdData(), saved.getIdEmpresa());
             }
+
+            respuestaProcesoGetDto = procesarDocumentosService.procesarFacNcNd(saved,
+                    adLogsBuilder.builderVentasDocumentos(saved, Boolean.FALSE), datosEmpresaDto);
+            respuestaProcesoGetDto.setIdDocumento(saved.getIdVenta());
         }
 
 

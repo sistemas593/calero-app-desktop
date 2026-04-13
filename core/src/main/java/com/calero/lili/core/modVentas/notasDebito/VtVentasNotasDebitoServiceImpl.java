@@ -17,7 +17,9 @@ import com.calero.lili.core.enums.TipoEmision;
 import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.enums.TipoVenta;
 import com.calero.lili.core.errors.exceptions.GeneralException;
-import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosEntity;
+import com.calero.lili.core.errors.exceptions.NotFoundException;
+import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
+import com.calero.lili.core.modAdminEmpresas.projection.MomentoEnvioProjection;
 import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosRepository;
 import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
 import com.calero.lili.core.modComprasItems.GeItemsRepository;
@@ -45,7 +47,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -56,7 +57,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 @Slf4j
 public class VtVentasNotasDebitoServiceImpl {
 
@@ -73,9 +73,10 @@ public class VtVentasNotasDebitoServiceImpl {
     private final BuscarDatosEmpresa buscarDatosEmpresa;
     private final AdLogsBuilder adLogsBuilder;
     private final ProcesarDocumentosServiceImpl procesarDocumentosService;
+    private final AdEmpresasRepository adEmpresasRepository;
 
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa,
-                              CreationNotaDebitoRequestDto request, String usuario, String origenCertificado) {
+                                         CreationNotaDebitoRequestDto request, String usuario, String origenCertificado) {
 
         DateUtils.validarFechaEmision(request.getFechaEmision());
         ValidarCampoAscii.validarStrings(request);
@@ -109,23 +110,27 @@ public class VtVentasNotasDebitoServiceImpl {
 
         VtVentaEntity saved = vtVentasPersistenceService.guardarNotaDebito(vtVentaEntity, request, idData, idEmpresa);
 
-        DatosEmpresaDto datosEmpresaDto = null;
-
-        switch (origenCertificado) {
-
-            case "WEB" -> datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(saved.getIdData(), saved.getIdEmpresa());
-
-            case "LOC" ->
-                    datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(saved.getIdData(), saved.getIdEmpresa());
-        }
+        MomentoEnvioProjection momentoEnvio = adEmpresasRepository.obtenerMomentosEnvio(idEmpresa)
+                .orElseThrow(() -> new GeneralException("No se encontraron los momentos de envío para la empresa con id: " + idEmpresa));
 
         RespuestaProcesoGetDto respuestaProcesoGetDto = new RespuestaProcesoGetDto();
-        if (Objects.nonNull(datosEmpresaDto)) {
-            if (datosEmpresaDto.getMomentoEnvioNotaDebito() == 2) {
-                respuestaProcesoGetDto = procesarDocumentosService.procesarFacNcNd(saved,
-                        adLogsBuilder.builderVentasDocumentos(saved, Boolean.FALSE), datosEmpresaDto);
-                respuestaProcesoGetDto.setIdDocumento(saved.getIdVenta());
+
+        if (momentoEnvio.getMomentoEnvioNotaDebito() == 2) {
+
+            DatosEmpresaDto datosEmpresaDto = null;
+
+            switch (origenCertificado) {
+
+                case "WEB" ->
+                        datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(saved.getIdData(), saved.getIdEmpresa());
+
+                case "LOC" ->
+                        datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(saved.getIdData(), saved.getIdEmpresa());
             }
+
+            respuestaProcesoGetDto = procesarDocumentosService.procesarFacNcNd(saved,
+                    adLogsBuilder.builderVentasDocumentos(saved, Boolean.FALSE), datosEmpresaDto);
+            respuestaProcesoGetDto.setIdDocumento(saved.getIdVenta());
         }
 
         if (Objects.isNull(respuestaProcesoGetDto.getNumeroAutorizacion())) {
