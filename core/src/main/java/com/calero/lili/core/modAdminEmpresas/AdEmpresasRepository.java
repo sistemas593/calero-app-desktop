@@ -57,7 +57,7 @@ public interface AdEmpresasRepository extends JpaRepository<AdEmpresaEntity, Lon
                     e.momentoEnvioLiquidacion AS momentoEnvioLiquidacion,
                     e.momentoEnvioComprobanteRetencion AS momentoEnvioComprobanteRetencion
                 FROM AdEmpresaEntity e
-                WHERE e.id = :id
+                WHERE e.idEmpresa = :id
             """)
     Optional<MomentoEnvioProjection> obtenerMomentosEnvio(@Param("id") Long id);
 
