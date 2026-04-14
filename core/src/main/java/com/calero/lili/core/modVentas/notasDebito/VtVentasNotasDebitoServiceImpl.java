@@ -17,10 +17,8 @@ import com.calero.lili.core.enums.TipoEmision;
 import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.enums.TipoVenta;
 import com.calero.lili.core.errors.exceptions.GeneralException;
-import com.calero.lili.core.errors.exceptions.NotFoundException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.modAdminEmpresas.projection.MomentoEnvioProjection;
-import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosRepository;
 import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
 import com.calero.lili.core.modComprasItems.GeItemsRepository;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
@@ -61,7 +59,6 @@ import java.util.UUID;
 public class VtVentasNotasDebitoServiceImpl {
 
     private final VtVentasRepository vtVentaRepository;
-    private final AdEmpresasSeriesDocumentosRepository adEmpresasSeriesDocumentosRepository;
     private final ResponseApiBuilder responseApiBuilder;
     private final VtNotasDebitoBuilder vtNotasDebitoBuilder;
     private final GetListResponseBuilder getListResponseBuilder;
@@ -99,6 +96,7 @@ public class VtVentasNotasDebitoServiceImpl {
         GeTerceroEntity tercero = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
                 .orElseThrow(() -> new GeneralException("No existe tercero"));
 
+        validarTotalConsumidorFinal(request, tercero);
         VtVentaEntity vtVentaEntity = vtNotasDebitoBuilder.builderEntity(request, idData, idEmpresa);
         vtVentaEntity.setTercero(tercero);
         vtVentaEntity.setEmail(tercero.getEmail());
@@ -171,7 +169,7 @@ public class VtVentasNotasDebitoServiceImpl {
         GeTerceroEntity tercero = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
                 .orElseThrow(() -> new GeneralException("No existe tercero"));
 
-
+        validarTotalConsumidorFinal(request, tercero);
         VtVentaEntity update = vtNotasDebitoBuilder.builderUpdateEntity(request, vtVentaEntity);
         update.setModifiedBy(usuario);
         update.setModifiedDate(LocalDateTime.now());
@@ -419,6 +417,14 @@ public class VtVentasNotasDebitoServiceImpl {
         }
 
         throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
+    }
+
+    private void validarTotalConsumidorFinal(CreationNotaDebitoRequestDto request, GeTerceroEntity tercero) {
+        if (tercero.getNumeroIdentificacion().equals("9999999999")) {
+            if (request.getTotal().compareTo(new BigDecimal("50")) > 0) {
+                throw new GeneralException("El total no puede ser mayor a 50 para el consumidor final");
+            }
+        }
     }
 
 }

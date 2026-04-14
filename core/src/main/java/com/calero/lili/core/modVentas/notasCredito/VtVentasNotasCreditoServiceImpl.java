@@ -118,6 +118,7 @@ public class VtVentasNotasCreditoServiceImpl {
         GeTerceroEntity tercero = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
                 .orElseThrow(() -> new GeneralException("No existe tercero"));
 
+        validarConsumidorFinal(tercero);
         VtVentaEntity vtVentaEntity = vtNotasCreditoBuilder.builderEntity(request, idData, idEmpresa);
         vtVentaEntity.setTercero(tercero);
         vtVentaEntity.setEmail(tercero.getTercero());
@@ -192,8 +193,8 @@ public class VtVentasNotasCreditoServiceImpl {
         GeTerceroEntity tercero = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
                 .orElseThrow(() -> new GeneralException("No existe destinatario"));
 
+        validarConsumidorFinal(tercero);
         VtVentaEntity update = vtNotasCreditoBuilder.builderUpdateEntity(request, vtVentaEntity);
-
         update.setModifiedBy(usuario);
         update.setModifiedDate(LocalDateTime.now());
 
@@ -757,6 +758,12 @@ public class VtVentasNotasCreditoServiceImpl {
         }
 
         throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
+    }
+
+    private void validarConsumidorFinal(GeTerceroEntity tercero) {
+        if (tercero.getNumeroIdentificacion().equals("9999999999")) {
+            throw new GeneralException("No se puede crear una nota de crédito para consumidor final");
+        }
     }
 
 }

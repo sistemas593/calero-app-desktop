@@ -35,7 +35,6 @@ public class GeTercerosServiceImpl {
     private final GeTercerosTipoServiceImpl geTercerosTipoService;
 
 
-
     public GeTerceroGetListDto create(Long idEmpresa, Long idData, GeTerceroRequestDto request, String usuario) {
 
         ValidarCampoAscii.validarStrings(request);
@@ -94,6 +93,7 @@ public class GeTercerosServiceImpl {
         GeTerceroEntity entidad = vtClientesRepository.findByIdCliente(idData, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Tercero con id {0} no existe", id)));
 
+        validacionConsumidorFinal(entidad);
 
         entidad.setDelete(Boolean.TRUE);
         entidad.setDeletedBy(usuario);
@@ -101,6 +101,7 @@ public class GeTercerosServiceImpl {
 
         vtClientesRepository.save(entidad);
     }
+
 
     @Transactional
     public GeTerceroGetOneDto findById(Long idData, UUID id, Long idEmpresa) {
@@ -165,6 +166,13 @@ public class GeTercerosServiceImpl {
                     throw new GeneralException("El codigo del pais es requerido");
                 }
             }
+        }
+    }
+
+
+    private void validacionConsumidorFinal(GeTerceroEntity entidad) {
+        if (entidad.getNumeroIdentificacion().equals("9999999999")) {
+            throw new GeneralException("No se puede eliminar el consumidor final");
         }
     }
 

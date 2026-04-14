@@ -302,6 +302,10 @@ class FacturaFormViewModel(
         if (s.secuencial.isBlank()){ _state.update { it.copy(errorMessage = "El secuencial es requerido") };     return }
         if (s.fechaEmision.isBlank()){ _state.update { it.copy(errorMessage = "La fecha de emisión es requerida") }; return }
         if (s.detalle.isEmpty())  { _state.update { it.copy(errorMessage = "Debe agregar al menos un item") };   return }
+        if (s.numeroIdentificacion == "9999999999" && s.total > BigDecimal("50")) {
+            _state.update { it.copy(errorMessage = "El adquiriente 'Consumidor Final' no puede tener un total mayor a \$50.00. Por favor seleccione otro adquiriente.") }
+            return
+        }
 
         scope.launch {
             _state.update { it.copy(isSaving = true, errorMessage = null) }

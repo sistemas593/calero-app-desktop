@@ -17,3 +17,10 @@ subprojects {
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     }
 }
+
+configurations.all {
+    resolutionStrategy {
+        force("com.google.guava:guava:33.4.0-jre")
+    }
+    exclude(group = "com.google.guava", module = "guava-jdk5")
+}

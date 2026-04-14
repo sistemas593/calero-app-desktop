@@ -192,7 +192,7 @@ public class ProcesarDocumentosServiceImpl {
                 break;
         }
 
-        return responderProceso(respuestaProceso);
+        return responderProceso(respuestaProceso, documento.getIdVenta());
 
     }
 
@@ -285,26 +285,26 @@ public class ProcesarDocumentosServiceImpl {
                 vtGuiasRepository.save(guia);
                 break;
         }
-        return responderProceso(respuestaProceso);
+        return responderProceso(respuestaProceso, guia.getIdGuia());
     }
 
 
-    public RespuestaProcesoGetDto procesarLiquidacion(CpLiquidacionesEntity venta1, AdLogsRequestDto log, DatosEmpresaDto datosEmpresaDto) {
+    public RespuestaProcesoGetDto procesarLiquidacion(CpLiquidacionesEntity liquidacion, AdLogsRequestDto log, DatosEmpresaDto datosEmpresaDto) {
 
         System.out.println("Inicio del proceso");
 
         // LISTO PARA ENVIAR RECEPCION
 
-        if (!venta1.getEstadoDocumento().equals(EstadoDocumento.ENV) && !venta1.getEstadoDocumento().equals(EstadoDocumento.REC)) {
+        if (!liquidacion.getEstadoDocumento().equals(EstadoDocumento.ENV) && !liquidacion.getEstadoDocumento().equals(EstadoDocumento.REC)) {
             throw new GeneralException("El estado de documento no es para enviar o recibido");
         }
 
         // SI EL DOCUMENTO ESTA PARA ENVIAR
-        System.out.println("1. estado del documento en la base de datos:" + venta1.getEstadoDocumento());
-        String claveAcceso = venta1.getClaveAcceso();
-        Integer ambiente = Integer.valueOf(venta1.getAmbiente());
-        String estadoDocumento = venta1.getEstadoDocumento().toString();
-        String comprobante = venta1.getComprobante();
+        System.out.println("1. estado del documento en la base de datos:" + liquidacion.getEstadoDocumento());
+        String claveAcceso = liquidacion.getClaveAcceso();
+        Integer ambiente = Integer.valueOf(liquidacion.getAmbiente());
+        String estadoDocumento = liquidacion.getEstadoDocumento().toString();
+        String comprobante = liquidacion.getComprobante();
 
         // OJOOOOO ENVIAR DOCUMENTOS CON ESTADO ENV O REC
         RespuestaProceso respuestaProceso = procesarDocumento(estadoDocumento, claveAcceso, ambiente, comprobante,
@@ -316,70 +316,70 @@ public class ProcesarDocumentosServiceImpl {
         switch (respuestaProceso.getEstadoEnvio()) {
             case "REC":
                 System.out.println("1. Guardar liquidacion como recibida");
-                venta1.setEstadoDocumento(EstadoDocumento.REC);
+                liquidacion.setEstadoDocumento(EstadoDocumento.REC);
                 if (respuestaProceso.getEstadoAutorizacion().equals("AUT")) {
-                    venta1.setEstadoDocumento(EstadoDocumento.AUT);
-                    venta1.setNumeroAutorizacion(respuestaProceso.getNumeroAutorizacion());
-                    venta1.setComprobante(respuestaProceso.getComprobante());
-                    venta1.setFechaAutorizacion(respuestaProceso.getFechaAutorizacion());
+                    liquidacion.setEstadoDocumento(EstadoDocumento.AUT);
+                    liquidacion.setNumeroAutorizacion(respuestaProceso.getNumeroAutorizacion());
+                    liquidacion.setComprobante(respuestaProceso.getComprobante());
+                    liquidacion.setFechaAutorizacion(respuestaProceso.getFechaAutorizacion());
 
-                    if (!Objects.isNull(venta1.getEmail())) {
+                    if (!Objects.isNull(liquidacion.getEmail())) {
 
-                        if (!venta1.getEmail().isEmpty()) {
+                        if (!liquidacion.getEmail().isEmpty()) {
                             EnvioCorreoDto envioCorreoDto = new EnvioCorreoDto();
-                            envioCorreoDto.setComprobante(venta1.getComprobante());
-                            envioCorreoDto.setNumeroAutorizacion(venta1.getNumeroAutorizacion());
-                            envioCorreoDto.setFechaAutorizacion(venta1.getFechaAutorizacion());
-                            envioCorreoDto.setNombreReceptor(venta1.getProveedor().getTercero());
+                            envioCorreoDto.setComprobante(liquidacion.getComprobante());
+                            envioCorreoDto.setNumeroAutorizacion(liquidacion.getNumeroAutorizacion());
+                            envioCorreoDto.setFechaAutorizacion(liquidacion.getFechaAutorizacion());
+                            envioCorreoDto.setNombreReceptor(liquidacion.getProveedor().getTercero());
                             envioCorreoDto.setCodigoDocumento("03");
-                            envioCorreoDto.setSecuencial(venta1.getSecuencial());
-                            envioCorreoDto.setSerie(venta1.getSerie());
-                            envioCorreoDto.setFechaEmision(DateUtils.toString(venta1.getFechaEmision()));
-                            envioCorreoDto.setClaveAcceso(venta1.getClaveAcceso());
-                            envioCorreoDto.setEmail(venta1.getEmail());
+                            envioCorreoDto.setSecuencial(liquidacion.getSecuencial());
+                            envioCorreoDto.setSerie(liquidacion.getSerie());
+                            envioCorreoDto.setFechaEmision(DateUtils.toString(liquidacion.getFechaEmision()));
+                            envioCorreoDto.setClaveAcceso(liquidacion.getClaveAcceso());
+                            envioCorreoDto.setEmail(liquidacion.getEmail());
 
                             Integer respuestaEnvioCorreo = procesarEnvioCorreo.enviarCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
-                            venta1.setEmailEstado(respuestaEnvioCorreo);
+                            liquidacion.setEmailEstado(respuestaEnvioCorreo);
                             respuestaProceso.setEmailEstado(respuestaEnvioCorreo);
                         }
                     }
                 }
                 if (respuestaProceso.getEstadoAutorizacion().equals("NOA")) {
                     System.out.println("procesar Guardar liquidacion como NO autorizada");
-                    venta1.setEstadoDocumento(EstadoDocumento.NOA);
+                    liquidacion.setEstadoDocumento(EstadoDocumento.NOA);
                     if (!Objects.isNull(respuestaProceso.getMensajes())) {
-                        venta1.setMensajes(respuestaProceso.getMensajes());
+                        liquidacion.setMensajes(respuestaProceso.getMensajes());
                     }
                 }
 
-                liquidacionesRepository.save(venta1);
+                liquidacionesRepository.save(liquidacion);
                 break;
             case "DEV":
                 System.out.println("2. Guardar liquidacion como devuelto");
-                venta1.setEstadoDocumento(EstadoDocumento.DEV);
+                liquidacion.setEstadoDocumento(EstadoDocumento.DEV);
                 if (!Objects.isNull(respuestaProceso.getMensajes())) {
-                    venta1.setMensajes(respuestaProceso.getMensajes());
+                    liquidacion.setMensajes(respuestaProceso.getMensajes());
                 }
-                liquidacionesRepository.save(venta1);
+                liquidacionesRepository.save(liquidacion);
                 break;
         }
-        return responderProceso(respuestaProceso);
+        return responderProceso(respuestaProceso, liquidacion.getIdLiquidacion());
     }
 
-    public RespuestaProcesoGetDto procesarComprobanteRetencion(CpRetencionesEntity venta1, AdLogsRequestDto log, DatosEmpresaDto datosEmpresaDto) {
+    public RespuestaProcesoGetDto procesarComprobanteRetencion(CpRetencionesEntity retencion, AdLogsRequestDto log, DatosEmpresaDto datosEmpresaDto) {
 
         System.out.println("Inicio del proceso");
 
-        if (!venta1.getEstadoDocumento().equals(EstadoDocumento.ENV) && !venta1.getEstadoDocumento().equals(EstadoDocumento.REC)) {
+        if (!retencion.getEstadoDocumento().equals(EstadoDocumento.ENV) && !retencion.getEstadoDocumento().equals(EstadoDocumento.REC)) {
             throw new GeneralException("El estado de documento no es para enviar o recibido");
         }
 
         // SI EL DOCUMENTO ESTA PARA ENVIAR
-        System.out.println("1. estado del documento en la base de datos:" + venta1.getEstadoDocumento());
-        String claveAcceso = venta1.getClaveAcceso();
-        Integer ambiente = Integer.valueOf(venta1.getAmbiente());
-        String estadoDocumento = venta1.getEstadoDocumento().toString();
-        String comprobante = venta1.getComprobante();
+        System.out.println("1. estado del documento en la base de datos:" + retencion.getEstadoDocumento());
+        String claveAcceso = retencion.getClaveAcceso();
+        Integer ambiente = Integer.valueOf(retencion.getAmbiente());
+        String estadoDocumento = retencion.getEstadoDocumento().toString();
+        String comprobante = retencion.getComprobante();
 
         // OJOOOOO ENVIAR DOCUMENTOS CON ESTADO ENV O REC
         RespuestaProceso respuestaProceso = procesarDocumento(estadoDocumento, claveAcceso, ambiente, comprobante,
@@ -390,54 +390,54 @@ public class ProcesarDocumentosServiceImpl {
         switch (respuestaProceso.getEstadoEnvio()) {
             case "REC":
                 System.out.println("1. Guardar retencion como recibida");
-                venta1.setEstadoDocumento(EstadoDocumento.REC);
+                retencion.setEstadoDocumento(EstadoDocumento.REC);
                 if (respuestaProceso.getEstadoAutorizacion().equals("AUT")) {
-                    venta1.setEstadoDocumento(EstadoDocumento.AUT);
-                    venta1.setNumeroAutorizacionRetencion(respuestaProceso.getNumeroAutorizacion());
-                    venta1.setComprobante(respuestaProceso.getComprobante());
-                    venta1.setFechaAutorizacion(respuestaProceso.getFechaAutorizacion());
+                    retencion.setEstadoDocumento(EstadoDocumento.AUT);
+                    retencion.setNumeroAutorizacionRetencion(respuestaProceso.getNumeroAutorizacion());
+                    retencion.setComprobante(respuestaProceso.getComprobante());
+                    retencion.setFechaAutorizacion(respuestaProceso.getFechaAutorizacion());
 
-                    if (!Objects.isNull(venta1.getEmail())) {
+                    if (!Objects.isNull(retencion.getEmail())) {
 
-                        if (!venta1.getEmail().isEmpty()) {
+                        if (!retencion.getEmail().isEmpty()) {
                             EnvioCorreoDto envioCorreoDto = new EnvioCorreoDto();
-                            envioCorreoDto.setComprobante(venta1.getComprobante());
-                            envioCorreoDto.setNumeroAutorizacion(venta1.getNumeroAutorizacionRetencion());
-                            envioCorreoDto.setFechaAutorizacion(venta1.getFechaAutorizacion());
-                            envioCorreoDto.setNombreReceptor(venta1.getProveedor().getTercero());
+                            envioCorreoDto.setComprobante(retencion.getComprobante());
+                            envioCorreoDto.setNumeroAutorizacion(retencion.getNumeroAutorizacionRetencion());
+                            envioCorreoDto.setFechaAutorizacion(retencion.getFechaAutorizacion());
+                            envioCorreoDto.setNombreReceptor(retencion.getProveedor().getTercero());
                             envioCorreoDto.setCodigoDocumento("07");
-                            envioCorreoDto.setSecuencial(venta1.getSecuencialRetencion());
-                            envioCorreoDto.setSerie(venta1.getSerieRetencion());
-                            envioCorreoDto.setFechaEmision(DateUtils.toString(venta1.getFechaEmisionRetencion()));
-                            envioCorreoDto.setClaveAcceso(venta1.getClaveAcceso());
-                            envioCorreoDto.setEmail(venta1.getEmail());
+                            envioCorreoDto.setSecuencial(retencion.getSecuencialRetencion());
+                            envioCorreoDto.setSerie(retencion.getSerieRetencion());
+                            envioCorreoDto.setFechaEmision(DateUtils.toString(retencion.getFechaEmisionRetencion()));
+                            envioCorreoDto.setClaveAcceso(retencion.getClaveAcceso());
+                            envioCorreoDto.setEmail(retencion.getEmail());
 
                             Integer respuestaEnvioCorreo = procesarEnvioCorreo.enviarCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
-                            venta1.setEmailEstado(respuestaEnvioCorreo);
+                            retencion.setEmailEstado(respuestaEnvioCorreo);
                             respuestaProceso.setEmailEstado(respuestaEnvioCorreo);
                         }
                     }
                 }
                 if (respuestaProceso.getEstadoAutorizacion().equals("NOA")) {
                     System.out.println("procesar Guardar retencion como NO autorizada");
-                    venta1.setEstadoDocumento(EstadoDocumento.NOA);
+                    retencion.setEstadoDocumento(EstadoDocumento.NOA);
                     if (!Objects.isNull(respuestaProceso.getMensajes())) {
-                        venta1.setMensajes(respuestaProceso.getMensajes());
+                        retencion.setMensajes(respuestaProceso.getMensajes());
                     }
                 }
 
-                comprasRetencionesRepository.save(venta1);
+                comprasRetencionesRepository.save(retencion);
                 break;
             case "DEV":
                 System.out.println("2. Guardar retencion como devuelto");
-                venta1.setEstadoDocumento(EstadoDocumento.DEV);
+                retencion.setEstadoDocumento(EstadoDocumento.DEV);
                 if (!Objects.isNull(respuestaProceso.getMensajes())) {
-                    venta1.setMensajes(respuestaProceso.getMensajes());
+                    retencion.setMensajes(respuestaProceso.getMensajes());
                 }
-                comprasRetencionesRepository.save(venta1);
+                comprasRetencionesRepository.save(retencion);
                 break;
         }
-        return responderProceso(respuestaProceso);
+        return responderProceso(respuestaProceso, retencion.getIdRetencion());
     }
 
     public RespuestaProceso procesarDocumento(String estadoDocumento, String claveAcceso, Integer ambiente,
@@ -769,17 +769,19 @@ public class ProcesarDocumentosServiceImpl {
     public static final String ESTADO_NO_AUTORIZADO = "NO AUTORIZADO";
 
 
-    public RespuestaProcesoGetDto responderProceso(RespuestaProceso respuestaProceso) {
+    public RespuestaProcesoGetDto responderProceso(RespuestaProceso respuestaProceso, UUID idDocumento) {
         System.out.println("respuesta proceso get dto . ");
         RespuestaProcesoGetDto respuestaProcesoGetDto = new RespuestaProcesoGetDto();
 
         if (respuestaProceso.getEstadoEnvio().equals("DEV")) {
             respuestaProcesoGetDto.setEstadoDocumento("DEV");
+            respuestaProcesoGetDto.setIdDocumento(idDocumento);
             //respuestaProcesoGetDto.setMensajes(respuestaProceso.getMensajes());
         }
         if (respuestaProceso.getEstadoEnvio().equals("REC")) {
             if (respuestaProceso.getEstadoAutorizacion().equals("NOA")) {
                 respuestaProcesoGetDto.setEstadoDocumento("NOA");
+                respuestaProcesoGetDto.setIdDocumento(idDocumento);
                 //respuestaProcesoGetDto.setMensajes(respuestaProceso.getMensajes());
             }
             if (respuestaProceso.getEstadoAutorizacion().equals("AUT")) {
@@ -787,6 +789,7 @@ public class ProcesarDocumentosServiceImpl {
                 //respuestaProcesoGetDto.setMensajes(respuestaProceso.getMensajes());
                 respuestaProcesoGetDto.setNumeroAutorizacion(respuestaProceso.getNumeroAutorizacion());
                 respuestaProcesoGetDto.setEmailEstado(respuestaProceso.getEmailEstado());
+                respuestaProcesoGetDto.setIdDocumento(idDocumento);
             }
         }
         return respuestaProcesoGetDto;

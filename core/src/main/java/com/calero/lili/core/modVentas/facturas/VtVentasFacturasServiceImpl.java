@@ -1,6 +1,7 @@
 package com.calero.lili.core.modVentas.facturas;
 
 import com.calero.lili.core.adLogs.builder.AdLogsBuilder;
+import com.calero.lili.core.adLogs.dto.AdLogsRequestDto;
 import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.core.comprobantes.services.ComprobanteServiceImpl;
 import com.calero.lili.core.comprobantesWs.RespuestaProcesoGetDto;
@@ -127,6 +128,7 @@ public class VtVentasFacturasServiceImpl {
         GeTerceroEntity tercero = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
                 .orElseThrow(() -> new GeneralException("No existe tercero"));
 
+        validarTotalConsumidorFinal(request, tercero);
         validarItem(request, idData, idEmpresa);
         validarInformacion(request);
         validarInfoAddicional(request);
@@ -205,6 +207,7 @@ public class VtVentasFacturasServiceImpl {
         GeTerceroEntity tercero = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
                 .orElseThrow(() -> new GeneralException("No existe tercero"));
 
+        validarTotalConsumidorFinal(request, tercero);
         validarItem(request, idData, idEmpresa);
         validarInformacion(request);
         validarInfoAddicional(request);
@@ -952,6 +955,35 @@ public class VtVentasFacturasServiceImpl {
         }
 
         throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
+
+    }
+
+    private void validarTotalConsumidorFinal(CreationFacturaRequestDto request, GeTerceroEntity tercero) {
+        if (tercero.getNumeroIdentificacion().equals("9999999999")) {
+            if (request.getTotal().compareTo(new BigDecimal("50")) > 0) {
+                throw new GeneralException("El total no puede ser mayor a 50 para el consumidor final");
+            }
+        }
+    }
+
+
+    public List<VtVentaEntity> getFacturasAutorizar(Long idData, Long idEmpresa) {
+        return vtVentaRepository.obtenerTodosParaAutorizar(idData, idEmpresa);
+    }
+
+    public void obtenerFacturasParaAutorizar(Long idData, Long idEmpresa, List<VtVentaEntity> facturas) {
+
+        if (facturas.isEmpty()) {
+            throw new GeneralException("No se encontraron facturas para autorizar");
+        }
+
+        DatosEmpresaDto datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(idData, idEmpresa);
+
+        for (VtVentaEntity factura : facturas) {
+            AdLogsRequestDto log = adLogsBuilder.builderVentasDocumentos(factura, Boolean.FALSE);
+            procesarDocumentosService.procesarFacNcNd(factura, log, datosEmpresaDto);
+        }
+
 
     }
 

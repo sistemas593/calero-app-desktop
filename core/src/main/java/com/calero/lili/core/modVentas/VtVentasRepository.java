@@ -443,4 +443,13 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
                                                                           @Param("fechaHasta") LocalDate fechaHasta);
 
 
+    @Query(value = "SELECT vtVentasEntity " +
+            "FROM VtVentaEntity vtVentasEntity " +
+            "WHERE vtVentasEntity.idData = :idData  AND " +
+            "vtVentasEntity.idEmpresa = :idEmpresa AND " +
+            "vtVentasEntity.tipoVenta = 'FAC' AND " +
+            "vtVentasEntity.estadoDocumento = 'ENV' ")
+    List<VtVentaEntity> obtenerTodosParaAutorizar(@Param("idData") Long idData,
+                                                  @Param("idEmpresa") Long idEmpresa);
+
 }
