@@ -7,6 +7,7 @@ import com.calero.lili.core.modTerceros.GeTercerosServiceImpl
 import com.calero.lili.core.modTerceros.dto.GeTerceroFilterDto
 import com.calero.lili.core.modTerceros.dto.GeTerceroGetListDto
 import com.calero.lili.core.modVentas.dto.GetListDto
+import com.calero.lili.core.modVentas.VtVentaEntity
 import com.calero.lili.core.modVentas.facturas.VtVentasFacturasServiceImpl
 import com.calero.lili.core.comprobantesWs.services.GetXmlVtVentasFacturasServiceImpl
 import com.calero.lili.core.modVentas.facturas.dto.FilterListDto
@@ -77,7 +78,7 @@ data class FacturasUiState(
     val xmlPdfResultado : String? = null,
     // navegación al formulario
     val showForm  : Boolean = false,
-    val editingId : UUID?   = null
+    val editingId : UUID?   = null,
 )
 
 class FacturasViewModel(
@@ -409,5 +410,6 @@ class FacturasViewModel(
     }
 
     fun dismissError()                                   = _state.update { it.copy(errorMessage = null) }
+
     fun onDestroy()                                      = scope.cancel()
 }

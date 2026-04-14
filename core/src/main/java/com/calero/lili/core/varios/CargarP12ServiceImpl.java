@@ -1,5 +1,6 @@
 package com.calero.lili.core.varios;
 
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
@@ -14,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.text.MessageFormat;
 
 
 @Service
@@ -121,22 +123,23 @@ public class CargarP12ServiceImpl {
     }
 
     // read contents of the file
-    public static void readFile(String idData, Long idEmpresa) throws IOException {
-        // Create a new GCS client and get the blob object from the blob ID
+    public void readFile(String idData, Long idEmpresa) throws IOException {
 
-
-        idData = StringUtils.leftPad(idData, 5, '0');
-        String idEmp = idEmpresa.toString();
-        idEmp = StringUtils.leftPad(idEmp, 3, '0');
-
+        String idDataPadded = StringUtils.leftPad(idData, 5, '0');
+        String idEmp = StringUtils.leftPad(idEmpresa.toString(), 3, '0');
 
         Storage storage = StorageOptions.newBuilder().setProjectId(projectId).build().getService();
-        BlobId blobId = BlobId.of(bucketName, "data" + idData + "/" + "file" + idEmp + ".p12");
+        BlobId blobId = BlobId.of(bucketName, "data" + idDataPadded + "/file" + idEmp + ".p12");
         Blob blob = storage.get(blobId);
 
-        // read the contents of the file and print it
-        String contents = new String(blob.getContent());
-        System.out.println("Contents of file " + objectName + ": " + contents);
+        if (blob == null || !blob.exists()) {
+            throw new GeneralException(MessageFormat.format(
+                    "El certificado no existe en el bucket: {0}", blobId.getName()));
+        }
+
+        byte[] content = blob.getContent();
+        System.out.println("Certificado GCS leído correctamente: " + blobId.getName() +
+                " (" + content.length + " bytes)");
     }
 
     // delete an existing file from GCS

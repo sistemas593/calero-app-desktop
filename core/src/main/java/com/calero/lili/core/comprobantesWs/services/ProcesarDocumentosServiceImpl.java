@@ -36,6 +36,7 @@ import recepcion.ws.sri.gob.ec.Mensaje;
 import recepcion.ws.sri.gob.ec.RespuestaSolicitud;
 import xades4j.SignXmlString;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -566,10 +567,14 @@ public class ProcesarDocumentosServiceImpl {
 
             String comprobanteFirmado = null;
             try {
-
-
                 comprobanteFirmado = signXmlString.sign(comprobante, inputStreamFileSgn, pwd);
                 System.out.println(comprobanteFirmado);
+            } catch (IOException ex) {
+                if (ex.getMessage() != null && ex.getMessage().contains("password")) {
+                    adLogsService.saveLog(log, "Error al firmar el comprobante: Contraseña incorrecta para el archivo de firma digital.");
+                    respuestaProceso.setEstadoEnvio("ENV");
+                    return respuestaProceso;
+                }
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -772,6 +777,13 @@ public class ProcesarDocumentosServiceImpl {
     public RespuestaProcesoGetDto responderProceso(RespuestaProceso respuestaProceso, UUID idDocumento) {
         System.out.println("respuesta proceso get dto . ");
         RespuestaProcesoGetDto respuestaProcesoGetDto = new RespuestaProcesoGetDto();
+
+        if(respuestaProceso.getEstadoEnvio().equals("ENV")) {
+            respuestaProcesoGetDto.setEstadoDocumento("ENV");
+            respuestaProcesoGetDto.setIdDocumento(idDocumento);
+            respuestaProcesoGetDto.setNumeroAutorizacion("");
+            respuestaProcesoGetDto.setEmailEstado(0);
+        }
 
         if (respuestaProceso.getEstadoEnvio().equals("DEV")) {
             respuestaProcesoGetDto.setEstadoDocumento("DEV");

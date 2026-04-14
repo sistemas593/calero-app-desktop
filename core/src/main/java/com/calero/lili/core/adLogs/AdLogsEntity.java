@@ -42,4 +42,5 @@ public class AdLogsEntity {
 
     private String tipoDocumento;
 
+    private String tipo; // Informativo o Error (I O E)
 }

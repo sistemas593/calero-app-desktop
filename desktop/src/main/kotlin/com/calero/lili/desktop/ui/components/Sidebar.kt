@@ -33,7 +33,8 @@ enum class MenuOpcion(val titulo: String) {
     LISTA_CLIENTES("Clientes"),
     LISTA_MEDIDAS("Medidas Items"),
     LISTA_ITEMS("Items"),
-    LISTA_FACTURAS("Facturas")
+    LISTA_FACTURAS("Facturas"),
+    ENVIAR_A_AUTORIZAR("Enviar a Autorizar")
 }
 
 @Composable
@@ -168,6 +169,11 @@ fun Sidebar(
             texto      = MenuOpcion.LISTA_FACTURAS.titulo,
             isSelected = opcionActual == MenuOpcion.LISTA_FACTURAS,
             onClick    = { onSeleccionar(MenuOpcion.LISTA_FACTURAS) }
+        )
+        SidebarItem(
+            texto      = MenuOpcion.ENVIAR_A_AUTORIZAR.titulo,
+            isSelected = opcionActual == MenuOpcion.ENVIAR_A_AUTORIZAR,
+            onClick    = { onSeleccionar(MenuOpcion.ENVIAR_A_AUTORIZAR) }
         )
 
         Spacer(Modifier.weight(1f))

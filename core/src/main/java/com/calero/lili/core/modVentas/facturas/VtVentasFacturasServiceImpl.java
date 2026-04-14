@@ -971,20 +971,11 @@ public class VtVentasFacturasServiceImpl {
         return vtVentaRepository.obtenerTodosParaAutorizar(idData, idEmpresa);
     }
 
-    public void obtenerFacturasParaAutorizar(Long idData, Long idEmpresa, List<VtVentaEntity> facturas) {
 
-        if (facturas.isEmpty()) {
-            throw new GeneralException("No se encontraron facturas para autorizar");
-        }
-
+    public void procesarUnaFactura(Long idData, Long idEmpresa, VtVentaEntity factura) {
         DatosEmpresaDto datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(idData, idEmpresa);
-
-        for (VtVentaEntity factura : facturas) {
-            AdLogsRequestDto log = adLogsBuilder.builderVentasDocumentos(factura, Boolean.FALSE);
-            procesarDocumentosService.procesarFacNcNd(factura, log, datosEmpresaDto);
-        }
-
-
+        AdLogsRequestDto log = adLogsBuilder.builderVentasDocumentos(factura, Boolean.FALSE);
+        procesarDocumentosService.procesarFacNcNd(factura, log, datosEmpresaDto);
     }
 
 

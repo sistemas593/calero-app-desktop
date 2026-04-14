@@ -43,6 +43,8 @@ import com.calero.lili.desktop.ui.items.medidas.MedidasScreen
 import com.calero.lili.desktop.ui.items.medidas.MedidasViewModel
 import com.calero.lili.desktop.ui.inicio.InicioScreen
 import com.calero.lili.desktop.ui.selector.SelectorEmpresaScreen
+import com.calero.lili.desktop.ui.ventas.facturas.EnviarAAutorizarScreen
+import com.calero.lili.desktop.ui.ventas.facturas.EnviarAAutorizarViewModel
 import com.calero.lili.desktop.ui.ventas.facturas.FacturaFormScreen
 import com.calero.lili.desktop.ui.ventas.facturas.FacturaFormViewModel
 import com.calero.lili.desktop.ui.ventas.facturas.FacturasScreen
@@ -395,7 +397,8 @@ fun main() {
                     val clientesViewModel  = remember(idEmpresa) { ClientesViewModel(tercerosService) }
                     val medidasViewModel   = remember(idEmpresa) { MedidasViewModel(medidasService) }
                     val itemsViewModel     = remember(idEmpresa) { ItemsViewModel(itemsService, idData = ID_DATA, idEmpresa = idEmpresa) }
-                    val facturasViewModel  = remember(idEmpresa) { FacturasViewModel(facturasService, tercerosService, xmlPdfService, idData = ID_DATA, idEmpresa = idEmpresa) }
+                    val facturasViewModel         = remember(idEmpresa) { FacturasViewModel(facturasService, tercerosService, xmlPdfService, idData = ID_DATA, idEmpresa = idEmpresa) }
+                    val enviarAAutorizarViewModel = remember(idEmpresa) { EnviarAAutorizarViewModel(facturasService, idData = ID_DATA, idEmpresa = idEmpresa) }
 
                     DisposableEffect(idEmpresa) {
                         onDispose {
@@ -405,6 +408,7 @@ fun main() {
                             medidasViewModel.onDestroy()
                             itemsViewModel.onDestroy()
                             facturasViewModel.onDestroy()
+                            enviarAAutorizarViewModel.onDestroy()
                         }
                     }
 
@@ -430,7 +434,8 @@ fun main() {
                                     MenuOpcion.LISTA_CLIENTES -> clientesViewModel.cerrarFormulario()
                                     MenuOpcion.LISTA_MEDIDAS  -> medidasViewModel.cerrarFormulario()
                                     MenuOpcion.LISTA_ITEMS     -> itemsViewModel.cerrarFormulario()
-                                    MenuOpcion.LISTA_FACTURAS  -> { /* solo lista */ }
+                                    MenuOpcion.LISTA_FACTURAS      -> { /* solo lista */ }
+                                    MenuOpcion.ENVIAR_A_AUTORIZAR  -> enviarAAutorizarViewModel.cargar()
                                 }
                             },
                             onCambiarEmpresa = {
@@ -558,6 +563,10 @@ fun main() {
                                         onEditarItem = { id -> itemsViewModel.abrirFormulario(id) }
                                     )
                                 }
+                            }
+
+                            MenuOpcion.ENVIAR_A_AUTORIZAR -> {
+                                EnviarAAutorizarScreen(viewModel = enviarAAutorizarViewModel)
                             }
 
                             MenuOpcion.LISTA_FACTURAS -> {
