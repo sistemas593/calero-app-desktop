@@ -19,5 +19,6 @@ public class AdLogsDtoResponse {
     private String secuencial;
     private String tipoDocumento;
     private String fechaHora;
+    private String tipo;
 
 }

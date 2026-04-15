@@ -35,8 +35,8 @@ public interface ComprasRepository extends JpaRepository<CpComprasEntity, UUID>,
             "FROM cp_compras entity " +
             "WHERE (entity.id_Data = :idData)  AND " +
             "(entity.id_Empresa = :idEmpresa) AND " +
-            "entity.serie = :serie AND " +
-            "entity.secuencial = :secuencial LIMIT 1", nativeQuery = true)
+            "entity.serie = :serie AND entity.deleted = false AND " +
+            "entity.secuencial = :secuencial  LIMIT 1", nativeQuery = true)
     Optional<OneProjection> findExistBySecuencial(@Param("idData") Long idData,
                                                   @Param("idEmpresa") Long idEmpresa,
                                                   @Param("serie") String serie,
@@ -85,7 +85,7 @@ public interface ComprasRepository extends JpaRepository<CpComprasEntity, UUID>,
                     "FROM cp_compras entity " +
                     "INNER JOIN cp_compras_valores valoresEntity ON entity.id_compra = valoresEntity.id_compra " +
                     "WHERE ( entity.id_data = :idData)  AND " +
-                    "(entity.id_empresa = :idEmpresa) AND " +
+                    "(entity.id_empresa = :idEmpresa) AND entity.deleted = false AND " +
                     "(:sucursal IS NULL OR entity.sucursal = :sucursal) AND " +
                     "(:numeroIdentificacion IS NULL OR entity.numero_identificacion = :numeroIdentificacion ) AND " +
                     "(:serie IS NULL OR entity.serie = :serie ) AND " +

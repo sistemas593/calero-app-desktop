@@ -52,7 +52,7 @@ import java.util.UUID;
             "entity.serie = :serie AND " +
             "entity.secuencial = :secuencial AND " +
             "entity.numero_autorizacion = :numeroAutorizacion AND " +
-            "entity.codigo_sustento = :codigoSustento  " +
+            "entity.codigo_sustento = :codigoSustento AND entity.deleted = false " +
             "LIMIT 1", nativeQuery = true)
     Optional<OneProjection> findExistBySecuencial(@Param("idData") Long idData,
                                                   @Param("idEmpresa") Long idEmpresa,
@@ -66,7 +66,7 @@ import java.util.UUID;
             value = "SELECT entity " +
                     "FROM CpImpuestosEntity entity " +
                     "WHERE ( entity.idData = :idData) AND " +
-                    "(entity.idEmpresa = :idEmpresa) AND " +
+                    "(entity.idEmpresa = :idEmpresa) AND entity.deleted = false AND " +
                     "(:sucursal IS NULL OR entity.sucursal = :sucursal) AND " +
                     "(:usuario IS NULL OR entity.createdBy = :usuario) AND " +
                     "(:codigoDocumento IS NULL OR entity.documento.codigoDocumento = :codigoDocumento) AND " +
@@ -105,7 +105,7 @@ import java.util.UUID;
                     "FROM cp_impuestos entity " +
                     "INNER JOIN cp_impuestos_valores valoresEntity ON entity.id_impuestos = valoresEntity.id_impuestos " +
                     "WHERE ( entity.id_data = :idData) AND " +
-                    "(entity.id_empresa = :idEmpresa) AND " +
+                    "(entity.id_empresa = :idEmpresa) AND entity.deleted = false AND " +
                     "(:codigoDocumento IS NULL OR entity.codigo_documento = :codigoDocumento) AND " +
                     "(:numeroIdentificacion IS NULL OR entity.numero_identificacion = :numeroIdentificacion ) AND " +
                     "(:serie IS NULL OR entity.serie = :serie ) AND " +
@@ -153,7 +153,7 @@ import java.util.UUID;
     @Query(value = "SELECT entity.id_impuestos as idImpuestos " +
             "FROM cp_impuestos entity " +
             "WHERE (entity.id_data = :idData)  AND " +
-            "(entity.id_empresa = :idEmpresa) AND " +
+            "(entity.id_empresa = :idEmpresa) AND entity.deleted = false AND " +
             "entity.numero_autorizacion = :numeroAutorizacion", nativeQuery = true)
     Optional<CpImpuestosFacturasOneProjection> findExistByNumeroAutorizacion(@Param("idData") Long idData,
                                                                               @Param("idEmpresa") Long idEmpresa,
@@ -167,7 +167,7 @@ import java.util.UUID;
             "codigo_sustento= :codigoSustento," +
             "fecha_registro= :fechaRegistro " +
             "WHERE (cp_impuestos.id_data = :idData)  AND " +
-            "(cp_impuestos.id_empresa = :idEmpresa) AND " +
+            "(cp_impuestos.id_empresa = :idEmpresa) AND entity.deleted = false AND " +
             "cp_impuestos.id_impuestos = :id ", nativeQuery = true)
     int updateDatosById(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa,
                         @Param("id") UUID id, @Param("destino") String destino,
@@ -185,7 +185,7 @@ import java.util.UUID;
             "entity.secuencial as secuencial " +
             "FROM cp_impuestos  entity " +
             "WHERE (entity.id_data = :idData)  AND " +
-            "(entity.id_empresa = :idEmpresa) AND " +
+            "(entity.id_empresa = :idEmpresa) AND entity.deleted = false AND " +
             "entity.id_impuestos = :id ", nativeQuery = true)
     Optional<CpImpuestosFacturasOneProjection> findXMLById(@Param("idData") Long idData,
                                                             @Param("idEmpresa") Long idEmpresa,
@@ -282,6 +282,7 @@ import java.util.UUID;
               AND ci.fecha_registro <= :fechaRegistroHasta
               AND ci.id_data = :idData 
               AND ci.id_empresa = :idEmpresa
+              AND ci.deleted = false
             GROUP BY ci.codigo_documento
             """, nativeQuery = true)
     List<AtsProjection> obtenerResumenCompras(@Param("idData") Long idData,
@@ -328,6 +329,7 @@ import java.util.UUID;
             WHERE ci.fecha_registro >= :fechaInicio
               AND ci.fecha_registro <= :fechaFin
               AND ci.id_data = :idData
+              AND ci.deleted = false
               AND ci.id_empresa = :idEmpresa
             """, nativeQuery = true)
     AtsRetencionValoresProjection obtenerResumenRetenciones(@Param("idData") Long idData,
@@ -350,6 +352,7 @@ import java.util.UUID;
               AND ci.fecha_registro <= :fechaFin
               AND ci.id_data = :idData
               AND ci.id_empresa = :idEmpresa
+              AND ci.deleted = false
               AND cic.codigo = '1'
             GROUP BY cic.codigo_retencion, trc.nombre_retencion
             """, nativeQuery = true)
@@ -418,7 +421,7 @@ import java.util.UUID;
             "join ge_terceros gt on ci.id_proveedor = gt.id_tercero " +
             "left join cp_impuestos_reembolsos cpr on ci.id_impuestos = cpr.id_impuestos " +
             "where ci.id_data = :idData and ci.id_empresa = :idEmpresa " +
-            "and ci.fecha_emision between :fechaDesde and :fechaHasta " +
+            "and ci.fecha_emision between :fechaDesde and :fechaHasta and ci.deleted = false " +
             "group by ci.fecha_emision, ci.fecha_registro, " +
             "gt.tercero, gt.numero_identificacion, " +
             "ci.codigo_documento, ci.serie, " +

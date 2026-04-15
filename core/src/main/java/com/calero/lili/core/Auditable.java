@@ -3,12 +3,17 @@ package com.calero.lili.core;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
+
+@FilterDef(name = "deletedFilter")
+@Filter(name = "deletedFilter", condition = "deleted = false")
 public abstract class Auditable {
 
 

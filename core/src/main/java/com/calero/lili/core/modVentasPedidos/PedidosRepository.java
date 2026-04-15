@@ -43,7 +43,7 @@ public interface PedidosRepository extends JpaRepository<VtPedidoEntity, UUID>, 
     @Query(value = "SELECT id_pedido as idPedido " +
             "FROM vt_pedidos vtVentasEntity " +
             "WHERE (vtVentasEntity.id_Data = :idData)  AND " +
-            "(vtVentasEntity.id_Empresa = :idEmpresa) AND " +
+            "(vtVentasEntity.id_Empresa = :idEmpresa) AND vtVentasEntity.deleted = false AND " +
             "vtVentasEntity.secuencial = :secuencial LIMIT 1", nativeQuery = true)
     Optional<OneProjection> findExistBySecuencial(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("secuencial") String secuencial);
 
@@ -64,7 +64,7 @@ public interface PedidosRepository extends JpaRepository<VtPedidoEntity, UUID>, 
             " " +
             "FROM vt_pedidos vtVentasEntity INNER JOIN vt_pedidos_detalle detalle ON vtVentasEntity.id_pedido = detalle.id_pedido " +
             "WHERE vtVentasEntity.id_data = :idData  AND " +
-            "vtVentasEntity.id_empresa = :idEmpresa AND " +
+            "vtVentasEntity.id_empresa = :idEmpresa AND vtVentasEntity.deleted = false AND " +
             "vtVentasEntity.id_pedido = :idVenta ", nativeQuery = true)
     List<OneDetalleProjection> findByIdVentaDetalle(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("idVenta") UUID idVenta);
 
@@ -128,7 +128,7 @@ public interface PedidosRepository extends JpaRepository<VtPedidoEntity, UUID>, 
                     "FROM vt_pedidos vtVentaEntity " +
                     "INNER JOIN vt_pedidos_valores valoresEntity ON vtVentaEntity.id_pedido = valoresEntity.id_pedido " +
                     "WHERE ( vtVentaEntity.id_data = :idData)  AND " +
-                    "(vtVentaEntity.id_empresa = :idEmpresa) AND " +
+                    "(vtVentaEntity.id_empresa = :idEmpresa) AND  vtVentaEntity.deleted = false AND " +
                     "(:sucursal IS NULL OR vtVentaEntity.sucursal = :sucursal) AND " +
                     "(:numeroIdentificacion IS NULL OR vtVentaEntity.numero_identificacion = :numeroIdentificacion ) AND " +
                     "(:serie IS NULL OR vtVentaEntity.serie = :serie ) AND " +

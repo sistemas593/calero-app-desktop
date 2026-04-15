@@ -23,7 +23,7 @@ public interface RubrosRepository extends JpaRepository<RubrosEntity, UUID> {
                                    @Param("idData") Long idData);
 
 
-    @Query(value = "select *from rh_rubros rr where rr.id_data =:idData and rr.id_empresa =:idEmpresa and rr.codigo in (:listaCodigos) ", nativeQuery = true)
+    @Query(value = "select *from rh_rubros rr where rr.id_data =:idData and  rr.deleted = false and rr.id_empresa =:idEmpresa and rr.codigo in (:listaCodigos) ", nativeQuery = true)
     List<RubrosEntity> findAllCodigos(@Param("idData") Long idData,
                                       @Param("idEmpresa") Long idEmpresa,
                                       @Param("listaCodigos") List<String> listaCodigos);

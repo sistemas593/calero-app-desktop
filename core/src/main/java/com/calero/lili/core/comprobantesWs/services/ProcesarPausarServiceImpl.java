@@ -23,4 +23,21 @@ public class ProcesarPausarServiceImpl {
 
 
     }
+
+    public void pausarProcesoAutorizacion() {
+
+        System.out.println("Proceso Autorizacion detenido");
+
+        try {
+            // Pausa de 10 segundos (10000 milisegundos)
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt(); // buena práctica
+            //System.out.println("El hilo fue interrumpido");
+        }
+
+        System.out.println("Proceso reanudado después de la pausa");
+
+
+    }
 }

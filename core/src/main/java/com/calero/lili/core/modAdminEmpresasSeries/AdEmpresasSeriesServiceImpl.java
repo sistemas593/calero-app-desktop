@@ -169,4 +169,10 @@ public class AdEmpresasSeriesServiceImpl {
                 })
                 .collect(Collectors.toList());
     }
+
+    public AdEmpresaSerieGetDto findBySerie(Long idData, Long idEmpresa, String serie) {
+        AdEmpresasSeriesEntity series = adEmpresasSeriesRepository.findBySerie(idData, idEmpresa, serie)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", serie)));
+        return adEmpresasSeriesBuilder.builderResponse(series);
+    }
 }

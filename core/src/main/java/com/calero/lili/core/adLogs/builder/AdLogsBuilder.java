@@ -17,7 +17,7 @@ import java.util.UUID;
 public class AdLogsBuilder {
 
 
-    public AdLogsEntity builderLog(AdLogsRequestDto model, String mensajes) {
+    public AdLogsEntity builderLog(AdLogsRequestDto model, String mensajes, String tipo) {
         return AdLogsEntity.builder()
                 .idLog(UUID.randomUUID())
                 .idData(model.getIdData())
@@ -28,6 +28,7 @@ public class AdLogsBuilder {
                 .secuencial(model.getSecuencial())
                 .tipoDocumento(model.getTipoDocumento())
                 .fechaHora(LocalDateTime.now())
+                .tipo(tipo)
                 .build();
     }
 
@@ -39,6 +40,7 @@ public class AdLogsBuilder {
                 .secuencial(model.getSecuencial())
                 .tipoDocumento(model.getTipoDocumento())
                 .fechaHora(DateUtils.obtenerFechaHora(model.getFechaHora()))
+                .tipo(model.getTipo())
                 .build();
     }
 

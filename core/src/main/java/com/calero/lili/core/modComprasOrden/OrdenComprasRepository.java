@@ -42,7 +42,7 @@ public interface OrdenComprasRepository extends JpaRepository<CpOrdenComprasEnti
     @Query(value = "SELECT id_compra as idCompra " +
             "FROM cp_orden_compras entity " +
             "WHERE (entity.id_Data = :idData)  AND " +
-            "(entity.id_Empresa = :idEmpresa) AND " +
+            "(entity.id_Empresa = :idEmpresa) AND entity.deleted = false AND " +
             "entity.secuencial = :secuencial LIMIT 1", nativeQuery = true)
     Optional<OneProjection> findExistBySecuencial(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("secuencial") String secuencial);
 
@@ -83,7 +83,7 @@ public interface OrdenComprasRepository extends JpaRepository<CpOrdenComprasEnti
                     "FROM cp_orden_compras entity " +
                     "INNER JOIN cp_orden_compras_valores valoresEntity ON entity.id_compra = valoresEntity.id_compra " +
                     "WHERE ( entity.id_data = :idData)  AND cp_orden_compras.anulada = false " +
-                    "(entity.id_empresa = :idEmpresa) AND " +
+                    "(entity.id_empresa = :idEmpresa) AND entity.deleted = false AND " +
                     "(:sucursal IS NULL OR entity.sucursal = :sucursal) AND " +
                     "(:secuencial IS NULL OR entity.secuencial = :secuencial ) AND " +
                     "( cast(:fechaEmisionDesde as date) is null OR entity.fecha_emision >= :fechaEmisionDesde ) AND " +

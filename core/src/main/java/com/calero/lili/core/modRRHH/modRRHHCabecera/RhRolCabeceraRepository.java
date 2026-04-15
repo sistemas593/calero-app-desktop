@@ -44,7 +44,7 @@ public interface RhRolCabeceraRepository extends JpaRepository<RhRolCabeceraEnti
             " JOIN rh_trabajadores rt ON rt.id_tercero = gt.id_tercero" +
             " LEFT JOIN rh_rol_detalles rd ON rd.id_rol = rrc.id_rol" +
             " LEFT JOIN rh_rubros r ON r.id_rubro = rd.id_rubro WHERE rrc.id_periodo = :idPeriodo" +
-            " AND rrc.id_data =:idData AND rrc.id_empresa =:idEmpresa " +
+            " AND rrc.id_data =:idData AND rrc.id_empresa =:idEmpresa AND rrc.deleted = false " +
             "AND (:idTercero is null or rrc.id_tercero = :idTercero)" +
             " GROUP BY gt.numero_identificacion, gt.tercero, gt.tipo_identificacion," +
             " rt.codigo_establecimiento, rt.codigo_residencia, rt.codigo_pais," +
@@ -88,7 +88,7 @@ public interface RhRolCabeceraRepository extends JpaRepository<RhRolCabeceraEnti
             " LEFT JOIN rh_rol_parametro_cargas rrpc on rrpc.id_tercero = rrc.id_tercero " +
             " LEFT JOIN rh_rol_detalles rd ON rd.id_rol = rrc.id_rol " +
             " LEFT JOIN rh_rubros r ON r.id_rubro = rd.id_rubro " +
-            " WHERE rrc.id_data =:idData AND rrc.id_empresa =:idEmpresa " +
+            " WHERE rrc.id_data =:idData AND rrc.id_empresa =:idEmpresa AND rrc.deleted = false " +
             " AND rp.fecha_inicio >= :fechaInicio AND rp.fecha_fin <= :fechaFin " +
             " GROUP BY gt.numero_identificacion, gt.tercero, gt.tipo_identificacion, " +
             " rt.codigo_establecimiento, rt.codigo_residencia, rt.codigo_pais, " +
@@ -105,7 +105,7 @@ public interface RhRolCabeceraRepository extends JpaRepository<RhRolCabeceraEnti
     @Query(
             value = "WITH roles_filtrados AS ( SELECT DISTINCT rrc.id_rol FROM rh_rol_cabecera rrc " +
                     "JOIN rh_periodos rp ON rp.id_periodo = rrc.id_periodo WHERE rp.fecha_fin >= :fechaInicio AND rp.fecha_inicio <= :fechaFin " +
-                    "AND rrc.id_data = :idData AND rrc.id_empresa = :idEmpresa ) " +
+                    "AND rrc.id_data = :idData AND rrc.id_empresa = :idEmpresa AND rrc.deleted = false ) " +
                     "SELECT rr.codigo, rr.rubro, SUM(rrd.valor) AS total_rubro," +
                     " (SELECT COUNT(*) FROM roles_filtrados) AS total_registros FROM rh_rol_detalles rrd " +
                     "JOIN rh_rol_cabecera rrc ON rrc.id_rol = rrd.id_rol JOIN rh_rubros rr ON rr.id_rubro = rrd.id_rubro " +

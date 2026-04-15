@@ -17,7 +17,7 @@ public interface AdDatasUsuariosRepository extends JpaRepository<AdDataUsuarioEn
     @Query(value = "SELECT id_registro as id_registro, id_data as id_data, id_usuario as id_usuario " +
             "FROM ad_datas_usuarios " +
             "where id_data = :idData AND " +
-            "id_usuario= :idUsuario " +
+            "id_usuario= :idUsuario AND deleted = false " +
             "LIMIT 1", nativeQuery = true)
     Optional<AdDataUsuarioEntity> findFirstByIdDataAndIdUsuario(@Param("idData") Long idData, @Param("idUsuario") Long idUsuario);
 

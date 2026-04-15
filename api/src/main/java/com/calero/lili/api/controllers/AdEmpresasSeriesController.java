@@ -83,4 +83,12 @@ public class AdEmpresasSeriesController {
         return adEmpresasSeriesService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable);
     }
 
+
+    @GetMapping("serie/{idEmpresa}/{idSerie}")
+    @ResponseStatus(HttpStatus.OK)
+    public AdEmpresaSerieGetDto findBySerie(@PathVariable("idEmpresa") Long idEmpresa,
+                                            @PathVariable("idSerie") String idSerie) {
+        return adEmpresasSeriesService.findBySerie(idDataService.getIdData(), idEmpresa, idSerie);
+    }
+
 }

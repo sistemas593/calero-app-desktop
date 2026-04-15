@@ -34,6 +34,7 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
                     "AND ca.fecha_asiento BETWEEN :fechaAsientoInicio AND :fechaAsientoHasta " +
                     "AND ca.sucursal = :sucursal " +
                     "AND ca.tipo_asiento <> 'SI' " +
+                    "AND ca.deleted = false AND " +
                     "GROUP BY cpc.codigo_cuenta, cpc.cuenta, cpc.id_cuenta, cpc.mayor " +
                     "ORDER BY cpc.codigo_cuenta",
             nativeQuery = true
@@ -59,7 +60,8 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
                     "AND (:cuentaFinal IS NULL OR cpc2.codigo_cuenta <= :cuentaFinal) " +
                     "AND cad2.fecha_documento BETWEEN :fechaInicioSaldo AND :fechaFinalSaldo " +
                     "AND ca2.sucursal = :sucursal " +
-                    " AND ca2.tipo_asiento = 'SI' " +
+                    "AND ca2.tipo_asiento = 'SI' " +
+                    "AND ca2.deleted = false " +
                     "GROUP BY cad2.id_cuenta, cpc2.codigo_cuenta,  cpc2.codigo_cuenta_original, cpc2.cuenta, cpc2.mayor " +
                     "ORDER BY cpc2.codigo_cuenta",
             nativeQuery = true)
@@ -84,6 +86,7 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
                     "AND (:cuentaFinal IS NULL OR cpc2.codigo_cuenta <= :cuentaFinal) " +
                     "AND cad2.fecha_documento BETWEEN :fechaInicioSaldo AND :fechaFinalSaldo " +
                     "AND ca2.sucursal = :sucursal " +
+                    "AND ca2.deleted = false " +
                     "GROUP BY cad2.id_cuenta, cpc2.codigo_cuenta,  cpc2.codigo_cuenta_original, cpc2.cuenta, cpc2.mayor " +
                     "ORDER BY cpc2.codigo_cuenta",
             nativeQuery = true)
@@ -104,7 +107,7 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
             "join cn_plan_cuentas cpc2 on cpc2.id_cuenta = cad2.id_cuenta " +
             "left join cn_centro_costos ccc on cad2.id_centro_costos = ccc.id_centro_costos " +
             "where ca2.id_data = :idData and ca2.id_empresa = :idEmpresa and ca2.sucursal = :sucursal " +
-            "and ca2.tipo_asiento = 'SI' and cpc2.codigo_cuenta = :codigoCuenta " +
+            "and ca2.tipo_asiento = 'SI' and cpc2.codigo_cuenta = :codigoCuenta and ca2.deleted = false " +
             "and (:codigoCentroCostos is null or ccc.codigo_centro_costos = :codigoCentroCostos) " +
             "and ca2.fecha_asiento between ( cast(:fechaAsientoDesde as date)) and ( cast(:fechaAsientoDesde as date)) " +
             "group by cpc2.codigo_cuenta, cpc2.cuenta ", nativeQuery = true)
@@ -135,6 +138,7 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
                     "left join cn_centro_costos ccc on cad.id_centro_costos = ccc.id_centro_costos " +
                     "where ca.id_data = :idData and ca.id_empresa = :idEmpresa and ca.sucursal = :sucursal " +
                     "and ca.tipo_asiento <> 'SI' " +
+                    "and ca.deleted = false " +
                     "and (:codigoCentroCostos is null or ccc.codigo_centro_costos = :codigoCentroCostos) " +
                     "and ca.fecha_asiento between :fechaAsientoDesde and :fechaAsientoHasta " +
                     "and cpc.codigo_cuenta = :codigoCuenta order by ca.fecha_asiento, ca.tipo_asiento, ca.numero_asiento",
@@ -148,6 +152,7 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
                     "AND ca.id_empresa = :idEmpresa " +
                     "AND ca.sucursal = :sucursal " +
                     "AND ca.tipo_asiento <> 'SI' " +
+                    "AND ca.deleted = false " +
                     "AND ca.fecha_asiento BETWEEN :fechaAsientoDesde " +
                     "AND :fechaAsientoHasta " +
                     "AND cpc.codigo_cuenta = :codigoCuenta " +
@@ -173,6 +178,7 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
             " where ca2.id_data = :idData and ca2.id_empresa = :idEmpresa and ca2.sucursal = :sucursal " +
             " and cpc2.codigo_cuenta = :codigoCuenta " +
             " and (:codigoCentroCostos is null or ccc.codigo_centro_costos = :codigoCentroCostos) " +
+            "and ca2.deleted = false " +
             " and ca2.fecha_asiento between " +
             "       (cast(:fechaInicio as date)) " +
             "       and ( cast(:fechaAsientoDesde as date) - 1 )" +
@@ -236,6 +242,7 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
                     "   and ca.id_empresa = :idEmpresa " +
                     "   and ca.sucursal = :sucursal " +
                     "   and ca.tipo_asiento <> 'SI' " +
+                    "   and ca.deleted = false " +
                     "   and ca.fecha_asiento between :fechaAsientoDesde and :fechaAsientoHasta " +
                     "   and cpc.codigo_cuenta = :codigoCuenta " +
                     "   and (:codigoCentroCostos is null or ccc.codigo_centro_costos = :codigoCentroCostos) " +
@@ -251,6 +258,7 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
                             "AND ca.id_empresa = :idEmpresa " +
                             "AND ca.sucursal = :sucursal " +
                             "AND ca.tipo_asiento <> 'SI' " +
+                            "AND ca.deleted = false " +
                             "AND ca.fecha_asiento BETWEEN :fechaAsientoDesde AND :fechaAsientoHasta " +
                             "AND (:codigoCentroCostos IS NULL OR ccc.codigo_centro_costos = :codigoCentroCostos) " +
                             "AND cpc.codigo_cuenta = :codigoCuenta",
@@ -274,7 +282,7 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
                     " (select coalesce(sum(cad2.debe) - sum(cad2.haber), 0) " +
                     " from cn_asientos ca2 join cn_asientos_detalle cad2 on ca2.id_asiento = cad2.id_asiento " +
                     " join cn_plan_cuentas cpc2 on cpc2.id_cuenta = cad2.id_cuenta where ca2.id_data = :idData " +
-                    " and ca2.id_empresa = :idEmpresa and ca2.sucursal = :sucursal " +
+                    " and ca2.id_empresa = :idEmpresa and ca2.sucursal = :sucursal and ca2.deleted = false " +
                     " and ca2.tipo_asiento = 'SI' and cpc2.codigo_cuenta = :codigoCuenta " +
                     " and ca2.fecha_asiento between cast(:fechaAsientoDesde as date)" +
                     " and cast(:fechaAsientoDesde as date))" +
@@ -337,6 +345,7 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
                     "   and ca.id_empresa = :idEmpresa " +
                     "   and ca.sucursal = :sucursal " +
                     "   and ca.tipo_asiento <> 'SI' " +
+                    "   and ca.deleted = false " +
                     "   and ca.fecha_asiento between :fechaAsientoDesde and :fechaAsientoHasta " +
                     "   and cpc.codigo_cuenta = :codigoCuenta " +
                     " order by ca.fecha_asiento, ca.tipo_asiento, ca.numero_asiento",
@@ -428,6 +437,7 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
                            WHERE ca.fecha_asiento BETWEEN :fechaAsientoDesde AND :fechaAsientoHasta
                              AND ca.sucursal = :sucursal
                              AND ca.id_data = :idData
+                             AND ca.deleted = false
                              AND ca.id_empresa = :idEmpresa
                              AND cpc.grupo in (4,5,6)
                              AND (:codigoCentroCostos is null or ccc.codigo_centro_costos LIKE CONCAT(:codigoCentroCostos, '%'))
@@ -485,6 +495,7 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
                     "   and ca.id_empresa = :idEmpresa " +
                     "   and ca.sucursal = :sucursal " +
                     "   and ca.tipo_asiento <> 'SI' " +
+                    "   and ca.deleted = false " +
                     "   and ca.fecha_asiento between :fechaAsientoDesde and :fechaAsientoHasta " +
                     "   and cpc.codigo_cuenta = :codigoCuenta " +
                     " order by ca.fecha_asiento, ca.tipo_asiento, ca.numero_asiento",
@@ -506,6 +517,7 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
             where cpc.grupo in (4,5,6)
               and ca.fecha_asiento between :fechaDesde and :fechaHasta
               and ca.sucursal = :sucursal
+              and ca.deleted = false
               and ca.id_data = :idData
               and ca.id_empresa = :idEmpresa
             """, nativeQuery = true)
@@ -536,6 +548,7 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
                AND ca.id_empresa = :idEmpresa
                AND cpc.grupo IN (1,2,3)
                AND ca.tipo_asiento <> 'SI'
+               AND ca.deleted = false
              GROUP BY
                  date_trunc('month', ca.fecha_asiento),
                  cpc.id_cuenta, cpc.codigo_cuenta, cpc.codigo_cuenta_original ,cpc.cuenta, cpc.mayor, cpc.grupo
@@ -561,6 +574,7 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
                     "AND cad2.fecha_documento BETWEEN :fechaInicioSaldo AND :fechaFinalSaldo " +
                     "AND ca2.sucursal = :sucursal " +
                     " AND ca2.tipo_asiento = 'SI' " +
+                    " AND ca2.deleted = false " +
                     "GROUP BY cad2.id_cuenta, cpc2.codigo_cuenta, cpc2.codigo_cuenta_original ,cpc2.cuenta",
             nativeQuery = true)
     List<SaldoInicialBCProjection> getSaldosInicialesEstadoFinancieroComparativo(@Param("idData") Long idData,
@@ -582,6 +596,7 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
                           and ca.sucursal = :sucursal
                           and ca.id_data = :idData
                           and ca.id_empresa = :idEmpresa
+                          and ca.deleted = false
                           group by date_trunc('month', ca.fecha_asiento)
                           order by mes_fecha
             """, nativeQuery = true)
@@ -613,6 +628,7 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
                       AND ca.sucursal = :sucursal
                       AND ca.id_data = :idData
                       AND ca.id_empresa = :idEmpresa
+                      AND ca.deleted = false
                       AND cpc.grupo in (4,5,6)
                       AND (:codigoCentroCostos is null or ccc.codigo_centro_costos LIKE CONCAT(:codigoCentroCostos, '%'))
                       GROUP by date_trunc('month', ca.fecha_asiento),

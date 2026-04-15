@@ -44,7 +44,7 @@ public interface ComprasRetencionesRepository extends JpaRepository<CpRetencione
             "FROM cp_retenciones cp_retenciones " +
             "WHERE (cp_retenciones.id_Data = :idData)  AND " +
             "(cp_retenciones.id_Empresa = :idEmpresa) AND " +
-            "cp_retenciones.clave_acceso = :numeroAutorizacion " +
+            "cp_retenciones.clave_acceso = :numeroAutorizacion AND cp_retenciones.deleted = false" +
             "LIMIT 1", nativeQuery = true)
     Optional<DeEmitidasRetencionesProjection> findExistByNumeroAutorizacion(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("numeroAutorizacion") String numeroAutorizacion);
 
@@ -93,7 +93,7 @@ public interface ComprasRetencionesRepository extends JpaRepository<CpRetencione
                     "INNER JOIN cp_impuestos_valores cpiv " +
                     "ON cpi.id_impuestos = cpiv.id_impuestos " +
                     "WHERE cpr.id_data = :idData " +
-                    "AND cpr.anulada = false " +
+                    "AND cpr.anulada = false AND cpr.deleted = false AND " +
                     "AND cpr.id_empresa = :idEmpresa " +
                     "AND (:sucursal IS NULL OR cpr.sucursal = :sucursal) " +
                     "AND (:serie IS NULL OR cpr.serie_retencion = :serie) " +
@@ -137,7 +137,7 @@ public interface ComprasRetencionesRepository extends JpaRepository<CpRetencione
             "entity.estado_documento as estadoDocumento,  " +
             "FROM cp_retenciones  entity " +
             "WHERE (entity.id_data = :idData)  AND " +
-            "(entity.id_empresa = :idEmpresa) AND " +
+            "(entity.id_empresa = :idEmpresa) AND entity.deleted = false AND " +
             "entity.id_retencion = :id ", nativeQuery = true)
     Optional<CpRetencionesOneProjection> findXMLById(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("id") UUID id);
 

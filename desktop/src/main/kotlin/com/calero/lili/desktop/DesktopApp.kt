@@ -23,6 +23,9 @@ import com.calero.lili.core.comprobantesWs.services.GetXmlVtVentasFacturasServic
 import com.calero.lili.core.modContabilidad.modCentroCostos.CnCentroCostosServiceImpl
 import com.calero.lili.core.tablas.tbFormasPagoSri.TbFormasPagoSriServiceImpl
 import com.calero.lili.core.modTerceros.GeTercerosServiceImpl
+import com.calero.lili.core.adLogs.AdLogsServiceImpl
+import com.calero.lili.desktop.ui.ventas.adlogs.AdLogsScreen
+import com.calero.lili.desktop.ui.ventas.adlogs.AdLogsViewModel
 import com.calero.lili.desktop.ui.components.MenuOpcion
 import com.calero.lili.desktop.ui.components.Sidebar
 import com.calero.lili.desktop.ui.empresas.EmpresaFormScreen
@@ -137,7 +140,8 @@ private sealed class AppState {
         val impuestosService     : GeImpuestoItemsServiceImpl,
         val xmlPdfService           : GetXmlVtVentasFacturasServiceImpl,
         val centroCostosService     : CnCentroCostosServiceImpl,
-        val formasPagoSriService    : TbFormasPagoSriServiceImpl
+        val formasPagoSriService    : TbFormasPagoSriServiceImpl,
+        val adLogsService           : AdLogsServiceImpl
     ) : AppState()
 }
 
@@ -187,7 +191,8 @@ fun main() {
                             ctx.getBean(GeImpuestoItemsServiceImpl::class.java),
                             ctx.getBean(GetXmlVtVentasFacturasServiceImpl::class.java),
                             ctx.getBean(CnCentroCostosServiceImpl::class.java),
-                            ctx.getBean(TbFormasPagoSriServiceImpl::class.java)
+                            ctx.getBean(TbFormasPagoSriServiceImpl::class.java),
+                            ctx.getBean(AdLogsServiceImpl::class.java)
                         )
                     }
                 }
@@ -399,6 +404,7 @@ fun main() {
                     val itemsViewModel     = remember(idEmpresa) { ItemsViewModel(itemsService, idData = ID_DATA, idEmpresa = idEmpresa) }
                     val facturasViewModel         = remember(idEmpresa) { FacturasViewModel(facturasService, tercerosService, xmlPdfService, idData = ID_DATA, idEmpresa = idEmpresa) }
                     val enviarAAutorizarViewModel = remember(idEmpresa) { EnviarAAutorizarViewModel(facturasService, idData = ID_DATA, idEmpresa = idEmpresa) }
+                    val adLogsViewModel           = remember(idEmpresa) { AdLogsViewModel(state.adLogsService, ID_DATA, idEmpresa) }
 
                     DisposableEffect(idEmpresa) {
                         onDispose {
@@ -409,6 +415,7 @@ fun main() {
                             itemsViewModel.onDestroy()
                             facturasViewModel.onDestroy()
                             enviarAAutorizarViewModel.onDestroy()
+                            adLogsViewModel.onDestroy()
                         }
                     }
 
@@ -434,8 +441,9 @@ fun main() {
                                     MenuOpcion.LISTA_CLIENTES -> clientesViewModel.cerrarFormulario()
                                     MenuOpcion.LISTA_MEDIDAS  -> medidasViewModel.cerrarFormulario()
                                     MenuOpcion.LISTA_ITEMS     -> itemsViewModel.cerrarFormulario()
-                                    MenuOpcion.LISTA_FACTURAS      -> { /* solo lista */ }
-                                    MenuOpcion.ENVIAR_A_AUTORIZAR  -> enviarAAutorizarViewModel.cargar()
+                                    MenuOpcion.LISTA_FACTURAS                -> { /* solo lista */ }
+                                    MenuOpcion.ENVIAR_A_AUTORIZAR            -> enviarAAutorizarViewModel.cargar()
+                                    MenuOpcion.REGISTROS_ENVIO_AUTORIZACION  -> { /* solo lista */ }
                                 }
                             },
                             onCambiarEmpresa = {
@@ -600,6 +608,10 @@ fun main() {
                                         onEditarFactura = { id -> facturasViewModel.abrirFormulario(id) }
                                     )
                                 }
+                            }
+
+                            MenuOpcion.REGISTROS_ENVIO_AUTORIZACION -> {
+                                AdLogsScreen(viewModel = adLogsViewModel)
                             }
                         }
                     }

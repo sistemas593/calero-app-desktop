@@ -67,7 +67,7 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             "FROM vt_ventas vtVentasEntity INNER JOIN vt_ventas_detalle detalle ON vtVentasEntity.id_venta = detalle.id_venta " +
             "WHERE vtVentasEntity.id_data = :idData  AND " +
             "vtVentasEntity.id_empresa = :idEmpresa AND " +
-            "vtVentasEntity.id_venta = :idVenta ", nativeQuery = true)
+            "vtVentasEntity.id_venta = :idVenta and vtVentasEntity.deleted = false ", nativeQuery = true)
     List<OneDetalleProjection> findByIdVentaDetalle(@Param("idData") Long idData,
                                                     @Param("idEmpresa") Long idEmpresa,
                                                     @Param("idVenta") UUID idVenta);
@@ -142,8 +142,8 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
                     "sum(valoresEntity.valor) as totalValor " +
                     "FROM vt_ventas vtVentaEntity " +
                     "INNER JOIN vt_ventas_valores valoresEntity ON vtVentaEntity.id_venta = valoresEntity.id_venta " +
-                    "WHERE ( vtVentaEntity.id_data = :idData)  AND  vtVentaEntity.anulada = false AND" +
-                    "(vtVentaEntity.id_empresa = :idEmpresa) AND " +
+                    "WHERE ( vtVentaEntity.id_data = :idData)  AND  vtVentaEntity.anulada = false AND " +
+                    "(vtVentaEntity.id_empresa = :idEmpresa) AND vtVentaEntity.deleted = false AND " +
                     "(:sucursal IS NULL OR vtVentaEntity.sucursal = :sucursal) AND " +
                     "(:tipoVenta IS NULL OR vtVentaEntity.tipo_venta = :tipoVenta) AND " +
                     "(:serie IS NULL OR vtVentaEntity.serie = :serie ) AND " +
@@ -192,7 +192,7 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             "entity.serie as serie, " +
             "entity.secuencial as secuencial " +
             "FROM vt_ventas  entity " +
-            "WHERE (entity.id_data = :idData)  AND " +
+            "WHERE (entity.id_data = :idData)  AND entity.deleted = false AND " +
             "(entity.id_empresa = :idEmpresa) AND " +
             "entity.id_venta = :id ", nativeQuery = true)
     Optional<VtVentasFacturaOneProjection> findXMLById(@Param("idData") Long idData,
@@ -245,7 +245,7 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             "  AND vv.id_empresa = :idEmpresa\n" +
             "  AND vv.id_data = :idData\n" +
             " AND vvv.codigo = '2' and vvv.codigo_porcentaje = '4'" +
-            " and (vv.tipo_venta = 'FAC' or vv.tipo_venta = 'NDB') " +
+            " and (vv.tipo_venta = 'FAC' or vv.tipo_venta = 'NDB') and vv.deleted = false " +
             "GROUP BY vv.tipo_ingreso;", nativeQuery = true)
     Optional<ImpuestosF104Projection> findByImpuestoFacturasNotasDebito(@Param("idData") Long idData,
                                                                         @Param("idEmpresa") Long idEmpresa,
@@ -266,7 +266,7 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             "  AND vv.id_empresa = :idEmpresa\n" +
             "  AND vv.id_data = :idData\n" +
             " AND vvv.codigo = '2' and vvv.codigo_porcentaje = '4'" +
-            " and (vv.tipo_venta = 'NCR') " +
+            " and (vv.tipo_venta = 'NCR') and vv.deleted = false " +
             "GROUP BY vv.tipo_ingreso;", nativeQuery = true)
     Optional<ImpuestosF104Projection> findByImpuestoNotasCredito(@Param("idData") Long idData,
                                                                  @Param("idEmpresa") Long idEmpresa,
@@ -287,7 +287,7 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             "  AND vv.id_empresa = :idEmpresa\n" +
             "  AND vv.id_data = :idData\n" +
             " AND vvv.codigo = '2' and vvv.codigo_porcentaje = '0'" +
-            " and (vv.tipo_venta = 'FAC' or vv.tipo_venta = 'NDB') " +
+            " and (vv.tipo_venta = 'FAC' or vv.tipo_venta = 'NDB') and vv.deleted = false " +
             "GROUP BY vv.tipo_ingreso;", nativeQuery = true)
     Optional<ImpuestosF104Projection> findByImpuestoFacturasNotasDebitoBaseCero(@Param("idData") Long idData,
                                                                                 @Param("idEmpresa") Long idEmpresa,
@@ -308,7 +308,7 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             "  AND vv.id_empresa = :idEmpresa\n" +
             "  AND vv.id_data = :idData\n" +
             " AND vvv.codigo = '2' and vvv.codigo_porcentaje = '0'" +
-            " and (vv.tipo_venta = 'NCR') " +
+            " and (vv.tipo_venta = 'NCR') and vv.deleted = false " +
             "GROUP BY vv.tipo_ingreso;", nativeQuery = true)
     Optional<ImpuestosF104Projection> findByImpuestoNotasCreditoBaseCero(@Param("idData") Long idData,
                                                                          @Param("idEmpresa") Long idEmpresa,
@@ -329,7 +329,7 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             "  AND vv.id_empresa = :idEmpresa\n" +
             "  AND vv.id_data = :idData\n" +
             " AND vvv.codigo = '2' and (vvv.codigo_porcentaje = '7' or vvv.codigo_porcentaje = '6')" +
-            " and (vv.tipo_venta = 'FAC' or vv.tipo_venta = 'NDB') " +
+            " and (vv.tipo_venta = 'FAC' or vv.tipo_venta = 'NDB') and vv.deleted = false " +
             "GROUP BY vv.tipo_ingreso;", nativeQuery = true)
     Optional<ImpuestosF104Projection> findByImpuestoFacturasNotasDebitoExentoIva(@Param("idData") Long idData,
                                                                                  @Param("idEmpresa") Long idEmpresa,
@@ -350,7 +350,7 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             "  AND vv.id_empresa = :idEmpresa\n" +
             "  AND vv.id_data = :idData\n" +
             " AND vvv.codigo = '2' and (vvv.codigo_porcentaje = '7' or vvv.codigo_porcentaje = '6')" +
-            " and (vv.tipo_venta = 'NCR') " +
+            " and (vv.tipo_venta = 'NCR') and vv.deleted = false " +
             "GROUP BY vv.tipo_ingreso;", nativeQuery = true)
     Optional<ImpuestosF104Projection> findByImpuestoNotasCreditoExentoIva(@Param("idData") Long idData,
                                                                           @Param("idEmpresa") Long idEmpresa,
@@ -371,7 +371,7 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             "  AND vv.id_empresa = :idEmpresa\n" +
             "  AND vv.id_data = :idData\n" +
             " AND vvv.codigo = '2' and vvv.codigo_porcentaje = '5'" +
-            " and (vv.tipo_venta = 'FAC' or vv.tipo_venta = 'NDB') " +
+            " and (vv.tipo_venta = 'FAC' or vv.tipo_venta = 'NDB') and vv.deleted = false " +
             "GROUP BY vv.tipo_ingreso;", nativeQuery = true)
     Optional<ImpuestosF104Projection> findByImpuestoFacturasNotasDebitoTarifaCinco(@Param("idData") Long idData,
                                                                                    @Param("idEmpresa") Long idEmpresa,
@@ -392,7 +392,7 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             "  AND vv.id_empresa = :idEmpresa\n" +
             "  AND vv.id_data = :idData\n" +
             " AND vvv.codigo = '2' and vvv.codigo_porcentaje = '5'" +
-            " and (vv.tipo_venta = 'NCR') " +
+            " and (vv.tipo_venta = 'NCR') and vv.deleted = false " +
             "GROUP BY vv.tipo_ingreso;", nativeQuery = true)
     Optional<ImpuestosF104Projection> findByImpuestoNotasCreditoTarifaCinco(@Param("idData") Long idData,
                                                                             @Param("idEmpresa") Long idEmpresa,
@@ -413,7 +413,7 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             "  AND vv.id_empresa = :idEmpresa\n" +
             "  AND vv.id_data = :idData\n" +
             " AND vvv.codigo = '2' " +
-            " and (vv.tipo_venta = 'FAC' or vv.tipo_venta = 'NDB') " +
+            " and (vv.tipo_venta = 'FAC' or vv.tipo_venta = 'NDB') and vv.deleted = false " +
             "GROUP BY vv.tipo_ingreso;", nativeQuery = true)
     Optional<ImpuestosF104Projection> findByImpuestoFacturasNotasDebitoReembolso(@Param("idData") Long idData,
                                                                                  @Param("idEmpresa") Long idEmpresa,
@@ -434,7 +434,7 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             "  AND vv.id_empresa = :idEmpresa\n" +
             "  AND vv.id_data = :idData\n" +
             " AND vvv.codigo = '2' " +
-            " and (vv.tipo_venta = 'NCR') " +
+            " and (vv.tipo_venta = 'NCR') and vv.deleted = false " +
             "GROUP BY vv.tipo_ingreso;", nativeQuery = true)
     Optional<ImpuestosF104Projection> findByImpuestoNotasCreditoReembolso(@Param("idData") Long idData,
                                                                           @Param("idEmpresa") Long idEmpresa,

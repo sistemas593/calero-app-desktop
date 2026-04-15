@@ -44,7 +44,7 @@ public interface VentasRetencionesRepository extends JpaRepository<VtRetenciones
             "FROM vt_retenciones vt_retenciones " +
             "WHERE (vt_retenciones.id_Data = :idData)  AND " +
             "(vt_retenciones.id_Empresa = :idEmpresa) AND " +
-            "vt_retenciones.numero_autorizacion = :numeroAutorizacion " +
+            "vt_retenciones.numero_autorizacion = :numeroAutorizacion AND vt_retenciones.deleted = false " +
             "LIMIT 1", nativeQuery = true)
     Optional<DeRecibidasRetencionesProjection> findExistByNumeroAutorizacion(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("numeroAutorizacion") String numeroAutorizacion);
 
@@ -57,7 +57,7 @@ public interface VentasRetencionesRepository extends JpaRepository<VtRetenciones
             "FROM vt_retenciones  entity " +
             "WHERE (entity.id_data = :idData)  AND " +
             "(entity.id_empresa = :idEmpresa) AND " +
-            "entity.id_retencion = :id ", nativeQuery = true)
+            "entity.id_retencion = :id AND entity.deleted = false", nativeQuery = true)
     Optional<VtRetencionesOneProjection> findXMLById(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("id") UUID id);
 
 
@@ -107,7 +107,7 @@ public interface VentasRetencionesRepository extends JpaRepository<VtRetenciones
                     "FROM vt_retenciones vtVentaEntity " +
                     "INNER JOIN vt_retenciones_valores valoresEntity ON vtVentaEntity.id_retencion = valoresEntity.id_retencion " +
                     "WHERE ( vtVentaEntity.id_data = :idData)  AND " +
-                    "(vtVentaEntity.id_empresa = :idEmpresa) AND " +
+                    "(vtVentaEntity.id_empresa = :idEmpresa) AND vtVentaEntity.deleted = false AND " +
                     "(:sucursal IS NULL OR vtVentaEntity.sucursal = :sucursal) AND " +
                     "(:numeroIdentificacion IS NULL OR vtVentaEntity.numero_identificacion = :numeroIdentificacion ) AND " +
                     "(:serie IS NULL OR vtVentaEntity.serie_retencion = :serie ) AND " +

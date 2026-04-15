@@ -38,7 +38,7 @@ public interface LiquidacionesRepository extends JpaRepository<CpLiquidacionesEn
             "FROM cp_liquidaciones entity " +
             "WHERE (entity.id_Data = :idData)  AND " +
             "(entity.id_Empresa = :idEmpresa) AND " +
-            "entity.serie = :serie AND " +
+            "entity.serie = :serie AND entity.deleted = false AND " +
             "entity.secuencial = :secuencial LIMIT 1", nativeQuery = true)
     Optional<OneProjection> findExistBySecuencial(@Param("idData") Long idData,
                                                   @Param("idEmpresa") Long idEmpresa,
@@ -119,7 +119,7 @@ public interface LiquidacionesRepository extends JpaRepository<CpLiquidacionesEn
                     "sum(valoresEntity.valor) as totalValor " +
                     "FROM cp_liquidaciones entity " +
                     "INNER JOIN cp_liquidaciones_valores valoresEntity ON entity.id_liquidacion = valoresEntity.id_liquidacion " +
-                    "WHERE ( entity.id_data = :idData)  AND entity.anulada = false AND " +
+                    "WHERE ( entity.id_data = :idData)  AND entity.anulada = false AND entity.deleted = false AND " +
                     "(entity.id_empresa = :idEmpresa) AND " +
                     "(:sucursal IS NULL OR entity.sucursal = :sucursal) AND " +
                     "(:numeroIdentificacion IS NULL OR entity.numero_identificacion = :numeroIdentificacion ) AND " +
@@ -200,7 +200,7 @@ public interface LiquidacionesRepository extends JpaRepository<CpLiquidacionesEn
             "entity.serie as serie, " +
             "entity.secuencial as secuencial " +
             "FROM cp_liquidaciones  entity " +
-            "WHERE (entity.id_data = :idData)  AND " +
+            "WHERE (entity.id_data = :idData)  AND entity.deleted = false AND " +
             "(entity.id_empresa = :idEmpresa) AND " +
             "entity.id_liquidacion = :id ", nativeQuery = true)
     Optional<CpLiquidacionOneProjection> findXMLById(@Param("idData") Long idData,

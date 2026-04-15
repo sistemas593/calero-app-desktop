@@ -17,7 +17,7 @@ public interface AdEmpresasSeriesDocumentosRepository extends JpaRepository<AdEm
             from ad_empresas_series_documentos aesd
             join ad_empresas_series aes on aes.id_serie = aesd.id_serie
             where aesd.id_data = :idData and aesd.id_empresa = :idEmpresa
-            and aes.serie = :serie and aesd.documento = :documento
+            and aes.serie = :serie and aesd.documento = :documento and aes.deleted = false
             """, nativeQuery = true)
     Optional<AdEmpresasSeriesDocumentosEntity> findBySerieAndDocumento(@Param("idData") Long idData,
                                                                        @Param("idEmpresa") Long idEmpresa,

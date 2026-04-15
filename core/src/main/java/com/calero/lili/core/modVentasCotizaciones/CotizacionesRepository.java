@@ -43,7 +43,7 @@ public interface CotizacionesRepository extends JpaRepository<VtCotizacionEntity
     @Query(value = "SELECT id_cotizacion as idVenta " +
             "FROM vt_cotizaciones vtVentasEntity " +
             "WHERE (vtVentasEntity.id_Data = :idData)  AND " +
-            "(vtVentasEntity.id_Empresa = :idEmpresa) AND " +
+            "(vtVentasEntity.id_Empresa = :idEmpresa) AND  vtVentasEntity.deleted = false AND " +
             "vtVentasEntity.secuencial = :secuencial LIMIT 1", nativeQuery = true)
     Optional<OneProjection> findExistBySecuencial(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("secuencial") String secuencial);
 
@@ -65,7 +65,7 @@ public interface CotizacionesRepository extends JpaRepository<VtCotizacionEntity
             "FROM vt_cotizaciones vtVentasEntity INNER JOIN vt_cotizaciones_detalle detalle ON vtVentasEntity.id_cotizacion = detalle.id_cotizacion " +
             "WHERE vtVentasEntity.id_data = :idData  AND " +
             "vtVentasEntity.id_empresa = :idEmpresa AND " +
-            "vtVentasEntity.id_cotizacion = :idVenta ", nativeQuery = true)
+            "vtVentasEntity.id_cotizacion = :idVenta AND vtVentasEntity.deleted = false ", nativeQuery = true)
     List<OneDetalleProjection> findByIdVentaDetalle(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("idVenta") UUID idVenta);
 
     @Query(value = "SELECT vtVentasEntity " +
@@ -121,7 +121,7 @@ public interface CotizacionesRepository extends JpaRepository<VtCotizacionEntity
                     "FROM vt_cotizaciones vtVentaEntity " +
                     "INNER JOIN vt_cotizaciones_valores valoresEntity ON vtVentaEntity.id_cotizacion = valoresEntity.id_cotizacion " +
                     "WHERE ( vtVentaEntity.id_data = :idData)  AND " +
-                    "(vtVentaEntity.id_empresa = :idEmpresa) AND " +
+                    "(vtVentaEntity.id_empresa = :idEmpresa) AND vtVentaEntity.deleted = false AND " +
                     "(:sucursal IS NULL OR vtVentaEntity.sucursal = :sucursal) AND " +
                     "(:numeroIdentificacion IS NULL OR vtVentaEntity.numero_identificacion = :numeroIdentificacion ) AND " +
                     "(:secuencial IS NULL OR vtVentaEntity.secuencial = :secuencial ) AND " +

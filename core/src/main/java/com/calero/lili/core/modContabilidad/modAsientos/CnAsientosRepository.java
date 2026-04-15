@@ -43,7 +43,7 @@ public interface CnAsientosRepository extends JpaRepository<CnAsientosEntity, UU
     @Query(value = "SELECT id_cotizacion as idVenta " +
             "FROM vt_cotizaciones vtVentasEntity " +
             "WHERE (vtVentasEntity.id_Data = :idData)  AND " +
-            "(vtVentasEntity.id_Empresa = :idEmpresa) AND " +
+            "(vtVentasEntity.id_Empresa = :idEmpresa) AND vtVentasEntity.deleted = false AND " +
             "vtVentasEntity.secuencial = :secuencial LIMIT 1", nativeQuery = true)
     Optional<OneProjection> findExistBySecuencial(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("secuencial") String secuencial);
 
@@ -113,7 +113,7 @@ public interface CnAsientosRepository extends JpaRepository<CnAsientosEntity, UU
                     "sum(valoresEntity.valor) as totalValor " +
                     "FROM vt_cotizaciones vtVentaEntity " +
                     "INNER JOIN vt_cotizaciones_valores valoresEntity ON vtVentaEntity.id_cotizacion = valoresEntity.id_cotizacion " +
-                    "WHERE ( vtVentaEntity.id_data = :idData)  AND " +
+                    "WHERE ( vtVentaEntity.id_data = :idData)  AND vtVentaEntity.deleted = false AND " +
                     "(vtVentaEntity.id_empresa = :idEmpresa) AND " +
                     "(:sucursal IS NULL OR vtVentaEntity.sucursal = :sucursal) AND " +
                     "(:numeroIdentificacion IS NULL OR vtVentaEntity.numero_identificacion = :numeroIdentificacion ) AND " +

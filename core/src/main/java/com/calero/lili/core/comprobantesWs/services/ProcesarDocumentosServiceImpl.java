@@ -4,6 +4,7 @@ import autorizacion.ws.sri.gob.ec.Autorizacion;
 import autorizacion.ws.sri.gob.ec.RespuestaComprobante;
 import com.calero.lili.core.adLogs.AdLogsServiceImpl;
 import com.calero.lili.core.adLogs.dto.AdLogsRequestDto;
+import com.calero.lili.core.adProcesoAutorizacion.AdProcesoAutorizacionService;
 import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.EnvioCorreoDto;
 import com.calero.lili.core.comprobantesWs.RespuestaAutorizacion;
 import com.calero.lili.core.comprobantesWs.RespuestaEnvio;
@@ -64,6 +65,7 @@ public class ProcesarDocumentosServiceImpl {
 
     private final ProcesarPausarServiceImpl procesarPausarService;
     private final AdLogsServiceImpl adLogsService;
+    private final AdProcesoAutorizacionService adProcesoAutorizacionService;
 
 //    private static String projectId = "caleroapp";
 //    private static String bucketName = "caleroapp-bucket-sgn";
@@ -448,7 +450,8 @@ public class ProcesarDocumentosServiceImpl {
             case "ENV":
                 System.out.println("procesarDocumento 1. Estado en la BDD ENV Enviar documento electronico");
 
-                adLogsService.saveLog(logs, "Inicio proceso de envio al WS del SRI");
+                adLogsService.saveLog(logs, "Inicio proceso de envio al WS del SRI", "I");
+                comprobarProcesoAutorizacion(claveAcceso);
 
                 RespuestaProceso respuestaEnvio = procesarEnvio(claveAcceso, ambiente, comprobante, inputStreamFileSgn, pwd, logs);
 
@@ -525,6 +528,15 @@ public class ProcesarDocumentosServiceImpl {
         return respuestaProceso;
     }
 
+    private void comprobarProcesoAutorizacion(String claveAcceso) {
+        if (adProcesoAutorizacionService.existsByClaveAcceso(claveAcceso)) {
+            procesarPausarService.pausarProcesoAutorizacion();
+            adProcesoAutorizacionService.deleteByClaveAcceso(claveAcceso);
+        }
+        adProcesoAutorizacionService.create(claveAcceso);
+
+    }
+
     public RespuestaProceso procesarEnvio(String claveAcceso, Integer ambiente, String comprobante,
                                           InputStream inputStreamFileSgn, String pwd, AdLogsRequestDto log) {
         RespuestaProceso respuestaProceso = new RespuestaProceso();
@@ -571,7 +583,7 @@ public class ProcesarDocumentosServiceImpl {
                 System.out.println(comprobanteFirmado);
             } catch (IOException ex) {
                 if (ex.getMessage() != null && ex.getMessage().contains("password")) {
-                    adLogsService.saveLog(log, "Error al firmar el comprobante: Contraseña incorrecta para el archivo de firma digital.");
+                    adLogsService.saveLog(log, "Error al firmar el comprobante: Contraseña incorrecta para el archivo de firma digital.", "E");
                     respuestaProceso.setEstadoEnvio("ENV");
                     return respuestaProceso;
                 }
@@ -597,7 +609,7 @@ public class ProcesarDocumentosServiceImpl {
 
             if (respuestaEnvio.getEstadoEnvio().equals(EstadoDocumento.REC)) {
                 respuestaProceso.setEstadoEnvio("REC");
-                adLogsService.saveLog(log, "Documento recibido por WS del SRI");
+                adLogsService.saveLog(log, "Documento recibido por WS del SRI", "I");
                 RespuestaComprobante result2 = consultarDocumento(claveAcceso, ambiente, log);
                 if (result2.getNumeroComprobantes() == null || result2.getNumeroComprobantes().equals("0")) {
                     System.out.println("procesarEnvioTodos ENVIADO ESTE MOMENTO / No existe aun un documento con la clave de acceso.");
@@ -606,7 +618,7 @@ public class ProcesarDocumentosServiceImpl {
                 }
             }
             if (respuestaEnvio.getEstadoEnvio().equals(EstadoDocumento.DEV)) {
-                adLogsService.saveLog(log, "Documento devuelto por WS del SRI");
+                adLogsService.saveLog(log, "Documento devuelto por WS del SRI", "E");
                 respuestaProceso.setEstadoEnvio("DEV");
 
             }
@@ -700,7 +712,7 @@ public class ProcesarDocumentosServiceImpl {
     public RespuestaComprobante consultarDocumento(String claveAcceso, Integer ambiente, AdLogsRequestDto log) {
 
         // CONSULTA DOCUMENTO LOG
-        adLogsService.saveLog(log, "Inicia  de consulta de documento existente en el SRI con clave de acceso: " + claveAcceso);
+        adLogsService.saveLog(log, "Inicia  de consulta de documento existente en el SRI con clave de acceso: " + claveAcceso, "I");
         System.out.println("consultarDocumento. " + claveAcceso);
 
         //Consultar el documento
@@ -711,7 +723,7 @@ public class ProcesarDocumentosServiceImpl {
         try {
             result = autorizacionService.consulta(request);
         } catch (Exception ex) {
-            adLogsService.saveLog(log, "El WS de consulta de documentos del SRI no esta disponible");
+            adLogsService.saveLog(log, "El WS de consulta de documentos del SRI no esta disponible", "E");
         }
         return result;
 
@@ -726,7 +738,7 @@ public class ProcesarDocumentosServiceImpl {
         try {
             responseDto = recepcionService.enviar(requestDto);
         } catch (Exception ex) {
-            adLogsService.saveLog(log, "El WS de recepcion de documentos del SRI no esta disponible");
+            adLogsService.saveLog(log, "El WS de recepcion de documentos del SRI no esta disponible", "E");
         }
 
         List<Mensajes> mensajesLista = new ArrayList<>();
@@ -778,7 +790,7 @@ public class ProcesarDocumentosServiceImpl {
         System.out.println("respuesta proceso get dto . ");
         RespuestaProcesoGetDto respuestaProcesoGetDto = new RespuestaProcesoGetDto();
 
-        if(respuestaProceso.getEstadoEnvio().equals("ENV")) {
+        if (respuestaProceso.getEstadoEnvio().equals("ENV")) {
             respuestaProcesoGetDto.setEstadoDocumento("ENV");
             respuestaProcesoGetDto.setIdDocumento(idDocumento);
             respuestaProcesoGetDto.setNumeroAutorizacion("");

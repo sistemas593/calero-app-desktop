@@ -43,7 +43,7 @@ public interface VtGuiasRepository extends JpaRepository<VtGuiaEntity, UUID>, Jp
             "FROM vt_guias vtVentasEntity " +
             "WHERE (vtVentasEntity.id_Data = :idData)  AND " +
             "(vtVentasEntity.id_Empresa = :idEmpresa) AND " +
-            "vtVentasEntity.serie = :serie AND " +
+            "vtVentasEntity.serie = :serie AND vtVentasEntity.deleted = false AND " +
             "vtVentasEntity.secuencial = :secuencial LIMIT 1", nativeQuery = true)
     Optional<OneProjection> findExistBySecuencial(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("serie") String serie, @Param("secuencial") String secuencial);
 
@@ -65,7 +65,7 @@ public interface VtGuiasRepository extends JpaRepository<VtGuiaEntity, UUID>, Jp
             "FROM vt_ventas vtVentasEntity INNER JOIN vt_ventas_detalle detalle ON vtVentasEntity.id_guia = detalle.id_guia " +
             "WHERE vtVentasEntity.id_data = :idData  AND " +
             "vtVentasEntity.id_empresa = :idEmpresa AND " +
-            "vtVentasEntity.id_guia = :idVenta ", nativeQuery = true)
+            "vtVentasEntity.id_guia = :idVenta AND vtVentasEntity.deleted = false ", nativeQuery = true)
     List<OneDetalleProjection> findByIdVentaDetalle(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("idVenta") UUID idVenta);
 
     @Query(value = "SELECT vtVentasEntity " +
@@ -143,7 +143,7 @@ public interface VtGuiasRepository extends JpaRepository<VtGuiaEntity, UUID>, Jp
             "entity.secuencial as secuencial " +
             "FROM vt_guias  entity " +
             "WHERE (entity.id_data = :idData)  AND " +
-            "(entity.id_empresa = :idEmpresa) AND " +
+            "(entity.id_empresa = :idEmpresa) AND  entity.deleted = false AND " +
             "entity.id_guia = :id ", nativeQuery = true)
     Optional<VtGuiaRemisionOneProjection> findXMLById(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("id") UUID id);
 
