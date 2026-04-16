@@ -230,7 +230,7 @@ public class VtVentasNotasDebitoServiceImpl {
 
         List<GetListDto> dtoList = page.stream().map(item -> {
             if (item.getAnulada()) {
-                return getListResponseBuilder.builderAnuladoListResponse(item);
+                return getListResponseBuilder.builderAnuladoResponse(item);
             }
             return getListResponseBuilder.builderListResponse(item);
         }).toList();
@@ -266,7 +266,7 @@ public class VtVentasNotasDebitoServiceImpl {
 
         List<GetListDto> dtoList = page.stream().map(item -> {
             if (item.getAnulada()) {
-                return getListResponseBuilder.builderAnuladoListResponse(item);
+                return getListResponseBuilder.builderAnuladoResponse(item);
             }
             return getListResponseBuilder.builderListResponse(item);
         }).toList();

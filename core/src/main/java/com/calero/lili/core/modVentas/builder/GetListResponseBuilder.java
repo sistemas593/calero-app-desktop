@@ -61,7 +61,7 @@ public class GetListResponseBuilder {
     }
 
 
-    public GetListDto builderAnuladoListResponse(VtVentaEntity model) {
+    public GetListDto builderAnuladoResponse(VtVentaEntity model) {
         return GetListDto.builder()
                 .sucursal(model.getSucursal())
                 .idVenta(model.getIdVenta())

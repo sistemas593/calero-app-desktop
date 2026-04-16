@@ -45,6 +45,10 @@ dependencies {
 
     // Apache PDFBox — renderizado de PDF en visor in-app
     implementation("org.apache.pdfbox:pdfbox:3.0.2")
+
+    // Flyway — migraciones de base de datos
+    implementation("org.flywaydb:flyway-core")
+    implementation("org.flywaydb:flyway-database-postgresql") // requerido por Flyway 10+ para PostgreSQL
 }
 
 tasks.withType<KotlinCompile> {
