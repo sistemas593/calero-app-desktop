@@ -244,14 +244,11 @@ public class VtVentasNotasCreditoServiceImpl {
     }
 
 
+    @Transactional(readOnly = true)
     public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable,
                                                     TipoPermiso tipoBusqueda, String usuario) {
 
         Page<VtVentaEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
-
-        if (page.isEmpty()) {
-            throw new GeneralException("No existen datos a mostrar");
-        }
 
         List<GetListDto> dtoList = page.stream().map(item -> {
             if (item.getAnulada()) {
@@ -324,7 +321,8 @@ public class VtVentasNotasCreditoServiceImpl {
 
     }
 
-    public void exportarExcel(Long idData, Long idEmpresa, HttpServletResponse response, FilterListDto filter) throws IOException {
+
+    public void exportarExcel(Long idData, Long idEmpresa, OutputStream response, FilterListDto filter) throws IOException {
 
         log.info("Iniciando la exportación a Excel con el filtro: {}", filter);
         List<VtVentaEntity> facturas = vtVentaRepository.findAll(idData, idEmpresa, filter.getSucursal(), filter.getFechaEmisionDesde(),
@@ -333,8 +331,6 @@ public class VtVentasNotasCreditoServiceImpl {
         DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
         String currentDateTime = dateFormatter.format(new Date());
 
-        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setHeader("Content-Disposition", "attachment; filename=facturas_" + currentDateTime + ".xlsx");
 
         if (!facturas.isEmpty()) {
             log.info("Facturas obtenidas satisfactoriamente.");
@@ -465,7 +461,7 @@ public class VtVentasNotasCreditoServiceImpl {
 
                 }
 
-                try (OutputStream os = response.getOutputStream()) {
+                try (OutputStream os = response) {
                     workbook.write(os);
                 }
             } catch (IOException e) {
@@ -474,15 +470,11 @@ public class VtVentasNotasCreditoServiceImpl {
             }
         } else {
             log.warn("No se encontraron facturas con los filtros proporcionados.");
-            response.setContentType("text/plain");
-            response.setCharacterEncoding("UTF-8");
-            OutputStream os = response.getOutputStream();
-            os.write("No se encontraron facturas con los filtros proporcionados".getBytes());
-            os.flush();
-            os.close();
+            response.write("No se encontraron facturas con los filtros proporcionados".getBytes());
+            response.flush();
+            response.close();
         }
     }
-
 
     public void exportarPDF(Long idData, Long idEmpresa, HttpServletResponse response, FilterListDto filters) throws DocumentException, IOException {
 
@@ -703,14 +695,14 @@ public class VtVentasNotasCreditoServiceImpl {
         switch (tipoBusqueda) {
             case TODAS -> {
                 return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
-                        filters.getFechaEmisionHasta(), null, null, filters.getSerie(),
+                        filters.getFechaEmisionHasta(), null, "NCR", filters.getSerie(),
                         filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
             }
 
             case SUCURSAL -> {
                 if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
                     return vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
-                            filters.getFechaEmisionHasta(), null, null, filters.getSerie(),
+                            filters.getFechaEmisionHasta(), null, "NCR", filters.getSerie(),
                             filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
                 } else {
                     throw new GeneralException("Es requerido el parametro de la sucursal");
@@ -719,7 +711,7 @@ public class VtVentasNotasCreditoServiceImpl {
 
             case PROPIAS -> {
                 return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
-                        filters.getFechaEmisionHasta(), null, null, filters.getSerie(),
+                        filters.getFechaEmisionHasta(), null, "NCR", filters.getSerie(),
                         filters.getSecuencial(), filters.getNumeroAutorizacion(), usuario, pageable);
             }
         }

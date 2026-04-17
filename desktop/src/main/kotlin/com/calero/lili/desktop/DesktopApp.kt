@@ -15,6 +15,8 @@ import com.calero.lili.desktop.ui.actualizacion.ActualizacionViewModel
 import com.calero.lili.desktop.ui.actualizacion.UpdateCheckState
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasServiceImpl
 import com.calero.lili.core.modVentas.facturas.VtVentasFacturasServiceImpl
+import com.calero.lili.core.modVentas.notasCredito.VtVentasNotasCreditoServiceImpl
+import com.calero.lili.core.comprobantesWs.services.GetXmlVtVentasNotasCreditoServiceImpl
 import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesServiceImpl
 import com.calero.lili.core.modComprasItems.GeItemsServiceImpl
 import com.calero.lili.core.modComprasItemsMedidas.GeItemsMedidasServiceImpl
@@ -46,6 +48,8 @@ import com.calero.lili.desktop.ui.items.medidas.MedidasScreen
 import com.calero.lili.desktop.ui.items.medidas.MedidasViewModel
 import com.calero.lili.desktop.ui.inicio.InicioScreen
 import com.calero.lili.desktop.ui.selector.SelectorEmpresaScreen
+import com.calero.lili.desktop.ui.ventas.notasCredito.NotasCreditoScreen
+import com.calero.lili.desktop.ui.ventas.notasCredito.NotasCreditoViewModel
 import com.calero.lili.desktop.ui.ventas.facturas.EnviarAAutorizarScreen
 import com.calero.lili.desktop.ui.ventas.facturas.EnviarAAutorizarViewModel
 import com.calero.lili.desktop.ui.ventas.facturas.FacturaFormScreen
@@ -141,7 +145,9 @@ private sealed class AppState {
         val xmlPdfService           : GetXmlVtVentasFacturasServiceImpl,
         val centroCostosService     : CnCentroCostosServiceImpl,
         val formasPagoSriService    : TbFormasPagoSriServiceImpl,
-        val adLogsService           : AdLogsServiceImpl
+        val adLogsService           : AdLogsServiceImpl,
+        val notasCreditoService     : VtVentasNotasCreditoServiceImpl,
+        val xmlPdfNotasCreditoService: GetXmlVtVentasNotasCreditoServiceImpl
     ) : AppState()
 }
 
@@ -192,7 +198,9 @@ fun main() {
                             ctx.getBean(GetXmlVtVentasFacturasServiceImpl::class.java),
                             ctx.getBean(CnCentroCostosServiceImpl::class.java),
                             ctx.getBean(TbFormasPagoSriServiceImpl::class.java),
-                            ctx.getBean(AdLogsServiceImpl::class.java)
+                            ctx.getBean(AdLogsServiceImpl::class.java),
+                            ctx.getBean(VtVentasNotasCreditoServiceImpl::class.java),
+                            ctx.getBean(GetXmlVtVentasNotasCreditoServiceImpl::class.java)
                         )
                     }
                 }
@@ -403,6 +411,7 @@ fun main() {
                     val medidasViewModel   = remember(idEmpresa) { MedidasViewModel(medidasService) }
                     val itemsViewModel     = remember(idEmpresa) { ItemsViewModel(itemsService, idData = ID_DATA, idEmpresa = idEmpresa) }
                     val facturasViewModel         = remember(idEmpresa) { FacturasViewModel(facturasService, tercerosService, xmlPdfService, idData = ID_DATA, idEmpresa = idEmpresa) }
+                    val notasCreditoViewModel     = remember(idEmpresa) { NotasCreditoViewModel(state.notasCreditoService, tercerosService, state.xmlPdfNotasCreditoService, idData = ID_DATA, idEmpresa = idEmpresa) }
                     val enviarAAutorizarViewModel = remember(idEmpresa) { EnviarAAutorizarViewModel(facturasService, idData = ID_DATA, idEmpresa = idEmpresa) }
                     val adLogsViewModel           = remember(idEmpresa) { AdLogsViewModel(state.adLogsService, ID_DATA, idEmpresa) }
 
@@ -414,6 +423,7 @@ fun main() {
                             medidasViewModel.onDestroy()
                             itemsViewModel.onDestroy()
                             facturasViewModel.onDestroy()
+                            notasCreditoViewModel.onDestroy()
                             enviarAAutorizarViewModel.onDestroy()
                             adLogsViewModel.onDestroy()
                         }
@@ -442,6 +452,7 @@ fun main() {
                                     MenuOpcion.LISTA_MEDIDAS  -> medidasViewModel.cerrarFormulario()
                                     MenuOpcion.LISTA_ITEMS     -> itemsViewModel.cerrarFormulario()
                                     MenuOpcion.LISTA_FACTURAS                -> { /* solo lista */ }
+                                    MenuOpcion.LISTA_NOTAS_CREDITO           -> { /* solo lista */ }
                                     MenuOpcion.ENVIAR_A_AUTORIZAR            -> enviarAAutorizarViewModel.cargar()
                                     MenuOpcion.REGISTROS_ENVIO_AUTORIZACION  -> { /* solo lista */ }
                                 }
@@ -571,6 +582,10 @@ fun main() {
                                         onEditarItem = { id -> itemsViewModel.abrirFormulario(id) }
                                     )
                                 }
+                            }
+
+                            MenuOpcion.LISTA_NOTAS_CREDITO -> {
+                                NotasCreditoScreen(viewModel = notasCreditoViewModel)
                             }
 
                             MenuOpcion.ENVIAR_A_AUTORIZAR -> {

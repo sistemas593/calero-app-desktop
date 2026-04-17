@@ -1,6 +1,7 @@
 package com.calero.lili.core.modVentas.facturas.dto;
 
 import com.calero.lili.core.dtos.FormasPagoDto;
+import com.calero.lili.core.dtos.ImpuestoItemsDto;
 import com.calero.lili.core.dtos.InformacionAdicionalDto;
 import com.calero.lili.core.enums.ComercioExterior;
 import com.calero.lili.core.enums.FormaPago;
@@ -130,18 +131,7 @@ public class CreationFacturaRequestDto {
         private BigDecimal descuento;
         private BigDecimal subtotalItem;
 
-        private List<Impuestos> impuesto;
-
-        @Data
-        @AllArgsConstructor
-        @NoArgsConstructor
-        public static class Impuestos {
-            private String codigo;
-            private String codigoPorcentaje;
-            private BigDecimal tarifa;
-            private BigDecimal baseImponible;
-            private BigDecimal valor;
-        }
+        private List<ImpuestoItemsDto> impuesto;
 
         private List<DetalleAdicional> detAdicional;
 

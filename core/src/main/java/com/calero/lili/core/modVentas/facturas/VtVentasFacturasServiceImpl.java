@@ -8,6 +8,7 @@ import com.calero.lili.core.comprobantesWs.RespuestaProcesoGetDto;
 import com.calero.lili.core.comprobantesWs.dto.DatosEmpresaDto;
 import com.calero.lili.core.comprobantesWs.services.BuscarDatosEmpresa;
 import com.calero.lili.core.comprobantesWs.services.ProcesarDocumentosServiceImpl;
+import com.calero.lili.core.dtos.ImpuestoItemsDto;
 import com.calero.lili.core.dtos.Mensajes;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
@@ -24,6 +25,7 @@ import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.modAdminEmpresas.projection.MomentoEnvioProjection;
 import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
 import com.calero.lili.core.modComprasItems.GeItemsRepository;
+import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosItemsRepository;
 import com.calero.lili.core.modContabilidad.modAsientos.CnAsientosEntity;
 import com.calero.lili.core.modContabilidad.modAsientos.CnAsientosRepository;
 import com.calero.lili.core.modContabilidad.modCentroCostos.CnCentroCostosEntity;
@@ -73,6 +75,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -108,6 +111,7 @@ public class VtVentasFacturasServiceImpl {
     private final AdLogsBuilder adLogsBuilder;
     private final BuscarDatosEmpresa buscarDatosEmpresa;
     private final AdEmpresasRepository adEmpresasRepository;
+    private final GeImpuestosItemsRepository geImpuestosItemsRepository;
 
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa,
                                          CreationFacturaRequestDto request, String usuario, String origenCertificado) {
@@ -115,8 +119,9 @@ public class VtVentasFacturasServiceImpl {
 
         DateUtils.validarFechaEmision(request.getFechaEmision());
         ValidarCampoAscii.validarStrings(request);
-        adIvaPorcentajeService.validateIvaPorcentaje(getTarifaInteger(request.getValores()), DateUtils.toLocalDate(request.getFechaEmision()));
+        adIvaPorcentajeService.validateIvaPorcentaje(getTarifaValoresInteger(request.getValores()), DateUtils.toLocalDate(request.getFechaEmision()));
 
+        validarValores(request);
         Optional<OneProjection> existingFactura = vtVentaRepository
                 .findExistBySecuencial(idData, idEmpresa, TipoVenta.FAC.name(), request.getSerie(), request.getSecuencial());
 
@@ -193,7 +198,7 @@ public class VtVentasFacturasServiceImpl {
         DateUtils.validarFechaEmision(request.getFechaEmision());
         ValidarCampoAscii.validarStrings(request);
 
-        adIvaPorcentajeService.validateIvaPorcentaje(getTarifaInteger(request.getValores()), DateUtils.toLocalDate(request.getFechaEmision()));
+        adIvaPorcentajeService.validateIvaPorcentaje(getTarifaValoresInteger(request.getValores()), DateUtils.toLocalDate(request.getFechaEmision()));
 
         VtVentaEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
@@ -885,7 +890,7 @@ public class VtVentasFacturasServiceImpl {
         return responseApiBuilder.builderResponse(idVenta.toString());
     }
 
-    private List<Integer> getTarifaInteger(List<CreationFacturaRequestDto.ValoresDto> valores) {
+    private List<Integer> getTarifaValoresInteger(List<CreationFacturaRequestDto.ValoresDto> valores) {
         return valores.stream()
                 .map(CreationFacturaRequestDto.ValoresDto::getTarifa)
                 .filter(Objects::nonNull)
@@ -932,7 +937,7 @@ public class VtVentasFacturasServiceImpl {
         switch (tipoBusqueda) {
             case TODAS -> {
                 return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
-                        filters.getFechaEmisionHasta(), filters.getIdTercero(), filters.getTipoVenta(), filters.getSerie(),
+                        filters.getFechaEmisionHasta(), filters.getIdTercero(), "FAC", filters.getSerie(),
                         filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
             }
 
@@ -940,7 +945,7 @@ public class VtVentasFacturasServiceImpl {
                 if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
 
                     return vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
-                            filters.getFechaEmisionHasta(), filters.getIdTercero(), filters.getTipoVenta(), filters.getSerie(),
+                            filters.getFechaEmisionHasta(), filters.getIdTercero(), "FAC", filters.getSerie(),
                             filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
                 } else {
                     throw new GeneralException("Es requerido el parametro de la sucursal");
@@ -949,7 +954,7 @@ public class VtVentasFacturasServiceImpl {
 
             case PROPIAS -> {
                 return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
-                        filters.getFechaEmisionHasta(), filters.getIdTercero(), filters.getTipoVenta(), filters.getSerie(),
+                        filters.getFechaEmisionHasta(), filters.getIdTercero(), "FAC", filters.getSerie(),
                         filters.getSecuencial(), filters.getNumeroAutorizacion(), usuario, pageable);
             }
         }
@@ -976,6 +981,53 @@ public class VtVentasFacturasServiceImpl {
         DatosEmpresaDto datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(idData, idEmpresa);
         AdLogsRequestDto log = adLogsBuilder.builderVentasDocumentos(factura, Boolean.FALSE);
         procesarDocumentosService.procesarFacNcNd(factura, log, datosEmpresaDto);
+    }
+
+    private void validarValores(CreationFacturaRequestDto request) {
+
+        for (CreationFacturaRequestDto.DetailDto item : request.getDetalle()) {
+
+            BigDecimal subTotalItem = item.getPrecioUnitario().multiply(item.getCantidad());
+            BigDecimal subTotalConDescuento = subTotalItem.subtract(item.getDescuento());
+            item.setSubtotalItem(subTotalConDescuento);
+            item.setDsctoItem(item.getDescuento());
+
+
+
+            for (ImpuestoItemsDto impuesto : item.getImpuesto()) {
+
+                // BUSCAR EL IMPUESTO PARA LA TARIFA POR EL CODIGO Y EL CODIGO PORCENTAJE.
+                // AGRUPAR POR CODIGO Y POR CODIGO PORCENTAJE Y BUSCAR EL RESULTADO
+
+                // VALORES SON EL DE TODA LA FACTURA SON EN BASE A LOS IMPUESTOS, AGRUPADO EJEMPLO SI EXISTE VARIOS 15% SE AGRUPAN Y LA BASE IMPONIBLE DE ESTE ES LA SUMA DE LOS SUBTOTAL ITEMS Y SE DEBE CALCULAR EL VALOR EN BASE A EL SUBTOTAL OBTENIDO ESTE SE REDONDE 2 DECIMALES
+                impuesto.setBaseImponible(subTotalConDescuento);
+
+
+
+                // redondear 4 decimales.
+                BigDecimal valor = subTotalConDescuento
+                        .multiply(impuesto.getTarifa())
+                        .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+                impuesto.setValor(valor);
+
+            }
+        }
+
+        // TOTALIZAR EN BASE A LOS VALORES.
+
+    }
+
+    private void validarListValores(List<CreationFacturaRequestDto.ValoresDto> valores, LocalDate fechaEmision) {
+
+
+        adIvaPorcentajeService.validateIvaPorcentaje(getTarifaValoresInteger(valores), fechaEmision);
+
+        for (CreationFacturaRequestDto.ValoresDto valor : valores) {
+
+
+
+        }
+
     }
 
 
