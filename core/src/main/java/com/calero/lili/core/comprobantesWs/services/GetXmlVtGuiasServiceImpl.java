@@ -75,7 +75,7 @@ public class GetXmlVtGuiasServiceImpl {
         Unmarshaller jaxbUnmarshaller1 = null;
 
         try {
-            jaxbContext1 = JAXBContext.newInstance(Factura.class);
+            jaxbContext1 = JAXBContext.newInstance(GuiaRemision.class);
             jaxbUnmarshaller1 = jaxbContext1.createUnmarshaller();
             documento = (GuiaRemision) jaxbUnmarshaller1.unmarshal(new StringReader(entidad.getComprobante()));
             System.out.println("Si se pudo leer el String y convertirlo en objeto Factura: ");

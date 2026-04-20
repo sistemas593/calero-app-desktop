@@ -76,7 +76,7 @@ public class GetXmlComprasRetencionesServiceImpl {
         Unmarshaller jaxbUnmarshaller1 = null;
 
         try {
-            jaxbContext1 = JAXBContext.newInstance(Factura.class);
+            jaxbContext1 = JAXBContext.newInstance(ComprobanteRetencion.class);
             jaxbUnmarshaller1 = jaxbContext1.createUnmarshaller();
             documento = (ComprobanteRetencion) jaxbUnmarshaller1.unmarshal(new StringReader(entidad.getComprobante()));
             System.out.println("Si se pudo leer el String y convertirlo en objeto Factura: ");

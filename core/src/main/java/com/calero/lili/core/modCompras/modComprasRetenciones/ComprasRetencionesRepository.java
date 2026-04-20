@@ -40,11 +40,11 @@ public interface ComprasRetencionesRepository extends JpaRepository<CpRetencione
     void deleteById(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("idVenta") UUID idVenta);
 
 
-    @Query(value = "SELECT cp_retenciones.id_Data as id_data " +
+    @Query(value = "SELECT cp_retenciones.id_data as id_data " +
             "FROM cp_retenciones cp_retenciones " +
             "WHERE (cp_retenciones.id_Data = :idData)  AND " +
             "(cp_retenciones.id_Empresa = :idEmpresa) AND " +
-            "cp_retenciones.clave_acceso = :numeroAutorizacion AND cp_retenciones.deleted = false" +
+            "cp_retenciones.clave_acceso = :numeroAutorizacion AND cp_retenciones.deleted = false " +
             "LIMIT 1", nativeQuery = true)
     Optional<DeEmitidasRetencionesProjection> findExistByNumeroAutorizacion(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("numeroAutorizacion") String numeroAutorizacion);
 
@@ -130,11 +130,11 @@ public interface ComprasRetencionesRepository extends JpaRepository<CpRetencione
 
     @Query(value = "SELECT " +
             "entity.id_retencion as idRetencion,  " +
-            "entity.numero_autorizacion as numeroAutorizacion, " +
+            "entity.numero_autorizacion_retencion as numeroAutorizacion, " +
             "entity.comprobante as comprobante, " +
-            "entity.serie as serie, " +
-            "entity.secuencial as secuencial, " +
-            "entity.estado_documento as estadoDocumento,  " +
+            "entity.serie_retencion as serie, " +
+            "entity.secuencial_retencion as secuencial, " +
+            "entity.estado_documento as estadoDocumento  " +
             "FROM cp_retenciones  entity " +
             "WHERE (entity.id_data = :idData)  AND " +
             "(entity.id_empresa = :idEmpresa) AND entity.deleted = false AND " +

@@ -50,10 +50,10 @@ public interface VentasRetencionesRepository extends JpaRepository<VtRetenciones
 
     @Query(value = "SELECT " +
             "entity.id_retencion as idRetencion,  " +
-            "entity.numero_autorizacion_retencion as numeroAutorizacion, " +
+            "entity.numero_autorizacion as numeroAutorizacion, " +
             "entity.comprobante as comprobante, " +
-            "entity.serie as serie, " +
-            "entity.secuencial as secuencial " +
+            "entity.serie_retencion as serie, " +
+            "entity.secuencial_retencion as secuencial " +
             "FROM vt_retenciones  entity " +
             "WHERE (entity.id_data = :idData)  AND " +
             "(entity.id_empresa = :idEmpresa) AND " +

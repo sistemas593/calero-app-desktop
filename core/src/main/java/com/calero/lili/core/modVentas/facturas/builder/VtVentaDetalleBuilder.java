@@ -1,6 +1,7 @@
 package com.calero.lili.core.modVentas.facturas.builder;
 
 
+import com.calero.lili.core.dtos.ImpuestoItemsDto;
 import com.calero.lili.core.modComprasItems.GeItemEntity;
 import com.calero.lili.core.modContabilidad.modCentroCostos.CnCentroCostosEntity;
 import com.calero.lili.core.modVentas.VtVentaDetalleEntity;
@@ -58,13 +59,13 @@ public class VtVentaDetalleBuilder {
     }
 
 
-    private List<VtVentaDetalleEntity.Impuestos> builderListImpuestos(List<CreationFacturaRequestDto.DetailDto.Impuestos> list) {
+    private List<VtVentaDetalleEntity.Impuestos> builderListImpuestos(List<ImpuestoItemsDto> list) {
         return list.stream()
                 .map(this::builderImpuestos)
                 .toList();
     }
 
-    private VtVentaDetalleEntity.Impuestos builderImpuestos(CreationFacturaRequestDto.DetailDto.Impuestos model) {
+    private VtVentaDetalleEntity.Impuestos builderImpuestos(ImpuestoItemsDto model) {
         return VtVentaDetalleEntity.Impuestos.builder()
                 .codigo(model.getCodigo())
                 .codigoPorcentaje(model.getCodigoPorcentaje())

@@ -56,7 +56,7 @@ public class GetXmlVentasRetencionesServiceImpl {
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
 
 
-        String nombreArchivo = "RET-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".xml";
+        String nombreArchivo = "RET-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".pdf";
 
         switch (origenCertificado) {
 
@@ -70,7 +70,7 @@ public class GetXmlVentasRetencionesServiceImpl {
         Unmarshaller jaxbUnmarshaller1 = null;
 
         try {
-            jaxbContext1 = JAXBContext.newInstance(Factura.class);
+            jaxbContext1 = JAXBContext.newInstance(ComprobanteRetencion.class);
             jaxbUnmarshaller1 = jaxbContext1.createUnmarshaller();
             documento = (ComprobanteRetencion) jaxbUnmarshaller1.unmarshal(new StringReader(entidad.getComprobante()));
             System.out.println("Si se pudo leer el String y convertirlo en objeto Factura: ");

@@ -3,6 +3,7 @@ package com.calero.lili.core.modVentas.facturas.dto;
 import com.calero.lili.core.dtos.FormasPagoDto;
 import com.calero.lili.core.dtos.ImpuestoItemsDto;
 import com.calero.lili.core.dtos.InformacionAdicionalDto;
+import com.calero.lili.core.dtos.ValoresDto;
 import com.calero.lili.core.enums.ComercioExterior;
 import com.calero.lili.core.enums.FormaPago;
 import com.calero.lili.core.enums.FormatoDocumento;
@@ -70,20 +71,7 @@ public class CreationFacturaRequestDto {
 
     private String concepto;
 
-    @Valid
-    @NotEmpty(message = "No existen detalle de items")
     private List<ValoresDto> valores;
-
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class ValoresDto {
-        private String codigo;
-        private String codigoPorcentaje;
-        private BigDecimal tarifa;
-        private BigDecimal baseImponible;
-        private BigDecimal valor;
-    }
 
     @NotNull(message = "No existe el subtotal")
     private BigDecimal subtotal;

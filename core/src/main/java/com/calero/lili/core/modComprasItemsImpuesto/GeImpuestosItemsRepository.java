@@ -2,7 +2,10 @@ package com.calero.lili.core.modComprasItemsImpuesto;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface GeImpuestosItemsRepository extends JpaRepository<GeImpuestosEntity, Long> {
@@ -14,6 +17,13 @@ public interface GeImpuestosItemsRepository extends JpaRepository<GeImpuestosEnt
             "entity.codigo = :codigo and " +
             "entity.codigoPorcentaje = :codigoPorcentaje")
     GeImpuestosEntity findByCodigoAndCodigoPorcentaje(String codigo, String codigoPorcentaje);
+
+    @Query(value = "SELECT entity " +
+            "FROM GeImpuestosEntity entity " +
+            "where " +
+            "entity.codigo in  (:codigos) and " +
+            "entity.codigoPorcentaje in (:codigosPorcentaje)")
+    List<GeImpuestosEntity> findAllCodigosAndCodigoPorcentaje(@Param("codigos") List<String> codigos, @Param("codigosPorcentaje") List<String> codigosPorcentaje);
 
 
     //    @Transactional
@@ -37,7 +47,6 @@ public interface GeImpuestosItemsRepository extends JpaRepository<GeImpuestosEnt
 //            "ge_items.id_empresa = :idEmpresa and " +
 //            "ge_items.codigo_item = :codigo_item LIMIT 1", nativeQuery = true)
 //    Optional<GeItemsProjection> findFirstByIdDataAndIdEmpresaAndCodigoItem(Long idData, Long idEmpresa, String codigo_item);
-
 
 
 //    @Query(
