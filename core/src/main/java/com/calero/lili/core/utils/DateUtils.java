@@ -94,5 +94,24 @@ public class DateUtils {
         }
     }
 
+    public static void validarFechaEmisionGuia(String fechaEmision, String fechaInicioTransporte) {
+
+        if (Objects.isNull(fechaEmision) || fechaEmision.isEmpty()) {
+            throw new GeneralException("La fecha de emisión del documento es obligatoria");
+        }
+        LocalDate fecha = DateUtils.toLocalDate(fechaEmision);
+        LocalDate fechaInicio = DateUtils.toLocalDate(fechaInicioTransporte);
+
+        if (!fecha.isEqual(LocalDate.now())) {
+            throw new GeneralException(MessageFormat.format("La fecha de emisión: {0}," +
+                    " no coincide con la fecha actual", fechaEmision));
+        }
+
+        if (!fechaInicio.isEqual(fecha)) {
+            throw new GeneralException(MessageFormat.format("La fecha de emisión: {0}," +
+                    " no coincide con la fecha de inicio de transporte {1} ", fechaEmision, fechaInicioTransporte));
+        }
+    }
+
 
 }

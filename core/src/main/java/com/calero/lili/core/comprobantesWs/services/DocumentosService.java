@@ -42,11 +42,16 @@ public class DocumentosService {
 
         switch (origenCertificado) {
 
-            case "WEB" ->
-                    datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(documento.getIdData(), documento.getIdEmpresa());
+            case "WEB" -> {
 
-            case "LOC" ->
-                    datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(documento.getIdData(), documento.getIdEmpresa());
+                datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(documento.getIdData(), documento.getIdEmpresa());
+                datosEmpresaDto.setOrigenDatos(origenCertificado);
+            }
+
+            case "LOC" -> {
+                datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(documento.getIdData(), documento.getIdEmpresa());
+                datosEmpresaDto.setOrigenDatos(origenCertificado);
+            }
         }
 
         return procesarDocumentosService.procesarFacNcNd(documento,
@@ -65,11 +70,16 @@ public class DocumentosService {
 
         switch (origenCertificado) {
 
-            case "WEB" ->
-                    datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(guiaRemision.getIdData(), guiaRemision.getIdEmpresa());
+            case "WEB" -> {
 
-            case "LOC" ->
-                    datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(guiaRemision.getIdData(), guiaRemision.getIdEmpresa());
+                datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(guiaRemision.getIdData(), guiaRemision.getIdEmpresa());
+                datosEmpresaDto.setOrigenDatos(origenCertificado);
+            }
+
+            case "LOC" -> {
+                datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(guiaRemision.getIdData(), guiaRemision.getIdEmpresa());
+                datosEmpresaDto.setOrigenDatos(origenCertificado);
+            }
         }
 
         return procesarDocumentosService.procesarGuiaRemision(guiaRemision,
@@ -88,11 +98,16 @@ public class DocumentosService {
 
         switch (origenCertificado) {
 
-            case "WEB" ->
-                    datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(liquidacion.getIdData(), liquidacion.getIdEmpresa());
+            case "WEB" -> {
 
-            case "LOC" ->
-                    datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(liquidacion.getIdData(), liquidacion.getIdEmpresa());
+                datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(liquidacion.getIdData(), liquidacion.getIdEmpresa());
+                datosEmpresaDto.setOrigenDatos(origenCertificado);
+            }
+
+            case "LOC" -> {
+                datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(liquidacion.getIdData(), liquidacion.getIdEmpresa());
+                datosEmpresaDto.setOrigenDatos(origenCertificado);
+            }
         }
 
         return procesarDocumentosService.procesarLiquidacion(liquidacion,
@@ -110,11 +125,16 @@ public class DocumentosService {
 
         switch (origenCertificado) {
 
-            case "WEB" ->
-                    datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(comprobante.getIdData(), comprobante.getIdEmpresa());
+            case "WEB" -> {
 
-            case "LOC" ->
-                    datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(comprobante.getIdData(), comprobante.getIdEmpresa());
+                datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(comprobante.getIdData(), comprobante.getIdEmpresa());
+                datosEmpresaDto.setOrigenDatos(origenCertificado);
+            }
+
+            case "LOC" -> {
+                datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(comprobante.getIdData(), comprobante.getIdEmpresa());
+                datosEmpresaDto.setOrigenDatos(origenCertificado);
+            }
         }
 
         return procesarDocumentosService.procesarComprobanteRetencion(comprobante,

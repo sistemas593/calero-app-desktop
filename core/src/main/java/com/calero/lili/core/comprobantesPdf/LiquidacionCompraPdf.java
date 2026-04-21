@@ -2,6 +2,7 @@ package com.calero.lili.core.comprobantesPdf;
 
 import com.calero.lili.core.comprobantes.objetosXml.TotalImpuesto;
 import com.calero.lili.core.comprobantes.objetosXml.factura.CampoAdicional;
+import com.calero.lili.core.comprobantes.objetosXml.factura.DetAdicional;
 import com.calero.lili.core.comprobantes.objetosXml.factura.Pago;
 import com.calero.lili.core.comprobantes.objetosXml.liquidacionCompras.Detalle;
 import com.calero.lili.core.comprobantes.objetosXml.liquidacionCompras.InfoLiquidacionCompra;
@@ -266,57 +267,43 @@ public class LiquidacionCompraPdf {
             //////////////////////////////
             // TABLA 2 iNFO FACTURA
 
-            PdfPTable table_datos = new PdfPTable(6);
+            PdfPTable table_datos = new PdfPTable(2);
             table_datos.setWidthPercentage(100);
             table_datos.setTableEvent(new BorderEventWithoutRadius());
 
-            cell = generateCell(new Paragraph("Nombres y Apellidos:", title), LEFT_PADDING_EMPRESA);
-            cell.setPaddingBottom(5);
-            cell.setColspan(2);
+            cell = generateCell(new Paragraph("Nombres y Apellidos", title), LEFT_PADDING_EMPRESA);
+            cell.setColspan(1);
             table_datos.addCell(cell);
 
             cell = generateCell(new Paragraph(factura.getInfoLiquidacionCompra().getRazonSocialProveedor(), fuente), PADDING_NONE);
-            cell.setColspan(4);
-            cell.setPaddingBottom(5);
-            cell.setPaddingLeft(-80);
+            cell.setColspan(1);
             table_datos.addCell(cell);
 
-
-            cell = generateCell(new Paragraph("Dirección:", title), LEFT_PADDING_EMPRESA);
-            cell.setPaddingBottom(5);
-            cell.setColspan(2);
+            cell = generateCell(new Paragraph("Identificación", title), LEFT_PADDING_EMPRESA);
+            cell.setColspan(1);
             table_datos.addCell(cell);
 
-            cell = generateCell(new Paragraph("", fuente), PADDING_NONE);
-            cell.setPaddingBottom(5);
-            cell.setColspan(4);
-            cell.setPaddingLeft(-70);
+            cell = generateCell(new Paragraph(factura.getInfoLiquidacionCompra().getIdentificacionProveedor(), fuente), PADDING_NONE);
+            cell.setColspan(1);
             table_datos.addCell(cell);
 
-
-            cell = generateCell(new Paragraph("Fecha: ", title), LEFT_PADDING_EMPRESA);
-            cell.setPaddingBottom(15);
+            cell = generateCell(new Paragraph("Fecha", title), LEFT_PADDING_EMPRESA);
             cell.setColspan(1);
             table_datos.addCell(cell);
 
             cell = generateCell(new Paragraph(factura.getInfoLiquidacionCompra().getFechaEmision(), fuente), PADDING_NONE);
             cell.setColspan(1);
-            cell.setPaddingBottom(15);
-            cell.setPaddingLeft(-20);
             table_datos.addCell(cell);
 
-
-            cell = generateCell(new Paragraph("Identificación:", title), LEFT_PADDING_EMPRESA);
-            cell.setPaddingBottom(5);
+            cell = generateCell(new Paragraph("Dirección:", title), LEFT_PADDING_EMPRESA);
+            cell.setPaddingBottom(10);
             cell.setColspan(1);
             table_datos.addCell(cell);
 
-            cell = generateCell(new Paragraph(factura.getInfoLiquidacionCompra().getIdentificacionProveedor(), fuente), PADDING_NONE);
-            cell.setColspan(4);
-            cell.setPaddingBottom(5);
-            cell.setPaddingLeft(-20);
+            cell = generateCell(new Paragraph(factura.getInfoLiquidacionCompra().getDireccionProveedor() != null ? factura.getInfoLiquidacionCompra().getDireccionProveedor() : "", fuente), PADDING_NONE);
+            cell.setPaddingBottom(10);
+            cell.setColspan(1);
             table_datos.addCell(cell);
-
 
             table_datos.setSpacingBefore(5);
             table_datos.setSpacingAfter(5);
@@ -326,71 +313,104 @@ public class LiquidacionCompraPdf {
 
             /////////////////DETALLE TABLE 3
 
-            PdfPTable table_detalle = new PdfPTable(7);
+            PdfPTable table_detalle = new PdfPTable(10);
             table_detalle.setWidthPercentage(100);
             table_detalle.setTableEvent(new BorderEventWithoutRadius());
 
-            cell = new PdfPCell(new Phrase("Código", title));
+            cell = new PdfPCell(new Phrase("Cod.\nPrincipal", title));
             cell.setPaddingBottom(10);
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
             table_detalle.addCell(cell);
 
-
-            cell = new PdfPCell(new Phrase("Descripción", title));
-            cell.setColspan(2);
+            cell = new PdfPCell(new Phrase("Cod.\nAuxiliar", title));
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
             table_detalle.addCell(cell);
-
 
             cell = new PdfPCell(new Phrase("Cantidad", title));
-            cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
             table_detalle.addCell(cell);
 
+            cell = new PdfPCell(new Phrase("Descripción", title));
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            table_detalle.addCell(cell);
+
+            cell = new PdfPCell(new Phrase("Detalle Adicional", title));
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            table_detalle.addCell(cell);
 
             cell = new PdfPCell(new Phrase("Precio Unitario", title));
             cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
             table_detalle.addCell(cell);
 
+            cell = new PdfPCell(new Phrase("Subsidio", title));
+            cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+            table_detalle.addCell(cell);
+
+            cell = new PdfPCell(new Phrase("Precio sin\nSubsidio", title));
+            cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+            table_detalle.addCell(cell);
 
             cell = new PdfPCell(new Phrase("Descuento", title));
             cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
             table_detalle.addCell(cell);
 
-
             cell = new PdfPCell(new Phrase("Precio Total", title));
             cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
             table_detalle.addCell(cell);
-
 
             List<Detalle> lista1 = factura.getDetalle();
             for (Detalle det : lista1) {
 
                 cell = new PdfPCell(new Phrase(det.getCodigoPrincipal(), fuente));
                 cell.setPaddingBottom(5);
+                cell.setHorizontalAlignment(Element.ALIGN_CENTER);
                 table_detalle.addCell(cell);
 
-
-                cell = new PdfPCell(new Phrase(det.getDescripcion().toUpperCase(), fuente));
-                cell.setColspan(2);
+                cell = new PdfPCell(new Phrase("", fuente));
+                cell.setHorizontalAlignment(Element.ALIGN_CENTER);
                 table_detalle.addCell(cell);
-
 
                 cell = new PdfPCell(new Phrase(det.getCantidad(), fuente));
                 cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
                 table_detalle.addCell(cell);
 
+                cell = new PdfPCell(new Phrase(det.getDescripcion().toUpperCase(), fuente));
+                table_detalle.addCell(cell);
+
+                String detAdicionalText = "";
+                if (det.getDetAdicional() != null) {
+                    StringBuilder sb = new StringBuilder();
+                    for (DetAdicional da : det.getDetAdicional()) {
+                        if (da.getValor() != null) {
+                            if (sb.length() > 0) sb.append(", ");
+                            sb.append(da.getValor());
+                        }
+                    }
+                    detAdicionalText = sb.toString();
+                }
+                cell = new PdfPCell(new Phrase(detAdicionalText, fuente));
+                table_detalle.addCell(cell);
 
                 cell = new PdfPCell(new Phrase(det.getPrecioUnitario(), fuente));
                 cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
                 table_detalle.addCell(cell);
 
+                cell = new PdfPCell(new Phrase("0.00", fuente));
+                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                table_detalle.addCell(cell);
+
+                cell = new PdfPCell(new Phrase("0.00", fuente));
+                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                table_detalle.addCell(cell);
 
                 cell = new PdfPCell(new Phrase(det.getDescuento(), fuente));
                 cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
                 table_detalle.addCell(cell);
 
-
                 cell = new PdfPCell(new Phrase(det.getPrecioTotalSinImpuesto(), fuente));
                 cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
                 table_detalle.addCell(cell);
+
                 table_detalle.setSpacingAfter(5);
             }
 
@@ -501,31 +521,75 @@ public class LiquidacionCompraPdf {
 
             InfoLiquidacionCompra infoFactura = factura.getInfoLiquidacionCompra();
             List<TotalImpuesto> totalImpuestos = infoFactura.getTotalImpuesto();
-            TotalImpuesto subTotal0 = null;
-            TotalImpuesto subTotal12 = null;
 
             // IVA CODIGO 2
             // 0%  :     0
             // 12% :     2
             // 14% :     3
+            // 15% :     4
             // NOOBJETO: 6
             // EXCENTO:  7
             // IVA DIF:  8
+            // ICE: codigo 3
+            // IRBPNR: codigo 5
+
+            TotalImpuesto subTotal0 = null;
+            TotalImpuesto subTotal12 = null;
+            TotalImpuesto subTotal15 = null;
+            TotalImpuesto subTotalNoObjeto = null;
+            TotalImpuesto subTotalExento = null;
+            TotalImpuesto subTotalIce = null;
+            TotalImpuesto subTotalIrbpnr = null;
 
             if (totalImpuestos != null && !totalImpuestos.isEmpty()) {
                 subTotal0 = totalImpuestos.stream()
-                        .filter(imp -> imp.getCodigo().equals("2") && imp.getCodigoPorcentaje().equals("0") )
-                        .findAny()
-                        .orElse(null);
-
+                        .filter(imp -> imp.getCodigo().equals("2") && imp.getCodigoPorcentaje().equals("0"))
+                        .findAny().orElse(null);
                 subTotal12 = totalImpuestos.stream()
-                        .filter(imp -> imp.getCodigo().equals("2") && imp.getCodigoPorcentaje().equals("2") )
-                        .findAny()
-                        .orElse(null);
-
+                        .filter(imp -> imp.getCodigo().equals("2") && imp.getCodigoPorcentaje().equals("2"))
+                        .findAny().orElse(null);
+                subTotal15 = totalImpuestos.stream()
+                        .filter(imp -> imp.getCodigo().equals("2") && imp.getCodigoPorcentaje().equals("4"))
+                        .findAny().orElse(null);
+                subTotalNoObjeto = totalImpuestos.stream()
+                        .filter(imp -> imp.getCodigo().equals("2") && imp.getCodigoPorcentaje().equals("6"))
+                        .findAny().orElse(null);
+                subTotalExento = totalImpuestos.stream()
+                        .filter(imp -> imp.getCodigo().equals("2") && imp.getCodigoPorcentaje().equals("7"))
+                        .findAny().orElse(null);
+                subTotalIce = totalImpuestos.stream()
+                        .filter(imp -> imp.getCodigo().equals("3"))
+                        .findAny().orElse(null);
+                subTotalIrbpnr = totalImpuestos.stream()
+                        .filter(imp -> imp.getCodigo().equals("5"))
+                        .findAny().orElse(null);
             }
 
-            cell = new PdfPCell(new Phrase("SUBTOTAL SIN IMPUESTOS:", title));
+            cell = new PdfPCell(new Phrase("SUBTOTAL 15%", title));
+            cell.setPaddingBottom(5);
+            cell.setColspan(2);
+            table_totales.addCell(cell);
+            cell = new PdfPCell(new Phrase(subTotal15 != null ? subTotal15.getBaseImponible() : "0.00", fuente));
+            cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+            table_totales.addCell(cell);
+
+            cell = new PdfPCell(new Phrase("SUBTOTAL NO OBJETO DE IVA", title));
+            cell.setPaddingBottom(5);
+            cell.setColspan(2);
+            table_totales.addCell(cell);
+            cell = new PdfPCell(new Phrase(subTotalNoObjeto != null ? subTotalNoObjeto.getBaseImponible() : "0.00", fuente));
+            cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+            table_totales.addCell(cell);
+
+            cell = new PdfPCell(new Phrase("SUBTOTAL EXENTO DE IVA", title));
+            cell.setPaddingBottom(5);
+            cell.setColspan(2);
+            table_totales.addCell(cell);
+            cell = new PdfPCell(new Phrase(subTotalExento != null ? subTotalExento.getBaseImponible() : "0.00", fuente));
+            cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+            table_totales.addCell(cell);
+
+            cell = new PdfPCell(new Phrase("SUBTOTAL SIN IMPUESTOS", title));
             cell.setPaddingBottom(5);
             cell.setColspan(2);
             table_totales.addCell(cell);
@@ -533,7 +597,7 @@ public class LiquidacionCompraPdf {
             cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
             table_totales.addCell(cell);
 
-            cell = new PdfPCell(new Phrase("TOTAL DESCUENTO:", title));
+            cell = new PdfPCell(new Phrase("TOTAL DESCUENTO", title));
             cell.setPaddingBottom(5);
             cell.setColspan(2);
             table_totales.addCell(cell);
@@ -541,50 +605,43 @@ public class LiquidacionCompraPdf {
             cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
             table_totales.addCell(cell);
 
-            cell = new PdfPCell(new Phrase("SUBTOTAL 0%:", title));
+            cell = new PdfPCell(new Phrase("ICE", title));
             cell.setPaddingBottom(5);
             cell.setColspan(2);
             table_totales.addCell(cell);
-
-            if (subTotal0 != null)
-                cell = new PdfPCell(new Phrase(subTotal0.getBaseImponible(), fuente));
-            else
-                cell = new PdfPCell(new Phrase("0.00", fuente));
-
+            cell = new PdfPCell(new Phrase(subTotalIce != null ? subTotalIce.getValor() : "0.00", fuente));
             cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
             table_totales.addCell(cell);
 
-            cell = new PdfPCell(new Phrase("SUBTOTAL 12%:", title));
+            cell = new PdfPCell(new Phrase("IVA 15%", title));
             cell.setPaddingBottom(5);
             cell.setColspan(2);
             table_totales.addCell(cell);
-
-            if (subTotal12 != null)
-                cell = new PdfPCell(new Phrase(subTotal12.getBaseImponible(), fuente));
-            else
-                cell = new PdfPCell(new Phrase("0.00", fuente));
-
+            cell = new PdfPCell(new Phrase(subTotal15 != null ? subTotal15.getValor() : "0.00", fuente));
             cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
             table_totales.addCell(cell);
 
-            cell = new PdfPCell(new Phrase("IVA 12%:", title));
+            cell = new PdfPCell(new Phrase("IRBPNR", title));
             cell.setPaddingBottom(5);
             cell.setColspan(2);
             table_totales.addCell(cell);
-
-            if (subTotal12 != null)
-                cell = new PdfPCell(new Phrase(subTotal12.getValor(), fuente));
-            else
-                cell = new PdfPCell(new Phrase("0.00", fuente));
-
+            cell = new PdfPCell(new Phrase(subTotalIrbpnr != null ? subTotalIrbpnr.getValor() : "0.00", fuente));
             cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
             table_totales.addCell(cell);
 
-            cell = new PdfPCell(new Phrase("VALOR TOTAL:", title));
+            cell = new PdfPCell(new Phrase("PROPINA", title));
             cell.setPaddingBottom(5);
             cell.setColspan(2);
             table_totales.addCell(cell);
-            cell = new PdfPCell(new Phrase("", fuente));
+            cell = new PdfPCell(new Phrase("0.00", fuente));
+            cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+            table_totales.addCell(cell);
+
+            cell = new PdfPCell(new Phrase("VALOR TOTAL", title));
+            cell.setPaddingBottom(5);
+            cell.setColspan(2);
+            table_totales.addCell(cell);
+            cell = new PdfPCell(new Phrase(infoFactura.getImporteTotal() != null ? infoFactura.getImporteTotal() : "", fuente));
             cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
             table_totales.addCell(cell);
 

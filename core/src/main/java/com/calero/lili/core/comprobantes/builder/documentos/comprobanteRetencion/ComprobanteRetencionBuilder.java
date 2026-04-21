@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
@@ -135,7 +136,8 @@ public class ComprobanteRetencionBuilder {
         return InfoCompRetencion.builder()
                 .fechaEmision(DateUtils.toString(retencion.getFechaEmisionRetencion()))
                 .dirEstablecimiento(serie.getDireccionEstablecimiento())
-                .contribuyenteEspecial(empresa.getContribuyenteEspecial())
+                .contribuyenteEspecial(Objects.isNull(empresa.getContribuyenteEspecial())
+                        || empresa.getContribuyenteEspecial().isEmpty() ? null : empresa.getContribuyenteEspecial())
                 .obligadoContabilidad(ObligadoContabilidad.getObligadoContabilidad(empresa.getObligadoContabilidad()))
                 .tipoIdentificacionSujetoRetenido(retencion.getProveedor().getTipoIdentificacion())
                 .parteRel(retencion.getRelacionado())

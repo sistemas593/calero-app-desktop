@@ -60,7 +60,7 @@ public class GetXmlLiquidacionesServiceImpl {
             throw new GeneralException("El documento con id {0} no esta autorizado " + id);
         }
 
-        String nombreArchivo = "LIQ-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".xml";
+        String nombreArchivo = "LIQ-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".pdf";
 
         switch (origenCertificado) {
 

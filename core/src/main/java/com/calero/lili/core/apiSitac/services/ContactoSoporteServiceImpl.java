@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 public class ContactoSoporteServiceImpl {
 
     private final AdMailsConfigRepository adConfigRepository;
+    private final EmailSender emailSender;
 
     public void enviarContacto(ContactoRequestDto request) {
         AdMailConfigEntity config = adConfigRepository.findByIdConfig(Long.valueOf(1));
@@ -31,6 +32,6 @@ public class ContactoSoporteServiceImpl {
                 "<p><b>Mensaje:</b> " + request.getMessage() + "</p>\"\n" +
                 "}";
 
-        EmailSender.send(url, consumerKey, consumerSecret, jsonBody);
+        emailSender.send(jsonBody, config);
     }
 }

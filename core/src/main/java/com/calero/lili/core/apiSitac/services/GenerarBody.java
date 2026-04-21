@@ -1,91 +1,58 @@
 package com.calero.lili.core.apiSitac.services;
 
-import com.calero.lili.core.apiSitac.repositories.AdMailsConfigRepository;
 import com.calero.lili.core.apiSitac.repositories.entities.AdMailConfigEntity;
-import com.calero.lili.core.modAdminlistaNegra.AdMailListaNegraEntity;
-import com.calero.lili.core.modAdminlistaNegra.AdMailsListaNegraRepository;
 import com.calero.lili.core.modClientesConfiguraciones.dto.StCorreoRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
-
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class EmailPrepare {
+public class GenerarBody {
 
-    private final AdMailsListaNegraRepository adMailsListaNegraRepository;
-    private final AdMailsConfigRepository adConfigRepository;
-    private final EmailSender emailSender;
-    public void prepare(StCorreoRequestDto request ) {
+    public String generarBodyCorreo(StCorreoRequestDto request, AdMailConfigEntity adConfigMailEntity) {
 
-        // cambiando ; por , en caso de que este asi
-        String emailsValidos = request.getTo().replace(";", ",");
 
-        // enviando a un array todos los correos existentes en to
-        String[] correosArray = emailsValidos.split(",");
-        String to ="";
-
-        for (String correo : correosArray) {
-            //System.out.println("Correo: " + correo);
-            correo = correo.trim();
-            Optional<AdMailListaNegraEntity> adMailsListaNegraEntity = adMailsListaNegraRepository.findById(correo);
-            if (!adMailsListaNegraEntity.isPresent()) {
-                to = to + correo + ",";
-            }else{
-                //log.info("Correo en lista negra eliminado: {}", correo);
-            }
+        //log.info("Correos a enviar: {}", emailsValidos);
+        String nombreDocumento = request.getCodigoDocumento();
+        String inicialesDocumento = request.getCodigoDocumento();
+        switch (request.getCodigoDocumento()) {
+            case "01":
+                nombreDocumento = "Factura";
+                inicialesDocumento = "FC";
+                break;
+            case "03":
+                nombreDocumento = "Liquidación de compras";
+                inicialesDocumento = "LC";
+                break;
+            case "04":
+                nombreDocumento = "Nota de crédito";
+                inicialesDocumento = "NC";
+                break;
+            case "05":
+                nombreDocumento = "Nota de débito";
+                inicialesDocumento = "ND";
+                break;
+            case "06":
+                nombreDocumento = "Guía de remisión";
+                inicialesDocumento = "ND";
+                break;
+            case "07":
+                nombreDocumento = "Comprobante de retención";
+                inicialesDocumento = "CR";
+                break;
         }
 
-        emailsValidos = to;
-        if (!emailsValidos.equals("")) {
-            // quito la , que deje al final arriba
-            emailsValidos = emailsValidos.substring(0, emailsValidos.length() - 1);
+        // TODO PENDIENTE REVISAR COMO ENVIAR EL CORREO EN API Y DESKTOP
 
-            //log.info("Correos a enviar: {}", emailsValidos);
-            String nombreDocumento=request.getCodigoDocumento();
-            String inicialesDocumento=request.getCodigoDocumento();
-            switch (request.getCodigoDocumento()) {
-                case "01":
-                    nombreDocumento="Factura";
-                    inicialesDocumento="FC";
-                    break;
-                case "03":
-                    nombreDocumento="Liquidación de compras";
-                    inicialesDocumento="LC";
-                    break;
-                case "04":
-                    nombreDocumento="Nota de crédito";
-                    inicialesDocumento="NC";
-                    break;
-                case "05":
-                    nombreDocumento="Nota de débito";
-                    inicialesDocumento="ND";
-                    break;
-                case "06":
-                    nombreDocumento="Guía de remisión";
-                    inicialesDocumento="ND";
-                    break;
-                case "07":
-                    nombreDocumento="Comprobante de retención";
-                    inicialesDocumento="CR";
-                    break;
-            }
+        //String user = adConfigMailEntity.getUsuario();
+        //String password = adConfigMailEntity.getPassword();
+        //https://api.turbo-smtp.com/api/mail/send
 
-            // TODO PENDIENTE REVISAR COMO ENVIAR EL CORREO EN API Y DESKTOP
+        String mailFrom = adConfigMailEntity.getEmailFrom();
 
-            AdMailConfigEntity adConfigMailEntity = adConfigRepository.findByIdConfig(Long.valueOf(1));
-            //String user = adConfigMailEntity.getUsuario();
-            //String password = adConfigMailEntity.getPassword();
-            //https://api.turbo-smtp.com/api/mail/send
-            String url= "https://api.turbo-smtp.com/api/v2/mail/send";
-            String mailFrom =adConfigMailEntity.getEmailFrom();
-
-            // Specify Credentials
-            String Consumerkey = adConfigMailEntity.getConsumerKey();
-            String Consumersecret = adConfigMailEntity.getConsumerSecret();
+        // Specify Credentials
 
 //            String BODY_HTML = "<html>"
 //                    + "<head></head>"
@@ -161,44 +128,40 @@ public class EmailPrepare {
 //            String html_content = htmlTemplate.render();
 //            System.out.println(html_content);
 
-String subject = "  \"subject\":\"Adjunto documento electrónico: "+inicialesDocumento+"-"+request.getSerie()+"-"+request.getSecuencia()+".\",\n";
-        String jsonBody = "{\n"+
-                    "  \"from\":\""+mailFrom+"\",\n"+
-                    "  \"to\":\""+emailsValidos+"\",\n" +
-                    subject+
-                    "  \"html_content\":\"------Adjunto documento electronico------\\n "+
-                    "  <p>Para: "+request.getNombreReceptor()+"</p>"+
-                    "  <p>De: "+request.getNombreEmisor()+"</p>"+
-                    "  <p>RUC: "+request.getRucEmisor()+"</p>"+
-                    "  <p>Tipo: "+nombreDocumento+"</p>"+
-                    "  <p>Serie: "+request.getSerie()+"</p>"+
-                    "  <p>Secuencial: "+request.getSecuencia()+"</p>"+
-                    "  <p>Fecha emision: "+request.getFechaEmision()+"</p>"+
-                    "  <p>Clave de acceso: "+request.getClaveAcceso()+"</p>"+
-                    "  <p>Responder al correo: "+request.getMailFrom()+"</p>"+
-                    "  <p>--------------------------------------------</p>"+
-                    "  <p>Factura electronica por : SITAC Plus </p>"+
-                    "  <p>--------------------------------------------</p>\",\n"+
-                    "  \"attachments\": [\n" +
-                    "    {\n" +
-                    "      \"content\": \""+request.getPdf()+"\",\n" +
-                    "      \"name\": \""+request.getClaveAcceso()+".pdf\",\n" +
-                    "      \"type\": \"pdf\"\n" +
-                    "    },\n" +
-                    "    {\n" +
-                    "      \"content\": \""+request.getXml()+"\",\n"+
-                    "      \"name\": \""+request.getClaveAcceso()+".xml\",\n" +
-                    "      \"type\": \"xml\"\n" +
-                    "    }\n" +
-                    "  ]\n" +
-                    "}";
+        String subject = "  \"subject\":\"Adjunto documento electrónico: " + inicialesDocumento + "-" + request.getSerie() + "-" + request.getSecuencia() + ".\",\n";
+        String jsonBody = "{\n" +
+                "  \"from\":\"" + mailFrom + "\",\n" +
+                "  \"to\":\"" + request.getTo() + "\",\n" +
+                subject +
+                "  \"html_content\":\"------Adjunto documento electronico------\\n " +
+                "  <p>Para: " + request.getNombreReceptor() + "</p>" +
+                "  <p>De: " + request.getNombreEmisor() + "</p>" +
+                "  <p>RUC: " + request.getRucEmisor() + "</p>" +
+                "  <p>Tipo: " + nombreDocumento + "</p>" +
+                "  <p>Serie: " + request.getSerie() + "</p>" +
+                "  <p>Secuencial: " + request.getSecuencia() + "</p>" +
+                "  <p>Fecha emision: " + request.getFechaEmision() + "</p>" +
+                "  <p>Clave de acceso: " + request.getClaveAcceso() + "</p>" +
+                "  <p>Responder al correo: " + request.getMailFrom() + "</p>" +
+                "  <p>--------------------------------------------</p>" +
+                "  <p>Factura electronica por : SITAC Plus </p>" +
+                "  <p>--------------------------------------------</p>\",\n" +
+                "  \"attachments\": [\n" +
+                "    {\n" +
+                "      \"content\": \"" + request.getPdf() + "\",\n" +
+                "      \"name\": \"" + request.getClaveAcceso() + ".pdf\",\n" +
+                "      \"type\": \"pdf\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"content\": \"" + request.getXml() + "\",\n" +
+                "      \"name\": \"" + request.getClaveAcceso() + ".xml\",\n" +
+                "      \"type\": \"xml\"\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}";
 
-//            System.out.println(jsonBody);
+        return jsonBody;
 
-            emailSender.send(url, Consumerkey, Consumersecret, jsonBody);
 
-            log.info("Correo enviado correctamente: {}", request.getTo());
-
-        }
     }
 }

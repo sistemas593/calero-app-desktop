@@ -120,14 +120,14 @@ public class GenerarDocumentoXml {
 
     public GuiaRemision generarGuiaRemision(VtGuiaEntity guiaRemision, AdEmpresaEntity empresaEntity, AdEmpresasSeriesEntity serieEntity) {
 
-        String claveAcceso = serviceClaveAcceso.generarClaveAcceso(DateUtils.toString(guiaRemision.getFechaEmision()),
+        String claveAcceso = serviceClaveAcceso.generarClaveAcceso(DateUtils.toString(guiaRemision.getFechaIniTransporte()),
                 "06", empresaEntity.getRuc(), guiaRemision.getAmbiente(),
                 guiaRemision.getSerie(), guiaRemision.getSecuencial(), guiaRemision.getTipoEmision());
 
         guiaRemision.setClaveAcceso(claveAcceso);
 
-        GuiaRemision guia = guiaRemisionBuilder.builderGuiaRemision(guiaRemision, empresaEntity, serieEntity);
-        return guia;
+       return guiaRemisionBuilder.builderGuiaRemision(guiaRemision, empresaEntity, serieEntity);
+
     }
 
     public ComprobanteRetencion generarComprobanteRetencion(CpRetencionesEntity retencion,

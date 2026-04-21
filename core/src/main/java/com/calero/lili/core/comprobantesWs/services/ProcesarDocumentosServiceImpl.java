@@ -5,6 +5,10 @@ import autorizacion.ws.sri.gob.ec.RespuestaComprobante;
 import com.calero.lili.core.adLogs.AdLogsServiceImpl;
 import com.calero.lili.core.adLogs.dto.AdLogsRequestDto;
 import com.calero.lili.core.adProcesoAutorizacion.AdProcesoAutorizacionService;
+import com.calero.lili.core.apiSitac.repositories.AdMailsConfigRepository;
+import com.calero.lili.core.apiSitac.repositories.entities.AdMailConfigEntity;
+import com.calero.lili.core.apiSitac.services.EmailSender;
+import com.calero.lili.core.apiSitac.services.GenerarBody;
 import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.EnvioCorreoDto;
 import com.calero.lili.core.comprobantesWs.RespuestaAutorizacion;
 import com.calero.lili.core.comprobantesWs.RespuestaEnvio;
@@ -18,6 +22,8 @@ import com.calero.lili.core.comprobantesWs.ws.services.RecepcionServiceImpl;
 import com.calero.lili.core.dtos.Mensajes;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.core.modAdminlistaNegra.ExcluirCorreosListaNegraServiceImpl;
+import com.calero.lili.core.modClientesConfiguraciones.dto.StCorreoRequestDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.CpLiquidacionesEntity;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.LiquidacionesRepository;
 import com.calero.lili.core.modCompras.modComprasRetenciones.ComprasRetencionesRepository;
@@ -59,19 +65,23 @@ public class ProcesarDocumentosServiceImpl {
 
     private final RecepcionServiceImpl recepcionService;
     private final AutorizacionServiceImpl autorizacionService;
-    private final ProcesarEnvioCorreoServiceImpl procesarEnvioCorreo;
+    private final SetearCorreoServiceImpl procesarEnvioCorreo;
     @Autowired
     private final SignXmlString signXmlString;
 
     private final ProcesarPausarServiceImpl procesarPausarService;
     private final AdLogsServiceImpl adLogsService;
     private final AdProcesoAutorizacionService adProcesoAutorizacionService;
+    private final GenerarBody generarBody;
+    private final ExcluirCorreosListaNegraServiceImpl excluirCorreosListaNegraService;
+    private final AdMailsConfigRepository adConfigRepository;
+    private final EmailSender emailSender;
 
 //    private static String projectId = "caleroapp";
 //    private static String bucketName = "caleroapp-bucket-sgn";
 
 
-    private final BuscarDatosEmpresa buscarDatosEmpresa;
+
 
 //    public DatosEmpresaDto buscarEmpresa(Long idData, Long idEmpresa){
 //        String sgn = "data00001/file001.p12";
@@ -167,9 +177,17 @@ public class ProcesarDocumentosServiceImpl {
                             envioCorreoDto.setClaveAcceso(documento.getClaveAcceso());
                             envioCorreoDto.setEmail(documento.getEmail());
                             System.out.println("Enviar correo con la siguiente informacion: " + envioCorreoDto.toString());
-                            // Integer respuestaEnvioCorreo = procesarEnvioCorreo.enviarCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
-                            documento.setEmailEstado(1);
-                            respuestaProceso.setEmailEstado(1);
+                            StCorreoRequestDto informacionCorreo = procesarEnvioCorreo.seterarRequestCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
+                            documento.setEmailEstado(2);
+                            respuestaProceso.setEmailEstado(2);
+                            excluirCorreosListaNegraService.validarCorreosEnvio(informacionCorreo);
+                            if (!informacionCorreo.getTo().isEmpty()) {
+                                if (datosEmpresaDto.getOrigenDatos().equals("WEB")) {
+                                    AdMailConfigEntity adConfigMailEntity = adConfigRepository.findByIdConfig(Long.valueOf(1));
+                                    String jsonBody = generarBody.generarBodyCorreo(informacionCorreo, adConfigMailEntity);
+                                    emailSender.send(jsonBody, adConfigMailEntity);
+                                }
+                            }
 
                         }
                     }
@@ -178,7 +196,7 @@ public class ProcesarDocumentosServiceImpl {
                 if (respuestaProceso.getEstadoAutorizacion().equals("NOA")) {
                     System.out.println("procesarFacNcNd Guardar fc/nc/nd como NO autorizada");
                     documento.setEstadoDocumento(EstadoDocumento.NOA);
-                    if (!Objects.isNull(respuestaProceso.getMensajes())) {
+                    if (Objects.nonNull(respuestaProceso.getMensajes())) {
                         documento.setMensajes(respuestaProceso.getMensajes());
                     }
                 }
@@ -188,8 +206,10 @@ public class ProcesarDocumentosServiceImpl {
             case "DEV":
                 System.out.println("2. Guardar fc/nc/nd como devuelto");
                 documento.setEstadoDocumento(EstadoDocumento.DEV);
-                if (!Objects.isNull(respuestaProceso.getMensajes())) {
+                if (Objects.nonNull(respuestaProceso.getMensajes())) {
                     documento.setMensajes(respuestaProceso.getMensajes());
+                    // TODO COLOCAR COMO UN SOLO MENSAJE
+                    // adLogsService.saveLog(logs, respuestaProceso.getMensajes(), "E");
                 }
                 vtVentaRepository.save(documento);
                 break;
@@ -197,19 +217,6 @@ public class ProcesarDocumentosServiceImpl {
 
         return responderProceso(respuestaProceso, documento.getIdVenta());
 
-    }
-
-    private AdLogsRequestDto generateLogsRequest(UUID idDocumento, String serie, String secuencial,
-                                                 String tipoDocumento, Long idData, Long idEmpresa, Boolean validacionPrevia) {
-        AdLogsRequestDto logs = new AdLogsRequestDto();
-        logs.setIdDocumento(idDocumento);
-        logs.setSerie(serie);
-        logs.setSecuencial(secuencial);
-        logs.setTipoDocumento(tipoDocumento);
-        logs.setIdData(idData);
-        logs.setIdEmpresa(idEmpresa);
-        logs.setValidacionPrevia(validacionPrevia);
-        return logs;
     }
 
 
@@ -261,9 +268,16 @@ public class ProcesarDocumentosServiceImpl {
                             envioCorreoDto.setClaveAcceso(guia.getClaveAcceso());
                             envioCorreoDto.setEmail(guia.getEmail());
 
-                            Integer respuestaEnvioCorreo = procesarEnvioCorreo.enviarCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
-                            guia.setEmailEstado(respuestaEnvioCorreo);
-                            respuestaProceso.setEmailEstado(respuestaEnvioCorreo);
+                            StCorreoRequestDto informacionCorreo = procesarEnvioCorreo.seterarRequestCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
+                            guia.setEmailEstado(2);
+                            respuestaProceso.setEmailEstado(2);
+                            if (!informacionCorreo.getTo().isEmpty()) {
+                                if (datosEmpresaDto.getOrigenDatos().equals("WEB")) {
+                                    AdMailConfigEntity adConfigMailEntity = adConfigRepository.findByIdConfig(Long.valueOf(1));
+                                    String jsonBody = generarBody.generarBodyCorreo(informacionCorreo, adConfigMailEntity);
+                                    emailSender.send(jsonBody, adConfigMailEntity);
+                                }
+                            }
                         }
                     }
 
@@ -271,7 +285,8 @@ public class ProcesarDocumentosServiceImpl {
                 if (respuestaProceso.getEstadoAutorizacion().equals("NOA")) {
                     System.out.println("procesar Guardar guia como NO autorizada");
                     guia.setEstadoDocumento(EstadoDocumento.NOA);
-                    if (!Objects.isNull(respuestaProceso.getMensajes())) {
+                    if (Objects.nonNull(respuestaProceso.getMensajes())) {
+                        // TODO GUARDAR EN EL LOG EL MENSAJE
                         guia.setMensajes(respuestaProceso.getMensajes());
                     }
                 }
@@ -282,7 +297,7 @@ public class ProcesarDocumentosServiceImpl {
             case "DEV":
                 System.out.println("2. Guardar guia como devuelto");
                 guia.setEstadoDocumento(EstadoDocumento.DEV);
-                if (!Objects.isNull(respuestaProceso.getMensajes())) {
+                if (Objects.nonNull(respuestaProceso.getMensajes())) {
                     guia.setMensajes(respuestaProceso.getMensajes());
                 }
                 vtGuiasRepository.save(guia);
@@ -341,9 +356,16 @@ public class ProcesarDocumentosServiceImpl {
                             envioCorreoDto.setClaveAcceso(liquidacion.getClaveAcceso());
                             envioCorreoDto.setEmail(liquidacion.getEmail());
 
-                            Integer respuestaEnvioCorreo = procesarEnvioCorreo.enviarCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
-                            liquidacion.setEmailEstado(respuestaEnvioCorreo);
-                            respuestaProceso.setEmailEstado(respuestaEnvioCorreo);
+                            StCorreoRequestDto informacionCorreo = procesarEnvioCorreo.seterarRequestCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
+                            liquidacion.setEmailEstado(2);
+                            respuestaProceso.setEmailEstado(2);
+                            if (!informacionCorreo.getTo().isEmpty()) {
+                                if (datosEmpresaDto.getOrigenDatos().equals("WEB")) {
+                                    AdMailConfigEntity adConfigMailEntity = adConfigRepository.findByIdConfig(Long.valueOf(1));
+                                    String jsonBody = generarBody.generarBodyCorreo(informacionCorreo, adConfigMailEntity);
+                                    emailSender.send(jsonBody, adConfigMailEntity);
+                                }
+                            }
                         }
                     }
                 }
@@ -415,9 +437,16 @@ public class ProcesarDocumentosServiceImpl {
                             envioCorreoDto.setClaveAcceso(retencion.getClaveAcceso());
                             envioCorreoDto.setEmail(retencion.getEmail());
 
-                            Integer respuestaEnvioCorreo = procesarEnvioCorreo.enviarCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
-                            retencion.setEmailEstado(respuestaEnvioCorreo);
-                            respuestaProceso.setEmailEstado(respuestaEnvioCorreo);
+                            StCorreoRequestDto informacionCorreo = procesarEnvioCorreo.seterarRequestCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
+                            retencion.setEmailEstado(2);
+                            respuestaProceso.setEmailEstado(2);
+                            if (!informacionCorreo.getTo().isEmpty()) {
+                                if (datosEmpresaDto.getOrigenDatos().equals("WEB")) {
+                                    AdMailConfigEntity adConfigMailEntity = adConfigRepository.findByIdConfig(Long.valueOf(1));
+                                    String jsonBody = generarBody.generarBodyCorreo(informacionCorreo, adConfigMailEntity);
+                                    emailSender.send(jsonBody, adConfigMailEntity);
+                                }
+                            }
                         }
                     }
                 }

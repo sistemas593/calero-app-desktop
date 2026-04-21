@@ -1,9 +1,14 @@
 package com.calero.lili.core.comprobantesWs.services;
 
+import com.calero.lili.core.apiSitac.repositories.AdMailsConfigRepository;
+import com.calero.lili.core.apiSitac.repositories.entities.AdMailConfigEntity;
+import com.calero.lili.core.apiSitac.services.GenerarBody;
+import com.calero.lili.core.apiSitac.services.EmailSender;
 import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.EnvioCorreoDto;
 import com.calero.lili.core.comprobantesWs.dto.DatosEmpresaDto;
 import com.calero.lili.core.comprobantesWs.dto.FilterEmailDto;
 import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.core.modClientesConfiguraciones.dto.StCorreoRequestDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.CpLiquidacionesEntity;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.LiquidacionesRepository;
 import com.calero.lili.core.modCompras.modComprasRetenciones.ComprasRetencionesRepository;
@@ -28,8 +33,12 @@ public class ProcesarReenvioCorreoServiceImpl {
     private final LiquidacionesRepository liquidacionesRepository;
     private final ComprasRetencionesRepository comprasRetencionesRepository;
 
-    private final ProcesarEnvioCorreoServiceImpl procesarEnvioCorreoService;
+    private final SetearCorreoServiceImpl procesarEnvioCorreoService;
     private final BuscarDatosEmpresa buscarDatosEmpresa;
+    private final GenerarBody generarBody;
+    private final AdMailsConfigRepository adConfigRepository;
+    private final EmailSender emailSender;
+
     public void procesarVentasReenvioCorreo(Long idData, Long idEmpresa, UUID id, FilterEmailDto filter) {
 
         System.out.println("Reenviando correo");
@@ -37,7 +46,7 @@ public class ProcesarReenvioCorreoServiceImpl {
         DatosEmpresaDto datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(idData, idEmpresa);
 
         VtVentaEntity venta1 = vtVentaRepository.findByIdEntity(idData, idEmpresa, id, null, null).
-                orElseThrow(() -> new GeneralException(MessageFormat.format("Documento {0} no exists",  id )));
+                orElseThrow(() -> new GeneralException(MessageFormat.format("Documento {0} no exists", id)));
 
         EnvioCorreoDto envioCorreoDto = new EnvioCorreoDto();
         envioCorreoDto.setComprobante(venta1.getComprobante());
@@ -62,18 +71,21 @@ public class ProcesarReenvioCorreoServiceImpl {
         envioCorreoDto.setClaveAcceso(venta1.getClaveAcceso());
         envioCorreoDto.setEmail(filter.getCorreo());
 
-        procesarEnvioCorreoService.enviarCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
-
+        StCorreoRequestDto request = procesarEnvioCorreoService.seterarRequestCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
+        AdMailConfigEntity adConfigMailEntity = adConfigRepository.findByIdConfig(Long.valueOf(1));
+        String jsonBody = generarBody.generarBodyCorreo(request, adConfigMailEntity);
+        emailSender.send(jsonBody, adConfigMailEntity);
         System.out.println("Correo reenviado");
 
     }
-    public void procesarGuiasRemisionReenvioCorreo(Long idData, Long idEmpresa, UUID id,FilterEmailDto filter) {
+
+    public void procesarGuiasRemisionReenvioCorreo(Long idData, Long idEmpresa, UUID id, FilterEmailDto filter) {
 
         System.out.println("Reenviando correo");
         DatosEmpresaDto datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(idData, idEmpresa);
 
         VtGuiaEntity venta1 = vtGuiasRepository.findByIdEntity(idData, idEmpresa, id, null, null).
-                orElseThrow(() -> new GeneralException(MessageFormat.format("Documento {0} no exists",  id )));
+                orElseThrow(() -> new GeneralException(MessageFormat.format("Documento {0} no exists", id)));
 
         EnvioCorreoDto envioCorreoDto = new EnvioCorreoDto();
         envioCorreoDto.setComprobante(venta1.getComprobante());
@@ -87,19 +99,21 @@ public class ProcesarReenvioCorreoServiceImpl {
         envioCorreoDto.setClaveAcceso(venta1.getClaveAcceso());
         envioCorreoDto.setEmail(filter.getCorreo());
 
-        procesarEnvioCorreoService.enviarCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
-
+        StCorreoRequestDto request = procesarEnvioCorreoService.seterarRequestCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
+        AdMailConfigEntity adConfigMailEntity = adConfigRepository.findByIdConfig(Long.valueOf(1));
+        String jsonBody = generarBody.generarBodyCorreo(request, adConfigMailEntity);
+        emailSender.send(jsonBody, adConfigMailEntity);
         System.out.println("Correo reenviado");
 
     }
 
-    public void procesarLiquidacionesReenvioCorreo(Long idData, Long idEmpresa, UUID id,FilterEmailDto filter) {
+    public void procesarLiquidacionesReenvioCorreo(Long idData, Long idEmpresa, UUID id, FilterEmailDto filter) {
 
         System.out.println("Reenviando correo");
         DatosEmpresaDto datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(idData, idEmpresa);
 
         CpLiquidacionesEntity venta1 = liquidacionesRepository.findByIdEntity(idData, idEmpresa, id, null, null).
-                orElseThrow(() -> new GeneralException(MessageFormat.format("Documento {0} no exists",  id )));
+                orElseThrow(() -> new GeneralException(MessageFormat.format("Documento {0} no exists", id)));
 
         EnvioCorreoDto envioCorreoDto = new EnvioCorreoDto();
         envioCorreoDto.setComprobante(venta1.getComprobante());
@@ -113,8 +127,10 @@ public class ProcesarReenvioCorreoServiceImpl {
         envioCorreoDto.setClaveAcceso(venta1.getClaveAcceso());
         envioCorreoDto.setEmail(filter.getCorreo());
 
-        procesarEnvioCorreoService.enviarCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
-
+        StCorreoRequestDto request = procesarEnvioCorreoService.seterarRequestCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
+        AdMailConfigEntity adConfigMailEntity = adConfigRepository.findByIdConfig(Long.valueOf(1));
+        String jsonBody = generarBody.generarBodyCorreo(request, adConfigMailEntity);
+        emailSender.send(jsonBody, adConfigMailEntity);
         System.out.println("Correo reenviado");
 
     }
@@ -125,7 +141,7 @@ public class ProcesarReenvioCorreoServiceImpl {
         DatosEmpresaDto datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(idData, idEmpresa);
 
         CpRetencionesEntity venta1 = comprasRetencionesRepository.findByIdEntity(idData, idEmpresa, id, null, null).
-                orElseThrow(() -> new GeneralException(MessageFormat.format("Documento {0} no exists",  id )));
+                orElseThrow(() -> new GeneralException(MessageFormat.format("Documento {0} no exists", id)));
 
         EnvioCorreoDto envioCorreoDto = new EnvioCorreoDto();
         envioCorreoDto.setComprobante(venta1.getComprobante());
@@ -139,8 +155,10 @@ public class ProcesarReenvioCorreoServiceImpl {
         envioCorreoDto.setClaveAcceso(venta1.getClaveAcceso());
         envioCorreoDto.setEmail(filter.getCorreo());
 
-        procesarEnvioCorreoService.enviarCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
-
+        StCorreoRequestDto request = procesarEnvioCorreoService.seterarRequestCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
+        AdMailConfigEntity adConfigMailEntity = adConfigRepository.findByIdConfig(Long.valueOf(1));
+        String jsonBody = generarBody.generarBodyCorreo(request, adConfigMailEntity);
+        emailSender.send(jsonBody, adConfigMailEntity);
         System.out.println("Correo reenviado");
 
     }

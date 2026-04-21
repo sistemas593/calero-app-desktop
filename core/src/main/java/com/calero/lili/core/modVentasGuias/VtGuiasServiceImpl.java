@@ -17,7 +17,6 @@ import com.calero.lili.core.enums.TipoEmision;
 import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.enums.TipoTercero;
 import com.calero.lili.core.errors.exceptions.GeneralException;
-import com.calero.lili.core.errors.exceptions.NotFoundException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.modAdminEmpresas.projection.MomentoEnvioProjection;
 import com.calero.lili.core.modComprasItems.GeItemsRepository;
@@ -84,7 +83,7 @@ public class VtGuiasServiceImpl {
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa, CreationRequestGuiaRemisionDto request,
                                          String usuario, String origenCertificado) {
 
-        DateUtils.validarFechaEmision(request.getFechaEmision());
+        DateUtils.validarFechaEmisionGuia(request.getFechaEmision(), request.getFechaIniTransporte());
         Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData, idEmpresa, request.getSerie(), request.getSecuencial());
 
         if (existingFactura.isPresent()) {
@@ -127,11 +126,16 @@ public class VtGuiasServiceImpl {
 
             switch (origenCertificado) {
 
-                case "WEB" ->
-                        datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(saved.getIdData(), saved.getIdEmpresa());
+                case "WEB" -> {
 
-                case "LOC" ->
-                        datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(saved.getIdData(), saved.getIdEmpresa());
+                    datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(saved.getIdData(), saved.getIdEmpresa());
+                    datosEmpresaDto.setOrigenDatos(origenCertificado);
+                }
+
+                case "LOC" -> {
+                    datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(saved.getIdData(), saved.getIdEmpresa());
+                    datosEmpresaDto.setOrigenDatos(origenCertificado);
+                }
             }
 
             respuestaProcesoGetDto = procesarDocumentosService.procesarGuiaRemision(saved,

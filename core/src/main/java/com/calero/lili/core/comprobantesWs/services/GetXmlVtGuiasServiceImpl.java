@@ -61,7 +61,7 @@ public class GetXmlVtGuiasServiceImpl {
             throw new GeneralException("El documento con id {0} no esta autorizado " + id);
         }
 
-        String nombreArchivo = "GRM-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".xml";
+        String nombreArchivo = "GRM-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".pdf";
 
         switch (origenCertificado) {
 

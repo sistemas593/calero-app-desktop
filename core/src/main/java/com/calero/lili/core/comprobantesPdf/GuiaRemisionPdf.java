@@ -1,6 +1,9 @@
 package com.calero.lili.core.comprobantesPdf;
 
 import com.calero.lili.core.comprobantes.objetosXml.factura.CampoAdicional;
+import com.calero.lili.core.comprobantes.objetosXml.factura.DetAdicional;
+import com.calero.lili.core.comprobantes.objetosXml.guiaRemision.Destinatario;
+import com.calero.lili.core.comprobantes.objetosXml.guiaRemision.Detalle;
 import com.calero.lili.core.comprobantes.objetosXml.guiaRemision.GuiaRemision;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Element;
@@ -258,175 +261,249 @@ public class GuiaRemisionPdf {
 
             document.add(tabla1);
 
-            //////////////////////////////
-            // TABLA 2 iNFO FACTURA
+            // TABLA TRANSPORTISTA
 
-            PdfPTable table_datos = new PdfPTable(6);
-            table_datos.setWidthPercentage(100);
-            table_datos.setTableEvent(new BorderEventWithoutRadius());
+            PdfPTable table_transportista = new PdfPTable(4);
+            table_transportista.setWidthPercentage(100);
+            table_transportista.setTableEvent(new BorderEventWithoutRadius());
+            table_transportista.setSpacingBefore(5);
+            table_transportista.setSpacingAfter(5);
+
+            cell = generateCell(new Paragraph("Identificación (Transportista):", title), LEFT_PADDING_EMPRESA);
+            cell.setColspan(1);
+            table_transportista.addCell(cell);
+
+            cell = generateCell(new Paragraph(factura.getInfoGuiaRemision().getRucTransportista(), fuente), PADDING_NONE);
+            cell.setColspan(3);
+            table_transportista.addCell(cell);
 
             cell = generateCell(new Paragraph("Razón Social / Nombres y Apellidos:", title), LEFT_PADDING_EMPRESA);
-            cell.setPaddingBottom(5);
             cell.setColspan(1);
-            table_datos.addCell(cell);
+            table_transportista.addCell(cell);
 
-            cell = generateCell(new Paragraph("factura.getInfoGuiaRemision().getRazonSocialComprador()", fuente), PADDING_NONE);
-            cell.setColspan(5);
-            cell.setPaddingBottom(5);
-            cell.setPaddingLeft(-130);
-            table_datos.addCell(cell);
+            cell = generateCell(new Paragraph(factura.getInfoGuiaRemision().getRazonSocialTransportista(), fuente), PADDING_NONE);
+            cell.setColspan(3);
+            table_transportista.addCell(cell);
 
-
-            cell = generateCell(new Paragraph("Dirección Comprador:", title), LEFT_PADDING_EMPRESA);
-            cell.setPaddingBottom(5);
-            cell.setColspan(2);
-            table_datos.addCell(cell);
-
-            cell = generateCell(new Paragraph("factura.getInfoFactura().getDireccionComprador()", fuente), PADDING_NONE);
-            cell.setPaddingBottom(5);
-            cell.setColspan(4);
-            cell.setPaddingLeft(-70);
-            table_datos.addCell(cell);
-
-
-            cell = generateCell(new Paragraph("Fecha emision: ", title), LEFT_PADDING_EMPRESA);
-            cell.setPaddingBottom(15);
+            cell = generateCell(new Paragraph("Placa:", title), LEFT_PADDING_EMPRESA);
             cell.setColspan(1);
-            table_datos.addCell(cell);
+            table_transportista.addCell(cell);
 
-            cell = generateCell(new Paragraph("factura.getInfoGuiaRemision().getFechaEmision(),", fuente), PADDING_NONE);
+            cell = generateCell(new Paragraph(factura.getInfoGuiaRemision().getPlaca(), fuente), PADDING_NONE);
+            cell.setColspan(3);
+            table_transportista.addCell(cell);
+
+            cell = generateCell(new Paragraph("Punto de Partida:", title), LEFT_PADDING_EMPRESA);
             cell.setColspan(1);
-            cell.setPaddingBottom(15);
-            cell.setPaddingLeft(-20);
-            table_datos.addCell(cell);
+            table_transportista.addCell(cell);
 
+            cell = generateCell(new Paragraph(factura.getInfoGuiaRemision().getDirPartida(), fuente), PADDING_NONE);
+            cell.setColspan(3);
+            table_transportista.addCell(cell);
 
-            cell = generateCell(new Paragraph("RUC / C.I.:", title), LEFT_PADDING_EMPRESA);
-            cell.setPaddingBottom(5);
+            cell = generateCell(new Paragraph("Fecha inicio", title), LEFT_PADDING_EMPRESA);
             cell.setColspan(1);
-            table_datos.addCell(cell);
-
-            cell = generateCell(new Paragraph("factura.getInfoGuiaRemision().getIdentificacionComprador(),", fuente), PADDING_NONE);
-            cell.setColspan(1);
-            cell.setPaddingBottom(5);
-            cell.setPaddingLeft(-20);
-            table_datos.addCell(cell);
-
-
-            cell = generateCell(new Paragraph("Guia Remision: ", title), LEFT_PADDING_EMPRESA);
-            cell.setColspan(1);
-            cell.setPaddingBottom(15);
-            table_datos.addCell(cell);
-
-            cell = generateCell(new Paragraph("factura.getInfoGuiaRemision().getGuiaRemision(),", fuente), PADDING_NONE);
-            cell.setColspan(1);
-            cell.setPaddingBottom(15);
-            cell.setPaddingLeft(-20);
-            table_datos.addCell(cell);
-
-            table_datos.setSpacingBefore(5);
-            table_datos.setSpacingAfter(5);
-
-            document.add(table_datos);
-
-
-            /////////////////DETALLE TABLE 3
-
-            PdfPTable table_detalle = new PdfPTable(7);
-            table_detalle.setWidthPercentage(100);
-            table_detalle.setTableEvent(new BorderEventWithoutRadius());
-
-            cell = new PdfPCell(new Phrase("Código", title));
             cell.setPaddingBottom(10);
-            table_detalle.addCell(cell);
+            table_transportista.addCell(cell);
 
+            cell = generateCell(new Paragraph(factura.getInfoGuiaRemision().getFechaIniTransporte(), fuente), PADDING_NONE);
+            cell.setColspan(1);
+            cell.setPaddingBottom(10);
+            table_transportista.addCell(cell);
 
-            cell = new PdfPCell(new Phrase("Descripción", title));
-            cell.setColspan(2);
-            table_detalle.addCell(cell);
+            cell = generateCell(new Paragraph("Fecha fin Transporte:", title), LEFT_PADDING_EMPRESA);
+            cell.setColspan(1);
+            cell.setPaddingBottom(10);
+            table_transportista.addCell(cell);
 
+            cell = generateCell(new Paragraph(factura.getInfoGuiaRemision().getFechaFinTransporte(), fuente), PADDING_NONE);
+            cell.setColspan(1);
+            cell.setPaddingBottom(10);
+            table_transportista.addCell(cell);
 
-            cell = new PdfPCell(new Phrase("Cantidad", title));
-            cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-            table_detalle.addCell(cell);
+            document.add(table_transportista);
 
+            // DESTINATARIOS
+            List<Destinatario> destinatarios = factura.getDestinatario();
+            if (destinatarios != null) {
+                for (Destinatario dest : destinatarios) {
 
-            cell = new PdfPCell(new Phrase("Precio Unitario", title));
-            cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-            table_detalle.addCell(cell);
+                    PdfPTable table_destinatario = new PdfPTable(4);
+                    table_destinatario.setWidthPercentage(100);
+                    table_destinatario.setTableEvent(new BorderEventWithoutRadius());
+                    table_destinatario.setSpacingBefore(5);
+                    table_destinatario.setSpacingAfter(5);
 
+                    cell = generateCell(new Paragraph("Comprobante de Venta:", title), LEFT_PADDING_EMPRESA);
+                    cell.setColspan(1);
+                    table_destinatario.addCell(cell);
 
-            cell = new PdfPCell(new Phrase("Descuento", title));
-            cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-            table_detalle.addCell(cell);
+                    cell = generateCell(new Paragraph(dest.getNumDocSustento() != null ? dest.getNumDocSustento() : "", fuente), PADDING_NONE);
+                    cell.setColspan(1);
+                    table_destinatario.addCell(cell);
 
+                    cell = generateCell(new Paragraph("Fecha de Emisión:", title), LEFT_PADDING_EMPRESA);
+                    cell.setColspan(1);
+                    table_destinatario.addCell(cell);
 
-            cell = new PdfPCell(new Phrase("Precio Total", title));
-            cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-            table_detalle.addCell(cell);
+                    cell = generateCell(new Paragraph(dest.getFechaEmisionDocSustento() != null ? dest.getFechaEmisionDocSustento() : "", fuente), PADDING_NONE);
+                    cell.setColspan(1);
+                    table_destinatario.addCell(cell);
 
-/*
-            List<Detalle> lista1 = factura.getDetalle();
-            for (Detalle det : lista1) {
+                    cell = generateCell(new Paragraph("Número de Autorización:", title), LEFT_PADDING_EMPRESA);
+                    cell.setColspan(1);
+                    table_destinatario.addCell(cell);
 
-                cell = new PdfPCell(new Phrase(det.getCodigoPrincipal(), fuente));
-                cell.setPaddingBottom(5);
-                table_detalle.addCell(cell);
+                    cell = generateCell(new Paragraph(dest.getNumAutDocSustento() != null ? dest.getNumAutDocSustento() : "", fuente), PADDING_NONE);
+                    cell.setColspan(3);
+                    table_destinatario.addCell(cell);
 
+                    cell = generateCell(new Paragraph("", fuente), PADDING_NONE);
+                    cell.setColspan(4);
+                    table_destinatario.addCell(cell);
 
-                cell = new PdfPCell(new Phrase(det.getDescripcion().toUpperCase(), fuente));
-                cell.setColspan(2);
-                table_detalle.addCell(cell);
+                    cell = generateCell(new Paragraph("Motivo Traslado:", title), LEFT_PADDING_EMPRESA);
+                    cell.setColspan(1);
+                    table_destinatario.addCell(cell);
 
+                    cell = generateCell(new Paragraph(dest.getMotivoTraslado() != null ? dest.getMotivoTraslado() : "", fuente), PADDING_NONE);
+                    cell.setColspan(3);
+                    table_destinatario.addCell(cell);
 
-                cell = new PdfPCell(new Phrase(det.getCantidad(), fuente));
-                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-                table_detalle.addCell(cell);
+                    cell = generateCell(new Paragraph("Destino(Punto de llegada):", title), LEFT_PADDING_EMPRESA);
+                    cell.setColspan(1);
+                    table_destinatario.addCell(cell);
 
+                    cell = generateCell(new Paragraph(dest.getDirDestinatario() != null ? dest.getDirDestinatario() : "", fuente), PADDING_NONE);
+                    cell.setColspan(3);
+                    table_destinatario.addCell(cell);
 
-                cell = new PdfPCell(new Phrase(det.getPrecioUnitario(), fuente));
-                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-                table_detalle.addCell(cell);
+                    cell = generateCell(new Paragraph("Identificación (Destinatario):", title), LEFT_PADDING_EMPRESA);
+                    cell.setColspan(1);
+                    table_destinatario.addCell(cell);
 
+                    cell = generateCell(new Paragraph(dest.getIdentificacionDestinatario() != null ? dest.getIdentificacionDestinatario() : "", fuente), PADDING_NONE);
+                    cell.setColspan(3);
+                    table_destinatario.addCell(cell);
 
-                cell = new PdfPCell(new Phrase(det.getDescuento(), fuente));
-                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-                table_detalle.addCell(cell);
+                    cell = generateCell(new Paragraph("Razón Social/Nombres Apellidos:", title), LEFT_PADDING_EMPRESA);
+                    cell.setColspan(1);
+                    table_destinatario.addCell(cell);
 
+                    cell = generateCell(new Paragraph(dest.getRazonSocialDestinatario() != null ? dest.getRazonSocialDestinatario() : "", fuente), PADDING_NONE);
+                    cell.setColspan(3);
+                    table_destinatario.addCell(cell);
 
-                cell = new PdfPCell(new Phrase(det.getPrecioTotalSinImpuesto(), fuente));
-                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-                table_detalle.addCell(cell);
-                table_detalle.setSpacingAfter(5);
+                    cell = generateCell(new Paragraph("Documento Aduanero:", title), LEFT_PADDING_EMPRESA);
+                    cell.setColspan(1);
+                    table_destinatario.addCell(cell);
+
+                    cell = generateCell(new Paragraph(dest.getDocAduaneroUnico() != null ? dest.getDocAduaneroUnico() : "", fuente), PADDING_NONE);
+                    cell.setColspan(3);
+                    table_destinatario.addCell(cell);
+
+                    cell = generateCell(new Paragraph("Código Establecimiento Destino:", title), LEFT_PADDING_EMPRESA);
+                    cell.setColspan(1);
+                    table_destinatario.addCell(cell);
+
+                    cell = generateCell(new Paragraph(dest.getCodEstabDestino() != null ? dest.getCodEstabDestino() : "", fuente), PADDING_NONE);
+                    cell.setColspan(3);
+                    table_destinatario.addCell(cell);
+
+                    cell = generateCell(new Paragraph("Ruta:", title), LEFT_PADDING_EMPRESA);
+                    cell.setColspan(1);
+                    cell.setPaddingBottom(10);
+                    table_destinatario.addCell(cell);
+
+                    cell = generateCell(new Paragraph(dest.getRuta() != null ? dest.getRuta() : "", fuente), PADDING_NONE);
+                    cell.setColspan(3);
+                    cell.setPaddingBottom(10);
+                    table_destinatario.addCell(cell);
+
+                    document.add(table_destinatario);
+
+                    // DETALLE
+                    PdfPTable table_detalle = new PdfPTable(5);
+                    table_detalle.setWidthPercentage(100);
+                    table_detalle.setTableEvent(new BorderEventWithoutRadius());
+                    table_detalle.setSpacingAfter(5);
+
+                    cell = new PdfPCell(new Phrase("Cantidad", title));
+                    cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    cell.setPaddingBottom(10);
+                    table_detalle.addCell(cell);
+
+                    cell = new PdfPCell(new Phrase("Descripción", title));
+                    cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table_detalle.addCell(cell);
+
+                    cell = new PdfPCell(new Phrase("Detalle Adicional", title));
+                    cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table_detalle.addCell(cell);
+
+                    cell = new PdfPCell(new Phrase("Código Principal", title));
+                    cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table_detalle.addCell(cell);
+
+                    cell = new PdfPCell(new Phrase("Código Auxiliar", title));
+                    cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table_detalle.addCell(cell);
+
+                    List<Detalle> detalles = dest.getDetalle();
+                    if (detalles != null) {
+                        for (Detalle det : detalles) {
+                            cell = new PdfPCell(new Phrase(det.getCantidad() != null ? det.getCantidad() : "", fuente));
+                            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                            cell.setPaddingBottom(5);
+                            table_detalle.addCell(cell);
+
+                            cell = new PdfPCell(new Phrase(det.getDescripcion() != null ? det.getDescripcion() : "", fuente));
+                            table_detalle.addCell(cell);
+
+                            String detAdicionalText = "";
+                            if (det.getDetAdicional() != null) {
+                                StringBuilder sb = new StringBuilder();
+                                for (DetAdicional da : det.getDetAdicional()) {
+                                    if (da.getValor() != null) {
+                                        if (sb.length() > 0) sb.append(", ");
+                                        sb.append(da.getValor());
+                                    }
+                                }
+                                detAdicionalText = sb.toString();
+                            }
+                            cell = new PdfPCell(new Phrase(detAdicionalText, fuente));
+                            table_detalle.addCell(cell);
+
+                            cell = new PdfPCell(new Phrase(det.getCodigoInterno() != null ? det.getCodigoInterno() : "", fuente));
+                            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                            table_detalle.addCell(cell);
+
+                            cell = new PdfPCell(new Phrase(det.getCodigoAdicional() != null ? det.getCodigoAdicional() : "", fuente));
+                            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                            table_detalle.addCell(cell);
+                        }
+                    }
+                    document.add(table_detalle);
+                }
             }
 
-            document.add(table_detalle);
-
-
- */
-            //////////////////
-
-            PdfPTable table3 = new PdfPTable(2);
-            table3.setWidthPercentage(100);
-
+            // INFORMACIÓN ADICIONAL
             PdfPTable table_info_adic = new PdfPTable(2);
             table_info_adic.setWidthPercentage(100);
             table_info_adic.setTableEvent(new BorderEventWithoutRadius());
             table_info_adic.setHorizontalAlignment(Element.ALIGN_LEFT);
             table_info_adic.setSpacingAfter(5);
+
             cell = new PdfPCell(new Paragraph("Información Adicional", title));
             cell.setPaddingLeft(LEFT_PADDING_DOCUMENTO);
-
-
-
             cell.setColspan(2);
             table_info_adic.addCell(cell);
+
             List<CampoAdicional> lstCamposAdicionales = factura.getCampoAdicional();
             if (lstCamposAdicionales != null) {
                 for (int pos = 0; pos < lstCamposAdicionales.size(); pos++) {
                     if (lstCamposAdicionales.get(pos).getNombre() != null && lstCamposAdicionales.get(pos).getValor() != null) {
                         cell = generateCell(new Paragraph(lstCamposAdicionales.get(pos).getNombre() + ":", title), LEFT_PADDING_EMPRESA);
-
                         if (pos == lstCamposAdicionales.size() - 1)
                             cell.setPaddingBottom(20);
                         table_info_adic.addCell(cell);
@@ -437,192 +514,8 @@ public class GuiaRemisionPdf {
                     }
                 }
             }
-            PdfPTable tableIntermedia = new PdfPTable(1);
-            tableIntermedia.setWidthPercentage(100);
+            document.add(table_info_adic);
 
-            cell = new PdfPCell();
-            cell.addElement(table_info_adic);
-            cell.setBorder(0);
-            cell.setPaddingLeft(0);
-
-            tableIntermedia.addCell(cell);
-
-
-            // AGREGAMOS TABLA DE PAGOS
-
-            PdfPTable table_pagos = new PdfPTable(3);
-            table_pagos.setWidthPercentage(100);
-            table_pagos.setHorizontalAlignment(Element.ALIGN_LEFT);
-            table_pagos.setTableEvent(new BorderEventWithoutRadius());
-
-            cell = new PdfPCell(new Phrase("Forma de pago", title));
-            cell.setColspan(2);
-            cell.setPaddingBottom(10);
-            table_pagos.addCell(cell);
-
-            cell = new PdfPCell(new Phrase("Valor", title));
-            cell.setColspan(1);
-            table_pagos.addCell(cell);
-
-            /*
-            List<Pago> lstFormasPago = factura.getInfoGuiaRemision().getPago();
-
-            if (lstCamposAdicionales != null) {
-                for (Pago pag : lstFormasPago) {
-                    cell = new PdfPCell(new Phrase(pag.getFormaPago().toUpperCase(), fuentePagos));
-                    cell.setColspan(2);
-                    table_pagos.addCell(cell);
-
-                    cell = new PdfPCell(new Phrase(pag.getTotal(), fuentePagos));
-                    cell.setColspan(1);
-                    table_pagos.addCell(cell);
-                }
-            }
-
-
-             */
-            cell = new PdfPCell();
-            cell.addElement(table_pagos);
-            cell.setBorder(0);
-            cell.setPaddingLeft(0);
-
-            tableIntermedia.addCell(cell);
-
-            //
-
-            cell = new PdfPCell();
-            cell.addElement(tableIntermedia);
-            cell.setBorder(0);
-
-            table3.addCell(cell);
-
-
-            /////
-
-            /*
-            PdfPTable table_totales = new PdfPTable(3);
-            table_totales.setWidthPercentage(80);
-            table_totales.setHorizontalAlignment(Element.ALIGN_RIGHT);
-
-            InfoGuiaRemision infoGuiaRemision = factura.getInfoGuiaRemision();
-            List<TotalImpuesto> totalImpuestos = "";
-            TotalImpuesto subTotal0 = null;
-            TotalImpuesto subTotal12 = null;
-
-            if (totalImpuestos != null && !totalImpuestos.isEmpty()) {
-                subTotal0 = totalImpuestos.stream()
-                        .filter(imp -> imp.getCodigoPorcentaje().equals("0") && imp.getCodigo().equals("2"))
-                        .findAny()
-                        .orElse(null);
-
-                subTotal12 = totalImpuestos.stream()
-                        .filter(imp -> imp.getCodigoPorcentaje().equals("2") && imp.getCodigo().equals("2"))
-                        .findAny()
-                        .orElse(null);
-
-            }
-
-            cell = new PdfPCell(new Phrase("SUBTOTAL 12%:", title));
-            cell.setPaddingBottom(5);
-            cell.setColspan(2);
-            table_totales.addCell(cell);
-
-            if (subTotal12 != null)
-                cell = new PdfPCell(new Phrase(subTotal12.getValor(), fuente));
-            else
-                cell = new PdfPCell(new Phrase("0.00", fuente));
-            cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-            table_totales.addCell(cell);
-
-
-            cell = new PdfPCell(new Phrase("SUBTOTAL 0%:", title));
-            cell.setPaddingBottom(5);
-            cell.setColspan(2);
-            table_totales.addCell(cell);
-            if (subTotal0 != null)
-                cell = new PdfPCell(new Phrase(subTotal0.getValor(), fuente));
-            else
-                cell = new PdfPCell(new Phrase("0.00", fuente));
-            cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-            table_totales.addCell(cell);
-
-
-            cell = new PdfPCell(new Phrase("SUBTOTAL SIN IMPUESTOS:", title));
-            cell.setPaddingBottom(5);
-            cell.setColspan(2);
-            table_totales.addCell(cell);
-            cell = new PdfPCell(new Phrase(infoFactura.getTotalSinImpuestos(), fuente));
-            cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-            table_totales.addCell(cell);
-
-
-            cell = new PdfPCell(new Phrase("TOTAL DESCUENTO:", title));
-            cell.setPaddingBottom(5);
-            cell.setColspan(2);
-            table_totales.addCell(cell);
-            cell = new PdfPCell(new Phrase(infoFactura.getTotalDescuento(), fuente));
-            cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-            table_totales.addCell(cell);
-
-
-            cell = new PdfPCell(new Phrase("ICE:", title));
-            cell.setPaddingBottom(5);
-            cell.setColspan(2);
-            table_totales.addCell(cell);
-            cell = new PdfPCell(new Phrase("0.00", fuente));
-            cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-            table_totales.addCell(cell);
-
-
-            cell = new PdfPCell(new Phrase("IVA 12%:", title));
-            cell.setPaddingBottom(5);
-            cell.setColspan(2);
-            table_totales.addCell(cell);
-            if (subTotal12 != null)
-                cell = new PdfPCell(new Phrase(subTotal12.getValor(), fuente));
-            else
-                cell = new PdfPCell(new Phrase("0.00", fuente));
-            cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-            table_totales.addCell(cell);
-
-
-            cell = new PdfPCell(new Phrase("IRBPNR:", title));
-            cell.setPaddingBottom(5);
-            cell.setColspan(2);
-            table_totales.addCell(cell);
-            cell = new PdfPCell(new Phrase("0.00", fuente));
-            cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-            table_totales.addCell(cell);
-
-
-            cell = new PdfPCell(new Phrase("PROPINA:", title));
-            cell.setPaddingBottom(5);
-            cell.setColspan(2);
-            table_totales.addCell(cell);
-            cell = new PdfPCell(new Phrase(infoFactura.getPropina(), fuente));
-            cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-            table_totales.addCell(cell);
-
-
-            cell = new PdfPCell(new Phrase("VALOR TOTAL:", title));
-            cell.setPaddingBottom(5);
-            cell.setColspan(2);
-            table_totales.addCell(cell);
-            cell = new PdfPCell(new Phrase(infoFactura.getImporteTotal(), fuente));
-            cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-            table_totales.addCell(cell);
-
-            cell = new PdfPCell();
-            cell.addElement(table_totales);
-            cell.setBorder(0);
-            cell.setPaddingRight(0);
-
-            table3.addCell(cell);
-
-            document.add(table3);
-
-
-             */
             document.close();
             return byteArrayOutputStream.toByteArray();
 

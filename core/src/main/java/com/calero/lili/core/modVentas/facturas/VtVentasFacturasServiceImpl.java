@@ -175,11 +175,15 @@ public class VtVentasFacturasServiceImpl {
 
             switch (origenCertificado) {
 
-                case "WEB" ->
-                        datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(saved.getIdData(), saved.getIdEmpresa());
+                case "WEB" -> {
+                    datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(saved.getIdData(), saved.getIdEmpresa());
+                    datosEmpresaDto.setOrigenDatos(origenCertificado);
+                }
 
-                case "LOC" ->
-                        datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(saved.getIdData(), saved.getIdEmpresa());
+                case "LOC" -> {
+                    datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(saved.getIdData(), saved.getIdEmpresa());
+                    datosEmpresaDto.setOrigenDatos(origenCertificado);
+                }
             }
 
             respuestaProcesoGetDto = procesarDocumentosService.procesarFacNcNd(saved,
@@ -988,6 +992,7 @@ public class VtVentasFacturasServiceImpl {
 
     public void procesarUnaFactura(Long idData, Long idEmpresa, VtVentaEntity factura) {
         DatosEmpresaDto datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(idData, idEmpresa);
+        datosEmpresaDto.setOrigenDatos("LOC");
         AdLogsRequestDto log = adLogsBuilder.builderVentasDocumentos(factura, Boolean.FALSE);
         procesarDocumentosService.procesarFacNcNd(factura, log, datosEmpresaDto);
     }

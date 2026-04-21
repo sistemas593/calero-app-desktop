@@ -114,11 +114,16 @@ public class ComprasRetencionesServiceImpl {
 
             switch (origenCertificado) {
 
-                case "WEB" ->
-                        datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(saved.getIdData(), saved.getIdEmpresa());
+                case "WEB" -> {
 
-                case "LOC" ->
-                        datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(saved.getIdData(), saved.getIdEmpresa());
+                    datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(saved.getIdData(), saved.getIdEmpresa());
+                    datosEmpresaDto.setOrigenDatos(origenCertificado);
+                }
+
+                case "LOC" -> {
+                    datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(saved.getIdData(), saved.getIdEmpresa());
+                    datosEmpresaDto.setOrigenDatos(origenCertificado);
+                }
             }
 
             respuestaProcesoGetDto = procesarDocumentosService.procesarComprobanteRetencion(saved,

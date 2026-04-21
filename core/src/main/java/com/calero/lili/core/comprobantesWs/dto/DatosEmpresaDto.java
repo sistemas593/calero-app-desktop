@@ -20,4 +20,5 @@ public class DatosEmpresaDto {
     private int momentoEnvioGuiaRemision;
     private int momentoEnvioLiquidacion;
     private int momentoEnvioComprobanteRetencion;
+    private String origenDatos;
 }

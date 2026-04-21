@@ -23,7 +23,7 @@ public class VtGuiaDetalleBuilder {
 
     private VtGuiaDetalleEntity builderDetalle(CreationRequestGuiaRemisionDto.DetailGuiaRemisionDto model, Long idData, Long idEmpresa) {
         return VtGuiaDetalleEntity.builder()
-                .idGuiaDetalle(model.getIdItem())
+                .idGuiaDetalle(UUID.randomUUID())
                 .idData(idData)
                 .idEmpresa(idEmpresa)
                 .codigoPrincipal(model.getCodigoPrincipal())

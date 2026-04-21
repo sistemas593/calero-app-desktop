@@ -1,6 +1,5 @@
 package com.calero.lili.core.comprobantesWs.services;
 
-import com.calero.lili.core.apiSitac.services.EmailPrepare;
 import com.calero.lili.core.comprobantes.objetosXml.autorizacionFile.Autorizacion;
 import com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencion.ComprobanteRetencion;
 import com.calero.lili.core.comprobantes.objetosXml.factura.Factura;
@@ -16,7 +15,6 @@ import com.calero.lili.core.comprobantesPdf.NotaCreditoPdf;
 import com.calero.lili.core.comprobantesPdf.NotaDebitoPdf;
 import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.EnvioCorreoDto;
 import com.calero.lili.core.modClientesConfiguraciones.dto.StCorreoRequestDto;
-import com.calero.lili.core.modVentas.VtVentasRepository;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
@@ -32,9 +30,8 @@ import java.util.Base64;
 @Service
 @RequiredArgsConstructor
 
-public class ProcesarEnvioCorreoServiceImpl {
-    private final VtVentasRepository vtVentaRepository;
-    private final EmailPrepare emailPrepare;
+public class SetearCorreoServiceImpl {
+
     private final FacturaPdf facturaPdf;
     private final NotaCreditoPdf notaCreditoPdf;
     private final NotaDebitoPdf notaDebitoPdf;
@@ -45,7 +42,7 @@ public class ProcesarEnvioCorreoServiceImpl {
 
 
     @Transactional
-    public Integer enviarCorreo(EnvioCorreoDto envioCorreoDto, byte[] imageBytes) {
+    public StCorreoRequestDto seterarRequestCorreo(EnvioCorreoDto envioCorreoDto, byte[] imageBytes) {
 
         StCorreoRequestDto request = new StCorreoRequestDto();
 
@@ -222,9 +219,9 @@ public class ProcesarEnvioCorreoServiceImpl {
         request.setFechaEmision(envioCorreoDto.getFechaEmision());
         request.setClaveAcceso(envioCorreoDto.getClaveAcceso());
         request.setTo(envioCorreoDto.getEmail());
-        emailPrepare.prepare(request);
+
         //venta.setEmailEstado("1");
         //vtVentaRepository.save(venta);
-        return 2;
+        return request;
     }
 }
