@@ -79,7 +79,7 @@ public class VtVentasPersistenceService {
         VtVentaEntity saved = vtVentaRepository.save(notaCredito);
 
         AdEmpresasSeriesDocumentosEntity documentosEntity = adEmpresasSeriesDocumentosRepository
-                .findBySerieAndDocumento(idData, idEmpresa, request.getSerie(), TipoVenta.NCR.name())
+                .findBySerieAndDocumento(idData, idEmpresa, request.getSerie(), TipoVenta.NDB.name())
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Serie {0}, documento {1} no existe", request.getSerie(), TipoVenta.NCR.name())));
 
         int nuevo = Integer.parseInt(request.getSecuencial()) + 1;
