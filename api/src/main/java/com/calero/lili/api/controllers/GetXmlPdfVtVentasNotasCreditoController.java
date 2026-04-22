@@ -1,9 +1,9 @@
 package com.calero.lili.api.controllers;
 
 import com.calero.lili.api.utils.IdDataServiceImpl;
-import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.CpComprasXMLLiquidacionesGetDto;
+import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.VtVentasXMLNotaCreditoGetDto;
 import com.calero.lili.core.comprobantesWs.dto.ArchivoDto;
-import com.calero.lili.core.comprobantesWs.services.GetXmlLiquidacionesServiceImpl;
+import com.calero.lili.core.comprobantesWs.services.GetXmlVtVentasNotasCreditoServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -21,28 +21,27 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
-@RequestMapping(value = "api/v1.0/liquidaciones")
+@RequestMapping(value = "api/v1.0/ventas")
 @RequiredArgsConstructor
 @CrossOrigin(originPatterns = "*")
 
-public class GetXmlLiquidacionesController {
-
-    private final GetXmlLiquidacionesServiceImpl vtVentasService;
+public class GetXmlPdfVtVentasNotasCreditoController {
+    private final GetXmlVtVentasNotasCreditoServiceImpl vtVentasService;
     private final IdDataServiceImpl idDataService;
 
-    @GetMapping("xml/{idEmpresa}/{idRecibida}")
+    @GetMapping("notas-credito/xml/{idEmpresa}/{idRecibida}")
     @ResponseStatus(HttpStatus.OK)
-    public CpComprasXMLLiquidacionesGetDto findXMLLiquidacionById(@PathVariable("idEmpresa") Long idEmpresa,
-                                                                  @PathVariable("idRecibida") UUID idRecibida) {
-        return vtVentasService.findXMLLiquidaccionById(idDataService.getIdData(), idEmpresa, idRecibida);
+    public VtVentasXMLNotaCreditoGetDto findXMLNotaCreditoById(@PathVariable("idEmpresa") Long idEmpresa,
+                                                               @PathVariable("idRecibida") UUID idRecibida) {
+        return vtVentasService.findXMLNotaCreditoById(idDataService.getIdData(), idEmpresa, idRecibida);
     }
 
 
-    @GetMapping("descargar-pdf/{idEmpresa}/{idRecibida}")
-    public ResponseEntity<byte[]> descargarPdfFactura(@PathVariable("idEmpresa") Long idEmpresa,
-                                                      @PathVariable("idRecibida") UUID idRecibida) {
+    @GetMapping("notas-credito/descargar-pdf/{idEmpresa}/{idRecibida}")
+    public ResponseEntity<byte[]> descargarPdfNotaCredito(@PathVariable("idEmpresa") Long idEmpresa,
+                                                          @PathVariable("idRecibida") UUID idRecibida) {
 
-        ArchivoDto datos = vtVentasService.findPDFLiquidacionById(idDataService.getIdData(), idEmpresa, idRecibida, "WEB");
+        ArchivoDto datos = vtVentasService.findPDFNotaCreditoById(idDataService.getIdData(), idEmpresa, idRecibida, "WEB"); // tu byte[]
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + datos.getNombre())
@@ -52,12 +51,12 @@ public class GetXmlLiquidacionesController {
     }
 
 
-    @GetMapping("descargar-xml/{idEmpresa}/{idRecibida}")
-    public ResponseEntity<byte[]> descargarXmlFactura(@PathVariable("idEmpresa") Long idEmpresa,
-                                                      @PathVariable("idRecibida") UUID idRecibida) {
+    @GetMapping("notas-credito/descargar-xml/{idEmpresa}/{idRecibida}")
+    public ResponseEntity<byte[]> descargarXmlNotaCredito(@PathVariable("idEmpresa") Long idEmpresa,
+                                                          @PathVariable("idRecibida") UUID idRecibida) {
 
 
-        ArchivoDto datos = vtVentasService.findFileXMLLiquidacion(idDataService.getIdData(), idEmpresa, idRecibida);
+        ArchivoDto datos = vtVentasService.findFileXMLNotaCredito(idDataService.getIdData(), idEmpresa, idRecibida); // tu byte[]
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + datos.getNombre())
@@ -65,6 +64,5 @@ public class GetXmlLiquidacionesController {
                 .contentLength(datos.getContenido().length)
                 .body(datos.getContenido());
     }
-
 
 }

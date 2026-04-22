@@ -1,9 +1,9 @@
 package com.calero.lili.api.controllers;
 
 import com.calero.lili.api.utils.IdDataServiceImpl;
-import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.CpComprasXMLRetencionGetDto;
+import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.CpComprasXMLLiquidacionesGetDto;
 import com.calero.lili.core.comprobantesWs.dto.ArchivoDto;
-import com.calero.lili.core.comprobantesWs.services.GetXmlComprasRetencionesServiceImpl;
+import com.calero.lili.core.comprobantesWs.services.GetXmlLiquidacionesServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -21,20 +21,20 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
-@RequestMapping(value = "api/v1.0/compras/comprobantes-retencion")
+@RequestMapping(value = "api/v1.0/liquidaciones")
 @RequiredArgsConstructor
 @CrossOrigin(originPatterns = "*")
 
-public class GetXmlComprasRetencionesController {
+public class GetXmlPdfLiquidacionesController {
 
-    private final GetXmlComprasRetencionesServiceImpl vtVentasService;
+    private final GetXmlLiquidacionesServiceImpl vtVentasService;
     private final IdDataServiceImpl idDataService;
 
     @GetMapping("xml/{idEmpresa}/{idRecibida}")
     @ResponseStatus(HttpStatus.OK)
-    public CpComprasXMLRetencionGetDto findXMLRetencionById(@PathVariable("idEmpresa") Long idEmpresa,
-                                                            @PathVariable("idRecibida") UUID idRecibida) {
-        return vtVentasService.findXMLRetencionById(idDataService.getIdData(), idEmpresa, idRecibida);
+    public CpComprasXMLLiquidacionesGetDto findXMLLiquidacionById(@PathVariable("idEmpresa") Long idEmpresa,
+                                                                  @PathVariable("idRecibida") UUID idRecibida) {
+        return vtVentasService.findXMLLiquidaccionById(idDataService.getIdData(), idEmpresa, idRecibida);
     }
 
 
@@ -42,7 +42,7 @@ public class GetXmlComprasRetencionesController {
     public ResponseEntity<byte[]> descargarPdfFactura(@PathVariable("idEmpresa") Long idEmpresa,
                                                       @PathVariable("idRecibida") UUID idRecibida) {
 
-        ArchivoDto datos = vtVentasService.findPDFRetencionById(idDataService.getIdData(), idEmpresa, idRecibida, "WEB");
+        ArchivoDto datos = vtVentasService.findPDFLiquidacionById(idDataService.getIdData(), idEmpresa, idRecibida, "WEB");
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + datos.getNombre())
@@ -57,7 +57,7 @@ public class GetXmlComprasRetencionesController {
                                                       @PathVariable("idRecibida") UUID idRecibida) {
 
 
-        ArchivoDto datos = vtVentasService.findFileXMLRetencion(idDataService.getIdData(), idEmpresa, idRecibida);
+        ArchivoDto datos = vtVentasService.findFileXMLLiquidacion(idDataService.getIdData(), idEmpresa, idRecibida);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + datos.getNombre())
@@ -65,5 +65,6 @@ public class GetXmlComprasRetencionesController {
                 .contentLength(datos.getContenido().length)
                 .body(datos.getContenido());
     }
+
 
 }

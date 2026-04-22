@@ -1,9 +1,9 @@
 package com.calero.lili.api.controllers;
 
 import com.calero.lili.api.utils.IdDataServiceImpl;
-import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.VtVentasXMLRetencionGetDto;
+import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.VtVentasXMLFacturaGetDto;
 import com.calero.lili.core.comprobantesWs.dto.ArchivoDto;
-import com.calero.lili.core.comprobantesWs.services.GetXmlVentasRetencionesServiceImpl;
+import com.calero.lili.core.comprobantesWs.services.GetXmlVtVentasFacturasServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -21,28 +21,27 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
-@RequestMapping(value = "api/v1.0/ventas/comprobantes-retencion")
+@RequestMapping(value = "api/v1.0/ventas")
 @RequiredArgsConstructor
 @CrossOrigin(originPatterns = "*")
 
-public class GetXmlVentasRetencionesController {
-
-    private final GetXmlVentasRetencionesServiceImpl vtVentasService;
+public class GetXmlPdfVtVentasFacturasController {
+    private final GetXmlVtVentasFacturasServiceImpl vtVentasService;
     private final IdDataServiceImpl idDataService;
 
-
-    @GetMapping("xml/{idEmpresa}/{idRecibida}")
+    @GetMapping("facturas/xml/{idEmpresa}/{idRecibida}")
     @ResponseStatus(HttpStatus.OK)
-    public VtVentasXMLRetencionGetDto findXMLRetencionById(@PathVariable("idEmpresa") Long idEmpresa,
-                                                           @PathVariable("idRecibida") UUID idRecibida) {
-        return vtVentasService.findXMLRetencionById(idDataService.getIdData(), idEmpresa, idRecibida);
+    public VtVentasXMLFacturaGetDto findXMLFacturaById(@PathVariable("idEmpresa") Long idEmpresa,
+                                                       @PathVariable("idRecibida") UUID idRecibida) {
+        System.out.println("Obtener XML");
+        return vtVentasService.findXMLFacturaById(idDataService.getIdData(), idEmpresa, idRecibida);
     }
 
-    @GetMapping("descargar-pdf/{idEmpresa}/{idRecibida}")
+    @GetMapping("facturas/descargar-pdf/{idEmpresa}/{idRecibida}")
     public ResponseEntity<byte[]> descargarPdfFactura(@PathVariable("idEmpresa") Long idEmpresa,
                                                       @PathVariable("idRecibida") UUID idRecibida) {
 
-        ArchivoDto datos = vtVentasService.findPDFRetencionById(idDataService.getIdData(), idEmpresa, idRecibida, "WEB");
+        ArchivoDto datos = vtVentasService.findPDFFacturaById(idDataService.getIdData(), idEmpresa, idRecibida, "WEB"); // tu byte[]
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + datos.getNombre())
@@ -52,12 +51,13 @@ public class GetXmlVentasRetencionesController {
     }
 
 
-    @GetMapping("descargar-xml/{idEmpresa}/{idRecibida}")
+    @GetMapping("facturas/descargar-xml/{idEmpresa}/{idRecibida}")
     public ResponseEntity<byte[]> descargarXmlFactura(@PathVariable("idEmpresa") Long idEmpresa,
                                                       @PathVariable("idRecibida") UUID idRecibida) {
 
 
-        ArchivoDto datos = vtVentasService.findFileXMLRetencion(idDataService.getIdData(), idEmpresa, idRecibida);
+        // nombre en base al tipo de documento FAC-SERIE-SECUENCIAL
+        ArchivoDto datos = vtVentasService.findFileXMLFactura(idDataService.getIdData(), idEmpresa, idRecibida); // tu byte[]
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + datos.getNombre())

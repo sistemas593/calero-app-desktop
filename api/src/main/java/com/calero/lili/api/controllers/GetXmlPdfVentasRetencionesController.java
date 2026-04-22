@@ -1,9 +1,9 @@
 package com.calero.lili.api.controllers;
 
 import com.calero.lili.api.utils.IdDataServiceImpl;
-import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.VtVentasXMLNotaCreditoGetDto;
+import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.VtVentasXMLRetencionGetDto;
 import com.calero.lili.core.comprobantesWs.dto.ArchivoDto;
-import com.calero.lili.core.comprobantesWs.services.GetXmlVtVentasNotasCreditoServiceImpl;
+import com.calero.lili.core.comprobantesWs.services.GetXmlVentasRetencionesServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -21,27 +21,28 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
-@RequestMapping(value = "api/v1.0/ventas")
+@RequestMapping(value = "api/v1.0/ventas/comprobantes-retencion")
 @RequiredArgsConstructor
 @CrossOrigin(originPatterns = "*")
 
-public class GetXmlVtVentasNotasCreditoController {
-    private final GetXmlVtVentasNotasCreditoServiceImpl vtVentasService;
+public class GetXmlPdfVentasRetencionesController {
+
+    private final GetXmlVentasRetencionesServiceImpl vtVentasService;
     private final IdDataServiceImpl idDataService;
 
-    @GetMapping("notas-credito/xml/{idEmpresa}/{idRecibida}")
+
+    @GetMapping("xml/{idEmpresa}/{idRecibida}")
     @ResponseStatus(HttpStatus.OK)
-    public VtVentasXMLNotaCreditoGetDto findXMLNotaCreditoById(@PathVariable("idEmpresa") Long idEmpresa,
-                                                               @PathVariable("idRecibida") UUID idRecibida) {
-        return vtVentasService.findXMLNotaCreditoById(idDataService.getIdData(), idEmpresa, idRecibida);
+    public VtVentasXMLRetencionGetDto findXMLRetencionById(@PathVariable("idEmpresa") Long idEmpresa,
+                                                           @PathVariable("idRecibida") UUID idRecibida) {
+        return vtVentasService.findXMLRetencionById(idDataService.getIdData(), idEmpresa, idRecibida);
     }
 
+    @GetMapping("descargar-pdf/{idEmpresa}/{idRecibida}")
+    public ResponseEntity<byte[]> descargarPdfFactura(@PathVariable("idEmpresa") Long idEmpresa,
+                                                      @PathVariable("idRecibida") UUID idRecibida) {
 
-    @GetMapping("notas-credito/descargar-pdf/{idEmpresa}/{idRecibida}")
-    public ResponseEntity<byte[]> descargarPdfNotaCredito(@PathVariable("idEmpresa") Long idEmpresa,
-                                                          @PathVariable("idRecibida") UUID idRecibida) {
-
-        ArchivoDto datos = vtVentasService.findPDFNotaCreditoById(idDataService.getIdData(), idEmpresa, idRecibida, "WEB"); // tu byte[]
+        ArchivoDto datos = vtVentasService.findPDFRetencionById(idDataService.getIdData(), idEmpresa, idRecibida, "WEB");
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + datos.getNombre())
@@ -51,12 +52,12 @@ public class GetXmlVtVentasNotasCreditoController {
     }
 
 
-    @GetMapping("notas-credito/descargar-xml/{idEmpresa}/{idRecibida}")
-    public ResponseEntity<byte[]> descargarXmlNotaCredito(@PathVariable("idEmpresa") Long idEmpresa,
-                                                          @PathVariable("idRecibida") UUID idRecibida) {
+    @GetMapping("descargar-xml/{idEmpresa}/{idRecibida}")
+    public ResponseEntity<byte[]> descargarXmlFactura(@PathVariable("idEmpresa") Long idEmpresa,
+                                                      @PathVariable("idRecibida") UUID idRecibida) {
 
 
-        ArchivoDto datos = vtVentasService.findFileXMLNotaCredito(idDataService.getIdData(), idEmpresa, idRecibida); // tu byte[]
+        ArchivoDto datos = vtVentasService.findFileXMLRetencion(idDataService.getIdData(), idEmpresa, idRecibida);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + datos.getNombre())

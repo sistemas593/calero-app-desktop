@@ -25,7 +25,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @CrossOrigin(originPatterns = "*")
 
-public class GetXmlVtGuiaController {
+public class GetXmlPdfVtGuiaController {
 
     private final GetXmlVtGuiasServiceImpl vtVentasService;
     private final IdDataServiceImpl idDataService;

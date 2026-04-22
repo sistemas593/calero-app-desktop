@@ -47,7 +47,7 @@ public class GetXmlCpImpuestosServiceImpl {
     private final NotaDebitoPdf notaDebitoPdf;
 
 
-    public CpImpuestosXMLFacturaGetDto findXMLFacturaById(Long idData, Long idEmpresa, UUID id) {
+    /*public CpImpuestosXMLFacturaGetDto findXMLFacturaById(Long idData, Long idEmpresa, UUID id) {
         CpImpuestosFacturasOneProjection entidad = vtVentaRepository.findXMLById(idData, idEmpresa, id).orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
         return documentosElectronicosComprobanteBuilder.toFacturaCompra(entidad);
     }
@@ -62,7 +62,7 @@ public class GetXmlCpImpuestosServiceImpl {
         CpImpuestosFacturasOneProjection entidad = vtVentaRepository.findXMLById(idData, idEmpresa, id).orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
         return documentosElectronicosComprobanteBuilder.toNotaDebitoCompra(entidad);
 
-    }
+    }*/
 
 
     // FACTURAS
@@ -76,7 +76,7 @@ public class GetXmlCpImpuestosServiceImpl {
         CpImpuestosFacturasOneProjection entidad = vtVentaRepository.findXMLById(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
 
-        String nombreArchivo = "FAC-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".xml";
+        String nombreArchivo = "FAC-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".pdf";
 
         switch (origenCertificado) {
 
@@ -155,7 +155,7 @@ public class GetXmlCpImpuestosServiceImpl {
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
 
 
-        String nombreArchivo = "NCR-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".xml";
+        String nombreArchivo = "NCR-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".pdf";
 
         switch (origenCertificado) {
 
@@ -236,7 +236,7 @@ public class GetXmlCpImpuestosServiceImpl {
         CpImpuestosFacturasOneProjection entidad = vtVentaRepository.findXMLById(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
 
-        String nombreArchivo = "NDB-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".xml";
+        String nombreArchivo = "NDB-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".pdf";
 
         switch (origenCertificado) {
 
