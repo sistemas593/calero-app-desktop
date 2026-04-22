@@ -227,6 +227,7 @@ public class VtVentasNotasDebitoServiceImpl {
     public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable,
                                                     TipoPermiso tipoBusqueda, String usuario) {
 
+        filters.setTipoVenta("NDB");
         Page<VtVentaEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
 
         if (page.isEmpty()) {
@@ -260,7 +261,7 @@ public class VtVentasNotasDebitoServiceImpl {
         return paginatedDto;
     }
 
-    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable,
+    /*public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable,
                                                                       TipoPermiso tipoBusqueda, String usuario) {
 
         Page<VtVentaEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
@@ -301,7 +302,7 @@ public class VtVentasNotasDebitoServiceImpl {
         totalesDto.setTotales(tot);
         return totalesDto;
 
-    }
+    }*/
 
     private void validarAmbiente(CreationNotaDebitoRequestDto request) {
         if (request.getFormatoDocumento().equals(FormatoDocumento.E) && Objects.isNull(request.getAmbiente())) {
@@ -371,13 +372,13 @@ public class VtVentasNotasDebitoServiceImpl {
         switch (tipoBusqueda) {
             case TODAS -> {
                 return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
-                        filters.getFechaEmisionHasta(), null, "NDB", filters.getSerie(),
+                        filters.getFechaEmisionHasta(), null, filters.getTipoVenta(), filters.getSerie(),
                         filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
             }
             case SUCURSAL -> {
                 if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
                     return vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
-                            filters.getFechaEmisionHasta(), null, "NDB", filters.getSerie(),
+                            filters.getFechaEmisionHasta(), null, filters.getTipoVenta(), filters.getSerie(),
                             filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
                 } else {
                     throw new GeneralException("Es requerido el parametro de la sucursal");
@@ -385,7 +386,7 @@ public class VtVentasNotasDebitoServiceImpl {
             }
             case PROPIAS -> {
                 return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
-                        filters.getFechaEmisionHasta(), null, "NDB", filters.getSerie(),
+                        filters.getFechaEmisionHasta(), null, filters.getTipoVenta(), filters.getSerie(),
                         filters.getSecuencial(), filters.getNumeroAutorizacion(), usuario, pageable);
             }
         }

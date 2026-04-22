@@ -253,6 +253,7 @@ public class VtVentasNotasCreditoServiceImpl {
     public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable,
                                                     TipoPermiso tipoBusqueda, String usuario) {
 
+        filters.setTipoVenta("NCR");
         Page<VtVentaEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
 
         List<GetListDto> dtoList = page.stream().map(item -> {
@@ -282,7 +283,7 @@ public class VtVentasNotasCreditoServiceImpl {
         return paginatedDto;
     }
 
-    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable,
+   /* public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable,
                                                                       TipoPermiso tipoBusqueda, String usuario) {
 
         Page<VtVentaEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
@@ -324,7 +325,7 @@ public class VtVentasNotasCreditoServiceImpl {
         totalesDto.setTotales(tot);
         return totalesDto;
 
-    }
+    }*/
 
 
     public void exportarExcel(Long idData, Long idEmpresa, OutputStream response, FilterListDto filter) throws IOException {
@@ -700,14 +701,14 @@ public class VtVentasNotasCreditoServiceImpl {
         switch (tipoBusqueda) {
             case TODAS -> {
                 return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
-                        filters.getFechaEmisionHasta(), null, "NCR", filters.getSerie(),
+                        filters.getFechaEmisionHasta(), null, filters.getTipoVenta(), filters.getSerie(),
                         filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
             }
 
             case SUCURSAL -> {
                 if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
                     return vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
-                            filters.getFechaEmisionHasta(), null, "NCR", filters.getSerie(),
+                            filters.getFechaEmisionHasta(), null, filters.getTipoVenta(), filters.getSerie(),
                             filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
                 } else {
                     throw new GeneralException("Es requerido el parametro de la sucursal");
@@ -716,7 +717,7 @@ public class VtVentasNotasCreditoServiceImpl {
 
             case PROPIAS -> {
                 return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
-                        filters.getFechaEmisionHasta(), null, "NCR", filters.getSerie(),
+                        filters.getFechaEmisionHasta(), null, filters.getTipoVenta(), filters.getSerie(),
                         filters.getSecuencial(), filters.getNumeroAutorizacion(), usuario, pageable);
             }
         }

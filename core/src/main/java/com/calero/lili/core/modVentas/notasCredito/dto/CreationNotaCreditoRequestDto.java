@@ -48,6 +48,7 @@ public class CreationNotaCreditoRequestDto {
     @NotNull(message = "No existe el nombre del cliente")
     private UUID idTercero;
 
+    // TODO QUITAR NOMBRE DEL CLIENTE
     @NotBlank(message = "No existe el nombre del cliente")
     private String terceroNombre;
     private TipoIdentificacion tipoIdentificacion;

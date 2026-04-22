@@ -4,7 +4,10 @@ import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.api.utils.IdDataServiceImpl;
 import com.calero.lili.core.comprobantesWs.RespuestaProcesoGetDto;
 import com.calero.lili.core.dtos.Mensajes;
+import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.ResponseDto;
+import com.calero.lili.core.modVentas.dto.GetListDto;
+import com.calero.lili.core.modVentas.dto.GetListDtoTotalizado;
 import com.calero.lili.core.modVentas.notasDebito.VtVentasNotasDebitoServiceImpl;
 import com.calero.lili.core.modVentas.notasDebito.dto.CreationNotaDebitoRequestDto;
 import com.calero.lili.core.modVentas.notasDebito.dto.FilterListDto;
@@ -12,6 +15,7 @@ import com.calero.lili.core.modVentas.notasDebito.dto.GetNotaDebitoDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -108,4 +112,12 @@ public class VtVentasNotasDebitoController {
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
+    @GetMapping("notas-debito/{idEmpresa}")
+    @ResponseStatus(code = HttpStatus.OK)
+    @PreAuthorize("hasAnyAuthority('VT_ND_VR_PR','VT_ND_VR_SC','VT_ND_VR_TD')")
+    public PaginatedDto<GetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
+                                                    FilterListDto filters, Pageable pageable) {
+        return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable,
+                auditorAware.getTipoPermisoVerNotaDebito(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+    }
 }

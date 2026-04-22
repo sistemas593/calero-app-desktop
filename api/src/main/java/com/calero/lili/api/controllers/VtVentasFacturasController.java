@@ -117,16 +117,7 @@ public class VtVentasFacturasController {
                 auditorAware.getTipoPermisoFacturaVer(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
-    @GetMapping("facturas/reportes/{idEmpresa}")
-    @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAnyAuthority('VT_FC_VR_PR','VT_FC_VR_SC','VT_FC_VR_TD')")
-    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(@PathVariable("idEmpresa") Long idEmpresa,
-                                                                      FilterListDto filters,
-                                                                      Pageable pageable) {
-        log.info("Filters = {}", filters);
-        return vtVentasService.findAllPaginateTotalizado(idDataService.getIdData(), idEmpresa, filters,
-                auditorAware.getTipoPermisoFacturaVer(), auditorAware.getCurrentAuditor().orElse("SYSTEM"), pageable);
-    }
+
 
     @GetMapping("excel/{idEmpresa}")
     @PreAuthorize("hasAuthority('VT_FC_EX')")

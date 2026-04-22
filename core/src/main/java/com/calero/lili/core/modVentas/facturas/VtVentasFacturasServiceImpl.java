@@ -400,7 +400,7 @@ public class VtVentasFacturasServiceImpl {
                                                     FilterListDto filters, Pageable pageable,
                                                     TipoPermiso tipoBusqueda, String usuario) {
 
-
+        filters.setTipoVenta("FAC");
         Page<VtVentaEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
 
         List<GetListDto> dtoList = page.stream().map(item -> {
@@ -950,7 +950,7 @@ public class VtVentasFacturasServiceImpl {
         switch (tipoBusqueda) {
             case TODAS -> {
                 return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
-                        filters.getFechaEmisionHasta(), filters.getIdTercero(), "FAC", filters.getSerie(),
+                        filters.getFechaEmisionHasta(), filters.getIdTercero(), filters.getTipoVenta(), filters.getSerie(),
                         filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
             }
 
@@ -958,7 +958,7 @@ public class VtVentasFacturasServiceImpl {
                 if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
 
                     return vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
-                            filters.getFechaEmisionHasta(), filters.getIdTercero(), "FAC", filters.getSerie(),
+                            filters.getFechaEmisionHasta(), filters.getIdTercero(), filters.getTipoVenta(), filters.getSerie(),
                             filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
                 } else {
                     throw new GeneralException("Es requerido el parametro de la sucursal");
@@ -967,7 +967,7 @@ public class VtVentasFacturasServiceImpl {
 
             case PROPIAS -> {
                 return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
-                        filters.getFechaEmisionHasta(), filters.getIdTercero(), "FAC", filters.getSerie(),
+                        filters.getFechaEmisionHasta(), filters.getIdTercero(), filters.getTipoVenta(), filters.getSerie(),
                         filters.getSecuencial(), filters.getNumeroAutorizacion(), usuario, pageable);
             }
         }
