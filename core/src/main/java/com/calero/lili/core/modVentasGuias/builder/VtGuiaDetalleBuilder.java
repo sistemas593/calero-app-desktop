@@ -64,6 +64,7 @@ public class VtGuiaDetalleBuilder {
     }
 
     public List<DetalleGetDto> builderListDto(List<VtGuiaDetalleEntity> list) {
+        if (Objects.isNull(list)) return null;
         return list.stream()
                 .map(this::builderDetalleDto)
                 .toList();
@@ -85,6 +86,7 @@ public class VtGuiaDetalleBuilder {
 
 
     private List<DetalleGetDto.DetalleAdicional> builderListDetalleAddicionalDto(List<VtGuiaDetalleEntity.DetalleAdicional> list) {
+        if (Objects.isNull(list)) return null;
         return list.stream()
                 .map(this::builderDetalleDto)
                 .toList();

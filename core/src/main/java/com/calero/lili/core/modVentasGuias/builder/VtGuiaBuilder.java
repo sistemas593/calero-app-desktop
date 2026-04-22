@@ -161,6 +161,7 @@ public class VtGuiaBuilder {
                 .build();
     }
 
+    // Revisar el retorno del dto 
     private GetDto.DocumentoSustentoDto builderDocumentoSustentoResponse(VtGuiaEntity model) {
         if (Objects.isNull(model.getSerieDocSustento())) return null;
         return GetDto.DocumentoSustentoDto.builder()
