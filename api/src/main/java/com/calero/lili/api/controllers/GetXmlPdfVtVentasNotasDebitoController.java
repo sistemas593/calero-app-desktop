@@ -26,8 +26,9 @@ import java.util.UUID;
 @CrossOrigin(originPatterns = "*")
 
 public class GetXmlPdfVtVentasNotasDebitoController {
+
     private final GetXmlVtVentasNotasDebitoServiceImpl vtVentasService;
-    private IdDataServiceImpl idDataService;
+    private final IdDataServiceImpl idDataService;
 
     @GetMapping("notas-debito/xml/{idEmpresa}/{idRecibida}")
     @ResponseStatus(HttpStatus.OK)
