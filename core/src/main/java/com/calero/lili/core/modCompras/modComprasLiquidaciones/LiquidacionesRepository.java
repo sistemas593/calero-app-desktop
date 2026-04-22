@@ -198,7 +198,8 @@ public interface LiquidacionesRepository extends JpaRepository<CpLiquidacionesEn
             "entity.numero_autorizacion as numeroAutorizacion, " +
             "entity.comprobante as comprobante, " +
             "entity.serie as serie, " +
-            "entity.secuencial as secuencial " +
+            "entity.secuencial as secuencial, " +
+            "entity.cod_doc_reembolso as codDocReembolso " +
             "FROM cp_liquidaciones  entity " +
             "WHERE (entity.id_data = :idData)  AND entity.deleted = false AND " +
             "(entity.id_empresa = :idEmpresa) AND " +

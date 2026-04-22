@@ -1,6 +1,8 @@
 package com.calero.lili.core.comprobantesPdf;
 
 import com.calero.lili.core.comprobantes.objetosXml.factura.CampoAdicional;
+import com.calero.lili.core.comprobantes.objetosXml.factura.Pago;
+import com.calero.lili.core.enums.FormaPagoSriEnum;
 import com.calero.lili.core.comprobantes.objetosXml.notaDebito.Impuesto;
 import com.calero.lili.core.comprobantes.objetosXml.notaDebito.InfoNotaDebito;
 import com.calero.lili.core.comprobantes.objetosXml.notaDebito.Motivo;
@@ -437,20 +439,26 @@ public class NotaDebitoPdf {
             cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
             table_pagos.addCell(cell);
 
-//            List<Pago> lstFormasPago = factura.getInfoNotaDebito().getPago();
+           // List<Pago> lstFormasPago = factura.getInfoNotaDebito().getPago();
 
-//            if (lstCamposAdicionales != null) {
-//                for (Pago pag : lstFormasPago) {
-//                    cell = new PdfPCell(new Phrase(pag.getFormaPago().toUpperCase(), fuentePagos));
-//                    cell.setColspan(2);
-//                    table_pagos.addCell(cell);
-//
-//                    cell = new PdfPCell(new Phrase(pag.getTotal(), fuentePagos));
-//                    cell.setColspan(1);
-//                    cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-//                    table_pagos.addCell(cell);
-//                }
-//            }
+           /* if (lstFormasPago != null) {
+                for (Pago pag : lstFormasPago) {
+                    String nombrePago;
+                    try {
+                        nombrePago = FormaPagoSriEnum.getNombrePago(pag.getFormaPago());
+                    } catch (Exception e) {
+                        nombrePago = pag.getFormaPago().toUpperCase();
+                    }
+                    cell = new PdfPCell(new Phrase(nombrePago, fuentePagos));
+                    cell.setColspan(2);
+                    table_pagos.addCell(cell);
+
+                    cell = new PdfPCell(new Phrase(pag.getTotal(), fuentePagos));
+                    cell.setColspan(1);
+                    cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                    table_pagos.addCell(cell);
+                }
+            }*/
 
 //            cell = new PdfPCell();
 //            cell.addElement(table_pagos);

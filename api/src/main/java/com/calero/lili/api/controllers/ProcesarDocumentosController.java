@@ -44,7 +44,7 @@ public class ProcesarDocumentosController {
     @ResponseStatus(HttpStatus.CREATED)
     public RespuestaProcesoGetDto procesarLiquidacion(@PathVariable("idEmpresa") Long idEmpresa,
                                                       @PathVariable("id") UUID id) {
-        return documentosService.procesarLiquidacion(idDataService.getIdData(), idEmpresa, id, "WEB");
+        return documentosService.procesarLiquidacion(idDataService.getIdData(), idEmpresa, id, "LOC");
     }
 
     @PostMapping("comprobantes-retencion/{idEmpresa}/{id}")

@@ -6,6 +6,7 @@ import com.calero.lili.core.comprobantes.objetosXml.factura.Detalle;
 import com.calero.lili.core.comprobantes.objetosXml.factura.Factura;
 import com.calero.lili.core.comprobantes.objetosXml.factura.InfoFactura;
 import com.calero.lili.core.comprobantes.objetosXml.factura.Pago;
+import com.calero.lili.core.enums.FormaPagoSriEnum;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
@@ -474,7 +475,13 @@ public class FacturaPdf {
 
             if (lstFormasPago != null) {
                 for (Pago pag : lstFormasPago) {
-                    cell = new PdfPCell(new Phrase(pag.getFormaPago().toUpperCase(), fuentePagos));
+                    String nombrePago;
+                    try {
+                        nombrePago = FormaPagoSriEnum.getNombrePago(pag.getFormaPago());
+                    } catch (Exception e) {
+                        nombrePago = pag.getFormaPago().toUpperCase();
+                    }
+                    cell = new PdfPCell(new Phrase(nombrePago, fuentePagos));
                     cell.setColspan(2);
                     table_pagos.addCell(cell);
 

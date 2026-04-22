@@ -75,4 +75,4 @@ VALUES
 ('18', 'TARJETA PREPAGO', false),
 ('19', 'TARJETA DE CRÉDITO ', false),
 ('20', 'OTROS CON UTILIZACIÓN DEL SISTEMA FINANCIERO', false),
-('21', 'ENDOSO DE TÍTULOS ', false);
+('21', 'ENDOSO DE TÍTULOS', false);

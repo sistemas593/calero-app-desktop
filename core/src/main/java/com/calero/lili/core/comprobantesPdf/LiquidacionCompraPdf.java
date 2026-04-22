@@ -4,15 +4,19 @@ import com.calero.lili.core.comprobantes.objetosXml.TotalImpuesto;
 import com.calero.lili.core.comprobantes.objetosXml.factura.CampoAdicional;
 import com.calero.lili.core.comprobantes.objetosXml.factura.DetAdicional;
 import com.calero.lili.core.comprobantes.objetosXml.factura.Pago;
+import com.calero.lili.core.enums.FormaPagoSriEnum;
 import com.calero.lili.core.comprobantes.objetosXml.liquidacionCompras.Detalle;
+import com.calero.lili.core.comprobantes.objetosXml.liquidacionCompras.DetalleImpuesto;
 import com.calero.lili.core.comprobantes.objetosXml.liquidacionCompras.InfoLiquidacionCompra;
 import com.calero.lili.core.comprobantes.objetosXml.liquidacionCompras.LiquidacionCompra;
+import com.calero.lili.core.comprobantes.objetosXml.liquidacionCompras.ReembolsoDetalle;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.pdf.Barcode128;
 import com.itextpdf.text.pdf.PdfContentByte;
@@ -26,6 +30,7 @@ import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 
@@ -40,7 +45,7 @@ public class LiquidacionCompraPdf {
         try {
 
             Document document = new Document(PageSize.A4);
-            document.setMargins(15,15,10,10);
+            document.setMargins(15, 15, 10, 10);
             //PdfWriter pdfWriter = PdfWriter.getInstance(document, new FileOutputStream(carpetaPdf + claveAcceso + ".pdf"));
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             PdfWriter pdfWriter = PdfWriter.getInstance(document, byteArrayOutputStream);
@@ -130,12 +135,12 @@ public class LiquidacionCompraPdf {
             celda = generateCell(new Paragraph("AMBIENTE: ", title), LEFT_PADDING_DOCUMENTO);
             table_datos_documento.addCell(celda);
 
-            String Ambiente="";
-            if (factura.getInfoTributaria().getAmbiente().equals("1")){
-                Ambiente="PRUEBAS";
+            String Ambiente = "";
+            if (factura.getInfoTributaria().getAmbiente().equals("1")) {
+                Ambiente = "PRUEBAS";
             }
-            if (factura.getInfoTributaria().getAmbiente().equals("2")){
-                Ambiente="PRODUCCIÓN";
+            if (factura.getInfoTributaria().getAmbiente().equals("2")) {
+                Ambiente = "PRODUCCIÓN";
             }
 
             celda = generateCell(new Paragraph(Ambiente, fuente), PADDING_NONE);
@@ -144,9 +149,9 @@ public class LiquidacionCompraPdf {
             celda = generateCell(new Paragraph("EMISION:", title), LEFT_PADDING_DOCUMENTO);
             table_datos_documento.addCell(celda);
 
-            String Emision="";
-            if (factura.getInfoTributaria().getTipoEmision().equals("1")){
-                Emision="NORMAL";
+            String Emision = "";
+            if (factura.getInfoTributaria().getTipoEmision().equals("1")) {
+                Emision = "NORMAL";
             }
 
             celda = generateCell(new Paragraph(Emision, fuente), PADDING_NONE);
@@ -267,42 +272,45 @@ public class LiquidacionCompraPdf {
             //////////////////////////////
             // TABLA 2 iNFO FACTURA
 
-            PdfPTable table_datos = new PdfPTable(2);
+            PdfPTable table_datos = new PdfPTable(1);
             table_datos.setWidthPercentage(100);
             table_datos.setTableEvent(new BorderEventWithoutRadius());
 
-            cell = generateCell(new Paragraph("Nombres y Apellidos", title), LEFT_PADDING_EMPRESA);
-            cell.setColspan(1);
+            Phrase pNombres = new Phrase();
+            pNombres.add(new Chunk("Nombres y Apellidos: ", title));
+            pNombres.add(new Chunk(factura.getInfoLiquidacionCompra().getRazonSocialProveedor(), fuente));
+            cell = new PdfPCell(pNombres);
+            cell.setBorder(0);
+            cell.setPaddingLeft(LEFT_PADDING_EMPRESA);
+            cell.setPaddingTop(10);
             table_datos.addCell(cell);
 
-            cell = generateCell(new Paragraph(factura.getInfoLiquidacionCompra().getRazonSocialProveedor(), fuente), PADDING_NONE);
-            cell.setColspan(1);
+            Phrase pIdentificacion = new Phrase();
+            pIdentificacion.add(new Chunk("Identificación: ", title));
+            pIdentificacion.add(new Chunk(factura.getInfoLiquidacionCompra().getIdentificacionProveedor(), fuente));
+            cell = new PdfPCell(pIdentificacion);
+            cell.setBorder(0);
+            cell.setPaddingLeft(LEFT_PADDING_EMPRESA);
+            cell.setPaddingTop(10);
             table_datos.addCell(cell);
 
-            cell = generateCell(new Paragraph("Identificación", title), LEFT_PADDING_EMPRESA);
-            cell.setColspan(1);
+            Phrase pFecha = new Phrase();
+            pFecha.add(new Chunk("Fecha: ", title));
+            pFecha.add(new Chunk(factura.getInfoLiquidacionCompra().getFechaEmision(), fuente));
+            cell = new PdfPCell(pFecha);
+            cell.setBorder(0);
+            cell.setPaddingLeft(LEFT_PADDING_EMPRESA);
+            cell.setPaddingTop(10);
             table_datos.addCell(cell);
 
-            cell = generateCell(new Paragraph(factura.getInfoLiquidacionCompra().getIdentificacionProveedor(), fuente), PADDING_NONE);
-            cell.setColspan(1);
-            table_datos.addCell(cell);
-
-            cell = generateCell(new Paragraph("Fecha", title), LEFT_PADDING_EMPRESA);
-            cell.setColspan(1);
-            table_datos.addCell(cell);
-
-            cell = generateCell(new Paragraph(factura.getInfoLiquidacionCompra().getFechaEmision(), fuente), PADDING_NONE);
-            cell.setColspan(1);
-            table_datos.addCell(cell);
-
-            cell = generateCell(new Paragraph("Dirección:", title), LEFT_PADDING_EMPRESA);
+            Phrase pDireccion = new Phrase();
+            pDireccion.add(new Chunk("Dirección: ", title));
+            pDireccion.add(new Chunk(factura.getInfoLiquidacionCompra().getDireccionProveedor() != null ? factura.getInfoLiquidacionCompra().getDireccionProveedor() : "", fuente));
+            cell = new PdfPCell(pDireccion);
+            cell.setBorder(0);
+            cell.setPaddingLeft(LEFT_PADDING_EMPRESA);
+            cell.setPaddingTop(10);
             cell.setPaddingBottom(10);
-            cell.setColspan(1);
-            table_datos.addCell(cell);
-
-            cell = generateCell(new Paragraph(factura.getInfoLiquidacionCompra().getDireccionProveedor() != null ? factura.getInfoLiquidacionCompra().getDireccionProveedor() : "", fuente), PADDING_NONE);
-            cell.setPaddingBottom(10);
-            cell.setColspan(1);
             table_datos.addCell(cell);
 
             table_datos.setSpacingBefore(5);
@@ -417,7 +425,6 @@ public class LiquidacionCompraPdf {
             document.add(table_detalle);
 
 
-
             //////////////////
 
             PdfPTable table3 = new PdfPTable(3);
@@ -438,7 +445,7 @@ public class LiquidacionCompraPdf {
                 for (int pos = 0; pos < lstCamposAdicionales.size(); pos++) {
                     if (lstCamposAdicionales.get(pos).getNombre() != null && lstCamposAdicionales.get(pos).getValor() != null) {
                         //cell = generateCell(new Paragraph(lstCamposAdicionales.get(pos).getNombre() + ":", title), LEFT_PADDING_EMPRESA);
-                        cell = new PdfPCell(new Paragraph(lstCamposAdicionales.get(pos).getNombre()+":", title));
+                        cell = new PdfPCell(new Paragraph(lstCamposAdicionales.get(pos).getNombre() + ":", title));
                         cell.setBorder(0);
                         cell.setPaddingLeft(LEFT_PADDING_EMPRESA);
 
@@ -447,7 +454,7 @@ public class LiquidacionCompraPdf {
                         table_info_adic.addCell(cell);
 
                         //cell = generateCell(new Paragraph(lstCamposAdicionales.get(pos).getValor(), fuente), PADDING_NONE);
-                        cell = new PdfPCell(new Paragraph(lstCamposAdicionales.get(pos).getValor(),fuente));
+                        cell = new PdfPCell(new Paragraph(lstCamposAdicionales.get(pos).getValor(), fuente));
                         cell.setBorder(0);
                         cell.setPaddingLeft(-100);
                         table_info_adic.addCell(cell);
@@ -485,7 +492,13 @@ public class LiquidacionCompraPdf {
 
             if (lstFormasPago != null) {
                 for (Pago pag : lstFormasPago) {
-                    cell = new PdfPCell(new Phrase(pag.getFormaPago().toUpperCase(), fuentePagos));
+                    String nombrePago;
+                    try {
+                        nombrePago = FormaPagoSriEnum.getNombrePago(pag.getFormaPago());
+                    } catch (Exception e) {
+                        nombrePago = pag.getFormaPago().toUpperCase();
+                    }
+                    cell = new PdfPCell(new Phrase(nombrePago, fuentePagos));
                     cell.setColspan(2);
                     table_pagos.addCell(cell);
 
@@ -653,8 +666,172 @@ public class LiquidacionCompraPdf {
             table3.addCell(cell);
 
 
-
             document.add(table3);
+
+            // SECCIÓN REEMBOLSO: solo cuando codDocReembolso = "41"
+            String codDocReembolso = Objects.nonNull(infoFactura.getCodDocReembolso()) ? infoFactura.getCodDocReembolso() : "";
+            if (codDocReembolso != null && codDocReembolso.equals("41")) {
+
+                PdfPTable table_reembolso_header = new PdfPTable(2);
+                table_reembolso_header.setWidthPercentage(100);
+                table_reembolso_header.setSpacingBefore(5);
+                table_reembolso_header.setTableEvent(new BorderEventWithoutRadius());
+
+                cell = new PdfPCell(new Phrase("Documentos Sustentos", title));
+                cell.setColspan(2);
+                cell.setPaddingLeft(LEFT_PADDING_DOCUMENTO);
+                table_reembolso_header.addCell(cell);
+
+                cell = new PdfPCell(new Phrase("Código documento reembolso:", title));
+                cell.setBorder(0);
+                cell.setPaddingLeft(LEFT_PADDING_EMPRESA);
+                table_reembolso_header.addCell(cell);
+
+                cell = new PdfPCell(new Phrase(codDocReembolso, fuente));
+                cell.setBorder(0);
+                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                table_reembolso_header.addCell(cell);
+
+                String totalCompReembolso = infoFactura.getTotalComprobantesReembolso();
+                cell = new PdfPCell(new Phrase("Total Comprobantes Reembolso:", title));
+                cell.setBorder(0);
+                cell.setPaddingLeft(LEFT_PADDING_EMPRESA);
+                cell.setPaddingBottom(5);
+                table_reembolso_header.addCell(cell);
+
+                cell = new PdfPCell(new Phrase(totalCompReembolso != null ? totalCompReembolso : "0.00", fuente));
+                cell.setBorder(0);
+                cell.setPaddingBottom(5);
+                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                table_reembolso_header.addCell(cell);
+
+                document.add(table_reembolso_header);
+
+                List<ReembolsoDetalle> lstReembolso = factura.getReembolsoDetalle();
+                if (lstReembolso != null && !lstReembolso.isEmpty()) {
+
+                    Font fuenteReem = new Font();
+                    fuenteReem.setSize(6);
+
+                    PdfPTable table_reembolso = new PdfPTable(11);
+                    table_reembolso.setWidthPercentage(100);
+                    table_reembolso.setTableEvent(new BorderEventWithoutRadius());
+
+                    // Cabecera
+                    cell = new PdfPCell(new Phrase("RUC/Cédula", title));
+                    cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table_reembolso.addCell(cell);
+
+                    cell = new PdfPCell(new Phrase("DocSerie", title));
+                    cell.setColspan(2);
+                    cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table_reembolso.addCell(cell);
+
+                    cell = new PdfPCell(new Phrase("SecuenciaEmisión", title));
+                    cell.setColspan(2);
+                    cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    table_reembolso.addCell(cell);
+
+                    cell = new PdfPCell(new Phrase("Base 0%", title));
+                    cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                    table_reembolso.addCell(cell);
+
+                    cell = new PdfPCell(new Phrase("Base Grav", title));
+                    cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                    table_reembolso.addCell(cell);
+
+                    cell = new PdfPCell(new Phrase("IVA", title));
+                    cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                    table_reembolso.addCell(cell);
+
+                    cell = new PdfPCell(new Phrase("No objeto", title));
+                    cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                    table_reembolso.addCell(cell);
+
+                    cell = new PdfPCell(new Phrase("Exento", title));
+                    cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                    table_reembolso.addCell(cell);
+
+                    cell = new PdfPCell(new Phrase("Total", title));
+                    cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                    table_reembolso.addCell(cell);
+
+                    // Filas de detalle
+                    for (ReembolsoDetalle rem : lstReembolso) {
+                        String base0 = "0.00", noObjeto = "0.00", exento = "0.00";
+                        double baseGravSum = 0, ivaSum = 0;
+
+                        List<DetalleImpuesto> impuestos = rem.getDetalleImpuesto();
+                        if (impuestos != null) {
+                            for (DetalleImpuesto imp : impuestos) {
+                                String codPct = imp.getCodigoPorcentaje();
+                                if ("0".equals(codPct)) {
+                                    base0 = imp.getBaseImponibleReembolso() != null ? imp.getBaseImponibleReembolso() : "0.00";
+                                } else if ("4".equals(codPct) || "5".equals(codPct) || "8".equals(codPct)) {
+                                    try { baseGravSum += Double.parseDouble(imp.getBaseImponibleReembolso()); } catch (Exception ignored) {}
+                                    try { ivaSum += Double.parseDouble(imp.getImpuestoReembolso()); } catch (Exception ignored) {}
+                                } else if ("6".equals(codPct)) {
+                                    noObjeto = imp.getBaseImponibleReembolso() != null ? imp.getBaseImponibleReembolso() : "0.00";
+                                } else if ("7".equals(codPct)) {
+                                    exento = imp.getBaseImponibleReembolso() != null ? imp.getBaseImponibleReembolso() : "0.00";
+                                }
+                            }
+                        }
+                        String baseGrav = String.format("%.2f", baseGravSum);
+                        String iva = String.format("%.2f", ivaSum);
+
+                        double base0d = 0, noObjetod = 0, exentod = 0;
+                        try { base0d = Double.parseDouble(base0); } catch (Exception ignored) {}
+                        try { noObjetod = Double.parseDouble(noObjeto); } catch (Exception ignored) {}
+                        try { exentod = Double.parseDouble(exento); } catch (Exception ignored) {}
+                        double total = base0d + baseGravSum + ivaSum + noObjetod + exentod;
+                        String totalStr = String.format("%.2f", total);
+
+                        cell = new PdfPCell(new Phrase(rem.getIdentificacionProveedorReembolso() != null ? rem.getIdentificacionProveedorReembolso() : "", fuenteReem));
+                        table_reembolso.addCell(cell);
+
+                        cell = new PdfPCell(new Phrase(rem.getCodDocReembolso() != null ? rem.getCodDocReembolso() : "", fuenteReem));
+                        table_reembolso.addCell(cell);
+
+                        String estabPto = (rem.getEstabDocReembolso() != null ? rem.getEstabDocReembolso() : "")
+                                + (rem.getPtoEmiDocReembolso() != null ? rem.getPtoEmiDocReembolso() : "");
+                        cell = new PdfPCell(new Phrase(estabPto, fuenteReem));
+                        table_reembolso.addCell(cell);
+
+                        cell = new PdfPCell(new Phrase(rem.getSecuencialDocReembolso() != null ? rem.getSecuencialDocReembolso() : "", fuenteReem));
+                        table_reembolso.addCell(cell);
+
+                        cell = new PdfPCell(new Phrase(rem.getFechaEmisionDocReembolso() != null ? rem.getFechaEmisionDocReembolso() : "", fuenteReem));
+                        table_reembolso.addCell(cell);
+
+                        cell = new PdfPCell(new Phrase(base0, fuenteReem));
+                        cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                        table_reembolso.addCell(cell);
+
+                        cell = new PdfPCell(new Phrase(baseGrav, fuenteReem));
+                        cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                        table_reembolso.addCell(cell);
+
+                        cell = new PdfPCell(new Phrase(iva, fuenteReem));
+                        cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                        table_reembolso.addCell(cell);
+
+                        cell = new PdfPCell(new Phrase(noObjeto, fuenteReem));
+                        cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                        table_reembolso.addCell(cell);
+
+                        cell = new PdfPCell(new Phrase(exento, fuenteReem));
+                        cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                        table_reembolso.addCell(cell);
+
+                        cell = new PdfPCell(new Phrase(totalStr, fuenteReem));
+                        cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                        table_reembolso.addCell(cell);
+                    }
+
+                    document.add(table_reembolso);
+                }
+            }
 
             document.close();
             return byteArrayOutputStream.toByteArray();

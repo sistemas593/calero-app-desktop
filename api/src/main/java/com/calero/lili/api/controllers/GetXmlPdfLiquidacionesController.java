@@ -42,7 +42,7 @@ public class GetXmlPdfLiquidacionesController {
     public ResponseEntity<byte[]> descargarPdfFactura(@PathVariable("idEmpresa") Long idEmpresa,
                                                       @PathVariable("idRecibida") UUID idRecibida) {
 
-        ArchivoDto datos = vtVentasService.findPDFLiquidacionById(idDataService.getIdData(), idEmpresa, idRecibida, "WEB");
+        ArchivoDto datos = vtVentasService.findPDFLiquidacionById(idDataService.getIdData(), idEmpresa, idRecibida, "LOC");
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + datos.getNombre())

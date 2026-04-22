@@ -1,6 +1,7 @@
 package com.calero.lili.core.comprobantesPdf;
 
 import com.calero.lili.core.comprobantes.objetosXml.notaCredito.Detalle;
+import com.calero.lili.core.enums.FormaPagoSriEnum;
 import com.calero.lili.core.comprobantes.objetosXml.notaCredito.InfoNotaCredito;
 import com.calero.lili.core.comprobantes.objetosXml.notaCredito.NotaCredito;
 import com.itextpdf.text.Document;
@@ -511,9 +512,15 @@ public class NotaCreditoPdf {
 
             List<Pago> lstFormasPago = factura.getInfoFactura().getPago();
 
-            if (lstCamposAdicionales != null) {
+            if (lstFormasPago != null) {
                 for (Pago pag : lstFormasPago) {
-                    cell = new PdfPCell(new Phrase(pag.getFormaPago().toUpperCase(), fuentePagos));
+                    String nombrePago;
+                    try {
+                        nombrePago = FormaPagoSriEnum.getNombrePago(pag.getFormaPago());
+                    } catch (Exception e) {
+                        nombrePago = pag.getFormaPago().toUpperCase();
+                    }
+                    cell = new PdfPCell(new Phrase(nombrePago, fuentePagos));
                     cell.setColspan(2);
                     table_pagos.addCell(cell);
 
