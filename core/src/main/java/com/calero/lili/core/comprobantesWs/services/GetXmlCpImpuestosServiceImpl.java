@@ -8,9 +8,6 @@ import com.calero.lili.core.comprobantes.objetosXml.notaDebito.NotaDebito;
 import com.calero.lili.core.comprobantesPdf.FacturaPdf;
 import com.calero.lili.core.comprobantesPdf.NotaCreditoPdf;
 import com.calero.lili.core.comprobantesPdf.NotaDebitoPdf;
-import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.CpImpuestosXMLFacturaGetDto;
-import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.CpImpuestosXMLNotaCreditoGetDto;
-import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.CpImpuestosXMLNotaDebitoGetDto;
 import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.builder.DocumentosElectronicosComprobanteBuilder;
 import com.calero.lili.core.comprobantesWs.dto.ArchivoDto;
 import com.calero.lili.core.comprobantesWs.dto.DatosEmpresaDto;
@@ -29,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.text.MessageFormat;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -76,7 +74,10 @@ public class GetXmlCpImpuestosServiceImpl {
         CpImpuestosFacturasOneProjection entidad = vtVentaRepository.findXMLById(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
 
-        String nombreArchivo = "FAC-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".pdf";
+        validarFactura(entidad);
+
+
+        String nombreArchivo = "R-" + entidad.getNumeroIdentificacion() + "-" + "FAC" + "-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".pdf";
 
         switch (origenCertificado) {
 
@@ -96,6 +97,7 @@ public class GetXmlCpImpuestosServiceImpl {
             System.out.println("Si se pudo leer el String y convertirlo en objeto Factura: " + documento.getInfoFactura().getComercioExterior());
         } catch (JAXBException ex) {
             System.out.println("error 1");
+            throw new GeneralException("No se pudo convetir el comprobante");
         }
 
 
@@ -115,7 +117,10 @@ public class GetXmlCpImpuestosServiceImpl {
         CpImpuestosFacturasOneProjection entidad = vtVentaRepository.findXMLById(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
 
-        String nombreArchivo = "FAC-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".xml";
+        validarFactura(entidad);
+
+
+        String nombreArchivo = "R-" + entidad.getNumeroIdentificacion() + "-" + "FAC" + "-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".xml";
 
         Autorizacion aut = new Autorizacion();
         aut.setComprobante(entidad.getComprobante()); //"<![CDATA[" + + "]]>"
@@ -154,8 +159,10 @@ public class GetXmlCpImpuestosServiceImpl {
         CpImpuestosFacturasOneProjection entidad = vtVentaRepository.findXMLById(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
 
+        validarNotaCredito(entidad);
 
-        String nombreArchivo = "NCR-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".pdf";
+
+        String nombreArchivo = "R-" + entidad.getNumeroIdentificacion() + "-" + "NCR" + "-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".pdf";
 
         switch (origenCertificado) {
 
@@ -175,6 +182,7 @@ public class GetXmlCpImpuestosServiceImpl {
             System.out.println("Si se pudo leer el String y convertirlo en objeto Factura: ");
         } catch (JAXBException ex) {
             System.out.println("error 1");
+            throw new GeneralException("No se pudo convetir el comprobante");
         }
 
 
@@ -195,8 +203,10 @@ public class GetXmlCpImpuestosServiceImpl {
         CpImpuestosFacturasOneProjection entidad = vtVentaRepository.findXMLById(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
 
+        validarNotaCredito(entidad);
 
-        String nombreArchivo = "NCR-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".xml";
+
+        String nombreArchivo = "R-" + entidad.getNumeroIdentificacion() + "-" + "NCR" + "-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".xml";
 
         Autorizacion aut = new Autorizacion();
         aut.setComprobante(entidad.getComprobante()); //"<![CDATA[" + + "]]>"
@@ -236,7 +246,11 @@ public class GetXmlCpImpuestosServiceImpl {
         CpImpuestosFacturasOneProjection entidad = vtVentaRepository.findXMLById(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
 
-        String nombreArchivo = "NDB-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".pdf";
+        validarNotaDebito(entidad);
+
+
+        String nombreArchivo = "R-" + entidad.getNumeroIdentificacion() + "-" + "NDB" + "-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".pdf";
+
 
         switch (origenCertificado) {
 
@@ -256,6 +270,7 @@ public class GetXmlCpImpuestosServiceImpl {
             System.out.println("Si se pudo leer el String y convertirlo en objeto Factura: ");
         } catch (JAXBException ex) {
             System.out.println("error 1");
+            throw new GeneralException("No se pudo convetir el comprobante");
         }
 
 
@@ -276,8 +291,10 @@ public class GetXmlCpImpuestosServiceImpl {
         CpImpuestosFacturasOneProjection entidad = vtVentaRepository.findXMLById(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
 
+        validarNotaDebito(entidad);
 
-        String nombreArchivo = "NDB-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".xml";
+
+        String nombreArchivo = "R-" + entidad.getNumeroIdentificacion() + "-" + "NDB" + "-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".xml";
 
         Autorizacion aut = new Autorizacion();
         aut.setComprobante(entidad.getComprobante()); //"<![CDATA[" + + "]]>"
@@ -302,6 +319,33 @@ public class GetXmlCpImpuestosServiceImpl {
             throw new GeneralException("Existe un error: " + ex.getMessage());
         }
 
+    }
+
+    private void validacionComprobante(CpImpuestosFacturasOneProjection entidad) {
+        if (Objects.isNull(entidad.getComprobante()) || entidad.getComprobante().isEmpty()) {
+            throw new GeneralException("El documento no contiene un comprobante");
+        }
+    }
+
+    private void validarFactura(CpImpuestosFacturasOneProjection entidad) {
+        if (!entidad.getNumeroAutorizacion().startsWith("01", 8)) {
+            throw new GeneralException(MessageFormat.format("El documento con id {0} no corresponde a una factura", entidad.getIdImpuestos()));
+        }
+        validacionComprobante(entidad);
+    }
+
+    private void validarNotaCredito(CpImpuestosFacturasOneProjection entidad) {
+        if (!entidad.getNumeroAutorizacion().startsWith("04", 8)) {
+            throw new GeneralException(MessageFormat.format("El documento con id {0} no corresponde a una nota de credito", entidad.getIdImpuestos()));
+        }
+        validacionComprobante(entidad);
+    }
+
+    private void validarNotaDebito(CpImpuestosFacturasOneProjection entidad) {
+        if (!entidad.getNumeroAutorizacion().startsWith("05", 8)) {
+            throw new GeneralException(MessageFormat.format("El documento con id {0} no corresponde a una nota de debito", entidad.getIdImpuestos()));
+        }
+        validacionComprobante(entidad);
     }
 }
 

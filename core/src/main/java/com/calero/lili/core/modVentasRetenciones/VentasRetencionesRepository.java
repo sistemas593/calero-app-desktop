@@ -51,10 +51,13 @@ public interface VentasRetencionesRepository extends JpaRepository<VtRetenciones
     @Query(value = "SELECT " +
             "entity.id_retencion as idRetencion,  " +
             "entity.numero_autorizacion as numeroAutorizacion, " +
+            "entity.fecha_autorizacion as fechaAutorizacion, " +
             "entity.comprobante as comprobante, " +
             "entity.serie_retencion as serie, " +
-            "entity.secuencial_retencion as secuencial " +
+            "entity.secuencial_retencion as secuencial, " +
+            "gt.numero_identificacion as numeroIdentificacion " +
             "FROM vt_retenciones  entity " +
+            "LEFT JOIN ge_terceros gt on gt.id_tercero = entity.id_cliente " +
             "WHERE (entity.id_data = :idData)  AND " +
             "(entity.id_empresa = :idEmpresa) AND " +
             "entity.id_retencion = :id AND entity.deleted = false", nativeQuery = true)
@@ -63,11 +66,12 @@ public interface VentasRetencionesRepository extends JpaRepository<VtRetenciones
 
     @Query(value = "SELECT vtVentasEntity " +
             "FROM VtRetencionesEntity vtVentasEntity " +
+            "LEFT JOIN vtVentasEntity.cliente gt " +
             "WHERE vtVentasEntity.idData = :idData  AND " +
             "vtVentasEntity.idEmpresa = :idEmpresa AND " +
             "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
             "(:usuario IS NULL OR vtVentasEntity.createdBy = :usuario) AND " +
-            "(:numeroIdentificacion IS NULL OR vtVentasEntity.numeroIdentificacion = :numeroIdentificacion ) AND " +
+            "(:numeroIdentificacion IS NULL OR gt.numeroIdentificacion = :numeroIdentificacion ) AND " +
             "(:serie IS NULL OR vtVentasEntity.serieRetencion = :serie) AND " +
             "(:secuencial IS NULL OR vtVentasEntity.secuencialRetencion = :secuencial) AND " +
             "(:numeroAutorizacion IS NULL OR vtVentasEntity.numeroAutorizacionRetencion = :numeroAutorizacion ) AND " +
@@ -76,11 +80,12 @@ public interface VentasRetencionesRepository extends JpaRepository<VtRetenciones
             ,
             countQuery = "SELECT COUNT(1) " +
                     "FROM VtRetencionesEntity vtVentasEntity " +
+                    "LEFT JOIN vtVentasEntity.cliente gt " +
                     "WHERE ( vtVentasEntity.idData = :idData)  AND " +
                     "(vtVentasEntity.idEmpresa = :idEmpresa) AND " +
                     "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
                     "(:usuario IS NULL OR vtVentasEntity.createdBy = :usuario) AND " +
-                    "(:numeroIdentificacion IS NULL OR vtVentasEntity.numeroIdentificacion = :numeroIdentificacion ) AND " +
+                    "(:numeroIdentificacion IS NULL OR gt.numeroIdentificacion = :numeroIdentificacion ) AND " +
                     "(:serie IS NULL OR vtVentasEntity.serieRetencion = :serie ) AND " +
                     "(:secuencial IS NULL OR vtVentasEntity.secuencialRetencion = :secuencial ) AND " +
                     "(:numeroAutorizacion IS NULL OR vtVentasEntity.numeroAutorizacionRetencion = :numeroAutorizacion ) AND " +
@@ -105,11 +110,12 @@ public interface VentasRetencionesRepository extends JpaRepository<VtRetenciones
                     "sum(valoresEntity.base_imponible) as totalBaseImponible, " +
                     "sum(valoresEntity.valor_retenido) as totalValor " +
                     "FROM vt_retenciones vtVentaEntity " +
+                    "LEFT JOIN ge_terceros gt on gt.id_tercero = vtVentaEntity.id_cliente " +
                     "INNER JOIN vt_retenciones_valores valoresEntity ON vtVentaEntity.id_retencion = valoresEntity.id_retencion " +
                     "WHERE ( vtVentaEntity.id_data = :idData)  AND " +
                     "(vtVentaEntity.id_empresa = :idEmpresa) AND vtVentaEntity.deleted = false AND " +
                     "(:sucursal IS NULL OR vtVentaEntity.sucursal = :sucursal) AND " +
-                    "(:numeroIdentificacion IS NULL OR vtVentaEntity.numero_identificacion = :numeroIdentificacion ) AND " +
+                    "(:numeroIdentificacion IS NULL OR gt.numero_identificacion = :numeroIdentificacion ) AND " +
                     "(:serie IS NULL OR vtVentaEntity.serie_retencion = :serie ) AND " +
                     "(:secuencial IS NULL OR vtVentaEntity.secuencial_retencion = :secuencial ) AND " +
                     "( cast(:fechaEmisionDesde as date) is null OR vtVentaEntity.fecha_emision_retencion >= :fechaEmisionDesde ) AND " +
@@ -120,11 +126,12 @@ public interface VentasRetencionesRepository extends JpaRepository<VtRetenciones
 
     @Query(value = "SELECT vtVentasEntity " +
             "FROM VtRetencionesEntity vtVentasEntity " +
+            "LEFT JOIN vtVentasEntity.cliente gt " +
             "WHERE vtVentasEntity.idData = :idData  AND " +
             "vtVentasEntity.idEmpresa = :idEmpresa AND " +
             "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
             "(" +
-            "(:numeroIdentificacion IS NULL OR vtVentasEntity.numeroIdentificacion = :numeroIdentificacion) AND " +
+            "(:numeroIdentificacion IS NULL OR gt.numeroIdentificacion = :numeroIdentificacion) AND " +
             "(:serie IS NULL OR vtVentasEntity.serieRetencion = :serie) AND " +
             "(:secuencial IS NULL OR vtVentasEntity.secuencialRetencion = :secuencial) AND " +
             "( cast(:fechaEmisionDesde as date) is null OR vtVentasEntity.fechaEmisionRetencion >= :fechaEmisionDesde ) AND " +

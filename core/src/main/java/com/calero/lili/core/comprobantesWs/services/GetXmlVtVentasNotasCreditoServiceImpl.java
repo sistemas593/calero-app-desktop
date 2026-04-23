@@ -2,7 +2,6 @@ package com.calero.lili.core.comprobantesWs.services;
 
 
 import com.calero.lili.core.comprobantes.objetosXml.autorizacionFile.Autorizacion;
-import com.calero.lili.core.comprobantes.objetosXml.factura.Factura;
 import com.calero.lili.core.comprobantes.objetosXml.notaCredito.NotaCredito;
 import com.calero.lili.core.comprobantesPdf.NotaCreditoPdf;
 import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.VtVentasXMLNotaCreditoGetDto;
@@ -26,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.text.MessageFormat;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -58,13 +58,10 @@ public class GetXmlVtVentasNotasCreditoServiceImpl {
         VtVentasFacturaOneProjection entidad = vtVentaRepository.findXMLById(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
 
-        if (!entidad.getEstadoDocumento().equals(EstadoDocumento.AUT.name())) {
-            throw new GeneralException("El documento con id {0} no esta autorizado " + id);
-        }
-
         validarNotaCredito(entidad);
 
-        String nombreArchivo = "NCR-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".xml";
+        String nombreArchivo = "E-NCR-" + entidad.getSerie() + "-" + entidad.getSecuencial() + "-" + entidad.getNumeroIdentificacion() + ".pdf";
+
 
         switch (origenCertificado) {
 
@@ -84,6 +81,7 @@ public class GetXmlVtVentasNotasCreditoServiceImpl {
             System.out.println("Si se pudo leer el String y convertirlo en objeto Factura: ");
         } catch (JAXBException ex) {
             System.out.println("error 1");
+            throw new GeneralException("No se pudo convetir el comprobante");
         }
 
 
@@ -106,36 +104,30 @@ public class GetXmlVtVentasNotasCreditoServiceImpl {
 
         validarNotaCredito(entidad);
 
-        if (entidad.getEstadoDocumento().equals(EstadoDocumento.AUT.name())) {
 
-            String nombreArchivo = "NCR-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".xml";
+        String nombreArchivo = "E-NCR-" + entidad.getSerie() + "-" + entidad.getSecuencial() + "-" + entidad.getNumeroIdentificacion() + ".xml";
 
-            Autorizacion aut = new Autorizacion();
-            aut.setComprobante(entidad.getComprobante()); //"<![CDATA[" + + "]]>"
-            aut.setFechaAutorizacion(entidad.getFechaAutorizacion());
-            aut.setNumeroAutorizacion(entidad.getNumeroAutorizacion());
-            aut.setEstado("AUTORIZADO");
+        Autorizacion aut = new Autorizacion();
+        aut.setComprobante(entidad.getComprobante()); //"<![CDATA[" + + "]]>"
+        aut.setFechaAutorizacion(entidad.getFechaAutorizacion());
+        aut.setNumeroAutorizacion(entidad.getNumeroAutorizacion());
+        aut.setEstado("AUTORIZADO");
 
-            try {
-                JAXBContext context = JAXBContext.newInstance(new Class[]{Autorizacion.class});
-                Marshaller marshaller = context.createMarshaller();
-                marshaller.setProperty("jaxb.encoding", "UTF-8");
-                marshaller.setProperty("jaxb.formatted.output", Boolean.valueOf(true));
-                StringWriter stringWriter = new StringWriter();
-                marshaller.marshal(aut, stringWriter);
+        try {
+            JAXBContext context = JAXBContext.newInstance(new Class[]{Autorizacion.class});
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty("jaxb.encoding", "UTF-8");
+            marshaller.setProperty("jaxb.formatted.output", Boolean.valueOf(true));
+            StringWriter stringWriter = new StringWriter();
+            marshaller.marshal(aut, stringWriter);
 
-                return ArchivoDto.builder()
-                        .nombre(nombreArchivo)
-                        .contenido(stringWriter.toString().getBytes())
-                        .build();
+            return ArchivoDto.builder()
+                    .nombre(nombreArchivo)
+                    .contenido(stringWriter.toString().getBytes())
+                    .build();
 
-            } catch (Exception ex) {
-                throw new GeneralException("Existe un error: " + ex.getMessage());
-            }
-
-        } else {
-            throw new GeneralException(MessageFormat.format("El documento con id {0} " +
-                    "no esta autorizado ", id));
+        } catch (Exception ex) {
+            throw new GeneralException("Existe un error: " + ex.getMessage());
         }
     }
 
@@ -143,6 +135,14 @@ public class GetXmlVtVentasNotasCreditoServiceImpl {
     private void validarNotaCredito(VtVentasFacturaOneProjection entidad) {
         if (!entidad.getTipoVenta().equals(TipoVenta.NCR.name())) {
             throw new GeneralException("El documento con id " + entidad.getIdVenta() + " no es una factura");
+        }
+
+        if (Objects.isNull(entidad.getComprobante()) || entidad.getComprobante().isEmpty()) {
+            throw new GeneralException("El documento no contiene un comprobante");
+        }
+
+        if (!entidad.getEstadoDocumento().equals(EstadoDocumento.AUT.name())) {
+            throw new GeneralException("El documento con id {0} no esta autorizado " + entidad.getIdVenta());
         }
     }
 

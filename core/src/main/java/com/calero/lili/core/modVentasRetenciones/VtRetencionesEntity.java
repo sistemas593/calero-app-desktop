@@ -23,6 +23,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -64,7 +65,7 @@ public class VtRetencionesEntity extends Auditable {
     @Column(name = "formato_documento")
     private FormatoDocumento formatoDocumento; // EL DETALLE EN EL OBJETO ENUM
 
-    private String fechaAutorizacion;
+    private LocalDateTime fechaAutorizacion;
 
     private String claveAcceso;
 
@@ -77,14 +78,6 @@ public class VtRetencionesEntity extends Auditable {
     // PARA EXPORTAR A EXCEL IGUAL TOCA RECORRER LA TABLA PARA CAMBIAR LA FECHA ASI ESTE EN UNA SOLA TABLA, SOLO TOCA RECORRER TAMBIEN DE VALORES
     // SI APARECE UN NUEVO % DE IVA TOCA CAMBIAR BESTIALMENTE EN TODE EL SISTEMA, COMPRAS, IMPUESTOUES, REEMBOLSOS PARA CREAR NUEVOS CAMPOS
 
-
-    @Enumerated(EnumType.STRING)
-    private TipoIdentificacion tipoIdentificacion;
-
-    private String numeroIdentificacion;
-
-    @Column(name = "cliente")
-    private String terceroNombre;
 
     @Builder.Default
     @JoinColumn(name = "id_retencion", referencedColumnName = "idRetencion")

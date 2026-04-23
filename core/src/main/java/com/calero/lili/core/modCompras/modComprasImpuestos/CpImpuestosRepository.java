@@ -22,7 +22,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @org.springframework.stereotype.Repository
-    public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, UUID>, JpaSpecificationExecutor<CpImpuestosEntity> {
+public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, UUID>, JpaSpecificationExecutor<CpImpuestosEntity> {
 
     @Query(value = "SELECT entity " +
             "FROM CpImpuestosEntity entity " +
@@ -46,9 +46,10 @@ import java.util.UUID;
 
     @Query(value = "SELECT id_impuestos as idImpuestos " +
             "FROM cp_impuestos entity " +
+            "LEFT JOIN ge_terceros gt on gt.id_tercero = entity.id_proveedor " +
             "WHERE (entity.id_Data = :idData)  AND " +
             "(entity.id_Empresa = :idEmpresa) AND " +
-            "entity.numero_identificacion = :numeroIdentificacion AND " +
+            "gt.numero_identificacion = :numeroIdentificacion AND " +
             "entity.serie = :serie AND " +
             "entity.secuencial = :secuencial AND " +
             "entity.numero_autorizacion = :numeroAutorizacion AND " +
@@ -65,12 +66,13 @@ import java.util.UUID;
     @Query(
             value = "SELECT entity " +
                     "FROM CpImpuestosEntity entity " +
+                    "LEFT JOIN entity.tercero gt " +
                     "WHERE ( entity.idData = :idData) AND " +
                     "(entity.idEmpresa = :idEmpresa) AND entity.deleted = false AND " +
                     "(:sucursal IS NULL OR entity.sucursal = :sucursal) AND " +
                     "(:usuario IS NULL OR entity.createdBy = :usuario) AND " +
                     "(:codigoDocumento IS NULL OR entity.documento.codigoDocumento = :codigoDocumento) AND " +
-                    "(:numeroIdentificacion IS NULL OR entity.numeroIdentificacion = :numeroIdentificacion ) AND " +
+                    "(:numeroIdentificacion IS NULL OR gt.numeroIdentificacion = :numeroIdentificacion ) AND " +
                     "(:serie IS NULL OR entity.serie = :serie ) AND " +
                     "(:secuencial IS NULL OR entity.secuencial = :secuencial ) AND " +
                     "(:numeroAutorizacion IS NULL OR entity.numeroAutorizacion = :numeroAutorizacion ) AND " +
@@ -103,11 +105,12 @@ import java.util.UUID;
                     "sum(valoresEntity.base_imponible) as totalBaseImponible," +
                     "sum(valoresEntity.valor) as valor " +
                     "FROM cp_impuestos entity " +
+                    "LEFT JOIN ge_terceros gt on gt.id_tercero = entity.id_proveedor " +
                     "INNER JOIN cp_impuestos_valores valoresEntity ON entity.id_impuestos = valoresEntity.id_impuestos " +
                     "WHERE ( entity.id_data = :idData) AND " +
                     "(entity.id_empresa = :idEmpresa) AND entity.deleted = false AND " +
                     "(:codigoDocumento IS NULL OR entity.codigo_documento = :codigoDocumento) AND " +
-                    "(:numeroIdentificacion IS NULL OR entity.numero_identificacion = :numeroIdentificacion ) AND " +
+                    "(:numeroIdentificacion IS NULL OR gt.numero_identificacion = :numeroIdentificacion ) AND " +
                     "(:serie IS NULL OR entity.serie = :serie ) AND " +
                     "(:secuencial IS NULL OR entity.secuencial = :secuencial ) AND " +
                     "(:numeroAutorizacion IS NULL OR entity.numero_autorizacion = :numeroAutorizacion ) AND " +
@@ -133,10 +136,11 @@ import java.util.UUID;
 
     @Query(value = "SELECT entity " +
             "FROM CpImpuestosEntity entity " +
+            "LEFT JOIN entity.tercero gt " +
             "WHERE entity.idData = :idData  AND " +
             "entity.idEmpresa = :idEmpresa AND " +
             "(" +
-            "(:numeroIdentificacion IS NULL OR entity.numeroIdentificacion = :numeroIdentificacion) AND " +
+            "(:numeroIdentificacion IS NULL OR gt.numeroIdentificacion = :numeroIdentificacion) AND " +
             "(:serie IS NULL OR entity.serie = :serie) AND " +
             "(:secuencial IS NULL OR entity.secuencial = :secuencial) AND " +
             "( cast(:fechaEmisionDesde as date) is null OR entity.fechaEmision >= :fechaEmisionDesde ) AND " +
@@ -156,8 +160,8 @@ import java.util.UUID;
             "(entity.id_empresa = :idEmpresa) AND entity.deleted = false AND " +
             "entity.numero_autorizacion = :numeroAutorizacion", nativeQuery = true)
     Optional<CpImpuestosFacturasOneProjection> findExistByNumeroAutorizacion(@Param("idData") Long idData,
-                                                                              @Param("idEmpresa") Long idEmpresa,
-                                                                              @Param("numeroAutorizacion") String numeroAutorizacion);
+                                                                             @Param("idEmpresa") Long idEmpresa,
+                                                                             @Param("numeroAutorizacion") String numeroAutorizacion);
 
 
     @Modifying
@@ -182,14 +186,16 @@ import java.util.UUID;
             "entity.destino as destino, " +
             "entity.comprobante as comprobante, " +
             "entity.serie as serie, " +
-            "entity.secuencial as secuencial " +
+            "entity.secuencial as secuencial, " +
+            "gt.numero_identificacion as numeroIdentificacion " +
             "FROM cp_impuestos  entity " +
+            "LEFT JOIN ge_terceros gt on gt.id_tercero = entity.id_proveedor " +
             "WHERE (entity.id_data = :idData)  AND " +
             "(entity.id_empresa = :idEmpresa) AND entity.deleted = false AND " +
             "entity.id_impuestos = :id ", nativeQuery = true)
     Optional<CpImpuestosFacturasOneProjection> findXMLById(@Param("idData") Long idData,
-                                                            @Param("idEmpresa") Long idEmpresa,
-                                                            @Param("id") UUID id);
+                                                           @Param("idEmpresa") Long idEmpresa,
+                                                           @Param("id") UUID id);
 
     @Query(value = "SELECT entity " +
             "FROM CpImpuestosEntity entity " +
@@ -204,10 +210,11 @@ import java.util.UUID;
     @Query(
             value = "SELECT entity " +
                     "FROM CpImpuestosEntity entity " +
+                    "LEFT JOIN entity.tercero gt " +
                     "WHERE ( entity.idData = :idData) AND " +
                     "(:idEmpresa IS NULL OR entity.idEmpresa = :idEmpresa) AND " +
                     "(:codigoDocumento IS NULL OR entity.documento.codigoDocumento = :codigoDocumento) AND " +
-                    "(:numeroIdentificacion IS NULL OR entity.numeroIdentificacion = :numeroIdentificacion ) AND " +
+                    "(:numeroIdentificacion IS NULL OR gt.numeroIdentificacion = :numeroIdentificacion ) AND " +
                     "(:serie IS NULL OR entity.serie = :serie ) AND " +
                     "(:secuencial IS NULL OR entity.secuencial = :secuencial ) AND " +
                     "(:numeroAutorizacion IS NULL OR entity.numeroAutorizacion = :numeroAutorizacion ) AND " +
@@ -364,9 +371,10 @@ import java.util.UUID;
 
     @Query(value = "SELECT entity " +
             "FROM CpImpuestosEntity entity " +
+            "LEFT JOIN entity.tercero gt " +
             "WHERE entity.serie = :serie " +
             "AND entity.secuencial = :secuencial " +
-            "AND entity.numeroIdentificacion = :numeroIdentificacion")
+            "AND gt.numeroIdentificacion = :numeroIdentificacion")
     CpImpuestosEntity findBySerieAndSecuencialAndNumeroIdentificacion(@Param("serie") String serie,
                                                                       @Param("secuencial") String secuencial,
                                                                       @Param("numeroIdentificacion") String numeroIdentificacion);
@@ -380,8 +388,8 @@ import java.util.UUID;
             "( cast(:fechaRegistroHasta as date) is null OR entity.fechaRegistro <= :fechaRegistroHasta )"
     )
     List<CpImpuestosEntity> findAllByDates(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa,
-                                            @Param("fechaRegistroDesde") LocalDate fechaRegistroDesde,
-                                            @Param("fechaRegistroHasta") LocalDate fechaRegistroHasta);
+                                           @Param("fechaRegistroDesde") LocalDate fechaRegistroDesde,
+                                           @Param("fechaRegistroHasta") LocalDate fechaRegistroHasta);
 
 
     @Query(value = "SELECT ci.fecha_emision, " +

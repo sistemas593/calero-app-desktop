@@ -1,11 +1,10 @@
 package com.calero.lili.core.modCompras.modComprasRetenciones;
 
+import com.calero.lili.core.Auditable;
 import com.calero.lili.core.dtos.InformacionAdicional;
 import com.calero.lili.core.dtos.Mensajes;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
-import com.calero.lili.core.enums.TipoIdentificacion;
-import com.calero.lili.core.Auditable;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -29,6 +28,7 @@ import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -83,7 +83,7 @@ public class CpRetencionesEntity extends Auditable {
 
     private Integer ambiente;
 
-    private String fechaAutorizacion;
+    private LocalDateTime fechaAutorizacion;
 
     private String claveAcceso;
 

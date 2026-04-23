@@ -27,7 +27,8 @@ public class DeRecibidasServiceImpl {
     private final CpImpuestoRecibirBuilder cpImpuestoRecibirBuilder;
 
     public CpImpuestosRecibirListCreationResponseDto createFiles(Long idData, Long idEmpresa,
-                                                                 List<MultipartFile> files) {
+                                                                 List<MultipartFile> files,
+                                                                 String usuario) {
 
 
         List<CpImpuestosRecibirResponseDto> listaRespuestas = new ArrayList<>();
@@ -44,7 +45,7 @@ public class DeRecibidasServiceImpl {
                 if (!deRecibidasComponentsService.verificarExisteDocumentoElectronicoBdd(idData, idEmpresa,
                         documento.getNumeroAutorizacion())) {
 
-                    String message = deRecibidasComponentsService.guardarComprobante(idData, idEmpresa, documento);
+                    String message = deRecibidasComponentsService.guardarComprobante(idData, idEmpresa, documento, usuario);
                     res.setClaveAcceso(documento.getNumeroAutorizacion());
 
                     if (!message.isEmpty()) {

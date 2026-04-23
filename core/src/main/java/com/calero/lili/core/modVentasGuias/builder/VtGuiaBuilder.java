@@ -136,7 +136,7 @@ public class VtGuiaBuilder {
                 .fechaAnulacion(Objects.nonNull(model.getFechaAnulacion())
                         ? DateUtils.toString(model.getFechaAnulacion()) : null)
                 .fechaAutorizacion(Objects.nonNull(model.getFechaAutorizacion())
-                        ? model.getFechaAutorizacion() : null)
+                        ? DateUtils.toLocalDateTimeString(model.getFechaAutorizacion()) : null)
                 .numeroItems(model.getNumeroItems())
                 .anulada(model.getAnulada())
                 .email(model.getEmail())

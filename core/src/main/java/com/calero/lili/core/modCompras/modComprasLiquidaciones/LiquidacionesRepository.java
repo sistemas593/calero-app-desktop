@@ -195,6 +195,7 @@ public interface LiquidacionesRepository extends JpaRepository<CpLiquidacionesEn
     @Query(value = "SELECT " +
             "entity.id_liquidacion as idLiquidacion,  " +
             "entity.estado_documento as estadoDocumento,  " +
+            "entity.fecha_autorizacion as fechaAutorizacion, " +
             "entity.numero_autorizacion as numeroAutorizacion, " +
             "entity.comprobante as comprobante, " +
             "entity.serie as serie, " +

@@ -1,5 +1,6 @@
 package com.calero.lili.api.controllers;
 
+import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.api.utils.IdDataServiceImpl;
 import com.calero.lili.core.comprobantesWs.services.DeRecibidasWsServiceImpl;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirListCreationRequestDto;
@@ -24,6 +25,8 @@ public class ImpuestosRecibidosWsController {
 
     private final IdDataServiceImpl idDataService;
     private final DeRecibidasWsServiceImpl deRecibidasWsService;
+    private final AuditorAwareImpl auditorAware;
+
 
     // Verificar si existen
     @PostMapping("verificar/{idEmpresa}")
@@ -41,7 +44,8 @@ public class ImpuestosRecibidosWsController {
     public CpImpuestosRecibirListCreationResponseDto createListClavesAcceso(
             @PathVariable("idEmpresa") Long idEmpresa,
             @RequestBody CpImpuestosRecibirListCreationRequestDto request) {
-        return deRecibidasWsService.createListClavesAcceso(idDataService.getIdData(), idEmpresa, request);
+        return deRecibidasWsService.createListClavesAcceso(idDataService.getIdData(), idEmpresa, request,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
 
     }
 

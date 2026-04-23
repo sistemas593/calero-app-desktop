@@ -22,7 +22,7 @@ public class DateUtils {
     }
 
     public static LocalDateTime toLocalDateTime(String date) {
-        return LocalDateTime.parse(date, formatterTime);
+        return OffsetDateTime.parse(date).toLocalDateTime();
     }
 
     public static String toString(LocalDate date) {
@@ -114,4 +114,7 @@ public class DateUtils {
     }
 
 
+    public static String toLocalDateTimeString(LocalDateTime fechaAutorizacion) {
+        return fechaAutorizacion.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+    }
 }

@@ -3,7 +3,6 @@ package com.calero.lili.core.comprobantesWs.services;
 
 import com.calero.lili.core.comprobantes.objetosXml.autorizacionFile.Autorizacion;
 import com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencion.ComprobanteRetencion;
-import com.calero.lili.core.comprobantes.objetosXml.factura.Factura;
 import com.calero.lili.core.comprobantesPdf.ComprobanteRetencionPdf;
 import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.CpComprasXMLRetencionGetDto;
 import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.builder.DocumentosElectronicosComprobanteBuilder;
@@ -12,6 +11,7 @@ import com.calero.lili.core.comprobantesWs.dto.DatosEmpresaDto;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modCompras.impuestosXml.CpRetencionesOneProjection;
+import com.calero.lili.core.modCompras.impuestosXml.VtRetencionesOneProjection;
 import com.calero.lili.core.modCompras.modComprasRetenciones.ComprasRetencionesRepository;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.text.MessageFormat;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -57,12 +58,9 @@ public class GetXmlComprasRetencionesServiceImpl {
         CpRetencionesOneProjection entidad = vtVentaRepository.findXMLById(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
 
+        validarRetencion(entidad);
 
-        if (!entidad.getEstadoDocumento().equals(EstadoDocumento.AUT.name())) {
-            throw new GeneralException("El documento con id {0} no esta autorizado " + id);
-        }
-
-        String nombreArchivo = "FAC-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".xml";
+        String nombreArchivo = "E-RET-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".pdf";
 
         switch (origenCertificado) {
 
@@ -82,6 +80,7 @@ public class GetXmlComprasRetencionesServiceImpl {
             System.out.println("Si se pudo leer el String y convertirlo en objeto Factura: ");
         } catch (JAXBException ex) {
             System.out.println("error 1");
+            throw new GeneralException("No se pudo convetir el comprobante");
         }
 
 
@@ -103,36 +102,48 @@ public class GetXmlComprasRetencionesServiceImpl {
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
 
 
-        if (entidad.getEstadoDocumento().equals(EstadoDocumento.AUT.name())) {
+        validarRetencion(entidad);
+        String nombreArchivo = "E-RET-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".xml";
 
-            String nombreArchivo = "FAC-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".xml";
+        Autorizacion aut = new Autorizacion();
+        aut.setComprobante(entidad.getComprobante()); //"<![CDATA[" + + "]]>"
+        aut.setFechaAutorizacion(entidad.getFechaAutorizacion());
+        aut.setNumeroAutorizacion(entidad.getNumeroAutorizacion());
+        aut.setEstado("AUTORIZADO");
 
-            Autorizacion aut = new Autorizacion();
-            aut.setComprobante(entidad.getComprobante()); //"<![CDATA[" + + "]]>"
-            aut.setFechaAutorizacion(entidad.getFechaAutorizacion());
-            aut.setNumeroAutorizacion(entidad.getNumeroAutorizacion());
-            aut.setEstado("AUTORIZADO");
+        try {
+            JAXBContext context = JAXBContext.newInstance(new Class[]{Autorizacion.class});
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty("jaxb.encoding", "UTF-8");
+            marshaller.setProperty("jaxb.formatted.output", Boolean.valueOf(true));
+            StringWriter stringWriter = new StringWriter();
+            marshaller.marshal(aut, stringWriter);
 
-            try {
-                JAXBContext context = JAXBContext.newInstance(new Class[]{Autorizacion.class});
-                Marshaller marshaller = context.createMarshaller();
-                marshaller.setProperty("jaxb.encoding", "UTF-8");
-                marshaller.setProperty("jaxb.formatted.output", Boolean.valueOf(true));
-                StringWriter stringWriter = new StringWriter();
-                marshaller.marshal(aut, stringWriter);
+            return ArchivoDto.builder()
+                    .nombre(nombreArchivo)
+                    .contenido(stringWriter.toString().getBytes())
+                    .build();
 
-                return ArchivoDto.builder()
-                        .nombre(nombreArchivo)
-                        .contenido(stringWriter.toString().getBytes())
-                        .build();
+        } catch (Exception ex) {
+            throw new GeneralException("Existe un error: " + ex.getMessage());
+        }
 
-            } catch (Exception ex) {
-                throw new GeneralException("Existe un error: " + ex.getMessage());
-            }
 
-        } else {
-            throw new GeneralException(MessageFormat.format("El documento con id {0} " +
-                    "no esta autorizado ", id));
+    }
+
+
+    private void validarRetencion(CpRetencionesOneProjection entidad) {
+        if (!entidad.getNumeroAutorizacion().startsWith("07", 8)) {
+            throw new GeneralException("El documento con id " + entidad.getIdRetencion() + " no es una factura");
+        }
+
+        if (Objects.isNull(entidad.getComprobante()) || entidad.getComprobante().isEmpty()) {
+            throw new GeneralException("El documento no contiene un comprobante");
+        }
+
+        if (!entidad.getEstadoDocumento().equals(EstadoDocumento.AUT.name())) {
+            throw new GeneralException("El documento con id {0} no esta autorizado " + entidad.getIdRetencion());
         }
     }
+
 }

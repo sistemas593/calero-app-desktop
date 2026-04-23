@@ -2,8 +2,8 @@ package com.calero.lili.core.comprobantesWs.services;
 
 import com.calero.lili.core.apiSitac.repositories.AdMailsConfigRepository;
 import com.calero.lili.core.apiSitac.repositories.entities.AdMailConfigEntity;
-import com.calero.lili.core.apiSitac.services.GenerarBody;
 import com.calero.lili.core.apiSitac.services.EmailSender;
+import com.calero.lili.core.apiSitac.services.GenerarBody;
 import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.EnvioCorreoDto;
 import com.calero.lili.core.comprobantesWs.dto.DatosEmpresaDto;
 import com.calero.lili.core.comprobantesWs.dto.FilterEmailDto;
@@ -51,7 +51,7 @@ public class ProcesarReenvioCorreoServiceImpl {
         EnvioCorreoDto envioCorreoDto = new EnvioCorreoDto();
         envioCorreoDto.setComprobante(venta1.getComprobante());
         envioCorreoDto.setNumeroAutorizacion(venta1.getNumeroAutorizacion());
-        envioCorreoDto.setFechaAutorizacion(venta1.getFechaAutorizacion());
+        envioCorreoDto.setFechaAutorizacion(DateUtils.toLocalDateTimeString(venta1.getFechaAutorizacion()));
         envioCorreoDto.setNombreReceptor(venta1.getTercero().getTercero());
 
         switch (venta1.getTipoVenta()) {
@@ -90,7 +90,7 @@ public class ProcesarReenvioCorreoServiceImpl {
         EnvioCorreoDto envioCorreoDto = new EnvioCorreoDto();
         envioCorreoDto.setComprobante(venta1.getComprobante());
         envioCorreoDto.setNumeroAutorizacion(venta1.getNumeroAutorizacion());
-        envioCorreoDto.setFechaAutorizacion(venta1.getFechaAutorizacion());
+        envioCorreoDto.setFechaAutorizacion(DateUtils.toLocalDateTimeString(venta1.getFechaAutorizacion()));
         envioCorreoDto.setNombreReceptor("");
         envioCorreoDto.setCodigoDocumento(venta1.getCodigoDocumento());
         envioCorreoDto.setSecuencial(venta1.getSecuencial());
@@ -118,7 +118,7 @@ public class ProcesarReenvioCorreoServiceImpl {
         EnvioCorreoDto envioCorreoDto = new EnvioCorreoDto();
         envioCorreoDto.setComprobante(venta1.getComprobante());
         envioCorreoDto.setNumeroAutorizacion(venta1.getNumeroAutorizacion());
-        envioCorreoDto.setFechaAutorizacion(venta1.getFechaAutorizacion());
+        envioCorreoDto.setFechaAutorizacion(DateUtils.toLocalDateTimeString(venta1.getFechaAutorizacion()));
         envioCorreoDto.setNombreReceptor("");
         envioCorreoDto.setCodigoDocumento("03");
         envioCorreoDto.setSecuencial(venta1.getSecuencial());
@@ -146,7 +146,7 @@ public class ProcesarReenvioCorreoServiceImpl {
         EnvioCorreoDto envioCorreoDto = new EnvioCorreoDto();
         envioCorreoDto.setComprobante(venta1.getComprobante());
         envioCorreoDto.setNumeroAutorizacion(venta1.getNumeroAutorizacionRetencion());
-        envioCorreoDto.setFechaAutorizacion(venta1.getFechaAutorizacion());
+        envioCorreoDto.setFechaAutorizacion(DateUtils.toLocalDateTimeString(venta1.getFechaAutorizacion()));
         envioCorreoDto.setNombreReceptor("");
         envioCorreoDto.setCodigoDocumento(venta1.getCodigoDocumento());
         envioCorreoDto.setSecuencial(venta1.getSecuencialRetencion());

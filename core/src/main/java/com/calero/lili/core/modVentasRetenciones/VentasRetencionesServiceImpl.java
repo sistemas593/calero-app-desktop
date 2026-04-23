@@ -291,7 +291,7 @@ public class VentasRetencionesServiceImpl {
                     row.createCell(2).setCellValue(factura.getSecuencialRetencion());
                     row.createCell(3).setCellValue(DateUtils.toString(factura.getFechaEmisionRetencion()));
                     row.createCell(4).setCellValue(factura.getNumeroAutorizacionRetencion());
-                    row.createCell(5).setCellValue(factura.getNumeroIdentificacion());
+                    row.createCell(5).setCellValue(factura.getCliente().getNumeroIdentificacion());
 
                     row.createCell(6).setCellValue(baseCero.doubleValue());
 
@@ -420,7 +420,7 @@ public class VentasRetencionesServiceImpl {
                 table.addCell(factura.getSecuencialRetencion());
                 table.addCell(factura.getFechaEmisionRetencion().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
                 table.addCell(factura.getNumeroAutorizacionRetencion());
-                table.addCell(factura.getNumeroIdentificacion());
+                table.addCell(factura.getCliente().getNumeroIdentificacion());
 
                 table.addCell(String.valueOf(baseCero));
 

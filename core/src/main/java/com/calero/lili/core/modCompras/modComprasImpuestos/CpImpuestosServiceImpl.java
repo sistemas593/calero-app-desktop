@@ -229,7 +229,7 @@ public class CpImpuestosServiceImpl {
         CpImpuestosEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
 
-        if (!vtVentaEntity.getNumeroIdentificacion().equals(request.getNumeroIdentificacion())
+        if (!vtVentaEntity.getTercero().getNumeroIdentificacion().equals(request.getNumeroIdentificacion())
                 || !vtVentaEntity.getSerie().equals(request.getSerie())
                 || !vtVentaEntity.getSecuencial().equals(request.getSecuencial())
                 || !vtVentaEntity.getNumeroAutorizacion().equals(request.getNumeroAutorizacion())

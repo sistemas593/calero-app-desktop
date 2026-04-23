@@ -81,8 +81,6 @@ public class ProcesarDocumentosServiceImpl {
 //    private static String bucketName = "caleroapp-bucket-sgn";
 
 
-
-
 //    public DatosEmpresaDto buscarEmpresa(Long idData, Long idEmpresa){
 //        String sgn = "data00001/file001.p12";
 //        Optional<AdEmpresaEntity> empresa = adEmpresasRepository.findById(idData,idEmpresa);
@@ -149,7 +147,7 @@ public class ProcesarDocumentosServiceImpl {
                     documento.setEstadoDocumento(EstadoDocumento.AUT);
                     documento.setNumeroAutorizacion(respuestaProceso.getNumeroAutorizacion());
                     documento.setComprobante(respuestaProceso.getComprobante());
-                    documento.setFechaAutorizacion(respuestaProceso.getFechaAutorizacion());
+                    documento.setFechaAutorizacion(DateUtils.toLocalDateTime(respuestaProceso.getFechaAutorizacion()));
 
                     if (!Objects.isNull(documento.getEmail())) {
 
@@ -157,7 +155,7 @@ public class ProcesarDocumentosServiceImpl {
                             EnvioCorreoDto envioCorreoDto = new EnvioCorreoDto();
                             envioCorreoDto.setComprobante(documento.getComprobante());
                             envioCorreoDto.setNumeroAutorizacion(documento.getNumeroAutorizacion());
-                            envioCorreoDto.setFechaAutorizacion(documento.getFechaAutorizacion());
+                            envioCorreoDto.setFechaAutorizacion(DateUtils.toLocalDateTimeString(documento.getFechaAutorizacion()));
                             envioCorreoDto.setNombreReceptor(documento.getTercero().getTercero());
 
                             switch (documento.getTipoVenta()) {
@@ -251,7 +249,7 @@ public class ProcesarDocumentosServiceImpl {
                     guia.setEstadoDocumento(EstadoDocumento.AUT);
                     guia.setNumeroAutorizacion(respuestaProceso.getNumeroAutorizacion());
                     guia.setComprobante(respuestaProceso.getComprobante());
-                    guia.setFechaAutorizacion(respuestaProceso.getFechaAutorizacion());
+                    guia.setFechaAutorizacion(DateUtils.toLocalDateTime(respuestaProceso.getFechaAutorizacion()));
 
                     if (!Objects.isNull(guia.getEmail())) {
 
@@ -259,7 +257,7 @@ public class ProcesarDocumentosServiceImpl {
                             EnvioCorreoDto envioCorreoDto = new EnvioCorreoDto();
                             envioCorreoDto.setComprobante(guia.getComprobante());
                             envioCorreoDto.setNumeroAutorizacion(guia.getNumeroAutorizacion());
-                            envioCorreoDto.setFechaAutorizacion(guia.getFechaAutorizacion());
+                            envioCorreoDto.setFechaAutorizacion(DateUtils.toLocalDateTimeString(guia.getFechaAutorizacion()));
                             envioCorreoDto.setNombreReceptor(guia.getDestinatario().getTercero());
                             envioCorreoDto.setCodigoDocumento("06");
                             envioCorreoDto.setSecuencial(guia.getSecuencial());
@@ -339,7 +337,7 @@ public class ProcesarDocumentosServiceImpl {
                     liquidacion.setEstadoDocumento(EstadoDocumento.AUT);
                     liquidacion.setNumeroAutorizacion(respuestaProceso.getNumeroAutorizacion());
                     liquidacion.setComprobante(respuestaProceso.getComprobante());
-                    liquidacion.setFechaAutorizacion(respuestaProceso.getFechaAutorizacion());
+                    liquidacion.setFechaAutorizacion(DateUtils.toLocalDateTime(respuestaProceso.getFechaAutorizacion()));
 
                     if (!Objects.isNull(liquidacion.getEmail())) {
 
@@ -347,7 +345,7 @@ public class ProcesarDocumentosServiceImpl {
                             EnvioCorreoDto envioCorreoDto = new EnvioCorreoDto();
                             envioCorreoDto.setComprobante(liquidacion.getComprobante());
                             envioCorreoDto.setNumeroAutorizacion(liquidacion.getNumeroAutorizacion());
-                            envioCorreoDto.setFechaAutorizacion(liquidacion.getFechaAutorizacion());
+                            envioCorreoDto.setFechaAutorizacion(DateUtils.toLocalDateTimeString(liquidacion.getFechaAutorizacion()));
                             envioCorreoDto.setNombreReceptor(liquidacion.getProveedor().getTercero());
                             envioCorreoDto.setCodigoDocumento("03");
                             envioCorreoDto.setSecuencial(liquidacion.getSecuencial());
@@ -420,7 +418,7 @@ public class ProcesarDocumentosServiceImpl {
                     retencion.setEstadoDocumento(EstadoDocumento.AUT);
                     retencion.setNumeroAutorizacionRetencion(respuestaProceso.getNumeroAutorizacion());
                     retencion.setComprobante(respuestaProceso.getComprobante());
-                    retencion.setFechaAutorizacion(respuestaProceso.getFechaAutorizacion());
+                    retencion.setFechaAutorizacion(DateUtils.toLocalDateTime(respuestaProceso.getFechaAutorizacion()));
 
                     if (!Objects.isNull(retencion.getEmail())) {
 
@@ -428,7 +426,7 @@ public class ProcesarDocumentosServiceImpl {
                             EnvioCorreoDto envioCorreoDto = new EnvioCorreoDto();
                             envioCorreoDto.setComprobante(retencion.getComprobante());
                             envioCorreoDto.setNumeroAutorizacion(retencion.getNumeroAutorizacionRetencion());
-                            envioCorreoDto.setFechaAutorizacion(retencion.getFechaAutorizacion());
+                            envioCorreoDto.setFechaAutorizacion(DateUtils.toLocalDateTimeString(retencion.getFechaAutorizacion()));
                             envioCorreoDto.setNombreReceptor(retencion.getProveedor().getTercero());
                             envioCorreoDto.setCodigoDocumento("07");
                             envioCorreoDto.setSecuencial(retencion.getSecuencialRetencion());

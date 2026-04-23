@@ -186,12 +186,15 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
     @Query(value = "SELECT " +
             "entity.id_venta as idVenta,  " +
             "entity.estado_documento as estadoDocumento,  " +
+            "entity.fecha_autorizacion as fechaAutorizacion, " +
             "entity.numero_autorizacion as numeroAutorizacion, " +
             "entity.comprobante as comprobante, " +
             "entity.tipo_venta as tipoVenta, " +
             "entity.serie as serie, " +
-            "entity.secuencial as secuencial " +
+            "entity.secuencial as secuencial, " +
+            "gt.numero_identificacion as numeroIdentificacion " +
             "FROM vt_ventas  entity " +
+            "LEFT JOIN ge_terceros gt on gt.id_tercero = entity.id_tercero " +
             "WHERE (entity.id_data = :idData)  AND entity.deleted = false AND " +
             "(entity.id_empresa = :idEmpresa) AND " +
             "entity.id_venta = :id ", nativeQuery = true)

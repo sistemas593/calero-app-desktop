@@ -26,11 +26,9 @@ import java.util.List;
 @Slf4j
 public class DeRecibidasWsServiceImpl {
 
-
-    @Autowired
     private final AutorizacionServiceImpl autorizacionService;
-
     private final DeRecibidasComponentsServiceImpl deRecibidasComponentsService;
+
 
     public CpImpuestosRecibirListExistRequestResponseDto verificarExisteListaClaves(Long idData, Long idEmpresa, CpImpuestosRecibirListExistRequestResponseDto request) {
         log.info("xxxxxx");
@@ -78,7 +76,8 @@ public class DeRecibidasWsServiceImpl {
     }
 
 
-    public CpImpuestosRecibirListCreationResponseDto createListClavesAcceso(Long idData, Long idEmpresa, CpImpuestosRecibirListCreationRequestDto request) {
+    public CpImpuestosRecibirListCreationResponseDto createListClavesAcceso(Long idData, Long idEmpresa,
+                                                                            CpImpuestosRecibirListCreationRequestDto request, String usuario) {
         log.info("xxxxxx");
         List<CpImpuestosRecibirResponseDto> listaRespuestas = new ArrayList<>();
 
@@ -116,7 +115,7 @@ public class DeRecibidasWsServiceImpl {
                     } else {
                         Autorizacion autorizacionDto = ProcesarClavesAutorizadoSri(listaAutorizaciones, listaRespuestas);
                         if (autorizacionDto.getEstado() != null) {
-                            String message = deRecibidasComponentsService.guardarComprobante(idData, idEmpresa, autorizacionDto);
+                            String message = deRecibidasComponentsService.guardarComprobante(idData, idEmpresa, autorizacionDto,usuario);
                             if (!message.isEmpty()) {
 
                                 listaRespuestas.add(CpImpuestosRecibirResponseDto.builder()

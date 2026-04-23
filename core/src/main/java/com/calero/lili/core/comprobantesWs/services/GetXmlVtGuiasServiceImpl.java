@@ -10,8 +10,10 @@ import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.builder.Docume
 import com.calero.lili.core.comprobantesWs.dto.ArchivoDto;
 import com.calero.lili.core.comprobantesWs.dto.DatosEmpresaDto;
 import com.calero.lili.core.enums.EstadoDocumento;
+import com.calero.lili.core.enums.TipoVenta;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modCompras.impuestosXml.VtGuiaRemisionOneProjection;
+import com.calero.lili.core.modCompras.impuestosXml.VtVentasFacturaOneProjection;
 import com.calero.lili.core.modVentasGuias.VtGuiasRepository;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
@@ -25,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.text.MessageFormat;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -57,11 +60,9 @@ public class GetXmlVtGuiasServiceImpl {
         VtGuiaRemisionOneProjection entidad = vtVentaRepository.findXMLById(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
 
-        if (!entidad.getEstadoDocumento().equals(EstadoDocumento.AUT.name())) {
-            throw new GeneralException("El documento con id {0} no esta autorizado " + id);
-        }
+        validarGuia(entidad);
 
-        String nombreArchivo = "GRM-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".pdf";
+        String nombreArchivo = "E-GRM-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".pdf";
 
         switch (origenCertificado) {
 
@@ -81,6 +82,7 @@ public class GetXmlVtGuiasServiceImpl {
             System.out.println("Si se pudo leer el String y convertirlo en objeto Factura: ");
         } catch (JAXBException ex) {
             System.out.println("error 1");
+            throw new GeneralException("No se pudo convetir el comprobante");
         }
 
 
@@ -101,38 +103,49 @@ public class GetXmlVtGuiasServiceImpl {
         VtGuiaRemisionOneProjection entidad = vtVentaRepository.findXMLById(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
 
+        validarGuia(entidad);
 
-        if (entidad.getEstadoDocumento().equals(EstadoDocumento.AUT.name())) {
+        String nombreArchivo = "E-GRM-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".xml";
 
-            String nombreArchivo = "GRM-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".xml";
+        Autorizacion aut = new Autorizacion();
+        aut.setComprobante(entidad.getComprobante()); //"<![CDATA[" + + "]]>"
+        aut.setFechaAutorizacion(entidad.getFechaAutorizacion());
+        aut.setNumeroAutorizacion(entidad.getNumeroAutorizacion());
+        aut.setEstado("AUTORIZADO");
 
-            Autorizacion aut = new Autorizacion();
-            aut.setComprobante(entidad.getComprobante()); //"<![CDATA[" + + "]]>"
-            aut.setFechaAutorizacion(entidad.getFechaAutorizacion());
-            aut.setNumeroAutorizacion(entidad.getNumeroAutorizacion());
-            aut.setEstado("AUTORIZADO");
+        try {
+            JAXBContext context = JAXBContext.newInstance(new Class[]{Autorizacion.class});
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty("jaxb.encoding", "UTF-8");
+            marshaller.setProperty("jaxb.formatted.output", Boolean.valueOf(true));
+            StringWriter stringWriter = new StringWriter();
+            marshaller.marshal(aut, stringWriter);
 
-            try {
-                JAXBContext context = JAXBContext.newInstance(new Class[]{Autorizacion.class});
-                Marshaller marshaller = context.createMarshaller();
-                marshaller.setProperty("jaxb.encoding", "UTF-8");
-                marshaller.setProperty("jaxb.formatted.output", Boolean.valueOf(true));
-                StringWriter stringWriter = new StringWriter();
-                marshaller.marshal(aut, stringWriter);
+            return ArchivoDto.builder()
+                    .nombre(nombreArchivo)
+                    .contenido(stringWriter.toString().getBytes())
+                    .build();
 
-                return ArchivoDto.builder()
-                        .nombre(nombreArchivo)
-                        .contenido(stringWriter.toString().getBytes())
-                        .build();
+        } catch (Exception ex) {
+            throw new GeneralException("Existe un error: " + ex.getMessage());
+        }
 
-            } catch (Exception ex) {
-                throw new GeneralException("Existe un error: " + ex.getMessage());
-            }
+    }
 
-        } else {
-            throw new GeneralException(MessageFormat.format("El documento con id {0} " +
-                    "no esta autorizado ", id));
+    private void validarGuia(VtGuiaRemisionOneProjection entidad) {
+        if (!entidad.getNumeroAutorizacion().startsWith("06", 8)) {
+            throw new GeneralException("El documento con id " + entidad.getIdGuia() + " no es una guía de remisión");
+        }
+
+        if (Objects.isNull(entidad.getComprobante()) || entidad.getComprobante().isEmpty()) {
+            throw new GeneralException("El documento no contiene un comprobante");
+        }
+
+        if (!entidad.getEstadoDocumento().equals(EstadoDocumento.AUT.name())) {
+            throw new GeneralException("El documento con id {0} no esta autorizado " + entidad.getIdGuia());
         }
     }
+
+
 }
 

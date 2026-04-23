@@ -2,7 +2,6 @@ package com.calero.lili.core.comprobantesWs.services;
 
 
 import com.calero.lili.core.comprobantes.objetosXml.autorizacionFile.Autorizacion;
-import com.calero.lili.core.comprobantes.objetosXml.factura.Factura;
 import com.calero.lili.core.comprobantes.objetosXml.liquidacionCompras.LiquidacionCompra;
 import com.calero.lili.core.comprobantesPdf.LiquidacionCompraPdf;
 import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.CpComprasXMLLiquidacionesGetDto;
@@ -25,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.text.MessageFormat;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -56,11 +56,9 @@ public class GetXmlLiquidacionesServiceImpl {
         CpLiquidacionOneProjection entidad = vtVentaRepository.findXMLById(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
 
-        if (!entidad.getEstadoDocumento().equals(EstadoDocumento.AUT.name())) {
-            throw new GeneralException("El documento con id {0} no esta autorizado " + id);
-        }
+        validarLiquidacion(entidad);
 
-        String nombreArchivo = "LIQ-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".pdf";
+        String nombreArchivo = "E-LIQ-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".pdf";
 
         switch (origenCertificado) {
 
@@ -80,6 +78,7 @@ public class GetXmlLiquidacionesServiceImpl {
             System.out.println("Si se pudo leer el String y convertirlo en objeto Factura: ");
         } catch (JAXBException ex) {
             System.out.println("error 1");
+            throw new GeneralException("No se pudo convetir el comprobante");
         }
 
 
@@ -100,37 +99,50 @@ public class GetXmlLiquidacionesServiceImpl {
         CpLiquidacionOneProjection entidad = vtVentaRepository.findXMLById(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
 
-        if (entidad.getEstadoDocumento().equals(EstadoDocumento.AUT.name())) {
 
-            String nombreArchivo = "LIQ-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".xml";
+        validarLiquidacion(entidad);
 
-            Autorizacion aut = new Autorizacion();
-            aut.setComprobante(entidad.getComprobante()); //"<![CDATA[" + + "]]>"
-            aut.setFechaAutorizacion(entidad.getFechaAutorizacion());
-            aut.setNumeroAutorizacion(entidad.getNumeroAutorizacion());
-            aut.setEstado("AUTORIZADO");
+        String nombreArchivo = "E-LIQ-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".xml";
 
-            try {
-                JAXBContext context = JAXBContext.newInstance(new Class[]{Autorizacion.class});
-                Marshaller marshaller = context.createMarshaller();
-                marshaller.setProperty("jaxb.encoding", "UTF-8");
-                marshaller.setProperty("jaxb.formatted.output", Boolean.valueOf(true));
-                StringWriter stringWriter = new StringWriter();
-                marshaller.marshal(aut, stringWriter);
+        Autorizacion aut = new Autorizacion();
+        aut.setComprobante(entidad.getComprobante()); //"<![CDATA[" + + "]]>"
+        aut.setFechaAutorizacion(entidad.getFechaAutorizacion());
+        aut.setNumeroAutorizacion(entidad.getNumeroAutorizacion());
+        aut.setEstado("AUTORIZADO");
 
-                return ArchivoDto.builder()
-                        .nombre(nombreArchivo)
-                        .contenido(stringWriter.toString().getBytes())
-                        .build();
+        try {
+            JAXBContext context = JAXBContext.newInstance(new Class[]{Autorizacion.class});
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty("jaxb.encoding", "UTF-8");
+            marshaller.setProperty("jaxb.formatted.output", Boolean.valueOf(true));
+            StringWriter stringWriter = new StringWriter();
+            marshaller.marshal(aut, stringWriter);
 
-            } catch (Exception ex) {
-                throw new GeneralException("Existe un error: " + ex.getMessage());
-            }
+            return ArchivoDto.builder()
+                    .nombre(nombreArchivo)
+                    .contenido(stringWriter.toString().getBytes())
+                    .build();
 
-        } else {
-            throw new GeneralException(MessageFormat.format("El documento con id {0} " +
-                    "no esta autorizado ", id));
+        } catch (Exception ex) {
+            throw new GeneralException("Existe un error: " + ex.getMessage());
+        }
+
+
+    }
+
+    private void validarLiquidacion(CpLiquidacionOneProjection entidad) {
+        if (!entidad.getNumeroAutorizacion().startsWith("03", 8)) {
+            throw new GeneralException("El documento con id " + entidad.getIdLiquidacion() + " no es una factura");
+        }
+
+        if (Objects.isNull(entidad.getComprobante()) || entidad.getComprobante().isEmpty()) {
+            throw new GeneralException("El documento no contiene un comprobante");
+        }
+
+        if (!entidad.getEstadoDocumento().equals(EstadoDocumento.AUT.name())) {
+            throw new GeneralException("El documento con id {0} no esta autorizado " + entidad.getIdLiquidacion());
         }
     }
+
 }
 

@@ -33,7 +33,7 @@ public class ImpuestoProcesoBuilder {
         return ImpuestoProcesoResponseDto.builder()
                 .exitoso("S")
                 .mensaje(MessageFormat.format("Guardado con éxito el documento: Identificación {0}, Serie {1}, Secuencial {2}  ",
-                        impuesto.getNumeroIdentificacion(), impuesto.getSerie(), impuesto.getSecuencial()))
+                        impuesto.getTercero().getNumeroIdentificacion(), impuesto.getSerie(), impuesto.getSecuencial()))
                 .build();
     }
 
@@ -78,14 +78,12 @@ public class ImpuestoProcesoBuilder {
                         .build())
                 .liquidar(model.getLiquidar())
                 .numeroAutorizacion(model.getNumeroAutorizacion())
-                .numeroIdentificacion(model.getNumeroIdentificacion())
                 .origen(model.getOrigen())
                 .pagoExterior(model.getPagoExterior())
                 .tercero(model.getTercero())
                 .secuencial(model.getSecuencial())
                 .serie(model.getSerie())
                 .sucursal(model.getSucursal())
-                .tipoIdentificacion(model.getTipoIdentificacion())
                 .tipoProveedor(model.getTipoProveedor())
                 .documento(model.getDocumento())
                 .tercero(model.getTercero())

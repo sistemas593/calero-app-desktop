@@ -10,6 +10,7 @@ import com.calero.lili.core.comprobantesWs.dto.DatosEmpresaDto;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.TipoVenta;
 import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.core.modCompras.impuestosXml.CpImpuestosFacturasOneProjection;
 import com.calero.lili.core.modCompras.impuestosXml.VtVentasFacturaOneProjection;
 import com.calero.lili.core.modVentas.VtVentasRepository;
 import jakarta.xml.bind.JAXBContext;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.text.MessageFormat;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -64,13 +66,10 @@ public class GetXmlVtVentasFacturasServiceImpl {
         VtVentasFacturaOneProjection entidad = vtVentaRepository.findXMLById(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
 
-        if (!entidad.getEstadoDocumento().equals(EstadoDocumento.AUT.name())) {
-            throw new GeneralException("El documento con id {0} no esta autorizado " + id);
-        }
-
         validarFactura(entidad);
 
-        String nombreArchivo = "FAC-" + entidad.getSerie() + "-" + entidad.getSecuencial();
+        //  E-FC-001002-000002654-0963358379001.XML
+        String nombreArchivo = "E-FAC-" + entidad.getSerie() + "-" + entidad.getSecuencial() + "-" + entidad.getNumeroIdentificacion() + ".pdf";
 
         switch (origenCertificado) {
 
@@ -90,6 +89,7 @@ public class GetXmlVtVentasFacturasServiceImpl {
             System.out.println("Si se pudo leer el String y convertirlo en objeto Factura: " + documento.getInfoFactura().getComercioExterior());
         } catch (JAXBException ex) {
             System.out.println("error 1");
+            throw new GeneralException("No se pudo convetir el comprobante");
         }
 
 
@@ -114,7 +114,7 @@ public class GetXmlVtVentasFacturasServiceImpl {
 
         if (entidad.getEstadoDocumento().equals(EstadoDocumento.AUT.name())) {
 
-            String nombreArchivo = "FAC-" + entidad.getSerie() + "-" + entidad.getSecuencial();
+            String nombreArchivo = "E-FAC-" + entidad.getSerie() + "-" + entidad.getSecuencial() + "-" + entidad.getNumeroIdentificacion() + ".xml";
 
             Autorizacion aut = new Autorizacion();
             aut.setComprobante(entidad.getComprobante()); //"<![CDATA[" + + "]]>"
@@ -149,6 +149,14 @@ public class GetXmlVtVentasFacturasServiceImpl {
     private void validarFactura(VtVentasFacturaOneProjection entidad) {
         if (!entidad.getTipoVenta().equals(TipoVenta.FAC.name())) {
             throw new GeneralException("El documento con id " + entidad.getIdVenta() + " no es una factura");
+        }
+
+        if (Objects.isNull(entidad.getComprobante()) || entidad.getComprobante().isEmpty()) {
+            throw new GeneralException("El documento no contiene un comprobante");
+        }
+
+        if (!entidad.getEstadoDocumento().equals(EstadoDocumento.AUT.name())) {
+            throw new GeneralException("El documento con id {0} no esta autorizado " + entidad.getIdVenta());
         }
     }
 

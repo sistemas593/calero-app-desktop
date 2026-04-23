@@ -31,6 +31,7 @@ import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -95,7 +96,7 @@ public class CpLiquidacionesEntity extends Auditable {
 
     private Integer tipoEmision;
     private Integer ambiente;
-    private String fechaAutorizacion;
+    private LocalDateTime fechaAutorizacion;
     private String claveAcceso;
 
 

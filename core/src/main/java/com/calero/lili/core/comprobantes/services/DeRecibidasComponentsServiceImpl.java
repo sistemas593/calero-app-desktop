@@ -9,6 +9,7 @@ import com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencion.Comprob
 import com.calero.lili.core.comprobantes.objetosXml.factura.Factura;
 import com.calero.lili.core.comprobantes.objetosXml.factura.InfoTributaria;
 import com.calero.lili.core.comprobantes.objetosXml.notaCredito.NotaCredito;
+import com.calero.lili.core.comprobantes.objetosXml.notaDebito.Impuesto;
 import com.calero.lili.core.comprobantes.objetosXml.notaDebito.NotaDebito;
 import com.calero.lili.core.comprobantes.utils.XmlUtils;
 import com.calero.lili.core.enums.TipoTercero;
@@ -31,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -72,7 +74,7 @@ public class DeRecibidasComponentsServiceImpl {
         return Boolean.FALSE;
     }
 
-    public String guardarComprobante(Long idData, Long idEmpresa, Autorizacion autorizacionDto) {
+    public String guardarComprobante(Long idData, Long idEmpresa, Autorizacion autorizacionDto, String usuario) {
 
         String numeroAutorizacion = autorizacionDto.getNumeroAutorizacion();
         System.out.println(autorizacionDto.getComprobante());
@@ -84,29 +86,29 @@ public class DeRecibidasComponentsServiceImpl {
             /* FACTURAS */
 
             if (numeroAutorizacion.startsWith("01", 8)) {
-                return saveFactura(idData, idEmpresa, autorizacionDto);
+                return saveFactura(idData, idEmpresa, autorizacionDto, usuario);
             }
 
             /* NOTA DE CREDITO */
 
             if (numeroAutorizacion.startsWith("04", 8)) {
-                return saveNotaCredito(idData, idEmpresa, autorizacionDto);
+                return saveNotaCredito(idData, idEmpresa, autorizacionDto, usuario);
             }
 
             /* NOTA DE DEBITO */
 
             if (numeroAutorizacion.startsWith("05", 8)) {
 
-                return saveNotaDebito(idData, idEmpresa, autorizacionDto);
+                return saveNotaDebito(idData, idEmpresa, autorizacionDto, usuario);
 
             }
             /* RETENCIÓN */
-            return validacionRetencion(idData, idEmpresa, autorizacionDto, numeroAutorizacion);
+            return validacionRetencion(idData, idEmpresa, autorizacionDto, numeroAutorizacion, usuario);
         }
         return message;
     }
 
-    private String saveNotaDebito(Long idData, Long idEmpresa, Autorizacion autorizacionDto) {
+    private String saveNotaDebito(Long idData, Long idEmpresa, Autorizacion autorizacionDto, String usuario) {
         NotaDebito documento = XmlUtils.getNotaDebito(autorizacionDto);
 
         if (Objects.nonNull(documento)) {
@@ -116,6 +118,8 @@ public class DeRecibidasComponentsServiceImpl {
             if (message.isEmpty()) {
                 CpImpuestosEntity notaDebito = validarNotaDebito(idData, idEmpresa, documento, autorizacionDto);
                 if (Objects.nonNull(notaDebito)) {
+                    notaDebito.setCreatedBy(usuario);
+                    notaDebito.setCreatedDate(LocalDateTime.now());
                     cpImpuestosRepository.save(notaDebito);
                     return "";
                 }
@@ -129,7 +133,7 @@ public class DeRecibidasComponentsServiceImpl {
         return MensajeComprobante.ERR_LEER_DOCUMENTO_INTERNO;
     }
 
-    private String saveNotaCredito(Long idData, Long idEmpresa, Autorizacion autorizacionDto) {
+    private String saveNotaCredito(Long idData, Long idEmpresa, Autorizacion autorizacionDto, String usuario) {
         NotaCredito documento = XmlUtils.getNotaCredito(autorizacionDto);
         if (Objects.nonNull(documento)) {
 
@@ -137,6 +141,8 @@ public class DeRecibidasComponentsServiceImpl {
             if (message.isEmpty()) {
                 CpImpuestosEntity notaCredito = validarNotaCredito(idData, idEmpresa, documento, autorizacionDto);
                 if (Objects.nonNull(notaCredito)) {
+                    notaCredito.setCreatedBy(usuario);
+                    notaCredito.setCreatedDate(LocalDateTime.now());
                     cpImpuestosRepository.save(notaCredito);
                     return "";
                 } else {
@@ -150,7 +156,7 @@ public class DeRecibidasComponentsServiceImpl {
         return MensajeComprobante.ERR_LEER_DOCUMENTO_INTERNO;
     }
 
-    private String saveFactura(Long idData, Long idEmpresa, Autorizacion autorizacionDto) {
+    private String saveFactura(Long idData, Long idEmpresa, Autorizacion autorizacionDto, String usuario) {
 
         Factura documento = XmlUtils.getFactura(autorizacionDto);
         if (Objects.nonNull(documento)) {
@@ -159,7 +165,10 @@ public class DeRecibidasComponentsServiceImpl {
             if (message.isEmpty()) {
                 CpImpuestosEntity factura = validarFactura(idData, idEmpresa, documento, autorizacionDto);
                 if (Objects.nonNull(factura)) {
+                    factura.setCreatedBy(usuario);
+                    factura.setCreatedDate(LocalDateTime.now());
                     cpImpuestosRepository.save(factura);
+
                     return "";
                 } else {
                     return MensajeComprobante.ERR_LEER_DOCUMENTO_INTERNO;
@@ -181,7 +190,7 @@ public class DeRecibidasComponentsServiceImpl {
 
     }
 
-    private String validacionRetencion(Long idData, Long idEmpresa, Autorizacion autorizacionDto, String numeroAutorizacion) {
+    private String validacionRetencion(Long idData, Long idEmpresa, Autorizacion autorizacionDto, String numeroAutorizacion, String usuario) {
         if ((numeroAutorizacion.startsWith("07", 8))) {
 
             Optional<DeRecibidasRetencionesProjection> existingFactura =
@@ -193,16 +202,16 @@ public class DeRecibidasComponentsServiceImpl {
 
                 if (ConstantesDocumento.VERSION_1_0_0.equals(version)) {
 
-                    return saveRetencionVersionUno(idData, idEmpresa, autorizacionDto);
+                    return saveRetencionVersionUno(idData, idEmpresa, autorizacionDto, usuario);
                 } else {
-                    return saveRetencionVersionDos(idData, idEmpresa, autorizacionDto);
+                    return saveRetencionVersionDos(idData, idEmpresa, autorizacionDto, usuario);
                 }
             }
         }
         return MensajeComprobante.ERR_LEER_DOCUMENTO_INTERNO;
     }
 
-    private String saveRetencionVersionDos(Long idData, Long idEmpresa, Autorizacion autorizacionDto) {
+    private String saveRetencionVersionDos(Long idData, Long idEmpresa, Autorizacion autorizacionDto, String usuario) {
         ComprobanteRetencion documento = getComprobanteRetencionDos(autorizacionDto);
 
         if (Objects.nonNull(documento)) {
@@ -211,6 +220,8 @@ public class DeRecibidasComponentsServiceImpl {
             if (message.isEmpty()) {
                 VtRetencionesEntity entidad = validarRetencionDos(idData, idEmpresa, documento, autorizacionDto);
                 if (Objects.nonNull(entidad)) {
+                    entidad.setCreatedBy(usuario);
+                    entidad.setCreatedDate(LocalDateTime.now());
                     ventasRetencionesRepository.save(entidad);
                     return "";
                 }
@@ -223,7 +234,7 @@ public class DeRecibidasComponentsServiceImpl {
     }
 
 
-    private String saveRetencionVersionUno(Long idData, Long idEmpresa, Autorizacion autorizacionDto) {
+    private String saveRetencionVersionUno(Long idData, Long idEmpresa, Autorizacion autorizacionDto, String usuario) {
         com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencionV1.ComprobanteRetencion documento = getComprobanteRetencionUno(autorizacionDto);
 
         if (Objects.nonNull(documento)) {
@@ -232,6 +243,8 @@ public class DeRecibidasComponentsServiceImpl {
             if (message.isEmpty()) {
                 VtRetencionesEntity entidad = validarRetencionUno(idData, idEmpresa, documento, autorizacionDto);
                 if (Objects.nonNull(entidad)) {
+                    entidad.setCreatedBy(usuario);
+                    entidad.setCreatedDate(LocalDateTime.now());
                     ventasRetencionesRepository.save(entidad);
                     return "";
                 }
@@ -328,7 +341,7 @@ public class DeRecibidasComponentsServiceImpl {
         try {
             CpImpuestosEntity cpImpuestosEntity = autorizacionBuilder.builderFactura(autorizacionDto, documento, idData, idEmpresa,
                     validarProveedor(documento.getInfoTributaria(), idData));
-            validarValores(documento, cpImpuestosEntity, idData, idEmpresa);
+            validarValoresFactura(documento, cpImpuestosEntity, idData, idEmpresa);
             return cpImpuestosEntity;
         } catch (Exception ex) {
             log.error(ex.getMessage());
@@ -338,8 +351,10 @@ public class DeRecibidasComponentsServiceImpl {
 
     private CpImpuestosEntity validarNotaCredito(Long idData, Long idEmpresa, NotaCredito documento, Autorizacion autorizacionDto) {
         try {
-            return autorizacionBuilder.builderNotaCredito(autorizacionDto, documento, idData, idEmpresa,
+            CpImpuestosEntity cpImpuestosEntity = autorizacionBuilder.builderNotaCredito(autorizacionDto, documento, idData, idEmpresa,
                     validarProveedor(documento.getInfoTributaria(), idData));
+            validarValoresNotaCredito(documento, cpImpuestosEntity, idData, idEmpresa);
+            return cpImpuestosEntity;
         } catch (Exception ex) {
             log.error(ex.getMessage());
             return null;
@@ -349,8 +364,10 @@ public class DeRecibidasComponentsServiceImpl {
 
     private CpImpuestosEntity validarNotaDebito(Long idData, Long idEmpresa, NotaDebito documento, Autorizacion autorizacionDto) {
         try {
-            return autorizacionBuilder.builderNotaDebito(autorizacionDto, documento, idData, idEmpresa,
+            CpImpuestosEntity cpImpuestosEntity = autorizacionBuilder.builderNotaDebito(autorizacionDto, documento, idData, idEmpresa,
                     validarProveedor(documento.getInfoTributaria(), idData));
+            validarValoresNotaDebito(documento, cpImpuestosEntity, idData, idEmpresa);
+            return cpImpuestosEntity;
         } catch (Exception ex) {
             log.error(ex.getMessage());
             return null;
@@ -455,19 +472,46 @@ public class DeRecibidasComponentsServiceImpl {
         return geTerceroEntity;
     }
 
-    private void validarValores(Factura documento, CpImpuestosEntity cpImpuestosEntity, Long idData, Long idEmpresa) {
+    private void validarValoresFactura(Factura documento, CpImpuestosEntity cpImpuestosEntity, Long idData, Long idEmpresa) {
         List<CpImpuestosValoresEntity> reembolsosEntities = new ArrayList<>();
         BigDecimal tarifa = BigDecimal.ZERO;
         for (TotalImpuesto impuesto : documento.getInfoFactura().getTotalImpuesto()) {
             BigDecimal valor = new BigDecimal(impuesto.getValor().replace(" ", ""));
             BigDecimal baseImponible = new BigDecimal(impuesto.getBaseImponible().replace(" ", ""));
             if (valor.compareTo(BigDecimal.ZERO) > 0 || baseImponible.compareTo(BigDecimal.ZERO) > 0) {
-                reembolsosEntities.add(autorizacionBuilder.builderValoresFactura(impuesto, tarifa, idData, idEmpresa));
+                reembolsosEntities.add(autorizacionBuilder.builderValoresDocumento(impuesto, tarifa, idData, idEmpresa));
             }
 
         }
         cpImpuestosEntity.setValoresEntity(reembolsosEntities);
     }
 
+
+    private void validarValoresNotaCredito(NotaCredito documento, CpImpuestosEntity cpImpuestosEntity, Long idData, Long idEmpresa) {
+        List<CpImpuestosValoresEntity> reembolsosEntities = new ArrayList<>();
+        BigDecimal tarifa = BigDecimal.ZERO;
+        for (TotalImpuesto impuesto : documento.getInfoNotaCredito().getTotalImpuesto()) {
+            BigDecimal valor = new BigDecimal(impuesto.getValor().replace(" ", ""));
+            BigDecimal baseImponible = new BigDecimal(impuesto.getBaseImponible().replace(" ", ""));
+            if (valor.compareTo(BigDecimal.ZERO) > 0 || baseImponible.compareTo(BigDecimal.ZERO) > 0) {
+                reembolsosEntities.add(autorizacionBuilder.builderValoresDocumento(impuesto, tarifa, idData, idEmpresa));
+            }
+
+        }
+        cpImpuestosEntity.setValoresEntity(reembolsosEntities);
+    }
+
+    private void validarValoresNotaDebito(NotaDebito documento, CpImpuestosEntity cpImpuestosEntity, Long idData, Long idEmpresa) {
+        List<CpImpuestosValoresEntity> reembolsosEntities = new ArrayList<>();
+        BigDecimal tarifa = BigDecimal.ZERO;
+        for (Impuesto impuesto : documento.getInfoNotaDebito().getImpuesto()) {
+            BigDecimal valor = new BigDecimal(impuesto.getValor().replace(" ", ""));
+            BigDecimal baseImponible = new BigDecimal(impuesto.getBaseImponible().replace(" ", ""));
+            if (valor.compareTo(BigDecimal.ZERO) > 0 || baseImponible.compareTo(BigDecimal.ZERO) > 0) {
+                reembolsosEntities.add(autorizacionBuilder.builderValoresNotaDebito(impuesto, tarifa, idData, idEmpresa));
+            }
+        }
+        cpImpuestosEntity.setValoresEntity(reembolsosEntities);
+    }
 
 }

@@ -29,7 +29,7 @@ public class ProcesarDocumentosController {
     @ResponseStatus(HttpStatus.CREATED)
     public RespuestaProcesoGetDto procesarFacNcNd(@PathVariable("idEmpresa") Long idEmpresa,
                                                   @PathVariable("id") UUID id) {
-        return documentosService.procesarDocumentoVenta(idDataService.getIdData(), idEmpresa, id, "WEB");
+        return documentosService.procesarDocumentoVenta(idDataService.getIdData(), idEmpresa, id, "LOC");
 
     }
 

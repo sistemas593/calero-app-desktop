@@ -10,8 +10,10 @@ import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.builder.Docume
 import com.calero.lili.core.comprobantesWs.dto.ArchivoDto;
 import com.calero.lili.core.comprobantesWs.dto.DatosEmpresaDto;
 import com.calero.lili.core.enums.EstadoDocumento;
+import com.calero.lili.core.enums.TipoVenta;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modCompras.impuestosXml.VtRetencionesOneProjection;
+import com.calero.lili.core.modCompras.impuestosXml.VtVentasFacturaOneProjection;
 import com.calero.lili.core.modVentasRetenciones.VentasRetencionesRepository;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
@@ -25,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.text.MessageFormat;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -55,8 +58,9 @@ public class GetXmlVentasRetencionesServiceImpl {
         VtRetencionesOneProjection entidad = vtVentaRepository.findXMLById(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
 
+        validarRetencion(entidad);
 
-        String nombreArchivo = "RET-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".pdf";
+        String nombreArchivo = "R-" + entidad.getNumeroIdentificacion() + "-" + "RET" + "-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".pdf";
 
         switch (origenCertificado) {
 
@@ -96,7 +100,9 @@ public class GetXmlVentasRetencionesServiceImpl {
         VtRetencionesOneProjection entidad = vtVentaRepository.findXMLById(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
 
-        String nombreArchivo = "RET-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".xml";
+        String nombreArchivo = "R-" + entidad.getNumeroIdentificacion() + "-" + "RET" + "-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".pdf";
+
+        validarRetencion(entidad);
 
         Autorizacion aut = new Autorizacion();
         aut.setComprobante(entidad.getComprobante()); //"<![CDATA[" + + "]]>"
@@ -121,7 +127,21 @@ public class GetXmlVentasRetencionesServiceImpl {
             throw new GeneralException("Existe un error: " + ex.getMessage());
         }
 
+    }
 
+
+    private void validarRetencion(VtRetencionesOneProjection entidad) {
+        if (!entidad.getNumeroAutorizacion().startsWith("07", 8)) {
+            throw new GeneralException("El documento con id " + entidad.getIdRetencion() + " no es una factura");
+        }
+
+        if (Objects.isNull(entidad.getComprobante()) || entidad.getComprobante().isEmpty()) {
+            throw new GeneralException("El documento no contiene un comprobante");
+        }
+
+        if (!entidad.getEstadoDocumento().equals(EstadoDocumento.AUT.name())) {
+            throw new GeneralException("El documento con id {0} no esta autorizado " + entidad.getIdRetencion());
+        }
     }
 }
 

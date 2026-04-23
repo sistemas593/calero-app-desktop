@@ -25,7 +25,7 @@ public class ComprobanteRetencionPdf {
         try {
 
             Document document = new Document(PageSize.A4);
-            document.setMargins(15,15,10,10);
+            document.setMargins(15, 15, 10, 10);
             //PdfWriter pdfWriter = PdfWriter.getInstance(document, new FileOutputStream(carpetaPdf + claveAcceso + ".pdf"));
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             PdfWriter pdfWriter = PdfWriter.getInstance(document, byteArrayOutputStream);
@@ -115,12 +115,12 @@ public class ComprobanteRetencionPdf {
             celda = generateCell(new Paragraph("AMBIENTE: ", title), LEFT_PADDING_DOCUMENTO);
             table_datos_documento.addCell(celda);
 
-            String Ambiente="";
-            if (factura.getInfoTributaria().getAmbiente().equals("1")){
-                Ambiente="PRUEBAS";
+            String Ambiente = "";
+            if (factura.getInfoTributaria().getAmbiente().equals("1")) {
+                Ambiente = "PRUEBAS";
             }
-            if (factura.getInfoTributaria().getAmbiente().equals("2")){
-                Ambiente="PRODUCCIÓN";
+            if (factura.getInfoTributaria().getAmbiente().equals("2")) {
+                Ambiente = "PRODUCCIÓN";
             }
 
             celda = generateCell(new Paragraph(Ambiente, fuente), PADDING_NONE);
@@ -129,9 +129,9 @@ public class ComprobanteRetencionPdf {
             celda = generateCell(new Paragraph("EMISION:", title), LEFT_PADDING_DOCUMENTO);
             table_datos_documento.addCell(celda);
 
-            String Emision="";
-            if (factura.getInfoTributaria().getTipoEmision().equals("1")){
-                Emision="NORMAL";
+            String Emision = "";
+            if (factura.getInfoTributaria().getTipoEmision().equals("1")) {
+                Emision = "NORMAL";
             }
 
             celda = generateCell(new Paragraph(Emision, fuente), PADDING_NONE);
@@ -337,12 +337,12 @@ public class ComprobanteRetencionPdf {
             List<DocSustento> lista1 = factura.getDocSustento();
             for (DocSustento det : lista1) {
 
-                String nombreDocumento="";
-                if (det.getCodDocSustento().equals("01")){
-                    nombreDocumento="Factura";
+                String nombreDocumento = "";
+                if (det.getCodDocSustento().equals("01")) {
+                    nombreDocumento = "Factura";
                 }
-                if (det.getCodDocSustento().equals("03")){
-                    nombreDocumento="Liquidación de Compra";
+                if (det.getCodDocSustento().equals("03")) {
+                    nombreDocumento = "Liquidación de Compra";
                 }
 
                 cell = new PdfPCell(new Phrase(nombreDocumento, fuente));
@@ -357,7 +357,7 @@ public class ComprobanteRetencionPdf {
                 cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
                 table_detalle.addCell(cell);
 
-                cell = new PdfPCell(new Phrase("ejer fiscal", fuente));
+                cell = new PdfPCell(new Phrase(factura.getInfoCompRetencion().getPeriodoFiscal(), fuente));
                 cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
                 table_detalle.addCell(cell);
 
@@ -368,12 +368,12 @@ public class ComprobanteRetencionPdf {
                     cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
                     table_detalle.addCell(cell);
 
-                    String nombreImpuesto="";
-                    if (listaRetencion1.getCodigo().equals("1")){
-                        nombreImpuesto="Impuesto a la Renta";
+                    String nombreImpuesto = "";
+                    if (listaRetencion1.getCodigo().equals("1")) {
+                        nombreImpuesto = "Impuesto a la Renta";
                     }
-                    if (listaRetencion1.getCodigo().equals("2")){
-                        nombreImpuesto="IVA";
+                    if (listaRetencion1.getCodigo().equals("2")) {
+                        nombreImpuesto = "IVA";
                     }
 
                     cell = new PdfPCell(new Phrase(nombreImpuesto, fuente));

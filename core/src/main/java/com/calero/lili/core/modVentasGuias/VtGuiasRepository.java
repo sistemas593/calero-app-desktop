@@ -137,6 +137,7 @@ public interface VtGuiasRepository extends JpaRepository<VtGuiaEntity, UUID>, Jp
     @Query(value = "SELECT " +
             "entity.id_guia as idGuia,  " +
             "entity.estado_documento as estadoDocumento,  " +
+            "entity.fecha_autorizacion as fechaAutorizacion, " +
             "entity.numero_autorizacion as numeroAutorizacion, " +
             "entity.comprobante as comprobante, " +
             "entity.serie as serie, " +

@@ -29,7 +29,6 @@ public class VtNotasCreditoBuilder {
     private final InformacionAdicionalBuilder informacionAdicionalBuilder;
 
 
-
     public VtVentaEntity builderEntity(CreationNotaCreditoRequestDto model, Long idData, Long idEmpresa) {
         return VtVentaEntity.builder()
                 .idVenta(UUID.randomUUID())
@@ -179,7 +178,8 @@ public class VtNotasCreditoBuilder {
                 .cuotas(model.getCuotas())
                 .detalle(vtNotaCreditoDetalleBuilder.builderListDto(model.getDetalle()))
                 .informacionAdicional(informacionAdicionalBuilder.builderListDto(model.getInformacionAdicional()))
-                .fechaAutorizacion(model.getFechaAutorizacion())
+                .fechaAutorizacion(Objects.nonNull(model.getFechaAutorizacion())
+                        ? DateUtils.toLocalDateTimeString(model.getFechaAutorizacion()) : null)
                 .claveAcceso(model.getClaveAcceso())
                 .modSerie(model.getModSerie())
                 .modSecuencial(model.getModSecuencial())

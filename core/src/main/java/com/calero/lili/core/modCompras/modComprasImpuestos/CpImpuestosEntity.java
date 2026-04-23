@@ -29,6 +29,7 @@ import org.hibernate.annotations.Where;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -68,16 +69,11 @@ public class CpImpuestosEntity extends Auditable {
     private String numeroAutorizacion;
 
     @Column(name = "fecha_autorizacion")
-    private LocalDate fechaAutorizacion;
+    private LocalDateTime fechaAutorizacion;
 
     @NotNull
     @Column(name = "fecha_emision")
     private LocalDate fechaEmision;
-
-    private String tipoIdentificacion;
-
-    @Column(name = "numero_identificacion")
-    private String numeroIdentificacion;
 
 
     @JdbcTypeCode(SqlTypes.JSON)

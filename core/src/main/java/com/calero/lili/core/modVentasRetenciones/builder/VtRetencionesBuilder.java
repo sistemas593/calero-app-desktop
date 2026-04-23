@@ -30,8 +30,6 @@ public class VtRetencionesBuilder {
                 .sucursal(model.getSucursal())
                 .serieRetencion(model.getSerieRetencion())
                 .secuencialRetencion(model.getSecuencialRetencion())
-                .tipoIdentificacion(model.getTipoIdentificacion())
-                .numeroIdentificacion(model.getNumeroIdentificacion())
                 .fechaEmisionRetencion(LocalDate.parse(model.getFechaEmisionRetencion()))
                 .build();
     }
@@ -46,8 +44,6 @@ public class VtRetencionesBuilder {
                 .sucursal(model.getSucursal())
                 .serieRetencion(model.getSerieRetencion())
                 .secuencialRetencion(model.getSecuencialRetencion())
-                .tipoIdentificacion(model.getTipoIdentificacion())
-                .numeroIdentificacion(model.getNumeroIdentificacion())
                 .fechaEmisionRetencion(LocalDate.parse(model.getFechaEmisionRetencion()))
                 .build();
     }
@@ -61,7 +57,7 @@ public class VtRetencionesBuilder {
                 .serie(model.getSerieRetencion())
                 .secuencial(model.getSecuencialRetencion())
                 .fechaAutorizacion(Objects.nonNull(model.getFechaAutorizacion())
-                        ? model.getFechaAutorizacion()
+                        ? DateUtils.toLocalDateTimeString(model.getFechaAutorizacion())
                         : null)
                 .fechaEmision(DateUtils.toString(model.getFechaEmisionRetencion()))
                 .tercero(builderResponseTercero(model.getCliente()))
@@ -69,6 +65,7 @@ public class VtRetencionesBuilder {
     }
 
     private GetDto.TerceroDto builderResponseTercero(GeTerceroEntity cliente) {
+        if (Objects.isNull(cliente)) return null;
         return GetDto.TerceroDto.builder()
                 .idTercero(cliente.getIdTercero())
                 .tercero(cliente.getTercero())
@@ -91,6 +88,7 @@ public class VtRetencionesBuilder {
     }
 
     private GetListDto.TerceroDto builderTerceroResponseList(GeTerceroEntity cliente) {
+        if (Objects.isNull(cliente)) return null;
         return GetListDto.TerceroDto.builder()
                 .idTercero(cliente.getIdTercero())
                 .tercero(cliente.getTercero())
