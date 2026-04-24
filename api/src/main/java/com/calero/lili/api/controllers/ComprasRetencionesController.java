@@ -104,7 +104,7 @@ public class ComprasRetencionesController {
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
-    @GetMapping("{idEmpresa}")
+   /* @GetMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('CP_RT_VR_PR','CP_RT_VR_SC','CP_RT_VR_TD')")
     public PaginatedDto<GetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
@@ -113,9 +113,9 @@ public class ComprasRetencionesController {
         return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable,
                 auditorAware.getTipoPermisoVerCompraRetencion(),
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"));
-    }
+    }*/
 
-    @GetMapping("reportes/{idEmpresa}")
+    @GetMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('CP_RT_VR_PR','CP_RT_VR_SC','CP_RT_VR_TD')")
     public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(@PathVariable("idEmpresa") Long idEmpresa,

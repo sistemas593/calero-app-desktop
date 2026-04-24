@@ -10,7 +10,6 @@ import com.calero.lili.core.comprobantesPdf.NotaCreditoPdf;
 import com.calero.lili.core.comprobantesPdf.NotaDebitoPdf;
 import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.builder.DocumentosElectronicosComprobanteBuilder;
 import com.calero.lili.core.comprobantesWs.dto.ArchivoDto;
-import com.calero.lili.core.comprobantesWs.dto.DatosEmpresaDto;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modCompras.impuestosXml.CpImpuestosFacturasOneProjection;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosRepository;
@@ -65,26 +64,16 @@ public class GetXmlCpImpuestosServiceImpl {
 
     // FACTURAS
 
-    public ArchivoDto findPDFFacturaById(Long idData, Long idEmpresa, UUID id, String origenCertificado) {
+    public ArchivoDto findPDFFacturaById(Long idData, Long idEmpresa, UUID id) {
 
         System.out.println("Obtener PDF");
-
-        DatosEmpresaDto datosEmpresaDto = null;
 
         CpImpuestosFacturasOneProjection entidad = vtVentaRepository.findXMLById(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
 
         validarFactura(entidad);
 
-
         String nombreArchivo = "R-" + entidad.getNumeroIdentificacion() + "-" + "FAC" + "-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".pdf";
-
-        switch (origenCertificado) {
-
-            case "WEB" -> datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(idData, idEmpresa);
-
-            case "LOC" -> datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(idData, idEmpresa);
-        }
 
         Factura documento = null;
         JAXBContext jaxbContext1 = null;
@@ -107,7 +96,7 @@ public class GetXmlCpImpuestosServiceImpl {
                         documento,
                         entidad.getNumeroAutorizacion() == null ? "" : entidad.getNumeroAutorizacion(),
                         entidad.getFechaAutorizacion() == null ? "" : entidad.getFechaAutorizacion(),
-                        datosEmpresaDto.getImageBytes()))
+                        null))
                 .build();
     }
 
@@ -149,12 +138,9 @@ public class GetXmlCpImpuestosServiceImpl {
     // NOTAS CREDITO
 
 
-    public ArchivoDto findPDFNotaCreditoById(Long idData, Long idEmpresa, UUID id, String origenCertificado) {
+    public ArchivoDto findPDFNotaCreditoById(Long idData, Long idEmpresa, UUID id) {
 
         System.out.println("Obtener PDF");
-
-        DatosEmpresaDto datosEmpresaDto = null;
-
 
         CpImpuestosFacturasOneProjection entidad = vtVentaRepository.findXMLById(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
@@ -164,12 +150,6 @@ public class GetXmlCpImpuestosServiceImpl {
 
         String nombreArchivo = "R-" + entidad.getNumeroIdentificacion() + "-" + "NCR" + "-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".pdf";
 
-        switch (origenCertificado) {
-
-            case "WEB" -> datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(idData, idEmpresa);
-
-            case "LOC" -> datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(idData, idEmpresa);
-        }
 
         NotaCredito documento = null;
         JAXBContext jaxbContext1 = null;
@@ -192,7 +172,7 @@ public class GetXmlCpImpuestosServiceImpl {
                         documento,
                         entidad.getNumeroAutorizacion() == null ? "" : entidad.getNumeroAutorizacion(),
                         entidad.getFechaAutorizacion() == null ? "" : entidad.getFechaAutorizacion(),
-                        datosEmpresaDto.getImageBytes()))
+                        null))
                 .build();
     }
 
@@ -237,11 +217,9 @@ public class GetXmlCpImpuestosServiceImpl {
     // NOTAS DEBITO
 
 
-    public ArchivoDto findPDFNotaDebitoById(Long idData, Long idEmpresa, UUID id, String origenCertificado) {
+    public ArchivoDto findPDFNotaDebitoById(Long idData, Long idEmpresa, UUID id) {
 
         System.out.println("Obtener PDF");
-
-        DatosEmpresaDto datosEmpresaDto = null;
 
         CpImpuestosFacturasOneProjection entidad = vtVentaRepository.findXMLById(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
@@ -250,14 +228,6 @@ public class GetXmlCpImpuestosServiceImpl {
 
 
         String nombreArchivo = "R-" + entidad.getNumeroIdentificacion() + "-" + "NDB" + "-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".pdf";
-
-
-        switch (origenCertificado) {
-
-            case "WEB" -> datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(idData, idEmpresa);
-
-            case "LOC" -> datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(idData, idEmpresa);
-        }
 
         NotaDebito documento = null;
         JAXBContext jaxbContext1 = null;
@@ -280,7 +250,7 @@ public class GetXmlCpImpuestosServiceImpl {
                         documento,
                         entidad.getNumeroAutorizacion() == null ? "" : entidad.getNumeroAutorizacion(),
                         entidad.getFechaAutorizacion() == null ? "" : entidad.getFechaAutorizacion(),
-                        datosEmpresaDto.getImageBytes()))
+                        null))
                 .build();
     }
 

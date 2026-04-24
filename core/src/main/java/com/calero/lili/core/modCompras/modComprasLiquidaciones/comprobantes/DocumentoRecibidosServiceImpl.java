@@ -23,10 +23,10 @@ import java.util.List;
 public class DocumentoRecibidosServiceImpl {
 
 
-
     private final CpImpuestoRecibirBuilder cpImpuestoRecibirBuilder;
     private final ReembolsoRecibidaServiceImpl reembolsoRecibidaService;
 
+    // FACTURA, NOTA DE DEBITO, LA NOTA DE CREDITO NO DEBE GUARDDARSE.
 
     public CpImpuestosRecibirListCreationResponseDto createFilesLiqReembolso(Long idData, List<MultipartFile> files) {
 
@@ -44,16 +44,23 @@ public class DocumentoRecibidosServiceImpl {
 
                 Autorizacion documento = XmlUtils.readFileXml(file);
 
-                if (!reembolsoRecibidaService.verificarExisteDocumentoElectronicoLiqReembolsoBdd(documento
-                        .getNumeroAutorizacion())) {
+                if (!reembolsoRecibidaService.verificarExisteDocumentoElectronicoLiqReembolsoBdd(documento.getNumeroAutorizacion())) {
+                    res.setClaveAcceso(documento.getNumeroAutorizacion());
 
                     if (!reembolsoRecibidaService.guardarComprobanteLiqReembolso(documento)) {
                         res = cpImpuestoRecibirBuilder
                                 .builder(nameFile, MensajeComprobante.ERR_LEER_DOCUMENTO_INTERNO, Boolean.FALSE, documento.getNumeroAutorizacion());
                     }
                 } else {
-                    res = cpImpuestoRecibirBuilder.builder(nameFile,
-                            MensajeComprobante.ERR_DOCUMENTO_EXISTE, Boolean.FALSE, documento.getNumeroAutorizacion());
+
+                    if (reembolsoRecibidaService.validarDocumento(documento.getNumeroAutorizacion())) {
+                        res = cpImpuestoRecibirBuilder.builder(nameFile,
+                                MensajeComprobante.ERR_DOCUMENTO_EXISTE, Boolean.FALSE, documento.getNumeroAutorizacion());
+                    } else {
+                        res = cpImpuestoRecibirBuilder.builder(nameFile,
+                                MensajeComprobante.ERR_EL_DOCUMENTO_NO_CORRESPONDE, Boolean.FALSE, documento.getNumeroAutorizacion());
+                    }
+
                 }
 
                 listaRespuestas.add(res);
@@ -66,7 +73,7 @@ public class DocumentoRecibidosServiceImpl {
     }
 
 
-    public CpImpuestosRecibirListCreationResponseDto createFilesVentaReembolso(List<MultipartFile> files) {
+    /*public CpImpuestosRecibirListCreationResponseDto createFilesVentaReembolso(List<MultipartFile> files) {
 
         List<CpImpuestosRecibirResponseDto> listaRespuestas = new ArrayList<>();
 
@@ -102,6 +109,7 @@ public class DocumentoRecibidosServiceImpl {
             }
         }
         return cpImpuestoRecibirBuilder.builderResponseList(listaRespuestas);
-    }
+    }*/
+
 
 }

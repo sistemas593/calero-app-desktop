@@ -13,6 +13,7 @@ import com.calero.lili.core.comprobantes.objetosXml.factura.InfoFactura;
 import com.calero.lili.core.comprobantes.objetosXml.factura.InfoTributaria;
 import com.calero.lili.core.comprobantes.objetosXml.factura.Pago;
 import com.calero.lili.core.comprobantes.objetosXml.notaCredito.NotaCredito;
+import com.calero.lili.core.comprobantes.objetosXml.notaDebito.InfoNotaDebito;
 import com.calero.lili.core.comprobantes.objetosXml.notaDebito.NotaDebito;
 import com.calero.lili.core.dtos.FormasPagoSri;
 import com.calero.lili.core.dtos.InformacionAdicional;
@@ -45,7 +46,6 @@ import com.calero.lili.core.utils.DateUtils;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -148,6 +148,8 @@ public class AutorizacionBuilder {
                 .cliente(cliente)
                 .valoresEntity(builderListValoresRetencion(documento.getDocSustento(), idData, idEmpresa))
                 .claveAcceso(documento.getInfoTributaria().getClaveAcceso())
+                .formatoDocumento(FormatoDocumento.E)
+                .periodoFiscal(DateUtils.toPeriodoFiscalDate(documento.getInfoCompRetencion().getPeriodoFiscal()))
                 .build();
     }
 
@@ -168,6 +170,8 @@ public class AutorizacionBuilder {
                 .cliente(cliente)
                 .valoresEntity(builderImpuestos(documento.getImpuesto(), idData, idEmpresa))
                 .claveAcceso(documento.getInfoTributaria().getClaveAcceso())
+                .formatoDocumento(FormatoDocumento.E)
+                .periodoFiscal(DateUtils.toPeriodoFiscalDate(documento.getInfoCompRetencion().getPeriodoFiscal()))
                 .build();
     }
 
@@ -237,7 +241,7 @@ public class AutorizacionBuilder {
                 .fechaEmisionRetencion(DateUtils.toLocalDate(documento.getInfoCompRetencion().getFechaEmision()))
                 .proveedor(proveedor)
                 .referencias(builderReferencias(documento))
-                .periodoFiscal(documento.getInfoCompRetencion().getPeriodoFiscal())
+                .periodoFiscal(DateUtils.toPeriodoFiscalDate(documento.getInfoCompRetencion().getPeriodoFiscal()))
                 .informacionAdicional(builderInformacionListAdicional(documento.getCampoAdicional()))
                 .ambiente(Ambiente.obtenerAmbiente(Integer.parseInt(documento.getInfoTributaria().getAmbiente())))
                 .claveAcceso(model.getNumeroAutorizacion())
@@ -269,7 +273,7 @@ public class AutorizacionBuilder {
                 .fechaEmisionRetencion(DateUtils.toLocalDate(documento.getInfoCompRetencion().getFechaEmision()))
                 .proveedor(proveedor)
                 .referencias(builderImpuestosReferencias(documento))
-                .periodoFiscal(documento.getInfoCompRetencion().getPeriodoFiscal())
+                .periodoFiscal(DateUtils.toPeriodoFiscalDate(documento.getInfoCompRetencion().getPeriodoFiscal()))
                 .informacionAdicional(builderInformacionListAdicional(documento.getCampoAdicional()))
                 .ambiente(Ambiente.obtenerAmbiente(Integer.parseInt(documento.getInfoTributaria().getAmbiente())))
                 .claveAcceso(model.getNumeroAutorizacion())
@@ -450,7 +454,7 @@ public class AutorizacionBuilder {
                 .build();
     }
 
-    public CpLiquidacionesReembolsosEntity builderLiquidacionReembolso(Autorizacion model, Factura documento) {
+    public CpLiquidacionesReembolsosEntity builderLiquidacionReembolsoFactura(Autorizacion model, Factura documento) {
 
         return CpLiquidacionesReembolsosEntity.builder()
                 .idLiquidacionReembolsos(UUID.randomUUID())
@@ -462,11 +466,32 @@ public class AutorizacionBuilder {
                 .secuencialReemb(documento.getInfoTributaria().getSecuencial())
                 .comprobante(model.getComprobante())
                 .numeroAutorizacionReemb(model.getNumeroAutorizacion())
-                .reembolsosValores(builderListValoresReembolso(documento.getInfoFactura()))
+                .reembolsosValores(builderListValoresReembolsoFactura(documento.getInfoFactura()))
                 .fechaEmisionReemb(DateUtils.toLocalDate(documento.getInfoFactura().getFechaEmision()))
                 .pais(TbPaisEntity.builder().codigoPais("593").build())
                 .build();
     }
+
+    public CpLiquidacionesReembolsosEntity builderLiquidacionReembolsoNotaDebito(Autorizacion model, NotaDebito documento) {
+
+        return CpLiquidacionesReembolsosEntity.builder()
+                .idLiquidacionReembolsos(UUID.randomUUID())
+                .tipoIdentificacionReemb(TipoIdentificacion.obtenerTipoIdentificacion(documento.getInfoNotaDebito()
+                        .getTipoIdentificacionComprador()).name())
+                .numeroIdentificacionReemb(documento.getInfoNotaDebito().getIdentificacionComprador())
+                .codigoDocumentoReemb("01")
+                .serieReemb(documento.getInfoTributaria().getEstab() + documento.getInfoTributaria().getPtoEmi())
+                .secuencialReemb(documento.getInfoTributaria().getSecuencial())
+                .comprobante(model.getComprobante())
+                .numeroAutorizacionReemb(model.getNumeroAutorizacion())
+                .reembolsosValores(builderListValoresReembolsoNotaDebito(documento.getInfoNotaDebito()))
+                .fechaEmisionReemb(DateUtils.toLocalDate(documento.getInfoNotaDebito().getFechaEmision()))
+                .pais(TbPaisEntity.builder().codigoPais("593").build())
+                .build();
+    }
+
+
+
 
     public VtVentaReembolsosEntity builderVentaReembolso(Autorizacion model, Factura documento) {
 
@@ -486,10 +511,26 @@ public class AutorizacionBuilder {
                 .build();
     }
 
-    private List<CpLiquidacionesReembolsosValoresEntity> builderListValoresReembolso(InfoFactura infoFactura) {
+    private List<CpLiquidacionesReembolsosValoresEntity> builderListValoresReembolsoFactura(InfoFactura infoFactura) {
         return infoFactura.getTotalImpuesto().stream()
                 .map(this::builderReembolsoValores)
                 .toList();
+    }
+
+    private List<CpLiquidacionesReembolsosValoresEntity> builderListValoresReembolsoNotaDebito(InfoNotaDebito infoNotaDebito) {
+        return infoNotaDebito.getImpuesto().stream()
+                .map(this::builderReembolsoValoresNotaDebito)
+                .toList();
+    }
+
+    private CpLiquidacionesReembolsosValoresEntity builderReembolsoValoresNotaDebito(com.calero.lili.core.comprobantes.objetosXml.notaDebito.Impuesto model) {
+        return CpLiquidacionesReembolsosValoresEntity.builder()
+                .idLiquidacionValores(UUID.randomUUID())
+                .codigo(model.getCodigo())
+                .codigoPorcentaje(model.getCodigoPorcentaje())
+                .baseImponible(new BigDecimal(model.getBaseImponible()))
+                .valor(new BigDecimal(model.getValor()))
+                .build();
     }
 
     private CpLiquidacionesReembolsosValoresEntity builderReembolsoValores(TotalImpuesto model) {

@@ -7,6 +7,7 @@ import com.calero.lili.core.comprobantes.objetosXml.notaDebito.Impuesto;
 import com.calero.lili.core.comprobantes.objetosXml.notaDebito.InfoNotaDebito;
 import com.calero.lili.core.comprobantes.objetosXml.notaDebito.Motivo;
 import com.calero.lili.core.comprobantes.objetosXml.notaDebito.NotaDebito;
+import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
@@ -70,10 +71,20 @@ public class NotaDebitoPdf {
 
             ////1 IMAGEN
 
-            Image image = Image.getInstance(imageBytes);
-            image.scaleToFit(100f, 77f);
-            PdfPCell cell_img = new PdfPCell(image);
-            cell_img.setRowspan(2); // define cuantas filas utiliza
+            PdfPCell cell_img;
+            if (imageBytes != null) {
+                Image image = Image.getInstance(imageBytes);
+                image.scaleToFit(100f, 77f);
+                cell_img = new PdfPCell(image);
+            } else {
+                Font fuenteNoLogo = new Font();
+                fuenteNoLogo.setSize(12);
+                fuenteNoLogo.setStyle(Font.BOLD);
+                fuenteNoLogo.setColor(BaseColor.RED);
+                cell_img = new PdfPCell(new Phrase("NO TIENE LOGO", fuenteNoLogo));
+                cell_img.setVerticalAlignment(Element.ALIGN_MIDDLE);
+            }
+            cell_img.setRowspan(2);
             cell_img.setBorder(0);
             cell_img.setHorizontalAlignment(Element.ALIGN_CENTER);
 

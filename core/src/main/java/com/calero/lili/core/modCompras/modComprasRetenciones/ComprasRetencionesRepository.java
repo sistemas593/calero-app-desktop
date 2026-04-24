@@ -93,7 +93,7 @@ public interface ComprasRetencionesRepository extends JpaRepository<CpRetencione
                     "INNER JOIN cp_impuestos_valores cpiv " +
                     "ON cpi.id_impuestos = cpiv.id_impuestos " +
                     "WHERE cpr.id_data = :idData " +
-                    "AND cpr.anulada = false AND cpr.deleted = false AND " +
+                    "AND cpr.anulada = false AND cpr.deleted = false " +
                     "AND cpr.id_empresa = :idEmpresa " +
                     "AND (:sucursal IS NULL OR cpr.sucursal = :sucursal) " +
                     "AND (:serie IS NULL OR cpr.serie_retencion = :serie) " +
@@ -131,6 +131,7 @@ public interface ComprasRetencionesRepository extends JpaRepository<CpRetencione
     @Query(value = "SELECT " +
             "entity.id_retencion as idRetencion,  " +
             "entity.numero_autorizacion_retencion as numeroAutorizacion, " +
+            "entity.estado_documento as estadoDocumento,  " +
             "entity.fecha_autorizacion as fechaAutorizacion, " +
             "entity.comprobante as comprobante, " +
             "entity.serie_retencion as serie, " +

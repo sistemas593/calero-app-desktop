@@ -29,6 +29,8 @@ import com.calero.lili.core.tablas.tbPaises.TbPaisEntity;
 import com.calero.lili.core.tablas.tbPaises.TbPaisesRepository;
 import com.calero.lili.core.tablas.tbPaises.tbParaisosFiscales.TbParaisoFiscalEntity;
 import com.calero.lili.core.tablas.tbPaises.tbParaisosFiscales.TbParaisoFiscalRepository;
+import com.calero.lili.core.tablas.tbSustentos.TbSustentosEntity;
+import com.calero.lili.core.tablas.tbSustentos.TbSustentosRepository;
 import com.calero.lili.core.utils.ComprobanteSustentoService;
 import com.calero.lili.core.utils.DateUtils;
 import com.calero.lili.core.utils.validaciones.ValidarValoresComprobantesPdf;
@@ -91,6 +93,7 @@ public class CpImpuestosServiceImpl {
     private final AdIvaPorcentajeServiceImpl adIvaPorcentajeService;
     private final TbPaisesRepository tbPaisesRepository;
     private final TbParaisoFiscalRepository tbParaisoFiscalRepository;
+    private final TbSustentosRepository tbSustentosRepository;
 
     public ResponseDto create(Long idData, Long idEmpresa, CreationCompraImpuestoRequestDto request, String usuario) {
 
@@ -342,13 +345,35 @@ public class CpImpuestosServiceImpl {
 
     public void updateDatos(Long idData, Long idEmpresa, UUID id, CpImpuestosRecibirCreationRequestDto request) {
 
-        int filasAfectadas = cpImpuestosRepository.updateDatosById(idData, idEmpresa, id, request.getDestino(), request.getCodigoSustento(), DateUtils.toLocalDate(request.getFechaRegistro()));
+        CpImpuestosEntity impuesto = cpImpuestosRepository
+                .findByIdEntity(idData, idEmpresa, id, null, null)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("La factura con ID {0} no existe", id)));
 
-        if (filasAfectadas > 0) {
-            System.out.println("Actualización exitosa: " + filasAfectadas + " filas modificadas.");
+        String codigoDocumento = impuesto.getDocumento().getCodigoDocumento();
+
+        TbSustentosEntity sustento = tbSustentosRepository.findById(request.getCodigoSustento())
+                .orElseThrow(() -> new GeneralException(MessageFormat
+                        .format("El codigo de sustento no existe : {0}", request.getCodigoSustento())));
+
+        if (DateUtils.toLocalDate(request.getFechaRegistro()).isAfter(impuesto.getFechaEmision())
+                || DateUtils.toLocalDate(request.getFechaRegistro()).isEqual(impuesto.getFechaEmision())) {
+
+            if (!comprobanteSustentoService.validacionCodigos(codigoDocumento, request.getCodigoSustento())) {
+                throw new GeneralException(MessageFormat.format("La combinación de código de documento: {0} y código de sustento: {1} es inválida.",
+                        codigoDocumento, request.getCodigoSustento()));
+            }
+
+            impuesto.setDestino(request.getDestino());
+            impuesto.setFechaRegistro(DateUtils.toLocalDate(request.getFechaRegistro()));
+            impuesto.setSustento(sustento);
+
+            cpImpuestosRepository.save(impuesto);
+
         } else {
-            System.out.println("No se actualizó ninguna fila.");
+            throw new GeneralException("La fecha de registro no puede ser menor que la fecha de emisiòn ");
         }
+
+
     }
 
 

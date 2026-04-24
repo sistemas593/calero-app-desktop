@@ -2,7 +2,6 @@ package com.calero.lili.core.comprobantesWs.services;
 
 
 import com.calero.lili.core.comprobantes.objetosXml.autorizacionFile.Autorizacion;
-import com.calero.lili.core.comprobantes.objetosXml.factura.Factura;
 import com.calero.lili.core.comprobantes.objetosXml.guiaRemision.GuiaRemision;
 import com.calero.lili.core.comprobantesPdf.GuiaRemisionPdf;
 import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.VtVentasXMLGuiaRemisionGetDto;
@@ -10,10 +9,8 @@ import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.builder.Docume
 import com.calero.lili.core.comprobantesWs.dto.ArchivoDto;
 import com.calero.lili.core.comprobantesWs.dto.DatosEmpresaDto;
 import com.calero.lili.core.enums.EstadoDocumento;
-import com.calero.lili.core.enums.TipoVenta;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modCompras.impuestosXml.VtGuiaRemisionOneProjection;
-import com.calero.lili.core.modCompras.impuestosXml.VtVentasFacturaOneProjection;
 import com.calero.lili.core.modVentasGuias.VtGuiasRepository;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
@@ -103,32 +100,38 @@ public class GetXmlVtGuiasServiceImpl {
         VtGuiaRemisionOneProjection entidad = vtVentaRepository.findXMLById(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
 
-        validarGuia(entidad);
 
-        String nombreArchivo = "E-GRM-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".xml";
+        if (entidad.getEstadoDocumento().equals(EstadoDocumento.AUT.name())) {
+            validarGuia(entidad);
 
-        Autorizacion aut = new Autorizacion();
-        aut.setComprobante(entidad.getComprobante()); //"<![CDATA[" + + "]]>"
-        aut.setFechaAutorizacion(entidad.getFechaAutorizacion());
-        aut.setNumeroAutorizacion(entidad.getNumeroAutorizacion());
-        aut.setEstado("AUTORIZADO");
+            String nombreArchivo = "E-GRM-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".xml";
 
-        try {
-            JAXBContext context = JAXBContext.newInstance(new Class[]{Autorizacion.class});
-            Marshaller marshaller = context.createMarshaller();
-            marshaller.setProperty("jaxb.encoding", "UTF-8");
-            marshaller.setProperty("jaxb.formatted.output", Boolean.valueOf(true));
-            StringWriter stringWriter = new StringWriter();
-            marshaller.marshal(aut, stringWriter);
+            Autorizacion aut = new Autorizacion();
+            aut.setComprobante(entidad.getComprobante()); //"<![CDATA[" + + "]]>"
+            aut.setFechaAutorizacion(entidad.getFechaAutorizacion());
+            aut.setNumeroAutorizacion(entidad.getNumeroAutorizacion());
+            aut.setEstado("AUTORIZADO");
 
-            return ArchivoDto.builder()
-                    .nombre(nombreArchivo)
-                    .contenido(stringWriter.toString().getBytes())
-                    .build();
+            try {
+                JAXBContext context = JAXBContext.newInstance(new Class[]{Autorizacion.class});
+                Marshaller marshaller = context.createMarshaller();
+                marshaller.setProperty("jaxb.encoding", "UTF-8");
+                marshaller.setProperty("jaxb.formatted.output", Boolean.valueOf(true));
+                StringWriter stringWriter = new StringWriter();
+                marshaller.marshal(aut, stringWriter);
 
-        } catch (Exception ex) {
-            throw new GeneralException("Existe un error: " + ex.getMessage());
+                return ArchivoDto.builder()
+                        .nombre(nombreArchivo)
+                        .contenido(stringWriter.toString().getBytes())
+                        .build();
+
+            } catch (Exception ex) {
+                throw new GeneralException("Existe un error: " + ex.getMessage());
+            }
+        } else {
+            throw new GeneralException(MessageFormat.format("La guía de remisión con id {0} " + "no esta autorizado ", id));
         }
+
 
     }
 
@@ -139,10 +142,6 @@ public class GetXmlVtGuiasServiceImpl {
 
         if (Objects.isNull(entidad.getComprobante()) || entidad.getComprobante().isEmpty()) {
             throw new GeneralException("El documento no contiene un comprobante");
-        }
-
-        if (!entidad.getEstadoDocumento().equals(EstadoDocumento.AUT.name())) {
-            throw new GeneralException("El documento con id {0} no esta autorizado " + entidad.getIdGuia());
         }
     }
 

@@ -72,6 +72,8 @@ public class VtRetencionesEntity extends Auditable {
     @Column(name = "comprobante", columnDefinition = "TEXT")
     private String comprobante;
 
+    private LocalDate periodoFiscal;
+
     // VALORES no ponia aqui porque si quiero manejar ice o cualquier otro impuesto toca aumentar campos
     // PARA COMPRAS IGUAL PUEDE EXISTIR ICE U OTROS IMPUESTOS, CAMBIAR EL % DE IVA O APARECER OTRO
     // igual si quiero internacionalizar la aplicacion
@@ -87,5 +89,7 @@ public class VtRetencionesEntity extends Auditable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_cliente")
     private GeTerceroEntity cliente;
+
+
 
 }

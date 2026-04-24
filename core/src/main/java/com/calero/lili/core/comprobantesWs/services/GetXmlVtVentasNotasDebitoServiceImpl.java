@@ -1,7 +1,6 @@
 package com.calero.lili.core.comprobantesWs.services;
 
 import com.calero.lili.core.comprobantes.objetosXml.autorizacionFile.Autorizacion;
-import com.calero.lili.core.comprobantes.objetosXml.factura.Factura;
 import com.calero.lili.core.comprobantes.objetosXml.notaDebito.NotaDebito;
 import com.calero.lili.core.comprobantesPdf.NotaDebitoPdf;
 import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.VtVentasXMLNotaDebitoGetDto;
@@ -100,47 +99,51 @@ public class GetXmlVtVentasNotasDebitoServiceImpl {
         VtVentasFacturaOneProjection entidad = vtVentaRepository.findXMLById(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
 
-        validarNotaDebito(entidad);
+
+        if (entidad.getEstadoDocumento().equals(EstadoDocumento.AUT.name())) {
+
+            validarNotaDebito(entidad);
 
 
-        String nombreArchivo = "E-NDB-" + entidad.getSerie() + "-" + entidad.getSecuencial() + "-" + entidad.getNumeroIdentificacion() + ".xml";
+            String nombreArchivo = "E-NDB-" + entidad.getSerie() + "-" + entidad.getSecuencial() + "-" + entidad.getNumeroIdentificacion() + ".xml";
 
-        Autorizacion aut = new Autorizacion();
-        aut.setComprobante(entidad.getComprobante()); //"<![CDATA[" + + "]]>"
-        aut.setFechaAutorizacion(entidad.getFechaAutorizacion());
-        aut.setNumeroAutorizacion(entidad.getNumeroAutorizacion());
-        aut.setEstado("AUTORIZADO");
+            Autorizacion aut = new Autorizacion();
+            aut.setComprobante(entidad.getComprobante()); //"<![CDATA[" + + "]]>"
+            aut.setFechaAutorizacion(entidad.getFechaAutorizacion());
+            aut.setNumeroAutorizacion(entidad.getNumeroAutorizacion());
+            aut.setEstado("AUTORIZADO");
 
-        try {
-            JAXBContext context = JAXBContext.newInstance(new Class[]{Autorizacion.class});
-            Marshaller marshaller = context.createMarshaller();
-            marshaller.setProperty("jaxb.encoding", "UTF-8");
-            marshaller.setProperty("jaxb.formatted.output", Boolean.valueOf(true));
-            StringWriter stringWriter = new StringWriter();
-            marshaller.marshal(aut, stringWriter);
+            try {
+                JAXBContext context = JAXBContext.newInstance(new Class[]{Autorizacion.class});
+                Marshaller marshaller = context.createMarshaller();
+                marshaller.setProperty("jaxb.encoding", "UTF-8");
+                marshaller.setProperty("jaxb.formatted.output", Boolean.valueOf(true));
+                StringWriter stringWriter = new StringWriter();
+                marshaller.marshal(aut, stringWriter);
 
-            return ArchivoDto.builder()
-                    .nombre(nombreArchivo)
-                    .contenido(stringWriter.toString().getBytes())
-                    .build();
+                return ArchivoDto.builder()
+                        .nombre(nombreArchivo)
+                        .contenido(stringWriter.toString().getBytes())
+                        .build();
 
-        } catch (Exception ex) {
-            throw new GeneralException("Existe un error: " + ex.getMessage());
+            } catch (Exception ex) {
+                throw new GeneralException("Existe un error: " + ex.getMessage());
+            }
+        } else {
+            throw new GeneralException(MessageFormat.format("La nota de debito con id {0} " + "no esta autorizada ", id));
         }
+
+
     }
 
 
     private void validarNotaDebito(VtVentasFacturaOneProjection entidad) {
         if (!entidad.getTipoVenta().equals(TipoVenta.NDB.name())) {
-            throw new GeneralException("El documento con id " + entidad.getIdVenta() + " no es una factura");
+            throw new GeneralException("El documento con id " + entidad.getIdVenta() + " no es una nota de debito");
         }
 
         if (Objects.isNull(entidad.getComprobante()) || entidad.getComprobante().isEmpty()) {
             throw new GeneralException("El documento no contiene un comprobante");
-        }
-
-        if (!entidad.getEstadoDocumento().equals(EstadoDocumento.AUT.name())) {
-            throw new GeneralException("El documento con id {0} no esta autorizado " + entidad.getIdVenta());
         }
     }
 

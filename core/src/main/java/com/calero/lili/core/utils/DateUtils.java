@@ -6,6 +6,7 @@ import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.Locale;
@@ -116,5 +117,16 @@ public class DateUtils {
 
     public static String toLocalDateTimeString(LocalDateTime fechaAutorizacion) {
         return fechaAutorizacion.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+    }
+
+    public static LocalDate toPeriodoFiscalDate(String periodoFiscal) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yyyy");
+        YearMonth yearMonth = YearMonth.parse(periodoFiscal, formatter);
+        return yearMonth.atEndOfMonth();
+    }
+
+    public static String toLocalDatePeriodoFiscal(LocalDate periodoFiscal) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yyyy");
+        return periodoFiscal.format(formatter);
     }
 }

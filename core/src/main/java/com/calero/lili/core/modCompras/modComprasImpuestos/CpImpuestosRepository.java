@@ -163,21 +163,6 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
                                                                              @Param("idEmpresa") Long idEmpresa,
                                                                              @Param("numeroAutorizacion") String numeroAutorizacion);
 
-
-    @Modifying
-    @Transactional
-    @Query(value = "UPDATE cp_impuestos " +
-            "set destino= :destino," +
-            "codigo_sustento= :codigoSustento," +
-            "fecha_registro= :fechaRegistro " +
-            "WHERE (cp_impuestos.id_data = :idData)  AND " +
-            "(cp_impuestos.id_empresa = :idEmpresa) AND entity.deleted = false AND " +
-            "cp_impuestos.id_impuestos = :id ", nativeQuery = true)
-    int updateDatosById(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa,
-                        @Param("id") UUID id, @Param("destino") String destino,
-                        @Param("codigoSustento") String codigoSustento,
-                        @Param("fechaRegistro") LocalDate fechaRegistro);
-
     @Query(value = "SELECT " +
             "entity.id_impuestos as idImpuestos,  " +
             "entity.numero_autorizacion as numeroAutorizacion, " +

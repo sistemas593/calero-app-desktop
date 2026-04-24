@@ -3,17 +3,12 @@ package com.calero.lili.core.comprobantesWs.services;
 
 import com.calero.lili.core.comprobantes.objetosXml.autorizacionFile.Autorizacion;
 import com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencion.ComprobanteRetencion;
-import com.calero.lili.core.comprobantes.objetosXml.factura.Factura;
 import com.calero.lili.core.comprobantesPdf.ComprobanteRetencionPdf;
 import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.VtVentasXMLRetencionGetDto;
 import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.builder.DocumentosElectronicosComprobanteBuilder;
 import com.calero.lili.core.comprobantesWs.dto.ArchivoDto;
-import com.calero.lili.core.comprobantesWs.dto.DatosEmpresaDto;
-import com.calero.lili.core.enums.EstadoDocumento;
-import com.calero.lili.core.enums.TipoVenta;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modCompras.impuestosXml.VtRetencionesOneProjection;
-import com.calero.lili.core.modCompras.impuestosXml.VtVentasFacturaOneProjection;
 import com.calero.lili.core.modVentasRetenciones.VentasRetencionesRepository;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
@@ -48,11 +43,9 @@ public class GetXmlVentasRetencionesServiceImpl {
         return documentosElectronicosComprobanteBuilder.toRetencionVenta(entidad);
     }
 
-    public ArchivoDto findPDFRetencionById(Long idData, Long idEmpresa, UUID id, String origenCertificado) {
+    public ArchivoDto findPDFRetencionById(Long idData, Long idEmpresa, UUID id) {
 
         System.out.println("Obtener PDF");
-
-        DatosEmpresaDto datosEmpresaDto = null;
 
 
         VtRetencionesOneProjection entidad = vtVentaRepository.findXMLById(idData, idEmpresa, id)
@@ -61,13 +54,6 @@ public class GetXmlVentasRetencionesServiceImpl {
         validarRetencion(entidad);
 
         String nombreArchivo = "R-" + entidad.getNumeroIdentificacion() + "-" + "RET" + "-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".pdf";
-
-        switch (origenCertificado) {
-
-            case "WEB" -> datosEmpresaDto = buscarDatosEmpresa.buscarEmpresa(idData, idEmpresa);
-
-            case "LOC" -> datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(idData, idEmpresa);
-        }
 
         ComprobanteRetencion documento = null;
         JAXBContext jaxbContext1 = null;
@@ -89,7 +75,7 @@ public class GetXmlVentasRetencionesServiceImpl {
                         documento,
                         entidad.getNumeroAutorizacion() == null ? "" : entidad.getNumeroAutorizacion(),
                         entidad.getFechaAutorizacion() == null ? "" : entidad.getFechaAutorizacion(),
-                        datosEmpresaDto.getImageBytes()))
+                        null))
                 .build();
     }
 
@@ -137,10 +123,6 @@ public class GetXmlVentasRetencionesServiceImpl {
 
         if (Objects.isNull(entidad.getComprobante()) || entidad.getComprobante().isEmpty()) {
             throw new GeneralException("El documento no contiene un comprobante");
-        }
-
-        if (!entidad.getEstadoDocumento().equals(EstadoDocumento.AUT.name())) {
-            throw new GeneralException("El documento con id {0} no esta autorizado " + entidad.getIdRetencion());
         }
     }
 }

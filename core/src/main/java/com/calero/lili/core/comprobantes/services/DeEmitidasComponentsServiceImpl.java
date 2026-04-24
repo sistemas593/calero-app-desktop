@@ -208,6 +208,8 @@ public class DeEmitidasComponentsServiceImpl {
             String message = "";//validarEmpresa(documento.getInfoTributaria().getRuc(), idEmpresa, idData);
             if (message.isEmpty()) {
                 CpRetencionesEntity entidad = validarRetencionUno(idData, idEmpresa, documento, autorizacionDto);
+
+
                 if (Objects.nonNull(entidad)) {
                     retencionesRepository.save(entidad);
                     return "";
@@ -254,8 +256,10 @@ public class DeEmitidasComponentsServiceImpl {
         try {
 
             BigDecimal total = obtenerTotalRetenidoDos(documento);
-            return autorizacionBuilder.builderRetencionEmitidaDos(autorizacionDto, documento, idData, idEmpresa,
+            CpRetencionesEntity retencion = autorizacionBuilder.builderRetencionEmitidaDos(autorizacionDto, documento, idData, idEmpresa,
                     validarProveedor(documento.getInfoTributaria(), idData), total);
+            validarPeriodoFiscal(retencion);
+            return retencion;
         } catch (Exception ex) {
             log.error(ex.getMessage());
             return null;
@@ -268,13 +272,16 @@ public class DeEmitidasComponentsServiceImpl {
         try {
 
             BigDecimal total = obtenerTotalRetenidoUno(documento);
-            return autorizacionBuilder.builderRetencionEmitidaUno(autorizacionDto, documento, idData, idEmpresa,
+            CpRetencionesEntity retencion = autorizacionBuilder.builderRetencionEmitidaUno(autorizacionDto, documento, idData, idEmpresa,
                     validarProveedor(documento.getInfoTributaria(), idData), total);
+            validarPeriodoFiscal(retencion);
+            return retencion;
         } catch (Exception ex) {
             log.error(ex.getMessage());
             return null;
         }
     }
+
 
     private ComprobanteRetencion getComprobanteRetencion(Autorizacion autorizacionDto) {
         try {
@@ -510,5 +517,14 @@ public class DeEmitidasComponentsServiceImpl {
     private void saveGeTerceroTipoCliente(GeTerceroEntity geTerceroEntity) {
         GeTercerosTipoEntity entity = geTercerosTipoBuilder.builderClienteEntity(geTerceroEntity);
         geTercerosTipoRepository.save(entity);
+    }
+
+
+    private void validarPeriodoFiscal(CpRetencionesEntity retencion) {
+        if (retencion.getFechaEmisionRetencion().getYear() == retencion.getPeriodoFiscal().getYear()
+                && retencion.getFechaEmisionRetencion().getMonthValue() == retencion.getPeriodoFiscal().getMonthValue()) {
+            retencion.setPeriodoFiscal(retencion.getFechaEmisionRetencion());
+        }
+
     }
 }

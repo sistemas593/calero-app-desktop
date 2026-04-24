@@ -47,8 +47,7 @@ public class VentasReembolsoRecibidosServiceImpl {
                     if (!reembolsoRecibidaService.guardarComprobanteVentaReembolso(documento)) {
                         res = cpImpuestoRecibirBuilder
                                 .builder(nameFile, MensajeComprobante.ERR_LEER_DOCUMENTO_INTERNO, Boolean.FALSE,
-                                        documento.getNumeroAutorizacion())
-                        ;
+                                        documento.getNumeroAutorizacion());
                     }
                 } else {
                     res = cpImpuestoRecibirBuilder.builder(nameFile,

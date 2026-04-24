@@ -117,7 +117,7 @@ public class CpRetencionesEntity extends Auditable {
 
     private String relacionado;
 
-    private String periodoFiscal;
+    private LocalDate periodoFiscal;
 
     @Builder.Default
     @JoinColumn(name = "idRetencion", referencedColumnName = "idRetencion")

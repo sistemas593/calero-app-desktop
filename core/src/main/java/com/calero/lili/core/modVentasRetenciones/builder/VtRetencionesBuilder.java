@@ -31,6 +31,7 @@ public class VtRetencionesBuilder {
                 .serieRetencion(model.getSerieRetencion())
                 .secuencialRetencion(model.getSecuencialRetencion())
                 .fechaEmisionRetencion(LocalDate.parse(model.getFechaEmisionRetencion()))
+                .periodoFiscal(Objects.nonNull(model.getPeriodoFiscal()) ? DateUtils.toPeriodoFiscalDate(model.getPeriodoFiscal()) : null)
                 .build();
     }
 
@@ -45,6 +46,7 @@ public class VtRetencionesBuilder {
                 .serieRetencion(model.getSerieRetencion())
                 .secuencialRetencion(model.getSecuencialRetencion())
                 .fechaEmisionRetencion(LocalDate.parse(model.getFechaEmisionRetencion()))
+                .periodoFiscal(Objects.nonNull(model.getPeriodoFiscal()) ? DateUtils.toPeriodoFiscalDate(model.getPeriodoFiscal()) : null)
                 .build();
     }
 

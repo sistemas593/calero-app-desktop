@@ -48,7 +48,7 @@ public class CpRetencionesBuilder {
                         ? model.getCodigoDocumento()
                         : CodigoDocumento.COMPROBANTE_RETENCION.getCodigoDocumento())
                 .formatoDocumento(model.getFormatoDocumento())
-                .periodoFiscal(model.getPeriodoFiscal())
+                .periodoFiscal(Objects.nonNull(model.getPeriodoFiscal()) ? DateUtils.toPeriodoFiscalDate(model.getPeriodoFiscal()) : null)
                 .relacionado(model.getRelacionado())
                 .emailEstado(EmailEstado.NO_ENTREGADO.getTipo())
                 .build();
@@ -77,7 +77,7 @@ public class CpRetencionesBuilder {
                 .codigoDocumento(Objects.nonNull(model.getCodigoDocumento())
                         ? model.getCodigoDocumento()
                         : CodigoDocumento.COMPROBANTE_RETENCION.getCodigoDocumento())
-                .periodoFiscal(model.getPeriodoFiscal())
+                .periodoFiscal(Objects.nonNull(model.getPeriodoFiscal()) ? DateUtils.toPeriodoFiscalDate(model.getPeriodoFiscal()) : null)
                 .relacionado(model.getRelacionado())
                 .emailEstado(EmailEstado.NO_ENTREGADO.getTipo())
                 .build();

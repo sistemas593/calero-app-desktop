@@ -143,7 +143,7 @@ public class ComprobanteRetencionBuilder {
                 .parteRel(retencion.getRelacionado())
                 .razonSocialSujetoRetenido(proveedor.getTercero())
                 .identificacionSujetoRetenido(retencion.getProveedor().getNumeroIdentificacion())
-                .periodoFiscal(retencion.getPeriodoFiscal())
+                .periodoFiscal(DateUtils.toLocalDatePeriodoFiscal(retencion.getPeriodoFiscal()))
                 .build();
     }
 

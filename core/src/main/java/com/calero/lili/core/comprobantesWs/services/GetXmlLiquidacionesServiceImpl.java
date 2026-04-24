@@ -100,31 +100,35 @@ public class GetXmlLiquidacionesServiceImpl {
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
 
 
-        validarLiquidacion(entidad);
+        if (entidad.getEstadoDocumento().equals(EstadoDocumento.AUT.name())) {
+            validarLiquidacion(entidad);
 
-        String nombreArchivo = "E-LIQ-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".xml";
+            String nombreArchivo = "E-LIQ-" + entidad.getSerie() + "-" + entidad.getSecuencial() + ".xml";
 
-        Autorizacion aut = new Autorizacion();
-        aut.setComprobante(entidad.getComprobante()); //"<![CDATA[" + + "]]>"
-        aut.setFechaAutorizacion(entidad.getFechaAutorizacion());
-        aut.setNumeroAutorizacion(entidad.getNumeroAutorizacion());
-        aut.setEstado("AUTORIZADO");
+            Autorizacion aut = new Autorizacion();
+            aut.setComprobante(entidad.getComprobante()); //"<![CDATA[" + + "]]>"
+            aut.setFechaAutorizacion(entidad.getFechaAutorizacion());
+            aut.setNumeroAutorizacion(entidad.getNumeroAutorizacion());
+            aut.setEstado("AUTORIZADO");
 
-        try {
-            JAXBContext context = JAXBContext.newInstance(new Class[]{Autorizacion.class});
-            Marshaller marshaller = context.createMarshaller();
-            marshaller.setProperty("jaxb.encoding", "UTF-8");
-            marshaller.setProperty("jaxb.formatted.output", Boolean.valueOf(true));
-            StringWriter stringWriter = new StringWriter();
-            marshaller.marshal(aut, stringWriter);
+            try {
+                JAXBContext context = JAXBContext.newInstance(new Class[]{Autorizacion.class});
+                Marshaller marshaller = context.createMarshaller();
+                marshaller.setProperty("jaxb.encoding", "UTF-8");
+                marshaller.setProperty("jaxb.formatted.output", Boolean.valueOf(true));
+                StringWriter stringWriter = new StringWriter();
+                marshaller.marshal(aut, stringWriter);
 
-            return ArchivoDto.builder()
-                    .nombre(nombreArchivo)
-                    .contenido(stringWriter.toString().getBytes())
-                    .build();
+                return ArchivoDto.builder()
+                        .nombre(nombreArchivo)
+                        .contenido(stringWriter.toString().getBytes())
+                        .build();
 
-        } catch (Exception ex) {
-            throw new GeneralException("Existe un error: " + ex.getMessage());
+            } catch (Exception ex) {
+                throw new GeneralException("Existe un error: " + ex.getMessage());
+            }
+        } else {
+            throw new GeneralException(MessageFormat.format("La liquidación con id {0} " + "no esta autorizado ", id));
         }
 
 
@@ -137,10 +141,6 @@ public class GetXmlLiquidacionesServiceImpl {
 
         if (Objects.isNull(entidad.getComprobante()) || entidad.getComprobante().isEmpty()) {
             throw new GeneralException("El documento no contiene un comprobante");
-        }
-
-        if (!entidad.getEstadoDocumento().equals(EstadoDocumento.AUT.name())) {
-            throw new GeneralException("El documento con id {0} no esta autorizado " + entidad.getIdLiquidacion());
         }
     }
 

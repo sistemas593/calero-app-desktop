@@ -10,7 +10,6 @@ import com.calero.lili.core.comprobantesWs.dto.DatosEmpresaDto;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.TipoVenta;
 import com.calero.lili.core.errors.exceptions.GeneralException;
-import com.calero.lili.core.modCompras.impuestosXml.CpImpuestosFacturasOneProjection;
 import com.calero.lili.core.modCompras.impuestosXml.VtVentasFacturaOneProjection;
 import com.calero.lili.core.modVentas.VtVentasRepository;
 import jakarta.xml.bind.JAXBContext;
@@ -68,7 +67,6 @@ public class GetXmlVtVentasFacturasServiceImpl {
 
         validarFactura(entidad);
 
-        //  E-FC-001002-000002654-0963358379001.XML
         String nombreArchivo = "E-FAC-" + entidad.getSerie() + "-" + entidad.getSecuencial() + "-" + entidad.getNumeroIdentificacion() + ".pdf";
 
         switch (origenCertificado) {
@@ -110,9 +108,10 @@ public class GetXmlVtVentasFacturasServiceImpl {
         VtVentasFacturaOneProjection entidad = vtVentaRepository.findXMLById(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
 
-        validarFactura(entidad);
 
         if (entidad.getEstadoDocumento().equals(EstadoDocumento.AUT.name())) {
+
+            validarFactura(entidad);
 
             String nombreArchivo = "E-FAC-" + entidad.getSerie() + "-" + entidad.getSecuencial() + "-" + entidad.getNumeroIdentificacion() + ".xml";
 
@@ -140,8 +139,7 @@ public class GetXmlVtVentasFacturasServiceImpl {
             }
 
         } else {
-            throw new GeneralException(MessageFormat.format("El documento con id {0} " +
-                    "no esta autorizado ", id));
+            throw new GeneralException(MessageFormat.format("La factura con id {0} " + "no esta autorizada ", id));
         }
     }
 
@@ -153,10 +151,6 @@ public class GetXmlVtVentasFacturasServiceImpl {
 
         if (Objects.isNull(entidad.getComprobante()) || entidad.getComprobante().isEmpty()) {
             throw new GeneralException("El documento no contiene un comprobante");
-        }
-
-        if (!entidad.getEstadoDocumento().equals(EstadoDocumento.AUT.name())) {
-            throw new GeneralException("El documento con id {0} no esta autorizado " + entidad.getIdVenta());
         }
     }
 

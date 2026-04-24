@@ -379,8 +379,10 @@ public class DeRecibidasComponentsServiceImpl {
                                                     ComprobanteRetencion documento,
                                                     Autorizacion autorizacionDto) {
         try {
-            return autorizacionBuilder.builderRetencionRecibidaDos(autorizacionDto, documento, idData, idEmpresa,
+            VtRetencionesEntity retencion = autorizacionBuilder.builderRetencionRecibidaDos(autorizacionDto, documento, idData, idEmpresa,
                     validarCliente(documento.getInfoTributaria(), idData));
+            validarPeriodoFiscal(retencion);
+            return retencion;
         } catch (Exception ex) {
             log.error(ex.getMessage());
             return null;
@@ -392,8 +394,10 @@ public class DeRecibidasComponentsServiceImpl {
                                                     com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencionV1.ComprobanteRetencion documento,
                                                     Autorizacion autorizacionDto) {
         try {
-            return autorizacionBuilder.builderRetencionRecibidaUno(autorizacionDto, documento, idData, idEmpresa,
+            VtRetencionesEntity retencion = autorizacionBuilder.builderRetencionRecibidaUno(autorizacionDto, documento, idData, idEmpresa,
                     validarCliente(documento.getInfoTributaria(), idData));
+            validarPeriodoFiscal(retencion);
+            return retencion;
         } catch (Exception ex) {
             log.error(ex.getMessage());
             return null;
@@ -512,6 +516,13 @@ public class DeRecibidasComponentsServiceImpl {
             }
         }
         cpImpuestosEntity.setValoresEntity(reembolsosEntities);
+    }
+
+    private void validarPeriodoFiscal(VtRetencionesEntity retencion) {
+        if (retencion.getFechaEmisionRetencion().getYear() == retencion.getPeriodoFiscal().getYear()
+                && retencion.getFechaEmisionRetencion().getMonthValue() == retencion.getPeriodoFiscal().getMonthValue()) {
+            retencion.setPeriodoFiscal(retencion.getFechaEmisionRetencion());
+        }
     }
 
 }

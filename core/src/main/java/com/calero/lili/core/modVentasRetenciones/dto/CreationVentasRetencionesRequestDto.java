@@ -60,4 +60,5 @@ public class CreationVentasRetencionesRequestDto {
     private Boolean anulada;
     private Boolean impresa;
 
+    private String periodoFiscal;
 }
