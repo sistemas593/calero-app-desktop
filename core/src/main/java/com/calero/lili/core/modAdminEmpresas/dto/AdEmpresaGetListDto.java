@@ -6,8 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-
 @Data
 @Builder
 @AllArgsConstructor
@@ -33,7 +31,6 @@ public class AdEmpresaGetListDto {
     private String devolucionIva;
     private String agenteRetencion;
     private String contribuyenteEspecial;
-    private LocalDate fechaCreacion;
     private int ambienteFactura;
     private int ambienteNotaCredito;
     private int ambienteNotaDebito;

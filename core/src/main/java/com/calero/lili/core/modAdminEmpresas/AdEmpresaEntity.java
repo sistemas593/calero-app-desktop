@@ -60,7 +60,6 @@ public class AdEmpresaEntity extends Auditable {
     private String contribuyenteEspecial;
     private String codigoSustento;
     private String formaPagoSri;
-    private LocalDate fechaCreacion;
 
     private int estado;
 

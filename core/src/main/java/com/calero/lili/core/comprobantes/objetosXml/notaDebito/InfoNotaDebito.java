@@ -1,5 +1,6 @@
 package com.calero.lili.core.comprobantes.objetosXml.notaDebito;
 
+import com.calero.lili.core.comprobantes.objetosXml.factura.Pago;
 import jakarta.xml.bind.annotation.XmlElementWrapper;
 import jakarta.xml.bind.annotation.XmlType;
 import lombok.AllArgsConstructor;
@@ -12,7 +13,7 @@ import java.util.List;
 @XmlType(propOrder = {"fechaEmision", "dirEstablecimiento", "tipoIdentificacionComprador", "razonSocialComprador",
         "identificacionComprador", "contribuyenteEspecial", "obligadoContabilidad", "codDocModificado",
         "numDocModificado", "fechaEmisionDocSustento", "totalSinImpuestos", "impuesto",
-        "valorTotal"})
+        "valorTotal","pago"})
 @Data
 @Builder
 @AllArgsConstructor
@@ -31,6 +32,12 @@ public class InfoNotaDebito {
     private String totalSinImpuestos;
     private List<Impuesto> impuesto;
     private String valorTotal;
+    private List<Pago> pago;
+
+    @XmlElementWrapper(name = "pagos") // envoltorio
+    public List<Pago> getPago() {
+        return pago;
+    }
 
 
     @XmlElementWrapper(name = "impuestos") // envoltorio

@@ -9,7 +9,6 @@ import com.calero.lili.core.modAdminEmpresas.dto.AdEmpresaRucResponseDto;
 import com.calero.lili.core.utils.DateUtils;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -56,7 +55,6 @@ public class AdEmpresaBuilder {
                 .ambienteComprobanteRetencion(model.getAmbienteComprobanteRetencion())
                 .ambienteGuiaRemision(model.getAmbienteGuiaRemision())
                 .momentoEnvio(2)
-                .fechaCreacion(LocalDate.now())
                 .fechaCaducidadCertificado(Objects.nonNull(model.getFechaCaducidadCertificado())
                         ? DateUtils.toLocalDate(model.getFechaCaducidadCertificado())
                         : null)
@@ -76,7 +74,6 @@ public class AdEmpresaBuilder {
                 .id(item.getId())
                 .idEmpresa(item.getIdEmpresa())
                 .idData(item.getIdData())
-                .fechaCreacion(item.getFechaCreacion())
                 .razonSocial(model.getRazonSocial())
                 .ruc(model.getRuc())
                 .telefono1(model.getTelefono1())
@@ -150,7 +147,6 @@ public class AdEmpresaBuilder {
                 .contribuyenteEspecial(model.getContribuyenteEspecial())
                 .codigoSustento(model.getCodigoSustento())
                 .formaPagoSri(model.getFormaPagoSri())
-                .fechaCreacion(model.getFechaCreacion())
                 .estado(model.getEstado())
                 .ambienteFactura(model.getAmbienteFactura())
                 .ambienteNotaCredito(model.getAmbienteNotaCredito())
@@ -193,7 +189,6 @@ public class AdEmpresaBuilder {
                 .devolucionIva(model.getDevolucionIva())
                 .agenteRetencion(model.getAgenteRetencion())
                 .contribuyenteEspecial(model.getContribuyenteEspecial())
-                .fechaCreacion(model.getFechaCreacion())
                 .ambienteFactura(model.getAmbienteFactura())
                 .ambienteNotaCredito(model.getAmbienteNotaCredito())
                 .ambienteNotaDebito(model.getAmbienteNotaDebito())

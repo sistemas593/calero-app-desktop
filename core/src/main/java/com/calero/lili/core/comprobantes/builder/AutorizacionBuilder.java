@@ -109,7 +109,6 @@ public class AutorizacionBuilder {
                 .fechaEmision(DateUtils.toLocalDate(documento.getInfoNotaCredito().getFechaEmision()))
                 .documento(builderTipoDocumento(CodigoDocumento.NOTA_CREDITO))
                 .tercero(proveedor)
-                .fechaRegistro(LocalDate.now())
                 .build();
     }
 
@@ -129,7 +128,7 @@ public class AutorizacionBuilder {
                 .fechaEmision(DateUtils.toLocalDate(documento.getInfoNotaDebito().getFechaEmision()))
                 .documento(builderTipoDocumento(CodigoDocumento.NOTA_DEBITO))
                 .tercero(proveedor)
-                .fechaRegistro(LocalDate.now())
+                .formasPagoSri(builderListFormasPagoSri(documento.getInfoNotaDebito().getPago()))
                 .build();
     }
 
