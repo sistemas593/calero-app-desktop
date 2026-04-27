@@ -19,11 +19,15 @@ import java.util.UUID;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "vtVentasReembolsosValores") //invoice_details
+@Table(name = "vtVentasReembolsosValores")
 @Builder
-//@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-
 public class VtVentaReembolsosValoresEntity {
+
+    @Column(name = "id_data")
+    private Long idData;
+
+    @Column(name = "id_empresa")
+    private Long idEmpresa;
 
     @Id
     @Column(unique = true, updatable = false, nullable = false)

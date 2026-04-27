@@ -20,18 +20,22 @@ public interface VtVentasReembolsoRepository extends JpaRepository<VtVentaReembo
     @Query("""
             SELECT r
             FROM VtVentaReembolsosEntity r
-            WHERE r.idVentaReembolsos = :idVentaReembolsos""")
-    Optional<VtVentaReembolsosEntity> findByIdEntity(@Param("idVentaReembolsos") UUID idVentaReembolsos);
+            WHERE r.idData =:idData AND r.idEmpresa = :idEmpresa AND r.idVentaReembolsos = :idVentaReembolsos""")
+    Optional<VtVentaReembolsosEntity> findByIdEntity(@Param("idData") Long idData,
+                                                     @Param("idEmpresa") Long idEmpresa,
+                                                     @Param("idVentaReembolsos") UUID idVentaReembolsos);
 
 
     @Query("""
             SELECT r
             FROM VtVentaReembolsosEntity r
-            WHERE r.numeroIdentificacionReemb = :numeroIdentificacionReemb
+            WHERE r.idData = :idData AND r.idEmpresa = :idEmpresa  
+              AND r.numeroIdentificacionReemb = :numeroIdentificacionReemb
               AND r.serieReemb = :serieReemb
               AND r.secuencialReemb = :secuencialReemb
             """)
-    Optional<VtVentaReembolsosEntity> findByDatosReembolso(@Param("numeroIdentificacionReemb") String numeroIdentificacionReemb,
+    Optional<VtVentaReembolsosEntity> findByDatosReembolso(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa,
+                                                           @Param("numeroIdentificacionReemb") String numeroIdentificacionReemb,
                                                            @Param("serieReemb") String serieReemb,
                                                            @Param("secuencialReemb") String secuencialReemb);
 
@@ -43,13 +47,16 @@ public interface VtVentasReembolsoRepository extends JpaRepository<VtVentaReembo
      */
     @Query("SELECT entity " +
             "FROM VtVentaReembolsosEntity entity " +
-            "WHERE (cast(:fechaEmisionDesde as date) IS NULL OR entity.fechaEmisionReemb >= :fechaEmisionDesde) " +
+            "WHERE entity.idData = :idData AND entity.idEmpresa = :idEmpresa " +
+            "AND (cast(:fechaEmisionDesde as date) IS NULL OR entity.fechaEmisionReemb >= :fechaEmisionDesde) " +
             "AND (cast(:fechaEmisionHasta as date) IS NULL OR entity.fechaEmisionReemb <= :fechaEmisionHasta) " +
             "AND (:secuencial IS NULL OR entity.secuencialReemb = :secuencial) " +
             "AND (:numeroIdentificacion IS NULL OR entity.numeroIdentificacionReemb = :numeroIdentificacion) " +
             "AND (:serie IS NULL OR entity.serieReemb = :serie) " +
             "AND ( :utilizado = 2 OR ( :utilizado = 0 AND entity.idVenta IS NULL ) OR ( :utilizado = 1 AND entity.idVenta IS NOT NULL ) )")
-    Page<VtVentaReembolsosEntity> findAllPageable(@Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
+    Page<VtVentaReembolsosEntity> findAllPageable(@Param("idData") Long idData,
+                                                  @Param("idData") Long idEmpresa,
+                                                  @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
                                                   @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
                                                   @Param("secuencial") String secuencial,
                                                   @Param("numeroIdentificacion") String numeroIdentificacion,
@@ -74,7 +81,8 @@ public interface VtVentasReembolsoRepository extends JpaRepository<VtVentaReembo
                 FROM vt_ventas_reembolsos vtr
                 JOIN vt_ventas_reembolsos_valores vtrv 
                     ON vtr.id_venta_reembolsos = vtrv.id_venta_reembolsos
-                WHERE (cast(:fechaEmisionDesde as date) IS NULL OR vtr.fecha_emision_reemb::date >= :fechaEmisionDesde)
+                WHERE (vtr.id_data = :idData) AND (vtr.id_empresa = :idEmpresa)  
+                  AND (cast(:fechaEmisionDesde as date) IS NULL OR vtr.fecha_emision_reemb::date >= :fechaEmisionDesde)
                   AND (cast(:fechaEmisionHasta as date) IS NULL OR vtr.fecha_emision_reemb::date <= :fechaEmisionHasta)
                   AND (:secuencial IS NULL OR vtr.secuencial_reemb = :secuencial)
                   AND (:numeroIdentificacion IS NULL OR vtr.numero_identificacion_reemb = :numeroIdentificacion)
@@ -82,7 +90,9 @@ public interface VtVentasReembolsoRepository extends JpaRepository<VtVentaReembo
                 GROUP BY vtrv.codigo, vtrv.codigo_porcentaje
                 ORDER BY vtrv.codigo, vtrv.codigo_porcentaje
             """, nativeQuery = true)
-    List<TotalesProjection> totalValores(@Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
+    List<TotalesProjection> totalValores(@Param("idData") Long idData,
+                                         @Param("idEmpresa") Long idEmpresa,
+                                         @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
                                          @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
                                          @Param("secuencial") String secuencial,
                                          @Param("numeroIdentificacion") String numeroIdentificacion,
@@ -93,15 +103,21 @@ public interface VtVentasReembolsoRepository extends JpaRepository<VtVentaReembo
     @Query("""
             SELECT r
             FROM VtVentaReembolsosEntity r
-            WHERE r.numeroAutorizacionReemb = :numeroAutorizacion""")
-    Optional<VtVentaReembolsosEntity> findByAutorizacion(@Param("numeroAutorizacion") String numeroAutorizacion);
+            WHERE r.idData = :idData AND r.idEmpresa = :idEmpresa AND 
+            r.numeroAutorizacionReemb = :numeroAutorizacion""")
+    Optional<VtVentaReembolsosEntity> findByAutorizacion(@Param("idData") Long idData,
+                                                         @Param("idEmpresa") Long idEmpresa,
+                                                         @Param("numeroAutorizacion") String numeroAutorizacion);
 
 
     @Query("SELECT entity " +
             "FROM VtVentaReembolsosEntity entity " +
-            "WHERE (cast(:fechaEmisionDesde as date) IS NULL OR entity.fechaEmisionReemb >= :fechaEmisionDesde) " +
+            "WHERE entity.idData = :idData AND entity.idEmpresa = :idEmpresa " +
+            "AND (cast(:fechaEmisionDesde as date) IS NULL OR entity.fechaEmisionReemb >= :fechaEmisionDesde) " +
             "AND (cast(:fechaEmisionHasta as date) IS NULL OR entity.fechaEmisionReemb <= :fechaEmisionHasta)")
-    List<VtVentaReembolsosEntity> getFindAll(@Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
+    List<VtVentaReembolsosEntity> getFindAll(@Param("idData") Long idData,
+                                             @Param("idEmpresa") Long idEmpresa,
+                                             @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
                                              @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta);
 
 

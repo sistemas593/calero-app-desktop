@@ -1,5 +1,6 @@
 package com.calero.lili.api.controllers;
 
+import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.core.comprobantes.services.DeEmitidasServiceImpl;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirListCreationResponseDto;
 import com.calero.lili.api.utils.IdDataServiceImpl;
@@ -25,6 +26,7 @@ public class ImpuestosEmitidosController {
 
     private final DeEmitidasServiceImpl deEmitidasService;
     private final IdDataServiceImpl idDataService;
+    private final AuditorAwareImpl auditorAware;
 
     // Correción no volver a guardar el tipo tercero.
 
@@ -32,7 +34,8 @@ public class ImpuestosEmitidosController {
     @ResponseStatus(HttpStatus.CREATED)
     public CpImpuestosRecibirListCreationResponseDto createFiles(@PathVariable("idEmpresa") Long idEmpresa,
                                                                  @RequestBody List<MultipartFile> documentos) {
-        return deEmitidasService.createFiles(idDataService.getIdData(), idEmpresa, documentos);
+        return deEmitidasService.createFiles(idDataService.getIdData(), idEmpresa, documentos,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
 }

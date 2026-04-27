@@ -23,11 +23,13 @@ public class ResponseReembolsoDto {
     private String secuencialReemb;
     private String fechaEmisionReemb;
     private String numeroAutorizacionReemb;
+    private String codigoPais;
+    private String pais;
     private UUID idVenta;
 
     private List<ValoresDto> reembolsosValores;
 
-    private PaisDto pais;
+
 
     @Data
     @AllArgsConstructor
@@ -40,14 +42,4 @@ public class ResponseReembolsoDto {
         private BigDecimal baseImponible;
         private BigDecimal valor;
     }
-
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Builder
-    public static class PaisDto {
-        private String codigoPais;
-        private String pais;
-    }
-
 }

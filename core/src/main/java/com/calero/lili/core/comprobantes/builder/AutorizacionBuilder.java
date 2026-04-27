@@ -253,6 +253,7 @@ public class AutorizacionBuilder {
                 .estadoDocumento(EstadoDocumento.AUT)
                 .formatoDocumento(FormatoDocumento.E)
                 .total(total)
+                .tipoEmision(Integer.valueOf(documento.getInfoTributaria().getTipoEmision()))
                 .build();
     }
 
@@ -285,6 +286,7 @@ public class AutorizacionBuilder {
                 .estadoDocumento(EstadoDocumento.AUT)
                 .formatoDocumento(FormatoDocumento.E)
                 .total(total)
+                .tipoEmision(Integer.valueOf(documento.getInfoTributaria().getTipoEmision()))
                 .build();
     }
 
@@ -454,10 +456,13 @@ public class AutorizacionBuilder {
                 .build();
     }
 
-    public CpLiquidacionesReembolsosEntity builderLiquidacionReembolsoFactura(Autorizacion model, Factura documento) {
+    public CpLiquidacionesReembolsosEntity builderLiquidacionReembolsoFactura(Long idData, Long idEmpresa,
+                                                                              Autorizacion model, Factura documento) {
 
         return CpLiquidacionesReembolsosEntity.builder()
                 .idLiquidacionReembolsos(UUID.randomUUID())
+                .idData(idData)
+                .idEmpresa(idEmpresa)
                 .tipoIdentificacionReemb(TipoIdentificacion.obtenerTipoIdentificacion(documento.getInfoFactura()
                         .getTipoIdentificacionComprador()).name())
                 .numeroIdentificacionReemb(documento.getInfoFactura().getIdentificacionComprador())
@@ -466,16 +471,19 @@ public class AutorizacionBuilder {
                 .secuencialReemb(documento.getInfoTributaria().getSecuencial())
                 .comprobante(model.getComprobante())
                 .numeroAutorizacionReemb(model.getNumeroAutorizacion())
-                .reembolsosValores(builderListValoresReembolsoFactura(documento.getInfoFactura()))
+                .reembolsosValores(builderListValoresReembolsoFactura(documento.getInfoFactura(), idData, idEmpresa))
                 .fechaEmisionReemb(DateUtils.toLocalDate(documento.getInfoFactura().getFechaEmision()))
                 .pais(TbPaisEntity.builder().codigoPais("593").build())
                 .build();
     }
 
-    public CpLiquidacionesReembolsosEntity builderLiquidacionReembolsoNotaDebito(Autorizacion model, NotaDebito documento) {
+    public CpLiquidacionesReembolsosEntity builderLiquidacionReembolsoNotaDebito(Long idData, Long idEmpresa,
+                                                                                 Autorizacion model, NotaDebito documento) {
 
         return CpLiquidacionesReembolsosEntity.builder()
                 .idLiquidacionReembolsos(UUID.randomUUID())
+                .idData(idData)
+                .idEmpresa(idEmpresa)
                 .tipoIdentificacionReemb(TipoIdentificacion.obtenerTipoIdentificacion(documento.getInfoNotaDebito()
                         .getTipoIdentificacionComprador()).name())
                 .numeroIdentificacionReemb(documento.getInfoNotaDebito().getIdentificacionComprador())
@@ -484,19 +492,19 @@ public class AutorizacionBuilder {
                 .secuencialReemb(documento.getInfoTributaria().getSecuencial())
                 .comprobante(model.getComprobante())
                 .numeroAutorizacionReemb(model.getNumeroAutorizacion())
-                .reembolsosValores(builderListValoresReembolsoNotaDebito(documento.getInfoNotaDebito()))
+                .reembolsosValores(builderListValoresReembolsoNotaDebito(documento.getInfoNotaDebito(), idData, idEmpresa))
                 .fechaEmisionReemb(DateUtils.toLocalDate(documento.getInfoNotaDebito().getFechaEmision()))
                 .pais(TbPaisEntity.builder().codigoPais("593").build())
                 .build();
     }
 
 
-
-
-    public VtVentaReembolsosEntity builderVentaReembolso(Autorizacion model, Factura documento) {
+    public VtVentaReembolsosEntity builderVentaReembolso(Autorizacion model, Factura documento, Long idData, Long idEmpresa) {
 
         return VtVentaReembolsosEntity.builder()
                 .idVentaReembolsos(UUID.randomUUID())
+                .idData(idData)
+                .idEmpresa(idEmpresa)
                 .tipoIdentificacionReemb(TipoIdentificacion.obtenerTipoIdentificacion(documento.getInfoFactura()
                         .getTipoIdentificacionComprador()).name())
                 .numeroIdentificacionReemb(documento.getInfoFactura().getIdentificacionComprador())
@@ -505,27 +513,30 @@ public class AutorizacionBuilder {
                 .secuencialReemb(documento.getInfoTributaria().getSecuencial())
                 .comprobante(model.getComprobante())
                 .numeroAutorizacionReemb(model.getNumeroAutorizacion())
-                .reembolsosValores(builderListValoresVentaReembolso(documento.getInfoFactura()))
+                .reembolsosValores(builderListValoresVentaReembolso(documento.getInfoFactura(), idData, idEmpresa))
                 .fechaEmisionReemb(DateUtils.toLocalDate(documento.getInfoFactura().getFechaEmision()))
                 .pais(TbPaisEntity.builder().codigoPais("593").build())
                 .build();
     }
 
-    private List<CpLiquidacionesReembolsosValoresEntity> builderListValoresReembolsoFactura(InfoFactura infoFactura) {
+    private List<CpLiquidacionesReembolsosValoresEntity> builderListValoresReembolsoFactura(InfoFactura infoFactura, Long idData, Long idEmpresa) {
         return infoFactura.getTotalImpuesto().stream()
-                .map(this::builderReembolsoValores)
+                .map(item -> builderReembolsoValores(item, idData, idEmpresa))
                 .toList();
     }
 
-    private List<CpLiquidacionesReembolsosValoresEntity> builderListValoresReembolsoNotaDebito(InfoNotaDebito infoNotaDebito) {
+    private List<CpLiquidacionesReembolsosValoresEntity> builderListValoresReembolsoNotaDebito(InfoNotaDebito infoNotaDebito, Long idData, Long idEmpresa) {
         return infoNotaDebito.getImpuesto().stream()
-                .map(this::builderReembolsoValoresNotaDebito)
+                .map(item -> builderReembolsoValoresNotaDebito(item, idData, idEmpresa))
                 .toList();
     }
 
-    private CpLiquidacionesReembolsosValoresEntity builderReembolsoValoresNotaDebito(com.calero.lili.core.comprobantes.objetosXml.notaDebito.Impuesto model) {
+    private CpLiquidacionesReembolsosValoresEntity builderReembolsoValoresNotaDebito(com.calero.lili.core.comprobantes.objetosXml.notaDebito.Impuesto model,
+                                                                                     Long idData, Long idEmpresa) {
         return CpLiquidacionesReembolsosValoresEntity.builder()
                 .idLiquidacionValores(UUID.randomUUID())
+                .idData(idData)
+                .idEmpresa(idEmpresa)
                 .codigo(model.getCodigo())
                 .codigoPorcentaje(model.getCodigoPorcentaje())
                 .baseImponible(new BigDecimal(model.getBaseImponible()))
@@ -533,9 +544,11 @@ public class AutorizacionBuilder {
                 .build();
     }
 
-    private CpLiquidacionesReembolsosValoresEntity builderReembolsoValores(TotalImpuesto model) {
+    private CpLiquidacionesReembolsosValoresEntity builderReembolsoValores(TotalImpuesto model, Long idData, Long idEmpresa) {
         return CpLiquidacionesReembolsosValoresEntity.builder()
                 .idLiquidacionValores(UUID.randomUUID())
+                .idData(idData)
+                .idEmpresa(idEmpresa)
                 .codigo(model.getCodigo())
                 .codigoPorcentaje(model.getCodigoPorcentaje())
                 .baseImponible(new BigDecimal(model.getBaseImponible()))
@@ -544,15 +557,17 @@ public class AutorizacionBuilder {
     }
 
 
-    private List<VtVentaReembolsosValoresEntity> builderListValoresVentaReembolso(InfoFactura infoFactura) {
+    private List<VtVentaReembolsosValoresEntity> builderListValoresVentaReembolso(InfoFactura infoFactura, Long idData, Long idEmpresa) {
         return infoFactura.getTotalImpuesto().stream()
-                .map(this::builderVentaReembolsoValores)
+                .map(item -> builderVentaReembolsoValores(item, idData, idEmpresa))
                 .toList();
     }
 
-    private VtVentaReembolsosValoresEntity builderVentaReembolsoValores(TotalImpuesto model) {
+    private VtVentaReembolsosValoresEntity builderVentaReembolsoValores(TotalImpuesto model, Long idData, Long idEmpresa) {
         return VtVentaReembolsosValoresEntity.builder()
                 .idVentaValores(UUID.randomUUID())
+                .idData(idData)
+                .idEmpresa(idEmpresa)
                 .codigo(model.getCodigo())
                 .codigoPorcentaje(model.getCodigoPorcentaje())
                 .baseImponible(new BigDecimal(model.getBaseImponible()))

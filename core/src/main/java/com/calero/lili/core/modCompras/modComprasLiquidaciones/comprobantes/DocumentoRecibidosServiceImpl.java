@@ -26,9 +26,10 @@ public class DocumentoRecibidosServiceImpl {
     private final CpImpuestoRecibirBuilder cpImpuestoRecibirBuilder;
     private final ReembolsoRecibidaServiceImpl reembolsoRecibidaService;
 
-    // FACTURA, NOTA DE DEBITO, LA NOTA DE CREDITO NO DEBE GUARDDARSE.
+    // FACTURA, NOTA DE DEBITO, LA NOTA DE CREDITO NO DEBE GUARDARSE.
 
-    public CpImpuestosRecibirListCreationResponseDto createFilesLiqReembolso(Long idData, List<MultipartFile> files) {
+    public CpImpuestosRecibirListCreationResponseDto createFilesLiqReembolso(Long idData, Long idEmpresa,
+                                                                             List<MultipartFile> files, String usuario) {
 
         List<CpImpuestosRecibirResponseDto> listaRespuestas = new ArrayList<>();
 
@@ -44,10 +45,10 @@ public class DocumentoRecibidosServiceImpl {
 
                 Autorizacion documento = XmlUtils.readFileXml(file);
 
-                if (!reembolsoRecibidaService.verificarExisteDocumentoElectronicoLiqReembolsoBdd(documento.getNumeroAutorizacion())) {
+                if (!reembolsoRecibidaService.verificarExisteDocumentoElectronicoLiqReembolsoBdd(idData, idEmpresa, documento.getNumeroAutorizacion())) {
                     res.setClaveAcceso(documento.getNumeroAutorizacion());
 
-                    if (!reembolsoRecibidaService.guardarComprobanteLiqReembolso(documento)) {
+                    if (!reembolsoRecibidaService.guardarComprobanteLiqReembolso(idData, idEmpresa, documento, usuario)) {
                         res = cpImpuestoRecibirBuilder
                                 .builder(nameFile, MensajeComprobante.ERR_LEER_DOCUMENTO_INTERNO, Boolean.FALSE, documento.getNumeroAutorizacion());
                     }

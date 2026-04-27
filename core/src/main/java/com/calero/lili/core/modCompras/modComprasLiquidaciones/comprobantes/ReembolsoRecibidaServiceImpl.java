@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -26,12 +27,12 @@ public class ReembolsoRecibidaServiceImpl {
     private final AutorizacionBuilder autorizacionBuilder;
 
 
-    public Boolean verificarExisteDocumentoElectronicoLiqReembolsoBdd(String claveAcceso) {
+    public Boolean verificarExisteDocumentoElectronicoLiqReembolsoBdd(Long idData, Long idEmpresa, String claveAcceso) {
 
         if (validarDocumento(claveAcceso)) {
 
             Optional<CpLiquidacionesReembolsosEntity> existingLiquidacion =
-                    liquidacionReembolsosRepository.findByAutorizacion(claveAcceso);
+                    liquidacionReembolsosRepository.findByAutorizacion(idData, idEmpresa, claveAcceso);
             if (existingLiquidacion.isPresent()) {
                 log.info("Ya se encuentra registrado el reembolso de liquidación");
                 return Boolean.TRUE;
@@ -43,11 +44,11 @@ public class ReembolsoRecibidaServiceImpl {
         return Boolean.TRUE;
     }
 
-    public Boolean verificarExisteDocumentoElectronicoVentaReembolsoBdd(String claveAcceso) {
+    public Boolean verificarExisteDocumentoElectronicoVentaReembolsoBdd(Long idData, Long idEmpresa, String claveAcceso) {
 
         if (validarDocumento(claveAcceso)) {
 
-            Optional<VtVentaReembolsosEntity> vtVentaReembolsos = vtVentasReembolsoRepository.findByAutorizacion(claveAcceso);
+            Optional<VtVentaReembolsosEntity> vtVentaReembolsos = vtVentasReembolsoRepository.findByAutorizacion(idData, idEmpresa, claveAcceso);
             if (vtVentaReembolsos.isPresent()) {
                 log.info("Ya se encuentra registrado el reembolso de ventas");
                 return Boolean.TRUE;
@@ -69,7 +70,7 @@ public class ReembolsoRecibidaServiceImpl {
 
     }
 
-    public Boolean guardarComprobanteLiqReembolso(Autorizacion autorizacionDto) {
+    public Boolean guardarComprobanteLiqReembolso(Long idData, Long idEmpresa, Autorizacion autorizacionDto, String usuario) {
 
 
         String tipoDocumento = tipoDocumento(autorizacionDto.getNumeroAutorizacion());
@@ -77,8 +78,11 @@ public class ReembolsoRecibidaServiceImpl {
         switch (tipoDocumento) {
 
             case "FAC" -> {
-                CpLiquidacionesReembolsosEntity factura = validarLiquidacionReembolsoFactura(autorizacionDto);
+                CpLiquidacionesReembolsosEntity factura = validarLiquidacionReembolsoFactura(idData, idEmpresa, autorizacionDto);
                 if (Objects.nonNull(factura)) {
+
+                    factura.setCreatedBy(usuario);
+                    factura.setCreatedDate(LocalDateTime.now());
                     liquidacionReembolsosRepository.save(factura);
                     return Boolean.TRUE;
                 }
@@ -86,8 +90,10 @@ public class ReembolsoRecibidaServiceImpl {
             }
 
             case "NDB" -> {
-                CpLiquidacionesReembolsosEntity notaDebito = validarLiquidacionReembolsoNotaDebito(autorizacionDto);
+                CpLiquidacionesReembolsosEntity notaDebito = validarLiquidacionReembolsoNotaDebito(idData, idEmpresa, autorizacionDto);
                 if (Objects.nonNull(notaDebito)) {
+                    notaDebito.setCreatedBy(usuario);
+                    notaDebito.setCreatedDate(LocalDateTime.now());
                     liquidacionReembolsosRepository.save(notaDebito);
                     return Boolean.TRUE;
                 }
@@ -100,22 +106,22 @@ public class ReembolsoRecibidaServiceImpl {
     }
 
 
-    private CpLiquidacionesReembolsosEntity validarLiquidacionReembolsoFactura(Autorizacion autorizacionDto) {
+    private CpLiquidacionesReembolsosEntity validarLiquidacionReembolsoFactura(Long idData, Long idEmpresa, Autorizacion autorizacionDto) {
 
         try {
             Factura documento = XmlUtils.unmarshalXml(autorizacionDto.getComprobante(), Factura.class);
-            return autorizacionBuilder.builderLiquidacionReembolsoFactura(autorizacionDto, documento);
+            return autorizacionBuilder.builderLiquidacionReembolsoFactura(idData, idEmpresa, autorizacionDto, documento);
         } catch (Exception ex) {
             log.error(ex.getMessage());
             return null;
         }
     }
 
-    private CpLiquidacionesReembolsosEntity validarLiquidacionReembolsoNotaDebito(Autorizacion autorizacionDto) {
+    private CpLiquidacionesReembolsosEntity validarLiquidacionReembolsoNotaDebito(Long idData, Long idEmpresa, Autorizacion autorizacionDto) {
 
         try {
             NotaDebito documento = XmlUtils.unmarshalXml(autorizacionDto.getComprobante(), NotaDebito.class);
-            return autorizacionBuilder.builderLiquidacionReembolsoNotaDebito(autorizacionDto, documento);
+            return autorizacionBuilder.builderLiquidacionReembolsoNotaDebito(idData, idEmpresa, autorizacionDto, documento);
         } catch (Exception ex) {
             log.error(ex.getMessage());
             return null;
@@ -123,12 +129,12 @@ public class ReembolsoRecibidaServiceImpl {
     }
 
 
-    public Boolean guardarComprobanteVentaReembolso(Autorizacion autorizacionDto) {
+    public Boolean guardarComprobanteVentaReembolso(Autorizacion autorizacionDto, Long idData, Long idEmpresa, String usuario) {
 
-        System.out.println(autorizacionDto.getComprobante());
-
-        VtVentaReembolsosEntity reembolso = validarVentaReembolso(autorizacionDto);
+        VtVentaReembolsosEntity reembolso = validarVentaReembolso(autorizacionDto, idData, idEmpresa);
         if (Objects.nonNull(reembolso)) {
+            reembolso.setCreatedBy(usuario);
+            reembolso.setCreatedDate(LocalDateTime.now());
             vtVentasReembolsoRepository.save(reembolso);
             return Boolean.TRUE;
         }
@@ -136,11 +142,11 @@ public class ReembolsoRecibidaServiceImpl {
 
     }
 
-    private VtVentaReembolsosEntity validarVentaReembolso(Autorizacion autorizacionDto) {
+    private VtVentaReembolsosEntity validarVentaReembolso(Autorizacion autorizacionDto, Long idData, Long idEmpresa) {
 
         try {
             Factura documento = XmlUtils.unmarshalXml(autorizacionDto.getComprobante(), Factura.class);
-            return autorizacionBuilder.builderVentaReembolso(autorizacionDto, documento);
+            return autorizacionBuilder.builderVentaReembolso(autorizacionDto, documento, idData, idEmpresa);
         } catch (Exception ex) {
             log.error(ex.getMessage());
             return null;

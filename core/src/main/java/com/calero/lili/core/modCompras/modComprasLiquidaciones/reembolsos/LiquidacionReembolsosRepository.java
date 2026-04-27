@@ -18,9 +18,13 @@ public interface LiquidacionReembolsosRepository extends JpaRepository<CpLiquida
 
     @Query("SELECT entity " +
             "FROM CpLiquidacionesReembolsosEntity entity " +
-            "WHERE (cast(:fechaEmisionDesde as date) IS NULL OR entity.fechaEmisionReemb >= :fechaEmisionDesde) " +
+            "WHERE entity.idData =:idData AND entity.idEmpresa =:idEmpresa " +
+            "AND (cast(:fechaEmisionDesde as date) IS NULL OR entity.fechaEmisionReemb >= :fechaEmisionDesde) " +
             "AND (cast(:fechaEmisionHasta as date) IS NULL OR entity.fechaEmisionReemb <= :fechaEmisionHasta)")
-    List<CpLiquidacionesReembolsosEntity> getFindAll(@Param("fechaEmisionDesde") LocalDate fechaEmisionDesde, @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta);
+    List<CpLiquidacionesReembolsosEntity> getFindAll(@Param("idData") Long idData,
+                                                     @Param("idEmpresa") Long idEmpresa,
+                                                     @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
+                                                     @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta);
 
 
     /**
@@ -31,6 +35,7 @@ public interface LiquidacionReembolsosRepository extends JpaRepository<CpLiquida
     @Query("SELECT entity " +
             "FROM CpLiquidacionesReembolsosEntity entity " +
             "WHERE (cast(:fechaEmisionDesde as date) IS NULL OR entity.fechaEmisionReemb >= :fechaEmisionDesde) " +
+            "AND entity.idData = :idData AND entity.idEmpresa = :idEmpresa " +
             "AND (cast(:fechaEmisionHasta as date) IS NULL OR entity.fechaEmisionReemb <= :fechaEmisionHasta) " +
             "AND (:secuencial IS NULL OR entity.secuencialReemb = :secuencial) " +
             "AND (:numeroIdentificacion IS NULL OR entity.numeroIdentificacionReemb = :numeroIdentificacion) " +
@@ -38,7 +43,8 @@ public interface LiquidacionReembolsosRepository extends JpaRepository<CpLiquida
             "AND (:sucursal IS NULL OR entity.sucursal = :sucursal) " +
             "AND (:usuario IS NULL OR entity.createdBy = :usuario) " +
             "AND ( :utilizado = 2 OR ( :utilizado = 0 AND entity.idLiquidacion IS NULL ) OR ( :utilizado = 1 AND entity.idLiquidacion IS NOT NULL ) )")
-    Page<CpLiquidacionesReembolsosEntity> findAllPageable(@Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
+    Page<CpLiquidacionesReembolsosEntity> findAllPageable(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa,
+                                                          @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
                                                           @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
                                                           @Param("secuencial") String secuencial,
                                                           @Param("numeroIdentificacion") String numeroIdentificacion,
@@ -59,9 +65,11 @@ public interface LiquidacionReembolsosRepository extends JpaRepository<CpLiquida
             "FROM CpLiquidacionesReembolsosEntity entity " +
             "WHERE entity.idLiquidacionReembolsos = :idLiquidacionReembolsos AND " +
             "entity.idEmpresa = :idEmpresa AND " +
+            "entity.idData = :idData AND " +
             "(:sucursal IS NULL OR entity.sucursal = :sucursal) AND " +
             "(:usuario IS NULL OR entity.createdBy = :usuario)")
-    Optional<CpLiquidacionesReembolsosEntity> findByIdEntity(@Param("idEmpresa") Long idEmpresa,
+    Optional<CpLiquidacionesReembolsosEntity> findByIdEntity(@Param("idData") Long idData,
+                                                             @Param("idEmpresa") Long idEmpresa,
                                                              @Param("idLiquidacionReembolsos") UUID idLiquidacionReembolsos,
                                                              @Param("sucursal") String sucursal,
                                                              @Param("usuario") String usuario);
@@ -92,26 +100,33 @@ public interface LiquidacionReembolsosRepository extends JpaRepository<CpLiquida
                 FROM cp_liquidaciones_reembolsos clr
                 JOIN cp_liquidaciones_reembolsos_valores clrv 
                     ON clr.id_liquidacion_reembolsos = clrv.id_liquidacion_reembolsos
-                WHERE (cast(:fechaEmisionDesde as date) IS NULL OR clr.fecha_emision_reemb::date >= :fechaEmisionDesde)
+                WHERE  (clr.id_data = :idData) AND (clr.id_empresa = :idEmpresa) 
+                  AND (cast(:fechaEmisionDesde as date) IS NULL OR clr.fecha_emision_reemb::date >= :fechaEmisionDesde)
                   AND (cast(:fechaEmisionHasta as date) IS NULL OR clr.fecha_emision_reemb::date <= :fechaEmisionHasta)
                   AND (:secuencial IS NULL OR clr.secuencial_reemb = :secuencial)
                   AND (:numeroIdentificacion IS NULL OR clr.numero_identificacion_reemb = :numeroIdentificacion)
                   AND (:serie IS NULL OR clr.serie_reemb = :serie)
+                  AND ( :utilizado = 2 OR ( :utilizado = 0 AND clr.id_liquidacion IS NULL ) OR ( :utilizado = 1 AND clr.id_liquidacion IS NOT NULL))
+                  AND clr.deleted = false
                 GROUP BY clrv.codigo, clrv.codigo_porcentaje
                 ORDER BY clrv.codigo, clrv.codigo_porcentaje
             """, nativeQuery = true)
-    List<TotalesProjection> totalValores(@Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
+    List<TotalesProjection> totalValores(@Param("idData") Long idData,
+                                         @Param("idEmpresa") Long idEmpresa,
+                                         @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
                                          @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
                                          @Param("secuencial") String secuencial,
                                          @Param("numeroIdentificacion") String numeroIdentificacion,
-                                         @Param("serie") String serie
-    );
+                                         @Param("serie") String serie,
+                                         @Param("utilizado") Integer utilizado);
 
 
     @Query("SELECT entity " +
             "FROM CpLiquidacionesReembolsosEntity entity " +
-            "WHERE entity.numeroAutorizacionReemb = :numeroAutorizacionReemb")
-    Optional<CpLiquidacionesReembolsosEntity> findByAutorizacion(@Param("numeroAutorizacionReemb") String numeroAutorizacionReemb);
+            "WHERE entity.idData =:idData AND entity.idEmpresa =:idEmpresa AND entity.numeroAutorizacionReemb = :numeroAutorizacionReemb")
+    Optional<CpLiquidacionesReembolsosEntity> findByAutorizacion(@Param("idData") Long idData,
+                                                                 @Param("idEmpresa") Long idEmpresa,
+                                                                 @Param("numeroAutorizacionReemb") String numeroAutorizacionReemb);
 
 
     @Query("SELECT entity " +

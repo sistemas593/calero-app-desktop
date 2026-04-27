@@ -358,12 +358,16 @@ public class CpImpuestosServiceImpl {
         if (DateUtils.toLocalDate(request.getFechaRegistro()).isAfter(impuesto.getFechaEmision())
                 || DateUtils.toLocalDate(request.getFechaRegistro()).isEqual(impuesto.getFechaEmision())) {
 
+            if ((DateUtils.toLocalDate(request.getFechaRegistro()).isAfter(impuesto.getFechaEmision().plusYears(1)))) {
+                throw new GeneralException("La fecha no puede ser mayor a un año respecto a la fecha de emisión del documento");
+            }
+
             if (!comprobanteSustentoService.validacionCodigos(codigoDocumento, request.getCodigoSustento())) {
                 throw new GeneralException(MessageFormat.format("La combinación de código de documento: {0} y código de sustento: {1} es inválida.",
                         codigoDocumento, request.getCodigoSustento()));
             }
 
-            impuesto.setDestino(request.getDestino());
+            impuesto.setDestino(request.getDestino().name());
             impuesto.setFechaRegistro(DateUtils.toLocalDate(request.getFechaRegistro()));
             impuesto.setSustento(sustento);
 

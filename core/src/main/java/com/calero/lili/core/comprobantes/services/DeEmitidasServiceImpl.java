@@ -27,7 +27,7 @@ public class DeEmitidasServiceImpl {
 
 
     public CpImpuestosRecibirListCreationResponseDto createFiles(Long idData, Long idEmpresa,
-                                                                 List<MultipartFile> files) {
+                                                                 List<MultipartFile> files, String usuario) {
         String sucursal = "001";
         List<CpImpuestosRecibirResponseDto> listaRespuestas = new ArrayList<>();
 
@@ -42,7 +42,7 @@ public class DeEmitidasServiceImpl {
 
                 if (!deEmitidasComponentsService.verificarExisteDocumentoElectronicoBdd(idData, idEmpresa, documento.getNumeroAutorizacion())) {
 
-                    String message = deEmitidasComponentsService.guardarComprobante(idData, idEmpresa, documento, sucursal);
+                    String message = deEmitidasComponentsService.guardarComprobante(idData, idEmpresa, documento, sucursal, usuario);
                     res.setClaveAcceso(documento.getNumeroAutorizacion());
 
                     if (!message.isEmpty()) {

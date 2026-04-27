@@ -1,5 +1,10 @@
 package com.calero.lili.core.modVentas.reembolsos;
 
+import com.calero.lili.core.builder.ResponseApiBuilder;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.Paginator;
+import com.calero.lili.core.dtos.ResponseDto;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
 import com.calero.lili.core.modVentas.facturas.dto.FilterListDto;
 import com.calero.lili.core.modVentas.reembolsos.builder.VtVentaReembolsosBuilder;
@@ -7,11 +12,6 @@ import com.calero.lili.core.modVentas.reembolsos.dto.CreationRequestReembolsoDto
 import com.calero.lili.core.modVentas.reembolsos.dto.GetListDtoTotalizado;
 import com.calero.lili.core.modVentas.reembolsos.dto.ResponseReembolsoDto;
 import com.calero.lili.core.modVentas.reembolsos.projection.TotalesProjection;
-import com.calero.lili.core.builder.ResponseApiBuilder;
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.Paginator;
-import com.calero.lili.core.dtos.ResponseDto;
-import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.utils.DateUtils;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -56,20 +56,20 @@ public class VtVentasReembolsoServiceImpl {
     private final AdIvaPorcentajeServiceImpl adIvaPorcentajeService;
 
 
-    public ResponseDto create(CreationRequestReembolsoDto request, String usuario) {
+    public ResponseDto create(Long idData, Long idEmpresa, CreationRequestReembolsoDto request, String usuario) {
 
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getReembolsosValores()),
                 DateUtils.toLocalDate(request.getFechaEmisionReemb()));
 
         Optional<VtVentaReembolsosEntity> optional = vtVentasReembolsoRepository
-                .findByDatosReembolso(request.getNumeroIdentificacionReemb(), request.getSerieReemb(), request.getSecuencialReemb());
+                .findByDatosReembolso(idData, idEmpresa, request.getNumeroIdentificacionReemb(), request.getSerieReemb(), request.getSecuencialReemb());
 
         if (optional.isPresent()) {
             throw new GeneralException(MessageFormat.format("El reembolso ya existe" +
                     "Serie: {0} Secuencia: {1}", request.getSerieReemb(), request.getSecuencialReemb()));
         }
 
-        VtVentaReembolsosEntity reembolso = vtVentaReembolsosBuilder.builderEntity(request);
+        VtVentaReembolsosEntity reembolso = vtVentaReembolsosBuilder.builderEntity(idData, idEmpresa, request);
         reembolso.setCreatedBy(usuario);
         reembolso.setCreatedDate(LocalDateTime.now());
         VtVentaReembolsosEntity saved = vtVentasReembolsoRepository.save(reembolso);
@@ -77,13 +77,13 @@ public class VtVentasReembolsoServiceImpl {
     }
 
 
-    public ResponseDto update(UUID id, CreationRequestReembolsoDto request, String usuario) {
+    public ResponseDto update(Long idData, Long idEmpresa, UUID id, CreationRequestReembolsoDto request, String usuario) {
 
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getReembolsosValores()),
                 DateUtils.toLocalDate(request.getFechaEmisionReemb()));
 
         Optional<VtVentaReembolsosEntity> optional = vtVentasReembolsoRepository
-                .findByIdEntity(id);
+                .findByIdEntity(idData, idEmpresa, id);
 
         if (optional.isEmpty()) {
             throw new GeneralException(MessageFormat.format("El reembolso con el id:  {0},  no existe", id));
@@ -99,9 +99,9 @@ public class VtVentasReembolsoServiceImpl {
         return responseApiBuilder.builderResponse(update.getIdVentaReembolsos().toString());
     }
 
-    public void delete(UUID id, String usuario) {
+    public void delete(Long idData, Long idEmpresa, UUID id, String usuario) {
 
-        VtVentaReembolsosEntity reembolso = vtVentasReembolsoRepository.findById(id)
+        VtVentaReembolsosEntity reembolso = vtVentasReembolsoRepository.findByIdEntity(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat
                         .format("El reembolso con el id:  {0},  no existe", id)));
 
@@ -114,16 +114,16 @@ public class VtVentasReembolsoServiceImpl {
 
     }
 
-    public ResponseReembolsoDto findById(UUID id) {
-        return vtVentaReembolsosBuilder.builderReembolso(vtVentasReembolsoRepository.findById(id)
+    public ResponseReembolsoDto findById(Long idData, Long idEmpresa, UUID id) {
+        return vtVentaReembolsosBuilder.builderReembolso(vtVentasReembolsoRepository.findByIdEntity(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat
                         .format("El reembolso con el id:  {0},  no existe", id))));
     }
 
 
-    public PaginatedDto<ResponseReembolsoDto> findAllPaginate(FilterListDto filters, Pageable pageable) {
+    public PaginatedDto<ResponseReembolsoDto> findAllPaginate(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable) {
 
-        Page<VtVentaReembolsosEntity> page = vtVentasReembolsoRepository.findAllPageable(filters.getFechaEmisionDesde(),
+        Page<VtVentaReembolsosEntity> page = vtVentasReembolsoRepository.findAllPageable(idData, idEmpresa, filters.getFechaEmisionDesde(),
                 filters.getFechaEmisionHasta(), filters.getSecuencial(),
                 filters.getNumeroIdentificacion(), filters.getSerie(), filters.getUtilizado(), pageable);
 
@@ -149,17 +149,18 @@ public class VtVentasReembolsoServiceImpl {
         return paginatedDto;
     }
 
-    public GetListDtoTotalizado<ResponseReembolsoDto> findAllPaginateTotalizado(FilterListDto filters, Pageable pageable) {
+    public GetListDtoTotalizado<ResponseReembolsoDto> findAllPaginateTotalizado(Long idData, Long idEmpresa,
+                                                                                FilterListDto filters, Pageable pageable) {
 
 
-        Page<VtVentaReembolsosEntity> page = vtVentasReembolsoRepository.findAllPageable(filters.getFechaEmisionDesde(),
+        Page<VtVentaReembolsosEntity> page = vtVentasReembolsoRepository.findAllPageable(idData, idEmpresa, filters.getFechaEmisionDesde(),
                 filters.getFechaEmisionHasta(), filters.getSecuencial(),
                 filters.getNumeroIdentificacion(), filters.getSerie(), filters.getUtilizado(), pageable);
 
         List<ResponseReembolsoDto> dtoList = page.stream().map(vtVentaReembolsosBuilder::builderReembolso).toList();
 
         List<TotalesProjection> totalValoresProjection = vtVentasReembolsoRepository
-                .totalValores(filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(),
+                .totalValores(idData, idEmpresa, filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(),
                         filters.getSecuencial(), filters.getNumeroIdentificacion(), filters.getSerie());
 
         GetListDtoTotalizado totalesDto = new GetListDtoTotalizado<>();
@@ -187,10 +188,11 @@ public class VtVentasReembolsoServiceImpl {
     }
 
 
-    public void exportarExcel(HttpServletResponse response, FilterListDto filter) throws IOException {
+    public void exportarExcel(Long idData, Long idEmpresa, HttpServletResponse response, FilterListDto filter) throws IOException {
 
         log.info("Iniciando la exportación a Excel con el filtro: {}", filter);
-        List<VtVentaReembolsosEntity> reembolsos = vtVentasReembolsoRepository.getFindAll(filter.getFechaEmisionDesde(), filter.getFechaEmisionHasta());
+        List<VtVentaReembolsosEntity> reembolsos = vtVentasReembolsoRepository.getFindAll(idData, idEmpresa,
+                filter.getFechaEmisionDesde(), filter.getFechaEmisionHasta());
 
         DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
         String currentDateTime = dateFormatter.format(new Date());
@@ -309,10 +311,10 @@ public class VtVentasReembolsoServiceImpl {
     }
 
 
-    public void exportarPDF(HttpServletResponse response, FilterListDto filter) throws DocumentException, IOException {
+    public void exportarPDF(Long idData, Long idEmpresa, HttpServletResponse response, FilterListDto filter) throws DocumentException, IOException {
 
         List<VtVentaReembolsosEntity> reembolsos = vtVentasReembolsoRepository
-                .getFindAll(filter.getFechaEmisionDesde(), filter.getFechaEmisionHasta());
+                .getFindAll(idData, idEmpresa, filter.getFechaEmisionDesde(), filter.getFechaEmisionHasta());
 
 
         response.setContentType("application/pdf");

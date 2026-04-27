@@ -1,6 +1,7 @@
 package com.calero.lili.core.modCompras.builder;
 
 import com.calero.lili.core.dtos.FormasPagoSri;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosCodigosEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosEntity;
@@ -102,7 +103,7 @@ public class AtsBuilder {
 
         return DetalleCompras.builder()
                 .codSustento(model.getSustento().getCodigoSustento())
-                .tpIdProv(model.getTipoProveedor())
+                .tpIdProv(validacionTipoId(model.getTercero().getTipoIdentificacion()))
                 .idProv(model.getTercero().getNumeroIdentificacion())
                 .tipoComprobante(model.getDocumento().getCodigoDocumento())
                 .parteRel("NO")
@@ -128,6 +129,21 @@ public class AtsBuilder {
                 .totbasesImpReemb(new BigDecimal("0.00"))
                 .formasDePago(builderFormaDePago(model.getFormasPagoSri()))
                 .build();
+    }
+
+    private String validacionTipoId(String tipoIdentificacion) {
+        switch (tipoIdentificacion) {
+            case "R" -> {
+                return "01";
+            }
+            case "C" -> {
+                return "02";
+            }
+            case "P" -> {
+                return "03";
+            }
+            case null, default -> throw new GeneralException("No existe tipo de identificación para el proveedor");
+        }
     }
 
     public Pago builderFormaDePago(List<FormasPagoSri> formasPagoSri) {

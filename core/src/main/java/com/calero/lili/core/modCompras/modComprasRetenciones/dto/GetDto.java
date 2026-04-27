@@ -1,5 +1,6 @@
 package com.calero.lili.core.modCompras.modComprasRetenciones.dto;
 
+import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetListDto;
 import lombok.AllArgsConstructor;
@@ -19,9 +20,10 @@ public class GetDto {
 
     private UUID idRetencion;
     private String sucursal;
-    private String fechaEmision;
-    private String serie;
-    private String secuencial;
+    private String numeroAutorizacionRetencion;
+    private String serieRetencion;
+    private String secuencialRetencion;
+    private String fechaEmisionRetencion;
 
     private UUID idTercero;
 
@@ -64,5 +66,6 @@ public class GetDto {
 
     private Integer ambiente;
     private FormatoDocumento formatoDocumento;
-    private String numeroAutorizacionRetencion;
+    private EstadoDocumento estadoDocumento;
+    private Integer emailEstado;
 }

@@ -35,6 +35,12 @@ import java.util.UUID;
 @Where(clause = "deleted = false")
 public class VtVentaReembolsosEntity extends Auditable {
 
+    @Column(name = "id_data")
+    private Long idData;
+
+    @Column(name = "id_empresa")
+    private Long idEmpresa;
+
     @Id
     @Column(unique = true, updatable = false, nullable = false)
     private UUID idVentaReembolsos;

@@ -16,9 +16,10 @@ public class GetDto {
 
     private UUID idRetencion;
     private String sucursal;
-    private String fechaEmision;
-    private String serie;
-    private String secuencial;
+    private String numeroAutorizacionRetencion;
+    private String fechaEmisionRetencion;
+    private String serieRetencion;
+    private String secuencialRetencion;
 
     private Boolean anulada;
 

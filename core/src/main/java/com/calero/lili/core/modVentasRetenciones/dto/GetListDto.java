@@ -15,18 +15,14 @@ import java.util.UUID;
 @NoArgsConstructor
 public class GetListDto {
 
-    private String sucursal;
     private UUID idRetencion;
-
-    private String serie;
-    private String secuencial;
-
-    private String fechaEmision;
-
+    private String sucursal;
+    private String numeroAutorizacionRetencion;
+    private String serieRetencion;
+    private String secuencialRetencion;
+    private String fechaEmisionRetencion;
     private Boolean anulada;
-
     private List<ResponseValoresDto> valores;
-
     private TerceroDto tercero;
 
     @Data

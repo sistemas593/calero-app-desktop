@@ -1,5 +1,6 @@
 package com.calero.lili.core.dtos.deRecibidos;
 
+import com.calero.lili.core.enums.DestinoEnum;
 import lombok.Data;
 
 @Data
@@ -8,7 +9,7 @@ public class CpImpuestosRecibirCreationRequestDto {
     // clave acceso utilizo tambien para descargar claves de acceso el mismo dto
     private String claveAcceso;
 
-    private String destino;
+    private DestinoEnum destino;
 //    private String periodo;
     private String codigoSustento;
     private String fechaRegistro;

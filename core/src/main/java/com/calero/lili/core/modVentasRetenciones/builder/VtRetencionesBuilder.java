@@ -54,14 +54,15 @@ public class VtRetencionesBuilder {
     public GetDto builderResponse(VtRetencionesEntity model) {
         return GetDto.builder()
                 .idRetencion(model.getIdRetencion())
+                .numeroAutorizacionRetencion(model.getNumeroAutorizacionRetencion())
                 .valores(vtRetencionesValoresBuilder.builderListValoresDto(model.getValoresEntity()))
                 .sucursal(model.getSucursal())
-                .serie(model.getSerieRetencion())
-                .secuencial(model.getSecuencialRetencion())
+                .serieRetencion(model.getSerieRetencion())
+                .secuencialRetencion(model.getSecuencialRetencion())
                 .fechaAutorizacion(Objects.nonNull(model.getFechaAutorizacion())
                         ? DateUtils.toLocalDateTimeString(model.getFechaAutorizacion())
                         : null)
-                .fechaEmision(DateUtils.toString(model.getFechaEmisionRetencion()))
+                .fechaEmisionRetencion(DateUtils.toString(model.getFechaEmisionRetencion()))
                 .tercero(builderResponseTercero(model.getCliente()))
                 .build();
     }
@@ -79,11 +80,12 @@ public class VtRetencionesBuilder {
     public GetListDto builderListResponse(VtRetencionesEntity model) {
         return GetListDto.builder()
                 .idRetencion(model.getIdRetencion())
+                .numeroAutorizacionRetencion(model.getNumeroAutorizacionRetencion())
                 .valores(vtRetencionesValoresBuilder.builderListValoresDto(model.getValoresEntity()))
                 .sucursal(model.getSucursal())
-                .serie(model.getSerieRetencion())
-                .secuencial(model.getSecuencialRetencion())
-                .fechaEmision(DateUtils.toString(model.getFechaEmisionRetencion()))
+                .serieRetencion(model.getSerieRetencion())
+                .secuencialRetencion(model.getSecuencialRetencion())
+                .fechaEmisionRetencion(DateUtils.toString(model.getFechaEmisionRetencion()))
                 .tercero(builderTerceroResponseList(model.getCliente()))
                 .build();
 

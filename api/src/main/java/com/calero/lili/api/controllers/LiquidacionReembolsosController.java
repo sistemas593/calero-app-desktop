@@ -45,85 +45,93 @@ public class LiquidacionReembolsosController {
     private final IdDataServiceImpl idDataService;
     private final AuditorAwareImpl auditorAware;
 
-    @PostMapping("/create")
+    @PostMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('LQ_LQR_CR')")
-    public ResponseDto create(@Valid @RequestBody ReembolsoRequestDto request) {
-        return reembolsosService.create(request,
-                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+    public ResponseDto create(@Valid @RequestBody ReembolsoRequestDto request,
+                              @PathVariable("idEmpresa") Long idEmpresa) {
+        return reembolsosService.create(idDataService.getIdData(), idEmpresa, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
-    @PutMapping("{idEmpresa}/update/{idReembolso}")
+    @PutMapping("{idEmpresa}/{idReembolso}")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('LQ_LQR_MO_PR','LQ_LQR_MO_SC','LQ_LQR_MO_TD')")
     public ResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                               @PathVariable("idReembolso") UUID idReembolso,
                               @Valid @RequestBody ReembolsoRequestDto request,
                               FilterListDto filters) {
-        return reembolsosService.update(idEmpresa, idReembolso, request,
-                auditorAware.getCurrentAuditor().orElse("SYSTEM"),
-                filters,
+
+        return reembolsosService.update(idDataService.getIdData(), idEmpresa, idReembolso, request,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"), filters,
                 auditorAware.getTipoPermisoModificarReembolso());
     }
 
-    @DeleteMapping("{idEmpresa}/delete/{idReembolso}")
+    @DeleteMapping("{idEmpresa}/{idReembolso}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasAnyAuthority('LQ_LQR_EL_PR','LQ_LQR_EL_SC','LQ_LQR_EL_TD')")
     public void delete(@PathVariable("idEmpresa") Long idEmpresa,
                        @PathVariable("idReembolso") UUID idReembolso,
                        FilterListDto filters) {
-        reembolsosService.delete(idEmpresa, idReembolso,
+
+        reembolsosService.delete(idDataService.getIdData(), idEmpresa, idReembolso,
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"),
                 filters,
                 auditorAware.getTipoPermisoEliminarReembolso());
     }
 
-    @GetMapping("{idEmpresa}/findById/{idReembolso}")
+    @GetMapping("{idEmpresa}/{idReembolso}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('LQ_LQR_VR_PR','LQ_LQR_VR_SC','LQ_LQR_VR_TD')")
     public GetReembolsoDto findById(@PathVariable("idEmpresa") Long idEmpresa,
                                     @PathVariable("idReembolso") UUID idReembolso,
                                     FilterListDto filters) {
-        return reembolsosService.findById(idEmpresa, idReembolso,
-                filters,
+
+        return reembolsosService.findById(idDataService.getIdData(), idEmpresa, idReembolso, filters,
                 auditorAware.getTipoPermisoVerReembolso(),
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
-    @GetMapping("/findAllPaginate")
+    @GetMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('LQ_LQR_VR_PR','LQ_LQR_VR_SC','LQ_LQR_VR_TD')")
-    public PaginatedDto<GetReembolsoDto> findAllPaginate(FilterListDto filters, Pageable pageable) {
-        return reembolsosService.findAllPaginate(filters, pageable,
+    public PaginatedDto<GetReembolsoDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
+                                                         FilterListDto filters, Pageable pageable) {
+
+        return reembolsosService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable,
                 auditorAware.getTipoPermisoVerReembolso(),
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
-    @GetMapping("/reportes")
+    @GetMapping("reportes/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('LQ_LQR_VR_PR','LQ_LQR_VR_SC','LQ_LQR_VR_TD')")
-    public GetListDtoTotalizado<GetReembolsoDto> findAllPaginateTotalizado(FilterListDto filters,
+    public GetListDtoTotalizado<GetReembolsoDto> findAllPaginateTotalizado(@PathVariable("idEmpresa") Long idEmpresa,
+                                                                           FilterListDto filters,
                                                                            Pageable pageable) {
-        return reembolsosService.findAllPaginateTotalizado(filters, pageable);
+        return reembolsosService.findAllPaginateTotalizado(idDataService.getIdData(), idEmpresa, filters, pageable);
     }
 
-    @GetMapping("/excel")
+    @GetMapping("excel/{idEmpresa}")
     @PreAuthorize("hasAuthority('LQ_LQR_EX')")
-    public void exportarExcel(HttpServletResponse response, FilterListDto filter) throws IOException {
-        reembolsosService.exportarExcel(response, filter);
+    public void exportarExcel(@PathVariable("idEmpresa") Long idEmpresa,
+                              HttpServletResponse response, FilterListDto filter) throws IOException {
+        reembolsosService.exportarExcel(idDataService.getIdData(), idEmpresa, response, filter);
     }
 
-    @GetMapping("/pdf")
+    @GetMapping("pdf/{idEmpresa}")
     @PreAuthorize("hasAuthority('LQ_LQR_EX')")
-    public void exportarPDF(HttpServletResponse response, FilterListDto filters) throws DocumentException, IOException {
-        reembolsosService.exportarPDF(response, filters);
+    public void exportarPDF(@PathVariable("idEmpresa") Long idEmpresa,
+                            HttpServletResponse response, FilterListDto filters) throws DocumentException, IOException {
+        reembolsosService.exportarPDF(idDataService.getIdData(), idEmpresa, response, filters);
     }
 
-    @PostMapping("recibidos/files")
+    @PostMapping("recibidos/files/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('LQ_LQR_IMXML')")
-    public CpImpuestosRecibirListCreationResponseDto recibirFiles(@Valid @RequestBody List<MultipartFile> documentos) {
-        return documentoRecibidosService.createFilesLiqReembolso(idDataService.getIdData(), documentos);
+    public CpImpuestosRecibirListCreationResponseDto recibirFiles(@PathVariable("idEmpresa") Long idEmpresa,
+                                                                  @Valid @RequestBody List<MultipartFile> documentos) {
+        return documentoRecibidosService.createFilesLiqReembolso(idDataService.getIdData(), idEmpresa, documentos,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
 }

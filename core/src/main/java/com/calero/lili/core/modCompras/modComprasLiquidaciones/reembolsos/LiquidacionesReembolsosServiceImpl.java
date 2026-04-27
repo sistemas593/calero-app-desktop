@@ -59,7 +59,9 @@ public class LiquidacionesReembolsosServiceImpl {
     private final ResponseApiBuilder responseApiBuilder;
     private final AdIvaPorcentajeServiceImpl adIvaPorcentajeService;
 
-    public ResponseDto create(ReembolsoRequestDto request, String usuario) {
+    // TODO MODIFCAR PARA ACEPTAR ID DATA EN EL REPOSITORIO COLOCARLE PARA LAS BUSQUEDAS Y A LOS VALORES
+
+    public ResponseDto create(Long idData, Long idEmpresa, ReembolsoRequestDto request, String usuario) {
 
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getReembolsosValores()),
                 DateUtils.toLocalDate(request.getFechaEmisionReemb()));
@@ -72,7 +74,7 @@ public class LiquidacionesReembolsosServiceImpl {
             throw new GeneralException(MessageFormat.format("El registro ya existe - numeroIdentificacion{0} Serie: {1} Secuencia: {2} numeroAutorizacion: {3}", request.getNumeroIdentificacionReemb(), request.getSerieReemb(), request.getSecuencialReemb(), request.getNumeroAutorizacionReemb()));
         }
 
-        CpLiquidacionesReembolsosEntity entity = cpLiquidacionesReembolsosBuilder.builderReembolso(request);
+        CpLiquidacionesReembolsosEntity entity = cpLiquidacionesReembolsosBuilder.builderReembolso(request, idData, idEmpresa);
         entity.setCreatedBy(usuario);
         entity.setCreatedDate(LocalDateTime.now());
         return responseApiBuilder.builderResponse(reembolsosRepository
@@ -82,13 +84,13 @@ public class LiquidacionesReembolsosServiceImpl {
     }
 
     @Transactional
-    public ResponseDto update(Long idEmpresa, UUID idReembolso, ReembolsoRequestDto request,
+    public ResponseDto update(Long idData, Long idEmpresa, UUID idReembolso, ReembolsoRequestDto request,
                               String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
 
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getReembolsosValores()),
                 DateUtils.toLocalDate(request.getFechaEmisionReemb()));
 
-        CpLiquidacionesReembolsosEntity reembolso = validacionTipoBusqueda(idEmpresa, idReembolso, filters, tipoBusqueda, usuario);
+        CpLiquidacionesReembolsosEntity reembolso = validacionTipoBusqueda(idData, idEmpresa, idReembolso, filters, tipoBusqueda, usuario);
 
         if (!reembolso.getSerieReemb().equals(request.getSerieReemb()) || !reembolso.getSecuencialReemb().equals(request.getSecuencialReemb())) {
 
@@ -107,10 +109,10 @@ public class LiquidacionesReembolsosServiceImpl {
 
     }
 
-    public void delete(Long idEmpresa, UUID idReembolso, String usuario,
+    public void delete(Long idData, Long idEmpresa, UUID idReembolso, String usuario,
                        FilterListDto filters, TipoPermiso tipoBusqueda) {
 
-        CpLiquidacionesReembolsosEntity entidad = validacionTipoBusqueda(idEmpresa, idReembolso, filters, tipoBusqueda, usuario);
+        CpLiquidacionesReembolsosEntity entidad = validacionTipoBusqueda(idData, idEmpresa, idReembolso, filters, tipoBusqueda, usuario);
 
         entidad.setDelete(Boolean.TRUE);
         entidad.setDeletedBy(usuario);
@@ -120,17 +122,19 @@ public class LiquidacionesReembolsosServiceImpl {
 
     }
 
-    public GetReembolsoDto findById(Long idEmpresa, UUID idReembolso,
+    public GetReembolsoDto findById(Long idData, Long idEmpresa, UUID idReembolso,
                                     FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
-        CpLiquidacionesReembolsosEntity reembolso = validacionTipoBusqueda(idEmpresa, idReembolso, filters, tipoBusqueda, usuario);
+
+        CpLiquidacionesReembolsosEntity reembolso = validacionTipoBusqueda(idData, idEmpresa, idReembolso, filters, tipoBusqueda, usuario);
         return cpLiquidacionesReembolsosBuilder.builderResponse(reembolso);
     }
 
 
-    public PaginatedDto<GetReembolsoDto> findAllPaginate(FilterListDto filtro, Pageable pageable,
+    public PaginatedDto<GetReembolsoDto> findAllPaginate(Long idData, Long idEmpresa, FilterListDto filtro, Pageable pageable,
                                                          TipoPermiso tipoBusqueda, String usuario) {
 
-        Page<CpLiquidacionesReembolsosEntity> page = getTipoBusquedaPaginado(filtro, pageable, tipoBusqueda, usuario);
+        validarFiltroUtilizado(filtro);
+        Page<CpLiquidacionesReembolsosEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filtro, pageable, tipoBusqueda, usuario);
 
 
         List<GetReembolsoDto> dtoList = page.stream()
@@ -158,19 +162,22 @@ public class LiquidacionesReembolsosServiceImpl {
     }
 
 
-    public GetListDtoTotalizado<GetReembolsoDto> findAllPaginateTotalizado(FilterListDto filtro, Pageable pageable) {
+    public GetListDtoTotalizado<GetReembolsoDto> findAllPaginateTotalizado(Long idData, Long idEmpresa,
+                                                                           FilterListDto filtro, Pageable pageable) {
 
+
+        validarFiltroUtilizado(filtro);
 
         Page<CpLiquidacionesReembolsosEntity> page = reembolsosRepository
-                .findAllPageable(filtro.getFechaEmisionDesde(), filtro.getFechaEmisionHasta(),
+                .findAllPageable(idData, idEmpresa, filtro.getFechaEmisionDesde(), filtro.getFechaEmisionHasta(),
                         filtro.getSecuencial(), filtro.getNumeroIdentificacion(), filtro.getSerie(),
                         filtro.getUtilizado(), null, null, pageable);
 
         List<GetReembolsoDto> dtoList = page.stream().map(cpLiquidacionesReembolsosBuilder::builderResponse).toList();
 
         List<TotalesProjection> totalValoresProjection = reembolsosRepository
-                .totalValores(filtro.getFechaEmisionDesde(), filtro.getFechaEmisionHasta(),
-                        filtro.getSecuencial(), filtro.getNumeroIdentificacion(), filtro.getSerie());
+                .totalValores(idData, idEmpresa, filtro.getFechaEmisionDesde(), filtro.getFechaEmisionHasta(),
+                        filtro.getSecuencial(), filtro.getNumeroIdentificacion(), filtro.getSerie(), filtro.getUtilizado());
 
         GetListDtoTotalizado totalesDto = new GetListDtoTotalizado<>();
         totalesDto.setContent(dtoList);
@@ -197,10 +204,11 @@ public class LiquidacionesReembolsosServiceImpl {
     }
 
 
-    public void exportarExcel(HttpServletResponse response, FilterListDto filter) throws IOException {
+    public void exportarExcel(Long idData, Long idEmpresa, HttpServletResponse response, FilterListDto filter) throws IOException {
 
         log.info("Iniciando la exportación a Excel con el filtro: {}", filter);
-        List<CpLiquidacionesReembolsosEntity> facturas = reembolsosRepository.getFindAll(filter.getFechaEmisionDesde(), filter.getFechaEmisionHasta());
+        List<CpLiquidacionesReembolsosEntity> facturas = reembolsosRepository.getFindAll(idData, idEmpresa,
+                filter.getFechaEmisionDesde(), filter.getFechaEmisionHasta());
 
         DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
         String currentDateTime = dateFormatter.format(new Date());
@@ -319,9 +327,10 @@ public class LiquidacionesReembolsosServiceImpl {
         }
     }
 
-    public void exportarPDF(HttpServletResponse response, FilterListDto filters) throws DocumentException, IOException {
+    public void exportarPDF(Long idData, Long idEmpresa, HttpServletResponse response, FilterListDto filters) throws DocumentException, IOException {
 
-        List<CpLiquidacionesReembolsosEntity> facturas = reembolsosRepository.getFindAll(filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta());
+        List<CpLiquidacionesReembolsosEntity> facturas = reembolsosRepository.getFindAll(idData, idEmpresa,
+                filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta());
 
         response.setContentType("application/pdf");
         String headerKey = "Content-Disposition";
@@ -455,17 +464,18 @@ public class LiquidacionesReembolsosServiceImpl {
     }
 
 
-    private Page<CpLiquidacionesReembolsosEntity> getTipoBusquedaPaginado(FilterListDto filtro, Pageable pageable,
+    private Page<CpLiquidacionesReembolsosEntity> getTipoBusquedaPaginado(Long idData, Long idEmpresa,
+                                                                          FilterListDto filtro, Pageable pageable,
                                                                           TipoPermiso tipoBusqueda, String usuario) {
         switch (tipoBusqueda) {
             case TODAS -> {
-                return reembolsosRepository.findAllPageable(filtro.getFechaEmisionDesde(),
+                return reembolsosRepository.findAllPageable(idData, idEmpresa, filtro.getFechaEmisionDesde(),
                         filtro.getFechaEmisionHasta(), filtro.getSecuencial(), filtro.getNumeroIdentificacion(),
                         filtro.getSerie(), filtro.getUtilizado(), null, null, pageable);
             }
             case SUCURSAL -> {
                 if (Objects.nonNull(filtro.getSucursal()) && !filtro.getSucursal().isEmpty()) {
-                    return reembolsosRepository.findAllPageable(filtro.getFechaEmisionDesde(),
+                    return reembolsosRepository.findAllPageable(idData, idEmpresa, filtro.getFechaEmisionDesde(),
                             filtro.getFechaEmisionHasta(), filtro.getSecuencial(), filtro.getNumeroIdentificacion(),
                             filtro.getSerie(), filtro.getUtilizado(), filtro.getSucursal(), null, pageable);
                 } else {
@@ -473,7 +483,7 @@ public class LiquidacionesReembolsosServiceImpl {
                 }
             }
             case PROPIAS -> {
-                return reembolsosRepository.findAllPageable(filtro.getFechaEmisionDesde(),
+                return reembolsosRepository.findAllPageable(idData, idEmpresa, filtro.getFechaEmisionDesde(),
                         filtro.getFechaEmisionHasta(), filtro.getSecuencial(), filtro.getNumeroIdentificacion(),
                         filtro.getSerie(), filtro.getUtilizado(), null, usuario, pageable);
             }
@@ -482,20 +492,20 @@ public class LiquidacionesReembolsosServiceImpl {
     }
 
 
-    private CpLiquidacionesReembolsosEntity validacionTipoBusqueda(Long idEmpresa, UUID idVenta,
+    private CpLiquidacionesReembolsosEntity validacionTipoBusqueda(Long idData, Long idEmpresa, UUID idVenta,
                                                                    FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         switch (tipoBusqueda) {
             case TODAS:
                 return reembolsosRepository
-                        .findByIdEntity(idEmpresa, idVenta, null, null)
+                        .findByIdEntity(idData, idEmpresa, idVenta, null, null)
                         .orElseThrow(() -> new GeneralException(MessageFormat.format("La factura con ID {0} no existe", idVenta)));
 
             case SUCURSAL: {
                 if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
 
                     return reembolsosRepository
-                            .findByIdEntity(idEmpresa, idVenta, filters.getSucursal(), null)
+                            .findByIdEntity(idData, idEmpresa, idVenta, filters.getSucursal(), null)
                             .orElseThrow(() -> new GeneralException(MessageFormat.format("No tiene acceso al documento en la sucursal {0}", filters.getSucursal())));
 
                 } else {
@@ -505,7 +515,7 @@ public class LiquidacionesReembolsosServiceImpl {
             case PROPIAS: {
 
                 return reembolsosRepository
-                        .findByIdEntity(idEmpresa, idVenta, null, usuario)
+                        .findByIdEntity(idData, idEmpresa, idVenta, null, usuario)
                         .orElseThrow(() -> new GeneralException(MessageFormat.format("No tiene acceso al documento el usuario: {0}", usuario)));
 
             }
@@ -514,5 +524,11 @@ public class LiquidacionesReembolsosServiceImpl {
         throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
     }
 
+
+    private void validarFiltroUtilizado(FilterListDto filtro) {
+        if (Objects.isNull(filtro.getUtilizado())) {
+            throw new GeneralException("El parametro utilizado es requerido");
+        }
+    }
 
 }

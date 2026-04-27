@@ -87,9 +87,9 @@ public class CpRetencionesBuilder {
         return GetDto.builder()
                 .idRetencion(model.getIdRetencion())
                 .sucursal(model.getSucursal())
-                .fechaEmision(DateUtils.toString(model.getFechaEmisionRetencion()))
-                .serie(model.getSerieRetencion())
-                .secuencial(model.getSecuencialRetencion())
+                .fechaEmisionRetencion(DateUtils.toString(model.getFechaEmisionRetencion()))
+                .serieRetencion(model.getSerieRetencion())
+                .secuencialRetencion(model.getSecuencialRetencion())
                 .idTercero(model.getProveedor().getIdTercero())
                 .numeroIdentificacion(Objects.nonNull(model.getProveedor()) ? model.getProveedor().getNumeroIdentificacion() : null)
                 .terceroNombre(Objects.nonNull(model.getProveedor()) ? model.getProveedor().getTercero() : null)
@@ -103,6 +103,8 @@ public class CpRetencionesBuilder {
                 .formatoDocumento(model.getFormatoDocumento())
                 .ambiente(model.getAmbiente())
                 .numeroAutorizacionRetencion(model.getNumeroAutorizacionRetencion())
+                .estadoDocumento(model.getEstadoDocumento())
+                .emailEstado(model.getEmailEstado())
                 .build();
 
     }
@@ -123,6 +125,9 @@ public class CpRetencionesBuilder {
                 .numeroIdentificacion(Objects.nonNull(model.getProveedor()) ? model.getProveedor().getNumeroIdentificacion() : null)
                 .terceroNombre(Objects.nonNull(model.getProveedor()) ? model.getProveedor().getTercero() : null)
                 .tipoIdentificacion(Objects.nonNull(model.getProveedor()) ? model.getProveedor().getTipoIdentificacion() : null)
+                .numeroAutorizacionRetencion(model.getNumeroAutorizacionRetencion())
+                .estadoDocumento(model.getEstadoDocumento())
+                .emailEstado(model.getEmailEstado())
                 .build();
     }
 

@@ -9,15 +9,18 @@ import com.calero.lili.core.utils.DateUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Component
 public class VtVentaReembolsosBuilder {
 
 
-    public VtVentaReembolsosEntity builderEntity(CreationRequestReembolsoDto model) {
+    public VtVentaReembolsosEntity builderEntity(Long idData, Long idEmpresa, CreationRequestReembolsoDto model) {
         return VtVentaReembolsosEntity.builder()
                 .idVentaReembolsos(UUID.randomUUID())
+                .idData(idData)
+                .idEmpresa(idEmpresa)
                 .tipoIdentificacionReemb(model.getTipoIdentificacionReemb())
                 .numeroIdentificacionReemb(model.getNumeroIdentificacionReemb())
                 .codigoDocumentoReemb(model.getCodigoDocumentoReemb())
@@ -27,7 +30,7 @@ public class VtVentaReembolsosBuilder {
                 .secuencialReemb(model.getSecuencialReemb())
                 .fechaEmisionReemb(DateUtils.toLocalDate(model.getFechaEmisionReemb()))
                 .numeroAutorizacionReemb(model.getNumeroAutorizacionReemb())
-                .reembolsosValores(builderListReembolsoValores(model.getReembolsosValores()))
+                .reembolsosValores(builderListReembolsoValores(model.getReembolsosValores(), idData, idEmpresa))
                 .pais(builderPais(model.getCodPaisPagoReemb()))
                 .build();
     }
@@ -36,6 +39,8 @@ public class VtVentaReembolsosBuilder {
                                                        VtVentaReembolsosEntity item) {
         return VtVentaReembolsosEntity.builder()
                 .idVentaReembolsos(item.getIdVentaReembolsos())
+                .idData(item.getIdData())
+                .idEmpresa(item.getIdEmpresa())
                 .tipoIdentificacionReemb(model.getTipoIdentificacionReemb())
                 .numeroIdentificacionReemb(model.getNumeroIdentificacionReemb())
                 .codigoDocumentoReemb(model.getCodigoDocumentoReemb())
@@ -45,7 +50,7 @@ public class VtVentaReembolsosBuilder {
                 .secuencialReemb(model.getSecuencialReemb())
                 .fechaEmisionReemb(DateUtils.toLocalDate(model.getFechaEmisionReemb()))
                 .numeroAutorizacionReemb(model.getNumeroAutorizacionReemb())
-                .reembolsosValores(builderListReembolsoValores(model.getReembolsosValores()))
+                .reembolsosValores(builderListReembolsoValores(model.getReembolsosValores(), item.getIdData(), item.getIdEmpresa()))
                 .pais(builderPais(model.getCodPaisPagoReemb()))
                 .build();
     }
@@ -56,15 +61,17 @@ public class VtVentaReembolsosBuilder {
                 .build();
     }
 
-    private List<VtVentaReembolsosValoresEntity> builderListReembolsoValores(List<CreationRequestReembolsoDto.ValoresDto> list) {
+    private List<VtVentaReembolsosValoresEntity> builderListReembolsoValores(List<CreationRequestReembolsoDto.ValoresDto> list, Long iData, Long idEmpresa) {
         return list.stream()
-                .map(this::builderReembolsoValores)
+                .map(item -> builderReembolsoValores(item, iData, idEmpresa))
                 .toList();
     }
 
-    private VtVentaReembolsosValoresEntity builderReembolsoValores(CreationRequestReembolsoDto.ValoresDto model) {
+    private VtVentaReembolsosValoresEntity builderReembolsoValores(CreationRequestReembolsoDto.ValoresDto model, Long idData, Long idEmpresa) {
         return VtVentaReembolsosValoresEntity.builder()
                 .idVentaValores(UUID.randomUUID())
+                .idData(idData)
+                .idEmpresa(idEmpresa)
                 .valor(model.getValor())
                 .baseImponible(model.getBaseImponible())
                 .codigo(model.getCodigo())
@@ -87,17 +94,13 @@ public class VtVentaReembolsosBuilder {
                 .fechaEmisionReemb(DateUtils.toString(model.getFechaEmisionReemb()))
                 .reembolsosValores(builderResponseValoresList(model.getReembolsosValores()))
                 .numeroAutorizacionReemb(model.getNumeroAutorizacionReemb())
-                .pais(builderPaisResponse(model.getPais()))
+                .pais(Objects.nonNull(model.getPais()) ? model.getPais().getPais() : "")
+                .codigoPais(Objects.nonNull(model.getPais()) ? model.getPais().getCodigoPais() : "")
                 .idVenta(model.getIdVenta())
                 .build();
     }
 
-    private ResponseReembolsoDto.PaisDto builderPaisResponse(TbPaisEntity pais) {
-        return ResponseReembolsoDto.PaisDto.builder()
-                .codigoPais(pais.getCodigoPais())
-                .pais(pais.getPais())
-                .build();
-    }
+
 
     private List<ResponseReembolsoDto.ValoresDto> builderResponseValoresList(List<VtVentaReembolsosValoresEntity> list) {
         return list.stream()

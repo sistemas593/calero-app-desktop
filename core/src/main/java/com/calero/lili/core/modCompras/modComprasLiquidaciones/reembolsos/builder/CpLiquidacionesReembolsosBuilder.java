@@ -6,7 +6,6 @@ import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.CpLiqu
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.dto.GetReembolsoDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.dto.ReembolsoRequestDto;
 import com.calero.lili.core.tablas.tbPaises.TbPaisEntity;
-import com.calero.lili.core.tablas.tbPaises.TbPaisGetOneDto;
 import com.calero.lili.core.utils.DateUtils;
 import org.springframework.stereotype.Component;
 
@@ -18,19 +17,13 @@ import java.util.UUID;
 @Component
 public class CpLiquidacionesReembolsosBuilder {
 
-    public List<CpLiquidacionesReembolsosEntity> builderList(List<ReembolsoRequestDto> list) {
-
-        if (Objects.isNull(list)) return new ArrayList<>();
-        return list.stream()
-                .map(this::builderReembolso)
-                .toList();
-    }
-
-    public CpLiquidacionesReembolsosEntity builderReembolso(ReembolsoRequestDto model) {
+    public CpLiquidacionesReembolsosEntity builderReembolso(ReembolsoRequestDto model, Long idData, Long idEmpresa) {
 
         UUID idReembolso = UUID.randomUUID();
         return CpLiquidacionesReembolsosEntity.builder()
                 .idLiquidacionReembolsos(idReembolso)
+                .idEmpresa(idEmpresa)
+                .idData(idData)
                 .tipoIdentificacionReemb(model.getTipoIdentificacionReemb())
                 .numeroIdentificacionReemb(model.getNumeroIdentificacionReemb())
                 .tipoProveedorReemb(model.getTipoProveedorReemb())
@@ -40,13 +33,15 @@ public class CpLiquidacionesReembolsosBuilder {
                 .secuencialReemb(model.getSecuencialReemb())
                 .fechaEmisionReemb(DateUtils.toLocalDate(model.getFechaEmisionReemb()))
                 .numeroAutorizacionReemb(model.getNumeroAutorizacionReemb())
-                .reembolsosValores(builderListValores(model.getReembolsosValores(), idReembolso))
+                .reembolsosValores(builderListValores(model.getReembolsosValores(), idData, idEmpresa))
                 .build();
     }
 
     public CpLiquidacionesReembolsosEntity builderUpdateReembolso(ReembolsoRequestDto model, CpLiquidacionesReembolsosEntity item) {
         return CpLiquidacionesReembolsosEntity.builder()
                 .idLiquidacionReembolsos(item.getIdLiquidacionReembolsos())
+                .idData(item.getIdData())
+                .idEmpresa(item.getIdEmpresa())
                 .tipoIdentificacionReemb(model.getTipoIdentificacionReemb())
                 .numeroIdentificacionReemb(model.getNumeroIdentificacionReemb())
                 .codigoDocumentoReemb(model.getCodigoDocumentoReemb())
@@ -56,20 +51,22 @@ public class CpLiquidacionesReembolsosBuilder {
                 .secuencialReemb(model.getSecuencialReemb())
                 .fechaEmisionReemb(DateUtils.toLocalDate(model.getFechaEmisionReemb()))
                 .numeroAutorizacionReemb(model.getNumeroAutorizacionReemb())
-                .reembolsosValores(builderListValores(model.getReembolsosValores(), item.getIdLiquidacionReembolsos()))
+                .reembolsosValores(builderListValores(model.getReembolsosValores(), item.getIdData(), item.getIdEmpresa()))
                 .build();
     }
 
-    private List<CpLiquidacionesReembolsosValoresEntity> builderListValores(List<ValoresDto> list, UUID idReembolso) {
+    private List<CpLiquidacionesReembolsosValoresEntity> builderListValores(List<ValoresDto> list, Long idData, Long idEmpresa) {
         return list.stream()
-                .map(this::builderValores)
+                .map(item -> builderValores(item, idData, idEmpresa))
                 .toList();
     }
 
 
-    private CpLiquidacionesReembolsosValoresEntity builderValores(ValoresDto model) {
+    private CpLiquidacionesReembolsosValoresEntity builderValores(ValoresDto model, Long idData, Long idEmpresa) {
         return CpLiquidacionesReembolsosValoresEntity.builder()
                 .idLiquidacionValores(UUID.randomUUID())
+                .idData(idData)
+                .idEmpresa(idEmpresa)
                 .codigo(model.getCodigo())
                 .codigoPorcentaje(model.getCodigoPorcentaje())
                 .tarifa(model.getTarifa())
@@ -93,7 +90,8 @@ public class CpLiquidacionesReembolsosBuilder {
                 .numeroIdentificacionReemb(model.getNumeroIdentificacionReemb())
                 .codigoDocumentoReemb(model.getCodigoDocumentoReemb())
                 .tipoProveedorReemb(model.getTipoProveedorReemb())
-                .pais(builderPaisResponse(model.getPais()))
+                .pais(Objects.nonNull(model.getPais()) ? model.getPais().getPais() : "")
+                .codigoPais(Objects.nonNull(model.getPais()) ? model.getPais().getCodigoPais() : "")
                 .codigoDocumentoReemb(model.getCodigoDocumentoReemb())
                 .serieReemb(model.getSerieReemb())
                 .secuencialReemb(model.getSecuencialReemb())
@@ -125,13 +123,4 @@ public class CpLiquidacionesReembolsosBuilder {
                 .codigoPais(codPaisPagoReemb)
                 .build();
     }
-
-    private TbPaisGetOneDto builderPaisResponse(TbPaisEntity model) {
-        return TbPaisGetOneDto.builder()
-                .pais(model.getPais())
-                .codigoPais(model.getCodigoPais())
-                .build();
-    }
-
-
 }

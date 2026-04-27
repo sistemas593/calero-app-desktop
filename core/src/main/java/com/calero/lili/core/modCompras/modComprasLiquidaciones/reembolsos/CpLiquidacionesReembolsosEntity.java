@@ -35,6 +35,13 @@ import java.util.UUID;
 @Where(clause = "deleted = false")
 public class CpLiquidacionesReembolsosEntity extends Auditable {
 
+
+    @Column(name = "id_data")
+    private Long idData;
+
+    @Column(name = "id_empresa")
+    private Long idEmpresa;
+
     @Id
     @Column(unique = true, updatable = false, nullable = false)
     private UUID idLiquidacionReembolsos;
@@ -73,12 +80,11 @@ public class CpLiquidacionesReembolsosEntity extends Auditable {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CpLiquidacionesReembolsosValoresEntity> reembolsosValores = new ArrayList<>();
 
-    @Column(name = "id_empresa")
-    private Long idEmpresa;
 
     @Column(name = "sucursal", length = 3)
     private String sucursal;
 
     @Column(name = "id_liquidacion", insertable = false, updatable = false)
     private UUID idLiquidacion;
+
 }

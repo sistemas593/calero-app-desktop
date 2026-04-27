@@ -37,6 +37,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.text.MessageFormat;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,30 +95,30 @@ public class DeEmitidasComponentsServiceImpl {
     }
 
 
-    public String guardarComprobante(Long idData, Long idEmpresa, Autorizacion autorizacionDto, String sucursal) {
+    public String guardarComprobante(Long idData, Long idEmpresa, Autorizacion autorizacionDto, String sucursal, String usuario) {
 
         if (esRetencion(autorizacionDto.getNumeroAutorizacion())) {
-            return guardarRetencion(idData, idEmpresa, autorizacionDto);
+            return guardarRetencion(idData, idEmpresa, autorizacionDto, usuario);
         }
 
         if (autorizacionDto.getNumeroAutorizacion().startsWith("01", 8)) {
-            return guardarFactura(idData, idEmpresa, autorizacionDto, sucursal);
+            return guardarFactura(idData, idEmpresa, autorizacionDto, sucursal, usuario);
         }
 
         if (autorizacionDto.getNumeroAutorizacion().startsWith("04", 8)) {
-            return guardarNotaCredito(idData, idEmpresa, autorizacionDto, sucursal);
+            return guardarNotaCredito(idData, idEmpresa, autorizacionDto, sucursal, usuario);
         }
 
         return MensajeComprobante.ERR_EL_DOCUMENTO_NO_CORRESPONDE;
     }
 
-    private String guardarNotaCredito(Long idData, Long idEmpresa, Autorizacion autorizacionDto, String sucursal) {
+    private String guardarNotaCredito(Long idData, Long idEmpresa, Autorizacion autorizacionDto, String sucursal, String usuario) {
         NotaCredito documento = XmlUtils.getNotaCredito(autorizacionDto);
         if (Objects.nonNull(documento)) {
             String message = ""; //validarEmpresa(documento.getInfoTributaria().getRuc(), idEmpresa, idData);
 
             if (message.isEmpty()) {
-                VtVentaEntity notaCredito = validarNotaCredito(idData, idEmpresa, documento, sucursal, autorizacionDto.getComprobante());
+                VtVentaEntity notaCredito = validarNotaCredito(idData, idEmpresa, documento, sucursal, autorizacionDto.getComprobante(), usuario);
                 if (Objects.nonNull(notaCredito)) {
                     return "";
                 } else {
@@ -131,14 +132,14 @@ public class DeEmitidasComponentsServiceImpl {
     }
 
 
-    private String guardarFactura(Long idData, Long idEmpresa, Autorizacion autorizacionDto, String sucursal) {
+    private String guardarFactura(Long idData, Long idEmpresa, Autorizacion autorizacionDto, String sucursal, String usuario) {
 
         Factura documento = XmlUtils.getFactura(autorizacionDto);
         if (Objects.nonNull(documento)) {
 
             String message = "";//validarEmpresa(documento.getInfoTributaria().getRuc(), idEmpresa, idData);
             if (message.isEmpty()) {
-                VtVentaEntity factura = validarFactura(idData, idEmpresa, documento, sucursal, autorizacionDto.getComprobante());
+                VtVentaEntity factura = validarFactura(idData, idEmpresa, documento, sucursal, autorizacionDto.getComprobante(), usuario);
                 if (Objects.nonNull(factura)) {
 
                     return "";
@@ -153,7 +154,7 @@ public class DeEmitidasComponentsServiceImpl {
         return MensajeComprobante.ERR_LEER_DOCUMENTO_INTERNO;
     }
 
-    private String guardarRetencion(Long idData, Long idEmpresa, Autorizacion autorizacionDto) {
+    private String guardarRetencion(Long idData, Long idEmpresa, Autorizacion autorizacionDto, String usuario) {
 
         String validacion = validarRetencion(autorizacionDto.getNumeroAutorizacion());
 
@@ -170,9 +171,9 @@ public class DeEmitidasComponentsServiceImpl {
                     String version = XmlUtils.obtenerVersionXml(autorizacionDto.getComprobante());
 
                     if (ConstantesDocumento.VERSION_1_0_0.equals(version)) {
-                        return saveRetencionVersionUno(autorizacionDto, idEmpresa, idData);
+                        return saveRetencionVersionUno(autorizacionDto, idEmpresa, idData, usuario);
                     } else {
-                        return saveRetencionVersionDos(autorizacionDto, idEmpresa, idData);
+                        return saveRetencionVersionDos(autorizacionDto, idEmpresa, idData, usuario);
                     }
                 }
             }
@@ -180,7 +181,7 @@ public class DeEmitidasComponentsServiceImpl {
         return validacion;
     }
 
-    private String saveRetencionVersionDos(Autorizacion autorizacionDto, Long idEmpresa, Long idData) {
+    private String saveRetencionVersionDos(Autorizacion autorizacionDto, Long idEmpresa, Long idData, String usuario) {
 
         ComprobanteRetencion documento = getComprobanteRetencion(autorizacionDto);
         if (Objects.nonNull(documento)) {
@@ -189,6 +190,8 @@ public class DeEmitidasComponentsServiceImpl {
             if (message.isEmpty()) {
                 CpRetencionesEntity entidad = validarRetencionDos(idData, idEmpresa, documento, autorizacionDto);
                 if (Objects.nonNull(entidad)) {
+                    entidad.setCreatedBy(usuario);
+                    entidad.setCreatedDate(LocalDateTime.now());
                     retencionesRepository.save(entidad);
                     return "";
                 }
@@ -200,7 +203,7 @@ public class DeEmitidasComponentsServiceImpl {
 
     }
 
-    private String saveRetencionVersionUno(Autorizacion autorizacionDto, Long idEmpresa, Long idData) {
+    private String saveRetencionVersionUno(Autorizacion autorizacionDto, Long idEmpresa, Long idData, String usuario) {
 
         com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencionV1.ComprobanteRetencion documento = getComprobanteRetencionUno(autorizacionDto);
         if (Objects.nonNull(documento)) {
@@ -208,9 +211,9 @@ public class DeEmitidasComponentsServiceImpl {
             String message = "";//validarEmpresa(documento.getInfoTributaria().getRuc(), idEmpresa, idData);
             if (message.isEmpty()) {
                 CpRetencionesEntity entidad = validarRetencionUno(idData, idEmpresa, documento, autorizacionDto);
-
-
                 if (Objects.nonNull(entidad)) {
+                    entidad.setCreatedBy(usuario);
+                    entidad.setCreatedDate(LocalDateTime.now());
                     retencionesRepository.save(entidad);
                     return "";
                 }
@@ -367,7 +370,7 @@ public class DeEmitidasComponentsServiceImpl {
 
 
     private VtVentaEntity validarFactura(Long idData, Long idEmpresa, Factura documento,
-                                         String sucursal, String comprobante) {
+                                         String sucursal, String comprobante, String usuario) {
 
         try {
 
@@ -399,6 +402,9 @@ public class DeEmitidasComponentsServiceImpl {
             factura.setNumeroItems(totalItems);
             factura.setTotalImpuesto(totalImpuesto);
 
+            factura.setCreatedBy(usuario);
+            factura.setCreatedDate(LocalDateTime.now());
+
             return vtVentaRepository.save(factura);
         } catch (Exception ex) {
             log.error(ex.getMessage());
@@ -407,7 +413,7 @@ public class DeEmitidasComponentsServiceImpl {
     }
 
     private VtVentaEntity validarNotaCredito(Long idData, Long idEmpresa, NotaCredito documento,
-                                             String sucursal, String comprobante) {
+                                             String sucursal, String comprobante, String usuario) {
         try {
 
             GeTerceroEntity tercero = validarCliente(idData, documento.getInfoNotaCredito().getIdentificacionComprador(),
@@ -435,6 +441,9 @@ public class DeEmitidasComponentsServiceImpl {
 
             int totalItems = notaCredito.getDetalle() != null ? notaCredito.getDetalle().size() : 0;
             notaCredito.setNumeroItems(totalItems);
+
+            notaCredito.setCreatedBy(usuario);
+            notaCredito.setCreatedDate(LocalDateTime.now());
             return vtVentaRepository.save(notaCredito);
 
         } catch (Exception ex) {

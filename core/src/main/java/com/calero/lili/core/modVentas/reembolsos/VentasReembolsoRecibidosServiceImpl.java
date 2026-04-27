@@ -26,7 +26,8 @@ public class VentasReembolsoRecibidosServiceImpl {
     private final ReembolsoRecibidaServiceImpl reembolsoRecibidaService;
 
 
-    public CpImpuestosRecibirListCreationResponseDto createFilesVentaReembolso(List<MultipartFile> files) {
+    public CpImpuestosRecibirListCreationResponseDto createFilesVentaReembolso(List<MultipartFile> files,
+                                                                               Long idData, Long idEmpresa, String usuario) {
 
         List<CpImpuestosRecibirResponseDto> listaRespuestas = new ArrayList<>();
 
@@ -41,10 +42,12 @@ public class VentasReembolsoRecibidosServiceImpl {
 
                 Autorizacion documento = XmlUtils.readFileXml(file);
 
-                if (!reembolsoRecibidaService.verificarExisteDocumentoElectronicoVentaReembolsoBdd(documento
+                if (!reembolsoRecibidaService.verificarExisteDocumentoElectronicoVentaReembolsoBdd(idData, idEmpresa, documento
                         .getNumeroAutorizacion())) {
 
-                    if (!reembolsoRecibidaService.guardarComprobanteVentaReembolso(documento)) {
+                    res.setClaveAcceso(documento.getNumeroAutorizacion());
+
+                    if (!reembolsoRecibidaService.guardarComprobanteVentaReembolso(documento, idData, idEmpresa, usuario)) {
                         res = cpImpuestoRecibirBuilder
                                 .builder(nameFile, MensajeComprobante.ERR_LEER_DOCUMENTO_INTERNO, Boolean.FALSE,
                                         documento.getNumeroAutorizacion());

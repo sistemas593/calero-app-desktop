@@ -50,7 +50,8 @@ public class DeEmitidasWsServiceImpl {
     }
 
 
-    public CpImpuestosRecibirListCreationResponseDto createListClavesAcceso(Long idData, Long idEmpresa, CpImpuestosRecibirListCreationRequestDto request) {
+    public CpImpuestosRecibirListCreationResponseDto createListClavesAcceso(Long idData, Long idEmpresa,
+                                                                            CpImpuestosRecibirListCreationRequestDto request, String usuario) {
         log.info("xxxxxx");
         List<CpImpuestosRecibirResponseDto> listaRespuestas = new ArrayList<>();
 
@@ -87,7 +88,7 @@ public class DeEmitidasWsServiceImpl {
                             Autorizacion autorizacionDto = ProcesarClavesAutorizadoSri(listaAutorizaciones, listaRespuestas);
                             if (autorizacionDto.getEstado() != null) {
 
-                                String message = deEmitidasComponentsService.guardarComprobante(idData, idEmpresa, autorizacionDto, "001");
+                                String message = deEmitidasComponentsService.guardarComprobante(idData, idEmpresa, autorizacionDto, "001", usuario);
 
                                 if (!message.isEmpty()) {
                                     listaRespuestas.add(CpImpuestosRecibirResponseDto.builder()
