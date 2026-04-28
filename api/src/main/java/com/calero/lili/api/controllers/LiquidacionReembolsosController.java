@@ -2,12 +2,14 @@ package com.calero.lili.api.controllers;
 
 import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.api.utils.IdDataServiceImpl;
+import com.calero.lili.core.comprobantesWs.dto.ArchivoDto;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirListCreationResponseDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.comprobantes.DocumentoRecibidosServiceImpl;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.FilterListDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.GetListDtoTotalizado;
+import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.LiquidacionesReembolsoPdfXmlServiceImpl;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.LiquidacionesReembolsosServiceImpl;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.dto.GetReembolsoDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.dto.ReembolsoRequestDto;
@@ -16,7 +18,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -44,6 +49,7 @@ public class LiquidacionReembolsosController {
     private final DocumentoRecibidosServiceImpl documentoRecibidosService;
     private final IdDataServiceImpl idDataService;
     private final AuditorAwareImpl auditorAware;
+    private final LiquidacionesReembolsoPdfXmlServiceImpl liquidacionesReembolsoPdfXmlService;
 
     @PostMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.CREATED)
@@ -132,6 +138,39 @@ public class LiquidacionReembolsosController {
                                                                   @Valid @RequestBody List<MultipartFile> documentos) {
         return documentoRecibidosService.createFilesLiqReembolso(idDataService.getIdData(), idEmpresa, documentos,
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+    }
+
+
+
+    @GetMapping("descargar-pdf/{idEmpresa}/{idRecibida}")
+    public ResponseEntity<byte[]> descargarPdfFactura(@PathVariable("idEmpresa") Long idEmpresa,
+                                                      @PathVariable("idRecibida") UUID idRecibida) {
+
+        ArchivoDto datos = liquidacionesReembolsoPdfXmlService
+                .findPDFSustentoLiqReembolsoFacturaById(idDataService.getIdData(), idEmpresa, idRecibida);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + datos.getNombre())
+                .contentType(MediaType.APPLICATION_PDF)
+                .contentLength(datos.getContenido().length)
+                .body(datos.getContenido());
+    }
+
+
+    @GetMapping("descargar-xml/{idEmpresa}/{idRecibida}")
+    public ResponseEntity<byte[]> descargarXmlFactura(@PathVariable("idEmpresa") Long idEmpresa,
+                                                      @PathVariable("idRecibida") UUID idRecibida) {
+
+
+
+        ArchivoDto datos = liquidacionesReembolsoPdfXmlService.
+                findXMLSustentoLiqReembolsoFacturaById(idDataService.getIdData(), idEmpresa, idRecibida);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + datos.getNombre())
+                .contentType(MediaType.APPLICATION_XML)
+                .contentLength(datos.getContenido().length)
+                .body(datos.getContenido());
     }
 
 }

@@ -1,6 +1,7 @@
 package com.calero.lili.core.modVentas.reembolsos;
 
 import com.calero.lili.core.modVentas.reembolsos.projection.TotalesProjection;
+import com.calero.lili.core.modVentas.reembolsos.projection.VtVentasReembolsoProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -55,7 +56,7 @@ public interface VtVentasReembolsoRepository extends JpaRepository<VtVentaReembo
             "AND (:serie IS NULL OR entity.serieReemb = :serie) " +
             "AND ( :utilizado = 2 OR ( :utilizado = 0 AND entity.idVenta IS NULL ) OR ( :utilizado = 1 AND entity.idVenta IS NOT NULL ) )")
     Page<VtVentaReembolsosEntity> findAllPageable(@Param("idData") Long idData,
-                                                  @Param("idData") Long idEmpresa,
+                                                  @Param("idEmpresa") Long idEmpresa,
                                                   @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
                                                   @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
                                                   @Param("secuencial") String secuencial,
@@ -87,6 +88,7 @@ public interface VtVentasReembolsoRepository extends JpaRepository<VtVentaReembo
                   AND (:secuencial IS NULL OR vtr.secuencial_reemb = :secuencial)
                   AND (:numeroIdentificacion IS NULL OR vtr.numero_identificacion_reemb = :numeroIdentificacion)
                   AND (:serie IS NULL OR vtr.serie_reemb = :serie)
+                  AND ( :utilizado = 2 OR ( :utilizado = 0 AND vtr.id_venta IS NULL ) OR ( :utilizado = 1 AND vtr.id_venta IS NOT NULL))
                 GROUP BY vtrv.codigo, vtrv.codigo_porcentaje
                 ORDER BY vtrv.codigo, vtrv.codigo_porcentaje
             """, nativeQuery = true)
@@ -96,8 +98,8 @@ public interface VtVentasReembolsoRepository extends JpaRepository<VtVentaReembo
                                          @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
                                          @Param("secuencial") String secuencial,
                                          @Param("numeroIdentificacion") String numeroIdentificacion,
-                                         @Param("serie") String serie
-    );
+                                         @Param("serie") String serie,
+                                         @Param("utilizado") Integer utilizado);
 
 
     @Query("""
@@ -121,4 +123,19 @@ public interface VtVentasReembolsoRepository extends JpaRepository<VtVentaReembo
                                              @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta);
 
 
+    @Query(value = "SELECT " +
+            "entity.id_venta_reembolsos as idVentaReembolso,  " +
+            "entity.numero_autorizacion_reemb as numeroAutorizacion, " +
+            "entity.comprobante as comprobante, " +
+            "entity.serie_reemb as serie, " +
+            "entity.secuencial_reemb as secuencial, " +
+            "entity.fecha_autorizacion_reemb as fechaAutorizacion , " +
+            "entity.numero_identificacion_reemb as numeroIdentificacion " +
+            "FROM vt_ventas_reembolsos  entity " +
+            "WHERE (entity.id_data = :idData)  AND entity.deleted = false AND " +
+            "(entity.id_empresa = :idEmpresa) AND " +
+            "entity.id_venta_reembolsos = :id ", nativeQuery = true)
+    Optional<VtVentasReembolsoProjection> findXMLById(@Param("idData") Long idData,
+                                                      @Param("idEmpresa") Long idEmpresa,
+                                                      @Param("id") UUID id);
 }

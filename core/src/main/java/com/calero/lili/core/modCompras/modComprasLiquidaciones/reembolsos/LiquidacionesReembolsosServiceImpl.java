@@ -36,6 +36,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
@@ -63,6 +64,7 @@ public class LiquidacionesReembolsosServiceImpl {
 
     public ResponseDto create(Long idData, Long idEmpresa, ReembolsoRequestDto request, String usuario) {
 
+        validarValores(request);
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getReembolsosValores()),
                 DateUtils.toLocalDate(request.getFechaEmisionReemb()));
 
@@ -87,6 +89,7 @@ public class LiquidacionesReembolsosServiceImpl {
     public ResponseDto update(Long idData, Long idEmpresa, UUID idReembolso, ReembolsoRequestDto request,
                               String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
 
+        validarValores(request);
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getReembolsosValores()),
                 DateUtils.toLocalDate(request.getFechaEmisionReemb()));
 
@@ -529,6 +532,34 @@ public class LiquidacionesReembolsosServiceImpl {
         if (Objects.isNull(filtro.getUtilizado())) {
             throw new GeneralException("El parametro utilizado es requerido");
         }
+    }
+
+    private void validarValores(ReembolsoRequestDto request) {
+
+        BigDecimal tolerancia = new BigDecimal("0.10");
+
+        for (ValoresDto valor : request.getReembolsosValores()) {
+
+            if (!valor.getTarifa().equals(new BigDecimal("0.00"))) {
+                BigDecimal valorEsperado = valor.getBaseImponible()
+                        .multiply(valor.getTarifa())
+                        .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+
+                BigDecimal diferencia = valorEsperado
+                        .subtract(valor.getValor())
+                        .abs();
+
+
+                if (diferencia.compareTo(tolerancia) > 0) {
+                    throw new GeneralException(
+                            "La diferencia entre el impuesto calculado y el valor enviado no puede ser mayor a 0.10"
+                    );
+                }
+            }
+
+
+        }
+
     }
 
 }

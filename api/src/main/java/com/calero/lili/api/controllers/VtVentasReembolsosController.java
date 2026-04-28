@@ -1,11 +1,13 @@
 package com.calero.lili.api.controllers;
 
 import com.calero.lili.api.utils.IdDataServiceImpl;
+import com.calero.lili.core.comprobantesWs.dto.ArchivoDto;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirListCreationResponseDto;
 import com.calero.lili.core.modVentas.facturas.dto.FilterListDto;
 import com.calero.lili.core.modVentas.reembolsos.VentasReembolsoRecibidosServiceImpl;
+import com.calero.lili.core.modVentas.reembolsos.VtVentasReembolsoPdfXmlServiceImpl;
 import com.calero.lili.core.modVentas.reembolsos.VtVentasReembolsoServiceImpl;
 import com.calero.lili.core.modVentas.reembolsos.dto.CreationRequestReembolsoDto;
 import com.calero.lili.core.modVentas.reembolsos.dto.GetListDtoTotalizado;
@@ -17,7 +19,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -47,6 +52,7 @@ public class VtVentasReembolsosController {
     private final VentasReembolsoRecibidosServiceImpl ventasReembolsoRecibidosService;
     private final AuditorAware<String> auditorAware;
     private final IdDataServiceImpl idDataService;
+    private final VtVentasReembolsoPdfXmlServiceImpl vtVentasReembolsoPdfXmlService;
 
     @PostMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.CREATED)
@@ -122,6 +128,36 @@ public class VtVentasReembolsosController {
                                                                   @Valid @RequestBody List<MultipartFile> documentos) {
         return ventasReembolsoRecibidosService.createFilesVentaReembolso(documentos, idDataService.getIdData(), idEmpresa,
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+    }
+
+    @GetMapping("descargar-pdf/{idEmpresa}/{idRecibida}")
+    public ResponseEntity<byte[]> descargarPdfFactura(@PathVariable("idEmpresa") Long idEmpresa,
+                                                      @PathVariable("idRecibida") UUID idRecibida) {
+
+        ArchivoDto datos = vtVentasReembolsoPdfXmlService
+                .findPDFSustentoLiqReembolsoFacturaById(idDataService.getIdData(), idEmpresa, idRecibida);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + datos.getNombre())
+                .contentType(MediaType.APPLICATION_PDF)
+                .contentLength(datos.getContenido().length)
+                .body(datos.getContenido());
+    }
+
+
+    @GetMapping("descargar-xml/{idEmpresa}/{idRecibida}")
+    public ResponseEntity<byte[]> descargarXmlFactura(@PathVariable("idEmpresa") Long idEmpresa,
+                                                      @PathVariable("idRecibida") UUID idRecibida) {
+
+
+        ArchivoDto datos = vtVentasReembolsoPdfXmlService.
+                findXMLSustentoLiqReembolsoFacturaById(idDataService.getIdData(), idEmpresa, idRecibida);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + datos.getNombre())
+                .contentType(MediaType.APPLICATION_XML)
+                .contentLength(datos.getContenido().length)
+                .body(datos.getContenido());
     }
 
 }

@@ -1,5 +1,6 @@
 package com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos;
 
+import com.calero.lili.core.modCompras.impuestosXml.CpLiquidacionReembolsoOneProjection;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.projection.TotalesProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -134,5 +135,21 @@ public interface LiquidacionReembolsosRepository extends JpaRepository<CpLiquida
             "WHERE (:listIdLiquidaciones IS NULL OR entity.idLiquidacionReembolsos IN :listIdLiquidaciones)")
     List<CpLiquidacionesReembolsosEntity> getFindAllByIds(@Param("listIdLiquidaciones") List<UUID> listIdLiquidaciones);
 
+
+    @Query(value = "SELECT " +
+            "entity.id_liquidacion_reembolsos as idLiquidacionReembolso,  " +
+            "entity.numero_autorizacion_reemb as numeroAutorizacion, " +
+            "entity.comprobante as comprobante, " +
+            "entity.serie_reemb as serie, " +
+            "entity.secuencial_reemb as secuencial, " +
+            "entity.fecha_autorizacion_reemb as fechaAutorizacion , " +
+            "entity.numero_identificacion_reemb as numeroIdentificacion "+
+            "FROM cp_liquidaciones_reembolsos  entity " +
+            "WHERE (entity.id_data = :idData)  AND entity.deleted = false AND " +
+            "(entity.id_empresa = :idEmpresa) AND " +
+            "entity.id_liquidacion_reembolsos = :id ", nativeQuery = true)
+    Optional<CpLiquidacionReembolsoOneProjection> findXMLById(@Param("idData") Long idData,
+                                                              @Param("idEmpresa") Long idEmpresa,
+                                                              @Param("id") UUID id);
 
 }

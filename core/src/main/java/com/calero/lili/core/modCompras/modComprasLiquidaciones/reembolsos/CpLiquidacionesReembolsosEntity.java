@@ -21,6 +21,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -67,6 +68,8 @@ public class CpLiquidacionesReembolsosEntity extends Auditable {
     private LocalDate fechaEmisionReemb;
 
     private String numeroAutorizacionReemb;
+
+    private LocalDateTime fechaAutorizacionReemb;
 
     @Column(name = "comprobante", columnDefinition = "TEXT")
     private String comprobante;

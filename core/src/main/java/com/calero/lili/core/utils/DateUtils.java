@@ -23,7 +23,13 @@ public class DateUtils {
     }
 
     public static LocalDateTime toLocalDateTime(String date) {
-        return OffsetDateTime.parse(date).toLocalDateTime();
+
+        if (date.contains("T")) {
+            return OffsetDateTime.parse(date).toLocalDateTime();
+        } else {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+            return LocalDateTime.parse(date, formatter);
+        }
     }
 
     public static String toString(LocalDate date) {

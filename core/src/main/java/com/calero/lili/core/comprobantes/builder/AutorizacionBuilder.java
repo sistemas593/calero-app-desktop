@@ -474,6 +474,7 @@ public class AutorizacionBuilder {
                 .reembolsosValores(builderListValoresReembolsoFactura(documento.getInfoFactura(), idData, idEmpresa))
                 .fechaEmisionReemb(DateUtils.toLocalDate(documento.getInfoFactura().getFechaEmision()))
                 .pais(TbPaisEntity.builder().codigoPais("593").build())
+                .fechaAutorizacionReemb(DateUtils.toLocalDateTime(model.getFechaAutorizacion()))
                 .build();
     }
 
@@ -495,6 +496,7 @@ public class AutorizacionBuilder {
                 .reembolsosValores(builderListValoresReembolsoNotaDebito(documento.getInfoNotaDebito(), idData, idEmpresa))
                 .fechaEmisionReemb(DateUtils.toLocalDate(documento.getInfoNotaDebito().getFechaEmision()))
                 .pais(TbPaisEntity.builder().codigoPais("593").build())
+                .fechaAutorizacionReemb(DateUtils.toLocalDateTime(model.getFechaAutorizacion()))
                 .build();
     }
 
@@ -516,6 +518,7 @@ public class AutorizacionBuilder {
                 .reembolsosValores(builderListValoresVentaReembolso(documento.getInfoFactura(), idData, idEmpresa))
                 .fechaEmisionReemb(DateUtils.toLocalDate(documento.getInfoFactura().getFechaEmision()))
                 .pais(TbPaisEntity.builder().codigoPais("593").build())
+                .fechaAutorizacionReemb(DateUtils.toLocalDateTime(model.getFechaAutorizacion()))
                 .build();
     }
 

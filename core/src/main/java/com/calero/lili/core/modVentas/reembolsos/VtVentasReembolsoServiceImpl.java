@@ -33,6 +33,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
@@ -58,6 +59,7 @@ public class VtVentasReembolsoServiceImpl {
 
     public ResponseDto create(Long idData, Long idEmpresa, CreationRequestReembolsoDto request, String usuario) {
 
+        validarToleranciaValores(request);
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getReembolsosValores()),
                 DateUtils.toLocalDate(request.getFechaEmisionReemb()));
 
@@ -79,6 +81,7 @@ public class VtVentasReembolsoServiceImpl {
 
     public ResponseDto update(Long idData, Long idEmpresa, UUID id, CreationRequestReembolsoDto request, String usuario) {
 
+        validarToleranciaValores(request);
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getReembolsosValores()),
                 DateUtils.toLocalDate(request.getFechaEmisionReemb()));
 
@@ -123,6 +126,9 @@ public class VtVentasReembolsoServiceImpl {
 
     public PaginatedDto<ResponseReembolsoDto> findAllPaginate(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable) {
 
+
+        validarFiltroUtilizado(filters);
+
         Page<VtVentaReembolsosEntity> page = vtVentasReembolsoRepository.findAllPageable(idData, idEmpresa, filters.getFechaEmisionDesde(),
                 filters.getFechaEmisionHasta(), filters.getSecuencial(),
                 filters.getNumeroIdentificacion(), filters.getSerie(), filters.getUtilizado(), pageable);
@@ -153,6 +159,7 @@ public class VtVentasReembolsoServiceImpl {
                                                                                 FilterListDto filters, Pageable pageable) {
 
 
+        validarFiltroUtilizado(filters);
         Page<VtVentaReembolsosEntity> page = vtVentasReembolsoRepository.findAllPageable(idData, idEmpresa, filters.getFechaEmisionDesde(),
                 filters.getFechaEmisionHasta(), filters.getSecuencial(),
                 filters.getNumeroIdentificacion(), filters.getSerie(), filters.getUtilizado(), pageable);
@@ -161,7 +168,7 @@ public class VtVentasReembolsoServiceImpl {
 
         List<TotalesProjection> totalValoresProjection = vtVentasReembolsoRepository
                 .totalValores(idData, idEmpresa, filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(),
-                        filters.getSecuencial(), filters.getNumeroIdentificacion(), filters.getSerie());
+                        filters.getSecuencial(), filters.getNumeroIdentificacion(), filters.getSerie(), filters.getUtilizado());
 
         GetListDtoTotalizado totalesDto = new GetListDtoTotalizado<>();
         totalesDto.setContent(dtoList);
@@ -446,6 +453,39 @@ public class VtVentasReembolsoServiceImpl {
                 .filter(Objects::nonNull)
                 .map(BigDecimal::intValue)
                 .toList();
+    }
+
+    private void validarToleranciaValores(CreationRequestReembolsoDto request) {
+
+        BigDecimal tolerancia = new BigDecimal("0.10");
+
+        for (CreationRequestReembolsoDto.ValoresDto valor : request.getReembolsosValores()) {
+
+            if (!valor.getTarifa().equals(new BigDecimal("0.00"))) {
+                BigDecimal valorEsperado = valor.getBaseImponible()
+                        .multiply(valor.getTarifa())
+                        .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+
+                BigDecimal diferencia = valorEsperado
+                        .subtract(valor.getValor())
+                        .abs();
+
+                if (diferencia.compareTo(tolerancia) > 0) {
+                    throw new GeneralException(
+                            "La diferencia entre el impuesto calculado y el valor enviado no puede ser mayor a 0.10"
+                    );
+                }
+            }
+
+
+        }
+
+    }
+
+    private void validarFiltroUtilizado(FilterListDto filtro) {
+        if (Objects.isNull(filtro.getUtilizado())) {
+            throw new GeneralException("El parametro utilizado es requerido");
+        }
     }
 
 }
