@@ -370,7 +370,11 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
             "( cast(:fechaAsientoHasta as date) is null OR vtVentasEntity.fechaAsiento <= :fechaAsientoHasta )  " +
             ")"
     )
-    List<CnAsientosEntity> findAll(Long idData, Long idEmpresa, String sucursal, LocalDate fechaAsientoDesde, LocalDate fechaAsientoHasta);
+    List<CnAsientosEntity> findAll(@Param("idData") Long idData,
+                                   @Param("idEmpresa") Long idEmpresa,
+                                   @Param("sucursal") String sucursal,
+                                   @Param("fechaAsientoDesde") LocalDate fechaAsientoDesde,
+                                   @Param("fechaAsientoHasta") LocalDate fechaAsientoHasta);
 
 
     @Query(value = "SELECT vtVentasEntity " +
@@ -388,7 +392,12 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
                     "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
                     "( cast(:fechaAsientoDesde as date) is null OR vtVentasEntity.fechaAsiento >= :fechaAsientoDesde ) AND " +
                     "( cast(:fechaAsientoHasta as date) is null OR vtVentasEntity.fechaAsiento <= :fechaAsientoHasta )")
-    Page<CnAsientosEntity> findAllPaginate(Long idData, Long idEmpresa, String sucursal, LocalDate fechaAsientoDesde, LocalDate fechaAsientoHasta, Pageable pageable);
+    Page<CnAsientosEntity> findAllPaginate(@Param("idData") Long idData,
+                                           @Param("idEmpresa") Long idEmpresa,
+                                           @Param("sucursal") String sucursal,
+                                           @Param("fechaAsientoDesde") LocalDate fechaAsientoDesde,
+                                           @Param("fechaAsientoHasta") LocalDate fechaAsientoHasta,
+                                           Pageable pageable);
 
 
     @Query(value = """

@@ -999,6 +999,8 @@ public class VtVentasFacturasServiceImpl {
 
     private void validarValores(CreationFacturaRequestDto request) {
 
+        Map<String, GeImpuestosEntity> impuestosMap = getImpuestosItems(request.getDetalle());
+
         for (CreationFacturaRequestDto.DetailDto item : request.getDetalle()) {
 
             BigDecimal subTotalItem = item.getPrecioUnitario().multiply(item.getCantidad());
@@ -1006,7 +1008,7 @@ public class VtVentasFacturasServiceImpl {
             item.setSubtotalItem(subTotalConDescuento);
 
             // BUSCAR EL IMPUESTO PARA LA TARIFA POR EL CODIGO Y EL CODIGO PORCENTAJE.
-            Map<String, GeImpuestosEntity> impuestosMap = getImpuestosItems(item);
+
 
             for (ImpuestoItemsDto impuesto : item.getImpuesto()) {
 
@@ -1015,11 +1017,9 @@ public class VtVentasFacturasServiceImpl {
 
                 if (Objects.nonNull(impuestoItem)) {
                     impuesto.setBaseImponible(subTotalConDescuento);
-                    // VALIDAR CUANDO LA TARIFA SEA CERO
                     BigDecimal valor = subTotalConDescuento
                             .multiply(impuestoItem.getTarifa())
                             .divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP);
-
                     impuesto.setValor(valor);
                     impuesto.setTarifa(impuestoItem.getTarifa());
                 }
@@ -1100,24 +1100,29 @@ public class VtVentasFacturasServiceImpl {
         valoresDto.setCodigoPorcentaje(impuesto.getCodigoPorcentaje());
         valoresDto.setBaseImponible(subtotal.getValue());
         valoresDto.setValor(valorImpuesto);
+        valoresDto.setTarifa(impuesto.getTarifa());
         valores.add(valoresDto);
     }
 
     @NotNull
-    private Map<String, GeImpuestosEntity> getImpuestosItems(CreationFacturaRequestDto.DetailDto item) {
+    private Map<String, GeImpuestosEntity> getImpuestosItems(List<CreationFacturaRequestDto.DetailDto> detalles) {
 
-        List<String> codigos = item.getImpuesto().stream()
-                .map(ImpuestoItemsDto::getCodigo)
+        List<String> claves = detalles.stream()
+                .flatMap(detalle -> detalle.getImpuesto().stream())
+                .map(imp -> imp.getCodigo() + "-" + imp.getCodigoPorcentaje())
                 .distinct()
                 .toList();
 
-        List<String> codigosPorcentaje = item.getImpuesto().stream()
-                .map(ImpuestoItemsDto::getCodigoPorcentaje)
-                .distinct()
-                .toList();
+        List<GeImpuestosEntity> impuestos = new ArrayList<>();
+        for (String clave : claves) {
 
-
-        List<GeImpuestosEntity> impuestos = geImpuestosItemsRepository.findAllCodigosAndCodigoPorcentaje(codigos, codigosPorcentaje);
+            Optional<GeImpuestosEntity> impuesto = geImpuestosItemsRepository.findCodigoAndCodigoPorcentaje(clave);
+            if (impuesto.isPresent()) {
+                impuestos.add(impuesto.get());
+            } else {
+                throw new GeneralException(MessageFormat.format("El impuesto con codigos {0}, no existe", clave));
+            }
+        }
 
         Map<String, GeImpuestosEntity> impuestosMap = impuestos.stream()
                 .collect(Collectors.toMap(

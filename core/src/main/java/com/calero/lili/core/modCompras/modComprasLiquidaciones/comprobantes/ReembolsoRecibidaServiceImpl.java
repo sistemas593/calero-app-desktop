@@ -6,16 +6,22 @@ import com.calero.lili.core.comprobantes.objetosXml.factura.Factura;
 import com.calero.lili.core.comprobantes.objetosXml.notaDebito.NotaDebito;
 import com.calero.lili.core.comprobantes.utils.XmlUtils;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.CpLiquidacionesReembolsosEntity;
+import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.CpLiquidacionesReembolsosValoresEntity;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.LiquidacionReembolsosRepository;
+import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosEntity;
+import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosItemsRepository;
 import com.calero.lili.core.modVentas.reembolsos.VtVentaReembolsosEntity;
+import com.calero.lili.core.modVentas.reembolsos.VtVentaReembolsosValoresEntity;
 import com.calero.lili.core.modVentas.reembolsos.VtVentasReembolsoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -25,6 +31,7 @@ public class ReembolsoRecibidaServiceImpl {
     private final LiquidacionReembolsosRepository liquidacionReembolsosRepository;
     private final VtVentasReembolsoRepository vtVentasReembolsoRepository;
     private final AutorizacionBuilder autorizacionBuilder;
+    private final GeImpuestosItemsRepository geImpuestosItemsRepository;
 
 
     public Boolean verificarExisteDocumentoElectronicoLiqReembolsoBdd(Long idData, Long idEmpresa, String claveAcceso) {
@@ -80,7 +87,6 @@ public class ReembolsoRecibidaServiceImpl {
             case "FAC" -> {
                 CpLiquidacionesReembolsosEntity factura = validarLiquidacionReembolsoFactura(idData, idEmpresa, autorizacionDto);
                 if (Objects.nonNull(factura)) {
-
                     factura.setCreatedBy(usuario);
                     factura.setCreatedDate(LocalDateTime.now());
                     liquidacionReembolsosRepository.save(factura);
@@ -110,18 +116,23 @@ public class ReembolsoRecibidaServiceImpl {
 
         try {
             Factura documento = XmlUtils.unmarshalXml(autorizacionDto.getComprobante(), Factura.class);
-            return autorizacionBuilder.builderLiquidacionReembolsoFactura(idData, idEmpresa, autorizacionDto, documento);
+            CpLiquidacionesReembolsosEntity reembolso = autorizacionBuilder.builderLiquidacionReembolsoFactura(idData, idEmpresa, autorizacionDto, documento);
+            setearTarifaValoresLiqReembolso(reembolso);
+            return reembolso;
         } catch (Exception ex) {
             log.error(ex.getMessage());
             return null;
         }
     }
 
+
     private CpLiquidacionesReembolsosEntity validarLiquidacionReembolsoNotaDebito(Long idData, Long idEmpresa, Autorizacion autorizacionDto) {
 
         try {
             NotaDebito documento = XmlUtils.unmarshalXml(autorizacionDto.getComprobante(), NotaDebito.class);
-            return autorizacionBuilder.builderLiquidacionReembolsoNotaDebito(idData, idEmpresa, autorizacionDto, documento);
+            CpLiquidacionesReembolsosEntity reembolso = autorizacionBuilder.builderLiquidacionReembolsoNotaDebito(idData, idEmpresa, autorizacionDto, documento);
+            setearTarifaValoresLiqReembolso(reembolso);
+            return reembolso;
         } catch (Exception ex) {
             log.error(ex.getMessage());
             return null;
@@ -146,7 +157,9 @@ public class ReembolsoRecibidaServiceImpl {
 
         try {
             Factura documento = XmlUtils.unmarshalXml(autorizacionDto.getComprobante(), Factura.class);
-            return autorizacionBuilder.builderVentaReembolso(autorizacionDto, documento, idData, idEmpresa);
+            VtVentaReembolsosEntity reembolso = autorizacionBuilder.builderVentaReembolso(autorizacionDto, documento, idData, idEmpresa);
+            setearTarifaValoresVentaReembolso(reembolso);
+            return reembolso;
         } catch (Exception ex) {
             log.error(ex.getMessage());
             return null;
@@ -161,6 +174,46 @@ public class ReembolsoRecibidaServiceImpl {
             return "FAC";
         } else {
             return "NDB";
+        }
+    }
+
+    private void setearTarifaValoresVentaReembolso(VtVentaReembolsosEntity reembolso) {
+
+
+        Map<String, VtVentaReembolsosValoresEntity> mapa = reembolso.getReembolsosValores()
+                .stream()
+                .collect(Collectors.toMap(
+                        imp -> imp.getCodigo() + "-" + imp.getCodigoPorcentaje(),
+                        imp -> imp,
+                        (existente, nuevo) -> existente
+                ));
+
+        for (Map.Entry<String, VtVentaReembolsosValoresEntity> entry : mapa.entrySet()) {
+
+            String clave = entry.getKey();
+            VtVentaReembolsosValoresEntity valorReembolso = entry.getValue();
+            Optional<GeImpuestosEntity> impuesto = geImpuestosItemsRepository.findCodigoAndCodigoPorcentaje(clave);
+            impuesto.ifPresent(geImpuestosEntity -> valorReembolso.setTarifa(geImpuestosEntity.getTarifa()));
+        }
+    }
+
+
+    private void setearTarifaValoresLiqReembolso(CpLiquidacionesReembolsosEntity reembolso) {
+        Map<String, CpLiquidacionesReembolsosValoresEntity> mapa = reembolso.getReembolsosValores()
+                .stream()
+                .collect(Collectors.toMap(
+                        imp -> imp.getCodigo() + "-" + imp.getCodigoPorcentaje(),
+                        imp -> imp,
+                        (existente, nuevo) -> existente
+                ));
+
+
+        for (Map.Entry<String, CpLiquidacionesReembolsosValoresEntity> entry : mapa.entrySet()) {
+
+            String clave = entry.getKey();
+            CpLiquidacionesReembolsosValoresEntity valorReembolso = entry.getValue();
+            Optional<GeImpuestosEntity> impuesto = geImpuestosItemsRepository.findCodigoAndCodigoPorcentaje(clave);
+            impuesto.ifPresent(geImpuestosEntity -> valorReembolso.setTarifa(geImpuestosEntity.getTarifa()));
         }
     }
 

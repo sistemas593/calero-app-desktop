@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface GeImpuestosItemsRepository extends JpaRepository<GeImpuestosEntity, Long> {
@@ -20,10 +21,8 @@ public interface GeImpuestosItemsRepository extends JpaRepository<GeImpuestosEnt
 
     @Query(value = "SELECT entity " +
             "FROM GeImpuestosEntity entity " +
-            "where " +
-            "entity.codigo in  (:codigos) and " +
-            "entity.codigoPorcentaje in (:codigosPorcentaje)")
-    List<GeImpuestosEntity> findAllCodigosAndCodigoPorcentaje(@Param("codigos") List<String> codigos, @Param("codigosPorcentaje") List<String> codigosPorcentaje);
+            "WHERE CONCAT(entity.codigo, '-', entity.codigoPorcentaje)  = :clave")
+    Optional<GeImpuestosEntity> findCodigoAndCodigoPorcentaje(@Param("clave") String clave);
 
 
     //    @Transactional

@@ -572,6 +572,7 @@ public class AutorizacionBuilder {
                 .codigoPorcentaje(model.getCodigoPorcentaje())
                 .baseImponible(new BigDecimal(model.getBaseImponible()))
                 .valor(new BigDecimal(model.getValor()))
+               // .tarifa(model.getT)
                 .build();
     }
 
