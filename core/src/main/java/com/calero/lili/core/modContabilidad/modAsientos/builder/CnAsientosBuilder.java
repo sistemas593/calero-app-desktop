@@ -1,19 +1,14 @@
 package com.calero.lili.core.modContabilidad.modAsientos.builder;
 
-import com.calero.lili.core.enums.TipoAsiento;
-import com.calero.lili.core.modContabilidad.modAsientos.CnAsientosDetalleEntity;
 import com.calero.lili.core.modContabilidad.modAsientos.CnAsientosEntity;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.CreationAsientosRequestDto;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.GetDto;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.GetListDto;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
-import com.calero.lili.core.modVentas.VtVentaDetalleEntity;
-import com.calero.lili.core.modVentas.VtVentaEntity;
 import com.calero.lili.core.utils.DateUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -98,48 +93,4 @@ public class CnAsientosBuilder {
                 .idTercero(idTercero)
                 .build();
     }
-
-
-    public CnAsientosEntity builderAsientoVenta(VtVentaEntity model) {
-        return CnAsientosEntity.builder()
-                .idAsiento(model.getIdVenta())
-                .idData(model.getIdData())
-                .idEmpresa(model.getIdEmpresa())
-                .sucursal(model.getSucursal())
-                // .idPeriodo("") // PENDIENTE
-                .tipoAsiento(TipoAsiento.CI)
-                .numeroAsiento("")
-                .fechaAsiento(model.getFechaEmision())
-                .concepto(model.getConcepto())
-                .mayorizado(Boolean.TRUE)
-                .anulada(Boolean.FALSE)
-                .valor(BigDecimal.ZERO)
-                .codigoSerie("")
-                //.nombre(model) NOMBRE TERCERO.
-                .observaciones("")
-                .tercero(model.getTercero())
-                .build();
-    }
-
-
-    public CnAsientosDetalleEntity builderDetalleAsientoVentaAgrupado(VtVentaDetalleEntity referencia,
-                                                                      VtVentaEntity entidad, BigDecimal totalAgrupado) {
-
-        return CnAsientosDetalleEntity.builder()
-                .idAsientoDetalle(UUID.randomUUID())
-                .idData(referencia.getIdData())
-                .idEmpresa(referencia.getIdEmpresa())
-                .detalle(referencia.getDescripcion())
-                .tipoDocumento(entidad.getTipoVenta())
-                .numeroDocumento(entidad.getSerie() + "-" + entidad.getSecuencial())
-                .fechaDocumento(entidad.getFechaEmision())
-                .debe(BigDecimal.ZERO)
-                .haber(totalAgrupado)
-                .geItem(referencia.getItems())
-                .tercero(entidad.getTercero())
-                .centroCostos(referencia.getCentroCostos())
-                .build();
-    }
-
-
 }

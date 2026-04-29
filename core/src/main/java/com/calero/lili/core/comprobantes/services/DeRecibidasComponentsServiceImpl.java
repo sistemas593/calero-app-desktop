@@ -11,6 +11,7 @@ import com.calero.lili.core.comprobantes.objetosXml.factura.InfoTributaria;
 import com.calero.lili.core.comprobantes.objetosXml.notaCredito.NotaCredito;
 import com.calero.lili.core.comprobantes.objetosXml.notaDebito.Impuesto;
 import com.calero.lili.core.comprobantes.objetosXml.notaDebito.NotaDebito;
+import com.calero.lili.core.comprobantes.services.dto.CampoAutorizacionDto;
 import com.calero.lili.core.comprobantes.utils.XmlUtils;
 import com.calero.lili.core.enums.TipoTercero;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
@@ -74,7 +75,7 @@ public class DeRecibidasComponentsServiceImpl {
         return Boolean.FALSE;
     }
 
-    public String guardarComprobante(Long idData, Long idEmpresa, Autorizacion autorizacionDto, String usuario) {
+    public String guardarComprobante(Long idData, Long idEmpresa, CampoAutorizacionDto autorizacionDto, String usuario) {
 
         String numeroAutorizacion = autorizacionDto.getNumeroAutorizacion();
         System.out.println(autorizacionDto.getComprobante());
@@ -108,7 +109,7 @@ public class DeRecibidasComponentsServiceImpl {
         return message;
     }
 
-    private String saveNotaDebito(Long idData, Long idEmpresa, Autorizacion autorizacionDto, String usuario) {
+    private String saveNotaDebito(Long idData, Long idEmpresa, CampoAutorizacionDto autorizacionDto, String usuario) {
         NotaDebito documento = XmlUtils.getNotaDebito(autorizacionDto);
 
         if (Objects.nonNull(documento)) {
@@ -133,8 +134,8 @@ public class DeRecibidasComponentsServiceImpl {
         return MensajeComprobante.ERR_LEER_DOCUMENTO_INTERNO;
     }
 
-    private String saveNotaCredito(Long idData, Long idEmpresa, Autorizacion autorizacionDto, String usuario) {
-        NotaCredito documento = XmlUtils.getNotaCredito(autorizacionDto);
+    private String saveNotaCredito(Long idData, Long idEmpresa, CampoAutorizacionDto autorizacionDto, String usuario) {
+        NotaCredito documento = XmlUtils.getNotaCreditoRecibida(autorizacionDto);
         if (Objects.nonNull(documento)) {
 
             String message = ""; //validarEmpresaNotaCredito(documento, idEmpresa, idData);
@@ -156,9 +157,9 @@ public class DeRecibidasComponentsServiceImpl {
         return MensajeComprobante.ERR_LEER_DOCUMENTO_INTERNO;
     }
 
-    private String saveFactura(Long idData, Long idEmpresa, Autorizacion autorizacionDto, String usuario) {
+    private String saveFactura(Long idData, Long idEmpresa, CampoAutorizacionDto autorizacionDto, String usuario) {
 
-        Factura documento = XmlUtils.getFactura(autorizacionDto);
+        Factura documento = XmlUtils.getFacturaRecibidos(autorizacionDto);
         if (Objects.nonNull(documento)) {
 
             String message = "";//validacionEmpresaFactura(documento, idEmpresa, idData);
@@ -190,7 +191,7 @@ public class DeRecibidasComponentsServiceImpl {
 
     }
 
-    private String validacionRetencion(Long idData, Long idEmpresa, Autorizacion autorizacionDto, String numeroAutorizacion, String usuario) {
+    private String validacionRetencion(Long idData, Long idEmpresa, CampoAutorizacionDto autorizacionDto, String numeroAutorizacion, String usuario) {
         if ((numeroAutorizacion.startsWith("07", 8))) {
 
             Optional<DeRecibidasRetencionesProjection> existingFactura =
@@ -211,7 +212,7 @@ public class DeRecibidasComponentsServiceImpl {
         return MensajeComprobante.ERR_LEER_DOCUMENTO_INTERNO;
     }
 
-    private String saveRetencionVersionDos(Long idData, Long idEmpresa, Autorizacion autorizacionDto, String usuario) {
+    private String saveRetencionVersionDos(Long idData, Long idEmpresa, CampoAutorizacionDto autorizacionDto, String usuario) {
         ComprobanteRetencion documento = getComprobanteRetencionDos(autorizacionDto);
 
         if (Objects.nonNull(documento)) {
@@ -234,7 +235,7 @@ public class DeRecibidasComponentsServiceImpl {
     }
 
 
-    private String saveRetencionVersionUno(Long idData, Long idEmpresa, Autorizacion autorizacionDto, String usuario) {
+    private String saveRetencionVersionUno(Long idData, Long idEmpresa, CampoAutorizacionDto autorizacionDto, String usuario) {
         com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencionV1.ComprobanteRetencion documento = getComprobanteRetencionUno(autorizacionDto);
 
         if (Objects.nonNull(documento)) {
@@ -336,7 +337,7 @@ public class DeRecibidasComponentsServiceImpl {
     }
 
 
-    private CpImpuestosEntity validarFactura(Long idData, Long idEmpresa, Factura documento, Autorizacion autorizacionDto) {
+    private CpImpuestosEntity validarFactura(Long idData, Long idEmpresa, Factura documento, CampoAutorizacionDto autorizacionDto) {
 
         try {
             CpImpuestosEntity cpImpuestosEntity = autorizacionBuilder.builderFactura(autorizacionDto, documento, idData, idEmpresa,
@@ -349,7 +350,7 @@ public class DeRecibidasComponentsServiceImpl {
         }
     }
 
-    private CpImpuestosEntity validarNotaCredito(Long idData, Long idEmpresa, NotaCredito documento, Autorizacion autorizacionDto) {
+    private CpImpuestosEntity validarNotaCredito(Long idData, Long idEmpresa, NotaCredito documento, CampoAutorizacionDto autorizacionDto) {
         try {
             CpImpuestosEntity cpImpuestosEntity = autorizacionBuilder.builderNotaCredito(autorizacionDto, documento, idData, idEmpresa,
                     validarProveedor(documento.getInfoTributaria(), idData));
@@ -362,7 +363,7 @@ public class DeRecibidasComponentsServiceImpl {
     }
 
 
-    private CpImpuestosEntity validarNotaDebito(Long idData, Long idEmpresa, NotaDebito documento, Autorizacion autorizacionDto) {
+    private CpImpuestosEntity validarNotaDebito(Long idData, Long idEmpresa, NotaDebito documento, CampoAutorizacionDto autorizacionDto) {
         try {
             CpImpuestosEntity cpImpuestosEntity = autorizacionBuilder.builderNotaDebito(autorizacionDto, documento, idData, idEmpresa,
                     validarProveedor(documento.getInfoTributaria(), idData));
@@ -377,7 +378,7 @@ public class DeRecibidasComponentsServiceImpl {
 
     private VtRetencionesEntity validarRetencionDos(Long idData, Long idEmpresa,
                                                     ComprobanteRetencion documento,
-                                                    Autorizacion autorizacionDto) {
+                                                    CampoAutorizacionDto autorizacionDto) {
         try {
             VtRetencionesEntity retencion = autorizacionBuilder.builderRetencionRecibidaDos(autorizacionDto, documento, idData, idEmpresa,
                     validarCliente(documento.getInfoTributaria(), idData));
@@ -392,7 +393,7 @@ public class DeRecibidasComponentsServiceImpl {
 
     private VtRetencionesEntity validarRetencionUno(Long idData, Long idEmpresa,
                                                     com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencionV1.ComprobanteRetencion documento,
-                                                    Autorizacion autorizacionDto) {
+                                                    CampoAutorizacionDto autorizacionDto) {
         try {
             VtRetencionesEntity retencion = autorizacionBuilder.builderRetencionRecibidaUno(autorizacionDto, documento, idData, idEmpresa,
                     validarCliente(documento.getInfoTributaria(), idData));
@@ -405,7 +406,7 @@ public class DeRecibidasComponentsServiceImpl {
     }
 
 
-    private ComprobanteRetencion getComprobanteRetencionDos(Autorizacion autorizacionDto) {
+    private ComprobanteRetencion getComprobanteRetencionDos(CampoAutorizacionDto autorizacionDto) {
         try {
             return XmlUtils.unmarshalXml(autorizacionDto.getComprobante(), ComprobanteRetencion.class);
         } catch (Exception exception) {
@@ -414,7 +415,7 @@ public class DeRecibidasComponentsServiceImpl {
         }
     }
 
-    private com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencionV1.ComprobanteRetencion getComprobanteRetencionUno(Autorizacion autorizacionDto) {
+    private com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencionV1.ComprobanteRetencion getComprobanteRetencionUno(CampoAutorizacionDto autorizacionDto) {
         try {
             return XmlUtils.unmarshalXml(autorizacionDto.getComprobante(), com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencionV1.ComprobanteRetencion.class);
         } catch (Exception exception) {
@@ -422,6 +423,7 @@ public class DeRecibidasComponentsServiceImpl {
             return null;
         }
     }
+
 
 
     private GeTerceroEntity validarProveedor(InfoTributaria model, Long idData) {

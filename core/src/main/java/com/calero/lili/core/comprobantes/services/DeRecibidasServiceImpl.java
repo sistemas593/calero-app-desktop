@@ -3,6 +3,9 @@ package com.calero.lili.core.comprobantes.services;
 import com.calero.lili.core.comprobantes.builder.CpImpuestoRecibirBuilder;
 import com.calero.lili.core.comprobantes.message.MensajeComprobante;
 import com.calero.lili.core.comprobantes.objetosXml.autorizacionFile.Autorizacion;
+import com.calero.lili.core.comprobantes.objetosXml.factura.Factura;
+import com.calero.lili.core.comprobantes.services.builder.CampoAutorizacionBuilder;
+import com.calero.lili.core.comprobantes.services.dto.CampoAutorizacionDto;
 import com.calero.lili.core.comprobantes.utils.XmlUtils;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirListCreationResponseDto;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirResponseDto;
@@ -25,10 +28,11 @@ public class DeRecibidasServiceImpl {
 
     private final DeRecibidasComponentsServiceImpl deRecibidasComponentsService;
     private final CpImpuestoRecibirBuilder cpImpuestoRecibirBuilder;
+    private final CampoAutorizacionBuilder campoAutorizacionBuilder;
 
     public CpImpuestosRecibirListCreationResponseDto createFiles(Long idData, Long idEmpresa,
                                                                  List<MultipartFile> files,
-                                                                 String usuario) {
+                                                                 String usuario, String tipoFormato) {
 
 
         List<CpImpuestosRecibirResponseDto> listaRespuestas = new ArrayList<>();
@@ -40,22 +44,29 @@ public class DeRecibidasServiceImpl {
                     .builder(nameFile, MensajeComprobante.NOT_ERROR, Boolean.TRUE, "");
 
             try {
-                Autorizacion documento = XmlUtils.readFileXml(file);
+
+                CampoAutorizacionDto model = null;
+                if (tipoFormato.equals("1")) {
+                    Autorizacion documento = XmlUtils.readFileXml(file);
+                    model = campoAutorizacionBuilder.builder(documento);
+                } else {
+                    // TODO VALIDAR LO QUE SE DEBE ENVIAR PARA CONSUTRUIR EL CampoAutorizacionDto
+                }
 
                 if (!deRecibidasComponentsService.verificarExisteDocumentoElectronicoBdd(idData, idEmpresa,
-                        documento.getNumeroAutorizacion())) {
+                        model.getNumeroAutorizacion())) {
 
-                    String message = deRecibidasComponentsService.guardarComprobante(idData, idEmpresa, documento, usuario);
-                    res.setClaveAcceso(documento.getNumeroAutorizacion());
+                    String message = deRecibidasComponentsService.guardarComprobante(idData, idEmpresa, model, usuario);
+                    res.setClaveAcceso(model.getNumeroAutorizacion());
 
                     if (!message.isEmpty()) {
                         res = cpImpuestoRecibirBuilder
-                                .builder(nameFile, message, Boolean.FALSE, documento.getNumeroAutorizacion());
+                                .builder(nameFile, message, Boolean.FALSE, model.getNumeroAutorizacion());
                     }
 
                 } else {
                     res = cpImpuestoRecibirBuilder
-                            .builder(nameFile, MensajeComprobante.ERR_DOCUMENTO_EXISTE, Boolean.FALSE, documento.getNumeroAutorizacion());
+                            .builder(nameFile, MensajeComprobante.ERR_DOCUMENTO_EXISTE, Boolean.FALSE, model.getNumeroAutorizacion());
                 }
 
                 listaRespuestas.add(res);

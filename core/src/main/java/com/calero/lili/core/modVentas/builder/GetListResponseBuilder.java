@@ -4,10 +4,12 @@ import com.calero.lili.core.modVentas.VtVentaEntity;
 import com.calero.lili.core.modVentas.VtVentaValoresEntity;
 import com.calero.lili.core.modVentas.dto.GetListDto;
 import com.calero.lili.core.modVentas.dto.ResponseValoresDto;
+import com.calero.lili.core.utils.DateUtils;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 public class GetListResponseBuilder {
@@ -22,7 +24,7 @@ public class GetListResponseBuilder {
                 .numeroAutorizacion(model.getNumeroAutorizacion())
                 .tipoIngreso(model.getTipoIngreso())
                 .codigoDocumento(model.getCodigoDocumento())
-                .fechaEmision(model.getFechaEmision().toString())
+                .fechaEmision(Objects.nonNull(model.getFechaEmision()) ? DateUtils.toString(model.getFechaEmision()) : null)
                 .idTercero(model.getTercero().getIdTercero())
                 .fechaVencimiento(model.getFechaVencimiento())
                 .numeroItems(model.getNumeroItems())
@@ -71,7 +73,7 @@ public class GetListResponseBuilder {
                 .numeroAutorizacion(model.getNumeroAutorizacion())
                 .tipoIngreso(model.getTipoIngreso())
                 .codigoDocumento(model.getCodigoDocumento())
-                .fechaEmision(model.getFechaEmision().toString())
+                .fechaEmision(Objects.nonNull(model.getFechaEmision()) ? DateUtils.toString(model.getFechaEmision()) : null)
                 .idTercero(model.getTercero().getIdTercero())
                 .fechaVencimiento(model.getFechaVencimiento())
                 .numeroItems(model.getNumeroItems())

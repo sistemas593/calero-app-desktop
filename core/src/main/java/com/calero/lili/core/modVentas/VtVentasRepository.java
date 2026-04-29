@@ -14,6 +14,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -102,8 +103,8 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
     Page<VtVentaEntity> findAllPaginate(@Param("idData") Long idData,
                                         @Param("idEmpresa") Long idEmpresa,
                                         @Param("sucursal") String sucursal,
-                                        @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
-                                        @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
+                                        @Param("fechaEmisionDesde") LocalDateTime fechaEmisionDesde,
+                                        @Param("fechaEmisionHasta") LocalDateTime fechaEmisionHasta,
                                         @Param("idTercero") UUID idTercero,
                                         @Param("tipoVenta") String tipoVenta,
                                         @Param("serie") String serie,
@@ -155,8 +156,8 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
     List<TotalesProjection> totalValores(@Param("idData") Long idData,
                                          @Param("idEmpresa") Long idEmpresa,
                                          @Param("sucursal") String sucursal,
-                                         @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
-                                         @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
+                                         @Param("fechaEmisionDesde") LocalDateTime fechaEmisionDesde,
+                                         @Param("fechaEmisionHasta") LocalDateTime fechaEmisionHasta,
                                          @Param("tipoVenta") String tipoVenta,
                                          @Param("serie") String serie,
                                          @Param("secuencial") String secuencial);
@@ -177,8 +178,8 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
     List<VtVentaEntity> findAll(@Param("idData") Long idData,
                                 @Param("idEmpresa") Long idEmpresa,
                                 @Param("sucursal") String sucursal,
-                                @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
-                                @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
+                                @Param("fechaEmisionDesde") LocalDateTime fechaEmisionDesde,
+                                @Param("fechaEmisionHasta") LocalDateTime fechaEmisionHasta,
                                 @Param("tipoVenta") String tipoVenta,
                                 @Param("serie") String serie,
                                 @Param("secuencial") String secuencial);

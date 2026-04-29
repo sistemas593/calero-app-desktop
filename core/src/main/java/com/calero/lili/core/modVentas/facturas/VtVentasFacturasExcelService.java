@@ -167,7 +167,7 @@ public class VtVentasFacturasExcelService {
         }
 
         if (Objects.nonNull(row.getCell(2))) {
-            factura.setFechaEmision(DateUtils.toLocalDate(row.getCell(2).getStringCellValue()));
+            factura.setFechaEmision(DateUtils.toLocalDateTime(row.getCell(2).getStringCellValue()));
         } else {
             detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.FACTURA_FECHA_EMISION_NOT_FOUND));
         }

@@ -55,7 +55,7 @@ public class GenerarDocumentoXml {
 
     public Factura generarFactura(VtVentaEntity vtVentaEntity, AdEmpresaEntity empresaEntity, AdEmpresasSeriesEntity serieEntity) {
 
-        String claveAcceso = serviceClaveAcceso.generarClaveAcceso(DateUtils.toString(vtVentaEntity.getFechaEmision()),
+        String claveAcceso = serviceClaveAcceso.generarClaveAcceso(DateUtils.toStringFechaEmision(vtVentaEntity.getFechaEmision()),
                 "01", empresaEntity.getRuc(), vtVentaEntity.getAmbiente(),
                 vtVentaEntity.getSerie(), vtVentaEntity.getSecuencial(), vtVentaEntity.getTipoEmision());
 
@@ -80,7 +80,7 @@ public class GenerarDocumentoXml {
 
     public NotaCredito generarNotaCredito(VtVentaEntity vtVentaEntity, AdEmpresaEntity empresaEntity, AdEmpresasSeriesEntity serieEntity) {
 
-        String claveAcceso = serviceClaveAcceso.generarClaveAcceso(DateUtils.toString(vtVentaEntity.getFechaEmision()),
+        String claveAcceso = serviceClaveAcceso.generarClaveAcceso(DateUtils.toStringFechaEmision(vtVentaEntity.getFechaEmision()),
                 "04", empresaEntity.getRuc(), vtVentaEntity.getAmbiente(),
                 vtVentaEntity.getSerie(), vtVentaEntity.getSecuencial(), vtVentaEntity.getTipoEmision());
 
@@ -91,7 +91,7 @@ public class GenerarDocumentoXml {
 
     public NotaDebito generarNotaDebito(VtVentaEntity vtVentaEntity, AdEmpresaEntity empresaEntity, AdEmpresasSeriesEntity serieEntity) {
 
-        String claveAcceso = serviceClaveAcceso.generarClaveAcceso(DateUtils.toString(vtVentaEntity.getFechaEmision()),
+        String claveAcceso = serviceClaveAcceso.generarClaveAcceso(DateUtils.toStringFechaEmision(vtVentaEntity.getFechaEmision()),
                 "05", empresaEntity.getRuc(), vtVentaEntity.getAmbiente(),
                 vtVentaEntity.getSerie(), vtVentaEntity.getSecuencial(), vtVentaEntity.getTipoEmision());
 

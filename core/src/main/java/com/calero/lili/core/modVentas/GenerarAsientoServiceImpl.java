@@ -81,7 +81,7 @@ public class GenerarAsientoServiceImpl {
     }
 
 
-    private CnAsientosDetalleEntity getAsientoDetalleCredito(Long idData, Long idEmpresa, VtVentaEntity model) {
+    /*private CnAsientosDetalleEntity getAsientoDetalleCredito(Long idData, Long idEmpresa, VtVentaEntity model) {
 
         // TODO SI LA FACTURA ES DE CONTADO, BUSCAR EN LOS DETALLES DE LOS MOVIMIENTOS DE CAJAS DE BANCOS (PENDIENTE)
 
@@ -221,5 +221,5 @@ public class GenerarAsientoServiceImpl {
         });
 
         return detalles;
-    }
+    }*/
 }

@@ -171,7 +171,7 @@ public class ProcesarDocumentosServiceImpl {
 
                             envioCorreoDto.setSecuencial(documento.getSecuencial());
                             envioCorreoDto.setSerie(documento.getSerie());
-                            envioCorreoDto.setFechaEmision(DateUtils.toString(documento.getFechaEmision()));
+                            envioCorreoDto.setFechaEmision(DateUtils.toStringFechaEmision(documento.getFechaEmision()));
                             envioCorreoDto.setClaveAcceso(documento.getClaveAcceso());
                             envioCorreoDto.setEmail(documento.getEmail());
                             System.out.println("Enviar correo con la siguiente informacion: " + envioCorreoDto.toString());

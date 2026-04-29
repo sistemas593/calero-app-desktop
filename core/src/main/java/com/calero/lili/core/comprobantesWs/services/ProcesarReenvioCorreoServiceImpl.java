@@ -67,7 +67,7 @@ public class ProcesarReenvioCorreoServiceImpl {
 
         envioCorreoDto.setSecuencial(venta1.getSecuencial());
         envioCorreoDto.setSerie(venta1.getSerie());
-        envioCorreoDto.setFechaEmision(DateUtils.toString(venta1.getFechaEmision()));
+        envioCorreoDto.setFechaEmision(DateUtils.toStringFechaEmision(venta1.getFechaEmision()));
         envioCorreoDto.setClaveAcceso(venta1.getClaveAcceso());
         envioCorreoDto.setEmail(filter.getCorreo());
 

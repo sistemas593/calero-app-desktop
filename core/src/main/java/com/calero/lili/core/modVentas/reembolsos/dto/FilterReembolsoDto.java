@@ -1,15 +1,16 @@
-package com.calero.lili.core.modVentas.facturas.dto;
+package com.calero.lili.core.modVentas.reembolsos.dto;
 
 import com.calero.lili.core.utils.DateUtils;
 import lombok.Data;
 import lombok.ToString;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Data
 @ToString
-public class FilterListDto {
+public class FilterReembolsoDto {
+
     private Long idFactura;
     private String sucursal;
     private String tipoVenta;
@@ -24,16 +25,16 @@ public class FilterListDto {
     private String numeroAutorizacion;
     private Integer utilizado;
 
-    public LocalDateTime getFechaEmisionDesde() {
+    public LocalDate getFechaEmisionDesde() {
         if(fechaEmisionDesde == null)
             return null;
-        return DateUtils.toLocalDateTimeFechaDesde(fechaEmisionDesde);
+        return DateUtils.toLocalDate(fechaEmisionDesde);
     }
 
-    public LocalDateTime getFechaEmisionHasta() {
+    public LocalDate getFechaEmisionHasta() {
         if(fechaEmisionHasta == null)
             return null;
-        return DateUtils.toLocalDateTimeFechaHasta(fechaEmisionHasta);
+        return DateUtils.toLocalDate(fechaEmisionHasta);
     }
 
     private Boolean anulada;

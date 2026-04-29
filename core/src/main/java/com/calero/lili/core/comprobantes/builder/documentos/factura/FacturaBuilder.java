@@ -46,7 +46,7 @@ public class FacturaBuilder {
 
     private InfoFactura builderInfoFactura(VtVentaEntity venta, AdEmpresaEntity empresa, AdEmpresasSeriesEntity serie) {
         return InfoFactura.builder()
-                .fechaEmision(DateUtils.toString(venta.getFechaEmision()))
+                .fechaEmision(DateUtils.toStringFechaEmision(venta.getFechaEmision()))
                 .dirEstablecimiento(serie.getDireccionEstablecimiento())
                 .contribuyenteEspecial(Objects.nonNull(empresa.getContribuyenteEspecial()) && !empresa.getContribuyenteEspecial().isEmpty()
                         ? empresa.getContribuyenteEspecial()

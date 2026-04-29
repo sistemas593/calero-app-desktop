@@ -15,6 +15,7 @@ import com.calero.lili.core.comprobantes.objetosXml.factura.Pago;
 import com.calero.lili.core.comprobantes.objetosXml.notaCredito.NotaCredito;
 import com.calero.lili.core.comprobantes.objetosXml.notaDebito.InfoNotaDebito;
 import com.calero.lili.core.comprobantes.objetosXml.notaDebito.NotaDebito;
+import com.calero.lili.core.comprobantes.services.dto.CampoAutorizacionDto;
 import com.calero.lili.core.dtos.FormasPagoSri;
 import com.calero.lili.core.dtos.InformacionAdicional;
 import com.calero.lili.core.enums.Ambiente;
@@ -56,7 +57,7 @@ import java.util.stream.Stream;
 public class AutorizacionBuilder {
 
 
-    public CpImpuestosEntity builderFactura(Autorizacion model, Factura documento,
+    public CpImpuestosEntity builderFactura(CampoAutorizacionDto model, Factura documento,
                                             Long idData, Long idEmpresa,
                                             GeTerceroEntity proveedor) {
         return CpImpuestosEntity.builder()
@@ -94,7 +95,7 @@ public class AutorizacionBuilder {
                 .build();
     }
 
-    public CpImpuestosEntity builderNotaCredito(Autorizacion model, NotaCredito documento,
+    public CpImpuestosEntity builderNotaCredito(CampoAutorizacionDto model, NotaCredito documento,
                                                 Long idData, Long idEmpresa,
                                                 GeTerceroEntity proveedor) {
         return CpImpuestosEntity.builder()
@@ -113,7 +114,7 @@ public class AutorizacionBuilder {
     }
 
 
-    public CpImpuestosEntity builderNotaDebito(Autorizacion model, NotaDebito documento,
+    public CpImpuestosEntity builderNotaDebito(CampoAutorizacionDto model, NotaDebito documento,
                                                Long idData, Long idEmpresa,
                                                GeTerceroEntity proveedor) {
         return CpImpuestosEntity.builder()
@@ -132,7 +133,7 @@ public class AutorizacionBuilder {
                 .build();
     }
 
-    public VtRetencionesEntity builderRetencionRecibidaDos(Autorizacion model, ComprobanteRetencion documento,
+    public VtRetencionesEntity builderRetencionRecibidaDos(CampoAutorizacionDto model, ComprobanteRetencion documento,
                                                            Long idData, Long idEmpresa,
                                                            GeTerceroEntity cliente) {
         return VtRetencionesEntity.builder()
@@ -154,7 +155,7 @@ public class AutorizacionBuilder {
     }
 
 
-    public VtRetencionesEntity builderRetencionRecibidaUno(Autorizacion model, com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencionV1.ComprobanteRetencion documento,
+    public VtRetencionesEntity builderRetencionRecibidaUno(CampoAutorizacionDto model, com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencionV1.ComprobanteRetencion documento,
                                                            Long idData, Long idEmpresa,
                                                            GeTerceroEntity cliente) {
         return VtRetencionesEntity.builder()
@@ -277,7 +278,7 @@ public class AutorizacionBuilder {
                 .periodoFiscal(DateUtils.toPeriodoFiscalDate(documento.getInfoCompRetencion().getPeriodoFiscal()))
                 .informacionAdicional(builderInformacionListAdicional(documento.getCampoAdicional()))
                 .ambiente(Ambiente.obtenerAmbiente(Integer.parseInt(documento.getInfoTributaria().getAmbiente())))
-                .claveAcceso(model.getNumeroAutorizacion())
+                .claveAcceso(documento.getInfoTributaria().getClaveAcceso())
                 .codigoDocumento(documento.getInfoTributaria().getCodDoc())
                 .anulada(Boolean.FALSE)
                 .impresa(Boolean.FALSE)
@@ -597,7 +598,7 @@ public class AutorizacionBuilder {
                 .tipoVenta(TipoVenta.FAC.name())
                 .estadoDocumento(EstadoDocumento.AUT)
                 .fechaEmision(Objects.nonNull(documento.getInfoFactura().getFechaEmision())
-                        ? DateUtils.toLocalDate(documento.getInfoFactura().getFechaEmision())
+                        ? DateUtils.toLocalDateFechaEmision(documento.getInfoFactura().getFechaEmision())
                         : null)
                 .ambiente(Objects.nonNull(documento.getInfoTributaria().getAmbiente())
                         ? Ambiente.obtenerAmbiente(Integer.parseInt(documento.getInfoTributaria().getAmbiente()))
@@ -676,7 +677,7 @@ public class AutorizacionBuilder {
                 .claveAcceso(notaCredito.getInfoTributaria().getClaveAcceso())
                 .numeroAutorizacion(notaCredito.getInfoTributaria().getClaveAcceso())
                 .fechaEmision(Objects.nonNull(notaCredito.getInfoNotaCredito().getFechaEmision())
-                        ? DateUtils.toLocalDate(notaCredito.getInfoNotaCredito().getFechaEmision())
+                        ? DateUtils.toLocalDateFechaEmision(notaCredito.getInfoNotaCredito().getFechaEmision())
                         : null)
                 .tipoIngreso(TipoIngreso.VL.name())
                 .codigoDocumento(notaCredito.getInfoTributaria().getCodDoc())

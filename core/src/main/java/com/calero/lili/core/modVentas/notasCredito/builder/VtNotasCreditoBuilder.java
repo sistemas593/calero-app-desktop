@@ -4,7 +4,6 @@ import com.calero.lili.core.builder.InformacionAdicionalBuilder;
 import com.calero.lili.core.enums.Ambiente;
 import com.calero.lili.core.enums.EmailEstado;
 import com.calero.lili.core.enums.Liquidar;
-import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.enums.TipoIngreso;
 import com.calero.lili.core.enums.TipoVenta;
 import com.calero.lili.core.modVentas.VtVentaEntity;
@@ -66,7 +65,7 @@ public class VtNotasCreditoBuilder {
                 .concepto(model.getConcepto())
                 .modSerie(model.getModSerie())
                 .modSecuencial(model.getModSecuencial())
-                .fechaEmision(DateUtils.toLocalDate(model.getFechaEmision()))
+                .fechaEmision(DateUtils.toLocalDateFechaEmision(model.getFechaEmision()))
                 .ambiente(Objects.nonNull(model.getAmbiente())
                         ? Ambiente.obtenerAmbiente(model.getAmbiente())
                         : null)
@@ -125,7 +124,7 @@ public class VtNotasCreditoBuilder {
                 .concepto(model.getConcepto())
                 .modSerie(model.getModSerie())
                 .modSecuencial(model.getModSecuencial())
-                .fechaEmision(DateUtils.toLocalDate(model.getFechaEmision()))
+                .fechaEmision(DateUtils.toLocalDateFechaEmision(model.getFechaEmision()))
                 .ambiente(Objects.nonNull(model.getAmbiente())
                         ? Ambiente.obtenerAmbiente(model.getAmbiente())
                         : null)
@@ -183,7 +182,7 @@ public class VtNotasCreditoBuilder {
                 .claveAcceso(model.getClaveAcceso())
                 .modSerie(model.getModSerie())
                 .modSecuencial(model.getModSecuencial())
-                .fechaEmision(model.getFechaEmision().toString())
+                .fechaEmision(DateUtils.toString(model.getFechaEmision()))
                 .modCodigoDocumento(model.getModCodigoDocumento())
                 .modFechaEmision(Objects.nonNull(model.getModFechaEmision())
                         ? DateUtils.toString(model.getModFechaEmision())

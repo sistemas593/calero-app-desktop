@@ -6,9 +6,9 @@ import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
-import com.calero.lili.core.modVentas.facturas.dto.FilterListDto;
 import com.calero.lili.core.modVentas.reembolsos.builder.VtVentaReembolsosBuilder;
 import com.calero.lili.core.modVentas.reembolsos.dto.CreationRequestReembolsoDto;
+import com.calero.lili.core.modVentas.reembolsos.dto.FilterReembolsoDto;
 import com.calero.lili.core.modVentas.reembolsos.dto.GetListDtoTotalizado;
 import com.calero.lili.core.modVentas.reembolsos.dto.ResponseReembolsoDto;
 import com.calero.lili.core.modVentas.reembolsos.projection.TotalesProjection;
@@ -124,7 +124,7 @@ public class VtVentasReembolsoServiceImpl {
     }
 
 
-    public PaginatedDto<ResponseReembolsoDto> findAllPaginate(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable) {
+    public PaginatedDto<ResponseReembolsoDto> findAllPaginate(Long idData, Long idEmpresa, FilterReembolsoDto filters, Pageable pageable) {
 
 
         validarFiltroUtilizado(filters);
@@ -156,7 +156,7 @@ public class VtVentasReembolsoServiceImpl {
     }
 
     public GetListDtoTotalizado<ResponseReembolsoDto> findAllPaginateTotalizado(Long idData, Long idEmpresa,
-                                                                                FilterListDto filters, Pageable pageable) {
+                                                                                FilterReembolsoDto filters, Pageable pageable) {
 
 
         validarFiltroUtilizado(filters);
@@ -195,7 +195,7 @@ public class VtVentasReembolsoServiceImpl {
     }
 
 
-    public void exportarExcel(Long idData, Long idEmpresa, HttpServletResponse response, FilterListDto filter) throws IOException {
+    public void exportarExcel(Long idData, Long idEmpresa, HttpServletResponse response, FilterReembolsoDto filter) throws IOException {
 
         log.info("Iniciando la exportación a Excel con el filtro: {}", filter);
         List<VtVentaReembolsosEntity> reembolsos = vtVentasReembolsoRepository.getFindAll(idData, idEmpresa,
@@ -318,7 +318,7 @@ public class VtVentasReembolsoServiceImpl {
     }
 
 
-    public void exportarPDF(Long idData, Long idEmpresa, HttpServletResponse response, FilterListDto filter) throws DocumentException, IOException {
+    public void exportarPDF(Long idData, Long idEmpresa, HttpServletResponse response, FilterReembolsoDto filter) throws DocumentException, IOException {
 
         List<VtVentaReembolsosEntity> reembolsos = vtVentasReembolsoRepository
                 .getFindAll(idData, idEmpresa, filter.getFechaEmisionDesde(), filter.getFechaEmisionHasta());
@@ -482,7 +482,7 @@ public class VtVentasReembolsoServiceImpl {
 
     }
 
-    private void validarFiltroUtilizado(FilterListDto filtro) {
+    private void validarFiltroUtilizado(FilterReembolsoDto filtro) {
         if (Objects.isNull(filtro.getUtilizado())) {
             throw new GeneralException("El parametro utilizado es requerido");
         }

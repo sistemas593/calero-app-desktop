@@ -60,7 +60,7 @@ public class NotaDebitoBuilder {
 
     private InfoNotaDebito builderInfoNotaDebito(VtVentaEntity venta, AdEmpresaEntity empresa, AdEmpresasSeriesEntity serie) {
         return InfoNotaDebito.builder()
-                .fechaEmision(DateUtils.toString(venta.getFechaEmision()))
+                .fechaEmision(DateUtils.toStringFechaEmision(venta.getFechaEmision()))
                 .dirEstablecimiento(serie.getDireccionEstablecimiento())
                 .contribuyenteEspecial(Objects.isNull(empresa.getContribuyenteEspecial())
                         || empresa.getContribuyenteEspecial().isEmpty() ? null : empresa.getContribuyenteEspecial())

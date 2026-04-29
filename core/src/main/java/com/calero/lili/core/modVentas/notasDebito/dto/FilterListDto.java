@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.ToString;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @ToString
@@ -20,16 +21,16 @@ public class FilterListDto {
     private String numeroIdentificacion;
     private String numeroAutorizacion;
 
-    public LocalDate getFechaEmisionDesde() {
+    public LocalDateTime getFechaEmisionDesde() {
         if(fechaEmisionDesde == null)
             return null;
-        return DateUtils.toLocalDate(fechaEmisionDesde);
+        return DateUtils.toLocalDateTimeFechaDesde(fechaEmisionDesde);
     }
 
-    public LocalDate getFechaEmisionHasta() {
+    public LocalDateTime getFechaEmisionHasta() {
         if(fechaEmisionHasta == null)
             return null;
-        return DateUtils.toLocalDate(fechaEmisionHasta);
+        return DateUtils.toLocalDateTimeFechaDesde(fechaEmisionHasta);
     }
 
     private Boolean anulada;

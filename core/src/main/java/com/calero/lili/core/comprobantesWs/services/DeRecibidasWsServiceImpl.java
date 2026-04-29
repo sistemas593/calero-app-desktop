@@ -5,6 +5,7 @@ import autorizacion.ws.sri.gob.ec.RespuestaComprobante;
 import com.calero.lili.core.comprobantes.objetosXml.autorizacionFile.Autorizacion;
 import com.calero.lili.core.comprobantes.objetosXml.autorizacionFile.Mensaje;
 import com.calero.lili.core.comprobantes.services.DeRecibidasComponentsServiceImpl;
+import com.calero.lili.core.comprobantes.services.dto.CampoAutorizacionDto;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirListCreationRequestDto;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirListCreationResponseDto;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirListExistRequestResponseDto;
@@ -115,7 +116,11 @@ public class DeRecibidasWsServiceImpl {
                     } else {
                         Autorizacion autorizacionDto = ProcesarClavesAutorizadoSri(listaAutorizaciones, listaRespuestas);
                         if (autorizacionDto.getEstado() != null) {
-                            String message = deRecibidasComponentsService.guardarComprobante(idData, idEmpresa, autorizacionDto,usuario);
+                            CampoAutorizacionDto dto = new CampoAutorizacionDto();
+                            dto.setComprobante(autorizacionDto.getComprobante());
+                            dto.setNumeroAutorizacion(dto.getNumeroAutorizacion());
+                            dto.setFechaAutorizacion(dto.getFechaAutorizacion());
+                            String message = deRecibidasComponentsService.guardarComprobante(idData, idEmpresa, dto, usuario);
                             if (!message.isEmpty()) {
 
                                 listaRespuestas.add(CpImpuestosRecibirResponseDto.builder()

@@ -71,7 +71,7 @@ public class VtVentaEntity extends Auditable {
     private String numeroAutorizacion;
 
     @Column(name = "fecha_emision")
-    private LocalDate fechaEmision;
+    private LocalDateTime fechaEmision;
 
     //    @Enumerated(EnumType.STRING)
     @Column(name = "tipo_ingreso")

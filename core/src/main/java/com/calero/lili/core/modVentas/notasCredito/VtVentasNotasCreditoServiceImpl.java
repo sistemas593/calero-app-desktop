@@ -33,13 +33,11 @@ import com.calero.lili.core.modVentas.VtVentasPersistenceService;
 import com.calero.lili.core.modVentas.VtVentasRepository;
 import com.calero.lili.core.modVentas.builder.GetListResponseBuilder;
 import com.calero.lili.core.modVentas.dto.GetListDto;
-import com.calero.lili.core.modVentas.dto.GetListDtoTotalizado;
 import com.calero.lili.core.modVentas.facturas.dto.FilterListDto;
 import com.calero.lili.core.modVentas.notasCredito.builder.VtNotasCreditoBuilder;
 import com.calero.lili.core.modVentas.notasCredito.dto.CreationNotaCreditoRequestDto;
 import com.calero.lili.core.modVentas.notasCredito.dto.GetNotaCreditoDto;
 import com.calero.lili.core.modVentas.projection.OneProjection;
-import com.calero.lili.core.modVentas.projection.TotalesProjection;
 import com.calero.lili.core.utils.DateUtils;
 import com.calero.lili.core.utils.validaciones.ValidarCampoAscii;
 import com.lowagie.text.Document;
@@ -68,7 +66,6 @@ import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -447,7 +444,7 @@ public class VtVentasNotasCreditoServiceImpl {
                     row.createCell(0).setCellValue(factura.getTipoVenta().toString());
                     row.createCell(1).setCellValue(factura.getSerie());
                     row.createCell(2).setCellValue(factura.getSecuencial());
-                    row.createCell(3).setCellValue(DateUtils.toString(factura.getFechaEmision()));
+                    row.createCell(3).setCellValue(DateUtils.toStringFechaEmision(factura.getFechaEmision()));
                     row.createCell(4).setCellValue(factura.getNumeroAutorizacion());
                     row.createCell(5).setCellValue(factura.getTercero().getNumeroIdentificacion());
 
@@ -574,7 +571,7 @@ public class VtVentasNotasCreditoServiceImpl {
                 table.addCell(factura.getTipoVenta().toString());
                 table.addCell(factura.getSerie());
                 table.addCell(factura.getSecuencial());
-                table.addCell(factura.getFechaEmision().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+                table.addCell(DateUtils.toStringFechaEmision(factura.getFechaEmision()));
                 table.addCell(factura.getNumeroAutorizacion());
                 table.addCell(factura.getTercero().getNumeroIdentificacion());
 

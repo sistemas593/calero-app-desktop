@@ -5,6 +5,7 @@ import com.calero.lili.core.errors.exceptions.GeneralException;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
@@ -22,6 +23,12 @@ public class DateUtils {
         return LocalDate.parse(date, formatter);
     }
 
+    public static LocalDateTime toLocalDateFechaEmision(String date) {
+        LocalTime horaActual = LocalTime.now();
+        LocalDate localDate = LocalDate.parse(date, formatter);
+        return LocalDateTime.of(localDate, horaActual);
+    }
+
     public static LocalDateTime toLocalDateTime(String date) {
 
         if (date.contains("T")) {
@@ -32,12 +39,25 @@ public class DateUtils {
         }
     }
 
+    public static LocalDateTime toLocalDateTimeFechaDesde(String date) {
+        return LocalDate.parse(date, formatter).atStartOfDay();
+    }
+
+
+    public static LocalDateTime toLocalDateTimeFechaHasta(String date) {
+        return LocalDate.parse(date, formatter).atTime(LocalTime.MAX);
+    }
+
     public static String toString(LocalDate date) {
         return date.format(formatter);
     }
 
     public static String toString(LocalDateTime date) {
         return date.format(formatterTime);
+    }
+
+    public static String toStringFechaEmision(LocalDateTime date) {
+        return date.format(formatter);
     }
 
     public static LocalDate toLocalDateOffsetTime(String dateOffsetTime) {

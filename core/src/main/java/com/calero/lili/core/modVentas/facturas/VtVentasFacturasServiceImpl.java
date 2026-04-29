@@ -83,7 +83,6 @@ import java.math.RoundingMode;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -588,7 +587,7 @@ public class VtVentasFacturasServiceImpl {
                     row.createCell(0).setCellValue(factura.getTipoVenta());
                     row.createCell(1).setCellValue(factura.getSerie());
                     row.createCell(2).setCellValue(factura.getSecuencial());
-                    row.createCell(3).setCellValue(DateUtils.toString(factura.getFechaEmision()));
+                    row.createCell(3).setCellValue(DateUtils.toStringFechaEmision(factura.getFechaEmision()));
                     row.createCell(4).setCellValue(factura.getNumeroAutorizacion());
                     row.createCell(5).setCellValue(factura.getTercero().getNumeroIdentificacion());
 
@@ -710,7 +709,7 @@ public class VtVentasFacturasServiceImpl {
                 table.addCell(factura.getTipoVenta().toString());
                 table.addCell(factura.getSerie());
                 table.addCell(factura.getSecuencial());
-                table.addCell(factura.getFechaEmision().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+                table.addCell(DateUtils.toStringFechaEmision(factura.getFechaEmision()));
                 table.addCell(factura.getNumeroAutorizacion());
                 table.addCell(factura.getTercero().getNumeroIdentificacion());
 

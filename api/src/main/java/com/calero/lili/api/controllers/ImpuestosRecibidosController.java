@@ -1,9 +1,9 @@
 package com.calero.lili.api.controllers;
 
 import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
+import com.calero.lili.api.utils.IdDataServiceImpl;
 import com.calero.lili.core.comprobantes.services.DeRecibidasServiceImpl;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirListCreationResponseDto;
-import com.calero.lili.api.utils.IdDataServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -32,9 +32,12 @@ public class ImpuestosRecibidosController {
     @PostMapping("files/{idEmpresa}")
     @ResponseStatus(HttpStatus.CREATED)
     public CpImpuestosRecibirListCreationResponseDto createFiles(@PathVariable("idEmpresa") Long idEmpresa,
-                                                                 @RequestBody List<MultipartFile> documentos) {
+                                                                 @RequestBody List<MultipartFile> documentos,
+                                                                 String formato) {
         return deRecibidasService.createFiles(idDataService.getIdData(), idEmpresa, documentos,
-                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"), formato);
     }
+
+    // TODO CREAR OTRO ENDPOINT, RECIBIR FORMATO DEL SRI O FORMATO NORMAL. 1 FORMATO NORMAL SI ES 2 ES NUEVO ARCHIVO, OBLIGATORIO
 
 }

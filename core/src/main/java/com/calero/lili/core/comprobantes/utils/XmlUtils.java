@@ -5,6 +5,7 @@ import com.calero.lili.core.comprobantes.objetosXml.autorizacionFile.Autorizacio
 import com.calero.lili.core.comprobantes.objetosXml.factura.Factura;
 import com.calero.lili.core.comprobantes.objetosXml.notaCredito.NotaCredito;
 import com.calero.lili.core.comprobantes.objetosXml.notaDebito.NotaDebito;
+import com.calero.lili.core.comprobantes.services.dto.CampoAutorizacionDto;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
@@ -86,6 +87,14 @@ public class XmlUtils {
         }
     }
 
+    public static Factura getFacturaRecibidos(CampoAutorizacionDto autorizacionDto) {
+        try {
+            return XmlUtils.unmarshalXml(autorizacionDto.getComprobante(), Factura.class);
+        } catch (Exception exception) {
+            return null;
+        }
+    }
+
     public static NotaCredito getNotaCredito(Autorizacion autorizacionDto) {
         try {
             return XmlUtils.unmarshalXml(autorizacionDto.getComprobante(), NotaCredito.class);
@@ -94,12 +103,22 @@ public class XmlUtils {
         }
     }
 
-    public static NotaDebito getNotaDebito(Autorizacion autorizacionDto) {
+    public static NotaCredito getNotaCreditoRecibida(CampoAutorizacionDto autorizacionDto) {
+        try {
+            return XmlUtils.unmarshalXml(autorizacionDto.getComprobante(), NotaCredito.class);
+        } catch (Exception exception) {
+            return null;
+        }
+    }
+
+    public static NotaDebito getNotaDebito(CampoAutorizacionDto autorizacionDto) {
         try {
             return XmlUtils.unmarshalXml(autorizacionDto.getComprobante(), NotaDebito.class);
         } catch (Exception exception) {
             return null;
         }
     }
+
+
 
 }

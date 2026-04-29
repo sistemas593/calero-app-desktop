@@ -5,11 +5,11 @@ import com.calero.lili.core.comprobantesWs.dto.ArchivoDto;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirListCreationResponseDto;
-import com.calero.lili.core.modVentas.facturas.dto.FilterListDto;
 import com.calero.lili.core.modVentas.reembolsos.VentasReembolsoRecibidosServiceImpl;
 import com.calero.lili.core.modVentas.reembolsos.VtVentasReembolsoPdfXmlServiceImpl;
 import com.calero.lili.core.modVentas.reembolsos.VtVentasReembolsoServiceImpl;
 import com.calero.lili.core.modVentas.reembolsos.dto.CreationRequestReembolsoDto;
+import com.calero.lili.core.modVentas.reembolsos.dto.FilterReembolsoDto;
 import com.calero.lili.core.modVentas.reembolsos.dto.GetListDtoTotalizado;
 import com.calero.lili.core.modVentas.reembolsos.dto.ResponseReembolsoDto;
 import com.lowagie.text.DocumentException;
@@ -94,7 +94,7 @@ public class VtVentasReembolsosController {
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAuthority('VT_RB_VR')")
     public PaginatedDto<ResponseReembolsoDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
-                                                              FilterListDto filters,
+                                                              FilterReembolsoDto filters,
                                                               Pageable pageable) {
         return vtVentasReembolsoService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable);
     }
@@ -103,21 +103,21 @@ public class VtVentasReembolsosController {
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAuthority('VT_RB_VR')")
     public GetListDtoTotalizado<ResponseReembolsoDto> findAllTotalesPaginate(@PathVariable("idEmpresa") Long idEmpresa,
-                                                                             FilterListDto filters,
+                                                                             FilterReembolsoDto filters,
                                                                              Pageable pageable) {
         return vtVentasReembolsoService.findAllPaginateTotalizado(idDataService.getIdData(), idEmpresa, filters, pageable);
     }
 
     @GetMapping("excel/{idEmpresa}")
     @PreAuthorize("hasAuthority('VT_RB_EX')")
-    public void exportarExcel(@PathVariable("idEmpresa") Long idEmpresa, HttpServletResponse response, FilterListDto filter) throws IOException {
+    public void exportarExcel(@PathVariable("idEmpresa") Long idEmpresa, HttpServletResponse response, FilterReembolsoDto filter) throws IOException {
         vtVentasReembolsoService.exportarExcel(idDataService.getIdData(), idEmpresa, response, filter);
     }
 
     @GetMapping("pdf/{idEmpresa}")
     @PreAuthorize("hasAuthority('VT_RB_EX')")
     public void exportarPDF(@PathVariable("idEmpresa") Long idEmpresa,
-                            HttpServletResponse response, FilterListDto filters) throws DocumentException, IOException {
+                            HttpServletResponse response, FilterReembolsoDto filters) throws DocumentException, IOException {
         vtVentasReembolsoService.exportarPDF(idDataService.getIdData(), idEmpresa, response, filters);
     }
 
