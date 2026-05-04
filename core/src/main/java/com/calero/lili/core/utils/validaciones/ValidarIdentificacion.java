@@ -87,9 +87,12 @@ public class ValidarIdentificacion {
 
     protected String validarCodigoProvincia(String numero) {
         String respuesta="";
-        if (Integer.parseInt(numero) < 0 || Integer.parseInt(numero) > 24) {
+
+        int valor = Integer.parseInt(numero);
+
+        if ((valor < 1 || valor > 24) && !numero.startsWith("30")) {
             //throw new Exception("Codigo de Provincia (dos primeros dígitos) no deben ser mayor a 24 ni menores a 0");
-            respuesta="Codigo de Provincia (dos primeros dígitos) no deben ser mayor a 24 ni menores a 0";
+            respuesta="Codigo de Provincia (dos primeros dígitos) no deben ser mayor a 24 ni menores a 1";
         }
         return respuesta;
     }

@@ -11,6 +11,7 @@ import com.calero.lili.core.dtos.Mensajes;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.dtos.ResponseDto;
+import com.calero.lili.core.dtos.ValoresDto;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.TipoEmision;
@@ -32,12 +33,14 @@ import com.calero.lili.core.modVentas.VtVentaValoresEntity;
 import com.calero.lili.core.modVentas.VtVentasPersistenceService;
 import com.calero.lili.core.modVentas.VtVentasRepository;
 import com.calero.lili.core.modVentas.builder.GetListResponseBuilder;
+import com.calero.lili.core.modVentas.dto.DetailDto;
 import com.calero.lili.core.modVentas.dto.GetListDto;
 import com.calero.lili.core.modVentas.facturas.dto.FilterListDto;
 import com.calero.lili.core.modVentas.notasCredito.builder.VtNotasCreditoBuilder;
 import com.calero.lili.core.modVentas.notasCredito.dto.CreationNotaCreditoRequestDto;
 import com.calero.lili.core.modVentas.notasCredito.dto.GetNotaCreditoDto;
 import com.calero.lili.core.modVentas.projection.OneProjection;
+import com.calero.lili.core.modVentas.service.ValidarValoresServiceImpl;
 import com.calero.lili.core.utils.DateUtils;
 import com.calero.lili.core.utils.validaciones.ValidarCampoAscii;
 import com.lowagie.text.Document;
@@ -93,12 +96,18 @@ public class VtVentasNotasCreditoServiceImpl {
     private final ProcesarDocumentosServiceImpl procesarDocumentosService;
     private final AdLogsBuilder adLogsBuilder;
     private final AdEmpresasRepository adEmpresasRepository;
+    private final ValidarValoresServiceImpl validarValoresService;
 
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa, CreationNotaCreditoRequestDto request,
                                          String usuario, String origenCertificado) {
 
         DateUtils.validarFechaEmision(request.getFechaEmision());
         ValidarCampoAscii.validarStrings(request);
+
+        List<ValoresDto> valores = validarValoresService.validarValores(request.getDetalle());
+        request.setValores(valores);
+        setearValoresCabecera(valores, request);
+
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
                 DateUtils.toLocalDate(request.getModFechaEmision()));
 
@@ -174,6 +183,11 @@ public class VtVentasNotasCreditoServiceImpl {
 
         DateUtils.validarFechaEmision(request.getFechaEmision());
         ValidarCampoAscii.validarStrings(request);
+
+        List<ValoresDto> valores = validarValoresService.validarValores(request.getDetalle());
+        request.setValores(valores);
+        setearValoresCabecera(valores, request);
+
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
                 DateUtils.toLocalDate(request.getModFechaEmision()));
 
@@ -647,7 +661,7 @@ public class VtVentasNotasCreditoServiceImpl {
             }
         }
 
-        for (CreationNotaCreditoRequestDto.DetailDto item : request.getDetalle()) {
+        for (DetailDto item : request.getDetalle()) {
             if (Objects.nonNull(item.getDetAdicional())) {
                 if (item.getDetAdicional().isEmpty()) {
                     throw new GeneralException("En la lista de detalles, se envia detalle adicional pero este esta vacio");
@@ -658,7 +672,7 @@ public class VtVentasNotasCreditoServiceImpl {
 
 
     private void validarItem(CreationNotaCreditoRequestDto request, Long idData, Long idEmpresa) {
-        for (CreationNotaCreditoRequestDto.DetailDto model : request.getDetalle()) {
+        for (DetailDto model : request.getDetalle()) {
             geItemsRepository.findByIdItem(idData, idEmpresa, model.getIdItem())
                     .orElseThrow(() -> new GeneralException("El item con id  " + model.getIdItem() + " no existe "));
         }
@@ -683,9 +697,9 @@ public class VtVentasNotasCreditoServiceImpl {
         return responseApiBuilder.builderResponse(idVenta.toString());
     }
 
-    private List<Integer> getIntegerTarifaIva(List<CreationNotaCreditoRequestDto.ValoresDto> valores) {
+    private List<Integer> getIntegerTarifaIva(List<ValoresDto> valores) {
         return valores.stream()
-                .map(CreationNotaCreditoRequestDto.ValoresDto::getTarifa)
+                .map(ValoresDto::getTarifa)
                 .filter(Objects::nonNull)
                 .map(BigDecimal::intValue)
                 .toList();
@@ -759,6 +773,27 @@ public class VtVentasNotasCreditoServiceImpl {
         if (tercero.getNumeroIdentificacion().equals("9999999999")) {
             throw new GeneralException("No se puede crear una nota de crédito para consumidor final");
         }
+    }
+
+
+    private void setearValoresCabecera(List<ValoresDto> valores, CreationNotaCreditoRequestDto request) {
+
+        BigDecimal totalDescuento = request.getDetalle().stream()
+                .map(DetailDto::getDescuento)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal subtotal = valores.stream()
+                .map(ValoresDto::getBaseImponible)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal totalImpuesto = valores.stream()
+                .map(ValoresDto::getValor)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        request.setTotalDescuento(totalDescuento);
+        request.setSubtotal(subtotal);
+        request.setTotal(subtotal.add(totalImpuesto));
+
     }
 
 }

@@ -9,7 +9,6 @@ import com.calero.lili.core.comprobantesWs.dto.DatosEmpresaDto;
 import com.calero.lili.core.comprobantesWs.services.BuscarDatosEmpresa;
 import com.calero.lili.core.comprobantesWs.services.ProcesarDocumentosServiceImpl;
 import com.calero.lili.core.dtos.FormasPagoDto;
-import com.calero.lili.core.dtos.ImpuestoItemsDto;
 import com.calero.lili.core.dtos.Mensajes;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
@@ -27,8 +26,6 @@ import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.modAdminEmpresas.projection.MomentoEnvioProjection;
 import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
 import com.calero.lili.core.modComprasItems.GeItemsRepository;
-import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosEntity;
-import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosItemsRepository;
 import com.calero.lili.core.modContabilidad.modAsientos.CnAsientosEntity;
 import com.calero.lili.core.modContabilidad.modAsientos.CnAsientosRepository;
 import com.calero.lili.core.modContabilidad.modCentroCostos.CnCentroCostosEntity;
@@ -43,6 +40,7 @@ import com.calero.lili.core.modVentas.VtVentaValoresEntity;
 import com.calero.lili.core.modVentas.VtVentasPersistenceService;
 import com.calero.lili.core.modVentas.VtVentasRepository;
 import com.calero.lili.core.modVentas.builder.GetListResponseBuilder;
+import com.calero.lili.core.modVentas.dto.DetailDto;
 import com.calero.lili.core.modVentas.dto.GetListDto;
 import com.calero.lili.core.modVentas.dto.GetListDtoTotalizado;
 import com.calero.lili.core.modVentas.facturas.builder.VtFacturasBuilder;
@@ -54,6 +52,7 @@ import com.calero.lili.core.modVentas.projection.OneProjection;
 import com.calero.lili.core.modVentas.projection.TotalesProjection;
 import com.calero.lili.core.modVentas.reembolsos.VtVentaReembolsosEntity;
 import com.calero.lili.core.modVentas.reembolsos.VtVentasReembolsoRepository;
+import com.calero.lili.core.modVentas.service.ValidarValoresServiceImpl;
 import com.calero.lili.core.tablas.tbPaises.TbPaisEntity;
 import com.calero.lili.core.tablas.tbPaises.TbPaisesRepository;
 import com.calero.lili.core.utils.DateUtils;
@@ -69,7 +68,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -79,18 +77,13 @@ import java.awt.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Service
@@ -118,7 +111,7 @@ public class VtVentasFacturasServiceImpl {
     private final AdLogsBuilder adLogsBuilder;
     private final BuscarDatosEmpresa buscarDatosEmpresa;
     private final AdEmpresasRepository adEmpresasRepository;
-    private final GeImpuestosItemsRepository geImpuestosItemsRepository;
+    private final ValidarValoresServiceImpl validarValoresService;
 
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa,
                                          CreationFacturaRequestDto request, String usuario, String origenCertificado) {
@@ -127,8 +120,10 @@ public class VtVentasFacturasServiceImpl {
         DateUtils.validarFechaEmision(request.getFechaEmision());
         ValidarCampoAscii.validarStrings(request);
 
+        List<ValoresDto> valores = validarValoresService.validarValores(request.getDetalle());
+        request.setValores(valores);
+        setearValoresCabecera(valores, request);
 
-        validarValores(request);
         adIvaPorcentajeService.validateIvaPorcentaje(getTarifaValoresInteger(request.getValores()), DateUtils.toLocalDate(request.getFechaEmision()));
         Optional<OneProjection> existingFactura = vtVentaRepository
                 .findExistBySecuencial(idData, idEmpresa, TipoVenta.FAC.name(), request.getSerie(), request.getSecuencial());
@@ -209,6 +204,10 @@ public class VtVentasFacturasServiceImpl {
 
         DateUtils.validarFechaEmision(request.getFechaEmision());
         ValidarCampoAscii.validarStrings(request);
+
+        List<ValoresDto> valores = validarValoresService.validarValores(request.getDetalle());
+        request.setValores(valores);
+        setearValoresCabecera(valores, request);
 
         adIvaPorcentajeService.validateIvaPorcentaje(getTarifaValoresInteger(request.getValores()), DateUtils.toLocalDate(request.getFechaEmision()));
 
@@ -300,7 +299,7 @@ public class VtVentasFacturasServiceImpl {
     }
 
     private void validarItem(CreationFacturaRequestDto request, Long idData, Long idEmpresa) {
-        for (CreationFacturaRequestDto.DetailDto model : request.getDetalle()) {
+        for (DetailDto model : request.getDetalle()) {
             geItemsRepository.findByIdItem(idData, idEmpresa, model.getIdItem())
                     .orElseThrow(() -> new GeneralException("El item con id  " + model.getIdItem() + " no existe "));
         }
@@ -855,7 +854,7 @@ public class VtVentasFacturasServiceImpl {
             }
         }
 
-        for (CreationFacturaRequestDto.DetailDto item : request.getDetalle()) {
+        for (DetailDto item : request.getDetalle()) {
             if (Objects.nonNull(item.getDetAdicional())) {
                 if (item.getDetAdicional().isEmpty()) {
                     throw new GeneralException("En la lista de detalles, se envia detalle adicional pero este esta vacio");
@@ -867,7 +866,7 @@ public class VtVentasFacturasServiceImpl {
 
     private void validarCentroCostos(CreationFacturaRequestDto request, Long idData, Long idEmpresa) {
 
-        for (CreationFacturaRequestDto.DetailDto detalle : request.getDetalle()) {
+        for (DetailDto detalle : request.getDetalle()) {
 
             if (Objects.nonNull(detalle.getIdCentroCostos())) {
                 Optional<CnCentroCostosEntity> item = cnCentroCostosRepository
@@ -996,64 +995,11 @@ public class VtVentasFacturasServiceImpl {
         procesarDocumentosService.procesarFacNcNd(factura, log, datosEmpresaDto);
     }
 
-    private void validarValores(CreationFacturaRequestDto request) {
-
-        Map<String, GeImpuestosEntity> impuestosMap = getImpuestosItems(request.getDetalle());
-
-        for (CreationFacturaRequestDto.DetailDto item : request.getDetalle()) {
-
-            BigDecimal subTotalItem = item.getPrecioUnitario().multiply(item.getCantidad());
-            BigDecimal subTotalConDescuento = subTotalItem.subtract(item.getDescuento());
-            item.setSubtotalItem(subTotalConDescuento);
-
-            // BUSCAR EL IMPUESTO PARA LA TARIFA POR EL CODIGO Y EL CODIGO PORCENTAJE.
-
-
-            for (ImpuestoItemsDto impuesto : item.getImpuesto()) {
-
-                String key = impuesto.getCodigo() + "-" + impuesto.getCodigoPorcentaje();
-                GeImpuestosEntity impuestoItem = impuestosMap.get(key);
-
-                if (Objects.nonNull(impuestoItem)) {
-                    impuesto.setBaseImponible(subTotalConDescuento);
-                    BigDecimal valor = subTotalConDescuento
-                            .multiply(impuestoItem.getTarifa())
-                            .divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP);
-                    impuesto.setValor(valor);
-                    impuesto.setTarifa(impuestoItem.getTarifa());
-                }
-            }
-        }
-        calcularValores(request);
-    }
-
-    private void calcularValores(CreationFacturaRequestDto request) {
-
-        Map<String, BigDecimal> subtotalesPorImpuesto = new HashMap<>();
-        Map<String, ImpuestoItemsDto> impuestosMap = new HashMap<>();
-
-        for (CreationFacturaRequestDto.DetailDto detail : request.getDetalle()) {
-            for (ImpuestoItemsDto impuesto : detail.getImpuesto()) {
-                String key = impuesto.getCodigo() + "-" + impuesto.getCodigoPorcentaje();
-                impuestosMap.putIfAbsent(key, impuesto);
-                subtotalesPorImpuesto.merge(key, impuesto.getBaseImponible(), BigDecimal::add);
-            }
-        }
-
-        List<ValoresDto> valores = new ArrayList<>();
-
-        for (Map.Entry<String, BigDecimal> subtotal : subtotalesPorImpuesto.entrySet()) {
-            ImpuestoItemsDto impuesto = impuestosMap.get(subtotal.getKey());
-            mapearValor(subtotal, impuesto, valores);
-        }
-        request.setValores(valores);
-        setearValoresCabecera(valores, request);
-    }
 
     private void setearValoresCabecera(List<ValoresDto> valores, CreationFacturaRequestDto request) {
 
         BigDecimal totalDescuento = request.getDetalle().stream()
-                .map(CreationFacturaRequestDto.DetailDto::getDescuento)
+                .map(DetailDto::getDescuento)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         BigDecimal subtotal = valores.stream()
@@ -1085,51 +1031,5 @@ public class VtVentasFacturasServiceImpl {
         }
 
     }
-
-    private static void mapearValor(Map.Entry<String, BigDecimal> subtotal, ImpuestoItemsDto impuesto,
-                                    List<ValoresDto> valores) {
-        ValoresDto valoresDto = new ValoresDto();
-
-        // VALIDAR TARIFA CERO
-        BigDecimal valorImpuesto = subtotal.getValue()
-                .multiply(impuesto.getTarifa())
-                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
-
-        valoresDto.setCodigo(impuesto.getCodigo());
-        valoresDto.setCodigoPorcentaje(impuesto.getCodigoPorcentaje());
-        valoresDto.setBaseImponible(subtotal.getValue());
-        valoresDto.setValor(valorImpuesto);
-        valoresDto.setTarifa(impuesto.getTarifa());
-        valores.add(valoresDto);
-    }
-
-    @NotNull
-    private Map<String, GeImpuestosEntity> getImpuestosItems(List<CreationFacturaRequestDto.DetailDto> detalles) {
-
-        List<String> claves = detalles.stream()
-                .flatMap(detalle -> detalle.getImpuesto().stream())
-                .map(imp -> imp.getCodigo() + "-" + imp.getCodigoPorcentaje())
-                .distinct()
-                .toList();
-
-        List<GeImpuestosEntity> impuestos = new ArrayList<>();
-        for (String clave : claves) {
-
-            Optional<GeImpuestosEntity> impuesto = geImpuestosItemsRepository.findCodigoAndCodigoPorcentaje(clave);
-            if (impuesto.isPresent()) {
-                impuestos.add(impuesto.get());
-            } else {
-                throw new GeneralException(MessageFormat.format("El impuesto con codigos {0}, no existe", clave));
-            }
-        }
-
-        Map<String, GeImpuestosEntity> impuestosMap = impuestos.stream()
-                .collect(Collectors.toMap(
-                        imp -> imp.getCodigo() + "-" + imp.getCodigoPorcentaje(),
-                        imp -> imp
-                ));
-        return impuestosMap;
-    }
-
 }
 

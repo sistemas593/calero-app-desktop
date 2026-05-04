@@ -97,6 +97,7 @@ public class CpLiquidacionesReembolsosBuilder {
                 .secuencialReemb(model.getSecuencialReemb())
                 .fechaEmisionReemb(DateUtils.toString(model.getFechaEmisionReemb()))
                 .numeroAutorizacionReemb(model.getNumeroAutorizacionReemb())
+                .fechaAutorizacionReemb(DateUtils.toLocalDateTimeString(model.getFechaAutorizacionReemb()))
                 .reembolsosValores(builderListValoresResponse(model.getReembolsosValores()))
                 .idLiquidacion(model.getIdLiquidacion())
                 .build();

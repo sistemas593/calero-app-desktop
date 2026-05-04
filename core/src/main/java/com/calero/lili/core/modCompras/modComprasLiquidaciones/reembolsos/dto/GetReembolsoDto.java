@@ -26,6 +26,7 @@ public class GetReembolsoDto {
     private String secuencialReemb;
     private String fechaEmisionReemb;
     private String numeroAutorizacionReemb;
+    private String fechaAutorizacionReemb;
     private List<ValoresDto> reembolsosValores;
     private String codigoPais;
     private String pais;

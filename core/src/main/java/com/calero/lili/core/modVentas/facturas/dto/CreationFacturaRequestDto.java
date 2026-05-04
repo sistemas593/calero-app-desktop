@@ -1,7 +1,6 @@
 package com.calero.lili.core.modVentas.facturas.dto;
 
 import com.calero.lili.core.dtos.FormasPagoDto;
-import com.calero.lili.core.dtos.ImpuestoItemsDto;
 import com.calero.lili.core.dtos.InformacionAdicionalDto;
 import com.calero.lili.core.dtos.ValoresDto;
 import com.calero.lili.core.enums.ComercioExterior;
@@ -10,6 +9,7 @@ import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.Liquidar;
 import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.enums.TipoIngreso;
+import com.calero.lili.core.modVentas.dto.DetailDto;
 import jakarta.persistence.Column;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -101,39 +101,7 @@ public class CreationFacturaRequestDto {
     @NotEmpty(message = "No existen detalle de items")
     private List<DetailDto> detalle;
 
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class DetailDto {
-        private UUID idItem;
-        private int itemOrden;
-        @NotEmpty(message = "No existe el codigo principal")
-        private String codigoPrincipal;
-        private String codigoAuxiliar;
-        private String codigoBarras;
-        private String descripcion;
-        private String unidadMedida;
-        private BigDecimal precioUnitario;
-        private BigDecimal cantidad;
-        private BigDecimal dsctoItem;
-        private BigDecimal descuento;
-        private BigDecimal subtotalItem;
 
-        private List<ImpuestoItemsDto> impuesto;
-
-        private List<DetalleAdicional> detAdicional;
-
-        @Data
-        @AllArgsConstructor
-        @NoArgsConstructor
-        public static class DetalleAdicional {
-            private String nombre;
-            @Column(length = 300)
-            private String valor;
-        }
-
-        private UUID idCentroCostos;
-    }
 
     private Exportacion exportacion;
 

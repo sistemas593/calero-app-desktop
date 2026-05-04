@@ -26,6 +26,9 @@ import com.calero.lili.core.dtos.FilterDto
 import com.calero.lili.core.modTerceros.GeTercerosServiceImpl
 import com.calero.lili.core.modTerceros.dto.GeTerceroFilterDto
 import com.calero.lili.core.modTerceros.dto.GeTerceroGetListDto
+import com.calero.lili.core.dtos.ImpuestoItemsDto
+import com.calero.lili.core.dtos.ValoresDto
+import com.calero.lili.core.modVentas.dto.DetailDto
 import com.calero.lili.core.modVentas.facturas.VtVentasFacturasServiceImpl
 import com.calero.lili.core.modVentas.facturas.dto.CreationFacturaRequestDto
 import com.calero.lili.core.modVentas.facturas.dto.FilterListDto
@@ -396,12 +399,12 @@ class FacturaFormViewModel(
                 val base = d.subtotalItem
                 val valorImp = base.multiply(imp.tarifa ?: BigDecimal.ZERO)
                     .divide(BigDecimal(100), 2, RoundingMode.HALF_UP)
-                listOf(CreationFacturaRequestDto.DetailDto.Impuestos(
+                listOf(ImpuestoItemsDto(
                     imp.codigo, imp.codigoPorcentaje, imp.tarifa, base, valorImp
                 ))
             } else emptyList()
 
-            CreationFacturaRequestDto.DetailDto().apply {
+            DetailDto().apply {
                 idItem          = d.idItem
                 itemOrden       = idx + 1
                 codigoPrincipal = d.codigoPrincipal
@@ -432,7 +435,7 @@ class FacturaFormViewModel(
             valorAcum[key] = (valorAcum[key] ?: BigDecimal.ZERO).add(v)
         }
         val valoresRequest = baseAcum.entries.map { (k, base) ->
-            CreationFacturaRequestDto.ValoresDto(k.codigo, k.codPct, k.tarifa, base, valorAcum[k] ?: BigDecimal.ZERO)
+            ValoresDto(k.codigo, k.codPct, k.tarifa, base, valorAcum[k] ?: BigDecimal.ZERO)
         }
 
         val formasPagoRequest = s.formasPagoSri.map { fp ->

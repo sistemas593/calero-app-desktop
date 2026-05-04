@@ -142,6 +142,9 @@ public class DateUtils {
 
 
     public static String toLocalDateTimeString(LocalDateTime fechaAutorizacion) {
+        if (Objects.isNull(fechaAutorizacion)) {
+            return null;
+        }
         return fechaAutorizacion.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
     }
 

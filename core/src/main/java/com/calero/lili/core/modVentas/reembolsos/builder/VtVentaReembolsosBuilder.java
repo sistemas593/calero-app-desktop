@@ -94,6 +94,7 @@ public class VtVentaReembolsosBuilder {
                 .fechaEmisionReemb(DateUtils.toString(model.getFechaEmisionReemb()))
                 .reembolsosValores(builderResponseValoresList(model.getReembolsosValores()))
                 .numeroAutorizacionReemb(model.getNumeroAutorizacionReemb())
+                .fechaAutorizacionReemb(DateUtils.toLocalDateTimeString(model.getFechaAutorizacionReemb()))
                 .pais(Objects.nonNull(model.getPais()) ? model.getPais().getPais() : "")
                 .codigoPais(Objects.nonNull(model.getPais()) ? model.getPais().getCodigoPais() : "")
                 .idVenta(model.getIdVenta())
