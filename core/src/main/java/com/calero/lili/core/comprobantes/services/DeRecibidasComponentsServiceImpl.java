@@ -110,7 +110,13 @@ public class DeRecibidasComponentsServiceImpl {
     }
 
     private String saveNotaDebito(Long idData, Long idEmpresa, CampoAutorizacionDto autorizacionDto, String usuario) {
-        NotaDebito documento = XmlUtils.getNotaDebito(autorizacionDto);
+        NotaDebito documento = null;
+
+        if (autorizacionDto.getFormatoDocumento().equals("1")) {
+            documento = XmlUtils.getNotaDebito(autorizacionDto);
+        } else {
+            documento = autorizacionDto.getNotaDebito();
+        }
 
         if (Objects.nonNull(documento)) {
 
@@ -135,7 +141,13 @@ public class DeRecibidasComponentsServiceImpl {
     }
 
     private String saveNotaCredito(Long idData, Long idEmpresa, CampoAutorizacionDto autorizacionDto, String usuario) {
-        NotaCredito documento = XmlUtils.getNotaCreditoRecibida(autorizacionDto);
+        NotaCredito documento = null;
+        if (autorizacionDto.getFormatoDocumento().equals("1")) {
+            documento = XmlUtils.getNotaCreditoRecibida(autorizacionDto);
+        } else {
+            documento = autorizacionDto.getNotaCredito();
+        }
+
         if (Objects.nonNull(documento)) {
 
             String message = ""; //validarEmpresaNotaCredito(documento, idEmpresa, idData);
@@ -159,10 +171,16 @@ public class DeRecibidasComponentsServiceImpl {
 
     private String saveFactura(Long idData, Long idEmpresa, CampoAutorizacionDto autorizacionDto, String usuario) {
 
-        Factura documento = XmlUtils.getFacturaRecibidos(autorizacionDto);
+        Factura documento = null;
+        if (autorizacionDto.getFormatoDocumento().equals("1")) {
+            documento = XmlUtils.getFacturaRecibidos(autorizacionDto);
+        } else {
+            documento = autorizacionDto.getFactura();
+        }
+
         if (Objects.nonNull(documento)) {
 
-            String message = "";//validacionEmpresaFactura(documento, idEmpresa, idData);
+            String message = ""; //validacionEmpresaFactura(documento, idEmpresa, idData);
             if (message.isEmpty()) {
                 CpImpuestosEntity factura = validarFactura(idData, idEmpresa, documento, autorizacionDto);
                 if (Objects.nonNull(factura)) {
@@ -194,11 +212,7 @@ public class DeRecibidasComponentsServiceImpl {
     private String validacionRetencion(Long idData, Long idEmpresa, CampoAutorizacionDto autorizacionDto, String numeroAutorizacion, String usuario) {
         if ((numeroAutorizacion.startsWith("07", 8))) {
 
-            Optional<DeRecibidasRetencionesProjection> existingFactura =
-                    ventasRetencionesRepository.findExistByNumeroAutorizacion(idData, idEmpresa, numeroAutorizacion);
-
-            if (existingFactura.isEmpty()) {
-
+            if (autorizacionDto.getFormatoDocumento().equals("1")) {
                 String version = XmlUtils.obtenerVersionXml(autorizacionDto.getComprobante());
 
                 if (ConstantesDocumento.VERSION_1_0_0.equals(version)) {
@@ -207,7 +221,27 @@ public class DeRecibidasComponentsServiceImpl {
                 } else {
                     return saveRetencionVersionDos(idData, idEmpresa, autorizacionDto, usuario);
                 }
+            } else {
+
+                if (autorizacionDto.getVersionDocumento().equals(ConstantesDocumento.VERSION_1_0_0)) {
+                    VtRetencionesEntity entidad = validarRetencionUno(idData, idEmpresa, autorizacionDto.getComprobanteRetencionV1(), autorizacionDto);
+                    if (Objects.nonNull(entidad)) {
+                        entidad.setCreatedBy(usuario);
+                        entidad.setCreatedDate(LocalDateTime.now());
+                        ventasRetencionesRepository.save(entidad);
+                        return "";
+                    }
+                } else {
+                    VtRetencionesEntity entidad = validarRetencionDos(idData, idEmpresa, autorizacionDto.getComprobanteRetencionV2(), autorizacionDto);
+                    if (Objects.nonNull(entidad)) {
+                        entidad.setCreatedBy(usuario);
+                        entidad.setCreatedDate(LocalDateTime.now());
+                        ventasRetencionesRepository.save(entidad);
+                        return "";
+                    }
+                }
             }
+
         }
         return MensajeComprobante.ERR_LEER_DOCUMENTO_INTERNO;
     }
@@ -423,7 +457,6 @@ public class DeRecibidasComponentsServiceImpl {
             return null;
         }
     }
-
 
 
     private GeTerceroEntity validarProveedor(InfoTributaria model, Long idData) {

@@ -5,16 +5,12 @@ import com.calero.lili.core.comprobantes.objetosXml.ctasXCobrar.DecPat;
 import com.calero.lili.core.comprobantes.objetosXml.ctasXCobrar.DetalleCtasXCobrar;
 import com.calero.lili.core.comprobantes.objetosXml.ctasXCobrar.DetallePasivo;
 import com.calero.lili.core.comprobantes.objetosXml.ctasXCobrar.Pasivo;
-import com.calero.lili.core.comprobantes.objetosXml.liquidacionCompras.LiquidacionCompra;
 import com.calero.lili.core.comprobantes.utils.XmlUtils;
-import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.errors.exceptions.ListErrorException;
 import com.calero.lili.core.modCargarExcelDP.builder.ErrorCargaBuilder;
 import com.calero.lili.core.modCargarExcelDP.dto.ErrorCargaDto;
+import com.calero.lili.core.utils.validaciones.ValidarIdentificacion;
 import com.monitorjbl.xlsx.StreamingReader;
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBException;
-import jakarta.xml.bind.Unmarshaller;
 import lombok.AllArgsConstructor;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -24,15 +20,16 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @AllArgsConstructor
 public class ExcelCtasCobrarServiceImpl {
 
     private final ErrorCargaBuilder errorCargaBuilder;
+    private final ValidarIdentificacion validarIdentificacion;
 
 
     private static final String tipoDeudor = "1";
@@ -68,47 +65,55 @@ public class ExcelCtasCobrarServiceImpl {
                 }
 
 
-                String rucCedula = row.getCell(1).getStringCellValue();
+                if (Objects.isNull(row.getCell(1))) {
+                    errorCarga.add(errorCargaBuilder.builderError(linea, "", "Número de identificación vacío"));
+                    continue;
+                }
 
-                if (esNumeroValido(rucCedula)) {
+                String rucOCedula = row.getCell(1).getStringCellValue();
+                String tipoIdentificacion = obtenerTipoIdentificacion(rucOCedula);
 
-                    if (row.getCell(0).getStringCellValue().equals("CXC")) {
+                if (tipoIdentificacion.isEmpty()) {
+                    errorCarga.add(errorCargaBuilder.builderError(linea, rucOCedula, "Número de identificación no corresponde ni a RUC ni a Cédula"));
+                    continue;
+                }
 
-                        // CXC CUENTAS POR PAGAR
-                        DetalleCtasXCobrar detalleCtsXCobrar = new DetalleCtasXCobrar();
-                        detalleCtsXCobrar.setNombreDeudor(row.getCell(2).getStringCellValue());
-                        detalleCtsXCobrar.setTipoDeudor(tipoDeudor);
-                        detalleCtsXCobrar.setTipoIdentificacion(obtenerTipoIdentificacion(rucCedula));
-                        detalleCtsXCobrar.setNumeroIdentificacion(rucCedula);
-                        detalleCtsXCobrar.setUbicacion(ubicacion);
-                        detalleCtsXCobrar.setPais(pais);
-                        detalleCtsXCobrar.setPartesRelacionadas(partesRelacionadas);
-                        detalleCtsXCobrar.setSaldo(row.getCell(3).getStringCellValue());
+                validarIdentifiacion(rucOCedula, tipoIdentificacion, linea, row, errorCarga);
 
-                        detalleCtasXCobrarList.add(detalleCtsXCobrar);
+                if (row.getCell(0).getStringCellValue().equals("CXC")) {
 
-                    } else if (row.getCell(0).getStringCellValue().equals("CXP")) {
+                    // CXC CUENTAS POR PAGAR
+                    DetalleCtasXCobrar detalleCtsXCobrar = new DetalleCtasXCobrar();
+                    detalleCtsXCobrar.setNombreDeudor(row.getCell(2).getStringCellValue());
+                    detalleCtsXCobrar.setTipoDeudor(tipoDeudor);
+                    detalleCtsXCobrar.setTipoIdentificacion(tipoIdentificacion);
+                    detalleCtsXCobrar.setNumeroIdentificacion(rucOCedula);
+                    detalleCtsXCobrar.setUbicacion(ubicacion);
+                    detalleCtsXCobrar.setPais(pais);
+                    detalleCtsXCobrar.setPartesRelacionadas(partesRelacionadas);
+                    detalleCtsXCobrar.setSaldo(normalizarNumero(row.getCell(3).getStringCellValue()));
 
-                        DetallePasivo detallePasivo = new DetallePasivo();
+                    detalleCtasXCobrarList.add(detalleCtsXCobrar);
 
-                        detallePasivo.setTipoAcreedor(tipoAcreedor);
-                        detallePasivo.setDomicilioAcreedor(ubicacion);
-                        detallePasivo.setValorDeuda(row.getCell(3).getStringCellValue());
-                        detallePasivo.setPaisAcreedor(pais);
-                        detallePasivo.setNombreAcreedor(row.getCell(2).getStringCellValue());
-                        detallePasivo.setTipoIdentificacionAcreedor(obtenerTipoIdentificacion(rucCedula));
-                        detallePasivo.setNumeroIdentificacionAcreedor(rucCedula);
-                        detallePasivo.setPartesRelacionadas(partesRelacionadas);
+                } else if (row.getCell(0).getStringCellValue().equals("CXP")) {
 
-                        detallePasivosList.add(detallePasivo);
+                    DetallePasivo detallePasivo = new DetallePasivo();
 
-                    } else {
-                        errorCarga.add(errorCargaBuilder.builderError(linea, row.getCell(1).getStringCellValue(), "El tipo no corresponde con Cuentas por Pagar ni con Pasivos"));
-                    }
+                    detallePasivo.setTipoAcreedor(tipoAcreedor);
+                    detallePasivo.setDomicilioAcreedor(ubicacion);
+                    detallePasivo.setValorDeuda(normalizarNumero(row.getCell(3).getStringCellValue()));
+                    detallePasivo.setPaisAcreedor(pais);
+                    detallePasivo.setNombreAcreedor(row.getCell(2).getStringCellValue());
+                    detallePasivo.setTipoIdentificacionAcreedor(tipoIdentificacion);
+                    detallePasivo.setNumeroIdentificacionAcreedor(rucOCedula);
+                    detallePasivo.setPartesRelacionadas(partesRelacionadas);
+
+                    detallePasivosList.add(detallePasivo);
 
                 } else {
-                    errorCarga.add(errorCargaBuilder.builderError(linea, row.getCell(1).getStringCellValue(), "Número de identificación incorrecto"));
+                    errorCarga.add(errorCargaBuilder.builderError(linea, row.getCell(1).getStringCellValue(), "El tipo no corresponde con Cuentas por Pagar ni con Pasivos"));
                 }
+
 
             }
 
@@ -137,30 +142,41 @@ public class ExcelCtasCobrarServiceImpl {
     }
 
 
-    public Boolean esNumeroValido(String numeroIdentificacion) {
+    public void validarIdentifiacion(String numeroIdentificacion,
+                                     String tipoIdentificacion, int linea, Row row, List<ErrorCargaDto> errorCarga) {
 
-        if (numeroIdentificacion == null) {
-            return false;
+        try {
+
+            if (tipoIdentificacion.equals("C")) {
+                validarIdentificacion.validarCedula(numeroIdentificacion.trim());
+            } else {
+                validarIdentificacion.validarRuc(numeroIdentificacion.trim());
+            }
+        } catch (Exception exception) {
+            errorCarga.add(errorCargaBuilder.builderError(linea, row.getCell(1).getStringCellValue(), "Número de identificación incorrecto: " + exception.getMessage()));
         }
 
-        numeroIdentificacion = numeroIdentificacion.trim();
 
-        return numeroIdentificacion.matches("\\d+")
-                && (numeroIdentificacion.length() == 10
-                || numeroIdentificacion.length() == 13);
     }
 
     public String obtenerTipoIdentificacion(String numeroIdentificacion) {
-        if (numeroIdentificacion != null
-                && numeroIdentificacion.matches("\\d+")) {
-            if (numeroIdentificacion.length() == 13) {
-                return "R";
-            }
-            if (numeroIdentificacion.length() == 10) {
-                return "C";
-            }
+
+        if (numeroIdentificacion.trim().length() == 13) {
+            return "R";
+        }
+        if (numeroIdentificacion.trim().length() == 10) {
+            return "C";
         }
         return "";
+
+    }
+
+    public static String normalizarNumero(String valor) {
+        if (valor == null) return null;
+
+        return valor
+                .replace(".", "")   // quita miles
+                .replace(",", "."); // cambia decimal
     }
 
 }

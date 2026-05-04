@@ -18,6 +18,7 @@ import org.xml.sax.InputSource;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.stream.StreamSource;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 
@@ -119,6 +120,19 @@ public class XmlUtils {
         }
     }
 
+    public static <T> T readMultipartFileXml(MultipartFile file, Class<T> clazz) {
+        try (InputStream is = file.getInputStream()) {
+
+            JAXBContext context = JAXBContext.newInstance(clazz);
+            Unmarshaller unmarshaller = context.createUnmarshaller();
+
+            return (T) unmarshaller.unmarshal(is);
+
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+            throw new GeneralException("No se pudo leer el XML");
+        }
+    }
 
 
 }
