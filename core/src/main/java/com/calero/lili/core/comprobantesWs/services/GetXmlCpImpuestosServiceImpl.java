@@ -298,6 +298,11 @@ public class GetXmlCpImpuestosServiceImpl {
     }
 
     private void validarFactura(CpImpuestosFacturasOneProjection entidad) {
+
+        if (Objects.isNull(entidad.getNumeroAutorizacion()) || entidad.getNumeroAutorizacion().isEmpty()) {
+            throw new GeneralException(MessageFormat.format("El documento con id {0} no tiene un número de autorización válido", entidad.getNumeroAutorizacion()));
+        }
+
         if (!entidad.getNumeroAutorizacion().startsWith("01", 8)) {
             throw new GeneralException(MessageFormat.format("El documento con id {0} no corresponde a una factura", entidad.getIdImpuestos()));
         }
@@ -305,6 +310,11 @@ public class GetXmlCpImpuestosServiceImpl {
     }
 
     private void validarNotaCredito(CpImpuestosFacturasOneProjection entidad) {
+
+        if (Objects.isNull(entidad.getNumeroAutorizacion()) || entidad.getNumeroAutorizacion().isEmpty()) {
+            throw new GeneralException(MessageFormat.format("El documento con id {0} no tiene un número de autorización válido", entidad.getNumeroAutorizacion()));
+        }
+
         if (!entidad.getNumeroAutorizacion().startsWith("04", 8)) {
             throw new GeneralException(MessageFormat.format("El documento con id {0} no corresponde a una nota de credito", entidad.getIdImpuestos()));
         }
@@ -312,6 +322,11 @@ public class GetXmlCpImpuestosServiceImpl {
     }
 
     private void validarNotaDebito(CpImpuestosFacturasOneProjection entidad) {
+
+        if (Objects.isNull(entidad.getNumeroAutorizacion()) || entidad.getNumeroAutorizacion().isEmpty()) {
+            throw new GeneralException(MessageFormat.format("El documento con id {0} no tiene un número de autorización válido", entidad.getNumeroAutorizacion()));
+        }
+
         if (!entidad.getNumeroAutorizacion().startsWith("05", 8)) {
             throw new GeneralException(MessageFormat.format("El documento con id {0} no corresponde a una nota de debito", entidad.getIdImpuestos()));
         }

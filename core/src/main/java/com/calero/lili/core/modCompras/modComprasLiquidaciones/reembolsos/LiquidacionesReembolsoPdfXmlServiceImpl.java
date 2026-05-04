@@ -102,6 +102,10 @@ public class LiquidacionesReembolsoPdfXmlServiceImpl {
 
 
     private void validarFactura(CpLiquidacionReembolsoOneProjection entidad) {
+        if (Objects.isNull(entidad.getNumeroAutorizacion()) || entidad.getNumeroAutorizacion().isEmpty()) {
+            throw new GeneralException(MessageFormat.format("El documento con id {0} no tiene un número de autorización válido", entidad.getNumeroAutorizacion()));
+        }
+
         if (!entidad.getNumeroAutorizacion().startsWith("01", 8)) {
             throw new GeneralException(MessageFormat.format("El documento con id {0} no corresponde a una factura", entidad.getIdLiquidacionReembolso()));
         }
