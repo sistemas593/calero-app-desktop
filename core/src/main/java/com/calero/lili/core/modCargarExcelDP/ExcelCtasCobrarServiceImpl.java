@@ -197,13 +197,16 @@ public class ExcelCtasCobrarServiceImpl {
 
     private BigDecimal convetirValor(String valor) {
         valor = valor.trim();
-
-        // quitar separador de miles
-        valor = valor.replace(".", "");
-
-        // convertir coma decimal a punto
-        valor = valor.replace(",", ".");
-
+        if (valor.contains(",") && valor.contains(".")) {
+            if (valor.lastIndexOf(",") > valor.lastIndexOf(".")) {
+                valor = valor.replace(".", "").replace(",", ".");
+            } else {
+                valor = valor.replace(",", "");
+            }
+        } else if (valor.contains(",")) {
+            valor = valor.replace(",", ".");
+        }
         return new BigDecimal(valor);
     }
+
 }
