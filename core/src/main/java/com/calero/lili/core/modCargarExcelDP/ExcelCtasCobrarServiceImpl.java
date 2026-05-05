@@ -10,6 +10,7 @@ import com.calero.lili.core.errors.exceptions.ListErrorException;
 import com.calero.lili.core.modCargarExcelDP.builder.ErrorCargaBuilder;
 import com.calero.lili.core.modCargarExcelDP.dto.ErrorCargaDto;
 import com.calero.lili.core.utils.validaciones.ValidarIdentificacion;
+import com.calero.lili.core.utils.validaciones.ValidarValoresComprobantesPdf;
 import com.monitorjbl.xlsx.StreamingReader;
 import lombok.AllArgsConstructor;
 import org.apache.poi.ss.usermodel.Row;
@@ -20,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -30,6 +32,7 @@ public class ExcelCtasCobrarServiceImpl {
 
     private final ErrorCargaBuilder errorCargaBuilder;
     private final ValidarIdentificacion validarIdentificacion;
+    private final ValidarValoresComprobantesPdf validarValoresComprobantesPdf;
 
 
     private static final String tipoDeudor = "1";
@@ -40,6 +43,10 @@ public class ExcelCtasCobrarServiceImpl {
 
 
     public byte[] cargarDecPat(MultipartFile file) throws IOException {
+
+        if (Objects.isNull(file)) {
+            throw new ListErrorException(List.of("Archivo no encontrado o no seleccionado"));
+        }
 
         InputStream is = file.getInputStream();
         Workbook workbook = StreamingReader.builder()
@@ -80,6 +87,13 @@ public class ExcelCtasCobrarServiceImpl {
 
                 validarIdentifiacion(rucOCedula, tipoIdentificacion, linea, row, errorCarga);
 
+                if (Objects.isNull(row.getCell(3))) {
+                    errorCarga.add(errorCargaBuilder.builderError(linea, row.getCell(1).getStringCellValue(), "Valor de la deuda vacío"));
+                    continue;
+                }
+
+                BigDecimal valorDeuda = convetirValor(row.getCell(3).getStringCellValue());
+
                 if (row.getCell(0).getStringCellValue().equals("CXC")) {
 
                     // CXC CUENTAS POR PAGAR
@@ -91,7 +105,7 @@ public class ExcelCtasCobrarServiceImpl {
                     detalleCtsXCobrar.setUbicacion(ubicacion);
                     detalleCtsXCobrar.setPais(pais);
                     detalleCtsXCobrar.setPartesRelacionadas(partesRelacionadas);
-                    detalleCtsXCobrar.setSaldo(normalizarNumero(row.getCell(3).getStringCellValue()));
+                    detalleCtsXCobrar.setSaldo(validarValoresComprobantesPdf.getValor(valorDeuda));
 
                     detalleCtasXCobrarList.add(detalleCtsXCobrar);
 
@@ -101,7 +115,7 @@ public class ExcelCtasCobrarServiceImpl {
 
                     detallePasivo.setTipoAcreedor(tipoAcreedor);
                     detallePasivo.setDomicilioAcreedor(ubicacion);
-                    detallePasivo.setValorDeuda(normalizarNumero(row.getCell(3).getStringCellValue()));
+                    detallePasivo.setValorDeuda(validarValoresComprobantesPdf.getValor(valorDeuda));
                     detallePasivo.setPaisAcreedor(pais);
                     detallePasivo.setNombreAcreedor(row.getCell(2).getStringCellValue());
                     detallePasivo.setTipoIdentificacionAcreedor(tipoIdentificacion);
@@ -142,6 +156,8 @@ public class ExcelCtasCobrarServiceImpl {
     }
 
 
+
+
     public void validarIdentifiacion(String numeroIdentificacion,
                                      String tipoIdentificacion, int linea, Row row, List<ErrorCargaDto> errorCarga) {
 
@@ -171,12 +187,15 @@ public class ExcelCtasCobrarServiceImpl {
 
     }
 
-    public static String normalizarNumero(String valor) {
-        if (valor == null) return null;
+    private BigDecimal convetirValor(String valor) {
+        valor = valor.trim();
 
-        return valor
-                .replace(".", "")   // quita miles
-                .replace(",", "."); // cambia decimal
+        // quitar separador de miles
+        valor = valor.replace(".", "");
+
+        // convertir coma decimal a punto
+        valor = valor.replace(",", ".");
+
+        return new BigDecimal(valor);
     }
-
 }
