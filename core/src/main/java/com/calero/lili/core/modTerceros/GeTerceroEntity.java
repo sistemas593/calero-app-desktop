@@ -3,11 +3,17 @@ package com.calero.lili.core.modTerceros;
 import com.calero.lili.core.Auditable;
 import com.calero.lili.core.modClientesConfiguraciones.VtClientesConfiguracionesEntity;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.CpLiquidacionesEntity;
+import com.calero.lili.core.modLocalidades.modCantones.CantonEntity;
+import com.calero.lili.core.modLocalidades.modParroquias.ParroquiaEntity;
+import com.calero.lili.core.modLocalidades.modProvincias.ProvinciaEntity;
 import com.calero.lili.core.modVentas.VtVentaEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotEmpty;
@@ -99,4 +105,18 @@ public class GeTerceroEntity extends Auditable implements Serializable {
 
 
     private String placa;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "codigo_provincia")
+    private ProvinciaEntity provincia;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "codigo_canton")
+    private CantonEntity canton;
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "codigo_parroquia")
+    private ParroquiaEntity parroquia;
+
 }

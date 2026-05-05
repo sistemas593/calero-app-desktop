@@ -1,7 +1,7 @@
-package com.calero.lili.core.modLocalidades.modCantones;
+package com.calero.lili.core.modLocalidades.modParroquias;
 
 import com.calero.lili.core.Auditable;
-import com.calero.lili.core.modLocalidades.modProvincias.ProvinciaEntity;
+import com.calero.lili.core.modLocalidades.modCantones.CantonEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -21,22 +21,19 @@ import org.hibernate.annotations.Where;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "tb_cantones")
+@Table(name = "tb_parroquias")
 @Where(clause = "deleted = false")
-public class CantonEntity extends Auditable {
-
+public class ParroquiaEntity extends Auditable {
 
     @Id
-    @Column(unique = true, updatable = false, nullable = false, name = "codigo_canton")
-    private String codigoCanton;
+    @Column(unique = true, updatable = false, nullable = false, name = "codigo_parroquia")
+    private String codigoParroquia;
 
-    @Column(name = "canton")
-    private String canton;
+    @Column(name = "parroquia")
+    private String parroquia;
 
     @ManyToOne()
-    @JoinColumn(name = "codigo_provincia", referencedColumnName = "codigo_provincia")
-    private ProvinciaEntity provincia;
-
-    // lista parroquias
+    @JoinColumn(name = "codigo_canton", referencedColumnName = "codigo_canton")
+    private CantonEntity canton;
 
 }

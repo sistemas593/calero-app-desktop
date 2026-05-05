@@ -1,5 +1,11 @@
 package com.calero.lili.core.modCargarExcel.services;
 
+import com.calero.lili.core.builder.DetalleErrorBuilder;
+import com.calero.lili.core.dtos.errors.DetalleError;
+import com.calero.lili.core.dtos.errors.EnumError;
+import com.calero.lili.core.enums.TipoIdentificacion;
+import com.calero.lili.core.enums.TipoTercero;
+import com.calero.lili.core.errors.exceptions.ListErrorException;
 import com.calero.lili.core.modLocalidades.modCantones.CantonEntity;
 import com.calero.lili.core.modLocalidades.modCantones.CantonRepository;
 import com.calero.lili.core.modLocalidades.modProvincias.ProvinciaEntity;
@@ -12,12 +18,6 @@ import com.calero.lili.core.modTerceros.GeTercerosTipoEntity;
 import com.calero.lili.core.modTerceros.GeTercerosTipoRepository;
 import com.calero.lili.core.tablas.tbPaises.TbPaisEntity;
 import com.calero.lili.core.tablas.tbPaises.TbPaisesRepository;
-import com.calero.lili.core.builder.DetalleErrorBuilder;
-import com.calero.lili.core.dtos.errors.DetalleError;
-import com.calero.lili.core.dtos.errors.EnumError;
-import com.calero.lili.core.enums.TipoIdentificacion;
-import com.calero.lili.core.enums.TipoTercero;
-import com.calero.lili.core.errors.exceptions.ListErrorException;
 import com.calero.lili.core.utils.DateUtils;
 import com.monitorjbl.xlsx.StreamingReader;
 import lombok.RequiredArgsConstructor;
@@ -286,9 +286,9 @@ public class ExcelCargarTrabajadoresServiceImpl {
     private void validarCanton(Row row, List<DetalleError> detalleErrores, TrabajadorEntity item, int linea) {
 
         if (Objects.nonNull(row.getCell(18))) {
-            CantonEntity canton = cantonRepository.getForFindById(row.getCell(18).getStringCellValue());
-            if (Objects.nonNull(canton)) {
-                item.setCanton(canton);
+            Optional<CantonEntity> canton = cantonRepository.getForFindById(row.getCell(18).getStringCellValue());
+            if (canton.isPresent()) {
+                item.setCanton(canton.get());
             } else {
                 detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.TRABAJADOR_CANTON_NOT_FOUND));
             }

@@ -15,17 +15,16 @@ import java.util.UUID;
 public interface ProvinciaRepository extends JpaRepository<ProvinciaEntity, UUID> {
 
 
-    @Query("SELECT c FROM ProvinciaEntity c")
-    List<ProvinciaEntity> getFindAll();
+    @Query("SELECT c FROM ProvinciaEntity c WHERE (:filterContent IS NULL OR LOWER(c.provincia) LIKE LOWER(CONCAT('%', :filterContent, '%')))")
+    List<ProvinciaEntity> getFindAll(@Param("filterContent") String filterContent);
 
     @Query("SELECT c FROM ProvinciaEntity c WHERE c.codigoProvincia = :idProvincia")
     ProvinciaEntity getForFindById(@Param("idProvincia") String idProvincia);
 
 
-    @Query(
+   /* @Query(
             value = "SELECT c FROM ProvinciaEntity c WHERE (:filterContent IS NULL OR LOWER(c.provincia) LIKE LOWER(CONCAT('%', :filterContent, '%')))",
-            countQuery = "SELECT COUNT(c) FROM ProvinciaEntity c WHERE (:filterContent IS NULL OR LOWER(c.provincia) LIKE LOWER(CONCAT('%', :filterContent, '%')))"
-    )
-    Page<ProvinciaEntity> findAllPaginate(@Param("filterContent") String filterContent, Pageable pageable);
+            countQuery = "SELECT COUNT(c) FROM ProvinciaEntity c WHERE (:filterContent IS NULL OR LOWER(c.provincia) LIKE LOWER(CONCAT('%', :filterContent, '%')))")
+    Page<ProvinciaEntity> findAllPaginate(@Param("filterContent") String filterContent, Pageable pageable);*/
 
 }

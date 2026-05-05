@@ -12,5 +12,6 @@ import lombok.NoArgsConstructor;
 public class CantonListFiltersDto {
 
     private String filter;
-    private String unidadMedida;
+
+    private String codigoProvincia;
 }

@@ -1,9 +1,9 @@
 package com.calero.lili.api.controllers;
 
-import com.calero.lili.core.modLocalidades.modCantones.CantonServiceImpl;
-import com.calero.lili.core.modLocalidades.modCantones.dto.CantonListFiltersDto;
-import com.calero.lili.core.modLocalidades.modCantones.dto.RequestCantonDto;
-import com.calero.lili.core.modLocalidades.modCantones.dto.ResponseCantonDto;
+import com.calero.lili.core.modLocalidades.modParroquias.ParroquiaService;
+import com.calero.lili.core.modLocalidades.modParroquias.dto.FilterRequestDto;
+import com.calero.lili.core.modLocalidades.modParroquias.dto.ParroquiaRequestDto;
+import com.calero.lili.core.modLocalidades.modParroquias.dto.ParroquiaResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.http.HttpStatus;
@@ -22,44 +22,43 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1.0/cantones")
+@RequestMapping("api/v1.0/parroquias")
 @CrossOrigin(originPatterns = "*")
-public class CantonController {
+public class ParroquiaController {
 
-    private final CantonServiceImpl cantonService;
+    private final ParroquiaService parroquiaService;
     private final AuditorAware<String> auditorAware;
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseCantonDto create(
-            @RequestBody RequestCantonDto request) {
-        return cantonService.create(request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+    public ParroquiaResponseDto create(
+            @RequestBody ParroquiaRequestDto request) {
+        return parroquiaService.create(request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseCantonDto update(
+    public ParroquiaResponseDto update(
             @PathVariable("id") String id,
-            @RequestBody RequestCantonDto request) {
-        return cantonService.update(id, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+            @RequestBody ParroquiaRequestDto request) {
+        return parroquiaService.update(id, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("id") String id) {
-        cantonService.delete(id, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        parroquiaService.delete(id, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @GetMapping("{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseCantonDto findById(@PathVariable("id") String id) {
-        return cantonService.findFirstById(id);
+    public ParroquiaResponseDto findById(@PathVariable("id") String id) {
+        return parroquiaService.findById(id);
     }
 
     @GetMapping("")
-    @ResponseStatus(code = HttpStatus.OK)
-    public List<ResponseCantonDto> findAllPaginate(CantonListFiltersDto filters) {
-        return cantonService.findAll(filters);
+    @ResponseStatus(HttpStatus.OK)
+    public List<ParroquiaResponseDto> findAll(FilterRequestDto filterRequest) {
+        return parroquiaService.findAll(filterRequest);
     }
-
 }

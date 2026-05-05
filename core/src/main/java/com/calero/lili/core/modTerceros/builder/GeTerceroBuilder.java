@@ -2,6 +2,9 @@ package com.calero.lili.core.modTerceros.builder;
 
 import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.enums.TipoTercero;
+import com.calero.lili.core.modLocalidades.modCantones.CantonEntity;
+import com.calero.lili.core.modLocalidades.modParroquias.ParroquiaEntity;
+import com.calero.lili.core.modLocalidades.modProvincias.ProvinciaEntity;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosTipoEntity;
 import com.calero.lili.core.modTerceros.dto.GeTerceroGetListDto;
@@ -39,8 +42,12 @@ public class GeTerceroBuilder {
                 .contacto(model.getContacto())
                 .email(model.getEmail())
                 .placa(model.getTransportista().getPlaca())
+                .provincia(Objects.nonNull(model.getCodigoProvincia()) ? builderProvincia(model.getCodigoProvincia()) : null)
+                .canton(Objects.nonNull(model.getCodigoCanton()) ? builderCanton(model.getCodigoCanton()) : null)
+                .parroquia(Objects.nonNull(model.getCodigoParroquia()) ? builderParroquia(model.getCodigoParroquia()) : null)
                 .build();
     }
+
 
 
     public GeTerceroEntity builderUpdateEntity(GeTerceroRequestDto model, GeTerceroEntity item) {
@@ -61,6 +68,9 @@ public class GeTerceroBuilder {
                 .contacto(model.getContacto())
                 .email(model.getEmail())
                 .placa(model.getTransportista().getPlaca())
+                .provincia(Objects.nonNull(model.getCodigoProvincia()) ? builderProvincia(model.getCodigoProvincia()) : item.getProvincia())
+                .canton(Objects.nonNull(model.getCodigoCanton()) ? builderCanton(model.getCodigoCanton()) : item.getCanton())
+                .parroquia(Objects.nonNull(model.getCodigoParroquia()) ? builderParroquia(model.getCodigoParroquia()) : item.getParroquia())
                 .build();
     }
 
@@ -115,5 +125,22 @@ public class GeTerceroBuilder {
                 .build();
     }
 
+    private ParroquiaEntity builderParroquia(String codigoParroquia) {
+        return ParroquiaEntity.builder()
+                .codigoParroquia(codigoParroquia)
+                .build();
+    }
+
+    private CantonEntity builderCanton(String codigoCanton) {
+        return CantonEntity.builder()
+                .codigoCanton(codigoCanton)
+                .build();
+    }
+
+    private ProvinciaEntity builderProvincia(String codigoProvincia) {
+        return ProvinciaEntity.builder()
+                .codigoProvincia(codigoProvincia)
+                .build();
+    }
 
 }

@@ -1,5 +1,6 @@
 package com.calero.lili.core.modCompras.service;
 
+import com.calero.lili.core.comprobantes.builder.documentos.FormatoValores;
 import com.calero.lili.core.dtos.FormasPagoSri;
 import com.calero.lili.core.enums.CodigoDocumento;
 import com.calero.lili.core.errors.exceptions.GeneralException;
@@ -56,6 +57,7 @@ public class AtsService {
     private final CpImpuestosRepository cpImpuestosRepository;
     private final AtsBuilder atsBuilder;
     private final AdEmpresasRepository adEmpresasRepository;
+    private final FormatoValores formatoValores;
 
 
     public void generateDocumentoAtsXml(Long idData, Long idEmpresa, FilterDto model, HttpServletResponse response) {
@@ -101,13 +103,15 @@ public class AtsService {
 
     private void validarSeccionPago(DetalleCompras detalleCompra, List<FormasPagoSri> list) {
 
+        BigDecimal baseImponible = new BigDecimal(detalleCompra.getBaseImponible());
+        BigDecimal baseNoGraIva = new BigDecimal(detalleCompra.getBaseNoGraIva());
+        BigDecimal baseImpGrav = new BigDecimal(detalleCompra.getBaseImpGrav());
+        BigDecimal baseImpExe = new BigDecimal(detalleCompra.getBaseImpExe());
+        BigDecimal montoIva = new BigDecimal(detalleCompra.getMontoIva());
+        BigDecimal montoIce = new BigDecimal(detalleCompra.getMontoIce());
+
         BigDecimal valorPago = (new BigDecimal("500"));
-        BigDecimal total = detalleCompra.getBaseNoGraIva()
-                .add(detalleCompra.getBaseImponible())
-                .add(detalleCompra.getBaseImpGrav())
-                .add(detalleCompra.getBaseImpExe())
-                .add(detalleCompra.getMontoIva())
-                .add(detalleCompra.getMontoIce());
+        BigDecimal total = baseImponible.add(baseNoGraIva).add(baseImpGrav).add(baseImpExe).add(montoIva).add(montoIce);
 
         if (total.compareTo(valorPago) > 0) {
             detalleCompra.setFormasDePago(atsBuilder.builderFormaDePago(list));
@@ -125,20 +129,20 @@ public class AtsService {
                 if (impuesto.getRetencion().getCodigo().equals("2")
                         && impuesto.getCodigoRetencion().equals("9")) {
 
-                    detalleCompra.setValRetBien10(impuesto.getValorRetenido());
+                    detalleCompra.setValRetBien10(formatoValores.convertirBigDecimalToString(impuesto.getValorRetenido()));
 
                 }
 
                 if (impuesto.getRetencion().getCodigo().equals("2")
                         && impuesto.getCodigoRetencion().equals("10")) {
-                    detalleCompra.setValRetServ20(impuesto.getValorRetenido());
+                    detalleCompra.setValRetServ20(formatoValores.convertirBigDecimalToString(impuesto.getValorRetenido()));
                 }
 
 
                 if (impuesto.getRetencion().getCodigo().equals("2")
                         && impuesto.getCodigoRetencion().equals("1")) {
 
-                    detalleCompra.setValorRetBienes(impuesto.getValorRetenido());
+                    detalleCompra.setValorRetBienes(formatoValores.convertirBigDecimalToStringPDF(impuesto.getValorRetenido()));
 
                 }
 
@@ -146,21 +150,21 @@ public class AtsService {
                 if (impuesto.getRetencion().getCodigo().equals("2")
                         && impuesto.getCodigoRetencion().equals("11")) {
 
-                    detalleCompra.setValRetServ50(impuesto.getValorRetenido());
+                    detalleCompra.setValRetServ50(formatoValores.convertirBigDecimalToString(impuesto.getValorRetenido()));
 
                 }
 
                 if (impuesto.getRetencion().getCodigo().equals("2")
                         && impuesto.getCodigoRetencion().equals("2")) {
 
-                    detalleCompra.setValorRetServicios(impuesto.getValorRetenido());
+                    detalleCompra.setValorRetServicios(formatoValores.convertirBigDecimalToString(impuesto.getValorRetenido()));
 
                 }
 
                 if (impuesto.getRetencion().getCodigo().equals("2")
                         && impuesto.getCodigoRetencion().equals("3")) {
 
-                    detalleCompra.setValRetServ100(impuesto.getValorRetenido());
+                    detalleCompra.setValRetServ100(formatoValores.convertirBigDecimalToString(impuesto.getValorRetenido()));
 
                 }
             }

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -61,31 +62,16 @@ public class ProvinciaServiceImpl {
         return provinciaBuilder.builderResponse(provinciaEntity);
     }
 
-    public PaginatedDto<ResponseProvinciaDto> findAllPaginate(ProvinceListFiltersDto filters, Pageable pageable) {
+    public List<ResponseProvinciaDto> findAll(ProvinceListFiltersDto filter) {
 
-        Page<ProvinciaEntity> page = provinciaRepository.findAllPaginate(Objects.nonNull(filters.getFilter())
-                ? filters.getFilter() : "", pageable);
+        String filterContent = (filter.getFilter() == null || filter.getFilter().trim().isEmpty())
+                ? ""
+                : filter.getFilter().trim();
 
-        PaginatedDto paginatedDto = new PaginatedDto<ResponseProvinciaDto>();
-        paginatedDto.setContent(page.getContent()
-                .stream()
+        List<ProvinciaEntity> provinciaEntities = provinciaRepository.getFindAll(filterContent);
+        return provinciaEntities.stream()
                 .map(provinciaBuilder::builderResponse)
-                .collect(Collectors.toList()));
-
-        Paginator paginated = new Paginator();
-        paginated.setTotalElements(page.getTotalElements());
-        paginated.setTotalPages(page.getTotalPages());
-        paginated.setNumberOfElements(page.getNumberOfElements());
-        paginated.setSize(page.getSize());
-        paginated.setFirst(page.isFirst());
-        paginated.setLast(page.isLast());
-        paginated.setPageNumber(page.getPageable().getPageNumber());
-        paginated.setPageSize(page.getPageable().getPageSize());
-        paginated.setEmpty(page.isEmpty());
-        paginated.setNumber(page.getNumber());
-        paginatedDto.setPaginator(paginated);
-        return paginatedDto;
+                .collect(Collectors.toList());
     }
-
 
 }

@@ -32,11 +32,15 @@ public class GeTerceroRequestDto {
     private String tipoClienteProveedor;
     private String relacionado;
 
-    public String ciudad;
-    public String direccion;
-    public String telefonos;
-    public String contacto;
-    public String email;
+    private String ciudad;
+    private String direccion;
+    private String telefonos;
+    private String contacto;
+    private String email;
+
+    private String codigoProvincia;
+    private String codigoCanton;
+    private String codigoParroquia;
 
 
     @NotNull(message = "Es requerido la información del cliente")

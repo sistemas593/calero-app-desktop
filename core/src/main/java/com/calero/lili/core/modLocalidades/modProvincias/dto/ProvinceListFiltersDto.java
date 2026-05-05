@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 public class ProvinceListFiltersDto {
 
     private String filter;
-    private String unidadMedida;
+
 }

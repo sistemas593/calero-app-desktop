@@ -1,20 +1,17 @@
 package com.calero.lili.core.modLocalidades.modCantones;
 
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modLocalidades.modCantones.builder.CantonBuilder;
+import com.calero.lili.core.modLocalidades.modCantones.dto.CantonListFiltersDto;
 import com.calero.lili.core.modLocalidades.modCantones.dto.RequestCantonDto;
 import com.calero.lili.core.modLocalidades.modCantones.dto.ResponseCantonDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +28,10 @@ public class CantonServiceImpl {
     }
 
     public ResponseCantonDto update(String idProvincia, RequestCantonDto request, String usuario) {
-        CantonEntity cantonEntity = cantonRepository.getForFindById(idProvincia);
+        CantonEntity cantonEntity = cantonRepository.getForFindById(idProvincia)
+                .orElseThrow(() -> new GeneralException("No se encontró el cantón con el código: " + idProvincia));
+
+
         if (Objects.isNull(cantonEntity)) {
             throw new GeneralException(MessageFormat.format("Id {0} no existe", idProvincia));
         }
@@ -42,7 +42,9 @@ public class CantonServiceImpl {
     }
 
     public void delete(String idProvincia, String usuario) {
-        CantonEntity cantonEntity = cantonRepository.getForFindById(idProvincia);
+        CantonEntity cantonEntity = cantonRepository.getForFindById(idProvincia)
+                .orElseThrow(() -> new GeneralException("No se encontró el cantón con el código: " + idProvincia));
+
         if (Objects.isNull(cantonEntity)) {
             throw new GeneralException(MessageFormat.format("Id {0} no existe", idProvincia));
         }
@@ -53,36 +55,28 @@ public class CantonServiceImpl {
     }
 
     public ResponseCantonDto findFirstById(String idProvincia) {
-        CantonEntity cantonEntity = cantonRepository.getForFindById(idProvincia);
+        CantonEntity cantonEntity = cantonRepository.getForFindById(idProvincia)
+                .orElseThrow(() -> new GeneralException("No se encontró el cantón con el código: " + idProvincia));
+
         if (Objects.isNull(cantonEntity)) {
             throw new GeneralException(MessageFormat.format("Id {0} no existe", idProvincia));
         }
         return cantonBuilder.builderResponse(cantonEntity);
     }
 
-    public PaginatedDto<ResponseCantonDto> findAllPaginate(String codProvincia, Pageable pageable) {
+    public List<ResponseCantonDto> findAll(CantonListFiltersDto filter) {
 
-        Page<CantonEntity> page = cantonRepository.findAllPaginate(codProvincia, pageable);
+        String codigoProvincia = filter.getCodigoProvincia();
 
-        PaginatedDto paginatedDto = new PaginatedDto<ResponseCantonDto>();
-        paginatedDto.setContent(page.getContent()
+        String filterContent = (filter.getFilter() == null || filter.getFilter().trim().isEmpty())
+                ? ""
+                : filter.getFilter().trim();
+
+        return cantonRepository.getFindAll(codigoProvincia, filterContent)
                 .stream()
                 .map(cantonBuilder::builderResponse)
-                .collect(Collectors.toList()));
+                .toList();
 
-        Paginator paginated = new Paginator();
-        paginated.setTotalElements(page.getTotalElements());
-        paginated.setTotalPages(page.getTotalPages());
-        paginated.setNumberOfElements(page.getNumberOfElements());
-        paginated.setSize(page.getSize());
-        paginated.setFirst(page.isFirst());
-        paginated.setLast(page.isLast());
-        paginated.setPageNumber(page.getPageable().getPageNumber());
-        paginated.setPageSize(page.getPageable().getPageSize());
-        paginated.setEmpty(page.isEmpty());
-        paginated.setNumber(page.getNumber());
-        paginatedDto.setPaginator(paginated);
-        return paginatedDto;
     }
 
 

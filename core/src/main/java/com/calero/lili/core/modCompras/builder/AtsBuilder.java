@@ -1,5 +1,6 @@
 package com.calero.lili.core.modCompras.builder;
 
+import com.calero.lili.core.comprobantes.builder.documentos.FormatoValores;
 import com.calero.lili.core.dtos.FormasPagoSri;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
@@ -14,14 +15,17 @@ import com.calero.lili.core.modImpuestosAnexos.ats.Iva;
 import com.calero.lili.core.modImpuestosAnexos.ats.Pago;
 import com.calero.lili.core.modImpuestosAnexos.ats.PagoExterior;
 import com.calero.lili.core.utils.DateUtils;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 @Component
+@AllArgsConstructor
 public class AtsBuilder {
 
+    private final FormatoValores formatoValores;
 
     public Iva builderAtsWithRetencion(List<DetalleCompras> detalleCompras, AdEmpresaEntity model, String periodo) {
 
@@ -51,20 +55,20 @@ public class AtsBuilder {
                 .secuencial(model.getSecuencial())
                 .fechaEmision(DateUtils.toString(model.getFechaEmision()))
                 .autorizacion(model.getNumeroAutorizacion())
-                .baseNoGraIva(BigDecimal.ZERO)
-                .baseImponible(BigDecimal.ZERO)
-                .baseImpGrav(BigDecimal.ZERO)
-                .baseImpExe(BigDecimal.ZERO)
-                .montoIva(BigDecimal.ZERO)
+                .baseNoGraIva(formatoValores.convertirBigDecimalToString(BigDecimal.ZERO))
+                .baseImponible(formatoValores.convertirBigDecimalToString(BigDecimal.ZERO))
+                .baseImpGrav(formatoValores.convertirBigDecimalToString(BigDecimal.ZERO))
+                .baseImpExe(formatoValores.convertirBigDecimalToString(BigDecimal.ZERO))
+                .montoIva(formatoValores.convertirBigDecimalToString(BigDecimal.ZERO))
                 .pagoExterior(builderPagoExterior(model.getPagoLocExt(), model.getPagoExterior()))
                 .fechaEmiRet1(DateUtils.toString(item.getFechaEmisionRetencion()))
-                .montoIce(BigDecimal.ZERO)
-                .valRetBien10(BigDecimal.ZERO)
-                .valRetServ20(BigDecimal.ZERO)
-                .valorRetBienes(BigDecimal.ZERO)
-                .valorRetServicios(BigDecimal.ZERO)
-                .valRetServ100(BigDecimal.ZERO)
-                .totbasesImpReemb(BigDecimal.ZERO)
+                .montoIce(formatoValores.convertirBigDecimalToString(BigDecimal.ZERO))
+                .valRetBien10(formatoValores.convertirBigDecimalToString(BigDecimal.ZERO))
+                .valRetServ20(formatoValores.convertirBigDecimalToString(BigDecimal.ZERO))
+                .valorRetBienes(formatoValores.convertirBigDecimalToString(BigDecimal.ZERO))
+                .valorRetServicios(formatoValores.convertirBigDecimalToString(BigDecimal.ZERO))
+                .valRetServ100(formatoValores.convertirBigDecimalToString(BigDecimal.ZERO))
+                .totbasesImpReemb(formatoValores.convertirBigDecimalToString(BigDecimal.ZERO))
                 .build();
     }
 
@@ -113,20 +117,20 @@ public class AtsBuilder {
                 .secuencial(new java.math.BigInteger(model.getSecuencial()).toString())
                 .fechaEmision(DateUtils.toString(model.getFechaEmision()))
                 .autorizacion(model.getNumeroAutorizacion())
-                .baseNoGraIva(baseNoGraIva)
-                .baseImponible(baseImponible)
-                .baseImpGrav(baseImpGrav)
-                .baseImpExe(baseImpExe)
-                .montoIva(montoIva)
+                .baseNoGraIva(formatoValores.convertirBigDecimalToString(baseNoGraIva))
+                .baseImponible(formatoValores.convertirBigDecimalToString(baseImponible))
+                .baseImpGrav(formatoValores.convertirBigDecimalToString(baseImpGrav))
+                .baseImpExe(formatoValores.convertirBigDecimalToString(baseImpExe))
+                .montoIva(formatoValores.convertirBigDecimalToString(montoIva))
                 .pagoExterior(builderPagoExterior(model.getPagoLocExt(), model.getPagoExterior()))
-                .montoIce(new BigDecimal("0.00"))
-                .valRetBien10(new BigDecimal("0.00"))
-                .valRetServ20(new BigDecimal("0.00"))
-                .valorRetBienes(new BigDecimal("0.00"))
-                .valRetServ50(new BigDecimal("0.00"))
-                .valorRetServicios(new BigDecimal("0.00"))
-                .valRetServ100(new BigDecimal("0.00"))
-                .totbasesImpReemb(new BigDecimal("0.00"))
+                .montoIce(formatoValores.convertirBigDecimalToString(new BigDecimal("0.00")))
+                .valRetBien10(formatoValores.convertirBigDecimalToString(new BigDecimal("0.00")))
+                .valRetServ20(formatoValores.convertirBigDecimalToString(new BigDecimal("0.00")))
+                .valorRetBienes(formatoValores.convertirBigDecimalToString(new BigDecimal("0.00")))
+                .valRetServ50(formatoValores.convertirBigDecimalToString(new BigDecimal("0.00")))
+                .valorRetServicios(formatoValores.convertirBigDecimalToString(new BigDecimal("0.00")))
+                .valRetServ100(formatoValores.convertirBigDecimalToString(new BigDecimal("0.00")))
+                .totbasesImpReemb(formatoValores.convertirBigDecimalToString(new BigDecimal("0.00")))
                 .formasDePago(builderFormaDePago(model.getFormasPagoSri()))
                 .build();
     }
