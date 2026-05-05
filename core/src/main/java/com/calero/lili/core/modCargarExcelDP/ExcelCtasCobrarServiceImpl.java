@@ -1,5 +1,6 @@
 package com.calero.lili.core.modCargarExcelDP;
 
+import com.calero.lili.core.comprobantes.builder.documentos.FormatoValores;
 import com.calero.lili.core.comprobantes.objetosXml.ctasXCobrar.CtasXCobrar;
 import com.calero.lili.core.comprobantes.objetosXml.ctasXCobrar.DecPat;
 import com.calero.lili.core.comprobantes.objetosXml.ctasXCobrar.DetalleCtasXCobrar;
@@ -10,7 +11,6 @@ import com.calero.lili.core.errors.exceptions.ListErrorException;
 import com.calero.lili.core.modCargarExcelDP.builder.ErrorCargaBuilder;
 import com.calero.lili.core.modCargarExcelDP.dto.ErrorCargaDto;
 import com.calero.lili.core.utils.validaciones.ValidarIdentificacion;
-import com.calero.lili.core.utils.validaciones.ValidarValoresComprobantesPdf;
 import com.monitorjbl.xlsx.StreamingReader;
 import lombok.AllArgsConstructor;
 import org.apache.poi.ss.usermodel.Row;
@@ -32,7 +32,7 @@ public class ExcelCtasCobrarServiceImpl {
 
     private final ErrorCargaBuilder errorCargaBuilder;
     private final ValidarIdentificacion validarIdentificacion;
-    private final ValidarValoresComprobantesPdf validarValoresComprobantesPdf;
+    private final FormatoValores formatoValores;
 
 
     private static final String tipoDeudor = "1";
@@ -77,7 +77,9 @@ public class ExcelCtasCobrarServiceImpl {
                     continue;
                 }
 
+
                 String rucOCedula = row.getCell(1).getStringCellValue();
+                rucOCedula = rucOCedula.trim();
                 String tipoIdentificacion = obtenerTipoIdentificacion(rucOCedula);
 
                 if (tipoIdentificacion.isEmpty()) {
@@ -94,18 +96,26 @@ public class ExcelCtasCobrarServiceImpl {
 
                 BigDecimal valorDeuda = convetirValor(row.getCell(3).getStringCellValue());
 
+                if (Objects.isNull(row.getCell(2))) {
+                    errorCarga.add(errorCargaBuilder.builderError(linea, row.getCell(1).getStringCellValue(), "El nombre del tercero está vacío"));
+                    continue;
+                }
+
+                String nombreTercero = row.getCell(2).getStringCellValue();
+                nombreTercero = nombreTercero.trim();
+
                 if (row.getCell(0).getStringCellValue().equals("CXC")) {
 
                     // CXC CUENTAS POR PAGAR
                     DetalleCtasXCobrar detalleCtsXCobrar = new DetalleCtasXCobrar();
-                    detalleCtsXCobrar.setNombreDeudor(row.getCell(2).getStringCellValue());
+                    detalleCtsXCobrar.setNombreDeudor(nombreTercero);
                     detalleCtsXCobrar.setTipoDeudor(tipoDeudor);
                     detalleCtsXCobrar.setTipoIdentificacion(tipoIdentificacion);
                     detalleCtsXCobrar.setNumeroIdentificacion(rucOCedula);
                     detalleCtsXCobrar.setUbicacion(ubicacion);
                     detalleCtsXCobrar.setPais(pais);
                     detalleCtsXCobrar.setPartesRelacionadas(partesRelacionadas);
-                    detalleCtsXCobrar.setSaldo(validarValoresComprobantesPdf.getValor(valorDeuda));
+                    detalleCtsXCobrar.setSaldo(formatoValores.convertirBigDecimalToString(valorDeuda));
 
                     detalleCtasXCobrarList.add(detalleCtsXCobrar);
 
@@ -115,9 +125,9 @@ public class ExcelCtasCobrarServiceImpl {
 
                     detallePasivo.setTipoAcreedor(tipoAcreedor);
                     detallePasivo.setDomicilioAcreedor(ubicacion);
-                    detallePasivo.setValorDeuda(validarValoresComprobantesPdf.getValor(valorDeuda));
+                    detallePasivo.setValorDeuda(formatoValores.convertirBigDecimalToString(valorDeuda));
                     detallePasivo.setPaisAcreedor(pais);
-                    detallePasivo.setNombreAcreedor(row.getCell(2).getStringCellValue());
+                    detallePasivo.setNombreAcreedor(nombreTercero);
                     detallePasivo.setTipoIdentificacionAcreedor(tipoIdentificacion);
                     detallePasivo.setNumeroIdentificacionAcreedor(rucOCedula);
                     detallePasivo.setPartesRelacionadas(partesRelacionadas);
@@ -156,8 +166,6 @@ public class ExcelCtasCobrarServiceImpl {
     }
 
 
-
-
     public void validarIdentifiacion(String numeroIdentificacion,
                                      String tipoIdentificacion, int linea, Row row, List<ErrorCargaDto> errorCarga) {
 
@@ -177,10 +185,10 @@ public class ExcelCtasCobrarServiceImpl {
 
     public String obtenerTipoIdentificacion(String numeroIdentificacion) {
 
-        if (numeroIdentificacion.trim().length() == 13) {
+        if (numeroIdentificacion.length() == 13) {
             return "R";
         }
-        if (numeroIdentificacion.trim().length() == 10) {
+        if (numeroIdentificacion.length() == 10) {
             return "C";
         }
         return "";
