@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.Normalizer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -56,6 +57,9 @@ public class ExcelCtasCobrarServiceImpl {
                 .open(is);
 
 
+        List<String> listaDeRucCedulaCxC = new ArrayList<>();
+        List<String> listaDeRucCedulaCxP = new ArrayList<>();
+
         List<DetalleCtasXCobrar> detalleCtasXCobrarList = new ArrayList<>();
         List<DetallePasivo> detallePasivosList = new ArrayList<>();
         List<ErrorCargaDto> errorCarga = new ArrayList<>();
@@ -82,6 +86,7 @@ public class ExcelCtasCobrarServiceImpl {
                 String rucOCedula = row.getCell(1).getStringCellValue();
                 rucOCedula = rucOCedula.trim();
                 String tipoIdentificacion = obtenerTipoIdentificacion(rucOCedula);
+
 
                 if (tipoIdentificacion.isEmpty()) {
                     errorCarga.add(errorCargaBuilder.builderError(linea, rucOCedula, "Número de identificación no corresponde ni a RUC ni a Cédula"));
@@ -110,6 +115,13 @@ public class ExcelCtasCobrarServiceImpl {
 
                 if (row.getCell(0).getStringCellValue().equals("CXC")) {
 
+                    listaDeRucCedulaCxC.add(rucOCedula);
+
+                    if (numeroIdentificacionRepetido(listaDeRucCedulaCxC, rucOCedula)) {
+                        errorCarga.add(errorCargaBuilder.builderError(linea, rucOCedula, "Ruc o cédula repetido en el archivo, en Cuentas por Cobrar"));
+                        continue;
+                    }
+
                     // CXC CUENTAS POR PAGAR
                     DetalleCtasXCobrar detalleCtsXCobrar = new DetalleCtasXCobrar();
                     detalleCtsXCobrar.setNombreDeudor(nombreTercero);
@@ -124,6 +136,13 @@ public class ExcelCtasCobrarServiceImpl {
                     detalleCtasXCobrarList.add(detalleCtsXCobrar);
 
                 } else if (row.getCell(0).getStringCellValue().equals("CXP")) {
+
+                    listaDeRucCedulaCxP.add(rucOCedula);
+
+                    if (numeroIdentificacionRepetido(listaDeRucCedulaCxP, rucOCedula)) {
+                        errorCarga.add(errorCargaBuilder.builderError(linea, rucOCedula, "Ruc o cédula repetido en el archivo, en Cuentas por Pagar"));
+                        continue;
+                    }
 
                     DetallePasivo detallePasivo = new DetallePasivo();
 
@@ -226,8 +245,14 @@ public class ExcelCtasCobrarServiceImpl {
         String texto = Normalizer.normalize(caracteresQuitados, Normalizer.Form.NFD)
                 .replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
 
+        texto = texto.trim().replaceAll("\\s+", " ");
+
         return texto.toUpperCase();
 
+    }
+
+    public Boolean numeroIdentificacionRepetido(List<String> lista, String valor) {
+        return Collections.frequency(lista, valor) > 1;
     }
 
 }
