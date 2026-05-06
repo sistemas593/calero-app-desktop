@@ -1,6 +1,9 @@
 package com.calero.lili.core.modTerceros;
 
 import com.calero.lili.core.Auditable;
+import com.calero.lili.core.enums.EstadoCivilEnum;
+import com.calero.lili.core.enums.OrigenIngresosEnum;
+import com.calero.lili.core.enums.SexoEnum;
 import com.calero.lili.core.modClientesConfiguraciones.VtClientesConfiguracionesEntity;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.CpLiquidacionesEntity;
 import com.calero.lili.core.modLocalidades.modCantones.CantonEntity;
@@ -10,6 +13,8 @@ import com.calero.lili.core.modVentas.VtVentaEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -83,6 +88,20 @@ public class GeTerceroEntity extends Auditable implements Serializable {
     @Column(name = "email", length = 150)
     private String email;
 
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sexo")
+    private SexoEnum sexo;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "origen_ingresos")
+    private OrigenIngresosEnum origenIngresos;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado_civil")
+    private EstadoCivilEnum estadoCivil;
+
+
     @Builder.Default
     @OneToMany(mappedBy = "tercero")
     @JsonIgnore
@@ -118,5 +137,7 @@ public class GeTerceroEntity extends Auditable implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "codigo_parroquia")
     private ParroquiaEntity parroquia;
+
+    // no esta en tercero la relacion
 
 }

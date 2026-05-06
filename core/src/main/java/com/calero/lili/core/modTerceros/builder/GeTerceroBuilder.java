@@ -45,6 +45,9 @@ public class GeTerceroBuilder {
                 .provincia(Objects.nonNull(model.getCodigoProvincia()) ? builderProvincia(model.getCodigoProvincia()) : null)
                 .canton(Objects.nonNull(model.getCodigoCanton()) ? builderCanton(model.getCodigoCanton()) : null)
                 .parroquia(Objects.nonNull(model.getCodigoParroquia()) ? builderParroquia(model.getCodigoParroquia()) : null)
+                .origenIngresos(model.getOrigenIngresos())
+                .sexo(model.getSexo())
+                .estadoCivil(model.getEstadoCivil())
                 .build();
     }
 
@@ -71,6 +74,9 @@ public class GeTerceroBuilder {
                 .provincia(Objects.nonNull(model.getCodigoProvincia()) ? builderProvincia(model.getCodigoProvincia()) : item.getProvincia())
                 .canton(Objects.nonNull(model.getCodigoCanton()) ? builderCanton(model.getCodigoCanton()) : item.getCanton())
                 .parroquia(Objects.nonNull(model.getCodigoParroquia()) ? builderParroquia(model.getCodigoParroquia()) : item.getParroquia())
+                .origenIngresos(model.getOrigenIngresos())
+                .sexo(model.getSexo())
+                .estadoCivil(model.getEstadoCivil())
                 .build();
     }
 
@@ -88,6 +94,9 @@ public class GeTerceroBuilder {
                 .telefonos(model.getTelefonos())
                 .contacto(model.getContacto())
                 .email(model.getEmail())
+                .origenIngresos(model.getOrigenIngresos())
+                .sexo(model.getSexo())
+                .estadoCivil(model.getEstadoCivil())
                 .build();
     }
 
@@ -108,6 +117,9 @@ public class GeTerceroBuilder {
                 .email(model.getEmail())
                 .placa(model.getPlaca())
                 .tipoTerceros(builderResposeListTipoTercero(model.getGeTercerosTipoEntities()))
+                .origenIngresos(model.getOrigenIngresos())
+                .sexo(model.getSexo())
+                .estadoCivil(model.getEstadoCivil())
                 .build();
     }
 

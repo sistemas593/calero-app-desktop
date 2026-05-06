@@ -7,19 +7,22 @@ import com.calero.lili.core.dtos.Mensajes;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.modVentas.dto.GetListDto;
-import com.calero.lili.core.modVentas.dto.GetListDtoTotalizado;
 import com.calero.lili.core.modVentas.facturas.VtVentasFacturasExcelService;
 import com.calero.lili.core.modVentas.facturas.VtVentasFacturasServiceImpl;
 import com.calero.lili.core.modVentas.facturas.dto.CreationFacturaRequestDto;
 import com.calero.lili.core.modVentas.facturas.dto.FilterListDto;
 import com.calero.lili.core.modVentas.facturas.dto.GetFacturaDto;
+import com.calero.lili.core.modVentas.reporteCredito.ReporteDatosCrediticiosServiceImpl;
 import com.lowagie.text.DocumentException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -53,6 +56,7 @@ public class VtVentasFacturasController {
     private final IdDataServiceImpl idDataService;
     private final VtVentasFacturasExcelService vtVentasFacturasExcelService;
     private final AuditorAwareImpl auditorAware;
+    private final ReporteDatosCrediticiosServiceImpl reporteDatosCrediticiosService;
 
     @PostMapping("facturas/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.CREATED)
@@ -118,7 +122,6 @@ public class VtVentasFacturasController {
     }
 
 
-
     @GetMapping("excel/{idEmpresa}")
     @PreAuthorize("hasAuthority('VT_FC_EX')")
     public void exportarExcel(HttpServletResponse response,
@@ -167,6 +170,20 @@ public class VtVentasFacturasController {
     public ResponseDto createAsientoVenta(@PathVariable("idEmpresa") Long idEmpresa,
                                           @PathVariable("idVenta") UUID idVenta) {
         return vtVentasService.createAsientoVenta(idDataService.getIdData(), idEmpresa, idVenta);
+    }
+
+    @GetMapping("reporte/datos-crediticios/{idEmpresa}")
+    public ResponseEntity<byte[]> reporteDatosCrediticios(@PathVariable("idEmpresa") Long idEmpresa) {
+
+
+        byte[] txt = reporteDatosCrediticiosService.generarTxt(idDataService.getIdData(), idEmpresa); // tu byte[]
+        String nombre = "reporte-datos-crediticios" + ".txt";
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + nombre)
+                .contentType(MediaType.TEXT_PLAIN)
+                .contentLength(txt.length)
+                .body(txt);
     }
 
 }

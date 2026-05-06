@@ -1,5 +1,8 @@
 package com.calero.lili.core.modTerceros.dto;
 
+import com.calero.lili.core.enums.EstadoCivilEnum;
+import com.calero.lili.core.enums.OrigenIngresosEnum;
+import com.calero.lili.core.enums.SexoEnum;
 import com.calero.lili.core.modRRHH.modRRHHTrabajadores.dto.ResponseTrabajadorDto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -40,6 +43,10 @@ public class GeTerceroGetOneDto {
     private TipoTercerosTransportistaDto transportista;
     private TipoTercerosTrabajadorDto trabajador;
 
+
+    private SexoEnum sexo;
+    private OrigenIngresosEnum origenIngresos;
+    private EstadoCivilEnum estadoCivil;
 
     @Data
     @AllArgsConstructor

@@ -1,5 +1,8 @@
 package com.calero.lili.core.modTerceros.dto;
 
+import com.calero.lili.core.enums.EstadoCivilEnum;
+import com.calero.lili.core.enums.OrigenIngresosEnum;
+import com.calero.lili.core.enums.SexoEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -38,6 +41,10 @@ public class GeTerceroGetListDto {
     public String email;
 
     public String placa; // setear la placa
+
+    private SexoEnum sexo;
+    private OrigenIngresosEnum origenIngresos;
+    private EstadoCivilEnum estadoCivil;
 
     private List<TipoTercerosDto> tipoTerceros;
 
