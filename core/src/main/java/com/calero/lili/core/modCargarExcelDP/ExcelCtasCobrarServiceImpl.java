@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -102,11 +103,10 @@ public class ExcelCtasCobrarServiceImpl {
                 }
 
                 String celdaNombre = row.getCell(2).getStringCellValue();
-                celdaNombre = celdaNombre.trim();
 
                 String nombreValido = validarNombre(celdaNombre);
-                String nombreTercero = truncarNombreTercero(nombreValido);
-
+                String nombreTruncado = truncarNombreTercero(nombreValido);
+                String nombreTercero = nombreTruncado.trim();
 
                 if (row.getCell(0).getStringCellValue().equals("CXC")) {
 
@@ -219,7 +219,15 @@ public class ExcelCtasCobrarServiceImpl {
     }
 
     private String validarNombre(String celdaNombre) {
-        return celdaNombre.replace(".", "");
+        String caracteresQuitados = celdaNombre.replace(".", "")
+                .replace("-", "")
+                .replace(",", "");
+
+        String texto = Normalizer.normalize(caracteresQuitados, Normalizer.Form.NFD)
+                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+
+        return texto.toUpperCase();
+
     }
 
 }
