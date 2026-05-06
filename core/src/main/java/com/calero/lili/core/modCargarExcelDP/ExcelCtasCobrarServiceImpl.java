@@ -25,7 +25,9 @@ import java.math.BigDecimal;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -57,11 +59,8 @@ public class ExcelCtasCobrarServiceImpl {
                 .open(is);
 
 
-        List<String> listaDeRucCedulaCxC = new ArrayList<>();
-        List<String> listaDeRucCedulaCxP = new ArrayList<>();
-
-        List<DetalleCtasXCobrar> detalleCtasXCobrarList = new ArrayList<>();
-        List<DetallePasivo> detallePasivosList = new ArrayList<>();
+        Map<String, DetalleCtasXCobrar> mapaCtasXCobrar = new HashMap<>();
+        Map<String, DetallePasivo> mapDetallePasivo = new HashMap<>();
         List<ErrorCargaDto> errorCarga = new ArrayList<>();
 
 
@@ -115,47 +114,57 @@ public class ExcelCtasCobrarServiceImpl {
 
                 if (row.getCell(0).getStringCellValue().equals("CXC")) {
 
-                    listaDeRucCedulaCxC.add(rucOCedula);
+                    DetalleCtasXCobrar existente = mapaCtasXCobrar.get(rucOCedula);
 
-                    if (numeroIdentificacionRepetido(listaDeRucCedulaCxC, rucOCedula)) {
-                        errorCarga.add(errorCargaBuilder.builderError(linea, rucOCedula, "Ruc o cédula repetido en el archivo, en Cuentas por Cobrar"));
-                        continue;
+
+                    if (existente != null) {
+
+                        BigDecimal valorActual = new BigDecimal(existente.getSaldo());
+                        BigDecimal nuevoValor = valorActual.add(valorDeuda);
+
+                        existente.setSaldo(formatoValores.convertirBigDecimalToString(nuevoValor));
+
+                    } else {
+                        DetalleCtasXCobrar detalleCtsXCobrar = new DetalleCtasXCobrar();
+                        detalleCtsXCobrar.setNombreDeudor(nombreTercero);
+                        detalleCtsXCobrar.setTipoDeudor(tipoDeudor);
+                        detalleCtsXCobrar.setTipoIdentificacion(tipoIdentificacion);
+                        detalleCtsXCobrar.setNumeroIdentificacion(rucOCedula);
+                        detalleCtsXCobrar.setUbicacion(ubicacion);
+                        detalleCtsXCobrar.setPais(pais);
+                        detalleCtsXCobrar.setPartesRelacionadas(partesRelacionadas);
+                        detalleCtsXCobrar.setSaldo(formatoValores.convertirBigDecimalToString(valorDeuda));
+
+                        mapaCtasXCobrar.put(rucOCedula, detalleCtsXCobrar);
                     }
 
                     // CXC CUENTAS POR PAGAR
-                    DetalleCtasXCobrar detalleCtsXCobrar = new DetalleCtasXCobrar();
-                    detalleCtsXCobrar.setNombreDeudor(nombreTercero);
-                    detalleCtsXCobrar.setTipoDeudor(tipoDeudor);
-                    detalleCtsXCobrar.setTipoIdentificacion(tipoIdentificacion);
-                    detalleCtsXCobrar.setNumeroIdentificacion(rucOCedula);
-                    detalleCtsXCobrar.setUbicacion(ubicacion);
-                    detalleCtsXCobrar.setPais(pais);
-                    detalleCtsXCobrar.setPartesRelacionadas(partesRelacionadas);
-                    detalleCtsXCobrar.setSaldo(formatoValores.convertirBigDecimalToString(valorDeuda));
-
-                    detalleCtasXCobrarList.add(detalleCtsXCobrar);
 
                 } else if (row.getCell(0).getStringCellValue().equals("CXP")) {
 
-                    listaDeRucCedulaCxP.add(rucOCedula);
+                    DetallePasivo existente = mapDetallePasivo.get(rucOCedula);
 
-                    if (numeroIdentificacionRepetido(listaDeRucCedulaCxP, rucOCedula)) {
-                        errorCarga.add(errorCargaBuilder.builderError(linea, rucOCedula, "Ruc o cédula repetido en el archivo, en Cuentas por Pagar"));
-                        continue;
+                    if (existente != null) {
+                        BigDecimal valorActual = new BigDecimal(existente.getValorDeuda());
+                        BigDecimal nuevoValor = valorActual.add(valorDeuda);
+
+                        existente.setValorDeuda(formatoValores.convertirBigDecimalToString(nuevoValor));
+                    } else {
+
+                        DetallePasivo detallePasivo = new DetallePasivo();
+
+                        detallePasivo.setTipoAcreedor(tipoAcreedor);
+                        detallePasivo.setDomicilioAcreedor(ubicacion);
+                        detallePasivo.setValorDeuda(formatoValores.convertirBigDecimalToString(valorDeuda));
+                        detallePasivo.setPaisAcreedor(pais);
+                        detallePasivo.setNombreAcreedor(nombreTercero);
+                        detallePasivo.setTipoIdentificacionAcreedor(tipoIdentificacion);
+                        detallePasivo.setNumeroIdentificacionAcreedor(rucOCedula);
+                        detallePasivo.setPartesRelacionadas(partesRelacionadas);
+                        mapDetallePasivo.put(rucOCedula, detallePasivo);
+
                     }
 
-                    DetallePasivo detallePasivo = new DetallePasivo();
-
-                    detallePasivo.setTipoAcreedor(tipoAcreedor);
-                    detallePasivo.setDomicilioAcreedor(ubicacion);
-                    detallePasivo.setValorDeuda(formatoValores.convertirBigDecimalToString(valorDeuda));
-                    detallePasivo.setPaisAcreedor(pais);
-                    detallePasivo.setNombreAcreedor(nombreTercero);
-                    detallePasivo.setTipoIdentificacionAcreedor(tipoIdentificacion);
-                    detallePasivo.setNumeroIdentificacionAcreedor(rucOCedula);
-                    detallePasivo.setPartesRelacionadas(partesRelacionadas);
-
-                    detallePasivosList.add(detallePasivo);
 
                 } else {
                     errorCarga.add(errorCargaBuilder.builderError(linea, row.getCell(1).getStringCellValue(), "El tipo no corresponde con Cuentas por Pagar ni con Pasivos"));
@@ -172,7 +181,11 @@ public class ExcelCtasCobrarServiceImpl {
             CtasXCobrar xCobrar = new CtasXCobrar();
             Pasivo pasivo = new Pasivo();
 
+
+            List<DetalleCtasXCobrar> detalleCtasXCobrarList = new ArrayList<>(mapaCtasXCobrar.values());
             xCobrar.setDetalleCtasXCobrar(detalleCtasXCobrarList);
+
+            List<DetallePasivo> detallePasivosList = new ArrayList<>(mapDetallePasivo.values());
             pasivo.setDetallePasivo(detallePasivosList);
 
             decPat.setCtasXCobrar(xCobrar);
