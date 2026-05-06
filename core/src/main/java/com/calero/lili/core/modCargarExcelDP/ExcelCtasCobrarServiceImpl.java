@@ -101,8 +101,12 @@ public class ExcelCtasCobrarServiceImpl {
                     continue;
                 }
 
-                String nombreTercero = row.getCell(2).getStringCellValue();
-                nombreTercero = nombreTercero.trim();
+                String celdaNombre = row.getCell(2).getStringCellValue();
+                celdaNombre = celdaNombre.trim();
+
+                String nombreValido = validarNombre(celdaNombre);
+                String nombreTercero = truncarNombreTercero(nombreValido);
+
 
                 if (row.getCell(0).getStringCellValue().equals("CXC")) {
 
@@ -207,6 +211,15 @@ public class ExcelCtasCobrarServiceImpl {
             valor = valor.replace(",", ".");
         }
         return new BigDecimal(valor);
+    }
+
+
+    private String truncarNombreTercero(String nombreTercero) {
+        return nombreTercero.length() > 60 ? nombreTercero.substring(0, 60) : nombreTercero;
+    }
+
+    private String validarNombre(String celdaNombre) {
+        return celdaNombre.replace(".", "");
     }
 
 }
