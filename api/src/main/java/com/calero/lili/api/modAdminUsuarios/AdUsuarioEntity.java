@@ -1,5 +1,6 @@
 package com.calero.lili.api.modAdminUsuarios;
 
+import com.calero.lili.api.modAdminUsuarios.adGrupos.AdGruposEntity;
 import com.calero.lili.api.modAdminUsuarios.adRol.AdRolEntity;
 import com.calero.lili.core.Auditable;
 import com.calero.lili.core.dtos.models.IUser;
@@ -72,5 +73,13 @@ public class AdUsuarioEntity extends Auditable implements IUser {
             uniqueConstraints = { @UniqueConstraint(columnNames = {"id_usuario", "id_rol"})})
 
     private List<AdRolEntity> roles;
+
+    @ManyToMany
+    @JoinTable(
+            name = "ad_usuarios_grupos",
+            joinColumns = @JoinColumn(name = "id_usuario"),
+            inverseJoinColumns = @JoinColumn(name = "id_grupo"),
+            uniqueConstraints = {@UniqueConstraint(columnNames = {"id_usuario", "id_grupo"})})
+    private List<AdGruposEntity> grupos;
 
 }

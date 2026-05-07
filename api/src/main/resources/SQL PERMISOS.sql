@@ -712,10 +712,8 @@ VALUES
 
 
 
-
-
-INSERT INTO public.ad_rol_grupos(id_rol, id_grupo) values
-(9,10);
+INSERT INTO public.ad_usuarios_grupos(id_usuario, id_grupo) values
+(1,10);
 
 INSERT INTO public.ad_usuarios_roles(id_rol, id_usuario) values
-(9, 4);
+(9, 1);

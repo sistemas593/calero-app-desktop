@@ -14,6 +14,7 @@ import androidx.compose.ui.window.application
 import com.calero.lili.desktop.ui.actualizacion.ActualizacionViewModel
 import com.calero.lili.desktop.ui.actualizacion.UpdateCheckState
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasServiceImpl
+import com.calero.lili.core.modVentas.AutorizarFacNcrService
 import com.calero.lili.core.modVentas.facturas.VtVentasFacturasServiceImpl
 import com.calero.lili.core.modVentas.notasCredito.VtVentasNotasCreditoServiceImpl
 import com.calero.lili.core.comprobantesWs.services.GetXmlVtVentasNotasCreditoServiceImpl
@@ -48,6 +49,8 @@ import com.calero.lili.desktop.ui.items.medidas.MedidasScreen
 import com.calero.lili.desktop.ui.items.medidas.MedidasViewModel
 import com.calero.lili.desktop.ui.inicio.InicioScreen
 import com.calero.lili.desktop.ui.selector.SelectorEmpresaScreen
+import com.calero.lili.desktop.ui.ventas.notasCredito.NotaCreditoFormScreen
+import com.calero.lili.desktop.ui.ventas.notasCredito.NotaCreditoFormViewModel
 import com.calero.lili.desktop.ui.ventas.notasCredito.NotasCreditoScreen
 import com.calero.lili.desktop.ui.ventas.notasCredito.NotasCreditoViewModel
 import com.calero.lili.desktop.ui.ventas.facturas.EnviarAAutorizarScreen
@@ -147,7 +150,8 @@ private sealed class AppState {
         val formasPagoSriService    : TbFormasPagoSriServiceImpl,
         val adLogsService           : AdLogsServiceImpl,
         val notasCreditoService     : VtVentasNotasCreditoServiceImpl,
-        val xmlPdfNotasCreditoService: GetXmlVtVentasNotasCreditoServiceImpl
+        val xmlPdfNotasCreditoService: GetXmlVtVentasNotasCreditoServiceImpl,
+        val autorizarFacNcrService  : AutorizarFacNcrService
     ) : AppState()
 }
 
@@ -200,7 +204,8 @@ fun main() {
                             ctx.getBean(TbFormasPagoSriServiceImpl::class.java),
                             ctx.getBean(AdLogsServiceImpl::class.java),
                             ctx.getBean(VtVentasNotasCreditoServiceImpl::class.java),
-                            ctx.getBean(GetXmlVtVentasNotasCreditoServiceImpl::class.java)
+                            ctx.getBean(GetXmlVtVentasNotasCreditoServiceImpl::class.java),
+                            ctx.getBean(AutorizarFacNcrService::class.java)
                         )
                     }
                 }
@@ -412,7 +417,7 @@ fun main() {
                     val itemsViewModel     = remember(idEmpresa) { ItemsViewModel(itemsService, idData = ID_DATA, idEmpresa = idEmpresa) }
                     val facturasViewModel         = remember(idEmpresa) { FacturasViewModel(facturasService, tercerosService, xmlPdfService, idData = ID_DATA, idEmpresa = idEmpresa) }
                     val notasCreditoViewModel     = remember(idEmpresa) { NotasCreditoViewModel(state.notasCreditoService, tercerosService, state.xmlPdfNotasCreditoService, idData = ID_DATA, idEmpresa = idEmpresa) }
-                    val enviarAAutorizarViewModel = remember(idEmpresa) { EnviarAAutorizarViewModel(facturasService, idData = ID_DATA, idEmpresa = idEmpresa) }
+                    val enviarAAutorizarViewModel = remember(idEmpresa) { EnviarAAutorizarViewModel(state.autorizarFacNcrService, idData = ID_DATA, idEmpresa = idEmpresa) }
                     val adLogsViewModel           = remember(idEmpresa) { AdLogsViewModel(state.adLogsService, ID_DATA, idEmpresa) }
 
                     DisposableEffect(idEmpresa) {
@@ -585,7 +590,33 @@ fun main() {
                             }
 
                             MenuOpcion.LISTA_NOTAS_CREDITO -> {
-                                NotasCreditoScreen(viewModel = notasCreditoViewModel)
+                                val ncState by notasCreditoViewModel.state.collectAsState()
+                                if (ncState.showForm) {
+                                    val formViewModel = remember(ncState.editingId) {
+                                        NotaCreditoFormViewModel(
+                                            service              = state.notasCreditoService,
+                                            tercerosService      = tercerosService,
+                                            itemsService         = itemsService,
+                                            impuestosService     = impuestosService,
+                                            seriesService        = seriesService,
+                                            xmlPdfService        = state.xmlPdfNotasCreditoService,
+                                            idNotaCredito        = ncState.editingId,
+                                            idData               = ID_DATA,
+                                            idEmpresa            = idEmpresa
+                                        )
+                                    }
+                                    DisposableEffect(ncState.editingId) { onDispose { formViewModel.onDestroy() } }
+                                    NotaCreditoFormScreen(
+                                        viewModel = formViewModel,
+                                        onCerrar  = notasCreditoViewModel::cerrarFormulario
+                                    )
+                                } else {
+                                    NotasCreditoScreen(
+                                        viewModel           = notasCreditoViewModel,
+                                        onNuevaNotaCredito  = { notasCreditoViewModel.abrirFormulario(null) },
+                                        onEditarNotaCredito = { id -> notasCreditoViewModel.abrirFormulario(id) }
+                                    )
+                                }
                             }
 
                             MenuOpcion.ENVIAR_A_AUTORIZAR -> {

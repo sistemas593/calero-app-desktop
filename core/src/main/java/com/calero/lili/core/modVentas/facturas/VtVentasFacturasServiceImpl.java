@@ -1,7 +1,6 @@
 package com.calero.lili.core.modVentas.facturas;
 
 import com.calero.lili.core.adLogs.builder.AdLogsBuilder;
-import com.calero.lili.core.adLogs.dto.AdLogsRequestDto;
 import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.core.comprobantes.services.ComprobanteServiceImpl;
 import com.calero.lili.core.comprobantesWs.RespuestaProcesoGetDto;
@@ -981,20 +980,6 @@ public class VtVentasFacturasServiceImpl {
             }
         }
     }
-
-
-    public List<VtVentaEntity> getFacturasAutorizar(Long idData, Long idEmpresa) {
-        return vtVentaRepository.obtenerTodosParaAutorizar(idData, idEmpresa);
-    }
-
-
-    public void procesarUnaFactura(Long idData, Long idEmpresa, VtVentaEntity factura) {
-        DatosEmpresaDto datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(idData, idEmpresa);
-        datosEmpresaDto.setOrigenDatos("LOC");
-        AdLogsRequestDto log = adLogsBuilder.builderVentasDocumentos(factura, Boolean.FALSE);
-        procesarDocumentosService.procesarFacNcNd(factura, log, datosEmpresaDto);
-    }
-
 
     private void setearValoresCabecera(List<ValoresDto> valores, CreationFacturaRequestDto request) {
 

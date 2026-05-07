@@ -4,6 +4,7 @@ import com.calero.lili.api.modAdminUsuarios.adRol.AdRolServiceImpl;
 import com.calero.lili.api.modAdminUsuarios.adRol.dto.AdRolDtoRequest;
 import com.calero.lili.api.modAdminUsuarios.adRol.dto.AdRolDtoResponse;
 import com.calero.lili.api.modAdminUsuarios.adRol.dto.RolFilterDto;
+import com.calero.lili.api.utils.IdDataServiceImpl;
 import com.calero.lili.core.dtos.PaginatedDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,44 +32,50 @@ public class AdRolController {
 
     private final AdRolServiceImpl adRolService;
     private final AuditorAware<String> auditorAware;
+    private final IdDataServiceImpl idDataService;
 
-    @PostMapping()
+    @PostMapping("{idEmpresa}")
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('US_RL_CR')")
-    public AdRolDtoResponse create(@RequestBody @Valid AdRolDtoRequest request) {
-        return adRolService.create(request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+    public AdRolDtoResponse create(@PathVariable("idEmpresa") Long idEmpresa,
+                                   @RequestBody @Valid AdRolDtoRequest request) {
+        return adRolService.create(idDataService.getIdData(), idEmpresa, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
-    @PutMapping("{idRol}")
+    @PutMapping("{idRol}/{idEmpresa}")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAuthority('US_RL_MO')")
-    public AdRolDtoResponse update(@PathVariable("idRol") Long idRol,
+    public AdRolDtoResponse update(@PathVariable("idEmpresa") Long idEmpresa,
+                                   @PathVariable("idRol") Long idRol,
                                    @RequestBody @Valid AdRolDtoRequest request) {
 
-        return adRolService.update(idRol, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        return adRolService.update(idDataService.getIdData(), idEmpresa, idRol, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
-    @GetMapping("{idRol}")
+    @GetMapping("{idRol}/{idEmpresa}")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAuthority('US_RL_VR')")
-    public AdRolDtoResponse findById(@PathVariable("idRol") Long idRol) {
-        return adRolService.findById(idRol);
+    public AdRolDtoResponse findById(@PathVariable("idEmpresa") Long idEmpresa,
+                                     @PathVariable("idRol") Long idRol) {
+        return adRolService.findById(idDataService.getIdData(), idEmpresa, idRol);
     }
 
-    @GetMapping("listar")
+    @GetMapping("listar/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAuthority('US_RL_VR')")
-    public PaginatedDto<AdRolDtoResponse> findAllPaginate(RolFilterDto filters,
+    public PaginatedDto<AdRolDtoResponse> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
+                                                          RolFilterDto filters,
                                                           Pageable pageable) {
-        return adRolService.findAll(filters, pageable);
+        return adRolService.findAll(idDataService.getIdData(), idEmpresa, filters, pageable);
     }
 
 
-    @DeleteMapping("{idRol}")
+    @DeleteMapping("{idRol}/{idEmpresa}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasAuthority('US_RL_EL')")
-    public void delete(@PathVariable("idRol") Long idRol) {
-        adRolService.delete(idRol, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+    public void delete(@PathVariable("idEmpresa") Long idEmpresa,
+                       @PathVariable("idRol") Long idRol) {
+        adRolService.delete(idDataService.getIdData(), idEmpresa, idRol, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
 

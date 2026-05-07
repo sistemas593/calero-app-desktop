@@ -1,5 +1,7 @@
 package com.calero.lili.api.modAdminUsuarios;
 
+import com.calero.lili.api.modAdminUsuarios.adGrupos.AdGruposEntity;
+import com.calero.lili.api.modAdminUsuarios.adGrupos.AdGruposRepository;
 import com.calero.lili.api.modAdminUsuarios.adPermisos.AdPermisosEntity;
 import com.calero.lili.api.modAdminUsuarios.adRol.AdRolEntity;
 import com.calero.lili.api.modAdminUsuarios.adRol.AdUsuarioRolRepository;
@@ -41,6 +43,9 @@ public class AdUsuarioServiceImpl {
 
     @Autowired
     private AdDataRepository adDataRepository;
+
+    @Autowired
+    private AdGruposRepository adGruposRepository;
 
 
     @Transactional
@@ -183,14 +188,24 @@ public class AdUsuarioServiceImpl {
         //entidad.setInsertionDate(LocalDateTime.now());
 
         List<AdRolEntity> rolesEntity = new ArrayList<>();
+        List<AdGruposEntity> gruposEntities = new ArrayList<>();
 
         List<AdUsuarioRequestDto.Roles> rolesDto = request.getRoles();
-        if (rolesDto == null) {
+        List<AdUsuarioRequestDto.Grupos> grupos = request.getGrupos();
+
+        if (rolesDto == null && grupos == null) {
             //throw new GeneralException(MessageFormat.format("No existen roles para el usuario", ""));
             AdRolEntity rolEntity = roleRepository.findForName("ROLE_USER")
                     .orElseThrow(() -> new GeneralException(MessageFormat.format("ROLE_USER no existe", "")));
+
+            AdGruposEntity grupoEntity = adGruposRepository.getFindNombre("GRUPO_USER")
+                    .orElseThrow(() -> new GeneralException("GRUPO_USER no existe"));
+
+
             //rolEntity.setId(Long.valueOf(1));
             rolesEntity.add(rolEntity);
+            gruposEntities.add(grupoEntity);
+
         } else {
             for (AdUsuarioRequestDto.Roles rol : rolesDto) {
                 AdRolEntity rolEntity = roleRepository.findById(rol.getIdRol())
@@ -200,9 +215,17 @@ public class AdUsuarioServiceImpl {
 //                rolEntity.setId(rol.getIdRol());
                 rolesEntity.add(rolEntity);
             }
+
+            for (AdUsuarioRequestDto.Grupos grupo : grupos) {
+                AdGruposEntity grupoEntity = adGruposRepository.findById(grupo.getIdGrupo())
+                        .orElseThrow(() -> new GeneralException(MessageFormat.format("IdGrupo {0} no existe", grupo.getIdGrupo())));
+
+                gruposEntities.add(grupoEntity);
+            }
         }
 
         entidad.setRoles(rolesEntity);
+        entidad.setGrupos(gruposEntities);
 
         return entidad;
     }
@@ -237,8 +260,7 @@ public class AdUsuarioServiceImpl {
         AdUsuarioEntity entidad = adUsuarioRepository.getUserByUsername(username)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("El usuario con username: {0} no existe ", username)));
 
-        List<String> permisos = entidad.getRoles().stream()
-                .flatMap(rol -> rol.getGrupos().stream())
+        List<String> permisos = entidad.getGrupos().stream()
                 .flatMap(grupo -> grupo.getPermisos().stream())
                 .map(AdPermisosEntity::getPermiso)
                 .distinct()
@@ -246,6 +268,7 @@ public class AdUsuarioServiceImpl {
 
         return AdUsuarioPermisosDtoResponse.builder()
                 .roles(entidad.getRoles().stream().map(this::getRolUsuario).toList())
+                .grupos(entidad.getGrupos().stream().map(this::getGrupoUsuario).toList())
                 .permisos(permisos)
                 .build();
 
@@ -255,6 +278,12 @@ public class AdUsuarioServiceImpl {
     private AdUsuarioPermisosDtoResponse.Roles getRolUsuario(AdRolEntity rol) {
         return AdUsuarioPermisosDtoResponse.Roles.builder()
                 .rol(rol.getNombre())
+                .build();
+    }
+
+    private AdUsuarioPermisosDtoResponse.Grupos getGrupoUsuario(AdGruposEntity grupo) {
+        return AdUsuarioPermisosDtoResponse.Grupos.builder()
+                .grupo(grupo.getNombre())
                 .build();
     }
 

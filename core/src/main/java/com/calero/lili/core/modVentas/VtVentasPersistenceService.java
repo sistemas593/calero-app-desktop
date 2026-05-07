@@ -60,8 +60,11 @@ public class VtVentasPersistenceService {
         VtVentaEntity saved = vtVentaRepository.save(notaCredito);
 
         AdEmpresasSeriesDocumentosEntity documentosEntity = adEmpresasSeriesDocumentosRepository
-                .findBySerieAndDocumento(idData, idEmpresa, request.getSerie(), TipoVenta.NCR.name())
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("Serie {0}, documento {1} no existe", request.getSerie(), TipoVenta.NCR.name())));
+                .findBySerieAndDocumento(idData, idEmpresa, request.getSerie(), TipoVenta.FAC.name())
+                .orElseThrow(() -> new GeneralException(
+                        MessageFormat.format("Serie {0}, Secuencial {1}, documento {2} no existe",
+                                request.getSerie(), request.getSecuencial(), TipoVenta.FAC.name())
+                ));
 
         int nuevo = Integer.parseInt(request.getSecuencial()) + 1;
         String sec = request.getSecuencial();

@@ -452,7 +452,7 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             "LEFT JOIN FETCH vtVentasEntity.tercero " +
             "WHERE vtVentasEntity.idData = :idData  AND " +
             "vtVentasEntity.idEmpresa = :idEmpresa AND " +
-            "vtVentasEntity.tipoVenta = 'FAC' AND " +
+            "vtVentasEntity.tipoVenta in ('FAC','NCR') AND " +
             "vtVentasEntity.estadoDocumento = 'ENV' " +
             "ORDER BY vtVentasEntity.secuencial ASC ")
     List<VtVentaEntity> obtenerTodosParaAutorizar(@Param("idData") Long idData,

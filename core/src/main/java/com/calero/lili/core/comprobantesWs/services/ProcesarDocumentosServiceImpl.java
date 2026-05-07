@@ -148,7 +148,7 @@ public class ProcesarDocumentosServiceImpl {
                     documento.setNumeroAutorizacion(respuestaProceso.getNumeroAutorizacion());
                     documento.setComprobante(respuestaProceso.getComprobante());
                     documento.setFechaAutorizacion(DateUtils.toLocalDateTime(respuestaProceso.getFechaAutorizacion()));
-
+                    adLogsService.saveLog(logs, "Documento autorizado con numero de autorizacion: " + respuestaProceso.getNumeroAutorizacion(), "I");
                     if (!Objects.isNull(documento.getEmail())) {
 
                         if (!documento.getEmail().isEmpty()) {
@@ -196,6 +196,7 @@ public class ProcesarDocumentosServiceImpl {
                     documento.setEstadoDocumento(EstadoDocumento.NOA);
                     if (Objects.nonNull(respuestaProceso.getMensajes())) {
                         documento.setMensajes(respuestaProceso.getMensajes());
+                        adLogsService.saveLog(logs, "Documento no autorizado con el siguiente mensaje: " + respuestaProceso.getMensajes(), "E");
                     }
                 }
 

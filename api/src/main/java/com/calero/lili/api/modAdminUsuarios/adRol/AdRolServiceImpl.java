@@ -1,7 +1,5 @@
 package com.calero.lili.api.modAdminUsuarios.adRol;
 
-import com.calero.lili.api.modAdminUsuarios.adGrupos.AdGruposEntity;
-import com.calero.lili.api.modAdminUsuarios.adGrupos.AdGruposRepository;
 import com.calero.lili.api.modAdminUsuarios.adRol.builder.AdRolBuilder;
 import com.calero.lili.api.modAdminUsuarios.adRol.dto.AdRolDtoRequest;
 import com.calero.lili.api.modAdminUsuarios.adRol.dto.AdRolDtoResponse;
@@ -17,8 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -28,33 +24,31 @@ public class AdRolServiceImpl {
 
     private final AdUsuarioRolRepository adUsuarioRolRepository;
     private final AdRolBuilder adRolBuilder;
-    private final AdGruposRepository adGruposRepository;
 
 
-
-    public AdRolDtoResponse create(AdRolDtoRequest request, String usuario) {
+    public AdRolDtoResponse create(Long idData, Long idEmpresa, AdRolDtoRequest request, String usuario) {
         return adRolBuilder.builderResponse(adUsuarioRolRepository
-                .save(validarCreatePermisos(request, usuario)));
+                .save(validarCreatePermisos(idData, idEmpresa, request, usuario)));
     }
 
-    public AdRolDtoResponse update(Long idRol, AdRolDtoRequest request, String usuario) {
+    public AdRolDtoResponse update(Long idData, Long idEmpresa, Long idRol, AdRolDtoRequest request, String usuario) {
 
-        AdRolEntity adRolEntity = adUsuarioRolRepository.getFindId(idRol).orElseThrow(() -> new GeneralException(MessageFormat
+        AdRolEntity adRolEntity = adUsuarioRolRepository.getFindId(idData, idEmpresa, idRol).orElseThrow(() -> new GeneralException(MessageFormat
                 .format("El rol con id {0} no existe", idRol)));
 
         return adRolBuilder.builderResponse(adUsuarioRolRepository
                 .save(validarUpdatePermisos(request, adRolEntity, usuario)));
     }
 
-    public AdRolDtoResponse findById(Long idRol) {
-        return adRolBuilder.builderResponse(adUsuarioRolRepository.getFindId(idRol)
+    public AdRolDtoResponse findById(Long idData, Long idEmpresa, Long idRol) {
+        return adRolBuilder.builderResponse(adUsuarioRolRepository.getFindId(idData, idEmpresa, idRol)
                 .orElseThrow(() -> new GeneralException(MessageFormat
                         .format("El rol con id {0} no existe", idRol))));
     }
 
-    public void delete(Long idRol, String usuario) {
+    public void delete(Long idData, Long idEmpresa, Long idRol, String usuario) {
 
-        AdRolEntity adRolEntity = adUsuarioRolRepository.getFindId(idRol).orElseThrow(() -> new GeneralException(MessageFormat
+        AdRolEntity adRolEntity = adUsuarioRolRepository.getFindId(idData, idEmpresa, idRol).orElseThrow(() -> new GeneralException(MessageFormat
                 .format("El rol con id {0} no existe", idRol)));
 
         adRolEntity.setDeletedBy(usuario);
@@ -64,9 +58,9 @@ public class AdRolServiceImpl {
         adUsuarioRolRepository.save(adRolEntity);
     }
 
-    public PaginatedDto<AdRolDtoResponse> findAll(RolFilterDto filtro, Pageable pageable) {
+    public PaginatedDto<AdRolDtoResponse> findAll(Long idData, Long idEmpresa, RolFilterDto filtro, Pageable pageable) {
 
-        Page<AdRolEntity> page = adUsuarioRolRepository.findAllPaginate(!filtro.getFilter().isEmpty()
+        Page<AdRolEntity> page = adUsuarioRolRepository.findAllPaginate(idData, idEmpresa, !filtro.getFilter().isEmpty()
                 ? filtro.getFilter().toLowerCase()
                 : filtro.getFilter(), pageable);
 
@@ -103,39 +97,18 @@ public class AdRolServiceImpl {
         }
     }
 
-    private AdRolEntity validarCreatePermisos(AdRolDtoRequest request, String usuario) {
+    private AdRolEntity validarCreatePermisos(Long idData, Long idEmpresa, AdRolDtoRequest request, String usuario) {
         validarRol(request);
-        List<AdGruposEntity> listPermisos = new ArrayList<>();
-        AdRolEntity entidad = adRolBuilder.builderEntity(request);
+        AdRolEntity entidad = adRolBuilder.builderEntity(idData, idEmpresa, request);
         entidad.setCreatedBy(usuario);
         entidad.setCreatedDate(LocalDateTime.now());
-        if (!request.getGrupos().isEmpty()) {
-
-            for (AdRolDtoRequest.Grupo item : request.getGrupos()) {
-
-                AdGruposEntity permisos = adGruposRepository.getFindId(item.getIdGrupo())
-                        .orElseThrow(() -> new GeneralException(MessageFormat
-                                .format("El grupo de permiso con id {0} no existe", item.getIdGrupo())));
-                listPermisos.add(permisos);
-            }
-            entidad.setGrupos(listPermisos);
-        }
         return entidad;
     }
 
     private AdRolEntity validarUpdatePermisos(AdRolDtoRequest request, AdRolEntity item, String usuario) {
-
-        List<AdGruposEntity> listPermisos = adGruposRepository
-                .findAllById(request.getGrupos()
-                        .stream()
-                        .map(AdRolDtoRequest.Grupo::getIdGrupo)
-                        .toList());
-
-        item.getGrupos().clear();
         AdRolEntity entidad = adRolBuilder.builderUpdate(request, item);
         entidad.setModifiedBy(usuario);
         entidad.setModifiedDate(LocalDateTime.now());
-        entidad.setGrupos(listPermisos);
         return entidad;
     }
 

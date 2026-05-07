@@ -92,7 +92,7 @@ fun EnviarAAutorizarScreen(viewModel: EnviarAAutorizarViewModel) {
                         )
                         Spacer(Modifier.width(6.dp))
                     }
-                    Text("Procesar facturas", fontSize = 13.sp)
+                    Text("Procesar documentos", fontSize = 13.sp)
                 }
             }
         }

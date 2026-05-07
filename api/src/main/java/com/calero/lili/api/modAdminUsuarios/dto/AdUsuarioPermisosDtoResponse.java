@@ -14,6 +14,7 @@ import java.util.List;
 public class AdUsuarioPermisosDtoResponse {
 
     private List<Roles> roles;
+    private List<Grupos> grupos;
     private List<String> permisos;
 
     @Data
@@ -24,6 +25,13 @@ public class AdUsuarioPermisosDtoResponse {
         private String rol;
     }
 
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class Grupos {
+        private String grupo;
+    }
 
 
 }

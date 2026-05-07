@@ -34,8 +34,7 @@ public class JpaUserDetailsService implements UserDetailsService {
         }
         AdUsuarioEntity user = o.orElseThrow();
 
-        List<String> permisos = user.getRoles().stream()
-                .flatMap(rol -> rol.getGrupos().stream())
+        List<String> permisos = user.getGrupos().stream()
                 .flatMap(grupo -> grupo.getPermisos().stream())
                 .map(AdPermisosEntity::getPermiso)
                 .distinct()

@@ -170,6 +170,27 @@ public class AdEmpresasSeriesServiceImpl {
                 .collect(Collectors.toList());
     }
 
+    public List<AdEmpresaSerieFacturaDto> findSeriesParaNotasCredito(Long idData, Long idEmpresa) {
+        List<AdEmpresasSeriesEntity> all = adEmpresasSeriesRepository.findAllWithDocumentos(idData, idEmpresa);
+        return all.stream()
+                .filter(s -> s.getDocumentosEntity().stream()
+                        .anyMatch(d -> "NCR".equals(d.getDocumento())))
+                .map(s -> {
+                    String secuencial = s.getDocumentosEntity().stream()
+                            .filter(d -> "NCR".equals(d.getDocumento()))
+                            .map(AdEmpresasSeriesDocumentosEntity::getSecuencial)
+                            .findFirst()
+                            .orElse("");
+                    return AdEmpresaSerieFacturaDto.builder()
+                            .idSerie(s.getIdSerie())
+                            .serie(s.getSerie())
+                            .nombreComercial(s.getNombreComercial())
+                            .secuencial(secuencial)
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
     public AdEmpresaSerieGetDto findBySerie(Long idData, Long idEmpresa, String serie) {
         AdEmpresasSeriesEntity series = adEmpresasSeriesRepository.findBySerie(idData, idEmpresa, serie)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", serie)));

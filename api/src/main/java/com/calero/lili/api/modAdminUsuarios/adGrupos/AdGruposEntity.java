@@ -30,12 +30,17 @@ import java.util.List;
 @Where(clause = "deleted = false")
 public class AdGruposEntity extends Auditable {
 
+    private Long idData;
+
+    private Long idEmpresa;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idGrupo;
 
     @Column(unique = true, nullable = false)
     private String nombre;
+
 
     @ManyToMany
     @JoinTable(

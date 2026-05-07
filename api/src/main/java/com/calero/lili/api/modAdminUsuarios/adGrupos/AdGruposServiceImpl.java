@@ -31,14 +31,14 @@ public class AdGruposServiceImpl {
     private final AdPermisosRepository adPermisosRepository;
 
 
-    public AdGruposResponseDto create(AdGruposRequestDto request, String usuario) {
+    public AdGruposResponseDto create(Long idData, Long idEmpresa, AdGruposRequestDto request, String usuario) {
         return adGruposBuilder.builderResponse(adGruposRepository
-                .save(validarCreatePermisos(request, usuario)));
+                .save(validarCreatePermisos(idData, idEmpresa, request, usuario)));
     }
 
 
-    public AdGruposResponseDto update(Long idGrupoPermiso, AdGruposRequestDto request, String usuario) {
-        AdGruposEntity adGrupoPermiso = adGruposRepository.getFindId(idGrupoPermiso).orElseThrow(() ->
+    public AdGruposResponseDto update(Long idData, Long idEmpresa, Long idGrupoPermiso, AdGruposRequestDto request, String usuario) {
+        AdGruposEntity adGrupoPermiso = adGruposRepository.getFindId(idData, idEmpresa, idGrupoPermiso).orElseThrow(() ->
                 new GeneralException(MessageFormat
                         .format("El grupo permiso con id {0} no existe", idGrupoPermiso)));
 
@@ -46,15 +46,15 @@ public class AdGruposServiceImpl {
                 .save(validarUpdatePermisos(request, adGrupoPermiso, usuario)));
     }
 
-    public AdGruposResponseDto findById(Long idGrupoPermiso) {
-        return adGruposBuilder.builderResponse(adGruposRepository.getFindId(idGrupoPermiso)
+    public AdGruposResponseDto findById(Long idData, Long idEmpresa, Long idGrupoPermiso) {
+        return adGruposBuilder.builderResponse(adGruposRepository.getFindId(idData, idEmpresa, idGrupoPermiso)
                 .orElseThrow(() -> new GeneralException(MessageFormat
                         .format("El grupo permiso con id {0} no existe", idGrupoPermiso))));
     }
 
-    public void delete(Long idGrupoPermiso, String usuario) {
+    public void delete(Long idData, Long idEmpresa, Long idGrupoPermiso, String usuario) {
 
-        AdGruposEntity adGrupoPermiso = adGruposRepository.getFindId(idGrupoPermiso)
+        AdGruposEntity adGrupoPermiso = adGruposRepository.getFindId(idData, idEmpresa, idGrupoPermiso)
                 .orElseThrow(() -> new GeneralException(MessageFormat
                         .format("El grupo permiso con id {0} no existe", idGrupoPermiso)));
 
@@ -66,9 +66,9 @@ public class AdGruposServiceImpl {
         adGruposRepository.save(adGrupoPermiso);
     }
 
-    public PaginatedDto<AdGruposResponseDto> findAll(GruposFilter filtro, Pageable pageable) {
+    public PaginatedDto<AdGruposResponseDto> findAll(Long idData, Long idEmpresa, GruposFilter filtro, Pageable pageable) {
 
-        Page<AdGruposEntity> page = adGruposRepository.findAllPaginate(!filtro.getFilter().isEmpty() ?
+        Page<AdGruposEntity> page = adGruposRepository.findAllPaginate(idData, idEmpresa, !filtro.getFilter().isEmpty() ?
                 filtro.getFilter().toLowerCase() : filtro.getFilter(), pageable);
 
         PaginatedDto paginatedDto = new PaginatedDto<AdUsuarioReportDto>();
@@ -95,10 +95,10 @@ public class AdGruposServiceImpl {
 
     }
 
-    private AdGruposEntity validarCreatePermisos(AdGruposRequestDto request, String usuario) {
+    private AdGruposEntity validarCreatePermisos(Long idData, Long idEmpresa, AdGruposRequestDto request, String usuario) {
         validarGrupoPermiso(request);
         List<AdPermisosEntity> listPermisos = new ArrayList<>();
-        AdGruposEntity entidad = adGruposBuilder.builderEntity(request);
+        AdGruposEntity entidad = adGruposBuilder.builderEntity(idData, idEmpresa, request);
         entidad.setCreatedBy(usuario);
         entidad.setCreatedDate(LocalDateTime.now());
         if (!request.getPermisos().isEmpty()) {

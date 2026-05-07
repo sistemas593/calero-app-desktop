@@ -1,7 +1,7 @@
 package com.calero.lili.desktop.ui.ventas.facturas
 
+import com.calero.lili.core.modVentas.AutorizarFacNcrService
 import com.calero.lili.core.modVentas.VtVentaEntity
-import com.calero.lili.core.modVentas.facturas.VtVentasFacturasServiceImpl
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -21,7 +21,7 @@ data class EnviarAAutorizarUiState(
 )
 
 class EnviarAAutorizarViewModel(
-    private val service   : VtVentasFacturasServiceImpl,
+    private val service   : AutorizarFacNcrService,
     private val idData    : Long,
     private val idEmpresa : Long
 ) {
@@ -36,7 +36,7 @@ class EnviarAAutorizarViewModel(
         scope.launch {
             _state.update { it.copy(isLoading = true, error = null, resultado = null) }
             try {
-                val lista = service.getFacturasAutorizar(idData, idEmpresa)
+                val lista = service.getDocumentosAutorizar(idData, idEmpresa)
                 _state.update { it.copy(isLoading = false, facturas = lista) }
             } catch (e: Exception) {
                 _state.update { it.copy(isLoading = false, error = e.message ?: "Error al cargar") }
@@ -51,7 +51,7 @@ class EnviarAAutorizarViewModel(
             var errores = 0
             for (factura in facturas) {
                 try {
-                    service.procesarUnaFactura(idData, idEmpresa, factura)
+                    service.procesarDocumento(idData, idEmpresa, factura)
                     _state.update { s -> s.copy(facturas = s.facturas.filter { it.idVenta != factura.idVenta }) }
                 } catch (e: Exception) {
                     errores++
