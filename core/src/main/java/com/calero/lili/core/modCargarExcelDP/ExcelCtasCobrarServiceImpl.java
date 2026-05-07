@@ -25,6 +25,7 @@ import java.math.BigDecimal;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -183,9 +184,15 @@ public class ExcelCtasCobrarServiceImpl {
 
 
             List<DetalleCtasXCobrar> detalleCtasXCobrarList = new ArrayList<>(mapaCtasXCobrar.values());
+
+            detalleCtasXCobrarList.sort(Comparator.comparing(DetalleCtasXCobrar::getNombreDeudor, String.CASE_INSENSITIVE_ORDER));
+
             xCobrar.setDetalleCtasXCobrar(detalleCtasXCobrarList);
 
             List<DetallePasivo> detallePasivosList = new ArrayList<>(mapDetallePasivo.values());
+
+            detallePasivosList.sort(Comparator.comparing(DetallePasivo::getNombreAcreedor, String.CASE_INSENSITIVE_ORDER));
+
             pasivo.setDetallePasivo(detallePasivosList);
 
             decPat.setCtasXCobrar(xCobrar);
