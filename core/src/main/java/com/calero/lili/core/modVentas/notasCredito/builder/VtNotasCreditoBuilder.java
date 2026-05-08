@@ -149,7 +149,9 @@ public class VtNotasCreditoBuilder {
     public GetNotaCreditoDto builderResponse(VtVentaEntity model) {
         return GetNotaCreditoDto.builder()
                 .valores(vtNotasCreditoValoresBuilder.builderListValoresDto(model.getValoresEntity()))
-                .idTercero(model.getTercero().getIdTercero())
+                .idTercero(Objects.nonNull(model.getTercero()) ? model.getTercero().getIdTercero() : null)
+                .terceroNombre(Objects.nonNull(model.getTercero()) ? model.getTercero().getTercero() : null)
+                .numeroIdentificacion(Objects.nonNull(model.getTercero()) ? model.getTercero().getNumeroIdentificacion() : null)
                 .idVenta(model.getIdVenta())
                 .sucursal(model.getSucursal())
                 .tipoVenta(model.getTipoVenta())

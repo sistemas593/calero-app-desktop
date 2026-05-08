@@ -179,6 +179,9 @@ public class VtNotasDebitoBuilder {
                 .modCodigoDocumento(model.getModCodigoDocumento())
                 .ambiente(model.getAmbiente())
                 .formatoDocumento(model.getFormatoDocumento())
+                .idTercero(Objects.nonNull(model.getTercero()) ? model.getTercero().getIdTercero() : null)
+                .terceroNombre(Objects.nonNull(model.getTercero()) ? model.getTercero().getTercero() : null)
+                .numeroIdentificacion(Objects.nonNull(model.getTercero()) ? model.getTercero().getNumeroIdentificacion() : null)
                 .build();
     }
 }

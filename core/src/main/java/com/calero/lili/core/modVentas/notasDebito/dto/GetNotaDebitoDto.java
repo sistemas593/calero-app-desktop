@@ -31,6 +31,9 @@ public class GetNotaDebitoDto {
     private String guiaRemisionSecuencial;
 
     private UUID idTercero;
+    private String terceroNombre;
+    private String numeroIdentificacion;
+
     private String relacionado;
     private String email;
 
