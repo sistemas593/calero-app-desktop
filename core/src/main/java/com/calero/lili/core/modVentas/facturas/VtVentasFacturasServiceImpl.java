@@ -112,6 +112,8 @@ public class VtVentasFacturasServiceImpl {
     private final AdEmpresasRepository adEmpresasRepository;
     private final ValidarValoresServiceImpl validarValoresService;
 
+    // Crear otro enpoint: crear factura pero en un solo paso crear el cliente directamente, guardar cliente
+
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa,
                                          CreationFacturaRequestDto request, String usuario, String origenCertificado) {
 
@@ -132,8 +134,8 @@ public class VtVentasFacturasServiceImpl {
                     " {0} Serie: {1} Secuencia: {2}", TipoVenta.FAC.name(), request.getSerie(), request.getSecuencial()));
         }
 
-        GeTerceroEntity tercero = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
-                .orElseThrow(() -> new GeneralException("No existe tercero"));
+
+        GeTerceroEntity tercero = validacionTercero(idData, request);
 
         validarTotalConsumidorFinal(request, tercero);
         validarItem(request, idData, idEmpresa);
@@ -155,7 +157,7 @@ public class VtVentasFacturasServiceImpl {
         validateReembolso(request, vtVentaEntity);
         vtComprobanteService.getComprobanteXmlFactura(idData, idEmpresa, vtVentaEntity);
 
-        VtVentaEntity saved = facturasPersistenceService.guardarFactura(vtVentaEntity, request, idData, idEmpresa);
+        VtVentaEntity saved = facturasPersistenceService.guardarFactura(vtVentaEntity, request, idData, idEmpresa, tercero);
 
         MomentoEnvioProjection momentoEnvio = adEmpresasRepository.obtenerMomentosEnvio(idEmpresa)
                 .orElseThrow(() -> new GeneralException("No se encontraron los momentos de envío para la empresa con id: " + idEmpresa));
@@ -248,8 +250,8 @@ public class VtVentasFacturasServiceImpl {
             //xcFacturaService.create(idData, idEmpresa, facturaCuentasXCobrarBuilder.builder(request), vtVentaEntityDto.getIdVenta());
             // le paso primero al request y luego del request a la entidad esta mal//////////////////////////
             //RequestXcFacturasDto cxc = facturaCuentasXCobrarBuilder.builder(request);
-
-            xcFacturasRepository.save(xcFacturasBuilder.builderEntityFac(request, idData, idEmpresa, update.getIdVenta()));
+            // Se pasa el request para evitar el nulo de idTercero
+            xcFacturasRepository.save(xcFacturasBuilder.builderEntityFac(request, idData, idEmpresa, update.getIdVenta(), tercero));
         }
 
         return responseApiBuilder.builderResponse(vtVentaEntityDto.getIdVenta().toString());
@@ -1015,6 +1017,56 @@ public class VtVentasFacturasServiceImpl {
                     " TOTAL DOCUMENTO: {0}  | TOTAL FORMA DE PAGO SRI: {1}", request.getTotal(), totalPagoSri));
         }
 
+    }
+
+
+    private GeTerceroEntity validacionTercero(Long idData, CreationFacturaRequestDto request) {
+
+        GeTerceroEntity tercero = null;
+
+        if (Objects.nonNull(request.getIdTercero())) {
+
+            tercero = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
+                    .orElseThrow(() -> new GeneralException("No existe tercero"));
+
+            validacionInfoTercero(request);
+
+        } else if (Objects.nonNull(request.getTipoIdentificacion())
+                && Objects.nonNull(request.getNumeroIdentificacion()) && Objects.nonNull(request.getTerceroNombre())
+                && Objects.nonNull(request.getDireccion()) && Objects.nonNull(request.getEmail())) {
+
+            tercero = geTercerosRepository
+                    .getFindExistByNumeroIdentificacion(idData, request.getNumeroIdentificacion())
+                    .orElseGet(() -> {
+
+                        GeTerceroEntity terceroEntity = new GeTerceroEntity();
+                        terceroEntity.setIdTercero(UUID.randomUUID());
+                        terceroEntity.setIdData(idData);
+                        terceroEntity.setTipoIdentificacion(request.getTipoIdentificacion().name());
+                        terceroEntity.setNumeroIdentificacion(request.getNumeroIdentificacion());
+                        terceroEntity.setTercero(request.getTerceroNombre());
+                        terceroEntity.setDireccion(request.getDireccion());
+                        terceroEntity.setEmail(request.getEmail());
+                        terceroEntity.setDatosAdicionales(Boolean.FALSE);
+
+                        return geTercerosRepository.save(terceroEntity);
+                    });
+
+
+        } else {
+            throw new GeneralException("No existe información del tercero," +
+                    " es necesario enviar el id del tercero o la información completa del tercero");
+        }
+
+        return tercero;
+    }
+
+    private static void validacionInfoTercero(CreationFacturaRequestDto request) {
+        request.setTipoIdentificacion(null);
+        request.setNumeroIdentificacion(null);
+        request.setTerceroNombre(null);
+        request.setDireccion(null);
+        request.setEmail(null);
     }
 }
 

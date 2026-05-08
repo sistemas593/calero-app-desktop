@@ -34,6 +34,20 @@ public class ReporteDatosCrediticiosServiceImpl {
     }
 
     private String construirLinea(ReporteDatosCrediticiosEntity f) {
+
+         // TODO REVISAR ESTO TODAVIA EL REPORTE LA VALIDACION PARA ENVIAR LOS PARAMETROS CORRECTOS
+        String parroquia = "";
+        String canton = "";
+        String provincia = "";
+        String sexo = "";
+        String estadoCivil = "";
+        String origenIngresos = "";
+
+        if (f.getTercero().getDatosAdicionales()) {
+
+             parroquia = f.getTercero().getParroquia() != null ? f.getTercero().getParroquia().getCodigoParroquia() : "";
+        }
+
         return String.join("|",
                 f.getNumeroOperacion(),
                 DateUtils.toString(f.getFechaConcesion()),

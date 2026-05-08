@@ -6,6 +6,7 @@ import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDoc
 import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosRepository;
 import com.calero.lili.core.modCxC.XcFacturas.XcFacturasRepository;
 import com.calero.lili.core.modCxC.XcFacturas.builder.XcFacturasBuilder;
+import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modVentas.facturas.dto.CreationFacturaRequestDto;
 import com.calero.lili.core.modVentas.notasCredito.dto.CreationNotaCreditoRequestDto;
 import com.calero.lili.core.modVentas.notasDebito.dto.CreationNotaDebitoRequestDto;
@@ -27,13 +28,13 @@ public class VtVentasPersistenceService {
 
     @Transactional
     public VtVentaEntity guardarFactura(VtVentaEntity vtVentaEntity, CreationFacturaRequestDto request,
-                                        Long idData, Long idEmpresa) {
+                                        Long idData, Long idEmpresa, GeTerceroEntity tercero) {
 
         VtVentaEntity saved = vtVentaRepository.save(vtVentaEntity);
 
         if (request.getCuentaPorCobrar()) {
             xcFacturasRepository.save(
-                    xcFacturasBuilder.builderEntityFac(request, idData, idEmpresa, vtVentaEntity.getIdVenta())
+                    xcFacturasBuilder.builderEntityFac(request, idData, idEmpresa, vtVentaEntity.getIdVenta(), tercero)
             );
         }
 

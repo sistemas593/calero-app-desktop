@@ -44,8 +44,9 @@ public class XcFacturasBuilder {
                 .tipoDocumento(model.getTipoDocumento().name())
                 .build();
     }
+
     public XcFacturasEntity builderEntityFac(CreationFacturaRequestDto model,
-                                             Long idData, Long idEmpresa, UUID idFactura) {
+                                             Long idData, Long idEmpresa, UUID idFactura, GeTerceroEntity tercero) {
         return XcFacturasEntity.builder()
                 .idFactura(idFactura)
                 .idData(idData)
@@ -66,11 +67,10 @@ public class XcFacturasBuilder {
                 .notasCredito(BigDecimal.ZERO)
                 .saldo(model.getTotal())
                 .anulada(Boolean.FALSE)
-                .cliente(builderCliente(model.getIdTercero()))
+                .cliente(tercero)
                 .tipoDocumento("FAC")
                 .build();
     }
-
 
 
     public XcFacturasEntity builderUpdateEntity(RequestXcFacturasDto model, XcFacturasEntity item) {

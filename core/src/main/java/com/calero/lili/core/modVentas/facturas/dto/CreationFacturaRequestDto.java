@@ -60,13 +60,14 @@ public class CreationFacturaRequestDto {
     private String guiaRemisionSerie;
     private String guiaRemisionSecuencial;
 
-    @NotNull(message = "No existe el id Tercero")
     private UUID idTercero;
 
-    @NotNull(message = "No existe el tipo identificacion")
     private TipoIdentificacion tipoIdentificacion;
-
+    private String numeroIdentificacion;
+    private String terceroNombre;
+    private String direccion;
     private String email;
+
     private String relacionado;
 
     private String concepto;
@@ -100,7 +101,6 @@ public class CreationFacturaRequestDto {
     @Valid
     @NotEmpty(message = "No existen detalle de items")
     private List<DetailDto> detalle;
-
 
 
     private Exportacion exportacion;
@@ -160,5 +160,6 @@ public class CreationFacturaRequestDto {
 
     @NotNull(message = "Cuentas por cobras no existe")
     private Boolean cuentaPorCobrar;
+
 
 }
