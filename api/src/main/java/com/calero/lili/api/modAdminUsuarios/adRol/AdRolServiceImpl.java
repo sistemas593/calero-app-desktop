@@ -26,29 +26,29 @@ public class AdRolServiceImpl {
     private final AdRolBuilder adRolBuilder;
 
 
-    public AdRolDtoResponse create(Long idData, Long idEmpresa, AdRolDtoRequest request, String usuario) {
+    public AdRolDtoResponse create(Long idData, AdRolDtoRequest request, String usuario) {
         return adRolBuilder.builderResponse(adUsuarioRolRepository
-                .save(validarCreatePermisos(idData, idEmpresa, request, usuario)));
+                .save(validarCreatePermisos(idData, request, usuario)));
     }
 
-    public AdRolDtoResponse update(Long idData, Long idEmpresa, Long idRol, AdRolDtoRequest request, String usuario) {
+    public AdRolDtoResponse update(Long idData, Long idRol, AdRolDtoRequest request, String usuario) {
 
-        AdRolEntity adRolEntity = adUsuarioRolRepository.getFindId(idData, idEmpresa, idRol).orElseThrow(() -> new GeneralException(MessageFormat
+        AdRolEntity adRolEntity = adUsuarioRolRepository.getFindId(idData, idRol).orElseThrow(() -> new GeneralException(MessageFormat
                 .format("El rol con id {0} no existe", idRol)));
 
         return adRolBuilder.builderResponse(adUsuarioRolRepository
                 .save(validarUpdatePermisos(request, adRolEntity, usuario)));
     }
 
-    public AdRolDtoResponse findById(Long idData, Long idEmpresa, Long idRol) {
-        return adRolBuilder.builderResponse(adUsuarioRolRepository.getFindId(idData, idEmpresa, idRol)
+    public AdRolDtoResponse findById(Long idData, Long idRol) {
+        return adRolBuilder.builderResponse(adUsuarioRolRepository.getFindId(idData, idRol)
                 .orElseThrow(() -> new GeneralException(MessageFormat
                         .format("El rol con id {0} no existe", idRol))));
     }
 
-    public void delete(Long idData, Long idEmpresa, Long idRol, String usuario) {
+    public void delete(Long idData, Long idRol, String usuario) {
 
-        AdRolEntity adRolEntity = adUsuarioRolRepository.getFindId(idData, idEmpresa, idRol).orElseThrow(() -> new GeneralException(MessageFormat
+        AdRolEntity adRolEntity = adUsuarioRolRepository.getFindId(idData, idRol).orElseThrow(() -> new GeneralException(MessageFormat
                 .format("El rol con id {0} no existe", idRol)));
 
         adRolEntity.setDeletedBy(usuario);
@@ -58,9 +58,9 @@ public class AdRolServiceImpl {
         adUsuarioRolRepository.save(adRolEntity);
     }
 
-    public PaginatedDto<AdRolDtoResponse> findAll(Long idData, Long idEmpresa, RolFilterDto filtro, Pageable pageable) {
+    public PaginatedDto<AdRolDtoResponse> findAll(Long idData, RolFilterDto filtro, Pageable pageable) {
 
-        Page<AdRolEntity> page = adUsuarioRolRepository.findAllPaginate(idData, idEmpresa, !filtro.getFilter().isEmpty()
+        Page<AdRolEntity> page = adUsuarioRolRepository.findAllPaginate(idData, !filtro.getFilter().isEmpty()
                 ? filtro.getFilter().toLowerCase()
                 : filtro.getFilter(), pageable);
 
@@ -97,9 +97,9 @@ public class AdRolServiceImpl {
         }
     }
 
-    private AdRolEntity validarCreatePermisos(Long idData, Long idEmpresa, AdRolDtoRequest request, String usuario) {
+    private AdRolEntity validarCreatePermisos(Long idData, AdRolDtoRequest request, String usuario) {
         validarRol(request);
-        AdRolEntity entidad = adRolBuilder.builderEntity(idData, idEmpresa, request);
+        AdRolEntity entidad = adRolBuilder.builderEntity(idData, request);
         entidad.setCreatedBy(usuario);
         entidad.setCreatedDate(LocalDateTime.now());
         return entidad;

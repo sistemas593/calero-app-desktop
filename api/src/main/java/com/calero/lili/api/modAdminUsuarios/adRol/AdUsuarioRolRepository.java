@@ -13,14 +13,13 @@ public interface AdUsuarioRolRepository extends JpaRepository<AdRolEntity, Long>
     @Query("select u from AdRolEntity u where u.nombre =:nombre ")
     Optional<AdRolEntity> findForName(@Param("nombre") String nombre);
 
-    @Query("select u from AdRolEntity u where u.idRol =:id and u.idData =:idData and u.idEmpresa =:idEmpresa")
+    @Query("select u from AdRolEntity u where u.idRol =:id and u.idData =:idData")
     Optional<AdRolEntity> getFindId(@Param("idData") Long idData,
-                                    @Param("idEmpresa") Long idEmpresa,
                                     @Param("id") Long id);
 
     @Query(
             value = "SELECT entity FROM AdRolEntity entity " +
-                    "WHERE entity.idData =:idData AND entity.idEmpresa =:idEmpresa AND " +
+                    "WHERE entity.idData =:idData AND " +
                     "(:filter IS NULL OR " +
                     "LOWER(entity.nombre) LIKE CONCAT('%', LOWER(:filter), '%'))",
             countQuery = "SELECT COUNT(entity) FROM AdRolEntity entity " +
@@ -28,7 +27,6 @@ public interface AdUsuarioRolRepository extends JpaRepository<AdRolEntity, Long>
                     "LOWER(entity.nombre) LIKE CONCAT('%', LOWER(:filter), '%'))"
     )
     Page<AdRolEntity> findAllPaginate(@Param("idData") Long idData,
-                                      @Param("idEmpresa") Long idEmpresa,
                                       @Param("filter") String filter, Pageable pageable);
 
 }

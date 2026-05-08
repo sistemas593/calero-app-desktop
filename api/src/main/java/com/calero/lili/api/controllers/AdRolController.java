@@ -34,48 +34,44 @@ public class AdRolController {
     private final AuditorAware<String> auditorAware;
     private final IdDataServiceImpl idDataService;
 
-    @PostMapping("{idEmpresa}")
+    @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('US_RL_CR')")
-    public AdRolDtoResponse create(@PathVariable("idEmpresa") Long idEmpresa,
-                                   @RequestBody @Valid AdRolDtoRequest request) {
-        return adRolService.create(idDataService.getIdData(), idEmpresa, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+    public AdRolDtoResponse create(@RequestBody @Valid AdRolDtoRequest request) {
+        return adRolService.create(idDataService.getIdData(), request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
-    @PutMapping("{idRol}/{idEmpresa}")
+    @PutMapping("{idRol}")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAuthority('US_RL_MO')")
-    public AdRolDtoResponse update(@PathVariable("idEmpresa") Long idEmpresa,
-                                   @PathVariable("idRol") Long idRol,
+    public AdRolDtoResponse update(@PathVariable("idRol") Long idRol,
                                    @RequestBody @Valid AdRolDtoRequest request) {
 
-        return adRolService.update(idDataService.getIdData(), idEmpresa, idRol, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        return adRolService.update(idDataService.getIdData(), idRol, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
-    @GetMapping("{idRol}/{idEmpresa}")
+    @GetMapping("{idRol}")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAuthority('US_RL_VR')")
-    public AdRolDtoResponse findById(@PathVariable("idEmpresa") Long idEmpresa,
-                                     @PathVariable("idRol") Long idRol) {
-        return adRolService.findById(idDataService.getIdData(), idEmpresa, idRol);
+    public AdRolDtoResponse findById(@PathVariable("idRol") Long idRol) {
+        return adRolService.findById(idDataService.getIdData(), idRol);
     }
 
-    @GetMapping("listar/{idEmpresa}")
+    @GetMapping("listar")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAuthority('US_RL_VR')")
     public PaginatedDto<AdRolDtoResponse> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
                                                           RolFilterDto filters,
                                                           Pageable pageable) {
-        return adRolService.findAll(idDataService.getIdData(), idEmpresa, filters, pageable);
+        return adRolService.findAll(idDataService.getIdData(), filters, pageable);
     }
 
 
-    @DeleteMapping("{idRol}/{idEmpresa}")
+    @DeleteMapping("{idRol}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasAuthority('US_RL_EL')")
-    public void delete(@PathVariable("idEmpresa") Long idEmpresa,
-                       @PathVariable("idRol") Long idRol) {
-        adRolService.delete(idDataService.getIdData(), idEmpresa, idRol, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+    public void delete(@PathVariable("idRol") Long idRol) {
+        adRolService.delete(idDataService.getIdData(), idRol, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
 

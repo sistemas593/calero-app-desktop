@@ -35,48 +35,43 @@ public class AdGruposController {
     private final IdDataServiceImpl idDataService;
 
 
-    @PostMapping("{idEmpresa}")
+    @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('US_GR_CR')")
-    public AdGruposResponseDto create(@PathVariable("idEmpresa") Long idEmpresa,
-                                      @RequestBody @Valid AdGruposRequestDto request) {
-        return adGrupoPermisoService.create(idDataService.getIdData(), idEmpresa, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+    public AdGruposResponseDto create(@RequestBody @Valid AdGruposRequestDto request) {
+        return adGrupoPermisoService.create(idDataService.getIdData(), request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
-    @PutMapping("{idGrupoPermiso}/{idEmpresa}")
+    @PutMapping("{idGrupoPermiso}")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAuthority('US_GR_MO')")
-    public AdGruposResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
-                                      @PathVariable("idGrupoPermiso") Long idGrupoPermiso,
+    public AdGruposResponseDto update(@PathVariable("idGrupoPermiso") Long idGrupoPermiso,
                                       @RequestBody @Valid AdGruposRequestDto request) {
 
-        return adGrupoPermisoService.update(idDataService.getIdData(), idEmpresa, idGrupoPermiso, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        return adGrupoPermisoService.update(idDataService.getIdData(), idGrupoPermiso, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
-    @GetMapping("{idGrupoPermiso}/{idEmpresa}")
+    @GetMapping("{idGrupoPermiso}")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAuthority('US_GR_VR')")
-    public AdGruposResponseDto findById(@PathVariable("idEmpresa") Long idEmpresa,
-                                        @PathVariable("idGrupoPermiso") Long idGrupoPermiso) {
-        return adGrupoPermisoService.findById(idDataService.getIdData(), idEmpresa, idGrupoPermiso);
+    public AdGruposResponseDto findById(@PathVariable("idGrupoPermiso") Long idGrupoPermiso) {
+        return adGrupoPermisoService.findById(idDataService.getIdData(), idGrupoPermiso);
     }
 
-    @GetMapping("listar/{idEmpresa}")
+    @GetMapping("listar")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAuthority('US_GR_VR')")
-    public PaginatedDto<AdGruposResponseDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
-                                                             GruposFilter filters,
+    public PaginatedDto<AdGruposResponseDto> findAllPaginate(GruposFilter filters,
                                                              Pageable pageable) {
-        return adGrupoPermisoService.findAll(idDataService.getIdData(), idEmpresa, filters, pageable);
+        return adGrupoPermisoService.findAll(idDataService.getIdData(), filters, pageable);
     }
 
 
-    @DeleteMapping("{idGrupoPermiso}/{idEmpresa}")
+    @DeleteMapping("{idGrupoPermiso}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasAuthority('US_GR_EL')")
-    public void delete(@PathVariable("idEmpresa") Long idEmpresa,
-                       @PathVariable("idGrupoPermiso") Long idGrupoPermiso) {
-        adGrupoPermisoService.delete(idDataService.getIdData(), idEmpresa, idGrupoPermiso, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+    public void delete(@PathVariable("idGrupoPermiso") Long idGrupoPermiso) {
+        adGrupoPermisoService.delete(idDataService.getIdData(), idGrupoPermiso, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
 }

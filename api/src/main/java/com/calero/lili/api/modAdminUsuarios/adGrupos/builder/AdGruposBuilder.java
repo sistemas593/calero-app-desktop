@@ -11,11 +11,10 @@ import java.util.List;
 @Component
 public class AdGruposBuilder {
 
-    public AdGruposEntity builderEntity(Long idData, Long idEmpresa, AdGruposRequestDto model) {
+    public AdGruposEntity builderEntity(Long idData, AdGruposRequestDto model) {
         return AdGruposEntity.builder()
                 .nombre(model.getNombre())
                 .idData(idData)
-                .idEmpresa(idEmpresa)
                 .build();
     }
 
@@ -24,7 +23,6 @@ public class AdGruposBuilder {
                 .idGrupo(item.getIdGrupo())
                 .nombre(model.getNombre())
                 .idData(item.getIdData())
-                .idEmpresa(item.getIdEmpresa())
                 .build();
     }
 

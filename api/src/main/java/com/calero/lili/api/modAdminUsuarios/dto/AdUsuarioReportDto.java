@@ -16,6 +16,8 @@ public class AdUsuarioReportDto {
     private int nivel;
 
     private List<Roles> roles;
+    private List<Grupos> grupos;
+
 
     @Data
     @AllArgsConstructor
@@ -23,6 +25,13 @@ public class AdUsuarioReportDto {
     public static class Roles {
         private Long idRol;
         private String rol;
-   }
+    }
 
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Grupos {
+        private Long idGrupo;
+        private String grupo;
+    }
 }

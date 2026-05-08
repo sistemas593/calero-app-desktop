@@ -15,13 +15,13 @@ public interface AdGruposRepository extends JpaRepository<AdGruposEntity, Long> 
     @Query("select u from AdGruposEntity u where u.nombre =:nombre ")
     Optional<AdGruposEntity> getFindNombre(@Param("nombre") String nombre);
 
-    @Query("select u from AdGruposEntity u where u.idGrupo =:idGrupo and u.idData =:idData AND u.idEmpresa =:idEmpresa")
-    Optional<AdGruposEntity> getFindId(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("idGrupo") Long idGrupo);
+    @Query("select u from AdGruposEntity u where u.idGrupo =:idGrupo and u.idData =:idData ")
+    Optional<AdGruposEntity> getFindId(@Param("idData") Long idData, @Param("idGrupo") Long idGrupo);
 
 
     @Query(
             value = "SELECT entity FROM AdGruposEntity entity " +
-                    "WHERE entity.idData = :idData AND entity.idEmpresa = :idEmpresa AND " +
+                    "WHERE entity.idData = :idData AND " +
                     "(:filter IS NULL OR " +
                     "LOWER(entity.nombre) LIKE CONCAT('%', LOWER(:filter), '%'))",
             countQuery = "SELECT COUNT(entity) FROM AdGruposEntity entity " +
@@ -29,7 +29,6 @@ public interface AdGruposRepository extends JpaRepository<AdGruposEntity, Long> 
                     "LOWER(entity.nombre) LIKE CONCAT('%', LOWER(:filter), '%'))"
     )
     Page<AdGruposEntity> findAllPaginate(@Param("idData") Long idData,
-                                         @Param("idData") Long idEmpresa,
                                          @Param("filter") String filter, Pageable pageable);
 
 }

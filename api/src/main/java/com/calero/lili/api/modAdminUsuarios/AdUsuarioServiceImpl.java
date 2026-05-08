@@ -14,6 +14,7 @@ import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminDatas.AdDataRepository;
+import org.checkerframework.checker.units.qual.C;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -240,8 +241,10 @@ public class AdUsuarioServiceImpl {
         dto.setNivel(entity.getNivel());
 
         List<AdUsuarioReportDto.Roles> rolesDto = new ArrayList<>();
+        List<AdUsuarioReportDto.Grupos> gruposDto = new ArrayList<>();
 
         List<AdRolEntity> rolesEntity = entity.getRoles();
+        List<AdGruposEntity> gruposEntities = entity.getGrupos();
 
         for (AdRolEntity rol : rolesEntity) {
             AdUsuarioReportDto.Roles rolDto = new AdUsuarioReportDto.Roles();
@@ -250,8 +253,18 @@ public class AdUsuarioServiceImpl {
             rolesDto.add(rolDto);
         }
 
+        for (AdGruposEntity grupo : gruposEntities) {
+            AdUsuarioReportDto.Grupos grupoDto = new AdUsuarioReportDto.Grupos();
+            grupoDto.setIdGrupo(grupo.getIdGrupo());
+            grupoDto.setGrupo(grupo.getNombre());
+            gruposDto.add(grupoDto);
+        }
+
         rolesDto.sort(Comparator.comparing(AdUsuarioReportDto.Roles::getIdRol));
+        gruposDto.sort(Comparator.comparing(AdUsuarioReportDto.Grupos::getIdGrupo));
+
         dto.setRoles(rolesDto);
+        dto.setGrupos(gruposDto);
         return dto;
     }
 

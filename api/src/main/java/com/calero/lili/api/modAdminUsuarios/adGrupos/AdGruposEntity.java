@@ -32,8 +32,6 @@ public class AdGruposEntity extends Auditable {
 
     private Long idData;
 
-    private Long idEmpresa;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idGrupo;

@@ -8,10 +8,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class AdRolBuilder {
 
-    public AdRolEntity builderEntity(Long idData, Long idEmpresa, AdRolDtoRequest model) {
+    public AdRolEntity builderEntity(Long idData, AdRolDtoRequest model) {
         return AdRolEntity.builder()
                 .idData(idData)
-                .idEmpresa(idEmpresa)
                 .nombre(model.getNombre())
                 .build();
     }
@@ -21,7 +20,6 @@ public class AdRolBuilder {
                 .idRol(item.getIdRol())
                 .nombre(model.getNombre())
                 .idData(item.getIdData())
-                .idEmpresa(item.getIdEmpresa())
                 .build();
     }
 
@@ -30,7 +28,6 @@ public class AdRolBuilder {
         return AdRolDtoResponse.builder()
                 .idRol(model.getIdRol())
                 .nombre(model.getNombre())
-
                 .build();
     }
 }
