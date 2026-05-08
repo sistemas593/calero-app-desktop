@@ -34,6 +34,11 @@ public class GeTercerosServiceImpl {
     private final GeTerceroBuilder clienteBuilder;
     private final GeTercerosTipoServiceImpl geTercerosTipoService;
 
+    // TODO Incluir un boleano en tercero, datos adicionales, Si es verdadero, validar que tenga las localidades,
+    // TODO si es falso no debe ingresar la informacion
+    // TODO Si es verdadero, si es 01 es persona natural, que en la informacion venga sexo, origen de los ingreso y el estado civil
+    // TODO si es 02 la informacion del sexo, origen de los ingreso y el estado civil no debe venir
+
 
     public GeTerceroGetListDto create(Long idEmpresa, Long idData, GeTerceroRequestDto request, String usuario) {
 

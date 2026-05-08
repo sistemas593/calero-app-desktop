@@ -25,7 +25,9 @@ public class GetListResponseBuilder {
                 .tipoIngreso(model.getTipoIngreso())
                 .codigoDocumento(model.getCodigoDocumento())
                 .fechaEmision(Objects.nonNull(model.getFechaEmision()) ? DateUtils.toString(model.getFechaEmision()) : null)
-                .idTercero(model.getTercero().getIdTercero())
+                .idTercero(Objects.nonNull(model.getTercero()) ? model.getTercero().getIdTercero() : null)
+                .terceroNombre(Objects.nonNull(model.getTercero()) ? model.getTercero().getTercero() : null)
+                .numeroIdentificacion(Objects.nonNull(model.getTercero()) ? model.getTercero().getNumeroIdentificacion() : null)
                 .fechaVencimiento(model.getFechaVencimiento())
                 .numeroItems(model.getNumeroItems())
                 .diasCredito(model.getDiasCredito())
@@ -41,8 +43,6 @@ public class GetListResponseBuilder {
                 .valores(builderListValoresDto(model.getValoresEntity()))
                 .ambiente(model.getAmbiente())
                 .email(model.getEmail())
-                .numeroIdentificacion(model.getTercero().getNumeroIdentificacion())
-                .terceroNombre(model.getTercero().getTercero())
                 .build();
     }
 
@@ -74,7 +74,9 @@ public class GetListResponseBuilder {
                 .tipoIngreso(model.getTipoIngreso())
                 .codigoDocumento(model.getCodigoDocumento())
                 .fechaEmision(Objects.nonNull(model.getFechaEmision()) ? DateUtils.toString(model.getFechaEmision()) : null)
-                .idTercero(model.getTercero().getIdTercero())
+                .idTercero(Objects.nonNull(model.getTercero()) ? model.getTercero().getIdTercero() : null)
+                .terceroNombre(Objects.nonNull(model.getTercero()) ? model.getTercero().getTercero() : null)
+                .numeroIdentificacion(Objects.nonNull(model.getTercero()) ? model.getTercero().getNumeroIdentificacion() : null)
                 .fechaVencimiento(model.getFechaVencimiento())
                 .numeroItems(model.getNumeroItems())
                 .diasCredito(model.getDiasCredito())
@@ -90,8 +92,6 @@ public class GetListResponseBuilder {
                 .valores(builderAnuladoListValoresDto(model.getValoresEntity()))
                 .ambiente(model.getAmbiente())
                 .email(model.getEmail())
-                .numeroIdentificacion(model.getTercero().getNumeroIdentificacion())
-                .terceroNombre(model.getTercero().getTercero())
                 .build();
     }
 

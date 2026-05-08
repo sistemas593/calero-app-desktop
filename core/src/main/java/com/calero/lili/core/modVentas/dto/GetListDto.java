@@ -25,6 +25,8 @@ public class GetListDto {
     private String codigoDocumento;
     private String fechaEmision;
     private UUID idTercero;
+    private String terceroNombre;
+    private String numeroIdentificacion;
     private LocalDate fechaVencimiento;
     private int numeroItems;
     private Integer diasCredito;
@@ -40,7 +42,5 @@ public class GetListDto {
     private List<ResponseValoresDto> valores;
     private Integer ambiente;
     private String email;
-    private String terceroNombre;
-    private String numeroIdentificacion;
 
 }
