@@ -9,6 +9,7 @@ import com.calero.lili.core.modTerceros.projections.GeTerceroProjection;
 import com.calero.lili.core.utils.validaciones.ValidarCampoAscii;
 import com.calero.lili.core.utils.validaciones.ValidarIdentificacion;
 import com.calero.lili.core.dtos.PaginatedDto;
+import net.sf.jasperreports.engine.json.expression.member.ObjectKeyExpression;
 import org.springframework.transaction.annotation.Transactional;
 import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.enums.TipoIdentificacion;
@@ -34,16 +35,11 @@ public class GeTercerosServiceImpl {
     private final GeTerceroBuilder clienteBuilder;
     private final GeTercerosTipoServiceImpl geTercerosTipoService;
 
-    // TODO Incluir un boleano en tercero, datos adicionales, Si es verdadero, validar que tenga las localidades,
-    // TODO si es falso no debe ingresar la informacion
-    // TODO Si es verdadero, si es 01 es persona natural, que en la informacion venga sexo, origen de los ingreso y el estado civil
-    // TODO si es 02 la informacion del sexo, origen de los ingreso y el estado civil no debe venir
-
-
     public GeTerceroGetListDto create(Long idEmpresa, Long idData, GeTerceroRequestDto request, String usuario) {
 
         ValidarCampoAscii.validarStrings(request);
 
+        validarInformacionAdicional(request);
         Optional<GeTerceroProjection> vtClientesEntityExist = vtClientesRepository.findExistByNumeroIdentificacion(idData, request.getNumeroIdentificacion());
         if (vtClientesEntityExist.isPresent()) {
             System.out.println(request.getNumeroIdentificacion());
@@ -73,10 +69,13 @@ public class GeTercerosServiceImpl {
         return clienteBuilder.builderListResponse(entity);
     }
 
+
     @Transactional
     public GeTerceroGetListDto update(Long idEmpresa, Long idData, UUID id, GeTerceroRequestDto request, String usuario) {
 
         ValidarCampoAscii.validarStrings(request);
+
+        validarInformacionAdicional(request);
 
         GeTerceroEntity actualizar = vtClientesRepository.findByIdCliente(idData, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Cliente con id {0} no existe", id)));
@@ -181,6 +180,60 @@ public class GeTercerosServiceImpl {
         }
     }
 
+    private void validarInformacionAdicional(GeTerceroRequestDto request) {
+
+        if (request.getDatosAdicionales()) {
+
+            if (Objects.isNull(request.getTipoClienteProveedor()) || request.getTipoClienteProveedor().isEmpty()) {
+                throw new GeneralException("Es requerido el tipo cliente proveedor para validar la información adicional");
+            }
+
+            if (Objects.isNull(request.getCodigoProvincia()) || request.getCodigoProvincia().isEmpty()
+                    || Objects.isNull(request.getCodigoCanton()) || request.getCodigoCanton().isEmpty()
+                    || Objects.isNull(request.getCodigoParroquia()) || request.getCodigoParroquia().isEmpty()) {
+
+                throw new GeneralException("Los códigos de provincia, cantón y parroquia son requeridos");
+            }
+
+            validarClienteProveedor(request);
+
+
+        } else {
+
+            if (Objects.nonNull(request.getTipoClienteProveedor())) {
+                throw new GeneralException("No es requerido el tipo cliente proveedor para validar la información adicional");
+            }
+
+            if (Objects.nonNull(request.getCodigoProvincia())
+                    || Objects.nonNull(request.getCodigoCanton())
+                    || Objects.nonNull(request.getCodigoParroquia())) {
+
+                throw new GeneralException("Los códigos de provincia, cantón y parroquia no son requeridos");
+            }
+
+        }
+    }
+
+    private static void validarClienteProveedor(GeTerceroRequestDto request) {
+
+        if (request.getTipoClienteProveedor().equals("01")) {
+            if (Objects.isNull(request.getSexo())
+                    || Objects.isNull(request.getOrigenIngresos())
+                    || Objects.isNull(request.getEstadoCivil())) {
+
+                throw new GeneralException(
+                        "Sexo, origen de ingresos y estado civil son requeridos para persona natural");
+            }
+        } else if (request.getTipoClienteProveedor().equals("02")) {
+            if (Objects.nonNull(request.getSexo())
+                    || Objects.nonNull(request.getOrigenIngresos())
+                    || Objects.nonNull(request.getEstadoCivil())) {
+
+                throw new GeneralException(
+                        "Sexo, origen de ingresos y estado civil no son requeridos para persona jurídica");
+            }
+        }
+    }
 }
 
 

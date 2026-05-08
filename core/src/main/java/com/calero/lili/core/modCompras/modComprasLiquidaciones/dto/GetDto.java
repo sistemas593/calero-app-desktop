@@ -29,6 +29,7 @@ public class GetDto {
 
     private UUID idTercero;
     private String terceroNombre;
+    private String numeroIdentificacion;
 
     private String relacionado;
     private String email;

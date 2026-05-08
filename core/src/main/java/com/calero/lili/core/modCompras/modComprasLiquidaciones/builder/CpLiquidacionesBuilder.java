@@ -3,13 +3,13 @@ package com.calero.lili.core.modCompras.modComprasLiquidaciones.builder;
 
 import com.calero.lili.core.builder.FormasPagoBuilder;
 import com.calero.lili.core.builder.InformacionAdicionalBuilder;
+import com.calero.lili.core.enums.Ambiente;
+import com.calero.lili.core.enums.EmailEstado;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.CpLiquidacionesEntity;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.CreationRequestLiquidacionCompraDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.GetDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.GetListDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.builder.CpLiquidacionesReembolsosBuilder;
-import com.calero.lili.core.enums.Ambiente;
-import com.calero.lili.core.enums.EmailEstado;
 import com.calero.lili.core.utils.DateUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -126,7 +126,6 @@ public class CpLiquidacionesBuilder {
                 .fechaEmision(DateUtils.toString(model.getFechaEmision()))
                 .serie(model.getSerie())
                 .secuencial(model.getSecuencial())
-                .idTercero(model.getProveedor().getIdTercero())
                 .relacionado(model.getRelacionado())
                 .email(model.getEmail())
                 .subtotal(model.getSubtotal())
@@ -163,6 +162,8 @@ public class CpLiquidacionesBuilder {
                 .terceroNombre(Objects.nonNull(model.getProveedor())
                         ? model.getProveedor().getTercero()
                         : null)
+                .numeroIdentificacion(Objects.nonNull(model.getProveedor())
+                        ? model.getProveedor().getNumeroIdentificacion() : null)
                 .concepto(model.getConcepto())
                 .build();
     }
@@ -182,6 +183,8 @@ public class CpLiquidacionesBuilder {
                 .terceroNombre(Objects.nonNull(model.getProveedor())
                         ? model.getProveedor().getTercero()
                         : null)
+                .numeroIdentificacion(Objects.nonNull(model.getProveedor())
+                        ? model.getProveedor().getNumeroIdentificacion() : null)
                 .fechaVencimiento(model.getFechaVencimiento())
                 .numeroItems(model.getNumeroItems())
                 .diasCredito(model.getDiasCredito())
@@ -221,6 +224,8 @@ public class CpLiquidacionesBuilder {
                 .terceroNombre(Objects.nonNull(model.getProveedor())
                         ? model.getProveedor().getTercero()
                         : null)
+                .numeroIdentificacion(Objects.nonNull(model.getProveedor())
+                        ? model.getProveedor().getNumeroIdentificacion() : null)
                 .fechaVencimiento(model.getFechaVencimiento())
                 .numeroItems(model.getNumeroItems())
                 .diasCredito(model.getDiasCredito())
@@ -260,6 +265,8 @@ public class CpLiquidacionesBuilder {
                 .terceroNombre(Objects.nonNull(model.getProveedor())
                         ? model.getProveedor().getTercero()
                         : null)
+                .numeroIdentificacion(Objects.nonNull(model.getProveedor())
+                        ? model.getProveedor().getNumeroIdentificacion() : null)
                 .fechaVencimiento(model.getFechaVencimiento())
                 .numeroItems(model.getNumeroItems())
                 .diasCredito(model.getDiasCredito())

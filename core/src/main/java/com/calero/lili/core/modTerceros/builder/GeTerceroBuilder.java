@@ -48,6 +48,7 @@ public class GeTerceroBuilder {
                 .origenIngresos(model.getOrigenIngresos())
                 .sexo(model.getSexo())
                 .estadoCivil(model.getEstadoCivil())
+                .datosAdicionales(model.getDatosAdicionales())
                 .build();
     }
 
@@ -77,6 +78,7 @@ public class GeTerceroBuilder {
                 .origenIngresos(model.getOrigenIngresos())
                 .sexo(model.getSexo())
                 .estadoCivil(model.getEstadoCivil())
+                .datosAdicionales(model.getDatosAdicionales())
                 .build();
     }
 

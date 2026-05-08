@@ -5,9 +5,6 @@ import com.calero.lili.core.enums.OrigenIngresosEnum;
 import com.calero.lili.core.enums.SexoEnum;
 import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.modRRHH.modRRHHTrabajadores.dto.RequestTrabajadorDto;
-import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -52,6 +49,8 @@ public class GeTerceroRequestDto {
     private OrigenIngresosEnum origenIngresos;
     private EstadoCivilEnum estadoCivil;
 
+    @NotNull(message = "Es requerido saber si se requiere datos adicionales")
+    private Boolean datosAdicionales;
 
     @NotNull(message = "Es requerido la información del cliente")
     private TipoTercerosClienteDto cliente;
