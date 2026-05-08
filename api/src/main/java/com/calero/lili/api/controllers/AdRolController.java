@@ -60,8 +60,7 @@ public class AdRolController {
     @GetMapping("listar")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAuthority('US_RL_VR')")
-    public PaginatedDto<AdRolDtoResponse> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
-                                                          RolFilterDto filters,
+    public PaginatedDto<AdRolDtoResponse> findAllPaginate(RolFilterDto filters,
                                                           Pageable pageable) {
         return adRolService.findAll(idDataService.getIdData(), filters, pageable);
     }
