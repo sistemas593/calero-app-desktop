@@ -82,6 +82,7 @@ public class VtNotasCreditoBuilder {
                 .guiaRemisionSecuencial("")
                 .seguroInternacional(BigDecimal.ZERO)
                 .anulada(Boolean.FALSE)
+                .existeComprobante(Boolean.TRUE)
                 .build();
     }
 
@@ -142,6 +143,7 @@ public class VtNotasCreditoBuilder {
                 .guiaRemisionSecuencial("")
                 .seguroInternacional(BigDecimal.ZERO)
                 .anulada(item.getAnulada())
+                .existeComprobante(item.getExisteComprobante())
                 .build();
     }
 
@@ -192,6 +194,7 @@ public class VtNotasCreditoBuilder {
                 .concepto(model.getConcepto())
                 .formatoDocumento(model.getFormatoDocumento())
                 .ambiente(model.getAmbiente())
+                .existeComprobante(model.getExisteComprobante())
                 .build();
     }
 }

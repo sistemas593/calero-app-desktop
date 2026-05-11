@@ -68,6 +68,7 @@ public class CpLiquidacionesBuilder {
                         ? Ambiente.obtenerAmbiente(model.getAmbiente())
                         : null)
                 .anulada(Boolean.FALSE)
+                .existeComprobante(Boolean.TRUE)
                 .build();
     }
 
@@ -115,6 +116,7 @@ public class CpLiquidacionesBuilder {
                         : null)
                 .reembolsosEntity(item.getReembolsosEntity())
                 .anulada(item.getAnulada())
+                .existeComprobante(item.getExisteComprobante())
                 .build();
     }
 
@@ -165,6 +167,7 @@ public class CpLiquidacionesBuilder {
                 .numeroIdentificacion(Objects.nonNull(model.getProveedor())
                         ? model.getProveedor().getNumeroIdentificacion() : null)
                 .concepto(model.getConcepto())
+                .existeComprobante(model.getExisteComprobante())
                 .build();
     }
 
@@ -206,6 +209,7 @@ public class CpLiquidacionesBuilder {
                 .ambiente(model.getAmbiente())
                 .formatoDocumento(model.getFormatoDocumento())
                 .email(model.getEmail())
+                .existeComprobante(model.getExisteComprobante())
                 .build();
     }
 
@@ -246,6 +250,7 @@ public class CpLiquidacionesBuilder {
                 .detalle(cpLiquidacionesDetalleBuilder.builderListResponse(model.getDetalle()))
                 .ambiente(model.getAmbiente())
                 .formatoDocumento(model.getFormatoDocumento())
+                .existeComprobante(model.getExisteComprobante())
                 .build();
     }
 
@@ -287,6 +292,7 @@ public class CpLiquidacionesBuilder {
                 .detalle(cpLiquidacionesDetalleBuilder.builderListResponse(model.getDetalle()))
                 .ambiente(model.getAmbiente())
                 .formatoDocumento(model.getFormatoDocumento())
+                .existeComprobante(model.getExisteComprobante())
                 .build();
     }
 

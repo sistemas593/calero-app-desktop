@@ -1,5 +1,6 @@
 package com.calero.lili.core.modCargarExcel.services;
 
+import com.calero.lili.core.enums.TipoClienteProveedor;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
 import com.calero.lili.core.modTerceros.GeTercerosTipoEntity;
@@ -15,6 +16,7 @@ import com.calero.lili.core.errors.exceptions.ListErrorException;
 import com.monitorjbl.xlsx.StreamingReader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.formula.functions.T;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -143,16 +145,16 @@ public class ExcelCargarTercerosServiceImpl {
                     cliente.setObservaciones(webObservaciones);
                 }
 
-                cliente.setTipoClienteProveedor("");
+                cliente.setTipoClienteProveedor(null);
                 if (cliente.getTipoIdentificacion().equals(TipoIdentificacion.P.toString())) {
                     if (row.getCell(5) == null) {
-                        DetalleError detalle =detalleErrorBuilder.builderDetalleError(linea, EnumError.TIPO_CLIENTE_NOT_FOUND);
+                        DetalleError detalle = detalleErrorBuilder.builderDetalleError(linea, EnumError.TIPO_CLIENTE_NOT_FOUND);
                         listaErrores.add(detalle);
                     } else {
                         String tipoCliente = row.getCell(5).getStringCellValue();
                         try {
                             // TipoTerceroPerSoc.fromCodigo(tipoCliente);
-                            cliente.setTipoClienteProveedor(tipoCliente);
+                            cliente.setTipoClienteProveedor(TipoClienteProveedor.valueOf(tipoCliente));
                         } catch (Exception e) {
                             DetalleError detalle = detalleErrorBuilder.builderDetalleError(linea, EnumError.TIPO);
                             listaErrores.add(detalle);

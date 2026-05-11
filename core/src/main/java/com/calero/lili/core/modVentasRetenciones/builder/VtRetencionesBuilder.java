@@ -32,6 +32,7 @@ public class VtRetencionesBuilder {
                 .secuencialRetencion(model.getSecuencialRetencion())
                 .fechaEmisionRetencion(LocalDate.parse(model.getFechaEmisionRetencion()))
                 .periodoFiscal(Objects.nonNull(model.getPeriodoFiscal()) ? DateUtils.toPeriodoFiscalDate(model.getPeriodoFiscal()) : null)
+                .existeComprobante(Boolean.FALSE)
                 .build();
     }
 
@@ -47,6 +48,7 @@ public class VtRetencionesBuilder {
                 .secuencialRetencion(model.getSecuencialRetencion())
                 .fechaEmisionRetencion(LocalDate.parse(model.getFechaEmisionRetencion()))
                 .periodoFiscal(Objects.nonNull(model.getPeriodoFiscal()) ? DateUtils.toPeriodoFiscalDate(model.getPeriodoFiscal()) : null)
+                .existeComprobante(item.getExisteComprobante())
                 .build();
     }
 
@@ -64,6 +66,7 @@ public class VtRetencionesBuilder {
                         : null)
                 .fechaEmisionRetencion(DateUtils.toString(model.getFechaEmisionRetencion()))
                 .tercero(builderResponseTercero(model.getCliente()))
+                .existeComprobante(model.getExisteComprobante())
                 .build();
     }
 
@@ -87,6 +90,7 @@ public class VtRetencionesBuilder {
                 .secuencialRetencion(model.getSecuencialRetencion())
                 .fechaEmisionRetencion(DateUtils.toString(model.getFechaEmisionRetencion()))
                 .tercero(builderTerceroResponseList(model.getCliente()))
+                .existeComprobante(model.getExisteComprobante())
                 .build();
 
     }

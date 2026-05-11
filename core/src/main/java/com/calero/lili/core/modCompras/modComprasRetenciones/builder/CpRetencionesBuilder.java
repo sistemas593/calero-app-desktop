@@ -51,6 +51,7 @@ public class CpRetencionesBuilder {
                 .periodoFiscal(Objects.nonNull(model.getPeriodoFiscal()) ? DateUtils.toPeriodoFiscalDate(model.getPeriodoFiscal()) : null)
                 .relacionado(model.getRelacionado())
                 .emailEstado(EmailEstado.NO_ENTREGADO.getTipo())
+                .existeComprobante(Boolean.TRUE)
                 .build();
     }
 
@@ -80,6 +81,7 @@ public class CpRetencionesBuilder {
                 .periodoFiscal(Objects.nonNull(model.getPeriodoFiscal()) ? DateUtils.toPeriodoFiscalDate(model.getPeriodoFiscal()) : null)
                 .relacionado(model.getRelacionado())
                 .emailEstado(EmailEstado.NO_ENTREGADO.getTipo())
+                .existeComprobante(item.getExisteComprobante())
                 .build();
     }
 

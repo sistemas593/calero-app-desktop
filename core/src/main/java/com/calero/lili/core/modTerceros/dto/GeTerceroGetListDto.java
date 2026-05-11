@@ -3,6 +3,7 @@ package com.calero.lili.core.modTerceros.dto;
 import com.calero.lili.core.enums.EstadoCivilEnum;
 import com.calero.lili.core.enums.OrigenIngresosEnum;
 import com.calero.lili.core.enums.SexoEnum;
+import com.calero.lili.core.enums.TipoClienteProveedor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,7 +33,7 @@ public class GeTerceroGetListDto {
 
     private UUID idGrupo;
 
-    private String tipoClienteProveedor;
+    private TipoClienteProveedor tipoClienteProveedor;
 
     public String ciudad;
     public String direccion;
@@ -56,5 +57,9 @@ public class GeTerceroGetListDto {
         private UUID idTipoTercero;
         private String tipoTercero;
     }
+
+    private String parroquia;
+    private String canton;
+    private String provincia;
 
 }

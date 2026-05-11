@@ -90,6 +90,8 @@ public class VtRetencionesEntity extends Auditable {
     @JoinColumn(name = "id_cliente")
     private GeTerceroEntity cliente;
 
+    private Boolean existeComprobante;
+
 
 
 }

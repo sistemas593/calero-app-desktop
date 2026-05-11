@@ -169,6 +169,8 @@ public class VtVentaEntity extends Auditable {
     private String modSecuencial;
     private LocalDate modFechaEmision;
 
+    private Boolean existeComprobante;
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     private Exportacion exportacion;

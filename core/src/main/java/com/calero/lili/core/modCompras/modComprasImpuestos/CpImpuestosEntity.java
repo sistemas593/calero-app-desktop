@@ -155,4 +155,6 @@ public class CpImpuestosEntity extends Auditable {
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     private List<FormasPagoSri> formasPagoSri;
+
+    private Boolean existeComprobante;
 }

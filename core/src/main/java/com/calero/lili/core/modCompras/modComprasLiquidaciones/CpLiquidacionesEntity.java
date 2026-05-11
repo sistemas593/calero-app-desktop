@@ -163,5 +163,7 @@ public class CpLiquidacionesEntity extends Auditable {
     @JoinColumn(name = "id_proveedor")
     private GeTerceroEntity proveedor;
 
+    private Boolean existeComprobante;
+
 
 }

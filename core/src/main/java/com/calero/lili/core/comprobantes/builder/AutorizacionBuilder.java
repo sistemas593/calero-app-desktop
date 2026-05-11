@@ -74,6 +74,7 @@ public class AutorizacionBuilder {
                 .tercero(proveedor)
                 .formasPagoSri(builderListFormasPagoSri(documento.getInfoFactura().getPago()))
                 .pagoLocExt("01")
+                .existeComprobante(Boolean.TRUE)
                 .build();
     }
 
@@ -110,6 +111,7 @@ public class AutorizacionBuilder {
                 .fechaEmision(DateUtils.toLocalDate(documento.getInfoNotaCredito().getFechaEmision()))
                 .documento(builderTipoDocumento(CodigoDocumento.NOTA_CREDITO))
                 .tercero(proveedor)
+                .existeComprobante(Boolean.TRUE)
                 .build();
     }
 
@@ -130,6 +132,7 @@ public class AutorizacionBuilder {
                 .documento(builderTipoDocumento(CodigoDocumento.NOTA_DEBITO))
                 .tercero(proveedor)
                 .formasPagoSri(builderListFormasPagoSri(documento.getInfoNotaDebito().getPago()))
+                .existeComprobante(Boolean.TRUE)
                 .build();
     }
 
@@ -151,6 +154,7 @@ public class AutorizacionBuilder {
                 .claveAcceso(documento.getInfoTributaria().getClaveAcceso())
                 .formatoDocumento(FormatoDocumento.E)
                 .periodoFiscal(DateUtils.toPeriodoFiscalDate(documento.getInfoCompRetencion().getPeriodoFiscal()))
+                .existeComprobante(Boolean.TRUE)
                 .build();
     }
 
@@ -288,6 +292,7 @@ public class AutorizacionBuilder {
                 .formatoDocumento(FormatoDocumento.E)
                 .total(total)
                 .tipoEmision(Integer.valueOf(documento.getInfoTributaria().getTipoEmision()))
+                .existeComprobante(Boolean.TRUE)
                 .build();
     }
 

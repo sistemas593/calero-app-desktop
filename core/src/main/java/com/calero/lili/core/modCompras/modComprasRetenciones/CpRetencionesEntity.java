@@ -119,6 +119,8 @@ public class CpRetencionesEntity extends Auditable {
 
     private LocalDate periodoFiscal;
 
+    private Boolean existeComprobante;
+
     @Builder.Default
     @JoinColumn(name = "idRetencion", referencedColumnName = "idRetencion")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)

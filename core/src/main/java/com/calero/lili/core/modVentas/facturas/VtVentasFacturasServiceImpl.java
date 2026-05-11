@@ -112,7 +112,6 @@ public class VtVentasFacturasServiceImpl {
     private final AdEmpresasRepository adEmpresasRepository;
     private final ValidarValoresServiceImpl validarValoresService;
 
-    // Crear otro enpoint: crear factura pero en un solo paso crear el cliente directamente, guardar cliente
 
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa,
                                          CreationFacturaRequestDto request, String usuario, String origenCertificado) {

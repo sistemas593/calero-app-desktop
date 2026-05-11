@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @AllArgsConstructor
@@ -35,17 +36,30 @@ public class ReporteDatosCrediticiosServiceImpl {
 
     private String construirLinea(ReporteDatosCrediticiosEntity f) {
 
-         // TODO REVISAR ESTO TODAVIA EL REPORTE LA VALIDACION PARA ENVIAR LOS PARAMETROS CORRECTOS
-        String parroquia = "";
-        String canton = "";
-        String provincia = "";
-        String sexo = "";
-        String estadoCivil = "";
-        String origenIngresos = "";
+
+        // TODO REVISAR ESTO TODAVIA EL REPORTE LA VALIDACION PARA ENVIAR LOS PARAMETROS CORRECTOS
+        String parroquia = "|";
+        String canton = "|";
+        String provincia = "|";
+        String sexo = "|";
+        String estadoCivil = "|";
+        String origenIngresos = "|";
 
         if (f.getTercero().getDatosAdicionales()) {
 
-             parroquia = f.getTercero().getParroquia() != null ? f.getTercero().getParroquia().getCodigoParroquia() : "";
+
+            if (Objects.nonNull(f.getTercero().getParroquia())) {
+                parroquia = parroquia.replace("|", f.getTercero().getParroquia().getCodigoParroquia());
+
+                if (Objects.nonNull(f.getTercero().getParroquia().getCanton())) {
+                    canton = canton.replace("|", f.getTercero().getParroquia().getCanton().getCodigoCanton());
+
+                    if (Objects.nonNull(f.getTercero().getParroquia().getCanton().getProvincia())) {
+                        provincia = provincia.replace("|", f.getTercero().getParroquia().getCanton().getProvincia().getCodigoProvincia());
+                    }
+                }
+
+            }
         }
 
         return String.join("|",
@@ -54,10 +68,10 @@ public class ReporteDatosCrediticiosServiceImpl {
                 f.getTercero().getTipoIdentificacion(),
                 f.getTercero().getNumeroIdentificacion(),
                 f.getTercero().getTercero(),
-                f.getTercero().getTipoClienteProveedor().equals("01") ? "N" : "J",
-                f.getTercero().getProvincia().getCodigoProvincia(),
-                f.getTercero().getCanton().getCodigoCanton(),
-                f.getTercero().getParroquia().getCodigoParroquia(),
+                f.getTercero().getTipoClienteProveedor().name(),
+                provincia,
+                canton,
+                parroquia,
                 f.getTercero().getSexo().name(),
                 f.getTercero().getEstadoCivil().name(),
                 f.getTercero().getOrigenIngresos().name(),

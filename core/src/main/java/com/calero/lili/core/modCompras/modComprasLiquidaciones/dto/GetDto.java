@@ -72,5 +72,6 @@ public class GetDto {
     private FormatoDocumento formatoDocumento;
 
     private String concepto;
+    private Boolean existeComprobante;
 
 }

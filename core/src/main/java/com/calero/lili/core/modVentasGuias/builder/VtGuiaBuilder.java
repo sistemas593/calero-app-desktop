@@ -63,6 +63,7 @@ public class VtGuiaBuilder {
                         : "06")
                 .dirPartida(model.getDirPartida())
                 .emailEstado(EmailEstado.NO_ENTREGADO.getTipo())
+                .existeComprobante(Boolean.TRUE)
                 .build();
     }
 
@@ -107,6 +108,7 @@ public class VtGuiaBuilder {
                         : "06")
                 .dirPartida(model.getDirPartida())
                 .emailEstado(EmailEstado.NO_ENTREGADO.getTipo())
+                .existeComprobante(item.getExisteComprobante())
                 .build();
     }
 
@@ -158,6 +160,7 @@ public class VtGuiaBuilder {
                 .dirDestinatario(model.getDestinatario().getDireccion())
                 .codDocSustento(model.getCodDocSustento())
                 .documentoSustento(builderDocumentoSustentoResponse(model))
+                .existeComprobante(model.getExisteComprobante())
                 .build();
     }
 
@@ -195,6 +198,7 @@ public class VtGuiaBuilder {
                 .razonSocialDestinatario(model.getDestinatario().getTercero())
                 .estadoDocumento(model.getEstadoDocumento())
                 .emailEstado(model.getEmailEstado())
+                .existeComprobante(model.getExisteComprobante())
                 .build();
     }
 

@@ -1,5 +1,12 @@
 package com.calero.lili.core.modTerceros;
 
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.Paginator;
+import com.calero.lili.core.enums.TipoClienteProveedor;
+import com.calero.lili.core.enums.TipoIdentificacion;
+import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.core.modLocalidades.modParroquias.ParroquiaEntity;
+import com.calero.lili.core.modLocalidades.modParroquias.ParroquiaRepository;
 import com.calero.lili.core.modTerceros.builder.GeTerceroBuilder;
 import com.calero.lili.core.modTerceros.dto.GeTerceroFilterDto;
 import com.calero.lili.core.modTerceros.dto.GeTerceroGetListDto;
@@ -8,16 +15,11 @@ import com.calero.lili.core.modTerceros.dto.GeTerceroRequestDto;
 import com.calero.lili.core.modTerceros.projections.GeTerceroProjection;
 import com.calero.lili.core.utils.validaciones.ValidarCampoAscii;
 import com.calero.lili.core.utils.validaciones.ValidarIdentificacion;
-import com.calero.lili.core.dtos.PaginatedDto;
-import net.sf.jasperreports.engine.json.expression.member.ObjectKeyExpression;
-import org.springframework.transaction.annotation.Transactional;
-import com.calero.lili.core.dtos.Paginator;
-import com.calero.lili.core.enums.TipoIdentificacion;
-import com.calero.lili.core.errors.exceptions.GeneralException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
@@ -34,6 +36,7 @@ public class GeTercerosServiceImpl {
     private final ValidarIdentificacion validarIdentificacion;
     private final GeTerceroBuilder clienteBuilder;
     private final GeTercerosTipoServiceImpl geTercerosTipoService;
+    private final ParroquiaRepository parroquiaRepository;
 
     public GeTerceroGetListDto create(Long idEmpresa, Long idData, GeTerceroRequestDto request, String usuario) {
 
@@ -61,10 +64,11 @@ public class GeTercerosServiceImpl {
 
         validarTransportista(request);
         validarTrabajador(request);
-        GeTerceroEntity newEntity = clienteBuilder.builderEntity(request, idData);
-        newEntity.setCreatedBy(usuario);
-        newEntity.setCreatedDate(LocalDateTime.now());
-        GeTerceroEntity entity = vtClientesRepository.save(newEntity);
+        GeTerceroEntity tercero = clienteBuilder.builderEntity(request, idData);
+        validarLocalidad(tercero, request.getCodigoParroquia());
+        tercero.setCreatedBy(usuario);
+        tercero.setCreatedDate(LocalDateTime.now());
+        GeTerceroEntity entity = vtClientesRepository.save(tercero);
         geTercerosTipoService.save(request, entity, idData, idEmpresa);
         return clienteBuilder.builderListResponse(entity);
     }
@@ -184,15 +188,13 @@ public class GeTercerosServiceImpl {
 
         if (request.getDatosAdicionales()) {
 
-            if (Objects.isNull(request.getTipoClienteProveedor()) || request.getTipoClienteProveedor().isEmpty()) {
+            if (Objects.isNull(request.getTipoClienteProveedor())) {
                 throw new GeneralException("Es requerido el tipo cliente proveedor para validar la información adicional");
             }
 
-            if (Objects.isNull(request.getCodigoProvincia()) || request.getCodigoProvincia().isEmpty()
-                    || Objects.isNull(request.getCodigoCanton()) || request.getCodigoCanton().isEmpty()
-                    || Objects.isNull(request.getCodigoParroquia()) || request.getCodigoParroquia().isEmpty()) {
+            if (Objects.isNull(request.getCodigoParroquia()) || request.getCodigoParroquia().isEmpty()) {
 
-                throw new GeneralException("Los códigos de provincia, cantón y parroquia son requeridos");
+                throw new GeneralException("El código de  parroquia es requerido");
             }
 
             validarClienteProveedor(request);
@@ -204,11 +206,9 @@ public class GeTercerosServiceImpl {
                 throw new GeneralException("No es requerido el tipo cliente proveedor para validar la información adicional");
             }
 
-            if (Objects.nonNull(request.getCodigoProvincia())
-                    || Objects.nonNull(request.getCodigoCanton())
-                    || Objects.nonNull(request.getCodigoParroquia())) {
+            if (Objects.nonNull(request.getCodigoParroquia())) {
 
-                throw new GeneralException("Los códigos de provincia, cantón y parroquia no son requeridos");
+                throw new GeneralException("El código de  parroquia es requerido");
             }
 
         }
@@ -216,7 +216,7 @@ public class GeTercerosServiceImpl {
 
     private static void validarClienteProveedor(GeTerceroRequestDto request) {
 
-        if (request.getTipoClienteProveedor().equals("01")) {
+        if (request.getTipoClienteProveedor().equals(TipoClienteProveedor.N)) {
             if (Objects.isNull(request.getSexo())
                     || Objects.isNull(request.getOrigenIngresos())
                     || Objects.isNull(request.getEstadoCivil())) {
@@ -224,7 +224,7 @@ public class GeTercerosServiceImpl {
                 throw new GeneralException(
                         "Sexo, origen de ingresos y estado civil son requeridos para persona natural");
             }
-        } else if (request.getTipoClienteProveedor().equals("02")) {
+        } else if (request.getTipoClienteProveedor().equals(TipoClienteProveedor.J)) {
             if (Objects.nonNull(request.getSexo())
                     || Objects.nonNull(request.getOrigenIngresos())
                     || Objects.nonNull(request.getEstadoCivil())) {
@@ -233,6 +233,19 @@ public class GeTercerosServiceImpl {
                         "Sexo, origen de ingresos y estado civil no son requeridos para persona jurídica");
             }
         }
+    }
+
+    private void validarLocalidad(GeTerceroEntity tercero, String codigoParroquia) {
+
+        if (Objects.nonNull(codigoParroquia)) {
+            ParroquiaEntity parroquia = parroquiaRepository.getForFindById(codigoParroquia)
+                    .orElseThrow(() -> new GeneralException(MessageFormat.format("Parroquia con código {0} no existe", codigoParroquia)));
+            tercero.setParroquia(parroquia);
+
+        } else {
+            tercero.setParroquia(null);
+        }
+
     }
 }
 

@@ -6,18 +6,11 @@ import com.calero.lili.core.comprobantes.objetosXml.factura.Factura;
 import com.calero.lili.core.comprobantes.objetosXml.notaCredito.NotaCredito;
 import com.calero.lili.core.comprobantes.objetosXml.notaDebito.NotaDebito;
 import com.calero.lili.core.comprobantes.services.dto.CampoAutorizacionDto;
-import com.calero.lili.core.utils.DateUtils;
 import org.springframework.stereotype.Component;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Component
 public class CampoAutorizacionBuilder {
 
-
-    LocalDate date = LocalDate.of(2000, 1, 1);
-    LocalDateTime fecha = date.atStartOfDay();
 
     public CampoAutorizacionDto builder(Autorizacion documento) {
         return CampoAutorizacionDto.builder()
@@ -30,7 +23,7 @@ public class CampoAutorizacionBuilder {
     public CampoAutorizacionDto builderFactura(Factura documento) {
         return CampoAutorizacionDto.builder()
                 .numeroAutorizacion(documento.getInfoTributaria().getClaveAcceso())
-                .fechaAutorizacion(DateUtils.toLocalDateTimeString(fecha))
+                .fechaAutorizacion(null)
                 .factura(documento)
                 .build();
     }
@@ -38,7 +31,7 @@ public class CampoAutorizacionBuilder {
     public CampoAutorizacionDto builderNotaCredito(NotaCredito documento) {
         return CampoAutorizacionDto.builder()
                 .numeroAutorizacion(documento.getInfoTributaria().getClaveAcceso())
-                .fechaAutorizacion(DateUtils.toLocalDateTimeString(fecha))
+                .fechaAutorizacion(null)
                 .notaCredito(documento)
                 .build();
     }
@@ -46,7 +39,7 @@ public class CampoAutorizacionBuilder {
     public CampoAutorizacionDto builderNotaDebito(NotaDebito documento) {
         return CampoAutorizacionDto.builder()
                 .numeroAutorizacion(documento.getInfoTributaria().getClaveAcceso())
-                .fechaAutorizacion(DateUtils.toLocalDateTimeString(fecha))
+                .fechaAutorizacion(null)
                 .notaDebito(documento)
                 .build();
     }
@@ -54,7 +47,7 @@ public class CampoAutorizacionBuilder {
     public CampoAutorizacionDto builderComprobanteRetencionV1(ComprobanteRetencion retencionUno) {
         return CampoAutorizacionDto.builder()
                 .numeroAutorizacion(retencionUno.getInfoTributaria().getClaveAcceso())
-                .fechaAutorizacion(DateUtils.toLocalDateTimeString(fecha))
+                .fechaAutorizacion(null)
                 .comprobanteRetencionV1(retencionUno)
                 .build();
     }
@@ -62,7 +55,7 @@ public class CampoAutorizacionBuilder {
     public CampoAutorizacionDto builderComprobanteRetencionV2(com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencion.ComprobanteRetencion retencionDos) {
         return CampoAutorizacionDto.builder()
                 .numeroAutorizacion(retencionDos.getInfoTributaria().getClaveAcceso())
-                .fechaAutorizacion(DateUtils.toLocalDateTimeString(fecha))
+                .fechaAutorizacion(null)
                 .comprobanteRetencionV2(retencionDos)
                 .build();
     }

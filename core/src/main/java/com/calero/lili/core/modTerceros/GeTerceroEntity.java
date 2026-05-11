@@ -4,6 +4,7 @@ import com.calero.lili.core.Auditable;
 import com.calero.lili.core.enums.EstadoCivilEnum;
 import com.calero.lili.core.enums.OrigenIngresosEnum;
 import com.calero.lili.core.enums.SexoEnum;
+import com.calero.lili.core.enums.TipoClienteProveedor;
 import com.calero.lili.core.modClientesConfiguraciones.VtClientesConfiguracionesEntity;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.CpLiquidacionesEntity;
 import com.calero.lili.core.modLocalidades.modCantones.CantonEntity;
@@ -70,8 +71,9 @@ public class GeTerceroEntity extends Auditable implements Serializable {
     @Column(name = "observaciones", columnDefinition = "TEXT")
     private String observaciones;
 
-    @Column(name = "tipo_cliente_proveedor", length = 2)
-    private String tipoClienteProveedor;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_cliente_proveedor")
+    private TipoClienteProveedor tipoClienteProveedor;
 
     @Column(name = "ciudad", length = 60)
     private String ciudad;
@@ -125,14 +127,6 @@ public class GeTerceroEntity extends Auditable implements Serializable {
 
 
     private String placa;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "codigo_provincia")
-    private ProvinciaEntity provincia;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "codigo_canton")
-    private CantonEntity canton;
 
 
     @ManyToOne(fetch = FetchType.LAZY)

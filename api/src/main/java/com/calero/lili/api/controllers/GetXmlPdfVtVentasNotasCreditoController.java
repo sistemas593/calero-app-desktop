@@ -41,7 +41,7 @@ public class GetXmlPdfVtVentasNotasCreditoController {
     public ResponseEntity<byte[]> descargarPdfNotaCredito(@PathVariable("idEmpresa") Long idEmpresa,
                                                           @PathVariable("idRecibida") UUID idRecibida) {
 
-        ArchivoDto datos = vtVentasService.findPDFNotaCreditoById(idDataService.getIdData(), idEmpresa, idRecibida, "WEB"); // tu byte[]
+        ArchivoDto datos = vtVentasService.findPDFNotaCreditoById(idDataService.getIdData(), idEmpresa, idRecibida, "LOC"); // tu byte[]
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + datos.getNombre())

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -42,16 +43,12 @@ public class GeTerceroBuilder {
                 .contacto(model.getContacto())
                 .email(model.getEmail())
                 .placa(model.getTransportista().getPlaca())
-                .provincia(Objects.nonNull(model.getCodigoProvincia()) ? builderProvincia(model.getCodigoProvincia()) : null)
-                .canton(Objects.nonNull(model.getCodigoCanton()) ? builderCanton(model.getCodigoCanton()) : null)
-                .parroquia(Objects.nonNull(model.getCodigoParroquia()) ? builderParroquia(model.getCodigoParroquia()) : null)
                 .origenIngresos(model.getOrigenIngresos())
                 .sexo(model.getSexo())
                 .estadoCivil(model.getEstadoCivil())
                 .datosAdicionales(model.getDatosAdicionales())
                 .build();
     }
-
 
 
     public GeTerceroEntity builderUpdateEntity(GeTerceroRequestDto model, GeTerceroEntity item) {
@@ -72,9 +69,6 @@ public class GeTerceroBuilder {
                 .contacto(model.getContacto())
                 .email(model.getEmail())
                 .placa(model.getTransportista().getPlaca())
-                .provincia(Objects.nonNull(model.getCodigoProvincia()) ? builderProvincia(model.getCodigoProvincia()) : item.getProvincia())
-                .canton(Objects.nonNull(model.getCodigoCanton()) ? builderCanton(model.getCodigoCanton()) : item.getCanton())
-                .parroquia(Objects.nonNull(model.getCodigoParroquia()) ? builderParroquia(model.getCodigoParroquia()) : item.getParroquia())
                 .origenIngresos(model.getOrigenIngresos())
                 .sexo(model.getSexo())
                 .estadoCivil(model.getEstadoCivil())
@@ -99,6 +93,9 @@ public class GeTerceroBuilder {
                 .origenIngresos(model.getOrigenIngresos())
                 .sexo(model.getSexo())
                 .estadoCivil(model.getEstadoCivil())
+                .parroquia(Objects.nonNull(model.getParroquia()) ? model.getParroquia().getParroquia() : null)
+                .canton(getCanton(model))
+                .provincia(getProvincia(model))
                 .build();
     }
 
@@ -122,8 +119,12 @@ public class GeTerceroBuilder {
                 .origenIngresos(model.getOrigenIngresos())
                 .sexo(model.getSexo())
                 .estadoCivil(model.getEstadoCivil())
+                .parroquia(Objects.nonNull(model.getParroquia()) ? model.getParroquia().getParroquia() : null)
+                .canton(getCanton(model))
+                .provincia(getProvincia(model))
                 .build();
     }
+
 
     private List<GeTerceroGetListDto.TipoTercerosDto> builderResposeListTipoTercero(List<GeTercerosTipoEntity> geTercerosTipoEntities) {
         if (Objects.isNull(geTercerosTipoEntities)) return null;
@@ -139,22 +140,20 @@ public class GeTerceroBuilder {
                 .build();
     }
 
-    private ParroquiaEntity builderParroquia(String codigoParroquia) {
-        return ParroquiaEntity.builder()
-                .codigoParroquia(codigoParroquia)
-                .build();
+    private String getCanton(GeTerceroEntity model) {
+        return Optional.ofNullable(model)
+                .map(GeTerceroEntity::getParroquia)
+                .map(ParroquiaEntity::getCanton)
+                .map(CantonEntity::getCanton)
+                .orElse(null);
     }
 
-    private CantonEntity builderCanton(String codigoCanton) {
-        return CantonEntity.builder()
-                .codigoCanton(codigoCanton)
-                .build();
+    private String getProvincia(GeTerceroEntity model) {
+        return Optional.ofNullable(model)
+                .map(GeTerceroEntity::getParroquia)
+                .map(ParroquiaEntity::getCanton)
+                .map(CantonEntity::getProvincia)
+                .map(ProvinciaEntity::getProvincia)
+                .orElse(null);
     }
-
-    private ProvinciaEntity builderProvincia(String codigoProvincia) {
-        return ProvinciaEntity.builder()
-                .codigoProvincia(codigoProvincia)
-                .build();
-    }
-
 }

@@ -94,5 +94,6 @@ public class GetDto {
         private String fechaEmisionDocSustento;
     }
 
+    private Boolean existeComprobante;
 
 }

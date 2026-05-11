@@ -140,4 +140,6 @@ public class VtGuiaEntity extends Auditable {
 
     private String codigoDocumento;
 
+    private Boolean existeComprobante;
+
 }

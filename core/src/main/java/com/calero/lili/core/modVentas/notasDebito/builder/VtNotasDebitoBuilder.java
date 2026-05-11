@@ -77,6 +77,7 @@ public class VtNotasDebitoBuilder {
                         : null)
                 .anulada(Boolean.FALSE)
                 .concepto(model.getConcepto())
+                .existeComprobante(Boolean.TRUE)
                 .build();
     }
 
@@ -131,6 +132,7 @@ public class VtNotasDebitoBuilder {
                         : null)
                 .anulada(item.getAnulada())
                 .concepto(model.getConcepto())
+                .existeComprobante(item.getExisteComprobante())
                 .build();
     }
 
@@ -182,6 +184,7 @@ public class VtNotasDebitoBuilder {
                 .idTercero(Objects.nonNull(model.getTercero()) ? model.getTercero().getIdTercero() : null)
                 .terceroNombre(Objects.nonNull(model.getTercero()) ? model.getTercero().getTercero() : null)
                 .numeroIdentificacion(Objects.nonNull(model.getTercero()) ? model.getTercero().getNumeroIdentificacion() : null)
+                .existeComprobante(model.getExisteComprobante())
                 .build();
     }
 }

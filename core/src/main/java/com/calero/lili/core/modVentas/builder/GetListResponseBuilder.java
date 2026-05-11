@@ -43,6 +43,7 @@ public class GetListResponseBuilder {
                 .valores(builderListValoresDto(model.getValoresEntity()))
                 .ambiente(model.getAmbiente())
                 .email(model.getEmail())
+                .existeComprobante(model.getExisteComprobante())
                 .build();
     }
 
@@ -92,6 +93,7 @@ public class GetListResponseBuilder {
                 .valores(builderAnuladoListValoresDto(model.getValoresEntity()))
                 .ambiente(model.getAmbiente())
                 .email(model.getEmail())
+                .existeComprobante(model.getExisteComprobante())
                 .build();
     }
 

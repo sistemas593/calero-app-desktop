@@ -24,6 +24,7 @@ public class GetListDto {
     private Boolean anulada;
     private List<ResponseValoresDto> valores;
     private TerceroDto tercero;
+    private Boolean existeComprobante;
 
     @Data
     @AllArgsConstructor

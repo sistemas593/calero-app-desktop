@@ -4,7 +4,6 @@ import com.calero.lili.core.comprobantes.builder.AutorizacionBuilder;
 import com.calero.lili.core.comprobantes.message.ConstantesDocumento;
 import com.calero.lili.core.comprobantes.message.MensajeComprobante;
 import com.calero.lili.core.comprobantes.objetosXml.TotalImpuesto;
-import com.calero.lili.core.comprobantes.objetosXml.autorizacionFile.Autorizacion;
 import com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencion.ComprobanteRetencion;
 import com.calero.lili.core.comprobantes.objetosXml.factura.Factura;
 import com.calero.lili.core.comprobantes.objetosXml.factura.InfoTributaria;

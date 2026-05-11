@@ -42,5 +42,6 @@ public class GetListDto {
     private List<ResponseValoresDto> valores;
     private Integer ambiente;
     private String email;
+    private Boolean existeComprobante;
 
 }

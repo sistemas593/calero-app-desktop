@@ -52,5 +52,6 @@ public class GetListDto {
     private Integer ambiente;
     private FormatoDocumento formatoDocumento;
     private String email;
+    private Boolean existeComprobante;
 
 }

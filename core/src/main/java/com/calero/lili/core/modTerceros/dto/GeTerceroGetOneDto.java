@@ -3,6 +3,7 @@ package com.calero.lili.core.modTerceros.dto;
 import com.calero.lili.core.enums.EstadoCivilEnum;
 import com.calero.lili.core.enums.OrigenIngresosEnum;
 import com.calero.lili.core.enums.SexoEnum;
+import com.calero.lili.core.enums.TipoClienteProveedor;
 import com.calero.lili.core.modRRHH.modRRHHTrabajadores.dto.ResponseTrabajadorDto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -30,7 +31,7 @@ public class GeTerceroGetOneDto {
 
     private String observaciones;
 
-    private String tipoClienteProveedor;
+    private TipoClienteProveedor tipoClienteProveedor;
 
     public String ciudad;
     public String direccion;
@@ -90,5 +91,9 @@ public class GeTerceroGetOneDto {
         private ResponseTrabajadorDto infoTrabajador;
 
     }
+
+    private String parroquia;
+    private String canton;
+    private String provincia;
 
 }

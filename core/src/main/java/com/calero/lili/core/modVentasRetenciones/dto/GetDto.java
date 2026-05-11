@@ -27,6 +27,7 @@ public class GetDto {
 
     private String fechaAutorizacion;
     private String claveAcceso;
+    private Boolean existeComprobante;
     private TerceroDto tercero;
 
     @Data
@@ -39,4 +40,6 @@ public class GetDto {
         private String tipoIdentificacion;
         private String numeroIdentificacion;
     }
+
+
 }

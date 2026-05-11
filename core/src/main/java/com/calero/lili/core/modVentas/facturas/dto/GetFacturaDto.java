@@ -172,4 +172,5 @@ public class GetFacturaDto {
     private FormatoDocumento formatoDocumento;
     private String numeroAutorizacion;
     private BigDecimal totalImpuesto;
+    private Boolean existeComprobante;
 }

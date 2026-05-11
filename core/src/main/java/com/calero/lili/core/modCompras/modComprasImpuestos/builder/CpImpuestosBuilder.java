@@ -1,7 +1,6 @@
 package com.calero.lili.core.modCompras.modComprasImpuestos.builder;
 
 import com.calero.lili.core.builder.FormasPagoBuilder;
-import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CreationCompraImpuestoRequestDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetDto;
@@ -69,6 +68,7 @@ public class CpImpuestosBuilder {
                         ? model.getPagoLocExt()
                         : "01")
                 .destino(model.getDestino())
+                .existeComprobante(Boolean.FALSE)
                 .build();
     }
 
@@ -112,6 +112,7 @@ public class CpImpuestosBuilder {
                         ? model.getPagoLocExt()
                         : item.getPagoLocExt())
                 .destino(model.getDestino())
+                .existeComprobante(item.getExisteComprobante())
                 .build();
     }
 
@@ -169,6 +170,7 @@ public class CpImpuestosBuilder {
                 .pagoExterior(builderResponsePagoExterior(model.getPagoExterior()))
                 .destino(model.getDestino())
                 .terceroNombre(Objects.nonNull(model.getTercero()) ? model.getTercero().getTercero() : null)
+                .existeComprobante(model.getExisteComprobante())
                 .build();
     }
 
@@ -207,6 +209,7 @@ public class CpImpuestosBuilder {
                 .numeroItems(0)
                 .terceroNombre(Objects.nonNull(model.getTercero()) ? model.getTercero().getTercero() : null)
                 .numeroIdentificacion(Objects.nonNull(model.getTercero()) ? model.getTercero().getNumeroIdentificacion() : null)
+                .existeComprobante(model.getExisteComprobante())
                 .build();
     }
 

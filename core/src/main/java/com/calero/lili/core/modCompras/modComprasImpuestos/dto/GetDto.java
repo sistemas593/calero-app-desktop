@@ -85,6 +85,7 @@ public class GetDto {
     private String sustento;
 
     private List<ImpuestoCodigoDto> impuestoCodigos;
+    private Boolean existeComprobante;
 
     /*private TbDocumentosGetOneDto documento;
     private TbSustentosGetOneDto sustento;*/

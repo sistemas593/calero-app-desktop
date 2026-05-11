@@ -44,5 +44,6 @@ public class GetListDto {
 
 
     private String destino;
+    private Boolean existeComprobante;
 
 }

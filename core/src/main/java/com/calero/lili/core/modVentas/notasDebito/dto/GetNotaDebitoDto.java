@@ -69,5 +69,6 @@ public class GetNotaDebitoDto {
     private Integer ambiente;
     private FormatoDocumento formatoDocumento;
     private String numeroAutorizacion;
+    private Boolean existeComprobante;
 
 }

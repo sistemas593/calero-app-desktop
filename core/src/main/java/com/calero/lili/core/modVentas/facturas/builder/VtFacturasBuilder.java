@@ -82,6 +82,7 @@ public class VtFacturasBuilder {
                         ? Ambiente.obtenerAmbiente(model.getAmbiente())
                         : null)
                 .totalImpuesto(model.getTotalImpuesto())
+                .existeComprobante(Boolean.TRUE)
                 .build();
     }
 
@@ -142,6 +143,7 @@ public class VtFacturasBuilder {
                 .totalImpuesto(model.getTotalImpuesto())
                 .reembolsosEntity(item.getReembolsosEntity())
                 .anulada(item.getAnulada())
+                .existeComprobante(item.getExisteComprobante())
                 .build();
     }
 
@@ -291,6 +293,7 @@ public class VtFacturasBuilder {
                 .formatoDocumento(model.getFormatoDocumento())
                 .ambiente(model.getAmbiente())
                 .totalImpuesto(model.getTotalImpuesto())
+                .existeComprobante(model.getExisteComprobante())
                 .build();
     }
 

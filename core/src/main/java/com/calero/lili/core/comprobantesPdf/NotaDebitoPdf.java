@@ -27,6 +27,7 @@ import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class NotaDebitoPdf {
@@ -497,7 +498,11 @@ public class NotaDebitoPdf {
             InfoNotaDebito infoFactura = factura.getInfoNotaDebito();
             List<Impuesto> totalImpuestos = infoFactura.getImpuesto();
             Impuesto subTotal0 = null;
-            Impuesto subTotal12 = null;
+           // Impuesto subTotal12 = null;
+            Impuesto subTotal15 = null;
+            Impuesto subTotal8 = null;
+            Impuesto subTotal5 = null;
+
 
 
             // IVA CODIGO 2
@@ -509,17 +514,31 @@ public class NotaDebitoPdf {
             // IVA DIF:  8
 
             if (totalImpuestos != null && !totalImpuestos.isEmpty()) {
+
                 subTotal0 = totalImpuestos.stream()
                         .filter(imp -> imp.getCodigo().equals("2") && imp.getCodigoPorcentaje().equals("0") )
                         .findAny()
                         .orElse(null);
 
-                subTotal12 = totalImpuestos.stream()
-                        .filter(imp -> imp.getCodigo().equals("2") && imp.getCodigoPorcentaje().equals("2") )
+                subTotal15 = totalImpuestos.stream()
+                        .filter(imp -> imp.getCodigo().equals("2") && imp.getCodigoPorcentaje().equals("4"))
+                        .findAny()
+                        .orElse(null);
+
+                subTotal8 = totalImpuestos.stream()
+                        .filter(imp -> imp.getCodigo().equals("2") && imp.getCodigoPorcentaje().equals("8"))
+                        .findAny()
+                        .orElse(null);
+
+                subTotal5 = totalImpuestos.stream()
+                        .filter(imp -> imp.getCodigo().equals("2") && imp.getCodigoPorcentaje().equals("5"))
                         .findAny()
                         .orElse(null);
 
             }
+
+
+
 
             cell = new PdfPCell(new Phrase("SUBTOTAL SIN IMPUESTOS:", title));
             cell.setPaddingBottom(5);
@@ -530,60 +549,95 @@ public class NotaDebitoPdf {
             table_totales.addCell(cell);
 
 
-            cell = new PdfPCell(new Phrase("SUBTOTAL 0%:", title));
-            cell.setPaddingBottom(5);
-            cell.setColspan(2);
-            table_totales.addCell(cell);
+            if (Objects.nonNull(subTotal0)) {
 
-            if (subTotal0 != null)
+                cell = new PdfPCell(new Phrase("SUBTOTAL 0%:", title));
+                cell.setPaddingBottom(5);
+                cell.setColspan(2);
+                table_totales.addCell(cell);
+
                 cell = new PdfPCell(new Phrase(subTotal0.getBaseImponible(), fuente));
-            else
-                cell = new PdfPCell(new Phrase("0.00", fuente));
+                cell.setColspan(2);
+                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                table_totales.addCell(cell);
+            }
 
-            cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-            table_totales.addCell(cell);
+            if (Objects.nonNull(subTotal15)) {
 
-            cell = new PdfPCell(new Phrase("SUBTOTAL 12%:", title));
-            cell.setPaddingBottom(5);
-            cell.setColspan(2);
-            table_totales.addCell(cell);
+                // SUBTOTAL 15%
+                cell = new PdfPCell(new Phrase("SUBTOTAL 15%:", title));
+                cell.setPaddingBottom(5);
+                cell.setColspan(2);
+                table_totales.addCell(cell);
 
-            if (subTotal12 != null)
-                cell = new PdfPCell(new Phrase(subTotal12.getBaseImponible(), fuente));
-            else
-                cell = new PdfPCell(new Phrase("0.00", fuente));
+                cell = new PdfPCell(new Phrase(subTotal15.getBaseImponible(), fuente));
+                cell.setColspan(2);
+                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                table_totales.addCell(cell);
 
-            cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-            table_totales.addCell(cell);
+                // IVA 15%
+                cell = new PdfPCell(new Phrase("IVA 15%:", title));
+                cell.setPaddingBottom(5);
+                cell.setColspan(2);
+                table_totales.addCell(cell);
 
-            cell = new PdfPCell(new Phrase("IVA 12%:", title));
-            cell.setPaddingBottom(5);
-            cell.setColspan(2);
-            table_totales.addCell(cell);
+                cell = new PdfPCell(new Phrase(subTotal15.getValor(), fuente));
+                cell.setColspan(2);
+                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                table_totales.addCell(cell);
+            }
 
-            if (subTotal12 != null)
-                cell = new PdfPCell(new Phrase(subTotal12.getValor(), fuente));
-            else
-                cell = new PdfPCell(new Phrase("0.00", fuente));
+            if (Objects.nonNull(subTotal8)) {
 
-            cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-            table_totales.addCell(cell);
+                // SUBTOTAL 8%
+                cell = new PdfPCell(new Phrase("SUBTOTAL 8%:", title));
+                cell.setPaddingBottom(5);
+                cell.setColspan(2);
+                table_totales.addCell(cell);
 
-            cell = new PdfPCell(new Phrase("ICE:", title));
-            cell.setPaddingBottom(5);
-            cell.setColspan(2);
-            table_totales.addCell(cell);
-            cell = new PdfPCell(new Phrase("0.00", fuente));
-            cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-            table_totales.addCell(cell);
+                cell = new PdfPCell(new Phrase(subTotal8.getBaseImponible(), fuente));
+                cell.setColspan(2);
+                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                table_totales.addCell(cell);
 
-            cell = new PdfPCell(new Phrase("IRBPNR:", title));
-            cell.setPaddingBottom(5);
-            cell.setColspan(2);
-            table_totales.addCell(cell);
-            cell = new PdfPCell(new Phrase("0.00", fuente));
-            cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-            table_totales.addCell(cell);
+                // IVA 8%
+                cell = new PdfPCell(new Phrase("IVA 8%:", title));
+                cell.setPaddingBottom(5);
+                cell.setColspan(2);
+                table_totales.addCell(cell);
+
+                cell = new PdfPCell(new Phrase(subTotal8.getValor(), fuente));
+                cell.setColspan(2);
+                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                table_totales.addCell(cell);
+            }
+
+            if (Objects.nonNull(subTotal5)) {
+
+                // SUBTOTAL 5%
+                cell = new PdfPCell(new Phrase("SUBTOTAL 5%:", title));
+                cell.setPaddingBottom(5);
+                cell.setColspan(2);
+                table_totales.addCell(cell);
+
+                cell = new PdfPCell(new Phrase(subTotal5.getBaseImponible(), fuente));
+                cell.setColspan(2);
+                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                table_totales.addCell(cell);
+
+                // IVA 5%
+                cell = new PdfPCell(new Phrase("IVA 5%:", title));
+                cell.setPaddingBottom(5);
+                cell.setColspan(2);
+                table_totales.addCell(cell);
+
+                cell = new PdfPCell(new Phrase(subTotal5.getValor(), fuente));
+                cell.setColspan(2);
+                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                table_totales.addCell(cell);
+            }
+
+
 
             cell = new PdfPCell(new Phrase("VALOR TOTAL:", title));
             cell.setPaddingBottom(5);
