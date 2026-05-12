@@ -5,6 +5,7 @@ import com.calero.lili.core.modLocalidades.modCantones.builder.CantonBuilder;
 import com.calero.lili.core.modLocalidades.modCantones.dto.CantonListFiltersDto;
 import com.calero.lili.core.modLocalidades.modCantones.dto.RequestCantonDto;
 import com.calero.lili.core.modLocalidades.modCantones.dto.ResponseCantonDto;
+import com.calero.lili.core.modLocalidades.modCantones.dto.ResponseCantonListDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -64,9 +65,13 @@ public class CantonServiceImpl {
         return cantonBuilder.builderResponse(cantonEntity);
     }
 
-    public List<ResponseCantonDto> findAll(CantonListFiltersDto filter) {
+    public List<ResponseCantonListDto> findAll(CantonListFiltersDto filter) {
 
         String codigoProvincia = filter.getCodigoProvincia();
+
+        if (Objects.isNull(codigoProvincia) || codigoProvincia.isEmpty()) {
+            throw new GeneralException("El codigo de provincia es obligatorio");
+        }
 
         String filterContent = (filter.getFilter() == null || filter.getFilter().trim().isEmpty())
                 ? ""
@@ -74,7 +79,7 @@ public class CantonServiceImpl {
 
         return cantonRepository.getFindAll(codigoProvincia, filterContent)
                 .stream()
-                .map(cantonBuilder::builderResponse)
+                .map(cantonBuilder::builderListResponse)
                 .toList();
 
     }

@@ -4,6 +4,7 @@ import com.calero.lili.core.modLocalidades.modParroquias.ParroquiaService;
 import com.calero.lili.core.modLocalidades.modParroquias.dto.FilterRequestDto;
 import com.calero.lili.core.modLocalidades.modParroquias.dto.ParroquiaRequestDto;
 import com.calero.lili.core.modLocalidades.modParroquias.dto.ParroquiaResponseDto;
+import com.calero.lili.core.modLocalidades.modParroquias.dto.ParroquiaResponseListDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.http.HttpStatus;
@@ -56,9 +57,9 @@ public class ParroquiaController {
         return parroquiaService.findById(id);
     }
 
-    /*@GetMapping("")
+    @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
-    public List<ParroquiaResponseDto> findAll(FilterRequestDto filterRequest) {
+    public List<ParroquiaResponseListDto> findAll(FilterRequestDto filterRequest) {
         return parroquiaService.findAll(filterRequest);
-    }*/
+    }
 }

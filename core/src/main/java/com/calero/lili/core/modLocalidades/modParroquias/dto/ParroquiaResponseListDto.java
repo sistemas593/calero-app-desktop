@@ -9,11 +9,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ParroquiaResponseDto {
+public class ParroquiaResponseListDto {
 
     private String codigoParroquia;
     private String parroquia;
-    private String codigoCanton;
-    private String canton;
 
 }

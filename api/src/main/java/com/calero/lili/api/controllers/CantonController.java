@@ -4,6 +4,7 @@ import com.calero.lili.core.modLocalidades.modCantones.CantonServiceImpl;
 import com.calero.lili.core.modLocalidades.modCantones.dto.CantonListFiltersDto;
 import com.calero.lili.core.modLocalidades.modCantones.dto.RequestCantonDto;
 import com.calero.lili.core.modLocalidades.modCantones.dto.ResponseCantonDto;
+import com.calero.lili.core.modLocalidades.modCantones.dto.ResponseCantonListDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.http.HttpStatus;
@@ -56,10 +57,10 @@ public class CantonController {
         return cantonService.findFirstById(id);
     }
 
-   /* @GetMapping("")
+    @GetMapping("")
     @ResponseStatus(code = HttpStatus.OK)
-    public List<ResponseCantonDto> findAllPaginate(CantonListFiltersDto filters) {
+    public List<ResponseCantonListDto> findAllPaginate(CantonListFiltersDto filters) {
         return cantonService.findAll(filters);
-    }*/
+    }
 
 }

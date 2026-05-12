@@ -7,11 +7,13 @@ import com.calero.lili.core.modLocalidades.modParroquias.builder.ParroquiaBuilde
 import com.calero.lili.core.modLocalidades.modParroquias.dto.FilterRequestDto;
 import com.calero.lili.core.modLocalidades.modParroquias.dto.ParroquiaRequestDto;
 import com.calero.lili.core.modLocalidades.modParroquias.dto.ParroquiaResponseDto;
+import com.calero.lili.core.modLocalidades.modParroquias.dto.ParroquiaResponseListDto;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @AllArgsConstructor
@@ -71,9 +73,13 @@ public class ParroquiaService {
 
     }
 
-    public List<ParroquiaResponseDto> findAll(FilterRequestDto filter) {
+    public List<ParroquiaResponseListDto> findAll(FilterRequestDto filter) {
 
         String codigoCanton = filter.getCodigoCanton();
+
+        if (Objects.isNull(codigoCanton) || codigoCanton.isEmpty()) {
+            throw new GeneralException("El codigo de canton es obligatorio");
+        }
 
         String filterContent = (filter.getFilter() == null || filter.getFilter().trim().isEmpty())
                 ? ""
@@ -81,7 +87,7 @@ public class ParroquiaService {
 
         return parroquiaRepository.getFindAll(codigoCanton, filterContent)
                 .stream()
-                .map(parroquiaBuilder::builderResponse)
+                .map(parroquiaBuilder::builderListResponse)
                 .toList();
     }
 }

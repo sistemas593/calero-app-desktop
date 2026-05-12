@@ -4,6 +4,7 @@ import com.calero.lili.core.modLocalidades.modCantones.CantonEntity;
 import com.calero.lili.core.modLocalidades.modCantones.dto.RequestCantonDto;
 import com.calero.lili.core.modLocalidades.modCantones.dto.ResponseCantonDto;
 import com.calero.lili.core.modLocalidades.modCantones.dto.ResponseCantonParroquiaDto;
+import com.calero.lili.core.modLocalidades.modCantones.dto.ResponseCantonListDto;
 import com.calero.lili.core.modLocalidades.modParroquias.ParroquiaEntity;
 import com.calero.lili.core.modLocalidades.modProvincias.ProvinciaEntity;
 import org.springframework.stereotype.Component;
@@ -41,6 +42,12 @@ public class CantonBuilder {
                 .build();
     }
 
+    public ResponseCantonListDto builderListResponse(CantonEntity model) {
+        return ResponseCantonListDto.builder()
+                .codigoCanton(model.getCodigoCanton())
+                .canton(model.getCanton())
+                .build();
+    }
 
     private List<ResponseCantonParroquiaDto> builderListResponseParroquia(List<ParroquiaEntity> list) {
         return list.stream()

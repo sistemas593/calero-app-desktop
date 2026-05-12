@@ -3,6 +3,7 @@ package com.calero.lili.core.modLocalidades.modParroquias.builder;
 import com.calero.lili.core.modLocalidades.modParroquias.ParroquiaEntity;
 import com.calero.lili.core.modLocalidades.modParroquias.dto.ParroquiaRequestDto;
 import com.calero.lili.core.modLocalidades.modParroquias.dto.ParroquiaResponseDto;
+import com.calero.lili.core.modLocalidades.modParroquias.dto.ParroquiaResponseListDto;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -28,6 +29,15 @@ public class ParroquiaBuilder {
 
     public ParroquiaResponseDto builderResponse(ParroquiaEntity model) {
         return ParroquiaResponseDto.builder()
+                .codigoParroquia(model.getCodigoParroquia())
+                .parroquia(model.getParroquia())
+                .codigoCanton(model.getCanton().getCodigoCanton())
+                .canton(model.getCanton().getCanton())
+                .build();
+    }
+
+    public ParroquiaResponseListDto builderListResponse(ParroquiaEntity model) {
+        return ParroquiaResponseListDto.builder()
                 .codigoParroquia(model.getCodigoParroquia())
                 .parroquia(model.getParroquia())
                 .build();
