@@ -3,7 +3,8 @@ package com.calero.lili.api.controllers;
 import com.calero.lili.core.modLocalidades.modProvincias.ProvinciaServiceImpl;
 import com.calero.lili.core.modLocalidades.modProvincias.dto.ProvinceListFiltersDto;
 import com.calero.lili.core.modLocalidades.modProvincias.dto.RequestProvinciaDto;
-import com.calero.lili.core.modLocalidades.modProvincias.dto.ResponseProvinciaDto;
+import com.calero.lili.core.modLocalidades.modProvincias.dto.ResponseProvinciaListDto;
+import com.calero.lili.core.modLocalidades.modProvincias.dto.ResponseProvinciaOneDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.http.HttpStatus;
@@ -31,14 +32,14 @@ public class ProvinciaController {
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseProvinciaDto create(
+    public ResponseProvinciaOneDto create(
             @RequestBody RequestProvinciaDto request) {
         return provinciaService.create(request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseProvinciaDto update(
+    public ResponseProvinciaOneDto update(
             @PathVariable("id") String id,
             @RequestBody RequestProvinciaDto request) {
         return provinciaService.update(id, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
@@ -52,13 +53,13 @@ public class ProvinciaController {
 
     @GetMapping("{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseProvinciaDto findById(@PathVariable("id") String id) {
+    public ResponseProvinciaOneDto findById(@PathVariable("id") String id) {
         return provinciaService.findFirstById(id);
     }
 
     @GetMapping()
     @ResponseStatus(code = HttpStatus.OK)
-    public List<ResponseProvinciaDto> findAll(ProvinceListFiltersDto filters) {
+    public List<ResponseProvinciaListDto> findAll(ProvinceListFiltersDto filters) {
         return provinciaService.findAll(filters);
     }
 

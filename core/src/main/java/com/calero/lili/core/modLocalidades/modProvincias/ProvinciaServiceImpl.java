@@ -1,15 +1,12 @@
 package com.calero.lili.core.modLocalidades.modProvincias;
 
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modLocalidades.modProvincias.builder.ProvinciaBuilder;
 import com.calero.lili.core.modLocalidades.modProvincias.dto.ProvinceListFiltersDto;
 import com.calero.lili.core.modLocalidades.modProvincias.dto.RequestProvinciaDto;
-import com.calero.lili.core.modLocalidades.modProvincias.dto.ResponseProvinciaDto;
+import com.calero.lili.core.modLocalidades.modProvincias.dto.ResponseProvinciaListDto;
+import com.calero.lili.core.modLocalidades.modProvincias.dto.ResponseProvinciaOneDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
@@ -25,14 +22,14 @@ public class ProvinciaServiceImpl {
     private final ProvinciaRepository provinciaRepository;
     private final ProvinciaBuilder provinciaBuilder;
 
-    public ResponseProvinciaDto create(RequestProvinciaDto request, String usuario) {
+    public ResponseProvinciaOneDto create(RequestProvinciaDto request, String usuario) {
         ProvinciaEntity newEntity = provinciaBuilder.builderEntity(request);
         newEntity.setCreatedBy(usuario);
         newEntity.setCreatedDate(LocalDateTime.now());
         return provinciaBuilder.builderResponse(provinciaRepository.save(newEntity));
     }
 
-    public ResponseProvinciaDto update(String idProvincia, RequestProvinciaDto request, String usuario) {
+    public ResponseProvinciaOneDto update(String idProvincia, RequestProvinciaDto request, String usuario) {
         ProvinciaEntity provinciaEntity = provinciaRepository.getForFindById(idProvincia);
         if (Objects.isNull(provinciaEntity)) {
             throw new GeneralException(MessageFormat.format("Id {0} no existe", idProvincia));
@@ -54,7 +51,7 @@ public class ProvinciaServiceImpl {
         provinciaRepository.save(provinciaEntity);
     }
 
-    public ResponseProvinciaDto findFirstById(String idProvincia) {
+    public ResponseProvinciaOneDto findFirstById(String idProvincia) {
         ProvinciaEntity provinciaEntity = provinciaRepository.getForFindById(idProvincia);
         if (Objects.isNull(provinciaEntity)) {
             throw new GeneralException(MessageFormat.format("Id {0} no existe", idProvincia));
@@ -62,7 +59,7 @@ public class ProvinciaServiceImpl {
         return provinciaBuilder.builderResponse(provinciaEntity);
     }
 
-    public List<ResponseProvinciaDto> findAll(ProvinceListFiltersDto filter) {
+    public List<ResponseProvinciaListDto> findAll(ProvinceListFiltersDto filter) {
 
         String filterContent = (filter.getFilter() == null || filter.getFilter().trim().isEmpty())
                 ? ""
@@ -70,7 +67,7 @@ public class ProvinciaServiceImpl {
 
         List<ProvinciaEntity> provinciaEntities = provinciaRepository.getFindAll(filterContent);
         return provinciaEntities.stream()
-                .map(provinciaBuilder::builderResponse)
+                .map(provinciaBuilder::builderListResponse)
                 .collect(Collectors.toList());
     }
 

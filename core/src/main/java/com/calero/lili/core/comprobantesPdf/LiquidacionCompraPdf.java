@@ -547,7 +547,7 @@ public class LiquidacionCompraPdf {
             // IRBPNR: codigo 5
 
             TotalImpuesto subTotal0 = null;
-            TotalImpuesto subTotal12 = null;
+            TotalImpuesto subTotal5 = null;
             TotalImpuesto subTotal15 = null;
             TotalImpuesto subTotalNoObjeto = null;
             TotalImpuesto subTotalExento = null;
@@ -558,8 +558,8 @@ public class LiquidacionCompraPdf {
                 subTotal0 = totalImpuestos.stream()
                         .filter(imp -> imp.getCodigo().equals("2") && imp.getCodigoPorcentaje().equals("0"))
                         .findAny().orElse(null);
-                subTotal12 = totalImpuestos.stream()
-                        .filter(imp -> imp.getCodigo().equals("2") && imp.getCodigoPorcentaje().equals("2"))
+                subTotal5 = totalImpuestos.stream()
+                        .filter(imp -> imp.getCodigo().equals("2") && imp.getCodigoPorcentaje().equals("5"))
                         .findAny().orElse(null);
                 subTotal15 = totalImpuestos.stream()
                         .filter(imp -> imp.getCodigo().equals("2") && imp.getCodigoPorcentaje().equals("4"))

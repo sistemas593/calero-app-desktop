@@ -1,4 +1,4 @@
-package com.calero.lili.core.modLocalidades.modParroquias.dto;
+package com.calero.lili.core.modLocalidades.modProvincias.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ParroquiaResponseDto {
+public class ResponseProvinciaCantonDto {
 
-    private String codigoParroquia;
-    private String parroquia;
-
+    private String canton;
+    private String codigoCanton;
 }

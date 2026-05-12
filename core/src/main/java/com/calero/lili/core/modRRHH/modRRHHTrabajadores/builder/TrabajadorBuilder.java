@@ -2,8 +2,8 @@ package com.calero.lili.core.modRRHH.modRRHHTrabajadores.builder;
 
 import com.calero.lili.core.modLocalidades.modCantones.CantonEntity;
 import com.calero.lili.core.modLocalidades.modCantones.dto.ResponseCantonDto;
-import com.calero.lili.core.modLocalidades.modCantones.dto.ResponseProvinciaDto;
 import com.calero.lili.core.modLocalidades.modProvincias.ProvinciaEntity;
+import com.calero.lili.core.modLocalidades.modProvincias.dto.ResponseProvinciaOneDto;
 import com.calero.lili.core.modRRHH.modRRHHTrabajadores.TrabajadorEntity;
 import com.calero.lili.core.modRRHH.modRRHHTrabajadores.dto.RequestTrabajadorDto;
 import com.calero.lili.core.modRRHH.modRRHHTrabajadores.dto.ResponseTrabajadorDto;
@@ -110,7 +110,7 @@ public class TrabajadorBuilder {
                 .provincia(Objects.nonNull(model.getProvincia())
                         ? builderResponseProvincia(model.getProvincia())
                         : null)
-                .cantonDto(Objects.nonNull(model.getCanton())
+                .canton(Objects.nonNull(model.getCanton())
                         ? builderResponseCanton(model.getCanton())
                         : null)
                 .pais(builderPaisResponse(model.getPais()))
@@ -138,8 +138,8 @@ public class TrabajadorBuilder {
                 .build();
     }
 
-    private ResponseProvinciaDto builderResponseProvincia(ProvinciaEntity model) {
-        return ResponseProvinciaDto.builder()
+    private ResponseProvinciaOneDto builderResponseProvincia(ProvinciaEntity model) {
+        return ResponseProvinciaOneDto.builder()
                 .codigoProvincia(model.getCodigoProvincia())
                 .provincia(model.getProvincia())
                 .build();

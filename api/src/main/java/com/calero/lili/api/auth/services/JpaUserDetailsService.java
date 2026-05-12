@@ -45,6 +45,7 @@ public class JpaUserDetailsService implements UserDetailsService {
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
 
+        // Quitar el id area
         return new UsuarioSecurity(
                 user.getUsername(),
                 user.getPassword(),

@@ -1,6 +1,5 @@
 package com.calero.lili.core.modLocalidades.modParroquias.builder;
 
-import com.calero.lili.core.modLocalidades.modCantones.builder.CantonBuilder;
 import com.calero.lili.core.modLocalidades.modParroquias.ParroquiaEntity;
 import com.calero.lili.core.modLocalidades.modParroquias.dto.ParroquiaRequestDto;
 import com.calero.lili.core.modLocalidades.modParroquias.dto.ParroquiaResponseDto;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 public class ParroquiaBuilder {
 
-    private final CantonBuilder cantonBuilder;
 
     public ParroquiaEntity builder(ParroquiaRequestDto model) {
         return ParroquiaEntity.builder()
@@ -32,7 +30,6 @@ public class ParroquiaBuilder {
         return ParroquiaResponseDto.builder()
                 .codigoParroquia(model.getCodigoParroquia())
                 .parroquia(model.getParroquia())
-                .canton(cantonBuilder.builderResponse(model.getCanton()))
                 .build();
     }
 

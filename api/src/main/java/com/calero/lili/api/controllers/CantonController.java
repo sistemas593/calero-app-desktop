@@ -56,10 +56,10 @@ public class CantonController {
         return cantonService.findFirstById(id);
     }
 
-    @GetMapping("")
+   /* @GetMapping("")
     @ResponseStatus(code = HttpStatus.OK)
     public List<ResponseCantonDto> findAllPaginate(CantonListFiltersDto filters) {
         return cantonService.findAll(filters);
-    }
+    }*/
 
 }

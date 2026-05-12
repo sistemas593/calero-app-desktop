@@ -31,26 +31,20 @@ import java.util.List;
 @NoArgsConstructor
 public class AdUsuarioEntity extends Auditable implements IUser {
 
-    //@NotEmpty
-    private String idArea;
 
-    //@NotEmpty
+    private String idArea;
     private Long idData;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idUsuario;
 
-    //@NotBlank
     @Size(min = 4, max = 30)
     @Column(unique = true)
     private String username;
 
-    //@NotBlank
     private String password;
 
-    //@NotEmpty
-    //@Email
     @Column(unique = true)
     private String email;
 

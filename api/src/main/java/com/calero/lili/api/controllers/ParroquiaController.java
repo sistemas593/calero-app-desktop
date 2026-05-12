@@ -56,9 +56,9 @@ public class ParroquiaController {
         return parroquiaService.findById(id);
     }
 
-    @GetMapping("")
+    /*@GetMapping("")
     @ResponseStatus(HttpStatus.OK)
     public List<ParroquiaResponseDto> findAll(FilterRequestDto filterRequest) {
         return parroquiaService.findAll(filterRequest);
-    }
+    }*/
 }

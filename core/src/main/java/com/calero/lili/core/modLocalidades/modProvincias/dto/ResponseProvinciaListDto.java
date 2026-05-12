@@ -6,15 +6,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ResponseProvinciaDto {
+public class ResponseProvinciaListDto {
 
     private String provincia;
     private String codigoProvincia;
-    private List<ResponseCantonDto> cantones;
 }
