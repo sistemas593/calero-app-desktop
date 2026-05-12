@@ -64,6 +64,7 @@ public class JwtValidationFilter extends BasicAuthenticationFilter {
             String username = claims.getSubject();
             String ar = (String) claims.get("ar");
             Long dt = Long.valueOf((Integer) claims.get("dt"));
+            String nv = (String) claims.get("nv");
 
 
             Long random = Long.valueOf((Integer) claims.get("rn"));
@@ -74,7 +75,7 @@ public class JwtValidationFilter extends BasicAuthenticationFilter {
 
             // AQUI GENERA UN OBJETO AUTHENTICATION CON LOS DATOS DEL TOKEN, SE PASA EL USUARIO, LA CONTRASE;A Y LOS PERMISOS
 
-            UsuarioSecurity usuarioSecurity = new UsuarioSecurity(username, null, ar, dt, 1, userDetails.getAuthorities(), random);
+            UsuarioSecurity usuarioSecurity = new UsuarioSecurity(username, null, dt, nv, userDetails.getAuthorities(), random);
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(usuarioSecurity, null,
                     userDetails.getAuthorities());
 

@@ -66,6 +66,15 @@ public class SpringSecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/v1.0/tablas-crud/**").hasRole("SUPER")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1.0/tablas-crud/**").hasRole("SUPER")
 
+                        .requestMatchers(HttpMethod.GET, "/api/v1.0/usuarios/**").hasRole("SUPER")
+                        .requestMatchers(HttpMethod.POST, "/api/v1.0/usuarios/**").hasRole("SUPER")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1.0/usuarios/**").hasRole("SUPER")
+
+                        .requestMatchers(HttpMethod.GET, "/api/v1.0/datas/**").hasRole("SUPER")
+                        .requestMatchers(HttpMethod.POST, "/api/v1.0/datas/**").hasRole("SUPER")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1.0/datas/**").hasRole("SUPER")
+
+
                         // PERMISOS PARA LA DOCUMENTACIÓN DE SWAGGER.
 
                         .requestMatchers("/v3/api-docs/**").permitAll()

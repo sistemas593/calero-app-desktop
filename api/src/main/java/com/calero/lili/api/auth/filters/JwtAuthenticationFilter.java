@@ -84,9 +84,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         UsuarioSecurity usuario = ((UsuarioSecurity) authResult.getPrincipal());
 
         String username = usuario.getUsername();
-        String ar = usuario.getArea();
         Long dt = usuario.getData();
-        int nv = usuario.getNivel();
+        String nv = usuario.getNivel();
 
         Random random = new Random();
 
@@ -97,7 +96,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         Claims claims = Jwts.claims();
         claims.put("username", username);
-        claims.put("ar", ar);
         claims.put("dt", dt);
         claims.put("nv", nv);
         claims.put("rn", user.getRandom());

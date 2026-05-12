@@ -7,6 +7,8 @@ import com.calero.lili.core.modLocalidades.modParroquias.dto.ParroquiaResponseLi
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
+
 @Component
 @AllArgsConstructor
 public class ParroquiaBuilder {
@@ -19,9 +21,9 @@ public class ParroquiaBuilder {
                 .build();
     }
 
-    public ParroquiaEntity builderUpdate(ParroquiaEntity entidad, ParroquiaRequestDto model) {
+    public ParroquiaEntity builderUpdate(ParroquiaEntity item, ParroquiaRequestDto model) {
         return ParroquiaEntity.builder()
-                .codigoParroquia(entidad.getCodigoParroquia())
+                .codigoParroquia(item.getCodigoParroquia())
                 .parroquia(model.getParroquia())
                 .build();
     }

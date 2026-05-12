@@ -22,19 +22,25 @@ public class CantonServiceImpl {
     private final CantonBuilder cantonBuilder;
 
     public ResponseCantonDto create(RequestCantonDto request, String usuario) {
+
+        cantonRepository.getForFindById(request.getCodigoCanton())
+                .ifPresent(c -> {
+                    throw new GeneralException(MessageFormat.format("El codigo del cantón: {0} ya existe", request.getCodigoCanton()));
+                });
+
         CantonEntity newEntity = cantonBuilder.builderEntity(request);
         newEntity.setCreatedBy(usuario);
         newEntity.setCreatedDate(LocalDateTime.now());
         return cantonBuilder.builderResponse(cantonRepository.save(newEntity));
     }
 
-    public ResponseCantonDto update(String idProvincia, RequestCantonDto request, String usuario) {
-        CantonEntity cantonEntity = cantonRepository.getForFindById(idProvincia)
-                .orElseThrow(() -> new GeneralException("No se encontró el cantón con el código: " + idProvincia));
+    public ResponseCantonDto update(String idCanton, RequestCantonDto request, String usuario) {
+        CantonEntity cantonEntity = cantonRepository.getForFindById(idCanton)
+                .orElseThrow(() -> new GeneralException("No se encontró el cantón con el código: " + idCanton));
 
 
         if (Objects.isNull(cantonEntity)) {
-            throw new GeneralException(MessageFormat.format("Id {0} no existe", idProvincia));
+            throw new GeneralException(MessageFormat.format("Id {0} no existe", idCanton));
         }
         CantonEntity updated = cantonBuilder.builderUpdateEntity(request, cantonEntity);
         updated.setModifiedBy(usuario);

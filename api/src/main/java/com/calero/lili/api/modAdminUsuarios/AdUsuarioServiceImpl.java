@@ -10,11 +10,11 @@ import com.calero.lili.api.modAdminUsuarios.dto.AdUsuarioListFilterDto;
 import com.calero.lili.api.modAdminUsuarios.dto.AdUsuarioPermisosDtoResponse;
 import com.calero.lili.api.modAdminUsuarios.dto.AdUsuarioReportDto;
 import com.calero.lili.api.modAdminUsuarios.dto.AdUsuarioRequestDto;
+import com.calero.lili.api.modAdminUsuarios.enums.TipoUsuario;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminDatas.AdDataRepository;
-import org.checkerframework.checker.units.qual.C;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +27,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -181,11 +182,15 @@ public class AdUsuarioServiceImpl {
     }
 
     private AdUsuarioEntity toEntity(AdUsuarioRequestDto request, AdUsuarioEntity entidad) {
-        entidad.setIdArea(request.getIdArea());
         entidad.setIdData(request.getIdData());
 
         entidad.setEmail(request.getEmail());
-        entidad.setNivel(request.getNivel());
+
+        if (Objects.nonNull(request.getTipoUsuario())) {
+            entidad.setTipoUsuario(request.getTipoUsuario());
+        } else {
+            entidad.setTipoUsuario(TipoUsuario.USUARIO);
+        }
         //entidad.setInsertionDate(LocalDateTime.now());
 
         List<AdRolEntity> rolesEntity = new ArrayList<>();
@@ -233,12 +238,11 @@ public class AdUsuarioServiceImpl {
 
     private AdUsuarioReportDto toDto(AdUsuarioEntity entity) {
         AdUsuarioReportDto dto = new AdUsuarioReportDto();
-        dto.setIdArea(entity.getIdArea());
         dto.setIdData(entity.getIdData());
         dto.setIdUsuario(entity.getIdUsuario());
         dto.setUsername(entity.getUsername());
         dto.setEmail(entity.getEmail());
-        dto.setNivel(entity.getNivel());
+        dto.setTipoUsuario(entity.getTipoUsuario());
 
         List<AdUsuarioReportDto.Roles> rolesDto = new ArrayList<>();
         List<AdUsuarioReportDto.Grupos> gruposDto = new ArrayList<>();

@@ -2,10 +2,13 @@ package com.calero.lili.api.modAdminUsuarios;
 
 import com.calero.lili.api.modAdminUsuarios.adGrupos.AdGruposEntity;
 import com.calero.lili.api.modAdminUsuarios.adRol.AdRolEntity;
+import com.calero.lili.api.modAdminUsuarios.enums.TipoUsuario;
 import com.calero.lili.core.Auditable;
 import com.calero.lili.core.dtos.models.IUser;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -15,6 +18,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,15 +28,13 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Entity
-@Table(name="adUsuarios")
+@Table(name = "adUsuarios")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class AdUsuarioEntity extends Auditable implements IUser {
 
-
-    private String idArea;
     private Long idData;
 
     @Id
@@ -50,10 +52,15 @@ public class AdUsuarioEntity extends Auditable implements IUser {
 
     private int random;
 
-    private int nivel;
+    // CONTROLLER USUARIOS, DATAS
+    // SUPER,ADMIN y USUARIO
+
+    @Enumerated(EnumType.STRING)
+    private TipoUsuario tipoUsuario;
 
     @Transient
     private boolean admin;
+
 
 //    private int siguienteIdEmpresa;
 
@@ -62,9 +69,9 @@ public class AdUsuarioEntity extends Auditable implements IUser {
     @ManyToMany
     @JoinTable(
             name = "ad_usuarios_roles",
-            joinColumns = @JoinColumn(name="id_usuario"),
-            inverseJoinColumns = @JoinColumn(name="id_rol"),
-            uniqueConstraints = { @UniqueConstraint(columnNames = {"id_usuario", "id_rol"})})
+            joinColumns = @JoinColumn(name = "id_usuario"),
+            inverseJoinColumns = @JoinColumn(name = "id_rol"),
+            uniqueConstraints = {@UniqueConstraint(columnNames = {"id_usuario", "id_rol"})})
 
     private List<AdRolEntity> roles;
 

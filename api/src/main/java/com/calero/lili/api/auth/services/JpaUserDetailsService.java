@@ -4,6 +4,7 @@ import com.calero.lili.api.auth.dto.UsuarioSecurity;
 import com.calero.lili.api.modAdminUsuarios.AdUsuarioEntity;
 import com.calero.lili.api.modAdminUsuarios.AdUsuarioRepository;
 import com.calero.lili.api.modAdminUsuarios.adPermisos.AdPermisosEntity;
+import com.calero.lili.api.modAdminUsuarios.enums.TipoUsuario;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -40,18 +41,22 @@ public class JpaUserDetailsService implements UserDetailsService {
                 .distinct()
                 .toList();
 
-        // AQUI ES DONDE SE OBTIENE LAS PERMISO
+        // AQUI ES DONDE SE OBTIENE LOS PERMISOS
         List<GrantedAuthority> authorities = permisos.stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
+
+        if (user.getTipoUsuario().equals(TipoUsuario.SUPER)) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_SUPER"));
+        }
+
 
         // Quitar el id area
         return new UsuarioSecurity(
                 user.getUsername(),
                 user.getPassword(),
-                user.getIdArea(),
                 user.getIdData(),
-                user.getNivel(),
+                user.getTipoUsuario().name(),
                 authorities,
                 0L
         );

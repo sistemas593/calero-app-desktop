@@ -5,8 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @Builder
 @AllArgsConstructor
@@ -15,5 +13,6 @@ public class ResponseCantonDto {
 
     private String canton;
     private String codigoCanton;
-    private List<ResponseCantonParroquiaDto> parroquias;
+    private String codigoProvincia;
+    private String provincia;
 }

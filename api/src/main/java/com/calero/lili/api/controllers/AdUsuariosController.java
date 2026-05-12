@@ -34,14 +34,14 @@ public class AdUsuariosController {
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAuthority('US_US_CR')")
+    // @PreAuthorize("hasAuthority('US_US_CR')")
     public AdUsuarioCreationResponseDto create(@RequestBody AdUsuarioRequestDto request) {
         return adUsuarioService.create(request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idUsuario}")
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasAuthority('US_US_MO')")
+    // @PreAuthorize("hasAuthority('US_US_MO')")
     public AdUsuarioCreationResponseDto update(@PathVariable("idUsuario") Long idUsuario,
                                                @RequestBody AdUsuarioRequestDto request) {
 
@@ -50,14 +50,14 @@ public class AdUsuariosController {
 
     @GetMapping("{idUsuario}")
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasAuthority('US_US_VR')")
+    // @PreAuthorize("hasAuthority('US_US_VR')")
     public AdUsuarioReportDto findById(@PathVariable("idUsuario") Long idUsuario) {
         return adUsuarioService.findByIdUsuario(idUsuario);
     }
 
     @GetMapping("listar")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('US_US_VR')")
+    //@PreAuthorize("hasAuthority('US_US_VR')")
     public PaginatedDto<AdUsuarioReportDto> findAllPaginate(AdUsuarioListFilterDto filters,
                                                             Pageable pageable) {
         return adUsuarioService.findAllPaginate(filters, pageable);

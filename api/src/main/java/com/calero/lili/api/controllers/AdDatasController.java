@@ -34,14 +34,14 @@ public class AdDatasController {
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAuthority('CF_DT_CR')")
+    //@PreAuthorize("hasAuthority('CF_DT_CR')")
     public AdDataResponseConfiguracionDto create(@RequestBody AdDatasCreationRequestDto request) {
         return adDatasService.create(request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idData}")
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasAuthority('CF_DT_MO')")
+    //@PreAuthorize("hasAuthority('CF_DT_MO')")
     public AdDataResponseConfiguracionDto update(@PathVariable("idData") Long idData,
                                                  @RequestBody AdDatasCreationRequestDto request) {
         return adDatasService.update(idData, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
@@ -50,7 +50,7 @@ public class AdDatasController {
 
     @GetMapping("listar")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('CF_DT_VR')")
+    //@PreAuthorize("hasAuthority('CF_DT_VR')")
     public PaginatedDto<AdDatasDto> findAllPaginate(FilterDto filters,
                                                     Pageable pageable) {
         return adDatasService.findAllPaginate(filters, pageable);
@@ -59,7 +59,7 @@ public class AdDatasController {
 
     @GetMapping("{idData}")
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasAuthority('CF_DT_VR')")
+    //@PreAuthorize("hasAuthority('CF_DT_VR')")
     public AdDatasDto findById(@PathVariable("idData") Long idData) {
         return adDatasService.findByIdData(idData);
     }

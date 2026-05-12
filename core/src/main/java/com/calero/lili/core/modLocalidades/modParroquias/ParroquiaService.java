@@ -11,6 +11,7 @@ import com.calero.lili.core.modLocalidades.modParroquias.dto.ParroquiaResponseLi
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -25,8 +26,15 @@ public class ParroquiaService {
 
     public ParroquiaResponseDto create(ParroquiaRequestDto request, String usuario) {
 
+
+        parroquiaRepository.getForFindById(request.getCodigoParroquia())
+                .ifPresent(c -> {
+                    throw new GeneralException(MessageFormat.format("El codigo de la parroquia: {0} ya existe", request.getCodigoParroquia()));
+                });
+
         CantonEntity cantonEntity = cantonRepository.getForFindById(request.getCodigoCanton())
                 .orElseThrow(() -> new GeneralException("No se encontró el cantón con el código: " + request.getCodigoCanton()));
+
 
         ParroquiaEntity entity = parroquiaBuilder.builder(request);
 
@@ -40,11 +48,18 @@ public class ParroquiaService {
     public ParroquiaResponseDto update(String codigoParroquia, ParroquiaRequestDto request, String usuario) {
 
 
-        CantonEntity cantonEntity = cantonRepository.getForFindById(request.getCodigoCanton())
-                .orElseThrow(() -> new GeneralException("No se encontró el cantón con el código: " + request.getCodigoCanton()));
-
         ParroquiaEntity parroquia = parroquiaRepository.getForFindById(codigoParroquia)
                 .orElseThrow(() -> new GeneralException("No se encontró la parroquia con el código: " + codigoParroquia));
+
+        CantonEntity cantonEntity = null;
+        if (Objects.nonNull(request.getCodigoCanton())) {
+
+            cantonEntity = cantonRepository.getForFindById(request.getCodigoCanton())
+                    .orElseThrow(() -> new GeneralException("No se encontró el cantón con el código: " + request.getCodigoCanton()));
+
+        } else {
+            cantonEntity = parroquia.getCanton();
+        }
 
         ParroquiaEntity entity = parroquiaBuilder.builderUpdate(parroquia, request);
 

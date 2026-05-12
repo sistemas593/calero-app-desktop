@@ -1,7 +1,7 @@
 package com.calero.lili.core.modRRHH.modRRHHTrabajadores.dto;
 
 import com.calero.lili.core.modLocalidades.modCantones.dto.ResponseCantonDto;
-import com.calero.lili.core.modLocalidades.modProvincias.dto.ResponseProvinciaOneDto;
+import com.calero.lili.core.modLocalidades.modProvincias.dto.ResponseProvinciaDto;
 import com.calero.lili.core.tablas.tbPaises.TbPaisGetOneDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,7 +33,7 @@ public class ResponseTrabajadorDto {
     private String fechaSalida;
     private UUID idCargo;
     private BigDecimal sueldoBase;
-    private ResponseProvinciaOneDto provincia;
+    private ResponseProvinciaDto provincia;
     private ResponseCantonDto canton;
     private TbPaisGetOneDto pais;
     private String apellidos;

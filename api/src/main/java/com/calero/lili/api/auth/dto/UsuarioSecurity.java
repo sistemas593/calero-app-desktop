@@ -9,9 +9,8 @@ public class UsuarioSecurity implements UserDetails {
 
     private String username;
     private String password;
-    private String area;
     private Long data;
-    private int nivel;
+    private String nivel;
 
     public Long getRandom() {
         return random;
@@ -59,23 +58,15 @@ public class UsuarioSecurity implements UserDetails {
         return true;
     }
 
-    public UsuarioSecurity(String username, String password, String area, Long data, int nivel, Collection<? extends GrantedAuthority> authorities, Long random) {
+    public UsuarioSecurity(String username, String password, Long data, String nivel, Collection<? extends GrantedAuthority> authorities, Long random) {
         this.username = username;
         this.password = password;
-        this.area = area;
         this.data = data;
         this.nivel = nivel;
         this.authorities = authorities;
         this.random = random;
     }
 
-    public String getArea() {
-        return area;
-    }
-
-    public void setArea(String area) {
-        this.area = area;
-    }
 
     public Long getData() {
         return data;
@@ -85,7 +76,7 @@ public class UsuarioSecurity implements UserDetails {
         this.data = data;
     }
 
-    public int getNivel() {
+    public String getNivel() {
         return nivel;
     }
 
