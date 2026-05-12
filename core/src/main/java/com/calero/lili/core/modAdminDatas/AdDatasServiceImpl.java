@@ -30,6 +30,10 @@ public class AdDatasServiceImpl {
     private final VtClientesConfiguracionesServiceImpl clientesConfiguracionesService;
 
 
+    // Entidad AdModulos, un id para cada modulo,
+    // Entidad AdDatasModulos romper relacion entre datas y datas modulos.
+    // CRUD DE DATAS MODULOS, PARA PODER ASIGNAR LAS DATAS A LOS MODULOS.
+
     public AdDataResponseConfiguracionDto create(AdDatasCreationRequestDto request, String usuario) {
         AdDataEntity entidad = adDataBuilder.builderEntity(request);
         entidad.setCreatedBy(usuario);

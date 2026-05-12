@@ -470,6 +470,7 @@ public class VtVentasFacturasServiceImpl {
     }
 
 
+     // TODO EN TODOS LOS REPORTES DE EXCEL DE LOS CRUD COLOCAR EL NUMERO DE IDENTIFICAION Y EL NOMBRE DEL TECERO.
     @Transactional(readOnly = true)
     public void exportarExcel(Long idData, Long idEmpresa, OutputStream outputStream, FilterListDto filter) throws IOException {
 
@@ -484,7 +485,7 @@ public class VtVentasFacturasServiceImpl {
                 XSSFRow headerRow = sheet.createRow(0);
 
                 String[] columnNames = {"Documento", "Serie", "Secuencial", "FechaEmisión", "NumeroAutorizacion",
-                        "NumeroIdentificación",
+                        "Tercero", "NumeroIdentificación",
                         "BaseCero", "NoObjeto", "Exenta",
                         "Base15%", "Iva15%",
                         "Base5%", "Iva5%",
@@ -588,21 +589,23 @@ public class VtVentasFacturasServiceImpl {
                     row.createCell(2).setCellValue(factura.getSecuencial());
                     row.createCell(3).setCellValue(DateUtils.toStringFechaEmision(factura.getFechaEmision()));
                     row.createCell(4).setCellValue(factura.getNumeroAutorizacion());
-                    row.createCell(5).setCellValue(factura.getTercero().getNumeroIdentificacion());
+                    row.createCell(5).setCellValue(factura.getTercero().getTercero());
+                    row.createCell(6).setCellValue(factura.getTercero().getNumeroIdentificacion());
 
-                    row.createCell(6).setCellValue(baseCero.doubleValue());
 
-                    row.createCell(7).setCellValue(baseNoObjeto.doubleValue());
-                    row.createCell(8).setCellValue(baseExenta.doubleValue());
+                    row.createCell(7).setCellValue(baseCero.doubleValue());
 
-                    row.createCell(9).setCellValue(baseGrav5.doubleValue());
-                    row.createCell(10).setCellValue(valorIva5.doubleValue());
+                    row.createCell(8).setCellValue(baseNoObjeto.doubleValue());
+                    row.createCell(9).setCellValue(baseExenta.doubleValue());
 
-                    row.createCell(11).setCellValue(baseGrav8.doubleValue());
-                    row.createCell(12).setCellValue(valorIva8.doubleValue());
+                    row.createCell(10).setCellValue(baseGrav5.doubleValue());
+                    row.createCell(11).setCellValue(valorIva5.doubleValue());
 
-                    row.createCell(13).setCellValue(baseGrav15.doubleValue());
-                    row.createCell(14).setCellValue(valorIva15.doubleValue());
+                    row.createCell(12).setCellValue(baseGrav8.doubleValue());
+                    row.createCell(13).setCellValue(valorIva8.doubleValue());
+
+                    row.createCell(14).setCellValue(baseGrav15.doubleValue());
+                    row.createCell(15).setCellValue(valorIva15.doubleValue());
 
                 }
 
