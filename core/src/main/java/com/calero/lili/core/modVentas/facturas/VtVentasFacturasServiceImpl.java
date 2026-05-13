@@ -51,7 +51,7 @@ import com.calero.lili.core.modVentas.projection.OneProjection;
 import com.calero.lili.core.modVentas.projection.TotalesProjection;
 import com.calero.lili.core.modVentas.reembolsos.VtVentaReembolsosEntity;
 import com.calero.lili.core.modVentas.reembolsos.VtVentasReembolsoRepository;
-import com.calero.lili.core.modVentas.service.ValidarValoresServiceImpl;
+import com.calero.lili.core.modVentas.service.ValidarServiceImpl;
 import com.calero.lili.core.tablas.tbPaises.TbPaisEntity;
 import com.calero.lili.core.tablas.tbPaises.TbPaisesRepository;
 import com.calero.lili.core.utils.DateUtils;
@@ -110,7 +110,7 @@ public class VtVentasFacturasServiceImpl {
     private final AdLogsBuilder adLogsBuilder;
     private final BuscarDatosEmpresa buscarDatosEmpresa;
     private final AdEmpresasRepository adEmpresasRepository;
-    private final ValidarValoresServiceImpl validarValoresService;
+    private final ValidarServiceImpl validarService;
 
 
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa,
@@ -120,7 +120,7 @@ public class VtVentasFacturasServiceImpl {
         DateUtils.validarFechaEmision(request.getFechaEmision());
         ValidarCampoAscii.validarStrings(request);
 
-        List<ValoresDto> valores = validarValoresService.validarValores(request.getDetalle());
+        List<ValoresDto> valores = validarService.validarValores(request.getDetalle());
         request.setValores(valores);
         setearValoresCabecera(valores, request);
 
@@ -202,16 +202,19 @@ public class VtVentasFacturasServiceImpl {
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationFacturaRequestDto request,
                               FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
+        VtVentaEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
+
+        validarService.validarNoModificacion(vtVentaEntity);
+
         DateUtils.validarFechaEmision(request.getFechaEmision());
         ValidarCampoAscii.validarStrings(request);
 
-        List<ValoresDto> valores = validarValoresService.validarValores(request.getDetalle());
+        List<ValoresDto> valores = validarService.validarValores(request.getDetalle());
         request.setValores(valores);
         setearValoresCabecera(valores, request);
 
         adIvaPorcentajeService.validateIvaPorcentaje(getTarifaValoresInteger(request.getValores()), DateUtils.toLocalDate(request.getFechaEmision()));
 
-        VtVentaEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         if (!vtVentaEntity.getSerie().equals(request.getSerie()) || !vtVentaEntity.getSecuencial().equals(request.getSecuencial())) {
             Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData, idEmpresa, TipoVenta.FAC.name(), request.getSerie(), request.getSecuencial());
@@ -256,6 +259,8 @@ public class VtVentasFacturasServiceImpl {
         return responseApiBuilder.builderResponse(vtVentaEntityDto.getIdVenta().toString());
 
     }
+
+
 
 
     private void validateReembolso(CreationFacturaRequestDto request, VtVentaEntity vtVentaEntity) {

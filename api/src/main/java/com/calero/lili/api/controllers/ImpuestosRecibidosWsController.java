@@ -38,7 +38,7 @@ public class ImpuestosRecibidosWsController {
 
     }
 
-    // crear con claves de acceso
+    // TODO AQUI REVISAR LA NEUVA FORMA EN QUE SE VAN A ENVIAR
     @PostMapping("list/{idEmpresa}")
     @ResponseStatus(HttpStatus.CREATED)
     public CpImpuestosRecibirListCreationResponseDto createListClavesAcceso(

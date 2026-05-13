@@ -40,7 +40,7 @@ import com.calero.lili.core.modVentas.notasCredito.builder.VtNotasCreditoBuilder
 import com.calero.lili.core.modVentas.notasCredito.dto.CreationNotaCreditoRequestDto;
 import com.calero.lili.core.modVentas.notasCredito.dto.GetNotaCreditoDto;
 import com.calero.lili.core.modVentas.projection.OneProjection;
-import com.calero.lili.core.modVentas.service.ValidarValoresServiceImpl;
+import com.calero.lili.core.modVentas.service.ValidarServiceImpl;
 import com.calero.lili.core.utils.DateUtils;
 import com.calero.lili.core.utils.validaciones.ValidarCampoAscii;
 import com.lowagie.text.Document;
@@ -96,7 +96,7 @@ public class VtVentasNotasCreditoServiceImpl {
     private final ProcesarDocumentosServiceImpl procesarDocumentosService;
     private final AdLogsBuilder adLogsBuilder;
     private final AdEmpresasRepository adEmpresasRepository;
-    private final ValidarValoresServiceImpl validarValoresService;
+    private final ValidarServiceImpl validarValoresService;
 
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa, CreationNotaCreditoRequestDto request,
                                          String usuario, String origenCertificado) {

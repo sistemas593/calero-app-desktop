@@ -3,9 +3,11 @@ package com.calero.lili.core.modVentas.service;
 
 import com.calero.lili.core.dtos.ImpuestoItemsDto;
 import com.calero.lili.core.dtos.ValoresDto;
+import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosEntity;
 import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosItemsRepository;
+import com.calero.lili.core.modVentas.VtVentaEntity;
 import com.calero.lili.core.modVentas.dto.DetailDto;
 import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -24,7 +26,7 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class ValidarValoresServiceImpl {
+public class ValidarServiceImpl {
 
     private final GeImpuestosItemsRepository geImpuestosItemsRepository;
 
@@ -123,5 +125,13 @@ public class ValidarValoresServiceImpl {
                         imp -> imp
                 ));
         return impuestosMap;
+    }
+
+    public void validarNoModificacion(VtVentaEntity vtVentaEntity) {
+
+        if (vtVentaEntity.getEstadoDocumento().equals(EstadoDocumento.AUT)) {
+            throw new GeneralException("El documento no puede modificarse por que ya esta autorizado");
+        }
+
     }
 }
