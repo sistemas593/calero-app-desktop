@@ -152,6 +152,8 @@ public class ExcelCargarTrabajadoresServiceImpl {
                             detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.TRABAJADOR_CORREO_NOT_FOUND));
                         }
 
+                        validarCanton(row, detalleErrores, terceroEntity, linea);
+                        validarProvincia(row, detalleErrores, terceroEntity, linea);
 
                         if (detalleErrores.isEmpty()) {
 
@@ -222,8 +224,7 @@ public class ExcelCargarTrabajadoresServiceImpl {
                 }
 
 
-                validarCanton(row, detalleErrores, item, linea);
-                validarProvincia(row, detalleErrores, item, linea);
+
                 validarPais(row, detalleErrores, item, linea);
 
                 if (Objects.isNull(row.getCell(21))) {
@@ -283,7 +284,7 @@ public class ExcelCargarTrabajadoresServiceImpl {
     }
 
 
-    private void validarCanton(Row row, List<DetalleError> detalleErrores, TrabajadorEntity item, int linea) {
+    private void validarCanton(Row row, List<DetalleError> detalleErrores, GeTerceroEntity item, int linea) {
 
         if (Objects.nonNull(row.getCell(18))) {
             Optional<CantonEntity> canton = cantonRepository.getForFindById(row.getCell(18).getStringCellValue());
@@ -299,12 +300,13 @@ public class ExcelCargarTrabajadoresServiceImpl {
     }
 
 
-    private void validarProvincia(Row row, List<DetalleError> detalleErrores, TrabajadorEntity item, int linea) {
+    private void validarProvincia(Row row, List<DetalleError> detalleErrores, GeTerceroEntity item, int linea) {
 
         if (Objects.nonNull(row.getCell(19))) {
-            ProvinciaEntity provincia = provinciaRepository.getForFindById(row.getCell(19).getStringCellValue());
-            if (Objects.nonNull(provincia)) {
-                item.setProvincia(provincia);
+            Optional<ProvinciaEntity> provincia = provinciaRepository.getForFindById(row.getCell(19).getStringCellValue());
+
+            if (provincia.isPresent()) {
+                item.setProvincia(provincia.get());
             } else {
                 detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.PROVINCIA_NOT_FOUND));
             }

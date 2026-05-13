@@ -96,7 +96,7 @@ public class VtVentasNotasCreditoServiceImpl {
     private final ProcesarDocumentosServiceImpl procesarDocumentosService;
     private final AdLogsBuilder adLogsBuilder;
     private final AdEmpresasRepository adEmpresasRepository;
-    private final ValidarServiceImpl validarValoresService;
+    private final ValidarServiceImpl validarService;
 
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa, CreationNotaCreditoRequestDto request,
                                          String usuario, String origenCertificado) {
@@ -104,7 +104,7 @@ public class VtVentasNotasCreditoServiceImpl {
         DateUtils.validarFechaEmision(request.getFechaEmision());
         ValidarCampoAscii.validarStrings(request);
 
-        List<ValoresDto> valores = validarValoresService.validarValores(request.getDetalle());
+        List<ValoresDto> valores = validarService.validarValores(request.getDetalle());
         request.setValores(valores);
         setearValoresCabecera(valores, request);
 
@@ -181,17 +181,20 @@ public class VtVentasNotasCreditoServiceImpl {
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationNotaCreditoRequestDto request,
                               String usuario, TipoPermiso tipoBusqueda, FilterListDto filters) {
 
+        VtVentaEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
+
+        validarService.validarNoModificacion(vtVentaEntity);
+
         DateUtils.validarFechaEmision(request.getFechaEmision());
         ValidarCampoAscii.validarStrings(request);
 
-        List<ValoresDto> valores = validarValoresService.validarValores(request.getDetalle());
+        List<ValoresDto> valores = validarService.validarValores(request.getDetalle());
         request.setValores(valores);
         setearValoresCabecera(valores, request);
 
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
                 DateUtils.toLocalDate(request.getModFechaEmision()));
 
-        VtVentaEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         if (!vtVentaEntity.getSerie().equals(request.getSerie()) || !vtVentaEntity.getSecuencial().equals(request.getSecuencial())) {
             Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData, idEmpresa, TipoVenta.NCR.name(), request.getSerie(), request.getSecuencial());

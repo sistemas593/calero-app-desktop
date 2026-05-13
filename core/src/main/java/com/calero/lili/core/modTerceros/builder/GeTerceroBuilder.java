@@ -2,9 +2,6 @@ package com.calero.lili.core.modTerceros.builder;
 
 import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.enums.TipoTercero;
-import com.calero.lili.core.modLocalidades.modCantones.CantonEntity;
-import com.calero.lili.core.modLocalidades.modParroquias.ParroquiaEntity;
-import com.calero.lili.core.modLocalidades.modProvincias.ProvinciaEntity;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosTipoEntity;
 import com.calero.lili.core.modTerceros.dto.GeTerceroGetListDto;
@@ -15,7 +12,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -46,7 +42,7 @@ public class GeTerceroBuilder {
                 .origenIngresos(model.getOrigenIngresos())
                 .sexo(model.getSexo())
                 .estadoCivil(model.getEstadoCivil())
-                .datosAdicionales(model.getDatosAdicionales())
+                //.datosAdicionales(model.getDatosAdicionales())
                 .build();
     }
 
@@ -72,7 +68,7 @@ public class GeTerceroBuilder {
                 .origenIngresos(model.getOrigenIngresos())
                 .sexo(model.getSexo())
                 .estadoCivil(model.getEstadoCivil())
-                .datosAdicionales(model.getDatosAdicionales())
+                //.datosAdicionales(model.getDatosAdicionales())
                 .build();
     }
 
@@ -93,9 +89,12 @@ public class GeTerceroBuilder {
                 .origenIngresos(model.getOrigenIngresos())
                 .sexo(model.getSexo())
                 .estadoCivil(model.getEstadoCivil())
+                .codigoParroquia(Objects.nonNull(model.getParroquia()) ? model.getParroquia().getCodigoParroquia() : null)
                 .parroquia(Objects.nonNull(model.getParroquia()) ? model.getParroquia().getParroquia() : null)
-                .canton(getCanton(model))
-                .provincia(getProvincia(model))
+                .codigoCanton(Objects.nonNull(model.getCanton()) ? model.getCanton().getCodigoCanton() : null)
+                .canton(Objects.nonNull(model.getCanton()) ? model.getCanton().getCanton() : null)
+                .codigoProvincia(Objects.nonNull(model.getProvincia()) ? model.getProvincia().getCodigoProvincia() : null)
+                .provincia(Objects.nonNull(model.getProvincia()) ? model.getProvincia().getProvincia() : null)
                 .build();
     }
 
@@ -119,9 +118,12 @@ public class GeTerceroBuilder {
                 .origenIngresos(model.getOrigenIngresos())
                 .sexo(model.getSexo())
                 .estadoCivil(model.getEstadoCivil())
+                .codigoParroquia(Objects.nonNull(model.getParroquia()) ? model.getParroquia().getCodigoParroquia() : null)
                 .parroquia(Objects.nonNull(model.getParroquia()) ? model.getParroquia().getParroquia() : null)
-                .canton(getCanton(model))
-                .provincia(getProvincia(model))
+                .codigoCanton(Objects.nonNull(model.getCanton()) ? model.getCanton().getCodigoCanton() : null)
+                .canton(Objects.nonNull(model.getCanton()) ? model.getCanton().getCanton() : null)
+                .codigoProvincia(Objects.nonNull(model.getProvincia()) ? model.getProvincia().getCodigoProvincia() : null)
+                .provincia(Objects.nonNull(model.getProvincia()) ? model.getProvincia().getProvincia() : null)
                 .build();
     }
 
@@ -138,22 +140,5 @@ public class GeTerceroBuilder {
                 .idTipoTercero(geTercerosTipoEntity.getIdTerceroTipo())
                 .tipoTercero(TipoTercero.obtenerTipo(geTercerosTipoEntity.getTipo()))
                 .build();
-    }
-
-    private String getCanton(GeTerceroEntity model) {
-        return Optional.ofNullable(model)
-                .map(GeTerceroEntity::getParroquia)
-                .map(ParroquiaEntity::getCanton)
-                .map(CantonEntity::getCanton)
-                .orElse(null);
-    }
-
-    private String getProvincia(GeTerceroEntity model) {
-        return Optional.ofNullable(model)
-                .map(GeTerceroEntity::getParroquia)
-                .map(ParroquiaEntity::getCanton)
-                .map(CantonEntity::getProvincia)
-                .map(ProvinciaEntity::getProvincia)
-                .orElse(null);
     }
 }

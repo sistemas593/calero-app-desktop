@@ -5,6 +5,10 @@ import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.core.modAdModulos.AdModuloRepository;
+import com.calero.lili.core.modAdModulos.AdModulosEntity;
+import com.calero.lili.core.modAdminDatas.AdDataEntity;
+import com.calero.lili.core.modAdminDatas.dto.AdDatasCreationRequestDto;
 import com.calero.lili.core.modClientesConfiguraciones.builder.VtClienteConfiguracionBuilder;
 import com.calero.lili.core.modClientesConfiguraciones.dto.StEmpresasListCreationResponseDto;
 import com.calero.lili.core.modClientesConfiguraciones.dto.VtClientesConfiguracionesCreationResponseDto;
@@ -25,7 +29,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +40,7 @@ public class VtClientesConfiguracionesServiceImpl {
     private final VtClientesConfiguracionesRepository clientesConfiguracionesRepository;
     private final VtClienteConfiguracionBuilder vtClienteConfiguracionBuilder;
     private final ResponseApiBuilder responseApiBuilder;
+    private final AdModuloRepository adModuloRepository;
 
 
     public ResponseDto create(VtClientesConfiguracionesRequestDto request, String usuario) {
@@ -50,6 +57,7 @@ public class VtClientesConfiguracionesServiceImpl {
             throw new GeneralException(MessageFormat.format("RUC {0} ya existe", request.getRuc()));
         }
         VtClientesConfiguracionesEntity configuracion = vtClienteConfiguracionBuilder.builderEntity(request);
+        validarModulos(configuracion, request);
         configuracion.setCreatedBy(usuario);
         configuracion.setCreatedDate(LocalDateTime.now());
         clientesConfiguracionesRepository.save(configuracion);
@@ -64,6 +72,7 @@ public class VtClientesConfiguracionesServiceImpl {
         VtClientesConfiguracionesEntity update = vtClienteConfiguracionBuilder
                 .builderUpdateEntity(request, entidad);
 
+        validarModulos(update, request);
         update.setModifiedBy(usuario);
         update.setModifiedDate(LocalDateTime.now());
 
@@ -192,5 +201,27 @@ public class VtClientesConfiguracionesServiceImpl {
         errores.setErrores(listaRespuestas);
         return errores;
 
+    }
+
+    private void validarModulos(VtClientesConfiguracionesEntity entidad, VtClientesConfiguracionesRequestDto request) {
+
+        List<AdModulosEntity> lista =
+                adModuloRepository.findAllByIds(request.getIdsModulos());
+
+        Set<Long> idsEncontrados = lista.stream()
+                .map(AdModulosEntity::getIdModulo)
+                .collect(Collectors.toSet());
+
+        List<Long> idsNoEncontrados = request.getIdsModulos().stream()
+                .filter(id -> !idsEncontrados.contains(id))
+                .toList();
+
+        if (!idsNoEncontrados.isEmpty()) {
+            throw new GeneralException(
+                    "No existen los módulos con los siguientes ids: " + idsNoEncontrados
+            );
+        }
+
+        entidad.setModulosList(lista);
     }
 }

@@ -35,6 +35,7 @@ import com.calero.lili.core.modVentas.notasDebito.dto.FilterListDto;
 import com.calero.lili.core.modVentas.notasDebito.dto.GetNotaDebitoDto;
 import com.calero.lili.core.modVentas.projection.OneProjection;
 import com.calero.lili.core.modVentas.projection.TotalesProjection;
+import com.calero.lili.core.modVentas.service.ValidarServiceImpl;
 import com.calero.lili.core.utils.DateUtils;
 import com.calero.lili.core.utils.validaciones.ValidarCampoAscii;
 import lombok.RequiredArgsConstructor;
@@ -71,6 +72,7 @@ public class VtVentasNotasDebitoServiceImpl {
     private final AdLogsBuilder adLogsBuilder;
     private final ProcesarDocumentosServiceImpl procesarDocumentosService;
     private final AdEmpresasRepository adEmpresasRepository;
+    private final ValidarServiceImpl validarService;
 
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa,
                                          CreationNotaDebitoRequestDto request, String usuario, String origenCertificado) {
@@ -151,13 +153,16 @@ public class VtVentasNotasDebitoServiceImpl {
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationNotaDebitoRequestDto request, String usuario,
                               FilterListDto filters, TipoPermiso tipoBusqueda) {
 
+        VtVentaEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
+
+        validarService.validarNoModificacion(vtVentaEntity);
+
         DateUtils.validarFechaEmision(request.getFechaEmision());
         ValidarCampoAscii.validarStrings(request);
 
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
                 DateUtils.toLocalDate(request.getFechaEmision()));
 
-        VtVentaEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         if (!vtVentaEntity.getSerie().equals(request.getSerie()) || !vtVentaEntity.getSecuencial().equals(request.getSecuencial())) {
             Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData, idEmpresa, TipoVenta.NCR.name(), request.getSerie(), request.getSecuencial());

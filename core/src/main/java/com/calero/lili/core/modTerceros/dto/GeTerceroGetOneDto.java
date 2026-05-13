@@ -92,8 +92,11 @@ public class GeTerceroGetOneDto {
 
     }
 
+    private String codigoParroquia;
     private String parroquia;
+    private String codigoCanton;
     private String canton;
+    private String codigoProvincia;
     private String provincia;
 
 }

@@ -1,9 +1,5 @@
 package com.calero.lili.core.modRRHH.modRRHHTrabajadores.builder;
 
-import com.calero.lili.core.modLocalidades.modCantones.CantonEntity;
-import com.calero.lili.core.modLocalidades.modCantones.dto.ResponseCantonDto;
-import com.calero.lili.core.modLocalidades.modProvincias.ProvinciaEntity;
-import com.calero.lili.core.modLocalidades.modProvincias.dto.ResponseProvinciaDto;
 import com.calero.lili.core.modRRHH.modRRHHTrabajadores.TrabajadorEntity;
 import com.calero.lili.core.modRRHH.modRRHHTrabajadores.dto.RequestTrabajadorDto;
 import com.calero.lili.core.modRRHH.modRRHHTrabajadores.dto.ResponseTrabajadorDto;
@@ -35,12 +31,6 @@ public class TrabajadorBuilder {
                         ? DateUtils.toLocalDate(model.getFechaIngreso())
                         : null)
                 .estado(model.getEstado())
-                .provincia(Objects.nonNull(model.getCodigoProvincia()) && !model.getCodigoProvincia().isEmpty()
-                        ? builderProvincia(model.getCodigoProvincia())
-                        : null)
-                .canton(Objects.nonNull(model.getCodigoCanton()) && !model.getCodigoCanton().isEmpty()
-                        ? builderCanton(model.getCodigoCanton())
-                        : null)
                 .idDiscapacidad(model.getIdDiscapacidad())
                 .pais(builderPais(model.getCodigoPais()))
                 .tercero(tercero)
@@ -70,12 +60,6 @@ public class TrabajadorBuilder {
                 .enfermedadCatastrofica(model.getEnfermedadCatastrofica())
                 .fechaIngreso(DateUtils.toLocalDate(model.getFechaIngreso()))
                 .estado(model.getEstado())
-                .provincia(Objects.nonNull(model.getCodigoProvincia()) && !model.getCodigoProvincia().isEmpty()
-                        ? builderProvincia(model.getCodigoProvincia())
-                        : item.getProvincia())
-                .canton(Objects.nonNull(model.getCodigoCanton()) && !model.getCodigoCanton().isEmpty()
-                        ? builderCanton(model.getCodigoCanton())
-                        : item.getCanton())
                 .idDiscapacidad(model.getIdDiscapacidad())
                 .pais(builderPais(model.getCodigoPais()))
                 .tercero(tercero)
@@ -107,12 +91,6 @@ public class TrabajadorBuilder {
                         ? model.getFechaIngreso().toString()
                         : null)
                 .estado(model.getEstado())
-                .provincia(Objects.nonNull(model.getProvincia())
-                        ? builderResponseProvincia(model.getProvincia())
-                        : null)
-                .canton(Objects.nonNull(model.getCanton())
-                        ? builderResponseCanton(model.getCanton())
-                        : null)
                 .pais(builderPaisResponse(model.getPais()))
                 .estado(model.getEstado())
                 .sueldoBase(model.getSueldoBase())
@@ -123,32 +101,6 @@ public class TrabajadorBuilder {
                 .idCargo(model.getIdCargo())
                 .apellidos(model.getApellidos())
                 .nombres(model.getNombres())
-                .build();
-    }
-
-    private ProvinciaEntity builderProvincia(String idProvincia) {
-        return ProvinciaEntity.builder()
-                .codigoProvincia(idProvincia)
-                .build();
-    }
-
-    private CantonEntity builderCanton(String idCanton) {
-        return CantonEntity.builder()
-                .codigoCanton(idCanton)
-                .build();
-    }
-
-    private ResponseProvinciaDto builderResponseProvincia(ProvinciaEntity model) {
-        return ResponseProvinciaDto.builder()
-                .codigoProvincia(model.getCodigoProvincia())
-                .provincia(model.getProvincia())
-                .build();
-    }
-
-    private ResponseCantonDto builderResponseCanton(CantonEntity model) {
-        return ResponseCantonDto.builder()
-                .codigoCanton(model.getCodigoCanton())
-                .canton(model.getCanton())
                 .build();
     }
 

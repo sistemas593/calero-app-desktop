@@ -44,12 +44,16 @@ public class GeTerceroRequestDto {
 
     private String codigoParroquia;
 
+    private String codigoCanton;
+
+    private String codigoProvincia;
+
     private SexoEnum sexo;
     private OrigenIngresosEnum origenIngresos;
     private EstadoCivilEnum estadoCivil;
 
-    @NotNull(message = "Es requerido saber si se requiere datos adicionales")
-    private Boolean datosAdicionales;
+   /* @NotNull(message = "Es requerido saber si se requiere datos adicionales")
+    private Boolean datosAdicionales;*/
 
     @NotNull(message = "Es requerido la información del cliente")
     private TipoTercerosClienteDto cliente;

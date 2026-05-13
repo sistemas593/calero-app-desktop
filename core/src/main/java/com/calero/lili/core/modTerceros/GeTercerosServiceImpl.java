@@ -5,8 +5,12 @@ import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.enums.TipoClienteProveedor;
 import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.core.modLocalidades.modCantones.CantonEntity;
+import com.calero.lili.core.modLocalidades.modCantones.CantonRepository;
 import com.calero.lili.core.modLocalidades.modParroquias.ParroquiaEntity;
 import com.calero.lili.core.modLocalidades.modParroquias.ParroquiaRepository;
+import com.calero.lili.core.modLocalidades.modProvincias.ProvinciaEntity;
+import com.calero.lili.core.modLocalidades.modProvincias.ProvinciaRepository;
 import com.calero.lili.core.modTerceros.builder.GeTerceroBuilder;
 import com.calero.lili.core.modTerceros.dto.GeTerceroFilterDto;
 import com.calero.lili.core.modTerceros.dto.GeTerceroGetListDto;
@@ -37,12 +41,14 @@ public class GeTercerosServiceImpl {
     private final GeTerceroBuilder clienteBuilder;
     private final GeTercerosTipoServiceImpl geTercerosTipoService;
     private final ParroquiaRepository parroquiaRepository;
+    private final CantonRepository cantonRepository;
+    private final ProvinciaRepository provinciaRepository;
 
     public GeTerceroGetListDto create(Long idEmpresa, Long idData, GeTerceroRequestDto request, String usuario) {
 
         ValidarCampoAscii.validarStrings(request);
 
-        validarInformacionAdicional(request);
+        //validarInformacionAdicional(request);
         Optional<GeTerceroProjection> vtClientesEntityExist = vtClientesRepository.findExistByNumeroIdentificacion(idData, request.getNumeroIdentificacion());
         if (vtClientesEntityExist.isPresent()) {
             System.out.println(request.getNumeroIdentificacion());
@@ -65,7 +71,7 @@ public class GeTercerosServiceImpl {
         validarTransportista(request);
         validarTrabajador(request);
         GeTerceroEntity tercero = clienteBuilder.builderEntity(request, idData);
-        validarLocalidad(tercero, request.getCodigoParroquia());
+        validarLocalidad(tercero, request);
         tercero.setCreatedBy(usuario);
         tercero.setCreatedDate(LocalDateTime.now());
         GeTerceroEntity entity = vtClientesRepository.save(tercero);
@@ -79,7 +85,7 @@ public class GeTercerosServiceImpl {
 
         ValidarCampoAscii.validarStrings(request);
 
-        validarInformacionAdicional(request);
+        //validarInformacionAdicional(request);
 
         GeTerceroEntity actualizar = vtClientesRepository.findByIdCliente(idData, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Cliente con id {0} no existe", id)));
@@ -89,6 +95,7 @@ public class GeTercerosServiceImpl {
 
         GeTerceroEntity update = clienteBuilder.builderUpdateEntity(request, actualizar);
 
+        validarLocalidad(update, request);
         update.setModifiedBy(usuario);
         update.setModifiedDate(LocalDateTime.now());
 
@@ -184,7 +191,7 @@ public class GeTercerosServiceImpl {
         }
     }
 
-    private void validarInformacionAdicional(GeTerceroRequestDto request) {
+    /*private void validarInformacionAdicional(GeTerceroRequestDto request) {
 
         if (request.getDatosAdicionales()) {
 
@@ -212,7 +219,7 @@ public class GeTercerosServiceImpl {
             }
 
         }
-    }
+    }*/
 
     private static void validarClienteProveedor(GeTerceroRequestDto request) {
 
@@ -235,15 +242,63 @@ public class GeTercerosServiceImpl {
         }
     }
 
-    private void validarLocalidad(GeTerceroEntity tercero, String codigoParroquia) {
+    private void validarLocalidad(GeTerceroEntity tercero, GeTerceroRequestDto request) {
 
-        if (Objects.nonNull(codigoParroquia)) {
-            ParroquiaEntity parroquia = parroquiaRepository.getForFindById(codigoParroquia)
-                    .orElseThrow(() -> new GeneralException(MessageFormat.format("Parroquia con código {0} no existe", codigoParroquia)));
+        if (Objects.nonNull(request.getCodigoProvincia())) {
+
+            ProvinciaEntity provincia = provinciaRepository.getForFindById(request.getCodigoProvincia())
+                    .orElseThrow(() -> new GeneralException(MessageFormat.format("Provincia con código {0} no existe", request.getCodigoProvincia())));
+            tercero.setProvincia(provincia);
+
+        } else {
+            tercero.setProvincia(null);
+        }
+
+        if (Objects.nonNull(request.getCodigoCanton())) {
+            CantonEntity canton = cantonRepository.getForFindById(request.getCodigoCanton())
+                    .orElseThrow(() -> new GeneralException(MessageFormat.format("Canton con código {0} no existe", request.getCodigoCanton())));
+            tercero.setCanton(canton);
+
+        } else {
+            tercero.setCanton(null);
+        }
+
+
+        if (Objects.nonNull(request.getCodigoParroquia())) {
+            ParroquiaEntity parroquia = parroquiaRepository.getForFindById(request.getCodigoParroquia())
+                    .orElseThrow(() -> new GeneralException(MessageFormat.format("Parroquia con código {0} no existe", request.getCodigoParroquia())));
             tercero.setParroquia(parroquia);
 
         } else {
             tercero.setParroquia(null);
+        }
+
+
+        if (Objects.nonNull(tercero.getProvincia()) && Objects.nonNull(tercero.getCanton())) {
+
+            boolean existe = tercero.getProvincia().getCantones().stream()
+                    .map(CantonEntity::getCodigoCanton)
+                    .anyMatch(codigo -> codigo.equals(request.getCodigoCanton()));
+
+            if (!existe) {
+                throw new GeneralException(MessageFormat.format("El codigo del canton {0}, no coincide con la provincia: {1}",
+                        request.getCodigoCanton(), tercero.getProvincia().getProvincia()));
+            }
+
+        }
+
+
+        if (Objects.nonNull(tercero.getCanton()) && Objects.nonNull(tercero.getParroquia())) {
+
+            boolean existe = tercero.getCanton().getParroquias().stream()
+                    .map(ParroquiaEntity::getCodigoParroquia)
+                    .anyMatch(codigo -> codigo.equals(request.getCodigoParroquia()));
+
+            if (!existe) {
+                throw new GeneralException(MessageFormat.format("El codigo de la parroquia {0}, no coincide con el canton: {1}",
+                        request.getCodigoParroquia(), tercero.getCanton().getCanton()));
+            }
+
         }
 
     }

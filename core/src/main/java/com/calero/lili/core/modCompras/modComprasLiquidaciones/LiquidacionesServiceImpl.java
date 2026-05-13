@@ -16,7 +16,6 @@ import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.TipoEmision;
 import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.errors.exceptions.GeneralException;
-import com.calero.lili.core.errors.exceptions.NotFoundException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.modAdminEmpresas.projection.MomentoEnvioProjection;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosServiceImpl;
@@ -208,8 +207,10 @@ public class LiquidacionesServiceImpl {
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationRequestLiquidacionCompraDto request,
                               String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
 
-        DateUtils.validarFechaEmision(request.getFechaEmision());
         CpLiquidacionesEntity cpLiquidacionesEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
+        validarAutorizacion(cpLiquidacionesEntity);
+        DateUtils.validarFechaEmision(request.getFechaEmision());
+
 
         if (!cpLiquidacionesEntity.getSerie().equals(request.getSerie()) || !cpLiquidacionesEntity.getSecuencial().equals(request.getSecuencial())) {
             Optional<OneProjection> existingFactura = liquidacionesRepository.findExistBySecuencial(idData, idEmpresa, request.getSerie(), request.getSecuencial());
@@ -819,6 +820,15 @@ public class LiquidacionesServiceImpl {
         }
 
         throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
+    }
+
+    public void validarAutorizacion(CpLiquidacionesEntity liq) {
+
+
+        if (liq.getEstadoDocumento().equals(EstadoDocumento.AUT)) {
+            throw new GeneralException("El documento no puede modificarse por que ya esta autorizado");
+        }
+
     }
 
 }

@@ -133,6 +133,15 @@ public class GeTerceroEntity extends Auditable implements Serializable {
     @JoinColumn(name = "codigo_parroquia")
     private ParroquiaEntity parroquia;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "codigo_canton")
+    private CantonEntity canton;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "codigo_provincia")
+    private ProvinciaEntity provincia;
+
+
     // no esta en tercero la relacion
 
 }

@@ -22,6 +22,7 @@ import com.calero.lili.core.modAdminEmpresas.projection.MomentoEnvioProjection;
 import com.calero.lili.core.modComprasItems.GeItemsRepository;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
+import com.calero.lili.core.modVentas.VtVentaEntity;
 import com.calero.lili.core.modVentasGuias.builder.VtGuiaBuilder;
 import com.calero.lili.core.modVentasGuias.dto.CreationRequestGuiaRemisionDto;
 import com.calero.lili.core.modVentasGuias.dto.FilterListDto;
@@ -159,8 +160,10 @@ public class VtGuiasServiceImpl {
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationRequestGuiaRemisionDto request,
                               String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
 
-        DateUtils.validarFechaEmision(request.getFechaEmision());
         VtGuiaEntity vtGuiaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
+        validarAutorizacion(vtGuiaEntity);
+        DateUtils.validarFechaEmision(request.getFechaEmision());
+
 
         if (!vtGuiaEntity.getSerie().equals(request.getSerie()) || !vtGuiaEntity.getSecuencial().equals(request.getSecuencial())) {
             Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData, idEmpresa, request.getSerie(), request.getSecuencial());
@@ -582,6 +585,15 @@ public class VtGuiasServiceImpl {
         }
 
         throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
+    }
+
+    public void validarAutorizacion(VtGuiaEntity guia) {
+
+
+        if (guia.getEstadoDocumento().equals(EstadoDocumento.AUT)) {
+            throw new GeneralException("El documento no puede modificarse por que ya esta autorizado");
+        }
+
     }
 
 }

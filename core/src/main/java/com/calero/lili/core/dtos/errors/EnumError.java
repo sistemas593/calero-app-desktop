@@ -153,7 +153,12 @@ public enum EnumError {
     CODIGO_PRINCIPAL_NOT_VALID_CARACTER("El codigo principal contiene caracteres inválidos"),
     CODIGO_BARRAS_NOT_VALID_CARACTER("El codigo de barras contiene caracteres inválidos"),
     NOMBRE_NOT_VALID_CARACTER("El nombre contiene caracteres inválidos"),
-    DETALLE_NOT_VALID_CARACTER("Un campo en los detalles contiene caracteres inválidos ");;
-    private String description;
+    DETALLE_NOT_VALID_CARACTER("Un campo en los detalles contiene caracteres inválidos "),
 
+    PROVINCIA_NOT_EXIST("El codigo de la provincia proporcionado no existe"),
+    CANTON_NOT_EXIST("El codigo del canton proporcionado no existe"),
+    PARROQUIA_NOT_EXIST("El codigo de la parroquia proporcionado no existe"),
+
+    ;
+    private String description;
 }

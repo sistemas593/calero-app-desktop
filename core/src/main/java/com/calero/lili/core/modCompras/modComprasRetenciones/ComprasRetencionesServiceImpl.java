@@ -29,6 +29,7 @@ import com.calero.lili.core.modCompras.modComprasRetenciones.dto.GetListDtoTotal
 import com.calero.lili.core.modCompras.modComprasRetenciones.projection.TotalesProjection;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
+import com.calero.lili.core.modVentasGuias.VtGuiaEntity;
 import com.calero.lili.core.utils.DateUtils;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -148,9 +149,11 @@ public class ComprasRetencionesServiceImpl {
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationRetencionRequestDto request,
                               String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
 
+        CpRetencionesEntity retencionesEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
+
+        validarAutorizacion(retencionesEntity);
 
         DateUtils.validarFechaEmision(request.getFechaEmisionRetencion());
-        CpRetencionesEntity retencionesEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         GeTerceroEntity proveedor = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
                 .orElseThrow(() -> new GeneralException("El tercero seleccionado no existe"));
@@ -571,6 +574,15 @@ public class ComprasRetencionesServiceImpl {
         }
 
         throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
+    }
+
+    public void validarAutorizacion(CpRetencionesEntity retencion) {
+
+
+        if (retencion.getEstadoDocumento().equals(EstadoDocumento.AUT)) {
+            throw new GeneralException("El documento no puede modificarse por que ya esta autorizado");
+        }
+
     }
 
 }

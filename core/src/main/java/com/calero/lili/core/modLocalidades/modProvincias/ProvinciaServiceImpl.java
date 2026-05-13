@@ -29,10 +29,9 @@ public class ProvinciaServiceImpl {
     }
 
     public ResponseProvinciaDto update(String idProvincia, RequestProvinciaDto request, String usuario) {
-        ProvinciaEntity provinciaEntity = provinciaRepository.getForFindById(idProvincia);
-        if (Objects.isNull(provinciaEntity)) {
-            throw new GeneralException(MessageFormat.format("Id {0} no existe", idProvincia));
-        }
+        ProvinciaEntity provinciaEntity = provinciaRepository.getForFindById(idProvincia)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no existe", idProvincia)));
+
         ProvinciaEntity updated = provinciaBuilder.builderUpdateEntity(request, provinciaEntity);
         updated.setModifiedBy(usuario);
         updated.setModifiedDate(LocalDateTime.now());
@@ -40,10 +39,10 @@ public class ProvinciaServiceImpl {
     }
 
     public void delete(String idProvincia, String usuario) {
-        ProvinciaEntity provinciaEntity = provinciaRepository.getForFindById(idProvincia);
-        if (Objects.isNull(provinciaEntity)) {
-            throw new GeneralException(MessageFormat.format("Id {0} no existe", idProvincia));
-        }
+
+        ProvinciaEntity provinciaEntity = provinciaRepository.getForFindById(idProvincia)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no existe", idProvincia)));
+
         provinciaEntity.setDeletedBy(usuario);
         provinciaEntity.setDeletedDate(LocalDateTime.now());
         provinciaEntity.setDelete(Boolean.TRUE);
@@ -51,11 +50,10 @@ public class ProvinciaServiceImpl {
     }
 
     public ResponseProvinciaDto findFirstById(String idProvincia) {
-        ProvinciaEntity provinciaEntity = provinciaRepository.getForFindById(idProvincia);
-        if (Objects.isNull(provinciaEntity)) {
-            throw new GeneralException(MessageFormat.format("Id {0} no existe", idProvincia));
-        }
-        return provinciaBuilder.builderResponse(provinciaEntity);
+
+        return provinciaBuilder.builderResponse(provinciaRepository.getForFindById(idProvincia)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no existe", idProvincia))));
+
     }
 
     public List<ResponseProvinciaDto> findAll(ProvinceListFiltersDto filter) {

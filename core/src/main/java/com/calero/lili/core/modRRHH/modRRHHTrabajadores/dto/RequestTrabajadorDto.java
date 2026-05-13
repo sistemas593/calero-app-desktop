@@ -14,8 +14,6 @@ import java.util.UUID;
 @NoArgsConstructor
 public class RequestTrabajadorDto {
 
-    private String codigoProvincia;
-    private String codigoCanton;
     private String codigoPais;
     private String codigoSalario;
     private String codigoEstablecimiento;
