@@ -141,7 +141,7 @@ public class PedidosServiceImpl {
     }
 
     public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable,
-                                                     TipoPermiso tipoBusqueda, String usuario) {
+                                                    TipoPermiso tipoBusqueda, String usuario) {
 
         Page<VtPedidoEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
 
@@ -247,8 +247,8 @@ public class PedidosServiceImpl {
                 XSSFSheet sheet = workbook.createSheet("Facturas");
                 XSSFRow headerRow = sheet.createRow(0);
 
-                String[] columnNames = {"Documento", "Serie", "Secuencial", "FechaEmisión", "NumeroAutorizacion",
-                        "NumeroIdentificación",
+                String[] columnNames = {"Serie", "Secuencial", "FechaEmisión", "NumeroAutorizacion",
+                        "Tercero", "NumeroIdentificación",
                         "BaseCero", "NoObjeto", "Exenta",
                         "Base15%", "Iva15%",
                         "Base5%", "Iva5%",
@@ -307,25 +307,25 @@ public class PedidosServiceImpl {
                         }
                     }
 
-                    row.createCell(1).setCellValue(factura.getSerie());
-                    row.createCell(2).setCellValue(factura.getSecuencial());
-                    row.createCell(3).setCellValue(DateUtils.toString(factura.getFechaEmision()));
-                    row.createCell(4).setCellValue(factura.getNumeroAutorizacion());
-                    row.createCell(5).setCellValue(factura.getNumeroIdentificacion());
+                    row.createCell(0).setCellValue(factura.getSerie());
+                    row.createCell(1).setCellValue(factura.getSecuencial());
+                    row.createCell(2).setCellValue(DateUtils.toString(factura.getFechaEmision()));
+                    row.createCell(3).setCellValue(factura.getNumeroAutorizacion());
+                    row.createCell(4).setCellValue(factura.getCliente().getTercero());
+                    row.createCell(5).setCellValue(factura.getCliente().getNumeroIdentificacion());
 
                     row.createCell(6).setCellValue(baseCero.doubleValue());
-
                     row.createCell(7).setCellValue(baseNoObjeto.doubleValue());
                     row.createCell(8).setCellValue(baseExenta.doubleValue());
 
-                    row.createCell(9).setCellValue(baseGrav5.doubleValue());
-                    row.createCell(10).setCellValue(valorIva5.doubleValue());
+                    row.createCell(9).setCellValue(baseGrav15.doubleValue());
+                    row.createCell(10).setCellValue(valorIva15.doubleValue());
 
-                    row.createCell(11).setCellValue(baseGrav8.doubleValue());
-                    row.createCell(12).setCellValue(valorIva8.doubleValue());
+                    row.createCell(11).setCellValue(baseGrav5.doubleValue());
+                    row.createCell(12).setCellValue(valorIva5.doubleValue());
 
-                    row.createCell(13).setCellValue(baseGrav15.doubleValue());
-                    row.createCell(14).setCellValue(valorIva15.doubleValue());
+                    row.createCell(13).setCellValue(baseGrav8.doubleValue());
+                    row.createCell(14).setCellValue(valorIva8.doubleValue());
 
                 }
 

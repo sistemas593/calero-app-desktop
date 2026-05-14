@@ -16,7 +16,6 @@ import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.TipoEmision;
 import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.errors.exceptions.GeneralException;
-import com.calero.lili.core.errors.exceptions.NotFoundException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.modAdminEmpresas.projection.MomentoEnvioProjection;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosServiceImpl;
@@ -29,7 +28,6 @@ import com.calero.lili.core.modCompras.modComprasRetenciones.dto.GetListDtoTotal
 import com.calero.lili.core.modCompras.modComprasRetenciones.projection.TotalesProjection;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
-import com.calero.lili.core.modVentasGuias.VtGuiaEntity;
 import com.calero.lili.core.utils.DateUtils;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -311,7 +309,7 @@ public class ComprasRetencionesServiceImpl {
                 XSSFRow headerRow = sheet.createRow(0);
 
                 String[] columnNames = {"Documento", "Serie", "Secuencial", "FechaEmisión", "NumeroAutorizacion",
-                        "NumeroIdentificación",
+                        "Tercero", "NumeroIdentificación",
                         "BaseCero", "NoObjeto", "Exenta",
                         "Base15%", "Iva15%",
                         "Base5%", "Iva5%",
@@ -337,25 +335,26 @@ public class ComprasRetencionesServiceImpl {
                     BigDecimal baseGrav5 = BigDecimal.valueOf(0);
                     BigDecimal valorIva5 = BigDecimal.valueOf(0);
 
+                    row.createCell(0).setCellValue("RET");
                     row.createCell(1).setCellValue(factura.getSerieRetencion());
                     row.createCell(2).setCellValue(factura.getSecuencialRetencion());
                     row.createCell(3).setCellValue(DateUtils.toString(factura.getFechaEmisionRetencion()));
                     row.createCell(4).setCellValue(factura.getNumeroAutorizacionRetencion());
-                    row.createCell(5).setCellValue(factura.getProveedor().getNumeroIdentificacion());
+                    row.createCell(5).setCellValue(factura.getProveedor().getTercero());
+                    row.createCell(6).setCellValue(factura.getProveedor().getNumeroIdentificacion());
 
-                    row.createCell(6).setCellValue(baseCero.doubleValue());
+                    row.createCell(7).setCellValue(baseCero.doubleValue());
+                    row.createCell(8).setCellValue(baseNoObjeto.doubleValue());
+                    row.createCell(9).setCellValue(baseExenta.doubleValue());
 
-                    row.createCell(7).setCellValue(baseNoObjeto.doubleValue());
-                    row.createCell(8).setCellValue(baseExenta.doubleValue());
+                    row.createCell(10).setCellValue(baseGrav15.doubleValue());
+                    row.createCell(11).setCellValue(valorIva15.doubleValue());
 
-                    row.createCell(9).setCellValue(baseGrav5.doubleValue());
-                    row.createCell(10).setCellValue(valorIva5.doubleValue());
+                    row.createCell(12).setCellValue(baseGrav5.doubleValue());
+                    row.createCell(13).setCellValue(valorIva5.doubleValue());
 
-                    row.createCell(11).setCellValue(baseGrav8.doubleValue());
-                    row.createCell(12).setCellValue(valorIva8.doubleValue());
-
-                    row.createCell(13).setCellValue(baseGrav15.doubleValue());
-                    row.createCell(14).setCellValue(valorIva15.doubleValue());
+                    row.createCell(14).setCellValue(baseGrav8.doubleValue());
+                    row.createCell(15).setCellValue(valorIva8.doubleValue());
 
                 }
 

@@ -22,7 +22,6 @@ import com.calero.lili.core.modAdminEmpresas.projection.MomentoEnvioProjection;
 import com.calero.lili.core.modComprasItems.GeItemsRepository;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
-import com.calero.lili.core.modVentas.VtVentaEntity;
 import com.calero.lili.core.modVentasGuias.builder.VtGuiaBuilder;
 import com.calero.lili.core.modVentasGuias.dto.CreationRequestGuiaRemisionDto;
 import com.calero.lili.core.modVentasGuias.dto.FilterListDto;
@@ -282,7 +281,7 @@ public class VtGuiasServiceImpl {
                 XSSFRow headerRow = sheet.createRow(0);
 
                 String[] columnNames = {"Documento", "Serie", "Secuencial", "FechaEmisión", "NumeroAutorizacion",
-                        "NumeroIdentificación",
+                        "Tercero", "NumeroIdentificación",
                         "BaseCero", "NoObjeto", "Exenta",
                         "Base15%", "Iva15%",
                         "Base5%", "Iva5%",
@@ -309,24 +308,27 @@ public class VtGuiasServiceImpl {
                     BigDecimal valorIva5 = BigDecimal.valueOf(0);
 
 
+                    row.createCell(0).setCellValue("GRM");
                     row.createCell(1).setCellValue(factura.getSerie());
                     row.createCell(2).setCellValue(factura.getSecuencial());
                     row.createCell(3).setCellValue(DateUtils.toString(factura.getFechaIniTransporte()));
                     row.createCell(4).setCellValue(factura.getNumeroAutorizacion());
 
-                    row.createCell(6).setCellValue(baseCero.doubleValue());
+                    row.createCell(5).setCellValue(factura.getDestinatario().getNumeroIdentificacion());
+                    row.createCell(6).setCellValue(factura.getDestinatario().getTercero());
 
-                    row.createCell(7).setCellValue(baseNoObjeto.doubleValue());
-                    row.createCell(8).setCellValue(baseExenta.doubleValue());
+                    row.createCell(7).setCellValue(baseCero.doubleValue());
+                    row.createCell(8).setCellValue(baseNoObjeto.doubleValue());
+                    row.createCell(9).setCellValue(baseExenta.doubleValue());
 
-                    row.createCell(9).setCellValue(baseGrav5.doubleValue());
-                    row.createCell(10).setCellValue(valorIva5.doubleValue());
+                    row.createCell(10).setCellValue(baseGrav15.doubleValue());
+                    row.createCell(11).setCellValue(valorIva15.doubleValue());
 
-                    row.createCell(11).setCellValue(baseGrav8.doubleValue());
-                    row.createCell(12).setCellValue(valorIva8.doubleValue());
+                    row.createCell(12).setCellValue(baseGrav5.doubleValue());
+                    row.createCell(13).setCellValue(valorIva5.doubleValue());
 
-                    row.createCell(13).setCellValue(baseGrav15.doubleValue());
-                    row.createCell(14).setCellValue(valorIva15.doubleValue());
+                    row.createCell(14).setCellValue(baseGrav8.doubleValue());
+                    row.createCell(15).setCellValue(valorIva8.doubleValue());
 
                 }
 

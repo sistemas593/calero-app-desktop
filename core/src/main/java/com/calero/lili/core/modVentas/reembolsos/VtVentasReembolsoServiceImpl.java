@@ -215,8 +215,8 @@ public class VtVentasReembolsoServiceImpl {
                 XSSFSheet sheet = workbook.createSheet("Reembolsos");
                 XSSFRow headerRow = sheet.createRow(0);
 
-                String[] columnNames = {"Documento", "Serie", "Secuencial", "FechaEmisión", "NumeroAutorizacion",
-                        "NumeroIdentificación",
+                String[] columnNames = {"Serie", "Secuencial", "FechaEmisión", "NumeroAutorizacion",
+                         "NumeroIdentificación",
                         "BaseCero", "NoObjeto", "Exenta",
                         "Base15%", "Iva15%",
                         "Base5%", "Iva5%",
@@ -275,26 +275,25 @@ public class VtVentasReembolsoServiceImpl {
                         }
                     }
 
-                    row.createCell(1).setCellValue(reembolso.getSerieReemb());
-                    row.createCell(2).setCellValue(reembolso.getSecuencialReemb());
-                    row.createCell(3).setCellValue(reembolso.getFechaEmisionReemb());
-                    row.createCell(4).setCellValue(reembolso.getNumeroAutorizacionReemb());
-                    row.createCell(5).setCellValue(reembolso.getNumeroIdentificacionReemb());
+                    row.createCell(0).setCellValue(reembolso.getSerieReemb());
+                    row.createCell(1).setCellValue(reembolso.getSecuencialReemb());
+                    row.createCell(2).setCellValue(reembolso.getFechaEmisionReemb());
+                    row.createCell(3).setCellValue(reembolso.getNumeroAutorizacionReemb());
+                    row.createCell(4).setCellValue(reembolso.getNumeroIdentificacionReemb());
 
-                    row.createCell(6).setCellValue(baseCero.doubleValue());
+                    row.createCell(5).setCellValue(baseCero.doubleValue());
 
-                    row.createCell(7).setCellValue(baseNoObjeto.doubleValue());
-                    row.createCell(8).setCellValue(baseExenta.doubleValue());
+                    row.createCell(6).setCellValue(baseNoObjeto.doubleValue());
+                    row.createCell(7).setCellValue(baseExenta.doubleValue());
 
-                    row.createCell(9).setCellValue(baseGrav5.doubleValue());
-                    row.createCell(10).setCellValue(valorIva5.doubleValue());
+                    row.createCell(8).setCellValue(baseGrav15.doubleValue());
+                    row.createCell(9).setCellValue(valorIva15.doubleValue());
 
-                    row.createCell(11).setCellValue(baseGrav8.doubleValue());
-                    row.createCell(12).setCellValue(valorIva8.doubleValue());
+                    row.createCell(10).setCellValue(baseGrav5.doubleValue());
+                    row.createCell(11).setCellValue(valorIva5.doubleValue());
 
-                    row.createCell(13).setCellValue(baseGrav15.doubleValue());
-                    row.createCell(14).setCellValue(valorIva15.doubleValue());
-                    row.createCell(15).setCellValue(valorIva15.doubleValue());
+                    row.createCell(12).setCellValue(baseGrav8.doubleValue());
+                    row.createCell(13).setCellValue(valorIva8.doubleValue());
 
 
                 }

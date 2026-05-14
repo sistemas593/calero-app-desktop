@@ -227,7 +227,7 @@ public class LiquidacionesReembolsosServiceImpl {
                 XSSFSheet sheet = workbook.createSheet("Facturas");
                 XSSFRow headerRow = sheet.createRow(0);
 
-                String[] columnNames = {"Documento", "Serie", "Secuencial", "FechaEmisión", "NumeroAutorizacion",
+                String[] columnNames = {"Serie", "Secuencial", "FechaEmisión", "NumeroAutorizacion",
                         "NumeroIdentificación",
                         "BaseCero", "NoObjeto", "Exenta",
                         "Base15%", "Iva15%",
@@ -287,26 +287,21 @@ public class LiquidacionesReembolsosServiceImpl {
                         }
                     }
 
-                    row.createCell(1).setCellValue(factura.getSerieReemb());
-                    row.createCell(2).setCellValue(factura.getSecuencialReemb());
-                    row.createCell(3).setCellValue(factura.getFechaEmisionReemb());
-                    row.createCell(4).setCellValue(factura.getNumeroAutorizacionReemb());
-                    row.createCell(5).setCellValue(factura.getNumeroIdentificacionReemb());
 
-                    row.createCell(6).setCellValue(baseCero.doubleValue());
-
-                    row.createCell(7).setCellValue(baseNoObjeto.doubleValue());
-                    row.createCell(8).setCellValue(baseExenta.doubleValue());
-
-                    row.createCell(9).setCellValue(baseGrav5.doubleValue());
-                    row.createCell(10).setCellValue(valorIva5.doubleValue());
-
-                    row.createCell(11).setCellValue(baseGrav8.doubleValue());
-                    row.createCell(12).setCellValue(valorIva8.doubleValue());
-
-                    row.createCell(13).setCellValue(baseGrav15.doubleValue());
-                    row.createCell(14).setCellValue(valorIva15.doubleValue());
-                    row.createCell(15).setCellValue(valorIva15.doubleValue());
+                    row.createCell(0).setCellValue(factura.getSerieReemb());
+                    row.createCell(1).setCellValue(factura.getSecuencialReemb());
+                    row.createCell(2).setCellValue(factura.getFechaEmisionReemb());
+                    row.createCell(3).setCellValue(factura.getNumeroAutorizacionReemb());
+                    row.createCell(4).setCellValue(factura.getNumeroIdentificacionReemb());
+                    row.createCell(5).setCellValue(baseCero.doubleValue());
+                    row.createCell(6).setCellValue(baseNoObjeto.doubleValue());
+                    row.createCell(7).setCellValue(baseExenta.doubleValue());
+                    row.createCell(8).setCellValue(baseGrav15.doubleValue());
+                    row.createCell(9).setCellValue(valorIva15.doubleValue());
+                    row.createCell(10).setCellValue(baseGrav5.doubleValue());
+                    row.createCell(11).setCellValue(valorIva5.doubleValue());
+                    row.createCell(12).setCellValue(baseGrav8.doubleValue());
+                    row.createCell(13).setCellValue(valorIva8.doubleValue());
 
 
                 }
