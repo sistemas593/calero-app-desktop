@@ -98,5 +98,7 @@ public class GeTerceroGetOneDto {
     private String canton;
     private String codigoProvincia;
     private String provincia;
+    private String codigoPais;
+    private String pais;
 
 }

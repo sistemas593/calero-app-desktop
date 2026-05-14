@@ -95,6 +95,8 @@ public class GeTerceroBuilder {
                 .canton(Objects.nonNull(model.getCanton()) ? model.getCanton().getCanton() : null)
                 .codigoProvincia(Objects.nonNull(model.getProvincia()) ? model.getProvincia().getCodigoProvincia() : null)
                 .provincia(Objects.nonNull(model.getProvincia()) ? model.getProvincia().getProvincia() : null)
+                .codigoPais(Objects.nonNull(model.getPais()) ? model.getPais().getCodigoPais() : null)
+                .pais(Objects.nonNull(model.getPais()) ? model.getPais().getPais() : null)
                 .build();
     }
 
@@ -124,6 +126,8 @@ public class GeTerceroBuilder {
                 .canton(Objects.nonNull(model.getCanton()) ? model.getCanton().getCanton() : null)
                 .codigoProvincia(Objects.nonNull(model.getProvincia()) ? model.getProvincia().getCodigoProvincia() : null)
                 .provincia(Objects.nonNull(model.getProvincia()) ? model.getProvincia().getProvincia() : null)
+                .codigoPais(Objects.nonNull(model.getPais()) ? model.getPais().getCodigoPais() : null)
+                .pais(Objects.nonNull(model.getPais()) ? model.getPais().getPais() : null)
                 .build();
     }
 

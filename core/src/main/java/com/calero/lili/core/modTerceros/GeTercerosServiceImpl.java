@@ -17,6 +17,8 @@ import com.calero.lili.core.modTerceros.dto.GeTerceroGetListDto;
 import com.calero.lili.core.modTerceros.dto.GeTerceroGetOneDto;
 import com.calero.lili.core.modTerceros.dto.GeTerceroRequestDto;
 import com.calero.lili.core.modTerceros.projections.GeTerceroProjection;
+import com.calero.lili.core.tablas.tbPaises.TbPaisEntity;
+import com.calero.lili.core.tablas.tbPaises.TbPaisesRepository;
 import com.calero.lili.core.utils.validaciones.ValidarCampoAscii;
 import com.calero.lili.core.utils.validaciones.ValidarIdentificacion;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +45,7 @@ public class GeTercerosServiceImpl {
     private final ParroquiaRepository parroquiaRepository;
     private final CantonRepository cantonRepository;
     private final ProvinciaRepository provinciaRepository;
+    private final TbPaisesRepository tbPaisesRepository;
 
     public GeTerceroGetListDto create(Long idEmpresa, Long idData, GeTerceroRequestDto request, String usuario) {
 
@@ -69,7 +72,7 @@ public class GeTercerosServiceImpl {
         }
 
         validarTransportista(request);
-        validarTrabajador(request);
+        //validarTrabajador(request);
         GeTerceroEntity tercero = clienteBuilder.builderEntity(request, idData);
         validarLocalidad(tercero, request);
         tercero.setCreatedBy(usuario);
@@ -91,7 +94,7 @@ public class GeTercerosServiceImpl {
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Cliente con id {0} no existe", id)));
 
         validarTransportista(request);
-        validarTrabajador(request);
+       // validarTrabajador(request);
 
         GeTerceroEntity update = clienteBuilder.builderUpdateEntity(request, actualizar);
 
@@ -176,8 +179,7 @@ public class GeTercerosServiceImpl {
             if (Objects.isNull(request.getTrabajador().getInfoTrabajador())) {
                 throw new GeneralException("La información del trabajador es requerida");
             } else {
-                if (Objects.isNull(request.getTrabajador().getInfoTrabajador().getCodigoPais())
-                        || request.getTrabajador().getInfoTrabajador().getCodigoPais().isEmpty()) {
+                if (Objects.isNull(request.getCodigoPais()) || request.getCodigoPais().isEmpty()) {
                     throw new GeneralException("El codigo del pais es requerido");
                 }
             }
@@ -243,6 +245,14 @@ public class GeTercerosServiceImpl {
     }
 
     private void validarLocalidad(GeTerceroEntity tercero, GeTerceroRequestDto request) {
+
+        if (Objects.nonNull(request.getCodigoPais())) {
+            TbPaisEntity pais = tbPaisesRepository.findById(request.getCodigoPais()).orElseThrow(() ->
+                    new GeneralException(MessageFormat.format("El codigo del país {0} no existe", request.getCodigoProvincia())));
+            tercero.setPais(pais);
+        } else {
+            tercero.setPais(null);
+        }
 
         if (Objects.nonNull(request.getCodigoProvincia())) {
 

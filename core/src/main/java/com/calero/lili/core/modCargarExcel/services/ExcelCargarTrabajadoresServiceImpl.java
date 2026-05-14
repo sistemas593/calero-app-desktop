@@ -152,6 +152,7 @@ public class ExcelCargarTrabajadoresServiceImpl {
                             detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.TRABAJADOR_CORREO_NOT_FOUND));
                         }
 
+                        validarPais(row, detalleErrores, terceroEntity, linea);
                         validarCanton(row, detalleErrores, terceroEntity, linea);
                         validarProvincia(row, detalleErrores, terceroEntity, linea);
 
@@ -223,9 +224,6 @@ public class ExcelCargarTrabajadoresServiceImpl {
                             : DateUtils.toLocalDate(fechaIngreso));
                 }
 
-
-
-                validarPais(row, detalleErrores, item, linea);
 
                 if (Objects.isNull(row.getCell(21))) {
                     detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.TRABAJADOR_CODIGO_RESIDENCIA_NOT_FOUND));
@@ -316,7 +314,7 @@ public class ExcelCargarTrabajadoresServiceImpl {
 
     }
 
-    private void validarPais(Row row, List<DetalleError> detalleErrores, TrabajadorEntity item, int linea) {
+    private void validarPais(Row row, List<DetalleError> detalleErrores, GeTerceroEntity item, int linea) {
 
         if (Objects.nonNull(row.getCell(20))) {
             TbPaisEntity pais = tbPaisesRepository.findById(row.getCell(20).getStringCellValue())

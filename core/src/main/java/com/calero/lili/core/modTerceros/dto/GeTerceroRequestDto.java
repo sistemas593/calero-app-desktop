@@ -48,6 +48,8 @@ public class GeTerceroRequestDto {
 
     private String codigoProvincia;
 
+    private String codigoPais;
+
     private SexoEnum sexo;
     private OrigenIngresosEnum origenIngresos;
     private EstadoCivilEnum estadoCivil;

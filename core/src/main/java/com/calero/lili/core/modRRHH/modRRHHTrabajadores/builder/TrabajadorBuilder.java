@@ -4,8 +4,6 @@ import com.calero.lili.core.modRRHH.modRRHHTrabajadores.TrabajadorEntity;
 import com.calero.lili.core.modRRHH.modRRHHTrabajadores.dto.RequestTrabajadorDto;
 import com.calero.lili.core.modRRHH.modRRHHTrabajadores.dto.ResponseTrabajadorDto;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
-import com.calero.lili.core.tablas.tbPaises.TbPaisEntity;
-import com.calero.lili.core.tablas.tbPaises.TbPaisGetOneDto;
 import com.calero.lili.core.utils.DateUtils;
 import org.springframework.stereotype.Component;
 
@@ -32,7 +30,6 @@ public class TrabajadorBuilder {
                         : null)
                 .estado(model.getEstado())
                 .idDiscapacidad(model.getIdDiscapacidad())
-                .pais(builderPais(model.getCodigoPais()))
                 .tercero(tercero)
                 .estado(model.getEstado())
                 .sueldoBase(model.getSueldoBase())
@@ -61,7 +58,6 @@ public class TrabajadorBuilder {
                 .fechaIngreso(DateUtils.toLocalDate(model.getFechaIngreso()))
                 .estado(model.getEstado())
                 .idDiscapacidad(model.getIdDiscapacidad())
-                .pais(builderPais(model.getCodigoPais()))
                 .tercero(tercero)
                 .estado(model.getEstado())
                 .sueldoBase(model.getSueldoBase())
@@ -91,7 +87,6 @@ public class TrabajadorBuilder {
                         ? model.getFechaIngreso().toString()
                         : null)
                 .estado(model.getEstado())
-                .pais(builderPaisResponse(model.getPais()))
                 .estado(model.getEstado())
                 .sueldoBase(model.getSueldoBase())
                 .fechaNacimiento(Objects.nonNull(model.getFechaNacimiento())
@@ -103,19 +98,4 @@ public class TrabajadorBuilder {
                 .nombres(model.getNombres())
                 .build();
     }
-
-    private TbPaisEntity builderPais(String codigoPais) {
-        return TbPaisEntity.builder()
-                .codigoPais(codigoPais)
-                .build();
-    }
-
-    private TbPaisGetOneDto builderPaisResponse(TbPaisEntity model) {
-        return TbPaisGetOneDto.builder()
-                .pais(model.getPais())
-                .codigoPais(model.getCodigoPais())
-                .build();
-    }
-
-
 }

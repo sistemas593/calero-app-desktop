@@ -83,10 +83,6 @@ public class TrabajadorEntity {
     private String nombres;
 
     @ManyToOne()
-    @JoinColumn(name = "codigoPais", referencedColumnName = "codigoPais")
-    private TbPaisEntity pais;
-
-    @ManyToOne()
     @JoinColumn(name = "id_tercero", referencedColumnName = "idTercero")
     private GeTerceroEntity tercero;
 

@@ -11,6 +11,7 @@ import com.calero.lili.core.modLocalidades.modCantones.CantonEntity;
 import com.calero.lili.core.modLocalidades.modParroquias.ParroquiaEntity;
 import com.calero.lili.core.modLocalidades.modProvincias.ProvinciaEntity;
 import com.calero.lili.core.modVentas.VtVentaEntity;
+import com.calero.lili.core.tablas.tbPaises.TbPaisEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -140,6 +141,11 @@ public class GeTerceroEntity extends Auditable implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "codigo_provincia")
     private ProvinciaEntity provincia;
+
+    @ManyToOne()
+    @JoinColumn(name = "codigoPais", referencedColumnName = "codigoPais")
+    private TbPaisEntity pais;
+
 
 
     // no esta en tercero la relacion

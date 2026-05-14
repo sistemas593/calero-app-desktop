@@ -194,7 +194,7 @@ public class RetencionFuenteBuilder {
                 .nombreTrab(trabajador.getNombres())
                 .estab(trabajador.getCodigoEstablecimiento())
                 .residenciaTrab(trabajador.getCodigoResidencia())
-                .paisResidencia(String.valueOf(trabajador.getPais()))
+                .paisResidencia(String.valueOf(tercero.getPais()))
                 .aplicaConvenio(trabajador.getAplicaConvenio())
                 .tipoTrabajDiscap(trabajador.getTipoDiscapacidad())
                 .porcentajeDiscap(trabajador.getPorcentajeDiscapacidad())

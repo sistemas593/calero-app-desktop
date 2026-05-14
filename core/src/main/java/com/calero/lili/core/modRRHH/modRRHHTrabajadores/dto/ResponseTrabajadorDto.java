@@ -35,7 +35,6 @@ public class ResponseTrabajadorDto {
     private BigDecimal sueldoBase;
     private ResponseProvinciaDto provincia;
     private ResponseCantonDto canton;
-    private TbPaisGetOneDto pais;
     private String apellidos;
     private String nombres;
 
