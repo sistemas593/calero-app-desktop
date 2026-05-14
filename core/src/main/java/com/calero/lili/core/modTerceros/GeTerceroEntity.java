@@ -5,7 +5,7 @@ import com.calero.lili.core.enums.EstadoCivilEnum;
 import com.calero.lili.core.enums.OrigenIngresosEnum;
 import com.calero.lili.core.enums.SexoEnum;
 import com.calero.lili.core.enums.TipoClienteProveedor;
-import com.calero.lili.core.modClientesConfiguraciones.VtClientesConfiguracionesEntity;
+import com.calero.lili.core.modAdDatasConfiguraciones.VtClientesConfiguracionesEntity;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.CpLiquidacionesEntity;
 import com.calero.lili.core.modLocalidades.modCantones.CantonEntity;
 import com.calero.lili.core.modLocalidades.modParroquias.ParroquiaEntity;

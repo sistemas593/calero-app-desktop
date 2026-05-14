@@ -14,7 +14,7 @@ import com.calero.lili.core.comprobantesPdf.LiquidacionCompraPdf;
 import com.calero.lili.core.comprobantesPdf.NotaCreditoPdf;
 import com.calero.lili.core.comprobantesPdf.NotaDebitoPdf;
 import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.EnvioCorreoDto;
-import com.calero.lili.core.modClientesConfiguraciones.dto.StCorreoRequestDto;
+import com.calero.lili.core.modAdDatasConfiguraciones.dto.StCorreoRequestDto;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;

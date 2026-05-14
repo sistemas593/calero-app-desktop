@@ -1,14 +1,10 @@
 package com.calero.lili.core.modAdModulos;
 
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdModulos.builder.AdModuloBuilder;
 import com.calero.lili.core.modAdModulos.dto.AdModuloRequestDto;
 import com.calero.lili.core.modAdModulos.dto.AdModuloResponseDto;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
@@ -57,31 +53,11 @@ public class AdModuloServiceImpl {
         adModuloRepository.save(modulo);
     }
 
-    public PaginatedDto<AdModuloResponseDto> findAllPaginate(Pageable pageable) {
-
-        Page<AdModulosEntity> page = adModuloRepository.findAll(pageable);
-
-        List<AdModuloResponseDto> listDto = page.stream().map(adModuloBuilder::builderResponse).toList();
-
-        PaginatedDto paginatedDto = new PaginatedDto();
-        paginatedDto.setContent(listDto);
-
-        Paginator paginated = new Paginator();
-        paginated.setTotalElements(page.getTotalElements());
-        paginated.setTotalPages(page.getTotalPages());
-        paginated.setNumberOfElements(page.getNumberOfElements());
-        paginated.setSize(page.getSize());
-        paginated.setFirst(page.isFirst());
-        paginated.setLast(page.isLast());
-        paginated.setPageNumber(page.getPageable().getPageNumber());
-        paginated.setPageSize(page.getPageable().getPageSize());
-        paginated.setEmpty(page.isEmpty());
-        paginated.setNumber(page.getNumber());
-
-        paginatedDto.setPaginator(paginated);
-
-        return paginatedDto;
-
+    public List<AdModuloResponseDto> findAll() {
+        return adModuloRepository.findAll()
+                .stream()
+                .map(adModuloBuilder::builderResponse)
+                .toList();
     }
 
 

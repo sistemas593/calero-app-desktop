@@ -261,8 +261,6 @@ public class VtVentasFacturasServiceImpl {
     }
 
 
-
-
     private void validateReembolso(CreationFacturaRequestDto request, VtVentaEntity vtVentaEntity) {
         validateInfoReembolso(request);
         if (Objects.nonNull(request.getListIdReembolsos())) {
@@ -475,7 +473,7 @@ public class VtVentasFacturasServiceImpl {
     }
 
 
-     // TODO EN TODOS LOS REPORTES DE EXCEL DE LOS CRUD COLOCAR EL NUMERO DE IDENTIFICAION Y EL NOMBRE DEL TECERO.
+    // TODO EN TODOS LOS REPORTES DE EXCEL DE LOS CRUD COLOCAR EL NUMERO DE IDENTIFICAION Y EL NOMBRE DEL TECERO. y revisar que se colcoque bien los valores.
     @Transactional(readOnly = true)
     public void exportarExcel(Long idData, Long idEmpresa, OutputStream outputStream, FilterListDto filter) throws IOException {
 
@@ -603,14 +601,14 @@ public class VtVentasFacturasServiceImpl {
                     row.createCell(8).setCellValue(baseNoObjeto.doubleValue());
                     row.createCell(9).setCellValue(baseExenta.doubleValue());
 
-                    row.createCell(10).setCellValue(baseGrav5.doubleValue());
-                    row.createCell(11).setCellValue(valorIva5.doubleValue());
+                    row.createCell(10).setCellValue(baseGrav15.doubleValue());
+                    row.createCell(11).setCellValue(valorIva15.doubleValue());
 
-                    row.createCell(12).setCellValue(baseGrav8.doubleValue());
-                    row.createCell(13).setCellValue(valorIva8.doubleValue());
+                    row.createCell(12).setCellValue(baseGrav5.doubleValue());
+                    row.createCell(13).setCellValue(valorIva5.doubleValue());
 
-                    row.createCell(14).setCellValue(baseGrav15.doubleValue());
-                    row.createCell(15).setCellValue(valorIva15.doubleValue());
+                    row.createCell(14).setCellValue(baseGrav8.doubleValue());
+                    row.createCell(15).setCellValue(valorIva8.doubleValue());
 
                 }
 

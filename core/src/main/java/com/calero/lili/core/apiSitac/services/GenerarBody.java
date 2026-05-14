@@ -1,7 +1,7 @@
 package com.calero.lili.core.apiSitac.services;
 
 import com.calero.lili.core.apiSitac.repositories.entities.AdMailConfigEntity;
-import com.calero.lili.core.modClientesConfiguraciones.dto.StCorreoRequestDto;
+import com.calero.lili.core.modAdDatasConfiguraciones.dto.StCorreoRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

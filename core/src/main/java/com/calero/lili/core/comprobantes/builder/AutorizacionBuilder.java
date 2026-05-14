@@ -585,6 +585,8 @@ public class AutorizacionBuilder {
                 .build();
     }
 
+
+    // TODO EN TODOS LOS DOCUMENTOS COLOCAR EL TRIM PARA EVTAR EL ERROR DE LOS ESPACIOS EN LOS VALORES
     public VtVentaEntity builderFacturaVenta(Long idData, Long idEmpresa,
                                              Factura documento,
                                              GeTerceroEntity cliente,
@@ -788,9 +790,9 @@ public class AutorizacionBuilder {
                 .idEmpresa(idEmpresa)
                 .codigoPrincipal(detalle.getCodigoPrincipal())
                 .codigoAuxiliar(detalle.getCodigoAuxiliar())
-                .cantidad(new BigDecimal(detalle.getCantidad()))
-                .precioUnitario(new BigDecimal(detalle.getPrecioUnitario()))
-                .descuento(new BigDecimal(detalle.getDescuento()))
+                .cantidad(new BigDecimal(detalle.getCantidad().trim()))
+                .precioUnitario(new BigDecimal(detalle.getPrecioUnitario().trim()))
+                .descuento(new BigDecimal(detalle.getDescuento().trim()))
                 .impuesto(builderListImpuestoFactura(detalle.getImpuesto()))
                 .build();
     }

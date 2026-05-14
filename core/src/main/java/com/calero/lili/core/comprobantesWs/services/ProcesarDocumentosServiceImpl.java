@@ -23,7 +23,7 @@ import com.calero.lili.core.dtos.Mensajes;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminlistaNegra.ExcluirCorreosListaNegraServiceImpl;
-import com.calero.lili.core.modClientesConfiguraciones.dto.StCorreoRequestDto;
+import com.calero.lili.core.modAdDatasConfiguraciones.dto.StCorreoRequestDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.CpLiquidacionesEntity;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.LiquidacionesRepository;
 import com.calero.lili.core.modCompras.modComprasRetenciones.ComprasRetencionesRepository;

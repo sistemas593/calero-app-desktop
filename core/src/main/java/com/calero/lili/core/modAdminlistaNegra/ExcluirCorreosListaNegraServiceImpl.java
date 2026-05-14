@@ -1,6 +1,6 @@
 package com.calero.lili.core.modAdminlistaNegra;
 
-import com.calero.lili.core.modClientesConfiguraciones.dto.StCorreoRequestDto;
+import com.calero.lili.core.modAdDatasConfiguraciones.dto.StCorreoRequestDto;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 

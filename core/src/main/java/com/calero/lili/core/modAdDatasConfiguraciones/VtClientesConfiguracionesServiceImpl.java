@@ -1,22 +1,20 @@
-package com.calero.lili.core.modClientesConfiguraciones;
+package com.calero.lili.core.modAdDatasConfiguraciones;
 
 import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.core.modAdDatasConfiguraciones.builder.VtClienteConfiguracionBuilder;
+import com.calero.lili.core.modAdDatasConfiguraciones.dto.StEmpresasListCreationResponseDto;
+import com.calero.lili.core.modAdDatasConfiguraciones.dto.VtClientesConfiguracionesCreationResponseDto;
+import com.calero.lili.core.modAdDatasConfiguraciones.dto.VtClientesConfiguracionesGetListDto;
+import com.calero.lili.core.modAdDatasConfiguraciones.dto.VtClientesConfiguracionesGetOneDto;
+import com.calero.lili.core.modAdDatasConfiguraciones.dto.VtClientesConfiguracionesListCreationRequestDto;
+import com.calero.lili.core.modAdDatasConfiguraciones.dto.VtClientesConfiguracionesListFilterDto;
+import com.calero.lili.core.modAdDatasConfiguraciones.dto.VtClientesConfiguracionesRequestDto;
 import com.calero.lili.core.modAdModulos.AdModuloRepository;
 import com.calero.lili.core.modAdModulos.AdModulosEntity;
-import com.calero.lili.core.modAdminDatas.AdDataEntity;
-import com.calero.lili.core.modAdminDatas.dto.AdDatasCreationRequestDto;
-import com.calero.lili.core.modClientesConfiguraciones.builder.VtClienteConfiguracionBuilder;
-import com.calero.lili.core.modClientesConfiguraciones.dto.StEmpresasListCreationResponseDto;
-import com.calero.lili.core.modClientesConfiguraciones.dto.VtClientesConfiguracionesCreationResponseDto;
-import com.calero.lili.core.modClientesConfiguraciones.dto.VtClientesConfiguracionesGetListDto;
-import com.calero.lili.core.modClientesConfiguraciones.dto.VtClientesConfiguracionesGetOneDto;
-import com.calero.lili.core.modClientesConfiguraciones.dto.VtClientesConfiguracionesListCreationRequestDto;
-import com.calero.lili.core.modClientesConfiguraciones.dto.VtClientesConfiguracionesListFilterDto;
-import com.calero.lili.core.modClientesConfiguraciones.dto.VtClientesConfiguracionesRequestDto;
 import com.calero.lili.core.utils.DateUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -149,7 +147,7 @@ public class VtClientesConfiguracionesServiceImpl {
     }
 
 
-    public StEmpresasListCreationResponseDto createUpdateList(VtClientesConfiguracionesListCreationRequestDto request) {
+    public StEmpresasListCreationResponseDto createUpdateList(VtClientesConfiguracionesListCreationRequestDto request, String usuario) {
 
 
         StEmpresasListCreationResponseDto errores = new StEmpresasListCreationResponseDto();
@@ -187,12 +185,20 @@ public class VtClientesConfiguracionesServiceImpl {
                 String clave = requestDto.getClave();
                 Optional<VtClientesConfiguracionesEntity> existing = clientesConfiguracionesRepository.findByClave(clave);
                 if (existing.isEmpty()) {
-                    clientesConfiguracionesRepository.save(vtClienteConfiguracionBuilder.builderListEntity(requestDto));
+                    VtClientesConfiguracionesEntity saved = vtClienteConfiguracionBuilder.builderListEntity(requestDto);
+                    saved.setCreatedBy(usuario);
+                    saved.setCreatedDate(LocalDateTime.now());
+                    validarModulos(saved, requestDto);
+                    clientesConfiguracionesRepository.save(saved);
                 } else {
                     //ACTUALIZAR
                     VtClientesConfiguracionesEntity entidad = existing.orElseThrow();
-                    clientesConfiguracionesRepository.save(vtClienteConfiguracionBuilder
-                            .builderListUpdate(requestDto, entidad));
+                    VtClientesConfiguracionesEntity updated = vtClienteConfiguracionBuilder
+                            .builderListUpdate(requestDto, entidad);
+                    updated.setModifiedBy(usuario);
+                    updated.setModifiedDate(LocalDateTime.now());
+                    validarModulos(updated, requestDto);
+                    clientesConfiguracionesRepository.save(updated);
                 }
             }
 
@@ -205,23 +211,27 @@ public class VtClientesConfiguracionesServiceImpl {
 
     private void validarModulos(VtClientesConfiguracionesEntity entidad, VtClientesConfiguracionesRequestDto request) {
 
-        List<AdModulosEntity> lista =
-                adModuloRepository.findAllByIds(request.getIdsModulos());
+        if (Objects.isNull(request.getIdsModulos()) || request.getIdsModulos().isEmpty()) {
 
-        Set<Long> idsEncontrados = lista.stream()
-                .map(AdModulosEntity::getIdModulo)
-                .collect(Collectors.toSet());
+            entidad.setModulosList(null);
+        } else {
+            List<AdModulosEntity> lista =
+                    adModuloRepository.findAllByIds(request.getIdsModulos());
 
-        List<Long> idsNoEncontrados = request.getIdsModulos().stream()
-                .filter(id -> !idsEncontrados.contains(id))
-                .toList();
+            Set<Long> idsEncontrados = lista.stream()
+                    .map(AdModulosEntity::getIdModulo)
+                    .collect(Collectors.toSet());
 
-        if (!idsNoEncontrados.isEmpty()) {
-            throw new GeneralException(
-                    "No existen los módulos con los siguientes ids: " + idsNoEncontrados
-            );
+            List<Long> idsNoEncontrados = request.getIdsModulos().stream()
+                    .filter(id -> !idsEncontrados.contains(id))
+                    .toList();
+
+            if (!idsNoEncontrados.isEmpty()) {
+                throw new GeneralException(
+                        "No existen los módulos con los siguientes ids: " + idsNoEncontrados
+                );
+            }
+            entidad.setModulosList(lista);
         }
-
-        entidad.setModulosList(lista);
     }
 }

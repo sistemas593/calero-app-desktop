@@ -1,4 +1,4 @@
-package com.calero.lili.core.modClientesConfiguraciones;
+package com.calero.lili.core.modAdDatasConfiguraciones;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -1,4 +1,4 @@
-package com.calero.lili.core.modClientesConfiguraciones.dto;
+package com.calero.lili.core.modAdDatasConfiguraciones.dto;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;

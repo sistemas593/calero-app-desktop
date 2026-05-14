@@ -1,4 +1,4 @@
-package com.calero.lili.core.modClientesConfiguraciones.dto;
+package com.calero.lili.core.modAdDatasConfiguraciones.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,13 +12,13 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class VtClientesConfiguracionesGetOneDto {
+public class VtClientesConfiguracionesGetListDto {
 
     private UUID idConfiguracion;
     private String clave;
-    private String fechaVencimiento;
     private String ruc;
     private String enviarCorreos;
+    private String fechaVencimiento;
 
     private BigDecimal valorRenovacion;
     private String facturaEmite;
@@ -38,8 +38,8 @@ public class VtClientesConfiguracionesGetOneDto {
     private Long tipoBlo;
     private String fechaBlo;
 
-
     private UUID idTercero;
     private String nombreTercero;
+
 
 }

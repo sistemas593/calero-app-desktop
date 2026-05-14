@@ -1,14 +1,17 @@
-package com.calero.lili.core.modClientesConfiguraciones.builder;
+package com.calero.lili.core.modAdDatasConfiguraciones.builder;
 
-import com.calero.lili.core.modClientesConfiguraciones.VtClientesConfiguracionesEntity;
-import com.calero.lili.core.modClientesConfiguraciones.dto.VtClientesConfiguracionesGetListDto;
-import com.calero.lili.core.modClientesConfiguraciones.dto.VtClientesConfiguracionesGetOneDto;
-import com.calero.lili.core.modClientesConfiguraciones.dto.VtClientesConfiguracionesRequestDto;
+import com.calero.lili.core.modAdDatasConfiguraciones.VtClientesConfiguracionesEntity;
+import com.calero.lili.core.modAdDatasConfiguraciones.dto.VtClientesConfiguracionesGetListDto;
+import com.calero.lili.core.modAdDatasConfiguraciones.dto.VtClientesConfiguracionesGetOneDto;
+import com.calero.lili.core.modAdDatasConfiguraciones.dto.VtClientesConfiguracionesRequestDto;
+import com.calero.lili.core.modAdModulos.AdModulosEntity;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.utils.DateUtils;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -109,6 +112,7 @@ public class VtClienteConfiguracionBuilder {
                 .fechaBlo(Objects.nonNull(model.getFechaBlo()) ? DateUtils.toString(model.getFechaBlo()) : null)
                 .idTercero(Objects.nonNull(model.getTercero()) ? model.getTercero().getIdTercero() : null)
                 .nombreTercero(Objects.nonNull(model.getTercero()) ? model.getTercero().getTercero() : null)
+                .moduloList(builderListModuloResponse(model.getModulosList()))
                 .build();
     }
 
@@ -209,6 +213,20 @@ public class VtClienteConfiguracionBuilder {
                 .tipoBlo(item.getTipoBlo())
                 .fechaBlo(item.getFechaBlo())
                 .tercero(item.getTercero())
+                .build();
+    }
+
+    private List<VtClientesConfiguracionesGetOneDto.ModuloDto> builderListModuloResponse(List<AdModulosEntity> modulosList) {
+        if (Objects.isNull(modulosList)) return new ArrayList<>();
+        return modulosList.stream()
+                .map(this::builderResponseModulo)
+                .toList();
+    }
+
+    private VtClientesConfiguracionesGetOneDto.ModuloDto builderResponseModulo(AdModulosEntity model) {
+        return VtClientesConfiguracionesGetOneDto.ModuloDto.builder()
+                .idModulo(model.getIdModulo())
+                .modulo(model.getModulo())
                 .build();
     }
 }

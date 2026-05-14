@@ -2,10 +2,10 @@ package com.calero.lili.core.apiSitac.services;
 
 import com.calero.lili.core.apiSitac.repositories.AdMailsConfigRepository;
 import com.calero.lili.core.apiSitac.repositories.entities.AdMailConfigEntity;
-import com.calero.lili.core.modClientesConfiguraciones.VtClientesConfiguracionesEntity;
-import com.calero.lili.core.modClientesConfiguraciones.VtClientesConfiguracionesRepository;
-import com.calero.lili.core.modClientesConfiguraciones.dto.StCorreoRequestDto;
-import com.calero.lili.core.modClientesConfiguraciones.dto.StEmpresasEnviarCorreoResponseDto;
+import com.calero.lili.core.modAdDatasConfiguraciones.VtClientesConfiguracionesEntity;
+import com.calero.lili.core.modAdDatasConfiguraciones.VtClientesConfiguracionesRepository;
+import com.calero.lili.core.modAdDatasConfiguraciones.dto.StCorreoRequestDto;
+import com.calero.lili.core.modAdDatasConfiguraciones.dto.StEmpresasEnviarCorreoResponseDto;
 import com.calero.lili.core.apiSitac.repositories.AdMailsEnviadosRepository;
 import com.calero.lili.core.apiSitac.repositories.AdMailsEnviadosTotalRepository;
 import com.calero.lili.core.apiSitac.repositories.entities.AdMailEnviadosEntity;

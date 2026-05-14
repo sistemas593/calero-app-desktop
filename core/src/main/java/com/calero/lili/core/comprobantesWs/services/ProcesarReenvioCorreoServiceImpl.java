@@ -8,7 +8,7 @@ import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.EnvioCorreoDto
 import com.calero.lili.core.comprobantesWs.dto.DatosEmpresaDto;
 import com.calero.lili.core.comprobantesWs.dto.FilterEmailDto;
 import com.calero.lili.core.errors.exceptions.GeneralException;
-import com.calero.lili.core.modClientesConfiguraciones.dto.StCorreoRequestDto;
+import com.calero.lili.core.modAdDatasConfiguraciones.dto.StCorreoRequestDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.CpLiquidacionesEntity;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.LiquidacionesRepository;
 import com.calero.lili.core.modCompras.modComprasRetenciones.ComprasRetencionesRepository;

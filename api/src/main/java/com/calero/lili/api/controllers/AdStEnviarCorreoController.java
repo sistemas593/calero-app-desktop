@@ -1,8 +1,8 @@
 package com.calero.lili.api.controllers;
 
 import com.calero.lili.core.apiSitac.services.StEnviarCorreoSitacServiceImpl;
-import com.calero.lili.core.modClientesConfiguraciones.dto.StCorreoRequestDto;
-import com.calero.lili.core.modClientesConfiguraciones.dto.StEmpresasEnviarCorreoResponseDto;
+import com.calero.lili.core.modAdDatasConfiguraciones.dto.StCorreoRequestDto;
+import com.calero.lili.core.modAdDatasConfiguraciones.dto.StEmpresasEnviarCorreoResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;

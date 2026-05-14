@@ -2,13 +2,13 @@ package com.calero.lili.api.controllers;
 
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.ResponseDto;
-import com.calero.lili.core.modClientesConfiguraciones.VtClientesConfiguracionesServiceImpl;
-import com.calero.lili.core.modClientesConfiguraciones.dto.StEmpresasListCreationResponseDto;
-import com.calero.lili.core.modClientesConfiguraciones.dto.VtClientesConfiguracionesGetListDto;
-import com.calero.lili.core.modClientesConfiguraciones.dto.VtClientesConfiguracionesGetOneDto;
-import com.calero.lili.core.modClientesConfiguraciones.dto.VtClientesConfiguracionesListCreationRequestDto;
-import com.calero.lili.core.modClientesConfiguraciones.dto.VtClientesConfiguracionesListFilterDto;
-import com.calero.lili.core.modClientesConfiguraciones.dto.VtClientesConfiguracionesRequestDto;
+import com.calero.lili.core.modAdDatasConfiguraciones.VtClientesConfiguracionesServiceImpl;
+import com.calero.lili.core.modAdDatasConfiguraciones.dto.StEmpresasListCreationResponseDto;
+import com.calero.lili.core.modAdDatasConfiguraciones.dto.VtClientesConfiguracionesGetListDto;
+import com.calero.lili.core.modAdDatasConfiguraciones.dto.VtClientesConfiguracionesGetOneDto;
+import com.calero.lili.core.modAdDatasConfiguraciones.dto.VtClientesConfiguracionesListCreationRequestDto;
+import com.calero.lili.core.modAdDatasConfiguraciones.dto.VtClientesConfiguracionesListFilterDto;
+import com.calero.lili.core.modAdDatasConfiguraciones.dto.VtClientesConfiguracionesRequestDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
@@ -30,10 +30,10 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1.0/clientes-configuraciones")
+@RequestMapping("api/v1.0/datas-configuraciones")
 @CrossOrigin(originPatterns = "*")
 
-public class VtClientesConfiguracionesController {
+public class AdDatasConfiguracionesController {
 
     private final VtClientesConfiguracionesServiceImpl clientesConfiguracionesService;
     private final AuditorAware<String> auditorAware;
@@ -83,7 +83,7 @@ public class VtClientesConfiguracionesController {
     @PreAuthorize("hasAuthority('CF_CC_MO')")
     public StEmpresasListCreationResponseDto createUpdateList(@RequestBody @Valid VtClientesConfiguracionesListCreationRequestDto request) {
         System.out.println(request);
-        return clientesConfiguracionesService.createUpdateList(request);
+        return clientesConfiguracionesService.createUpdateList(request,auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
 }

@@ -6,8 +6,8 @@ import com.calero.lili.core.apiSitac.dtos.stFechaActualizacion.AdStFechaActualiz
 import com.calero.lili.core.apiSitac.repositories.StFechaActualizacionRepository;
 import com.calero.lili.core.apiSitac.repositories.entities.StFechaActualizacionEntity;
 import com.calero.lili.core.errors.exceptions.GeneralException;
-import com.calero.lili.core.modClientesConfiguraciones.VtClientesConfiguracionesEntity;
-import com.calero.lili.core.modClientesConfiguraciones.VtClientesConfiguracionesRepository;
+import com.calero.lili.core.modAdDatasConfiguraciones.VtClientesConfiguracionesEntity;
+import com.calero.lili.core.modAdDatasConfiguraciones.VtClientesConfiguracionesRepository;
 import com.calero.lili.core.utils.DateUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

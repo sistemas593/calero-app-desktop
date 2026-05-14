@@ -1,4 +1,4 @@
-package com.calero.lili.core.modClientesConfiguraciones;
+package com.calero.lili.core.modAdDatasConfiguraciones;
 
 import com.calero.lili.core.Auditable;
 import com.calero.lili.core.modAdModulos.AdModulosEntity;
@@ -85,7 +85,7 @@ public class VtClientesConfiguracionesEntity extends Auditable {
 
     @ManyToMany
     @JoinTable(
-            name = "ad_clientes_configuraciones_modulos",
+            name = "ad_datas_configuraciones_modulos",
             joinColumns = @JoinColumn(name = "id_configuracion"),
             inverseJoinColumns = @JoinColumn(name = "id_modulo"),
             uniqueConstraints = {@UniqueConstraint(columnNames = {"id_configuracion", "id_modulo"})})

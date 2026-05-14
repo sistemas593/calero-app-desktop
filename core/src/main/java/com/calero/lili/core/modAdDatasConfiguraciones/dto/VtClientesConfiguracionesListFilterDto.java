@@ -1,4 +1,4 @@
-package com.calero.lili.core.modClientesConfiguraciones.dto;
+package com.calero.lili.core.modAdDatasConfiguraciones.dto;
 
 import com.calero.lili.core.utils.DateUtils;
 import lombok.Data;
