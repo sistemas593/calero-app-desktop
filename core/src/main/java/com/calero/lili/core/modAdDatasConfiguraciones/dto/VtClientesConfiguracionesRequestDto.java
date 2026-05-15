@@ -1,6 +1,8 @@
 package com.calero.lili.core.modAdDatasConfiguraciones.dto;
 
 import jakarta.validation.constraints.NotEmpty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -44,5 +46,14 @@ public class VtClientesConfiguracionesRequestDto {
     private Long tipoBlo;
     private String fechaBlo;
 
-    private List<Long> idsModulos;
+    private List<ModuloDto> moduloList;
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ModuloDto {
+        private Long idModulo;
+        private String modulo;
+    }
 }

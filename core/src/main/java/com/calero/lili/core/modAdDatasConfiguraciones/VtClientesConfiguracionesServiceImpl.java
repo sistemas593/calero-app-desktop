@@ -211,24 +211,28 @@ public class VtClientesConfiguracionesServiceImpl {
 
     private void validarModulos(VtClientesConfiguracionesEntity entidad, VtClientesConfiguracionesRequestDto request) {
 
-        if (Objects.isNull(request.getIdsModulos()) || request.getIdsModulos().isEmpty()) {
-
+        if (Objects.isNull(request.getModuloList()) || request.getModuloList().isEmpty()) {
             entidad.setModulosList(null);
         } else {
-            List<AdModulosEntity> lista =
-                    adModuloRepository.findAllByIds(request.getIdsModulos());
+
+            List<Long> listaIdModulos = request.getModuloList()
+                    .stream().map(VtClientesConfiguracionesRequestDto.ModuloDto::getIdModulo)
+                    .toList();
+
+            List<AdModulosEntity> lista = adModuloRepository.findAllByIds(listaIdModulos);
 
             Set<Long> idsEncontrados = lista.stream()
                     .map(AdModulosEntity::getIdModulo)
                     .collect(Collectors.toSet());
 
-            List<Long> idsNoEncontrados = request.getIdsModulos().stream()
+            List<Long> idsNoEncontrados = request.getModuloList().stream()
+                    .map(VtClientesConfiguracionesRequestDto.ModuloDto::getIdModulo)
                     .filter(id -> !idsEncontrados.contains(id))
                     .toList();
 
             if (!idsNoEncontrados.isEmpty()) {
                 throw new GeneralException(
-                        "No existen los módulos con los siguientes ids: " + idsNoEncontrados
+                        "No existen  módulos con los siguientes ids: " + idsNoEncontrados
                 );
             }
             entidad.setModulosList(lista);
