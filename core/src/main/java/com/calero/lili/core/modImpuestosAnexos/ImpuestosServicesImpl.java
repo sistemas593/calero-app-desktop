@@ -401,6 +401,10 @@ public class ImpuestosServicesImpl {
                 f104.setC444(new BigDecimal("0.00"));
             }
 
+// totalizar todas las que sean facturas, notas de credito, notas de debito
+// agrupar para obtener el total por el tipo de documento (agrupar) por codigo de iva 2 y codigo 0,
+// las que no esten anuladas
+
 
             f104.setC111(BigDecimal.valueOf(111));
             f104.setC113(BigDecimal.valueOf(113));

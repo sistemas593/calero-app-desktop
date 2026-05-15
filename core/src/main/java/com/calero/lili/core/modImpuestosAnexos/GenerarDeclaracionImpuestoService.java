@@ -1,6 +1,10 @@
 package com.calero.lili.core.modImpuestosAnexos;
 
 import com.calero.lili.core.builder.retencion.RdepBuilder;
+import com.calero.lili.core.dtos.FilterImpuestoDto;
+import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
+import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.modImpuestosAnexos.builder.RetencionFuenteBuilder;
 import com.calero.lili.core.modImpuestosAnexos.retencion.Rdep;
 import com.calero.lili.core.modImpuestosProcesos.dto.impuestos.ImpuestosF103Dto;
@@ -8,12 +12,8 @@ import com.calero.lili.core.modImpuestosProcesos.dto.impuestos.ImpuestosF104Dto;
 import com.calero.lili.core.modImpuestosProcesos.dto.impuestos.ImpuestosF107Dto;
 import com.calero.lili.core.modImpuestosProcesos.dto.impuestos.RetencionFuenteXmlDto;
 import com.calero.lili.core.modImpuestosProcesos.dto.impuestos.ValoresTalonResumenDto;
-import com.calero.lili.core.utils.validaciones.ValidarValoresComprobantesPdf;
-import com.calero.lili.core.dtos.FilterImpuestoDto;
-import com.calero.lili.core.errors.exceptions.GeneralException;
-import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
-import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.utils.DateUtils;
+import com.calero.lili.core.utils.validaciones.ValidarValoresComprobantesPdf;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Element;
@@ -233,21 +233,21 @@ public class GenerarDeclaracionImpuestoService {
 
 
         tabla.addCell(crearCelda("Ventas locales (excluye activos fijos) gravadas tarifa 5% ", normal));
-        tabla.addCell(crearCeldaConCodigo("445 ", validarValoresComprobantesPdf.getValor(model.getC404()), bold, normal));
-        tabla.addCell(crearCeldaConCodigo("425 ", validarValoresComprobantesPdf.getValor(model.getC402()), bold, normal));
-        tabla.addCell(crearCeldaConCodigo("435 ", validarValoresComprobantesPdf.getValor(model.getC403()), bold, normal));
+        tabla.addCell(crearCeldaConCodigo("445 ", validarValoresComprobantesPdf.getValor(model.getC445()), bold, normal));
+        tabla.addCell(crearCeldaConCodigo("425 ", validarValoresComprobantesPdf.getValor(model.getC425()), bold, normal));
+        tabla.addCell(crearCeldaConCodigo("435 ", validarValoresComprobantesPdf.getValor(model.getC435()), bold, normal));
 
 
         tabla.addCell(crearCelda("IVA generado en la diferencia entre ventas y notas de crédito con distinta tarifa (ajuste a pagar)  ", normal));
         tabla.addCell(crearCelda("", normal));
         tabla.addCell(crearCelda("", normal));
-        tabla.addCell(crearCeldaConCodigo("423 ", validarValoresComprobantesPdf.getValor(model.getC405()), bold, normal));
+        tabla.addCell(crearCeldaConCodigo("423 ", validarValoresComprobantesPdf.getValor(model.getC423()), bold, normal));
 
 
         tabla.addCell(crearCelda("IVA generado en la diferencia entre ventas y notas de crédito con distinta tarifa (ajuste a favor)", normal));
         tabla.addCell(crearCelda("", normal));
         tabla.addCell(crearCelda("", normal));
-        tabla.addCell(crearCeldaConCodigo("424 ", validarValoresComprobantesPdf.getValor(model.getC406()), bold, normal));
+        tabla.addCell(crearCeldaConCodigo("424 ", validarValoresComprobantesPdf.getValor(model.getC424()), bold, normal));
 
         tabla.addCell(crearCelda("Ventas locales (excluye activos fijos) gravadas tarifa 0% que no dan derecho a crédito tributario ", normal));
         tabla.addCell(crearCeldaConCodigo("403 ", validarValoresComprobantesPdf.getValor(model.getC403()), bold, normal));
@@ -261,23 +261,23 @@ public class GenerarDeclaracionImpuestoService {
         tabla.addCell(crearCelda("", normal));
 
         tabla.addCell(crearCelda("Ventas locales (excluye activos fijos) gravadas tarifa 0% que dan derecho a crédito tributario ", normal));
-        tabla.addCell(crearCeldaConCodigo("405 ", validarValoresComprobantesPdf.getValor(model.getC411()), bold, normal));
-        tabla.addCell(crearCeldaConCodigo("415 ", validarValoresComprobantesPdf.getValor(model.getC412()), bold, normal));
+        tabla.addCell(crearCeldaConCodigo("405 ", validarValoresComprobantesPdf.getValor(model.getC405()), bold, normal));
+        tabla.addCell(crearCeldaConCodigo("415 ", validarValoresComprobantesPdf.getValor(model.getC415()), bold, normal));
         tabla.addCell(crearCelda("", normal));
 
 
         tabla.addCell(crearCelda("Ventas de activos fijos gravadas tarifa 0% que dan derecho a crédito tributario ", normal));
-        tabla.addCell(crearCeldaConCodigo("406 ", validarValoresComprobantesPdf.getValor(model.getC413()), bold, normal));
-        tabla.addCell(crearCeldaConCodigo("416 ", validarValoresComprobantesPdf.getValor(model.getC414()), bold, normal));
+        tabla.addCell(crearCeldaConCodigo("406 ", validarValoresComprobantesPdf.getValor(model.getC406()), bold, normal));
+        tabla.addCell(crearCeldaConCodigo("416 ", validarValoresComprobantesPdf.getValor(model.getC416()), bold, normal));
         tabla.addCell(crearCelda("", normal));
 
         tabla.addCell(crearCelda("Exportaciones de bienes ", normal));
-        tabla.addCell(crearCeldaConCodigo("407 ", validarValoresComprobantesPdf.getValor(model.getC415()), bold, normal));
-        tabla.addCell(crearCeldaConCodigo("417 ", validarValoresComprobantesPdf.getValor(model.getC416()), bold, normal));
+        tabla.addCell(crearCeldaConCodigo("407 ", validarValoresComprobantesPdf.getValor(model.getC407()), bold, normal));
+        tabla.addCell(crearCeldaConCodigo("417 ", validarValoresComprobantesPdf.getValor(model.getC417()), bold, normal));
         tabla.addCell(crearCelda("", normal));
 
         tabla.addCell(crearCelda("Exportaciones de servicios y/o derechos ", normal));
-        tabla.addCell(crearCeldaConCodigo("408 ", validarValoresComprobantesPdf.getValor(model.getC417()), bold, normal));
+        tabla.addCell(crearCeldaConCodigo("408 ", validarValoresComprobantesPdf.getValor(model.getC408()), bold, normal));
         tabla.addCell(crearCeldaConCodigo("418 ", validarValoresComprobantesPdf.getValor(model.getC418()), bold, normal));
         tabla.addCell(crearCelda("", normal));
 
@@ -285,9 +285,9 @@ public class GenerarDeclaracionImpuestoService {
         // CELDAS RESALTADAS
 
         PdfPCell celdaR1 = crearCelda("TOTAL VENTAS Y OTRAS OPERACIONES", bold);
-        PdfPCell celdaR2 = crearCeldaConCodigoResaltar("409 ", validarValoresComprobantesPdf.getValor(model.getC419()), bold, bold);
-        PdfPCell celdaR3 = crearCeldaConCodigoResaltar("419 ", validarValoresComprobantesPdf.getValor(model.getC420()), bold, bold);
-        PdfPCell celdaR4 = crearCeldaConCodigoResaltar("429 ", validarValoresComprobantesPdf.getValor(model.getC421()), bold, bold);
+        PdfPCell celdaR2 = crearCeldaConCodigoResaltar("409 ", validarValoresComprobantesPdf.getValor(model.getC409()), bold, bold);
+        PdfPCell celdaR3 = crearCeldaConCodigoResaltar("419 ", validarValoresComprobantesPdf.getValor(model.getC419()), bold, bold);
+        PdfPCell celdaR4 = crearCeldaConCodigoResaltar("429 ", validarValoresComprobantesPdf.getValor(model.getC429()), bold, bold);
 
         celdaR1.setBackgroundColor(colorResaltar);
         celdaR2.setBackgroundColor(colorResaltar);
@@ -309,14 +309,14 @@ public class GenerarDeclaracionImpuestoService {
 
         tabla.addCell(crearCelda("Notas de crédito tarifa 0% por compensar próximo mes", normal));
         tabla.addCell(crearCelda("", normal));
-        tabla.addCell(crearCeldaConCodigo("442 ", validarValoresComprobantesPdf.getValor(model.getC424()), bold, normal));
+        tabla.addCell(crearCeldaConCodigo("442 ", validarValoresComprobantesPdf.getValor(model.getC442()), bold, normal));
         tabla.addCell(crearCelda("", normal));
 
 
         tabla.addCell(crearCelda("Notas de crédito tarifa diferente de cero por compensar próximo mes", normal));
         tabla.addCell(crearCelda("", normal));
-        tabla.addCell(crearCeldaConCodigo("443 ", validarValoresComprobantesPdf.getValor(model.getC425()), bold, normal));
-        tabla.addCell(crearCeldaConCodigo("453 ", validarValoresComprobantesPdf.getValor(model.getC429()), bold, normal));
+        tabla.addCell(crearCeldaConCodigo("443 ", validarValoresComprobantesPdf.getValor(model.getC443()), bold, normal));
+        tabla.addCell(crearCeldaConCodigo("453 ", validarValoresComprobantesPdf.getValor(model.getC453()), bold, normal));
 
 
         tabla.addCell(crearCelda("Ingresos por reembolso como intermediario / valores facturados por operadoras de transporte / ingresos\n" +
@@ -359,38 +359,38 @@ public class GenerarDeclaracionImpuestoService {
         tabla.addCell(crearCelda("Total transferencias gravadas tarifa diferente de cero a contado este mes", normal));
         tabla.addCell(crearCelda("", normal));
         tabla.addCell(crearCelda("", normal));
-        tabla.addCell(crearCeldaConCodigo("480", validarValoresComprobantesPdf.getValor(model.getC424()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("480", validarValoresComprobantesPdf.getValor(model.getC480()), bold, bold));
 
 
         tabla.addCell(crearCelda("Total impuesto generado", normal));
         tabla.addCell(crearCelda("", normal));
         tabla.addCell(crearCelda("(trasládese campo 429)", normal));
-        tabla.addCell(crearCeldaConCodigo("481", validarValoresComprobantesPdf.getValor(model.getC425()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("481", validarValoresComprobantesPdf.getValor(model.getC481()), bold, bold));
 
 
         tabla.addCell(crearCelda("Impuesto a liquidar del mes anterior", normal));
         tabla.addCell(crearCelda("", normal));
         tabla.addCell(crearCelda("(verificar que el valor corresponda al campo 485 por\n" +
                 "ventas a crédito de periodos anteriores)", normal));
-        tabla.addCell(crearCeldaConCodigo("483", validarValoresComprobantesPdf.getValor(model.getC431()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("483", validarValoresComprobantesPdf.getValor(model.getC483()), bold, bold));
 
 
         tabla.addCell(crearCelda("Impuesto a liquidar en este mes", normal));
         tabla.addCell(crearCelda("", normal));
         tabla.addCell(crearCelda("", normal));
-        tabla.addCell(crearCeldaConCodigo("484", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("484", validarValoresComprobantesPdf.getValor(model.getC484()), bold, bold));
 
 
         tabla.addCell(crearCelda("Impuesto a liquidar en el próximo mes", normal));
         tabla.addCell(crearCelda("", normal));
         tabla.addCell(crearCelda("482-484", normal));
-        tabla.addCell(crearCeldaConCodigo("485", validarValoresComprobantesPdf.getValor(model.getC435()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("485", validarValoresComprobantesPdf.getValor(model.getC485()), bold, bold));
 
 
         tabla.addCell(crearCelda("Mes a pagar el monto de IVA diferente de cero por ventas a crédito de este mes", normal));
         tabla.addCell(crearCelda("", normal));
         tabla.addCell(crearCelda("", normal));
-        tabla.addCell(crearCeldaConCodigo("486", validarValoresComprobantesPdf.getValor(model.getC441()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("486", validarValoresComprobantesPdf.getValor(model.getC486()), bold, bold));
 
 
         // CELDAS DEL COLOR RESALTADO
@@ -398,7 +398,7 @@ public class GenerarDeclaracionImpuestoService {
         PdfPCell celda1 = crearCelda("TOTAL IMPUESTO A LIQUIDAR EN ESTE MES", normal);
         PdfPCell celda2 = crearCelda("", normal);
         PdfPCell celda3 = crearCelda("483+484", normal);
-        PdfPCell celda4 = crearCeldaConCodigoResaltar("486", validarValoresComprobantesPdf.getValor(model.getC442()), bold, bold);
+        PdfPCell celda4 = crearCeldaConCodigoResaltar("486", validarValoresComprobantesPdf.getValor(model.getC486()), bold, bold);
 
         celda1.setBackgroundColor(colorResaltar);
         celda2.setBackgroundColor(colorResaltar);
@@ -440,14 +440,14 @@ public class GenerarDeclaracionImpuestoService {
 
         tabla.addCell(crearCelda("Adquisiciones y pagos (excluye activos fijos) gravados tarifa diferente de cero (con derecho a crédito\n" +
                 "tributario)\n", normal));
-        tabla.addCell(crearCeldaConCodigo("500", validarValoresComprobantesPdf.getValor(model.getC443()), bold, bold));
-        tabla.addCell(crearCeldaConCodigo("510", validarValoresComprobantesPdf.getValor(model.getC444()), bold, bold));
-        tabla.addCell(crearCeldaConCodigo("520", validarValoresComprobantesPdf.getValor(model.getC445()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("500", validarValoresComprobantesPdf.getValor(model.getC500()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("510", validarValoresComprobantesPdf.getValor(model.getC501()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("520", validarValoresComprobantesPdf.getValor(model.getC520()), bold, bold));
 
         tabla.addCell(crearCelda("Adquisiciones locales de activos fijos gravados tarifa diferente de cero (con derecho a crédito tributario)", normal));
-        tabla.addCell(crearCeldaConCodigo("501", validarValoresComprobantesPdf.getValor(model.getC445()), bold, bold));
-        tabla.addCell(crearCeldaConCodigo("511", validarValoresComprobantesPdf.getValor(model.getC453()), bold, bold));
-        tabla.addCell(crearCeldaConCodigo("521", validarValoresComprobantesPdf.getValor(model.getC454()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("501", validarValoresComprobantesPdf.getValor(model.getC501()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("511", validarValoresComprobantesPdf.getValor(model.getC511()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("521", validarValoresComprobantesPdf.getValor(model.getC521()), bold, bold));
 
         tabla.addCell(crearCelda("Adquisiciones y pagos locales (excluye activos fijos) gravados con tarifa 5% (con derecho a crédito tributario)", normal));
         tabla.addCell(crearCeldaConCodigo("540", validarValoresComprobantesPdf.getValor(model.getC540()), bold, bold));
@@ -456,66 +456,66 @@ public class GenerarDeclaracionImpuestoService {
 
 
         tabla.addCell(crearCelda("Otras adquisiciones y pagos gravados tarifa diferente de cero (sin derecho a crédito tributario) ", normal));
-        tabla.addCell(crearCeldaConCodigo("502", validarValoresComprobantesPdf.getValor(model.getC445()), bold, bold));
-        tabla.addCell(crearCeldaConCodigo("512", validarValoresComprobantesPdf.getValor(model.getC453()), bold, bold));
-        tabla.addCell(crearCeldaConCodigo("522", validarValoresComprobantesPdf.getValor(model.getC454()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("502", validarValoresComprobantesPdf.getValor(model.getC502()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("512", validarValoresComprobantesPdf.getValor(model.getC512()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("522", validarValoresComprobantesPdf.getValor(model.getC522()), bold, bold));
 
         tabla.addCell(crearCelda("Importaciones de servicios y/o derechos gravados tarifa diferente de cero", normal));
-        tabla.addCell(crearCeldaConCodigo("503", validarValoresComprobantesPdf.getValor(model.getC445()), bold, bold));
-        tabla.addCell(crearCeldaConCodigo("513", validarValoresComprobantesPdf.getValor(model.getC453()), bold, bold));
-        tabla.addCell(crearCeldaConCodigo("523", validarValoresComprobantesPdf.getValor(model.getC454()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("503", validarValoresComprobantesPdf.getValor(model.getC503()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("513", validarValoresComprobantesPdf.getValor(model.getC513()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("523", validarValoresComprobantesPdf.getValor(model.getC523()), bold, bold));
 
 
         tabla.addCell(crearCelda("Importaciones de bienes (excluye activos fijos) gravados tarifa diferente de cero", normal));
-        tabla.addCell(crearCeldaConCodigo("504", validarValoresComprobantesPdf.getValor(model.getC445()), bold, bold));
-        tabla.addCell(crearCeldaConCodigo("514", validarValoresComprobantesPdf.getValor(model.getC453()), bold, bold));
-        tabla.addCell(crearCeldaConCodigo("524", validarValoresComprobantesPdf.getValor(model.getC454()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("504", validarValoresComprobantesPdf.getValor(model.getC504()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("514", validarValoresComprobantesPdf.getValor(model.getC514()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("524", validarValoresComprobantesPdf.getValor(model.getC524()), bold, bold));
 
 
         tabla.addCell(crearCelda("Importaciones de activos fijos gravados tarifa diferente de cero", normal));
-        tabla.addCell(crearCeldaConCodigo("505", validarValoresComprobantesPdf.getValor(model.getC445()), bold, bold));
-        tabla.addCell(crearCeldaConCodigo("515", validarValoresComprobantesPdf.getValor(model.getC453()), bold, bold));
-        tabla.addCell(crearCeldaConCodigo("525", validarValoresComprobantesPdf.getValor(model.getC454()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("505", validarValoresComprobantesPdf.getValor(model.getC505()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("515", validarValoresComprobantesPdf.getValor(model.getC515()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("525", validarValoresComprobantesPdf.getValor(model.getC525()), bold, bold));
 
         tabla.addCell(crearCelda("IVA generado en la diferencia entre adquisiciones y notas de crédito con distinta tarifa (ajuste en positivo al\n" +
                 "crédito tributario)", normal));
         tabla.addCell(crearCelda("", bold));
         tabla.addCell(crearCelda("", bold));
-        tabla.addCell(crearCeldaConCodigo("526", validarValoresComprobantesPdf.getValor(model.getC454()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("526", validarValoresComprobantesPdf.getValor(model.getC526()), bold, bold));
 
 
         tabla.addCell(crearCelda("IVA generado en la diferencia entre adquisiciones y notas de crédito con distinta tarifa (ajuste en negativo al\n" +
                 "crédito tributario)", normal));
         tabla.addCell(crearCelda("", bold));
         tabla.addCell(crearCelda("", bold));
-        tabla.addCell(crearCeldaConCodigo("527", validarValoresComprobantesPdf.getValor(model.getC454()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("527", validarValoresComprobantesPdf.getValor(model.getC527()), bold, bold));
 
 
         tabla.addCell(crearCelda("Importaciones de bienes (incluye activos fijos) gravados tarifa 0%", normal));
-        tabla.addCell(crearCeldaConCodigo("506", validarValoresComprobantesPdf.getValor(model.getC454()), bold, bold));
-        tabla.addCell(crearCeldaConCodigo("516", validarValoresComprobantesPdf.getValor(model.getC454()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("506", validarValoresComprobantesPdf.getValor(model.getC506()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("516", validarValoresComprobantesPdf.getValor(model.getC516()), bold, bold));
         tabla.addCell(crearCelda("", bold));
 
 
         tabla.addCell(crearCelda("Adquisiciones y pagos (incluye activos fijos) gravados tarifa 0%", normal));
-        tabla.addCell(crearCeldaConCodigo("507", validarValoresComprobantesPdf.getValor(model.getC454()), bold, bold));
-        tabla.addCell(crearCeldaConCodigo("517", validarValoresComprobantesPdf.getValor(model.getC454()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("507", validarValoresComprobantesPdf.getValor(model.getC507()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("517", validarValoresComprobantesPdf.getValor(model.getC517()), bold, bold));
         tabla.addCell(crearCelda("", bold));
 
 
         tabla.addCell(crearCelda("Adquisiciones realizadas a contribuyentes RISE (hasta diciembre 2021), NEGOCIOS POPULARES (desde\n" +
                 "enero 2022)", normal));
-        tabla.addCell(crearCeldaConCodigo("508", validarValoresComprobantesPdf.getValor(model.getC454()), bold, bold));
-        tabla.addCell(crearCeldaConCodigo("518", validarValoresComprobantesPdf.getValor(model.getC454()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("508", validarValoresComprobantesPdf.getValor(model.getC508()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("518", validarValoresComprobantesPdf.getValor(model.getC518()), bold, bold));
         tabla.addCell(crearCelda("", bold));
 
 
         // RESALTADO
 
         PdfPCell celda1 = crearCelda("TOTAL ADQUISICIONES Y PAGOS", normal);
-        PdfPCell celda2 = crearCeldaConCodigoResaltar("509", validarValoresComprobantesPdf.getValor(model.getC454()), bold, bold);
-        PdfPCell celda3 = crearCeldaConCodigoResaltar("519", validarValoresComprobantesPdf.getValor(model.getC454()), bold, bold);
-        PdfPCell celda4 = crearCeldaConCodigoResaltar("529", validarValoresComprobantesPdf.getValor(model.getC454()), bold, bold);
+        PdfPCell celda2 = crearCeldaConCodigoResaltar("509", validarValoresComprobantesPdf.getValor(model.getC509()), bold, bold);
+        PdfPCell celda3 = crearCeldaConCodigoResaltar("519", validarValoresComprobantesPdf.getValor(model.getC519()), bold, bold);
+        PdfPCell celda4 = crearCeldaConCodigoResaltar("529", validarValoresComprobantesPdf.getValor(model.getC529()), bold, bold);
 
         celda1.setBackgroundColor(colorResaltar);
         celda2.setBackgroundColor(colorResaltar);
@@ -530,51 +530,51 @@ public class GenerarDeclaracionImpuestoService {
         //
 
         tabla.addCell(crearCelda("Adquisiciones no objeto de IVA", normal));
-        tabla.addCell(crearCeldaConCodigo("531", validarValoresComprobantesPdf.getValor(model.getC454()), bold, bold));
-        tabla.addCell(crearCeldaConCodigo("541", validarValoresComprobantesPdf.getValor(model.getC454()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("531", validarValoresComprobantesPdf.getValor(model.getC531()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("541", validarValoresComprobantesPdf.getValor(model.getC541()), bold, bold));
         tabla.addCell(crearCelda("", bold));
 
 
         tabla.addCell(crearCelda("Adquisiciones exentas del pago de IVA", normal));
-        tabla.addCell(crearCeldaConCodigo("532", validarValoresComprobantesPdf.getValor(model.getC454()), bold, bold));
-        tabla.addCell(crearCeldaConCodigo("542", validarValoresComprobantesPdf.getValor(model.getC454()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("532", validarValoresComprobantesPdf.getValor(model.getC532()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("542", validarValoresComprobantesPdf.getValor(model.getC542()), bold, bold));
         tabla.addCell(crearCelda("", bold));
 
 
         tabla.addCell(crearCelda("Notas de crédito tarifa 0% por compensar próximo mes", normal));
         tabla.addCell(crearCelda("", bold));
-        tabla.addCell(crearCeldaConCodigo("543", validarValoresComprobantesPdf.getValor(model.getC454()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("543", validarValoresComprobantesPdf.getValor(model.getC543()), bold, bold));
         tabla.addCell(crearCelda("", bold));
 
 
         tabla.addCell(crearCelda("Notas de crédito tarifa diferente de cero por compensar próximo mes", normal));
         tabla.addCell(crearCelda("", bold));
-        tabla.addCell(crearCeldaConCodigo("544", validarValoresComprobantesPdf.getValor(model.getC454()), bold, bold));
-        tabla.addCell(crearCeldaConCodigo("554", validarValoresComprobantesPdf.getValor(model.getC454()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("544", validarValoresComprobantesPdf.getValor(model.getC544()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("554", validarValoresComprobantesPdf.getValor(model.getC554()), bold, bold));
 
         tabla.addCell(crearCelda("Pagos netos por reembolso como intermediario / valores facturados por socios a operadoras de transporte /\n" +
                 "pagos realizados por parte de las sociedades de gestión colectiva como intermediarios (informativo)", normal));
-        tabla.addCell(crearCeldaConCodigo("535", validarValoresComprobantesPdf.getValor(model.getC445()), bold, bold));
-        tabla.addCell(crearCeldaConCodigo("545", validarValoresComprobantesPdf.getValor(model.getC453()), bold, bold));
-        tabla.addCell(crearCeldaConCodigo("55", validarValoresComprobantesPdf.getValor(model.getC454()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("535", validarValoresComprobantesPdf.getValor(model.getC535()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("545", validarValoresComprobantesPdf.getValor(model.getC545()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("555", validarValoresComprobantesPdf.getValor(model.getC555()), bold, bold));
 
 
         tabla.addCell(crearCelda("Factor de proporcionalidad para crédito tributario", normal));
         tabla.addCell(crearCelda("", bold));
         tabla.addCell(crearCelda("(411+412+420+435+415+416+417+418) / 419", bold));
-        tabla.addCell(crearCeldaConCodigo("563", validarValoresComprobantesPdf.getValor(model.getC454()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("563", validarValoresComprobantesPdf.getValor(model.getC563()), bold, bold));
 
 
         tabla.addCell(crearCelda("Crédito tributario aplicable en este período (de acuerdo al factor de proporcionalidad o a su contabilidad)", normal));
         tabla.addCell(crearCelda("", bold));
         tabla.addCell(crearCelda("(520+521+534+560+523+524+525+526-527) x 563", bold));
-        tabla.addCell(crearCeldaConCodigo("564", validarValoresComprobantesPdf.getValor(model.getC454()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("564", validarValoresComprobantesPdf.getValor(model.getC564()), bold, bold));
 
 
         tabla.addCell(crearCelda("Valor de IVA no considerado como crédito tributario por factor de proporcionalidad", normal));
         tabla.addCell(crearCelda("", bold));
         tabla.addCell(crearCelda("", bold));
-        tabla.addCell(crearCeldaConCodigo("565", validarValoresComprobantesPdf.getValor(model.getC454()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("565", validarValoresComprobantesPdf.getValor(model.getC565()), bold, bold));
 
 
         document.add(tabla);
@@ -609,20 +609,20 @@ public class GenerarDeclaracionImpuestoService {
         tabla.addCell(crearCelda("Impuesto causado", normal));
         tabla.addCell(crearCelda("", normal));
         tabla.addCell(crearCelda("(si la diferencia de los campos 499-564 es mayor que cero)", normal));
-        tabla.addCell(crearCeldaConCodigo("601", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("601", validarValoresComprobantesPdf.getValor(model.getC601()), bold, bold));
 
 
         tabla.addCell(crearCelda("Crédito tributario aplicable en este período", normal));
         tabla.addCell(crearCelda("", normal));
         tabla.addCell(crearCelda("(si la diferencia de los campos 499-564 es menor que cero)", normal));
-        tabla.addCell(crearCeldaConCodigo("602", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("602", validarValoresComprobantesPdf.getValor(model.getC602()), bold, bold));
 
 
         tabla.addCell(crearCelda("(-) Compensación de IVA por ventas efectuadas con medio electrónico y/o IVA devuelto o descontado por transacciones realizadas con personas adultas mayores\n" +
                 "o personas con discapacidad\n", normal));
         tabla.addCell(crearCelda("", normal));
         tabla.addCell(crearCelda("", normal));
-        tabla.addCell(crearCeldaConCodigo("603", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("603", validarValoresComprobantesPdf.getValor(model.getC603()), bold, bold));
 
 
         tabla.addCell(crearCelda("(-) Compensación de IVA por ventas efectuadas con medio electrónico y/o IVA devuelto o descontado por transacciones realizadas con personas adultas mayores\n" +
@@ -630,28 +630,28 @@ public class GenerarDeclaracionImpuestoService {
                 "(-) Saldo crédito tributario del mes anterior", normal));
         tabla.addCell(crearCelda("", normal));
         tabla.addCell(crearCelda("", normal));
-        tabla.addCell(crearCeldaConCodigo("603", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("603", validarValoresComprobantesPdf.getValor(model.getC603()), bold, bold));
 
 
         tabla.addCell(crearCelda("Por adquisiciones e importaciones", normal));
         tabla.addCell(crearCelda("", normal));
         tabla.addCell(crearCelda("(trasládese el campo 615 de la declaración del período\n" +
                 "anterior)", normal));
-        tabla.addCell(crearCeldaConCodigo("605", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("605", validarValoresComprobantesPdf.getValor(model.getC605()), bold, bold));
 
 
         tabla.addCell(crearCelda("Por retenciones en la fuente de IVA que le han sido efectuadas", normal));
         tabla.addCell(crearCelda("", normal));
         tabla.addCell(crearCelda("(trasládese el campo 617 de la declaración del período\n" +
                 "anterior)", normal));
-        tabla.addCell(crearCeldaConCodigo("606", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("606", validarValoresComprobantesPdf.getValor(model.getC606()), bold, bold));
 
         tabla.addCell(crearCelda("Por compensación de IVA por ventas efectuadas con medio\n" +
                 "electrónico", normal));
         tabla.addCell(crearCelda("", normal));
         tabla.addCell(crearCelda("(trasládese el campo 618 de la declaración del período\n" +
                 "anterior)", normal));
-        tabla.addCell(crearCeldaConCodigo("607", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("607", validarValoresComprobantesPdf.getValor(model.getC607()), bold, bold));
 
 
         tabla.addCell(crearCelda("Por compensación de IVA por ventas efectuadas en zonas\n" +
@@ -661,85 +661,85 @@ public class GenerarDeclaracionImpuestoService {
         tabla.addCell(crearCelda("", normal));
         tabla.addCell(crearCelda("(trasládese el campo 619 de la declaración del período\n" +
                 "anterior)", normal));
-        tabla.addCell(crearCeldaConCodigo("608", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("608", validarValoresComprobantesPdf.getValor(model.getC608()), bold, bold));
 
 
         tabla.addCell(crearCelda("(-) Retenciones en la fuente de IVA que le han sido efectuadas en este período", normal));
         tabla.addCell(crearCelda("", normal));
         tabla.addCell(crearCelda("", normal));
-        tabla.addCell(crearCeldaConCodigo("609", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("609", validarValoresComprobantesPdf.getValor(model.getC609()), bold, bold));
 
 
         tabla.addCell(crearCelda("(-) IVA devuelto o descontado por transacciones realizadas con personas adultas mayores o personas con discapacidad", normal));
         tabla.addCell(crearCelda("", normal));
         tabla.addCell(crearCelda("", normal));
-        tabla.addCell(crearCeldaConCodigo("622", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("622", validarValoresComprobantesPdf.getValor(model.getC622()), bold, bold));
 
 
         tabla.addCell(crearCelda("(+) Ajuste por IVA devuelto o descontado por adquisiciones efectuadas con medio electrónico", normal));
         tabla.addCell(crearCelda("", normal));
         tabla.addCell(crearCelda("", normal));
-        tabla.addCell(crearCeldaConCodigo("610", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("610", validarValoresComprobantesPdf.getValor(model.getC610()), bold, bold));
 
 
         tabla.addCell(crearCelda("(+) Ajuste por IVA devuelto e IVA rechazado (por concepto de devoluciones de IVA), ajuste de IVA por procesos de control y otros (adquisiciones en importaciones),\n" +
                 "imputables al crédito tributario", normal));
         tabla.addCell(crearCelda("", normal));
         tabla.addCell(crearCelda("", normal));
-        tabla.addCell(crearCeldaConCodigo("612", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("612", validarValoresComprobantesPdf.getValor(model.getC612()), bold, bold));
 
 
         tabla.addCell(crearCelda("(+) Ajuste por IVA devuelto e IVA rechazado, ajuste de IVA por procesos de control y otros (por concepto retenciones en la fuente de IVA), imputables al crédito\n" +
                 "tributario", normal));
         tabla.addCell(crearCelda("", normal));
         tabla.addCell(crearCelda("", normal));
-        tabla.addCell(crearCeldaConCodigo("613", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("613", validarValoresComprobantesPdf.getValor(model.getC613()), bold, bold));
 
         tabla.addCell(crearCelda("(+) Ajuste por IVA devuelto por otras instituciones del sector público imputable al crédito tributario en el mes", normal));
         tabla.addCell(crearCelda("", normal));
         tabla.addCell(crearCelda("", normal));
-        tabla.addCell(crearCeldaConCodigo("614", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("614", validarValoresComprobantesPdf.getValor(model.getC614()), bold, bold));
 
 
         tabla.addCell(crearCelda("Por adquisiciones e importaciones", normal));
         tabla.addCell(crearCelda("", normal));
         tabla.addCell(crearCelda("", normal));
-        tabla.addCell(crearCeldaConCodigo("615", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("615", validarValoresComprobantesPdf.getValor(model.getC615()), bold, bold));
 
 
         tabla.addCell(crearCelda("Por retenciones en la fuente de IVA que le han sido efectuadas", normal));
         tabla.addCell(crearCelda("", normal));
         tabla.addCell(crearCelda("", normal));
-        tabla.addCell(crearCeldaConCodigo("617", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("617", validarValoresComprobantesPdf.getValor(model.getC617()), bold, bold));
 
 
         tabla.addCell(crearCelda("Por compensación de IVA por ventas efectuadas con medio electrónico", normal));
         tabla.addCell(crearCelda("", normal));
         tabla.addCell(crearCelda("", normal));
-        tabla.addCell(crearCeldaConCodigo("618", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("618", validarValoresComprobantesPdf.getValor(model.getC618()), bold, bold));
 
         tabla.addCell(crearCelda("Por compensación de IVA por ventas efectuadas en zonas afectadas - Ley de solidaridad, restitución de crédito tributario en\n" +
                 "resoluciones administrativas o sentencias judiciales de última instancia", normal));
         tabla.addCell(crearCelda("", normal));
         tabla.addCell(crearCelda("", normal));
-        tabla.addCell(crearCeldaConCodigo("619", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("619", validarValoresComprobantesPdf.getValor(model.getC619()), bold, bold));
 
 
         tabla.addCell(crearCelda("IVA pagado y no compensado, en la adquisición local o importación de bienes o servicios que se carga al gasto de Impuesto a la Renta.", normal));
         tabla.addCell(crearCelda("", normal));
         tabla.addCell(crearCelda("", normal));
-        tabla.addCell(crearCeldaConCodigo("624", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("624", validarValoresComprobantesPdf.getValor(model.getC624()), bold, bold));
 
         tabla.addCell(crearCelda("Ajuste del crédito tributario de Impuesto al Valor Agregado pagado en adquisiciones locales e importaciones de bienes y servicios superior a cinco (5) años ", normal));
         tabla.addCell(crearCelda("", normal));
         tabla.addCell(crearCelda("", normal));
-        tabla.addCell(crearCeldaConCodigo("625", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("625", validarValoresComprobantesPdf.getValor(model.getC625()), bold, bold));
 
 
         tabla.addCell(crearCelda("SUBTOTAL A PAGAR", normal));
         tabla.addCell(crearCelda("", normal));
         tabla.addCell(crearCelda("Si (601-602-603-604-605-606-607-608-609+610+611+612+613+614) > 0", normal));
-        tabla.addCell(crearCeldaConCodigo("620", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("620", validarValoresComprobantesPdf.getValor(model.getC620()), bold, bold));
 
         // RESALTADO
 
@@ -747,7 +747,7 @@ public class GenerarDeclaracionImpuestoService {
                 "porcentajes)\n", normal);
         PdfPCell celda2 = crearCelda("", bold);
         PdfPCell celda3 = crearCelda("620+621", bold);
-        PdfPCell celda4 = crearCeldaConCodigoResaltar("699", validarValoresComprobantesPdf.getValor(model.getC454()), bold, bold);
+        PdfPCell celda4 = crearCeldaConCodigoResaltar("699", validarValoresComprobantesPdf.getValor(model.getC699()), bold, bold);
 
         celda1.setBackgroundColor(colorResaltar);
         celda2.setBackgroundColor(colorResaltar);
@@ -787,8 +787,8 @@ public class GenerarDeclaracionImpuestoService {
 
         tabla.addCell(crearCelda("Importaciones de materias primas, insumos y bienes de capital que sean incorporadas en procesos productivos de bienes que se\n" +
                 "exporten\n", normal));
-        tabla.addCell(crearCeldaConCodigo("700", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
-        tabla.addCell(crearCeldaConCodigo("701", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("700", validarValoresComprobantesPdf.getValor(model.getC700()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("701", validarValoresComprobantesPdf.getValor(model.getC701()), bold, bold));
 
 
         PdfPCell celda1 = crearCelda("", normal);
@@ -803,7 +803,7 @@ public class GenerarDeclaracionImpuestoService {
 
         tabla.addCell(crearCelda("Proporción del ingreso neto de divisas desde el exterior al Ecuador, respecto del total de las exportaciones netas de bienes", normal));
         tabla.addCell(crearCelda("", normal));
-        tabla.addCell(crearCeldaConCodigo("702", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("702", validarValoresComprobantesPdf.getValor(model.getC702()), bold, bold));
 
         document.add(tabla);
     }
@@ -832,45 +832,45 @@ public class GenerarDeclaracionImpuestoService {
 
         tabla.addCell(crearCelda("Retención del 10%", normal));
         tabla.addCell(crearCelda("", normal));
-        tabla.addCell(crearCeldaConCodigo("721", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("721", validarValoresComprobantesPdf.getValor(model.getC721()), bold, bold));
 
 
         tabla.addCell(crearCelda("Retención del 20%", normal));
         tabla.addCell(crearCelda("", normal));
-        tabla.addCell(crearCeldaConCodigo("723", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("723", validarValoresComprobantesPdf.getValor(model.getC723()), bold, bold));
 
         tabla.addCell(crearCelda("Retención del 30%", normal));
         tabla.addCell(crearCelda("", normal));
-        tabla.addCell(crearCeldaConCodigo("725", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("725", validarValoresComprobantesPdf.getValor(model.getC725()), bold, bold));
 
         tabla.addCell(crearCelda("Retención del 50%", normal));
         tabla.addCell(crearCelda("", normal));
-        tabla.addCell(crearCeldaConCodigo("727", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("727", validarValoresComprobantesPdf.getValor(model.getC727()), bold, bold));
 
         tabla.addCell(crearCelda("Retención del 70%", normal));
         tabla.addCell(crearCelda("", normal));
-        tabla.addCell(crearCeldaConCodigo("729", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("729", validarValoresComprobantesPdf.getValor(model.getC729()), bold, bold));
 
         tabla.addCell(crearCelda("Retención del 100%", normal));
         tabla.addCell(crearCelda("", normal));
-        tabla.addCell(crearCeldaConCodigo("731", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("731", validarValoresComprobantesPdf.getValor(model.getC731()), bold, bold));
 
 
         tabla.addCell(crearCelda("TOTAL IMPUESTO RETENIDO", normal));
         tabla.addCell(crearCelda("721+723+725+727+729+731", normal));
-        tabla.addCell(crearCeldaConCodigo("799", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("799", validarValoresComprobantesPdf.getValor(model.getC799()), bold, bold));
 
 
         tabla.addCell(crearCelda("Devolución provisional de IVA mediante compensación con retenciones efectuadas", normal));
         tabla.addCell(crearCelda("", normal));
-        tabla.addCell(crearCeldaConCodigo("800", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("800", validarValoresComprobantesPdf.getValor(model.getC800()), bold, bold));
 
 
         // Reslatados
 
         PdfPCell celda1 = crearCelda("TOTAL IMPUESTO A PAGAR POR RETENCIÓN", bold);
         PdfPCell celda2 = crearCelda("(799-800-802)", bold);
-        PdfPCell celda3 = crearCeldaConCodigo("801", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold);
+        PdfPCell celda3 = crearCeldaConCodigo("801", validarValoresComprobantesPdf.getValor(model.getC801()), bold, bold);
 
         celda1.setBackgroundColor(colorResaltar);
         celda2.setBackgroundColor(colorResaltar);
@@ -882,7 +882,7 @@ public class GenerarDeclaracionImpuestoService {
 
         PdfPCell celdaA1 = crearCelda("TOTAL CONSOLIDADO DE IMPUESTO AL VALOR AGREGADO", titleTb);
         PdfPCell celdaA2 = crearCelda("(699+801)", titleTb);
-        PdfPCell celdaA3 = crearCeldaConCodigo("859", validarValoresComprobantesPdf.getValor(model.getC434()), titleTb, titleTb);
+        PdfPCell celdaA3 = crearCeldaConCodigo("859", validarValoresComprobantesPdf.getValor(model.getC859()), titleTb, titleTb);
 
         celdaA1.setBackgroundColor(colorEncabezadosTablas);
         celdaA2.setBackgroundColor(colorEncabezadosTablas);
@@ -920,7 +920,7 @@ public class GenerarDeclaracionImpuestoService {
 
         PdfPCell celda1 = crearCelda("TOTAL IMPUESTO A PAGAR ", bold);
         PdfPCell celda2 = crearCelda("(859-898)", bold);
-        PdfPCell celda3 = crearCeldaConCodigo("902", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold);
+        PdfPCell celda3 = crearCeldaConCodigo("902", validarValoresComprobantesPdf.getValor(model.getC902()), bold, bold);
 
         celda1.setBackgroundColor(colorResaltar);
         celda2.setBackgroundColor(colorResaltar);
@@ -933,17 +933,17 @@ public class GenerarDeclaracionImpuestoService {
 
         tabla.addCell(crearCelda("Interés por mora", normal));
         tabla.addCell(crearCelda("", normal));
-        tabla.addCell(crearCeldaConCodigo("903", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("903", validarValoresComprobantesPdf.getValor(model.getC903()), bold, bold));
 
 
         tabla.addCell(crearCelda("Multa", normal));
         tabla.addCell(crearCelda("", normal));
-        tabla.addCell(crearCeldaConCodigo("904", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold));
+        tabla.addCell(crearCeldaConCodigo("904", validarValoresComprobantesPdf.getValor(model.getC904()), bold, bold));
 
 
         PdfPCell celdaT1 = crearCelda("TOTAL PAGADO", bold);
         PdfPCell celdaT2 = crearCelda("", bold);
-        PdfPCell celdaT3 = crearCeldaConCodigo("999", validarValoresComprobantesPdf.getValor(model.getC434()), bold, bold);
+        PdfPCell celdaT3 = crearCeldaConCodigo("999", validarValoresComprobantesPdf.getValor(model.getC999()), bold, bold);
 
         celdaT1.setBackgroundColor(colorResaltar);
         celdaT2.setBackgroundColor(colorResaltar);

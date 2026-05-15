@@ -4,6 +4,7 @@ import com.calero.lili.core.comprobantes.builder.AutorizacionBuilder;
 import com.calero.lili.core.comprobantes.objetosXml.autorizacionFile.Autorizacion;
 import com.calero.lili.core.comprobantes.objetosXml.factura.Factura;
 import com.calero.lili.core.comprobantes.objetosXml.notaDebito.NotaDebito;
+import com.calero.lili.core.comprobantes.services.dto.CampoAutorizacionDto;
 import com.calero.lili.core.comprobantes.utils.XmlUtils;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.CpLiquidacionesReembolsosEntity;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.CpLiquidacionesReembolsosValoresEntity;
@@ -77,7 +78,7 @@ public class ReembolsoRecibidaServiceImpl {
 
     }
 
-    public Boolean guardarComprobanteLiqReembolso(Long idData, Long idEmpresa, Autorizacion autorizacionDto, String usuario) {
+    public Boolean guardarComprobanteLiqReembolso(Long idData, Long idEmpresa, CampoAutorizacionDto autorizacionDto, String usuario) {
 
 
         String tipoDocumento = tipoDocumento(autorizacionDto.getNumeroAutorizacion());
@@ -112,10 +113,15 @@ public class ReembolsoRecibidaServiceImpl {
     }
 
 
-    private CpLiquidacionesReembolsosEntity validarLiquidacionReembolsoFactura(Long idData, Long idEmpresa, Autorizacion autorizacionDto) {
+    private CpLiquidacionesReembolsosEntity validarLiquidacionReembolsoFactura(Long idData, Long idEmpresa, CampoAutorizacionDto autorizacionDto) {
 
         try {
-            Factura documento = XmlUtils.unmarshalXml(autorizacionDto.getComprobante(), Factura.class);
+            Factura documento = null;
+            if (autorizacionDto.getFormatoDocumento().equals("1")) {
+                documento = XmlUtils.unmarshalXml(autorizacionDto.getComprobante(), Factura.class);
+            } else {
+                documento = autorizacionDto.getFactura();
+            }
             CpLiquidacionesReembolsosEntity reembolso = autorizacionBuilder.builderLiquidacionReembolsoFactura(idData, idEmpresa, autorizacionDto, documento);
             setearTarifaValoresLiqReembolso(reembolso);
             return reembolso;
@@ -126,10 +132,16 @@ public class ReembolsoRecibidaServiceImpl {
     }
 
 
-    private CpLiquidacionesReembolsosEntity validarLiquidacionReembolsoNotaDebito(Long idData, Long idEmpresa, Autorizacion autorizacionDto) {
+    private CpLiquidacionesReembolsosEntity validarLiquidacionReembolsoNotaDebito(Long idData, Long idEmpresa, CampoAutorizacionDto autorizacionDto) {
 
         try {
-            NotaDebito documento = XmlUtils.unmarshalXml(autorizacionDto.getComprobante(), NotaDebito.class);
+            NotaDebito documento = null;
+            if (autorizacionDto.getFormatoDocumento().equals("1")) {
+                documento = XmlUtils.unmarshalXml(autorizacionDto.getComprobante(), NotaDebito.class);
+            } else {
+                documento = autorizacionDto.getNotaDebito();
+            }
+
             CpLiquidacionesReembolsosEntity reembolso = autorizacionBuilder.builderLiquidacionReembolsoNotaDebito(idData, idEmpresa, autorizacionDto, documento);
             setearTarifaValoresLiqReembolso(reembolso);
             return reembolso;

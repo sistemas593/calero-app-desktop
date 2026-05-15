@@ -43,6 +43,7 @@ public class ComprobanteServiceImpl {
     private final CpImpuestosRepository cpImpuestosRepository;
 
 
+    // TODO REVISAR EL EL GUARDADO DEL COMPROBANTE
     public void getComprobanteXmlFactura(Long idData, Long idEmpresa, VtVentaEntity vtVentaEntity) {
 
         if (vtVentaEntity.getFormatoDocumento().equals(FormatoDocumento.E)) {

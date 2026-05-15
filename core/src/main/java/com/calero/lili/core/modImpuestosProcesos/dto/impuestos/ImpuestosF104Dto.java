@@ -61,6 +61,7 @@ public class ImpuestosF104Dto {
     private BigDecimal c483;
     private BigDecimal c484;
     private BigDecimal c485;
+    private BigDecimal c486;
     private BigDecimal c499;
     private BigDecimal c500;
     private BigDecimal c501;
@@ -107,6 +108,7 @@ public class ImpuestosF104Dto {
     private BigDecimal c555;
     private BigDecimal c563;
     private BigDecimal c564;
+    private BigDecimal c565;
     private BigDecimal c601;
     private BigDecimal c602;
     private BigDecimal c603;
@@ -127,7 +129,16 @@ public class ImpuestosF104Dto {
     private BigDecimal c619;
     private BigDecimal c620;
     private BigDecimal c621;
+    private BigDecimal c622;
+    private BigDecimal c624;
+    private BigDecimal c625;
     private BigDecimal c699;
+
+    private BigDecimal c700;
+    private BigDecimal c701;
+    private BigDecimal c702;
+
+
     private BigDecimal c721;
     private BigDecimal c723;
     private BigDecimal c725;

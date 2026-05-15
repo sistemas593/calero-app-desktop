@@ -66,7 +66,8 @@ public class AutorizacionBuilder {
                 .idEmpresa(idEmpresa)
                 .comprobante(model.getComprobante())
                 .numeroAutorizacion(model.getNumeroAutorizacion())
-                .fechaAutorizacion(DateUtils.toLocalDateTime(model.getFechaAutorizacion()))
+                .fechaAutorizacion(Objects.nonNull(model.getFechaAutorizacion())
+                        ? DateUtils.toLocalDateTime(model.getFechaAutorizacion()) : null)
                 .serie(documento.getInfoTributaria().getEstab() + documento.getInfoTributaria().getPtoEmi())
                 .secuencial(documento.getInfoTributaria().getSecuencial())
                 .documento(builderTipoDocumento(CodigoDocumento.FACTURA))
@@ -105,7 +106,8 @@ public class AutorizacionBuilder {
                 .idEmpresa(idEmpresa)
                 .comprobante(model.getComprobante())
                 .numeroAutorizacion(model.getNumeroAutorizacion())
-                .fechaAutorizacion(DateUtils.toLocalDateTime(model.getFechaAutorizacion()))
+                .fechaAutorizacion(Objects.nonNull(model.getFechaAutorizacion())
+                        ? DateUtils.toLocalDateTime(model.getFechaAutorizacion()) : null)
                 .serie(documento.getInfoTributaria().getEstab() + documento.getInfoTributaria().getPtoEmi())
                 .secuencial(documento.getInfoTributaria().getSecuencial())
                 .fechaEmision(DateUtils.toLocalDate(documento.getInfoNotaCredito().getFechaEmision()))
@@ -125,7 +127,8 @@ public class AutorizacionBuilder {
                 .idEmpresa(idEmpresa)
                 .comprobante(model.getComprobante())
                 .numeroAutorizacion(model.getNumeroAutorizacion())
-                .fechaAutorizacion(DateUtils.toLocalDateTime(model.getFechaAutorizacion()))
+                .fechaAutorizacion(Objects.nonNull(model.getFechaAutorizacion())
+                        ? DateUtils.toLocalDateTime(model.getFechaAutorizacion()) : null)
                 .serie(documento.getInfoTributaria().getEstab() + documento.getInfoTributaria().getPtoEmi())
                 .secuencial(documento.getInfoTributaria().getSecuencial())
                 .fechaEmision(DateUtils.toLocalDate(documento.getInfoNotaDebito().getFechaEmision()))
@@ -145,7 +148,8 @@ public class AutorizacionBuilder {
                 .idEmpresa(idEmpresa)
                 .comprobante(model.getComprobante())
                 .numeroAutorizacionRetencion(model.getNumeroAutorizacion())
-                .fechaAutorizacion(DateUtils.toLocalDateTime(model.getFechaAutorizacion()))
+                .fechaAutorizacion(Objects.nonNull(model.getFechaAutorizacion())
+                        ? DateUtils.toLocalDateTime(model.getFechaAutorizacion()) : null)
                 .serieRetencion(documento.getInfoTributaria().getEstab() + documento.getInfoTributaria().getPtoEmi())
                 .secuencialRetencion(documento.getInfoTributaria().getSecuencial())
                 .fechaEmisionRetencion(DateUtils.toLocalDate(documento.getInfoCompRetencion().getFechaEmision()))
@@ -168,7 +172,8 @@ public class AutorizacionBuilder {
                 .idEmpresa(idEmpresa)
                 .comprobante(model.getComprobante())
                 .numeroAutorizacionRetencion(model.getNumeroAutorizacion())
-                .fechaAutorizacion(DateUtils.toLocalDateTime(model.getFechaAutorizacion()))
+                .fechaAutorizacion(Objects.nonNull(model.getFechaAutorizacion())
+                        ? DateUtils.toLocalDateTime(model.getFechaAutorizacion()) : null)
                 .serieRetencion(documento.getInfoTributaria().getEstab() + documento.getInfoTributaria().getPtoEmi())
                 .secuencialRetencion(documento.getInfoTributaria().getSecuencial())
                 .fechaEmisionRetencion(DateUtils.toLocalDate(documento.getInfoCompRetencion().getFechaEmision()))
@@ -231,7 +236,7 @@ public class AutorizacionBuilder {
     }
 
 
-    public CpRetencionesEntity builderRetencionEmitidaDos(Autorizacion model, ComprobanteRetencion documento,
+    public CpRetencionesEntity builderRetencionEmitidaDos(CampoAutorizacionDto model, ComprobanteRetencion documento,
                                                           Long idData, Long idEmpresa, GeTerceroEntity proveedor,
                                                           BigDecimal total) {
         return CpRetencionesEntity.builder()
@@ -240,7 +245,8 @@ public class AutorizacionBuilder {
                 .idEmpresa(idEmpresa)
                 .comprobante(model.getComprobante())
                 .numeroAutorizacionRetencion(model.getNumeroAutorizacion())
-                .fechaAutorizacion(DateUtils.toLocalDateTime(model.getFechaAutorizacion()))
+                .fechaAutorizacion(Objects.nonNull(model.getFechaAutorizacion())
+                        ? DateUtils.toLocalDateTime(model.getFechaAutorizacion()) : null)
                 .serieRetencion(documento.getInfoTributaria().getEstab() + documento.getInfoTributaria().getPtoEmi())
                 .secuencialRetencion(documento.getInfoTributaria().getSecuencial())
                 .fechaEmisionRetencion(DateUtils.toLocalDate(documento.getInfoCompRetencion().getFechaEmision()))
@@ -263,7 +269,7 @@ public class AutorizacionBuilder {
     }
 
 
-    public CpRetencionesEntity builderRetencionEmitidaUno(Autorizacion model,
+    public CpRetencionesEntity builderRetencionEmitidaUno(CampoAutorizacionDto model,
                                                           com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencionV1.ComprobanteRetencion documento,
                                                           Long idData, Long idEmpresa, GeTerceroEntity proveedor,
                                                           BigDecimal total) {
@@ -273,7 +279,8 @@ public class AutorizacionBuilder {
                 .idEmpresa(idEmpresa)
                 .comprobante(model.getComprobante())
                 .numeroAutorizacionRetencion(model.getNumeroAutorizacion())
-                .fechaAutorizacion(DateUtils.toLocalDateTime(model.getFechaAutorizacion()))
+                .fechaAutorizacion(Objects.nonNull(model.getFechaAutorizacion())
+                        ? DateUtils.toLocalDateTime(model.getFechaAutorizacion()) : null)
                 .serieRetencion(documento.getInfoTributaria().getEstab() + documento.getInfoTributaria().getPtoEmi())
                 .secuencialRetencion(documento.getInfoTributaria().getSecuencial())
                 .fechaEmisionRetencion(DateUtils.toLocalDate(documento.getInfoCompRetencion().getFechaEmision()))
@@ -463,7 +470,7 @@ public class AutorizacionBuilder {
     }
 
     public CpLiquidacionesReembolsosEntity builderLiquidacionReembolsoFactura(Long idData, Long idEmpresa,
-                                                                              Autorizacion model, Factura documento) {
+                                                                              CampoAutorizacionDto model, Factura documento) {
 
         return CpLiquidacionesReembolsosEntity.builder()
                 .idLiquidacionReembolsos(UUID.randomUUID())
@@ -480,12 +487,13 @@ public class AutorizacionBuilder {
                 .reembolsosValores(builderListValoresReembolsoFactura(documento.getInfoFactura(), idData, idEmpresa))
                 .fechaEmisionReemb(DateUtils.toLocalDate(documento.getInfoFactura().getFechaEmision()))
                 .pais(TbPaisEntity.builder().codigoPais("593").build())
-                .fechaAutorizacionReemb(DateUtils.toLocalDateTime(model.getFechaAutorizacion()))
+                .fechaAutorizacionReemb(Objects.nonNull(model.getFechaAutorizacion())
+                        ? DateUtils.toLocalDateTime(model.getFechaAutorizacion()) : null)
                 .build();
     }
 
     public CpLiquidacionesReembolsosEntity builderLiquidacionReembolsoNotaDebito(Long idData, Long idEmpresa,
-                                                                                 Autorizacion model, NotaDebito documento) {
+                                                                                 CampoAutorizacionDto model, NotaDebito documento) {
 
         return CpLiquidacionesReembolsosEntity.builder()
                 .idLiquidacionReembolsos(UUID.randomUUID())
@@ -502,7 +510,8 @@ public class AutorizacionBuilder {
                 .reembolsosValores(builderListValoresReembolsoNotaDebito(documento.getInfoNotaDebito(), idData, idEmpresa))
                 .fechaEmisionReemb(DateUtils.toLocalDate(documento.getInfoNotaDebito().getFechaEmision()))
                 .pais(TbPaisEntity.builder().codigoPais("593").build())
-                .fechaAutorizacionReemb(DateUtils.toLocalDateTime(model.getFechaAutorizacion()))
+                .fechaAutorizacionReemb(Objects.nonNull(model.getFechaAutorizacion())
+                        ? DateUtils.toLocalDateTime(model.getFechaAutorizacion()) : null)
                 .build();
     }
 
@@ -581,7 +590,7 @@ public class AutorizacionBuilder {
                 .codigoPorcentaje(model.getCodigoPorcentaje())
                 .baseImponible(new BigDecimal(model.getBaseImponible()))
                 .valor(new BigDecimal(model.getValor()))
-               // .tarifa(model.getT)
+                // .tarifa(model.getT)
                 .build();
     }
 

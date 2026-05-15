@@ -122,7 +122,7 @@ public class DeRecibidasComponentsServiceImpl {
             String message = ""; //validarEmpresaNotaDebito(documento, idEmpresa, idData);
 
             if (message.isEmpty()) {
-                CpImpuestosEntity notaDebito = validarNotaDebito(idData, idEmpresa, documento, autorizacionDto);
+                CpImpuestosEntity notaDebito = validarNotaDebito(idData, idEmpresa, documento, autorizacionDto, usuario);
                 if (Objects.nonNull(notaDebito)) {
                     notaDebito.setCreatedBy(usuario);
                     notaDebito.setCreatedDate(LocalDateTime.now());
@@ -151,7 +151,7 @@ public class DeRecibidasComponentsServiceImpl {
 
             String message = ""; //validarEmpresaNotaCredito(documento, idEmpresa, idData);
             if (message.isEmpty()) {
-                CpImpuestosEntity notaCredito = validarNotaCredito(idData, idEmpresa, documento, autorizacionDto);
+                CpImpuestosEntity notaCredito = validarNotaCredito(idData, idEmpresa, documento, autorizacionDto, usuario);
                 if (Objects.nonNull(notaCredito)) {
                     notaCredito.setCreatedBy(usuario);
                     notaCredito.setCreatedDate(LocalDateTime.now());
@@ -181,7 +181,7 @@ public class DeRecibidasComponentsServiceImpl {
 
             String message = ""; //validacionEmpresaFactura(documento, idEmpresa, idData);
             if (message.isEmpty()) {
-                CpImpuestosEntity factura = validarFactura(idData, idEmpresa, documento, autorizacionDto);
+                CpImpuestosEntity factura = validarFactura(idData, idEmpresa, documento, autorizacionDto, usuario);
                 if (Objects.nonNull(factura)) {
                     factura.setCreatedBy(usuario);
                     factura.setCreatedDate(LocalDateTime.now());
@@ -370,11 +370,12 @@ public class DeRecibidasComponentsServiceImpl {
     }
 
 
-    private CpImpuestosEntity validarFactura(Long idData, Long idEmpresa, Factura documento, CampoAutorizacionDto autorizacionDto) {
+    private CpImpuestosEntity validarFactura(Long idData, Long idEmpresa, Factura documento,
+                                             CampoAutorizacionDto autorizacionDto, String usuario) {
 
         try {
             CpImpuestosEntity cpImpuestosEntity = autorizacionBuilder.builderFactura(autorizacionDto, documento, idData, idEmpresa,
-                    validarProveedor(documento.getInfoTributaria(), idData));
+                    validarProveedor(documento.getInfoTributaria(), idData, usuario));
             validarValoresFactura(documento, cpImpuestosEntity, idData, idEmpresa);
             return cpImpuestosEntity;
         } catch (Exception ex) {
@@ -383,10 +384,11 @@ public class DeRecibidasComponentsServiceImpl {
         }
     }
 
-    private CpImpuestosEntity validarNotaCredito(Long idData, Long idEmpresa, NotaCredito documento, CampoAutorizacionDto autorizacionDto) {
+    private CpImpuestosEntity validarNotaCredito(Long idData, Long idEmpresa, NotaCredito documento,
+                                                 CampoAutorizacionDto autorizacionDto, String usuario) {
         try {
             CpImpuestosEntity cpImpuestosEntity = autorizacionBuilder.builderNotaCredito(autorizacionDto, documento, idData, idEmpresa,
-                    validarProveedor(documento.getInfoTributaria(), idData));
+                    validarProveedor(documento.getInfoTributaria(), idData, usuario));
             validarValoresNotaCredito(documento, cpImpuestosEntity, idData, idEmpresa);
             return cpImpuestosEntity;
         } catch (Exception ex) {
@@ -396,10 +398,11 @@ public class DeRecibidasComponentsServiceImpl {
     }
 
 
-    private CpImpuestosEntity validarNotaDebito(Long idData, Long idEmpresa, NotaDebito documento, CampoAutorizacionDto autorizacionDto) {
+    private CpImpuestosEntity validarNotaDebito(Long idData, Long idEmpresa, NotaDebito documento,
+                                                CampoAutorizacionDto autorizacionDto, String usuario) {
         try {
             CpImpuestosEntity cpImpuestosEntity = autorizacionBuilder.builderNotaDebito(autorizacionDto, documento, idData, idEmpresa,
-                    validarProveedor(documento.getInfoTributaria(), idData));
+                    validarProveedor(documento.getInfoTributaria(), idData, usuario));
             validarValoresNotaDebito(documento, cpImpuestosEntity, idData, idEmpresa);
             return cpImpuestosEntity;
         } catch (Exception ex) {
@@ -458,7 +461,7 @@ public class DeRecibidasComponentsServiceImpl {
     }
 
 
-    private GeTerceroEntity validarProveedor(InfoTributaria model, Long idData) {
+    private GeTerceroEntity validarProveedor(InfoTributaria model, Long idData, String usuario) {
         Optional<GeTerceroEntity> cpProveedorEntity = geTercerosRepository
                 .getFindExistByNumeroIdentificacion(idData, model.getRuc());
 
@@ -476,7 +479,10 @@ public class DeRecibidasComponentsServiceImpl {
             }
         }
 
-        return saveTipoProveedor(geTercerosRepository.save(autorizacionBuilder.builderProveedor(model, idData)));
+        GeTerceroEntity tercero = autorizacionBuilder.builderProveedor(model, idData);
+        tercero.setCreatedDate(LocalDateTime.now());
+        tercero.setCreatedBy(usuario);
+        return saveTipoProveedor(geTercerosRepository.save(tercero));
     }
 
     private GeTerceroEntity saveTipoProveedor(GeTerceroEntity geTerceroEntity) {

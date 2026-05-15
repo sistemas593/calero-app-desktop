@@ -41,11 +41,13 @@ public class DeRecibidasServiceImpl {
 
     public CpImpuestosRecibirListCreationResponseDto createFiles(Long idData, Long idEmpresa,
                                                                  List<MultipartFile> files,
-                                                                 String usuario, String tipoFormato) {
+                                                                 String usuario) {
 
 
         List<CpImpuestosRecibirResponseDto> listaRespuestas = new ArrayList<>();
         for (MultipartFile file : files) {
+
+            String tipoFormato = XmlUtils.validarTipoFormatoDoc(file);
             String nameFile = XmlUtils.getNameForFile(file);
 
 
@@ -59,7 +61,7 @@ public class DeRecibidasServiceImpl {
                     Autorizacion documento = XmlUtils.readFileXml(file);
                     model = campoAutorizacionBuilder.builder(documento);
                     model.setFormatoDocumento(tipoFormato);
-                } else {
+                } else if (tipoFormato.equals("2")) {
 
                     DocumentoDto documento = obtenerTipoDocumento(file, nameFile);
                     switch (documento.getTipoDocumento()) {

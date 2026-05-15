@@ -64,7 +64,7 @@ public class AdDatasController {
     }
 
 
-    @GetMapping("cliente-configuracion/{idData}")
+    @GetMapping("configuracion-datas/{idData}")
     @ResponseStatus(HttpStatus.OK)
     public VtClientesConfiguracionesGetOneDto findByIdDataConfiguracion(@PathVariable("idData") Long idData) {
         return adDatasService.findByIdDataConfiguracion(idData);

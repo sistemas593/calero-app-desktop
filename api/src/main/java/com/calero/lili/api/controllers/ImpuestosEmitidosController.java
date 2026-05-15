@@ -28,7 +28,6 @@ public class ImpuestosEmitidosController {
     private final IdDataServiceImpl idDataService;
     private final AuditorAwareImpl auditorAware;
 
-    // Correción no volver a guardar el tipo tercero.
 
     @PostMapping("files/{idEmpresa}")
     @ResponseStatus(HttpStatus.CREATED)

@@ -1,16 +1,16 @@
 package com.calero.lili.core.comprobantesWs.services;
 
 import autorizacion.ws.sri.gob.ec.RespuestaComprobante;
-
 import com.calero.lili.core.comprobantes.objetosXml.autorizacionFile.Autorizacion;
 import com.calero.lili.core.comprobantes.objetosXml.autorizacionFile.Mensaje;
 import com.calero.lili.core.comprobantes.services.DeEmitidasComponentsServiceImpl;
+import com.calero.lili.core.comprobantes.services.builder.CampoAutorizacionBuilder;
+import com.calero.lili.core.comprobantesWs.ws.dtos.autorizacion.AutorizacionRequestDto;
+import com.calero.lili.core.comprobantesWs.ws.services.AutorizacionServiceImpl;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirListCreationRequestDto;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirListCreationResponseDto;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirListExistRequestResponseDto;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirResponseDto;
-import com.calero.lili.core.comprobantesWs.ws.dtos.autorizacion.AutorizacionRequestDto;
-import com.calero.lili.core.comprobantesWs.ws.services.AutorizacionServiceImpl;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +29,7 @@ public class DeEmitidasWsServiceImpl {
     @Autowired
     private final AutorizacionServiceImpl autorizacionService;
     private final DeEmitidasComponentsServiceImpl deEmitidasComponentsService;
+    private final CampoAutorizacionBuilder campoAutorizacionBuilder;
 
     public CpImpuestosRecibirListExistRequestResponseDto verificarExisteListaClaves(Long idData, Long idEmpresa, CpImpuestosRecibirListExistRequestResponseDto request) {
         log.info("xxxxxx");
@@ -88,7 +89,8 @@ public class DeEmitidasWsServiceImpl {
                             Autorizacion autorizacionDto = ProcesarClavesAutorizadoSri(listaAutorizaciones, listaRespuestas);
                             if (autorizacionDto.getEstado() != null) {
 
-                                String message = deEmitidasComponentsService.guardarComprobante(idData, idEmpresa, autorizacionDto, "001", usuario);
+                                String message = deEmitidasComponentsService.guardarComprobante(idData, idEmpresa,
+                                        campoAutorizacionBuilder.builder(autorizacionDto), "001", usuario);
 
                                 if (!message.isEmpty()) {
                                     listaRespuestas.add(CpImpuestosRecibirResponseDto.builder()

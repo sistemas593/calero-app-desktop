@@ -13,6 +13,7 @@ import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
 import org.springframework.web.multipart.MultipartFile;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -21,6 +22,7 @@ import javax.xml.transform.stream.StreamSource;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.text.MessageFormat;
 
 public class XmlUtils {
 
@@ -80,7 +82,7 @@ public class XmlUtils {
     }
 
 
-    public static Factura getFactura(Autorizacion autorizacionDto) {
+    public static Factura getFactura(CampoAutorizacionDto autorizacionDto) {
         try {
             return XmlUtils.unmarshalXml(autorizacionDto.getComprobante(), Factura.class);
         } catch (Exception exception) {
@@ -96,7 +98,7 @@ public class XmlUtils {
         }
     }
 
-    public static NotaCredito getNotaCredito(Autorizacion autorizacionDto) {
+    public static NotaCredito getNotaCredito(CampoAutorizacionDto autorizacionDto) {
         try {
             return XmlUtils.unmarshalXml(autorizacionDto.getComprobante(), NotaCredito.class);
         } catch (Exception exception) {
@@ -131,6 +133,29 @@ public class XmlUtils {
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
             throw new GeneralException("No se pudo leer el XML");
+        }
+    }
+
+    public static String validarTipoFormatoDoc(MultipartFile file) {
+        try (InputStream inputStream = file.getInputStream()) {
+
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(false);
+
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document document = builder.parse(inputStream);
+
+            Element root = document.getDocumentElement();
+
+            if ("autorizacion".equals(root.getNodeName())) {
+                return "1";
+            } else {
+                return "2";
+            }
+
+        } catch (Exception e) {
+            throw new GeneralException(MessageFormat.format("El formato del documento con nombre " +
+                    "{0} no es válido", file.getOriginalFilename()));
         }
     }
 

@@ -6,6 +6,7 @@ import com.calero.lili.core.comprobantes.objetosXml.factura.Factura;
 import com.calero.lili.core.comprobantes.objetosXml.notaCredito.NotaCredito;
 import com.calero.lili.core.comprobantes.objetosXml.notaDebito.NotaDebito;
 import com.calero.lili.core.comprobantes.services.dto.CampoAutorizacionDto;
+import com.calero.lili.core.comprobantes.utils.XmlUtils;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -25,6 +26,7 @@ public class CampoAutorizacionBuilder {
                 .numeroAutorizacion(documento.getInfoTributaria().getClaveAcceso())
                 .fechaAutorizacion(null)
                 .factura(documento)
+                .comprobante(XmlUtils.convertToXmlString(Factura.class, documento))
                 .build();
     }
 
@@ -33,6 +35,7 @@ public class CampoAutorizacionBuilder {
                 .numeroAutorizacion(documento.getInfoTributaria().getClaveAcceso())
                 .fechaAutorizacion(null)
                 .notaCredito(documento)
+                .comprobante(XmlUtils.convertToXmlString(NotaCredito.class, documento))
                 .build();
     }
 
@@ -41,6 +44,7 @@ public class CampoAutorizacionBuilder {
                 .numeroAutorizacion(documento.getInfoTributaria().getClaveAcceso())
                 .fechaAutorizacion(null)
                 .notaDebito(documento)
+                .comprobante(XmlUtils.convertToXmlString(NotaDebito.class, documento))
                 .build();
     }
 
@@ -49,6 +53,7 @@ public class CampoAutorizacionBuilder {
                 .numeroAutorizacion(retencionUno.getInfoTributaria().getClaveAcceso())
                 .fechaAutorizacion(null)
                 .comprobanteRetencionV1(retencionUno)
+                .comprobante(XmlUtils.convertToXmlString(ComprobanteRetencion.class, retencionUno))
                 .build();
     }
 
@@ -57,6 +62,7 @@ public class CampoAutorizacionBuilder {
                 .numeroAutorizacion(retencionDos.getInfoTributaria().getClaveAcceso())
                 .fechaAutorizacion(null)
                 .comprobanteRetencionV2(retencionDos)
+                .comprobante(XmlUtils.convertToXmlString(com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencion.ComprobanteRetencion.class, retencionDos))
                 .build();
     }
 }

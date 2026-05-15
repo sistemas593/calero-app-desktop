@@ -10,6 +10,7 @@ import com.calero.lili.core.comprobantes.objetosXml.factura.Detalle;
 import com.calero.lili.core.comprobantes.objetosXml.factura.Factura;
 import com.calero.lili.core.comprobantes.objetosXml.factura.InfoTributaria;
 import com.calero.lili.core.comprobantes.objetosXml.notaCredito.NotaCredito;
+import com.calero.lili.core.comprobantes.services.dto.CampoAutorizacionDto;
 import com.calero.lili.core.comprobantes.utils.XmlUtils;
 import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.enums.TipoTercero;
@@ -95,7 +96,7 @@ public class DeEmitidasComponentsServiceImpl {
     }
 
 
-    public String guardarComprobante(Long idData, Long idEmpresa, Autorizacion autorizacionDto, String sucursal, String usuario) {
+    public String guardarComprobante(Long idData, Long idEmpresa, CampoAutorizacionDto autorizacionDto, String sucursal, String usuario) {
 
         if (esRetencion(autorizacionDto.getNumeroAutorizacion())) {
             return guardarRetencion(idData, idEmpresa, autorizacionDto, usuario);
@@ -112,8 +113,15 @@ public class DeEmitidasComponentsServiceImpl {
         return MensajeComprobante.ERR_EL_DOCUMENTO_NO_CORRESPONDE;
     }
 
-    private String guardarNotaCredito(Long idData, Long idEmpresa, Autorizacion autorizacionDto, String sucursal, String usuario) {
-        NotaCredito documento = XmlUtils.getNotaCredito(autorizacionDto);
+    private String guardarNotaCredito(Long idData, Long idEmpresa, CampoAutorizacionDto autorizacionDto, String sucursal, String usuario) {
+
+        NotaCredito documento = null;
+        if (autorizacionDto.getFormatoDocumento().equals("1")) {
+            documento = XmlUtils.getNotaCredito(autorizacionDto);
+        } else {
+            documento = autorizacionDto.getNotaCredito();
+        }
+
         if (Objects.nonNull(documento)) {
             String message = ""; //validarEmpresa(documento.getInfoTributaria().getRuc(), idEmpresa, idData);
 
@@ -132,9 +140,14 @@ public class DeEmitidasComponentsServiceImpl {
     }
 
 
-    private String guardarFactura(Long idData, Long idEmpresa, Autorizacion autorizacionDto, String sucursal, String usuario) {
+    private String guardarFactura(Long idData, Long idEmpresa, CampoAutorizacionDto autorizacionDto, String sucursal, String usuario) {
+        Factura documento = null;
+        if (autorizacionDto.getFormatoDocumento().equals("1")) {
+            documento = XmlUtils.getFactura(autorizacionDto);
+        } else {
+            documento = autorizacionDto.getFactura();
+        }
 
-        Factura documento = XmlUtils.getFactura(autorizacionDto);
         if (Objects.nonNull(documento)) {
 
             String message = "";//validarEmpresa(documento.getInfoTributaria().getRuc(), idEmpresa, idData);
@@ -154,7 +167,7 @@ public class DeEmitidasComponentsServiceImpl {
         return MensajeComprobante.ERR_LEER_DOCUMENTO_INTERNO;
     }
 
-    private String guardarRetencion(Long idData, Long idEmpresa, Autorizacion autorizacionDto, String usuario) {
+    private String guardarRetencion(Long idData, Long idEmpresa, CampoAutorizacionDto autorizacionDto, String usuario) {
 
         String validacion = validarRetencion(autorizacionDto.getNumeroAutorizacion());
 
@@ -169,8 +182,8 @@ public class DeEmitidasComponentsServiceImpl {
                 if (existingFactura.isEmpty()) {
 
                     String version = XmlUtils.obtenerVersionXml(autorizacionDto.getComprobante());
-
                     if (ConstantesDocumento.VERSION_1_0_0.equals(version)) {
+
                         return saveRetencionVersionUno(autorizacionDto, idEmpresa, idData, usuario);
                     } else {
                         return saveRetencionVersionDos(autorizacionDto, idEmpresa, idData, usuario);
@@ -181,14 +194,22 @@ public class DeEmitidasComponentsServiceImpl {
         return validacion;
     }
 
-    private String saveRetencionVersionDos(Autorizacion autorizacionDto, Long idEmpresa, Long idData, String usuario) {
+    private String saveRetencionVersionDos(CampoAutorizacionDto autorizacionDto, Long idEmpresa, Long idData, String usuario) {
 
-        ComprobanteRetencion documento = getComprobanteRetencion(autorizacionDto);
+
+        ComprobanteRetencion documento = null;
+        if (autorizacionDto.getFormatoDocumento().equals("1")) {
+            documento = getComprobanteRetencion(autorizacionDto);
+        } else {
+            documento = autorizacionDto.getComprobanteRetencionV2();
+        }
+
+
         if (Objects.nonNull(documento)) {
 
             String message = "";//validarEmpresa(documento.getInfoTributaria().getRuc(), idEmpresa, idData);
             if (message.isEmpty()) {
-                CpRetencionesEntity entidad = validarRetencionDos(idData, idEmpresa, documento, autorizacionDto);
+                CpRetencionesEntity entidad = validarRetencionDos(idData, idEmpresa, documento, autorizacionDto, usuario);
                 if (Objects.nonNull(entidad)) {
                     entidad.setCreatedBy(usuario);
                     entidad.setCreatedDate(LocalDateTime.now());
@@ -203,14 +224,20 @@ public class DeEmitidasComponentsServiceImpl {
 
     }
 
-    private String saveRetencionVersionUno(Autorizacion autorizacionDto, Long idEmpresa, Long idData, String usuario) {
+    private String saveRetencionVersionUno(CampoAutorizacionDto autorizacionDto, Long idEmpresa, Long idData, String usuario) {
 
-        com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencionV1.ComprobanteRetencion documento = getComprobanteRetencionUno(autorizacionDto);
+        com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencionV1.ComprobanteRetencion documento = null;
+        if (autorizacionDto.getFormatoDocumento().equals("1")) {
+            documento = getComprobanteRetencionUno(autorizacionDto);
+        } else {
+            documento = autorizacionDto.getComprobanteRetencionV1();
+        }
+
         if (Objects.nonNull(documento)) {
 
             String message = "";//validarEmpresa(documento.getInfoTributaria().getRuc(), idEmpresa, idData);
             if (message.isEmpty()) {
-                CpRetencionesEntity entidad = validarRetencionUno(idData, idEmpresa, documento, autorizacionDto);
+                CpRetencionesEntity entidad = validarRetencionUno(idData, idEmpresa, documento, autorizacionDto, usuario);
                 if (Objects.nonNull(entidad)) {
                     entidad.setCreatedBy(usuario);
                     entidad.setCreatedDate(LocalDateTime.now());
@@ -255,12 +282,12 @@ public class DeEmitidasComponentsServiceImpl {
 
     private CpRetencionesEntity validarRetencionDos(Long idData, Long idEmpresa,
                                                     ComprobanteRetencion documento,
-                                                    Autorizacion autorizacionDto) {
+                                                    CampoAutorizacionDto autorizacionDto, String usuario) {
         try {
 
             BigDecimal total = obtenerTotalRetenidoDos(documento);
             CpRetencionesEntity retencion = autorizacionBuilder.builderRetencionEmitidaDos(autorizacionDto, documento, idData, idEmpresa,
-                    validarProveedor(documento.getInfoTributaria(), idData), total);
+                    validarProveedor(documento.getInfoTributaria(), idData, usuario), total);
             validarPeriodoFiscal(retencion);
             return retencion;
         } catch (Exception ex) {
@@ -271,12 +298,12 @@ public class DeEmitidasComponentsServiceImpl {
 
     private CpRetencionesEntity validarRetencionUno(Long idData, Long idEmpresa,
                                                     com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencionV1.ComprobanteRetencion documento,
-                                                    Autorizacion autorizacionDto) {
+                                                    CampoAutorizacionDto autorizacionDto, String usuario) {
         try {
 
             BigDecimal total = obtenerTotalRetenidoUno(documento);
             CpRetencionesEntity retencion = autorizacionBuilder.builderRetencionEmitidaUno(autorizacionDto, documento, idData, idEmpresa,
-                    validarProveedor(documento.getInfoTributaria(), idData), total);
+                    validarProveedor(documento.getInfoTributaria(), idData, usuario), total);
             validarPeriodoFiscal(retencion);
             return retencion;
         } catch (Exception ex) {
@@ -286,7 +313,7 @@ public class DeEmitidasComponentsServiceImpl {
     }
 
 
-    private ComprobanteRetencion getComprobanteRetencion(Autorizacion autorizacionDto) {
+    private ComprobanteRetencion getComprobanteRetencion(CampoAutorizacionDto autorizacionDto) {
         try {
             return XmlUtils.unmarshalXml(autorizacionDto.getComprobante(), ComprobanteRetencion.class);
         } catch (Exception exception) {
@@ -296,9 +323,10 @@ public class DeEmitidasComponentsServiceImpl {
     }
 
 
-    private com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencionV1.ComprobanteRetencion getComprobanteRetencionUno(Autorizacion autorizacionDto) {
+    private com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencionV1.ComprobanteRetencion getComprobanteRetencionUno(CampoAutorizacionDto autorizacionDto) {
         try {
-            return XmlUtils.unmarshalXml(autorizacionDto.getComprobante(), com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencionV1.ComprobanteRetencion.class);
+            return XmlUtils.unmarshalXml(autorizacionDto.getComprobante(),
+                    com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencionV1.ComprobanteRetencion.class);
         } catch (Exception exception) {
             log.info(exception.getMessage());
             return null;
@@ -320,7 +348,7 @@ public class DeEmitidasComponentsServiceImpl {
     }
 
 
-    private GeTerceroEntity validarProveedor(InfoTributaria model, Long idData) {
+    private GeTerceroEntity validarProveedor(InfoTributaria model, Long idData, String usuario) {
         Optional<GeTerceroEntity> cpProveedorEntity = cpProveedoresRepository
                 .getFindExistByNumeroIdentificacion(idData, model.getRuc());
 
@@ -339,8 +367,10 @@ public class DeEmitidasComponentsServiceImpl {
             }
         }
 
-        return saveGeTercero(cpProveedoresRepository
-                .save(autorizacionBuilder.builderProveedor(model, idData)), TipoTercero.PROVEEDOR);
+        GeTerceroEntity tercero = autorizacionBuilder.builderProveedor(model, idData);
+        tercero.setCreatedBy(usuario);
+        tercero.setCreatedDate(LocalDateTime.now());
+        return saveGeTercero(cpProveedoresRepository.save(tercero), TipoTercero.PROVEEDOR);
     }
 
     private void saveGeTerceroTipoProveedor(GeTerceroEntity geTerceroEntity) {
@@ -378,9 +408,9 @@ public class DeEmitidasComponentsServiceImpl {
                     documento.getInfoFactura().getIdentificacionComprador(),
                     documento.getInfoFactura().getRazonSocialComprador(),
                     documento.getInfoFactura().getTipoIdentificacionComprador(),
-                    documento.getInfoFactura().getDireccionComprador());
+                    documento.getInfoFactura().getDireccionComprador(), usuario);
 
-            Map<String, GeItemEntity> listaItems = validarListDetalleFactura(idData, idEmpresa, documento.getDetalle());
+            Map<String, GeItemEntity> listaItems = validarListDetalleFactura(idData, idEmpresa, documento.getDetalle(), usuario);
             VtVentaEntity factura = autorizacionBuilder.builderFacturaVenta(idData, idEmpresa, documento, tercero, sucursal, comprobante);
 
             BigDecimal totalImpuesto = documento.getInfoFactura()
@@ -419,9 +449,9 @@ public class DeEmitidasComponentsServiceImpl {
             GeTerceroEntity tercero = validarCliente(idData, documento.getInfoNotaCredito().getIdentificacionComprador(),
                     documento.getInfoNotaCredito().getRazonSocialComprador(),
                     documento.getInfoNotaCredito().getTipoIdentificacionComprador(),
-                    documento.getInfoNotaCredito().getDirEstablecimiento());
+                    documento.getInfoNotaCredito().getDirEstablecimiento(), usuario);
 
-            Map<String, GeItemEntity> listaItems = validarListDetalleNotaCredito(idData, idEmpresa, documento.getDetalle());
+            Map<String, GeItemEntity> listaItems = validarListDetalleNotaCredito(idData, idEmpresa, documento.getDetalle(), usuario);
 
             BigDecimal totalImpuesto = documento.getInfoNotaCredito().getTotalImpuesto()
                     .stream()
@@ -453,7 +483,9 @@ public class DeEmitidasComponentsServiceImpl {
         }
     }
 
-    private Map<String, GeItemEntity> validarListDetalleNotaCredito(Long idData, Long idEmpresa, List<com.calero.lili.core.comprobantes.objetosXml.notaCredito.Detalle> detalles) {
+    private Map<String, GeItemEntity> validarListDetalleNotaCredito(Long idData, Long idEmpresa,
+                                                                    List<com.calero.lili.core.comprobantes.objetosXml.notaCredito.Detalle> detalles,
+                                                                    String usuario) {
         Map<String, GeItemEntity> lista = new HashMap<>();
         for (com.calero.lili.core.comprobantes.objetosXml.notaCredito.Detalle detalle : detalles) {
 
@@ -463,8 +495,11 @@ public class DeEmitidasComponentsServiceImpl {
             if (item.isPresent()) {
                 lista.put(item.get().getCodigoPrincipal(), item.get());
             } else {
-                GeItemEntity geItemEntity = geItemsRepository.save(autorizacionBuilder.builderNotaCreditoItem(detalle,
-                        idData, idEmpresa));
+                GeItemEntity itemEntity = autorizacionBuilder.builderNotaCreditoItem(detalle,
+                        idData, idEmpresa);
+                itemEntity.setCreatedDate(LocalDateTime.now());
+                itemEntity.setCreatedBy(usuario);
+                GeItemEntity geItemEntity = geItemsRepository.save(itemEntity);
                 lista.put(geItemEntity.getCodigoPrincipal(), geItemEntity);
             }
 
@@ -474,7 +509,7 @@ public class DeEmitidasComponentsServiceImpl {
     }
 
 
-    private Map<String, GeItemEntity> validarListDetalleFactura(Long idData, Long idEmpresa, List<Detalle> detalles) {
+    private Map<String, GeItemEntity> validarListDetalleFactura(Long idData, Long idEmpresa, List<Detalle> detalles, String usuario) {
 
         Map<String, GeItemEntity> lista = new HashMap<>();
         for (Detalle detalle : detalles) {
@@ -485,8 +520,11 @@ public class DeEmitidasComponentsServiceImpl {
             if (item.isPresent()) {
                 lista.put(item.get().getCodigoPrincipal(), item.get());
             } else {
-                GeItemEntity geItemEntity = geItemsRepository.save(autorizacionBuilder.builderFacturaItem(detalle,
-                        idData, idEmpresa));
+                GeItemEntity geItem = autorizacionBuilder.builderFacturaItem(detalle,
+                        idData, idEmpresa);
+                geItem.setCreatedDate(LocalDateTime.now());
+                geItem.setCreatedBy(usuario);
+                GeItemEntity geItemEntity = geItemsRepository.save(geItem);
                 lista.put(geItemEntity.getCodigoPrincipal(), geItemEntity);
             }
 
@@ -496,7 +534,7 @@ public class DeEmitidasComponentsServiceImpl {
     }
 
     private GeTerceroEntity validarCliente(Long idData, String numeroIdentificacion, String razonSocial,
-                                           String tipoIdentificacion, String direccion) {
+                                           String tipoIdentificacion, String direccion, String usuario) {
 
         Optional<GeTerceroEntity> cpCliente = cpProveedoresRepository
                 .getFindExistByNumeroIdentificacion(idData, numeroIdentificacion);
@@ -518,9 +556,11 @@ public class DeEmitidasComponentsServiceImpl {
             }
         }
 
-        return saveGeTercero(cpProveedoresRepository
-                .save(autorizacionBuilder.builderClienteEmitidas(idData, numeroIdentificacion,
-                        razonSocial, tipIdent, direccion)), TipoTercero.CLIENTE);
+        GeTerceroEntity tercero = autorizacionBuilder.builderClienteEmitidas(idData, numeroIdentificacion,
+                razonSocial, tipIdent, direccion);
+        tercero.setCreatedBy(usuario);
+        tercero.setCreatedDate(LocalDateTime.now());
+        return saveGeTercero(cpProveedoresRepository.save(tercero), TipoTercero.CLIENTE);
     }
 
     private void saveGeTerceroTipoCliente(GeTerceroEntity geTerceroEntity) {
