@@ -43,6 +43,10 @@ public class DateUtils {
         return LocalDate.parse(date, formatter).atStartOfDay();
     }
 
+    public static LocalDateTime toLocalExcelDateTimeFechaDesde(String date) {
+        LocalTime localTime = LocalTime.now();
+        return LocalDate.parse(date, formatter).atTime(localTime);
+    }
 
     public static LocalDateTime toLocalDateTimeFechaHasta(String date) {
         return LocalDate.parse(date, formatter).atTime(LocalTime.MAX);
