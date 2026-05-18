@@ -39,7 +39,7 @@ public class CpImpuestosBuilder {
                 .fechaEmision(DateUtils.toLocalDate(model.getFechaEmision()))
                 .serie(model.getSerie())
                 .numeroAutorizacion(model.getNumeroAutorizacion())
-                .sustento(model.getSustento())
+                .codigoSustento(model.getCodigoSustento())
                 .tipoContribuyente(model.getTipoContribuyente())
                 .concepto(model.getConcepto())
                 .tipoProveedor(model.getTipoProveedor())
@@ -83,7 +83,7 @@ public class CpImpuestosBuilder {
                 .fechaEmision(DateUtils.toLocalDate(model.getFechaEmision()))
                 .serie(model.getSerie())
                 .numeroAutorizacion(model.getNumeroAutorizacion())
-                .sustento(model.getSustento())
+                .codigoSustento(model.getCodigoSustento())
                 .tipoContribuyente(model.getTipoContribuyente())
                 .concepto(model.getConcepto())
                 .tipoProveedor(model.getTipoProveedor())
@@ -150,11 +150,8 @@ public class CpImpuestosBuilder {
                 .liquidar(model.getLiquidar())
                 .devolucionIva(model.getDevolucionIva())
                 .numeroAutorizacion(model.getNumeroAutorizacion())
-                .codigoSustento(Objects.nonNull(model.getSustento())
-                        ? model.getSustento().getCodigoSustento()
-                        : null)
-                .sustento(Objects.nonNull(model.getSustento())
-                        ? model.getSustento()
+                .codigoSustento(Objects.nonNull(model.getCodigoSustento())
+                        ? model.getCodigoSustento()
                         : null)
                 .fechaEmision(DateUtils.toString(model.getFechaEmision()))
                 .fechaRegistro(Objects.nonNull(model.getFechaRegistro())
@@ -197,11 +194,8 @@ public class CpImpuestosBuilder {
                         ? model.getTercero().getIdTercero()
                         : null)
                 .valores(valoresBuilder.builderListDto(model.getValoresEntity()))
-                .codigoSustento(Objects.nonNull(model.getSustento())
-                        ? model.getSustento().getCodigoSustento()
-                        : null)
-                .sustento(Objects.nonNull(model.getSustento())
-                        ? model.getSustento()
+                .codigoSustento(Objects.nonNull(model.getCodigoSustento())
+                        ? model.getCodigoSustento()
                         : null)
                 .impuestoCodigos(Objects.nonNull(model.getCodigosEntity())
                         ? impuestoCodigoBuilder.builderListResponse(model.getCodigosEntity())
@@ -232,8 +226,6 @@ public class CpImpuestosBuilder {
                 .codigoDocumento(codigoDocumento)
                 .build();
     }
-
-
 
 
     private PagoExterior builderResponsePagoExterior(PagoExterior model) {

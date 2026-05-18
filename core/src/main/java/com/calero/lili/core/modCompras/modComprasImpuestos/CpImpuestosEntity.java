@@ -90,7 +90,7 @@ public class CpImpuestosEntity extends Auditable {
     @Column(name = "fecha_registro")
     private LocalDate fechaRegistro;
 
-    private SustentoCodigos sustento;
+    private SustentoCodigos codigoSustento;
 
     @Column(name = "tipo_contribuyente")
     private String tipoContribuyente;

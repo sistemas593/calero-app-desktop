@@ -192,7 +192,7 @@ public class VtGuiaBuilder {
                         ? DateUtils.toString(model.getFechaFinTransporte()) : null)
                 .ambiente(model.getAmbiente())
                 .formatoDocumento(model.getFormatoDocumento())
-                .email(model.getDestinatario().getEmail())
+                .email(model.getEmail())
                 .idDestinatario(model.getDestinatario().getIdTercero())
                 .numeroIdentificacionDestinatario(model.getDestinatario().getNumeroIdentificacion())
                 .razonSocialDestinatario(model.getDestinatario().getTercero())

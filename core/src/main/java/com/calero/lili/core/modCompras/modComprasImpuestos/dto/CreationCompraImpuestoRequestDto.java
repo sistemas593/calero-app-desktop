@@ -84,7 +84,7 @@ public class CreationCompraImpuestoRequestDto {
     private PagoExterior pagoExterior;
 
     private String tipoDocumento;
-    private SustentoCodigos sustento;
+    private SustentoCodigos codigoSustento;
 
     private List<ImpuestoCodigoDto> impuestoCodigos;
 

@@ -37,8 +37,7 @@ public class GetListDto {
     private String codigoDocumento;
     private String documento;
 
-    private String codigoSustento;
-    private SustentoCodigos sustento;
+    private SustentoCodigos codigoSustento;
 
    /*private TbDocumentosGetOneDto documento;
     private TbSustentosGetOneDto sustento;*/

@@ -82,8 +82,7 @@ public class GetDto {
     private String codigoDocumento;
     private String documento;
 
-    private String codigoSustento;
-    private SustentoCodigos sustento;
+    private SustentoCodigos codigoSustento;
 
     private List<ImpuestoCodigoDto> impuestoCodigos;
     private Boolean existeComprobante;

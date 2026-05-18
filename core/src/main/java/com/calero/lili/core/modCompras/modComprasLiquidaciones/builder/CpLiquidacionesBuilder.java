@@ -251,6 +251,7 @@ public class CpLiquidacionesBuilder {
                 .ambiente(model.getAmbiente())
                 .formatoDocumento(model.getFormatoDocumento())
                 .existeComprobante(model.getExisteComprobante())
+                .email(model.getEmail())
                 .build();
     }
 
