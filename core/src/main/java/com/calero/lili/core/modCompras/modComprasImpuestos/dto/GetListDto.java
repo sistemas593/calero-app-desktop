@@ -1,5 +1,6 @@
 package com.calero.lili.core.modCompras.modComprasImpuestos.dto;
 
+import com.calero.lili.core.enums.SustentoCodigos;
 import com.calero.lili.core.modCompras.dto.ImpuestoCodigoDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,7 +38,7 @@ public class GetListDto {
     private String documento;
 
     private String codigoSustento;
-    private String sustento;
+    private SustentoCodigos sustento;
 
    /*private TbDocumentosGetOneDto documento;
     private TbSustentosGetOneDto sustento;*/

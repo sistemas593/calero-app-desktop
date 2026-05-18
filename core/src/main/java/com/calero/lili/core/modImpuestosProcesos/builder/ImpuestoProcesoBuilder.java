@@ -7,8 +7,6 @@ import com.calero.lili.core.modCompras.modComprasRetenciones.CpRetencionesEntity
 import com.calero.lili.core.modImpuestosProcesos.dto.ImpuestoProcesoResponseDto;
 import com.calero.lili.core.modImpuestosProcesos.projection.RetencionReferenciaProjection;
 import com.calero.lili.core.tablas.tbDocumentos.TbDocumentoEntity;
-import com.calero.lili.core.tablas.tbRetenciones.TbRetencionEntity;
-import com.calero.lili.core.tablas.tbSustentos.TbSustentosEntity;
 import org.springframework.stereotype.Component;
 
 import java.text.MessageFormat;
@@ -87,7 +85,7 @@ public class ImpuestoProcesoBuilder {
                 .tipoProveedor(model.getTipoProveedor())
                 .documento(model.getDocumento())
                 .tercero(model.getTercero())
-                .sustento(TbSustentosEntity.builder().codigoSustento(codigoSustento).build())
+                .sustento(model.getSustento())
                 .formasPagoSri(model.getFormasPagoSri())
                 .pagoLocExt(model.getPagoLocExt())
                 .codigosEntity(builderListCodigos(impuestosCodigoList))
@@ -109,9 +107,7 @@ public class ImpuestoProcesoBuilder {
                 .porcentajeRetener(model.getPorcentajeRetener())
                 .valorRetenido(model.getValorRetenido())
                 .codigoRetencion(model.getCodigoRetencion())
-                .retencion(TbRetencionEntity.builder()
-                        .codigo(model.getCodigo())
-                        .build())
+                .codigo(model.getCodigo())
                 .build();
     }
 }

@@ -29,8 +29,6 @@ import com.calero.lili.core.tablas.tbPaises.TbPaisEntity;
 import com.calero.lili.core.tablas.tbPaises.TbPaisesRepository;
 import com.calero.lili.core.tablas.tbPaises.tbParaisosFiscales.TbParaisoFiscalEntity;
 import com.calero.lili.core.tablas.tbPaises.tbParaisosFiscales.TbParaisoFiscalRepository;
-import com.calero.lili.core.tablas.tbSustentos.TbSustentosEntity;
-import com.calero.lili.core.tablas.tbSustentos.TbSustentosRepository;
 import com.calero.lili.core.utils.ComprobanteSustentoService;
 import com.calero.lili.core.utils.DateUtils;
 import com.calero.lili.core.utils.validaciones.ValidarValoresComprobantesPdf;
@@ -93,7 +91,10 @@ public class CpImpuestosServiceImpl {
     private final AdIvaPorcentajeServiceImpl adIvaPorcentajeService;
     private final TbPaisesRepository tbPaisesRepository;
     private final TbParaisoFiscalRepository tbParaisoFiscalRepository;
-    private final TbSustentosRepository tbSustentosRepository;
+
+
+    // TODO ERROR DE TERCERO SI NO EXISTE CONTROLARLO
+    // QUE EXISTA 10 DIGITOS O 49 SOLO ESOS DOS NADA MAS Y SOLO NUMEROS
 
     public ResponseDto create(Long idData, Long idEmpresa, CreationCompraImpuestoRequestDto request, String usuario) {
 
@@ -102,10 +103,10 @@ public class CpImpuestosServiceImpl {
 
         Optional<OneProjection> existingFactura = cpImpuestosRepository
                 .findExistBySecuencial(idData, idEmpresa, request.getNumeroIdentificacion(),
-                        request.getSerie(), request.getSecuencial(), request.getNumeroAutorizacion(), request.getCodigoSustento());
+                        request.getSerie(), request.getSecuencial(), request.getNumeroAutorizacion(), request.getSustento().name());
 
         if (existingFactura.isPresent()) {
-            throw new GeneralException(MessageFormat.format("El registro ya existe - numeroIdentificacion: {0} Serie: {1} Secuencia: {2} numeroAutorizacion: {3}, codigoSustento: {4}", request.getNumeroIdentificacion(), request.getSerie(), request.getSecuencial(), request.getNumeroAutorizacion(), request.getCodigoSustento()));
+            throw new GeneralException(MessageFormat.format("El registro ya existe - numeroIdentificacion: {0} Serie: {1} Secuencia: {2} numeroAutorizacion: {3}, codigoSustento: {4}", request.getNumeroIdentificacion(), request.getSerie(), request.getSecuencial(), request.getNumeroAutorizacion(), request.getSustento()));
         }
 
         validacionCodigoImpuesto(request);
@@ -236,10 +237,11 @@ public class CpImpuestosServiceImpl {
                 || !vtVentaEntity.getSerie().equals(request.getSerie())
                 || !vtVentaEntity.getSecuencial().equals(request.getSecuencial())
                 || !vtVentaEntity.getNumeroAutorizacion().equals(request.getNumeroAutorizacion())
-                || !vtVentaEntity.getSustento().getCodigoSustento().equals(request.getCodigoSustento())) {
-            Optional<OneProjection> existingFactura = cpImpuestosRepository.findExistBySecuencial(idData, idEmpresa, request.getNumeroIdentificacion(), request.getSerie(), request.getSecuencial(), request.getNumeroAutorizacion(), request.getCodigoSustento());
+                || !vtVentaEntity.getSustento().equals(request.getSustento())) {
+
+            Optional<OneProjection> existingFactura = cpImpuestosRepository.findExistBySecuencial(idData, idEmpresa, request.getNumeroIdentificacion(), request.getSerie(), request.getSecuencial(), request.getNumeroAutorizacion(), request.getSustento().name());
             if (existingFactura.isPresent()) {
-                throw new GeneralException(MessageFormat.format("El registro ya existe - numeroIdentificacion{0} Serie: {1} Secuencial: {2} numeroAutorizacion {3} codigoSustento {4}", request.getNumeroIdentificacion(), request.getSerie(), request.getSecuencial(), request.getNumeroAutorizacion(), request.getCodigoSustento()));
+                throw new GeneralException(MessageFormat.format("El registro ya existe - numeroIdentificacion{0} Serie: {1} Secuencial: {2} numeroAutorizacion {3} codigoSustento {4}", request.getNumeroIdentificacion(), request.getSerie(), request.getSecuencial(), request.getNumeroAutorizacion(), request.getSustento()));
             }
         }
 
@@ -351,10 +353,6 @@ public class CpImpuestosServiceImpl {
 
         String codigoDocumento = impuesto.getDocumento().getCodigoDocumento();
 
-        TbSustentosEntity sustento = tbSustentosRepository.findById(request.getCodigoSustento())
-                .orElseThrow(() -> new GeneralException(MessageFormat
-                        .format("El codigo de sustento no existe : {0}", request.getCodigoSustento())));
-
         if (DateUtils.toLocalDate(request.getFechaRegistro()).isAfter(impuesto.getFechaEmision())
                 || DateUtils.toLocalDate(request.getFechaRegistro()).isEqual(impuesto.getFechaEmision())) {
 
@@ -362,14 +360,14 @@ public class CpImpuestosServiceImpl {
                 throw new GeneralException("La fecha no puede ser mayor a un año respecto a la fecha de emisión del documento");
             }
 
-            if (!comprobanteSustentoService.validacionCodigos(codigoDocumento, request.getCodigoSustento())) {
+            if (!comprobanteSustentoService.validacionCodigos(codigoDocumento, request.getCodigoSustento().getCodigoSustento())) {
                 throw new GeneralException(MessageFormat.format("La combinación de código de documento: {0} y código de sustento: {1} es inválida.",
                         codigoDocumento, request.getCodigoSustento()));
             }
 
             impuesto.setDestino(request.getDestino().name());
             impuesto.setFechaRegistro(DateUtils.toLocalDate(request.getFechaRegistro()));
-            impuesto.setSustento(sustento);
+            impuesto.setSustento(request.getCodigoSustento());
 
             cpImpuestosRepository.save(impuesto);
 
@@ -749,10 +747,10 @@ public class CpImpuestosServiceImpl {
 
     private void validacionCodigoImpuesto(CreationCompraImpuestoRequestDto model) {
 
-        if (Objects.nonNull(model.getCodigoSustento())) {
-            if (!comprobanteSustentoService.validacionCodigos(model.getCodigoDocumento(), model.getCodigoSustento())) {
+        if (Objects.nonNull(model.getSustento())) {
+            if (!comprobanteSustentoService.validacionCodigos(model.getCodigoDocumento(), model.getSustento().getCodigoSustento())) {
                 throw new GeneralException(MessageFormat.format("La combinación de código de documento: {0} y código de sustento: {1} es inválida.",
-                        model.getCodigoDocumento(), model.getCodigoSustento()));
+                        model.getCodigoDocumento(), model.getSustento()));
             }
         }
 

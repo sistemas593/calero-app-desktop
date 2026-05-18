@@ -9,7 +9,6 @@ import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetListDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.PagoExterior;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.tablas.tbDocumentos.TbDocumentoEntity;
-import com.calero.lili.core.tablas.tbSustentos.TbSustentosEntity;
 import com.calero.lili.core.utils.DateUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -40,7 +39,7 @@ public class CpImpuestosBuilder {
                 .fechaEmision(DateUtils.toLocalDate(model.getFechaEmision()))
                 .serie(model.getSerie())
                 .numeroAutorizacion(model.getNumeroAutorizacion())
-                .sustento(builderSustento(model.getCodigoSustento()))
+                .sustento(model.getSustento())
                 .tipoContribuyente(model.getTipoContribuyente())
                 .concepto(model.getConcepto())
                 .tipoProveedor(model.getTipoProveedor())
@@ -84,7 +83,7 @@ public class CpImpuestosBuilder {
                 .fechaEmision(DateUtils.toLocalDate(model.getFechaEmision()))
                 .serie(model.getSerie())
                 .numeroAutorizacion(model.getNumeroAutorizacion())
-                .sustento(builderSustento(model.getCodigoSustento()))
+                .sustento(model.getSustento())
                 .tipoContribuyente(model.getTipoContribuyente())
                 .concepto(model.getConcepto())
                 .tipoProveedor(model.getTipoProveedor())
@@ -155,7 +154,7 @@ public class CpImpuestosBuilder {
                         ? model.getSustento().getCodigoSustento()
                         : null)
                 .sustento(Objects.nonNull(model.getSustento())
-                        ? model.getSustento().getSustento()
+                        ? model.getSustento()
                         : null)
                 .fechaEmision(DateUtils.toString(model.getFechaEmision()))
                 .fechaRegistro(Objects.nonNull(model.getFechaRegistro())
@@ -202,7 +201,7 @@ public class CpImpuestosBuilder {
                         ? model.getSustento().getCodigoSustento()
                         : null)
                 .sustento(Objects.nonNull(model.getSustento())
-                        ? model.getSustento().getSustento()
+                        ? model.getSustento()
                         : null)
                 .impuestoCodigos(Objects.nonNull(model.getCodigosEntity())
                         ? impuestoCodigoBuilder.builderListResponse(model.getCodigosEntity())
@@ -234,12 +233,7 @@ public class CpImpuestosBuilder {
                 .build();
     }
 
-    private TbSustentosEntity builderSustento(String codigoDocumento) {
-        if (Objects.isNull(codigoDocumento)) return null;
-        return TbSustentosEntity.builder()
-                .codigoSustento(codigoDocumento)
-                .build();
-    }
+
 
 
     private PagoExterior builderResponsePagoExterior(PagoExterior model) {

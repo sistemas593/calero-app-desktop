@@ -20,6 +20,7 @@ import com.calero.lili.core.dtos.FormasPagoSri;
 import com.calero.lili.core.dtos.InformacionAdicional;
 import com.calero.lili.core.enums.Ambiente;
 import com.calero.lili.core.enums.CodigoDocumento;
+import com.calero.lili.core.enums.CodigoRetencion;
 import com.calero.lili.core.enums.EmailEstado;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
@@ -353,7 +354,7 @@ public class AutorizacionBuilder {
 
         CpRetencionReferencias.ImpuestosCodigo impuestosCodigo = CpRetencionReferencias
                 .ImpuestosCodigo.builder()
-                .codigo(model.getCodigo())
+                .codigo(CodigoRetencion.valueOf(model.getCodigo()))
                 .codigoRetencion(model.getCodigoRetencion())
                 .baseImponible(new BigDecimal(model.getBaseImponible()))
                 .porcentajeRetener(new BigDecimal(model.getPorcentajeRetener()))
@@ -386,7 +387,7 @@ public class AutorizacionBuilder {
 
     private CpRetencionReferencias.ImpuestosCodigo builderImpuestoCodigos(Retencion model) {
         return CpRetencionReferencias.ImpuestosCodigo.builder()
-                .codigo(model.getCodigo())
+                .codigo(CodigoRetencion.valueOf(model.getCodigo()))
                 .codigoRetencion(model.getCodigoRetencion())
                 .baseImponible(new BigDecimal(model.getBaseImponible()))
                 .porcentajeRetener(new BigDecimal(model.getPorcentajeRetener()))

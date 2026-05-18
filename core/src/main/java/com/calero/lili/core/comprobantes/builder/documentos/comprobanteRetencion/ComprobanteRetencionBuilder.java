@@ -105,7 +105,7 @@ public class ComprobanteRetencionBuilder {
 
     private Retencion builderRetencion(CpImpuestosCodigosEntity retencion) {
         return Retencion.builder()
-                .codigo(retencion.getRetencion().getCodigo())
+                .codigo(retencion.getCodigo().getCodigo())
                 .codigoRetencion(retencion.getCodigoRetencion())
                 .baseImponible(formatoValores.convertirBigDecimalToString(retencion.getBaseImponible()))
                 .porcentajeRetener(formatoValores.convertirBigDecimalToString(retencion.getPorcentajeRetener()))

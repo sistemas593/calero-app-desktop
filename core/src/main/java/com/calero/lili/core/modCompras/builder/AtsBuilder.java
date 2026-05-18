@@ -44,7 +44,7 @@ public class AtsBuilder {
 
     public DetalleCompras builderDetalleRetencion(CpImpuestosEntity model, CpRetencionesEntity item) {
         return DetalleCompras.builder()
-                .codSustento(model.getSustento().getSustento())
+                .codSustento(model.getSustento().getCodigoSustento())
                 .tpIdProv(model.getTipoProveedor())
                 .idProv(model.getTercero().getNumeroIdentificacion())
                 .tipoComprobante(model.getDocumento().getCodigoDocumento())

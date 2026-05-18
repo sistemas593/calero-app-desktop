@@ -4,6 +4,7 @@ import com.calero.lili.core.builder.DetalleErrorBuilder;
 import com.calero.lili.core.dtos.InformacionAdicional;
 import com.calero.lili.core.dtos.errors.DetalleError;
 import com.calero.lili.core.dtos.errors.EnumError;
+import com.calero.lili.core.enums.TipoClienteProveedor;
 import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.enums.TipoVenta;
 import com.calero.lili.core.errors.exceptions.ListErrorException;
@@ -29,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -51,7 +53,7 @@ public class VtVentasFacturasExcelService {
     private final GeTercerosTipoBuilder geTercerosTipoBuilder;
 
 
-    public void cargarExcelFacturas(Long idData, Long idEmpresa, MultipartFile file) throws IOException {
+    public void cargarExcelFacturas(Long idData, Long idEmpresa, MultipartFile file, String usuario) throws IOException {
 
         InputStream is = file.getInputStream();
         Workbook workbook = StreamingReader.builder()
@@ -84,6 +86,8 @@ public class VtVentasFacturasExcelService {
                 factura.setIdData(idData);
                 factura.setIdEmpresa(idEmpresa);
                 factura.setTipoVenta(TipoVenta.FAC.name());
+                factura.setCreatedDate(LocalDateTime.now());
+                factura.setCreatedBy(usuario);
 
 
                 cabeceraFactura(idData, idEmpresa, row, factura, detalleErrores, linea);
@@ -167,7 +171,7 @@ public class VtVentasFacturasExcelService {
         }
 
         if (Objects.nonNull(row.getCell(2))) {
-            factura.setFechaEmision(DateUtils.toLocalDateTime(row.getCell(2).getStringCellValue()));
+            factura.setFechaEmision(DateUtils.toLocalDateTimeFechaDesde(row.getCell(2).getStringCellValue()));
         } else {
             detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.FACTURA_FECHA_EMISION_NOT_FOUND));
         }
@@ -200,12 +204,6 @@ public class VtVentasFacturasExcelService {
                 Objects.nonNull(row.getCell(5)) && Objects.nonNull(row.getCell(7)) &&
                 Objects.nonNull(row.getCell(10)) && Objects.nonNull(row.getCell(8)) && Objects.nonNull(row.getCell(9))) {
 
-            // TODO REVISAR EJEMPLO DE EXCEL DE VENTAS FACTURAS PARA QUITAR LOS CAMPOS QUE NO SON YA REQUERIDOS LOS QUE ESTAN COMENTADOS
-
-           /* factura.setNumeroIdentificacion(row.getCell(4).getStringCellValue());
-            factura.setTipoIdentificacion(TipoIdentificacion.obtenerTipoIdentificacion(row.getCell(3).getStringCellValue()).name());
-            factura.setTipoCliente(row.getCell(5).getStringCellValue());
-            factura.setTerceroNombre(row.getCell(7).getStringCellValue());*/
             factura.setEmail(row.getCell(10).getStringCellValue());
 
             Optional<GeTerceroEntity> cliente = geTercerosRepository
@@ -224,6 +222,9 @@ public class VtVentasFacturasExcelService {
                 tercero.setDireccion(row.getCell(8).getStringCellValue());
                 tercero.setEmail(row.getCell(10).getStringCellValue());
                 tercero.setTelefonos(row.getCell(9).getStringCellValue());
+                tercero.setTipoClienteProveedor(TipoClienteProveedor.valueOf(row.getCell(5).getStringCellValue()));
+                tercero.setCreatedBy(factura.getCreatedBy());
+                tercero.setCreatedDate(LocalDateTime.now());
 
                 GeTerceroEntity terceroEntity = geTercerosRepository.save(tercero);
                 saveTipoTercero(terceroEntity);

@@ -1,13 +1,13 @@
 package com.calero.lili.core.modCompras.modComprasImpuestos;
 
+import com.calero.lili.core.Auditable;
 import com.calero.lili.core.dtos.FormasPagoSri;
 import com.calero.lili.core.dtos.Mensajes;
-import com.calero.lili.core.Auditable;
+import com.calero.lili.core.enums.SustentoCodigos;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.PagoExterior;
 import com.calero.lili.core.modCompras.modComprasRetenciones.CpRetencionesEntity;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.tablas.tbDocumentos.TbDocumentoEntity;
-import com.calero.lili.core.tablas.tbSustentos.TbSustentosEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -90,9 +90,7 @@ public class CpImpuestosEntity extends Auditable {
     @Column(name = "fecha_registro")
     private LocalDate fechaRegistro;
 
-    @ManyToOne()
-    @JoinColumn(name = "codigoSustento", referencedColumnName = "codigoSustento")
-    private TbSustentosEntity sustento;
+    private SustentoCodigos sustento;
 
     @Column(name = "tipo_contribuyente")
     private String tipoContribuyente;

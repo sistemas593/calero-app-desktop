@@ -1,6 +1,7 @@
 package com.calero.lili.core.dtos.deRecibidos;
 
 import com.calero.lili.core.enums.DestinoEnum;
+import com.calero.lili.core.enums.SustentoCodigos;
 import lombok.Data;
 
 @Data
@@ -11,7 +12,7 @@ public class CpImpuestosRecibirCreationRequestDto {
 
     private DestinoEnum destino;
 //    private String periodo;
-    private String codigoSustento;
+    private SustentoCodigos codigoSustento;
     private String fechaRegistro;
 
     // para recibir archivo XML

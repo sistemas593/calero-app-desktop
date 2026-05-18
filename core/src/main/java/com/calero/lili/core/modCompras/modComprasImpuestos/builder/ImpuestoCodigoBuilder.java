@@ -2,10 +2,6 @@ package com.calero.lili.core.modCompras.modComprasImpuestos.builder;
 
 import com.calero.lili.core.modCompras.dto.ImpuestoCodigoDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosCodigosEntity;
-import com.calero.lili.core.tablas.tbRetenciones.TbRetencionEntity;
-import com.calero.lili.core.tablas.tbRetenciones.TbRetencionesGetOneDto;
-import com.calero.lili.core.tablas.tbRetencionesCodigos.TbRetencionesCodigosEntity;
-import com.calero.lili.core.tablas.tbRetencionesCodigos.TbRetencionesCodigosGetOneDto;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -34,7 +30,7 @@ public class ImpuestoCodigoBuilder {
                 .idImpuestosCodigo(UUID.randomUUID())
                 .idData(idData)
                 .idEmpresa(idEmpresa)
-                .retencion(builderRetencion(model.getCodigo()))
+                .codigo(model.getCodigo())
                 .codigoRetencion(model.getCodigoRetencion())
                 .baseImponible(model.getBaseImponible())
                 .porcentajeRetener(model.getPorcentajeRetener())
@@ -51,38 +47,11 @@ public class ImpuestoCodigoBuilder {
     private ImpuestoCodigoDto builderResponseImpuestoCodigo(CpImpuestosCodigosEntity model) {
         return ImpuestoCodigoDto.builder()
                 .idImpuestos(model.getIdImpuestosCodigo())
-                .retencion(builderRetencionResponse(model.getRetencion()))
-//                .retencionCodigo(builderCodigosRetencionResponse(model.getCodigoRetencion()))
+                .codigo(model.getCodigo())
+                .codigoRetencion(model.getCodigoRetencion())
                 .baseImponible(model.getBaseImponible())
                 .porcentajeRetener(model.getPorcentajeRetener())
                 .valorRetenido(model.getValorRetenido())
                 .build();
     }
-
-    private TbRetencionEntity builderRetencion(String codigo) {
-        return TbRetencionEntity.builder()
-                .codigo(codigo)
-                .build();
-    }
-
-    private TbRetencionesGetOneDto builderRetencionResponse(TbRetencionEntity model) {
-        return TbRetencionesGetOneDto.builder()
-                .codigo(model.getCodigo())
-                .nombreRetencion(model.getNombreRetencion())
-                .build();
-    }
-
-    public TbRetencionesCodigosEntity builderCodigosRetencion(String codigoRetencion) {
-        return TbRetencionesCodigosEntity.builder()
-                .codigoRetencion(codigoRetencion)
-                .build();
-    }
-
-    public TbRetencionesCodigosGetOneDto builderCodigosRetencionResponse(TbRetencionesCodigosEntity model) {
-        return TbRetencionesCodigosGetOneDto.builder()
-                .codigoRetencion(model.getCodigoRetencion())
-                .nombreRetencion(model.getNombreRetencion())
-                .build();
-    }
-
 }

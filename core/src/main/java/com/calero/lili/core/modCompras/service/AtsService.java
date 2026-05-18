@@ -126,20 +126,20 @@ public class AtsService {
         if (!listCodigos.isEmpty()) {
             for (CpImpuestosCodigosEntity impuesto : listCodigos) {
 
-                if (impuesto.getRetencion().getCodigo().equals("2")
+                if (impuesto.getCodigo().getCodigo().equals("2")
                         && impuesto.getCodigoRetencion().equals("9")) {
 
                     detalleCompra.setValRetBien10(formatoValores.convertirBigDecimalToString(impuesto.getValorRetenido()));
 
                 }
 
-                if (impuesto.getRetencion().getCodigo().equals("2")
+                if (impuesto.getCodigo().getCodigo().equals("2")
                         && impuesto.getCodigoRetencion().equals("10")) {
                     detalleCompra.setValRetServ20(formatoValores.convertirBigDecimalToString(impuesto.getValorRetenido()));
                 }
 
 
-                if (impuesto.getRetencion().getCodigo().equals("2")
+                if (impuesto.getCodigo().getCodigo().equals("2")
                         && impuesto.getCodigoRetencion().equals("1")) {
 
                     detalleCompra.setValorRetBienes(formatoValores.convertirBigDecimalToStringPDF(impuesto.getValorRetenido()));
@@ -147,21 +147,21 @@ public class AtsService {
                 }
 
 
-                if (impuesto.getRetencion().getCodigo().equals("2")
+                if (impuesto.getCodigo().getCodigo().equals("2")
                         && impuesto.getCodigoRetencion().equals("11")) {
 
                     detalleCompra.setValRetServ50(formatoValores.convertirBigDecimalToString(impuesto.getValorRetenido()));
 
                 }
 
-                if (impuesto.getRetencion().getCodigo().equals("2")
+                if (impuesto.getCodigo().getCodigo().equals("2")
                         && impuesto.getCodigoRetencion().equals("2")) {
 
                     detalleCompra.setValorRetServicios(formatoValores.convertirBigDecimalToString(impuesto.getValorRetenido()));
 
                 }
 
-                if (impuesto.getRetencion().getCodigo().equals("2")
+                if (impuesto.getCodigo().getCodigo().equals("2")
                         && impuesto.getCodigoRetencion().equals("3")) {
 
                     detalleCompra.setValRetServ100(formatoValores.convertirBigDecimalToString(impuesto.getValorRetenido()));
@@ -179,7 +179,7 @@ public class AtsService {
 
         List<DetalleAir> detalleAirs = new ArrayList<>();
         listCodigos.forEach(item -> {
-            if (item.getRetencion().getCodigo().equals("1")) {
+            if (item.getCodigo().getCodigo().equals("1")) {
                 detalleAirs.add(atsBuilder.builderDetalleAir(item));
             }
         });

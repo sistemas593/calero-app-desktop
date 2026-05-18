@@ -1,12 +1,11 @@
 package com.calero.lili.core.modCompras.modComprasImpuestos;
 
-import com.calero.lili.core.tablas.tbRetenciones.TbRetencionEntity;
-import com.calero.lili.core.tablas.tbRetencionesCodigos.TbRetencionesCodigosEntity;
+import com.calero.lili.core.enums.CodigoRetencion;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,9 +33,8 @@ public class CpImpuestosCodigosEntity {
 
     private BigDecimal valorRetenido;
 
-    @ManyToOne()
-    @JoinColumn(name = "codigo", referencedColumnName = "codigo")
-    private TbRetencionEntity retencion;
+    @Enumerated(EnumType.STRING)
+    private CodigoRetencion codigo;
 
     private String codigoRetencion;
 

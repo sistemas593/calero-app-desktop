@@ -113,6 +113,8 @@ public class VtVentasFacturasServiceImpl {
     private final ValidarServiceImpl validarService;
 
 
+    //TODO  SI UN NUEVO DOCUMENTO Y ES ELECTRONICO, EL NUMERO DE AUTORIZACION DEBE ESTAR VACIO, DEVOLVER UN ERROR (FAC, NDB, NCR, GUIAS, RETENCIONES)
+
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa,
                                          CreationFacturaRequestDto request, String usuario, String origenCertificado) {
 

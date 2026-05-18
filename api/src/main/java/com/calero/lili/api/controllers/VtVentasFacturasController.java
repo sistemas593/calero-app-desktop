@@ -159,7 +159,8 @@ public class VtVentasFacturasController {
     public void uploadFacturasExcel(@RequestParam("file") MultipartFile file,
                                     @PathVariable("idEmpresa") Long idEmpresa) {
         try {
-            vtVentasFacturasExcelService.cargarExcelFacturas(idDataService.getIdData(), idEmpresa, file);
+            vtVentasFacturasExcelService.cargarExcelFacturas(idDataService.getIdData(), idEmpresa, file,
+                    auditorAware.getCurrentAuditor().orElse("SYSTEM"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

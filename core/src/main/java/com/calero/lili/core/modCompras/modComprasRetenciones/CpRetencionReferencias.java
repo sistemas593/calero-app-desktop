@@ -1,5 +1,6 @@
 package com.calero.lili.core.modCompras.modComprasRetenciones;
 
+import com.calero.lili.core.enums.CodigoRetencion;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosEntity;
 import com.calero.lili.core.tablas.tbDocumentos.TbDocumentoEntity;
 import jakarta.persistence.Column;
@@ -46,14 +47,14 @@ public class CpRetencionReferencias {
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
-    private List<ImpuestosCodigo> impuestosCodigos ;
+    private List<ImpuestosCodigo> impuestosCodigos;
 
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
     public static class ImpuestosCodigo {
-        private String codigo;
+        private CodigoRetencion codigo;
         private String codigoRetencion;
         private BigDecimal baseImponible;
         private BigDecimal porcentajeRetener;

@@ -1,6 +1,7 @@
 package com.calero.lili.core.modCompras.modComprasImpuestos.dto;
 
 import com.calero.lili.core.dtos.FormasPagoDto;
+import com.calero.lili.core.enums.SustentoCodigos;
 import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.modCompras.dto.ImpuestoCodigoDto;
 import jakarta.persistence.Column;
@@ -83,7 +84,7 @@ public class CreationCompraImpuestoRequestDto {
     private PagoExterior pagoExterior;
 
     private String tipoDocumento;
-    private String codigoSustento;
+    private SustentoCodigos sustento;
 
     private List<ImpuestoCodigoDto> impuestoCodigos;
 
