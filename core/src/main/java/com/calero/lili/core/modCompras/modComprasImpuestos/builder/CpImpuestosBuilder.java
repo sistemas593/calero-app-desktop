@@ -1,6 +1,7 @@
 package com.calero.lili.core.modCompras.modComprasImpuestos.builder;
 
 import com.calero.lili.core.builder.FormasPagoBuilder;
+import com.calero.lili.core.dtos.FormasPagoSri;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CreationCompraImpuestoRequestDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetDto;
@@ -171,6 +172,7 @@ public class CpImpuestosBuilder {
                 .destino(model.getDestino())
                 .terceroNombre(Objects.nonNull(model.getTercero()) ? model.getTercero().getTercero() : null)
                 .existeComprobante(model.getExisteComprobante())
+                .formasPagoSri(builderFormasDePagoSriResponseBuilder(model.getFormasPagoSri()))
                 .build();
     }
 
@@ -251,6 +253,22 @@ public class CpImpuestosBuilder {
                 .paisEfecPagoParFis(model.getPaisEfecPagoParFis())
                 .denopagoRegFis(model.getDenopagoRegFis())
                 .pagoRegFis(model.getPagoRegFis())
+                .build();
+    }
+
+    private List<GetDto.FormasPagoSri> builderFormasDePagoSriResponseBuilder(List<FormasPagoSri> formasPagoSri) {
+        if (Objects.isNull(formasPagoSri)) return null;
+        return formasPagoSri.stream()
+                .map(this::builderResponseFormaDePagoSri)
+                .toList();
+    }
+
+    private GetDto.FormasPagoSri builderResponseFormaDePagoSri(FormasPagoSri model) {
+        return GetDto.FormasPagoSri.builder()
+                .formaPago(model.getFormaPago())
+                .total(model.getTotal())
+                .plazo(model.getPlazo())
+                .unidadTiempo(model.getUnidadTiempo())
                 .build();
     }
 

@@ -51,6 +51,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -122,7 +123,7 @@ public class ProcesarDocumentosServiceImpl {
         }
 
 
-        System.out.println("1. estado del documento en la base de datos:" + documento.getEstadoDocumento());
+        adLogsService.saveLog(logs, "1. estado del documento en la base de datos: " + documento.getEstadoDocumento(), "I");
         String claveAcceso = documento.getClaveAcceso();
         Integer ambiente = Integer.valueOf(documento.getAmbiente());
         String estadoDocumento = documento.getEstadoDocumento().toString();
@@ -487,9 +488,20 @@ public class ProcesarDocumentosServiceImpl {
                 respuestaProceso.setEstadoEnvio(Objects.nonNull(respuestaEnvio.getEstadoEnvio()) ? respuestaEnvio.getEstadoEnvio() : "");
 
                 // SI ESTA DEVUELTA AQUI ASIGNO LOS MENSAJES SI EXISTEN
-                if (!Objects.isNull(respuestaEnvio.getMensajes())) {
+                if (Objects.nonNull(respuestaEnvio.getMensajes())) {
                     respuestaProceso.setMensajes(respuestaEnvio.getMensajes());
                     respuestaProceso.setMensajesRecepcion(respuestaEnvio.getMensajes());
+
+                    String mensaje = respuestaEnvio.getMensajes().stream()
+                            .map(m -> String.join("|",
+                                    m.getIdentificador(),
+                                    m.getMensaje(),
+                                    m.getInformacionAdicional(),
+                                    m.getTipo()))
+                            .collect(Collectors.joining("\n"));
+
+                    adLogsService.saveLog(logs, mensaje, "I");
+
                 }
 
                 System.out.println(respuestaProceso.getEstadoEnvio());

@@ -1,6 +1,5 @@
 package com.calero.lili.core.modCompras.modComprasRetenciones.builder;
 
-import com.calero.lili.core.builder.FormasPagoBuilder;
 import com.calero.lili.core.builder.InformacionAdicionalBuilder;
 import com.calero.lili.core.enums.Ambiente;
 import com.calero.lili.core.enums.CodigoDocumento;
@@ -21,7 +20,7 @@ import java.util.UUID;
 public class CpRetencionesBuilder {
 
     private final InformacionAdicionalBuilder informacionAdicionalBuilder;
-    private final FormasPagoBuilder formasPagoBuilder;
+
 
     public CpRetencionesEntity builderEntity(CreationRetencionRequestDto model, Long idData, Long idEmpresa) {
         return CpRetencionesEntity.builder()
@@ -44,9 +43,7 @@ public class CpRetencionesBuilder {
                 .ambiente(Objects.nonNull(model.getAmbiente())
                         ? Ambiente.obtenerAmbiente(model.getAmbiente())
                         : null)
-                .codigoDocumento(Objects.nonNull(model.getCodigoDocumento())
-                        ? model.getCodigoDocumento()
-                        : CodigoDocumento.COMPROBANTE_RETENCION.getCodigoDocumento())
+                .codigoDocumento( CodigoDocumento.COMPROBANTE_RETENCION.getCodigoDocumento())
                 .formatoDocumento(model.getFormatoDocumento())
                 .periodoFiscal(Objects.nonNull(model.getPeriodoFiscal()) ? DateUtils.toPeriodoFiscalDate(model.getPeriodoFiscal()) : null)
                 .relacionado(model.getRelacionado())
@@ -75,9 +72,7 @@ public class CpRetencionesBuilder {
                 .ambiente(Objects.nonNull(model.getAmbiente())
                         ? Ambiente.obtenerAmbiente(model.getAmbiente())
                         : null)
-                .codigoDocumento(Objects.nonNull(model.getCodigoDocumento())
-                        ? model.getCodigoDocumento()
-                        : CodigoDocumento.COMPROBANTE_RETENCION.getCodigoDocumento())
+                .codigoDocumento(CodigoDocumento.COMPROBANTE_RETENCION.getCodigoDocumento())
                 .periodoFiscal(Objects.nonNull(model.getPeriodoFiscal()) ? DateUtils.toPeriodoFiscalDate(model.getPeriodoFiscal()) : null)
                 .relacionado(model.getRelacionado())
                 .emailEstado(EmailEstado.NO_ENTREGADO.getTipo())

@@ -1,0 +1,730 @@
+package com.calero.lili.desktop.ui.ventas.notasCredito
+
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import com.calero.lili.core.dtos.InformacionAdicionalDto
+import com.calero.lili.core.enums.FormaPago
+import com.calero.lili.core.enums.FormatoDocumento
+import com.calero.lili.core.enums.Liquidar
+import com.calero.lili.core.enums.TipoIdentificacion
+import com.calero.lili.core.enums.TipoIngreso
+import com.calero.lili.core.enums.TipoPermiso
+import com.calero.lili.core.comprobantesWs.services.GetXmlVtVentasNotasCreditoServiceImpl
+import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesServiceImpl
+import com.calero.lili.core.modAdminEmpresasSeries.dto.AdEmpresaSerieFacturaDto
+import com.calero.lili.core.modComprasItems.GeItemsServiceImpl
+import com.calero.lili.core.modComprasItems.dto.GeItemGetListDto
+import com.calero.lili.core.modComprasItems.dto.GeItemListFilterDto
+import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestoItemsServiceImpl
+import com.calero.lili.core.modComprasItemsImpuesto.dto.GeImpuestoResponseDto
+import com.calero.lili.core.dtos.FilterDto
+import com.calero.lili.core.modTerceros.GeTercerosServiceImpl
+import com.calero.lili.core.modTerceros.dto.GeTerceroFilterDto
+import com.calero.lili.core.modTerceros.dto.GeTerceroGetListDto
+import com.calero.lili.core.dtos.ImpuestoItemsDto
+import com.calero.lili.core.dtos.ValoresDto
+import com.calero.lili.core.modVentas.dto.DetailDto
+import com.calero.lili.core.modVentas.notasCredito.VtVentasNotasCreditoServiceImpl
+import com.calero.lili.core.modVentas.notasCredito.dto.CreationNotaCreditoRequestDto
+import com.calero.lili.core.modVentas.facturas.dto.FilterListDto
+import java.awt.print.PrinterJob
+import java.io.FileOutputStream
+import java.math.BigDecimal
+import java.math.RoundingMode
+import java.util.UUID
+import javax.swing.JFileChooser
+import javax.swing.SwingUtilities
+import javax.swing.filechooser.FileNameExtensionFilter
+import org.apache.pdfbox.Loader
+import org.apache.pdfbox.printing.PDFPageable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
+
+// ── Modelo UI de una fila de detalle ─────────────────────────────────────────
+data class NcDetalleItemUi(
+    val key: UUID = UUID.randomUUID(),
+    val itemOrden: Int = 1,
+    val idItem: UUID? = null,
+    val codigoPrincipal: String = "",
+    val codigoAuxiliar: String = "",
+    val codigoBarras: String = "",
+    val unidadMedida: String = "",
+    val descripcion: String = "",
+    val precioUnitario: BigDecimal = BigDecimal.ZERO,
+    val cantidad: BigDecimal = BigDecimal.ONE,
+    val dsctoItem: BigDecimal = BigDecimal.ZERO,
+    val descuento: BigDecimal = BigDecimal.ZERO,
+    val subtotalItem: BigDecimal = BigDecimal.ZERO,
+    val impuesto: GeImpuestoResponseDto? = null,
+    val idCentroCostos: UUID? = null
+)
+
+// ── Modelo UI de un campo adicional ──────────────────────────────────────────
+data class NcCampoAdicionalUi(
+    val key: UUID = UUID.randomUUID(),
+    val nombre: String = "",
+    val valor: String = ""
+)
+
+// ── Estado del formulario ─────────────────────────────────────────────────────
+data class NotaCreditoFormUiState(
+    val isEditMode: Boolean = false,
+    val isLoading: Boolean = false,
+    val isSaving: Boolean = false,
+    val errorMessage: String? = null,
+    val successMessage: String? = null,
+    // Encabezado
+    val sucursal: String = "",
+    val fechaEmision: String = "",
+    val serie: String = "",
+    val secuencial: String = "",
+    val tipoIngreso: TipoIngreso = TipoIngreso.VL,
+    val codigoDocumento: String = "18",
+    val ambiente: Int = 1,
+    val liquidar: Liquidar = Liquidar.S,
+    val seriesDisponibles: List<AdEmpresaSerieFacturaDto> = emptyList(),
+    // Motivo y documento relacionado (exclusivos NCR)
+    val concepto: String = "",
+    val modCodigoDocumento: String = "01",
+    val modSerie: String = "",
+    val modSecuencial: String = "",
+    val modFechaEmision: String = "",
+    // Cliente
+    val idTercero: UUID? = null,
+    val terceroNombre: String = "",
+    val terceroQuery: String = "",
+    val tipoIdentificacion: TipoIdentificacion = TipoIdentificacion.R,
+    val numeroIdentificacion: String = "",
+    val email: String = "",
+    val relacionado: String = "N",
+    val direccion: String = "",
+    val telefonos: String = "",
+    val terceroSugerencias: List<GeTerceroGetListDto> = emptyList(),
+    val terceroDropdownVisible: Boolean = false,
+    val buscandoTercero: Boolean = false,
+    // Detalle
+    val detalle: List<NcDetalleItemUi> = emptyList(),
+    val impuestosDisponibles: List<GeImpuestoResponseDto> = emptyList(),
+    // Diálogo búsqueda item
+    val showItemDialog: Boolean = false,
+    val itemDialogKeyDestino: UUID? = null,
+    val itemDialogQuery: String = "",
+    val itemDialogResultados: List<GeItemGetListDto> = emptyList(),
+    val itemDialogBuscando: Boolean = false,
+    // Totales
+    val subtotal: BigDecimal = BigDecimal.ZERO,
+    val totalDescuento: BigDecimal = BigDecimal.ZERO,
+    val totalImpuesto: BigDecimal = BigDecimal.ZERO,
+    val total: BigDecimal = BigDecimal.ZERO,
+    val subtotal15: BigDecimal = BigDecimal.ZERO,
+    val subtotal5: BigDecimal = BigDecimal.ZERO,
+    val subtotalTarifaEspecial: BigDecimal = BigDecimal.ZERO,
+    val subtotal0: BigDecimal = BigDecimal.ZERO,
+    val subtotalNoObjeto: BigDecimal = BigDecimal.ZERO,
+    val subtotalExento: BigDecimal = BigDecimal.ZERO,
+    val iva15: BigDecimal = BigDecimal.ZERO,
+    val iva5: BigDecimal = BigDecimal.ZERO,
+    val ivaTarifaEspecial: BigDecimal = BigDecimal.ZERO,
+    // Campos adicionales
+    val camposAdicionales: List<NcCampoAdicionalUi> = emptyList(),
+    val showCampoAdicionalDialog: Boolean = false,
+    val dialogCaNombre: String = "",
+    val dialogCaValor: String = "",
+    // PDF viewer
+    val pdfBytes: ByteArray? = null,
+    val pdfLoading: Boolean = false,
+    val pdfNombre: String = "",
+    val showPdfViewer: Boolean = false
+)
+
+// ── ViewModel ─────────────────────────────────────────────────────────────────
+class NotaCreditoFormViewModel(
+    private val service: VtVentasNotasCreditoServiceImpl,
+    private val tercerosService: GeTercerosServiceImpl,
+    private val itemsService: GeItemsServiceImpl,
+    private val impuestosService: GeImpuestoItemsServiceImpl,
+    private val seriesService: AdEmpresasSeriesServiceImpl,
+    private val xmlPdfService: GetXmlVtVentasNotasCreditoServiceImpl,
+    private val idNotaCredito: UUID? = null,
+    private val idData: Long = 1L,
+    private val idEmpresa: Long
+) {
+    private val _state = MutableStateFlow(NotaCreditoFormUiState(isEditMode = idNotaCredito != null, fechaEmision = fechaHoy()))
+    val state: StateFlow<NotaCreditoFormUiState> = _state.asStateFlow()
+
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private var terceroSearchJob: Job? = null
+    private var itemDialogSearchJob: Job? = null
+
+    companion object {
+        private const val USUARIO = "desktop-user"
+        private val FORMATO_FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+        fun fechaHoy(): String = LocalDate.now().format(FORMATO_FECHA)
+        fun digitosAFecha(digits: String): String {
+            val d = digits.filter(Char::isDigit).take(8)
+            return buildString {
+                for (i in d.indices) { if (i == 2 || i == 4) append('/'); append(d[i]) }
+            }
+        }
+    }
+
+    init {
+        cargarDatosIniciales()
+    }
+
+    // ── Carga inicial ─────────────────────────────────────────────────────────
+    private fun cargarDatosIniciales() {
+        scope.launch {
+            _state.update { it.copy(isLoading = true) }
+            try {
+                val impuestos = runCatching { impuestosService.findAll() }.getOrElse { emptyList() }
+                val series = runCatching { seriesService.findSeriesParaNotasCredito(idData, idEmpresa) }.getOrElse { emptyList() }
+                _state.update { it.copy(impuestosDisponibles = impuestos, seriesDisponibles = series) }
+                if (idNotaCredito != null) cargarNotaCredito(idNotaCredito, impuestos)
+                else _state.update { it.copy(isLoading = false) }
+            } catch (e: Exception) {
+                _state.update { it.copy(isLoading = false, errorMessage = e.message ?: "Error al cargar datos") }
+            }
+        }
+    }
+
+    private fun cargarNotaCredito(id: UUID, impuestos: List<GeImpuestoResponseDto>) {
+        scope.launch {
+            try {
+                val dto = service.findById(idData, idEmpresa, id, USUARIO, TipoPermiso.TODAS, FilterListDto())
+                val tercero = runCatching { tercerosService.findById(idData, dto.idTercero, idEmpresa) }.getOrNull()
+
+                val detalleUi = dto.detalle?.mapIndexed { idx, d ->
+                    val primerImp = d.impuesto?.firstOrNull()
+                    val impUi = primerImp?.let { pi ->
+                        impuestos.find { it.codigo == pi.codigo && it.codigoPorcentaje == pi.codigoPorcentaje }
+                    }
+                    NcDetalleItemUi(
+                        itemOrden       = idx + 1,
+                        idItem          = d.idItem,
+                        codigoPrincipal = d.codigoPrincipal ?: "",
+                        codigoAuxiliar  = d.codigoAuxiliar ?: "",
+                        codigoBarras    = d.codigoBarras ?: "",
+                        unidadMedida    = d.unidadMedida ?: "",
+                        descripcion     = d.descripcion ?: "",
+                        precioUnitario  = d.precioUnitario ?: BigDecimal.ZERO,
+                        cantidad        = d.cantidad ?: BigDecimal.ONE,
+                        dsctoItem       = d.dsctoItem ?: BigDecimal.ZERO,
+                        descuento       = d.descuento ?: BigDecimal.ZERO,
+                        subtotalItem    = d.subTotalItem ?: BigDecimal.ZERO,
+                        impuesto        = impUi
+                    )
+                } ?: emptyList()
+
+                _state.update { s -> s.copy(
+                    isLoading            = false,
+                    sucursal             = dto.sucursal ?: "",
+                    fechaEmision         = fechaHoy(),
+                    serie                = dto.serie ?: "",
+                    secuencial           = dto.secuencial ?: "",
+                    tipoIngreso          = dto.tipoIngreso?.let { runCatching { TipoIngreso.valueOf(it) }.getOrNull() } ?: TipoIngreso.VL,
+                    codigoDocumento      = dto.codigoDocumento ?: "18",
+                    ambiente             = dto.ambiente ?: 1,
+                    liquidar             = Liquidar.S,
+                    idTercero            = dto.idTercero,
+                    terceroNombre        = tercero?.tercero ?: "",
+                    terceroQuery         = tercero?.tercero ?: "",
+                    tipoIdentificacion   = tercero?.tipoIdentificacion?.let { runCatching { TipoIdentificacion.valueOf(it) }.getOrNull() } ?: TipoIdentificacion.R,
+                    numeroIdentificacion = tercero?.numeroIdentificacion ?: "",
+                    email                = dto.email ?: "",
+                    direccion            = tercero?.direccion ?: "",
+                    telefonos            = tercero?.telefonos ?: "",
+                    relacionado          = dto.relacionado ?: "N",
+                    concepto             = dto.concepto ?: "",
+                    modCodigoDocumento   = dto.modCodigoDocumento ?: "01",
+                    modSerie             = dto.modSerie ?: "",
+                    modSecuencial        = dto.modSecuencial ?: "",
+                    modFechaEmision      = (dto.modFechaEmision ?: "").filter(Char::isDigit).take(8),
+                    detalle              = detalleUi,
+                    camposAdicionales    = dto.informacionAdicional?.map {
+                        NcCampoAdicionalUi(nombre = it.nombre ?: "", valor = it.valor ?: "")
+                    } ?: emptyList(),
+                    subtotal             = dto.subtotal ?: BigDecimal.ZERO,
+                    totalDescuento       = dto.totalDescuento ?: BigDecimal.ZERO,
+                    total                = dto.total ?: BigDecimal.ZERO
+                )}
+                recalcularTotales(detalleUi)
+            } catch (e: Exception) {
+                _state.update { it.copy(isLoading = false, errorMessage = e.message ?: "Error al cargar la nota de crédito") }
+            }
+        }
+    }
+
+    // ── Guardar ───────────────────────────────────────────────────────────────
+    fun guardar(onGuardado: () -> Unit) {
+        val s = _state.value
+        if (s.concepto.isBlank())      { _state.update { it.copy(errorMessage = "El concepto es requerido") };                              return }
+        if (s.modSerie.isBlank())      { _state.update { it.copy(errorMessage = "La serie del documento relacionado es requerida") };        return }
+        if (s.modSecuencial.isBlank()) { _state.update { it.copy(errorMessage = "El secuencial del documento relacionado es requerido") };   return }
+        if (s.modFechaEmision.isBlank()){ _state.update { it.copy(errorMessage = "La fecha del documento relacionado es requerida") };       return }
+        if (s.idTercero == null)       { _state.update { it.copy(errorMessage = "Debe seleccionar un cliente") };                            return }
+        if (s.serie.isBlank())         { _state.update { it.copy(errorMessage = "La serie es requerida") };                                  return }
+        if (s.detalle.isEmpty())       { _state.update { it.copy(errorMessage = "Debe agregar al menos un item") };                          return }
+
+        scope.launch {
+            _state.update { it.copy(isSaving = true, errorMessage = null) }
+            try {
+                val request = buildRequest(s)
+                val notaId: UUID = service.create(idData, idEmpresa, request, USUARIO, "LOC").idDocumento
+
+                _state.update { it.copy(isSaving = false, showPdfViewer = true, pdfLoading = true) }
+                try {
+                    val archivo = xmlPdfService.findPDFNotaCreditoById(idData, idEmpresa, notaId, "LOC")
+                    _state.update { it.copy(pdfLoading = false, pdfBytes = archivo.contenido, pdfNombre = archivo.nombre) }
+                } catch (pdfEx: Exception) {
+                    val msg = "Nota de crédito creada correctamente"
+                    _state.update { it.copy(pdfLoading = false, showPdfViewer = false, successMessage = msg) }
+                    delay(900)
+                    onGuardado()
+                }
+            } catch (e: Exception) {
+                _state.update { it.copy(isSaving = false, errorMessage = e.message ?: "Error al guardar") }
+            }
+        }
+    }
+
+    fun dismissPdfViewer() {
+        _state.update { it.copy(showPdfViewer = false, pdfBytes = null, pdfNombre = "") }
+    }
+
+    fun descargarPdfActual() {
+        val s = _state.value
+        val bytes  = s.pdfBytes ?: return
+        val nombre = s.pdfNombre.ifBlank { "nota_credito" }
+        scope.launch {
+            try {
+                var chosenPath: String? = null
+                SwingUtilities.invokeAndWait {
+                    val chooser = JFileChooser()
+                    chooser.dialogTitle       = "Guardar PDF"
+                    chooser.fileSelectionMode = JFileChooser.FILES_ONLY
+                    chooser.fileFilter        = FileNameExtensionFilter("PDF (*.pdf)", "pdf")
+                    chooser.selectedFile      = java.io.File("$nombre.pdf")
+                    if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION)
+                        chosenPath = chooser.selectedFile.absolutePath
+                }
+                if (chosenPath == null) return@launch
+                val finalPath = if (chosenPath!!.endsWith(".pdf", ignoreCase = true)) chosenPath!! else "$chosenPath.pdf"
+                FileOutputStream(finalPath).use { it.write(bytes) }
+            } catch (e: Exception) {
+                _state.update { it.copy(errorMessage = "Error al guardar PDF: ${e.message}") }
+            }
+        }
+    }
+
+    fun imprimirPdfActual() {
+        val bytes = _state.value.pdfBytes ?: return
+        scope.launch {
+            try {
+                var shouldPrint = false
+                var printerJob: PrinterJob? = null
+                val doc = Loader.loadPDF(bytes)
+                try {
+                    SwingUtilities.invokeAndWait {
+                        printerJob = PrinterJob.getPrinterJob()
+                        printerJob!!.setPageable(PDFPageable(doc))
+                        shouldPrint = printerJob!!.printDialog()
+                    }
+                    if (shouldPrint) printerJob!!.print()
+                } finally {
+                    doc.close()
+                }
+            } catch (e: Exception) {
+                _state.update { it.copy(errorMessage = "Error al imprimir: ${e.message}") }
+            }
+        }
+    }
+
+    private fun buildRequest(s: NotaCreditoFormUiState): CreationNotaCreditoRequestDto {
+        val detalleRequest = s.detalle.mapIndexed { idx, d ->
+            val imp = d.impuesto
+            val impList = if (imp != null) {
+                val base = d.subtotalItem
+                val valorImp = base.multiply(imp.tarifa ?: BigDecimal.ZERO)
+                    .divide(BigDecimal(100), 2, RoundingMode.HALF_UP)
+                listOf(ImpuestoItemsDto(imp.codigo, imp.codigoPorcentaje, imp.tarifa, base, valorImp))
+            } else emptyList()
+
+            DetailDto().apply {
+                idItem          = d.idItem
+                itemOrden       = idx + 1
+                codigoPrincipal = d.codigoPrincipal
+                codigoAuxiliar  = d.codigoAuxiliar.ifBlank { null }
+                codigoBarras    = d.codigoBarras.ifBlank { null }
+                descripcion     = d.descripcion
+                unidadMedida    = d.unidadMedida.ifBlank { null }
+                precioUnitario  = d.precioUnitario
+                cantidad        = d.cantidad
+                dsctoItem       = d.dsctoItem
+                descuento       = d.descuento
+                subtotalItem    = d.subtotalItem
+                impuesto        = impList
+                idCentroCostos  = d.idCentroCostos
+            }
+        }
+
+        data class ValKey(val codigo: String, val codPct: String, val tarifa: BigDecimal)
+        val baseAcum  = mutableMapOf<ValKey, BigDecimal>()
+        val valorAcum = mutableMapOf<ValKey, BigDecimal>()
+        s.detalle.forEach { d ->
+            val imp = d.impuesto ?: return@forEach
+            val key = ValKey(imp.codigo ?: "", imp.codigoPorcentaje ?: "", imp.tarifa ?: BigDecimal.ZERO)
+            val base = d.subtotalItem
+            val v    = base.multiply(imp.tarifa ?: BigDecimal.ZERO).divide(BigDecimal(100), 2, RoundingMode.HALF_UP)
+            baseAcum[key]  = (baseAcum[key]  ?: BigDecimal.ZERO).add(base)
+            valorAcum[key] = (valorAcum[key] ?: BigDecimal.ZERO).add(v)
+        }
+        val valoresRequest = baseAcum.entries.map { (k, base) ->
+            ValoresDto(k.codigo, k.codPct, k.tarifa, base, valorAcum[k] ?: BigDecimal.ZERO)
+        }
+
+        return CreationNotaCreditoRequestDto().apply {
+            sucursal             = s.sucursal
+            formatoDocumento     = FormatoDocumento.E
+            serie                = s.serie
+            secuencial           = s.secuencial
+            fechaEmision         = s.fechaEmision
+            codigoDocumento      = "18"
+            tipoIngreso          = s.tipoIngreso
+            liquidar             = s.liquidar
+            idTercero            = s.idTercero
+            tipoIdentificacion   = s.tipoIdentificacion
+            relacionado          = s.relacionado
+            concepto             = s.concepto
+            modCodigoDocumento   = s.modCodigoDocumento
+            modSerie             = s.modSerie
+            modSecuencial        = s.modSecuencial
+            modFechaEmision      = digitosAFecha(s.modFechaEmision)
+            subtotal             = s.subtotal
+            totalDescuento       = s.totalDescuento
+            total                = s.total
+            numeroItems          = s.detalle.size
+            formaPago            = FormaPago.CR
+            diasCredito          = 0
+            cuotas               = 0
+            czona                = 0
+            impresa              = false
+            valores              = valoresRequest
+            detalle              = detalleRequest
+            informacionAdicional = s.camposAdicionales.map { InformacionAdicionalDto(it.nombre, it.valor) }.ifEmpty { null }
+            ambiente             = s.ambiente
+        }
+    }
+
+    // ── Cálculo de totales ────────────────────────────────────────────────────
+    private fun recalcularTotales(detalle: List<NcDetalleItemUi>) {
+        val subtotal  = detalle.fold(BigDecimal.ZERO) { a, d -> a.add(d.subtotalItem) }
+        val totalDesc = detalle.fold(BigDecimal.ZERO) { a, d -> a.add(d.descuento) }
+
+        var subtotal15          = BigDecimal.ZERO
+        var subtotal5           = BigDecimal.ZERO
+        var subtotalTarifaEspec = BigDecimal.ZERO
+        var subtotal0           = BigDecimal.ZERO
+        var subtotalNoObjeto    = BigDecimal.ZERO
+        var subtotalExento      = BigDecimal.ZERO
+        var iva15               = BigDecimal.ZERO
+        var iva5                = BigDecimal.ZERO
+        var ivaTarifaEspec      = BigDecimal.ZERO
+        var totalImpuesto       = BigDecimal.ZERO
+
+        detalle.forEach { d ->
+            val imp  = d.impuesto ?: return@forEach
+            val base = d.subtotalItem
+            val tax  = base.multiply(imp.tarifa ?: BigDecimal.ZERO)
+                .divide(BigDecimal(100), 2, RoundingMode.HALF_UP)
+            when (imp.codigo) {
+                "2" -> when (imp.codigoPorcentaje) {
+                    "4" -> { subtotal15          = subtotal15.add(base);          iva15          = iva15.add(tax) }
+                    "5" -> { subtotal5           = subtotal5.add(base);           iva5           = iva5.add(tax) }
+                    "0" -> subtotal0             = subtotal0.add(base)
+                    "6" -> subtotalNoObjeto      = subtotalNoObjeto.add(base)
+                    "7" -> subtotalExento        = subtotalExento.add(base)
+                    "8" -> { subtotalTarifaEspec = subtotalTarifaEspec.add(base); ivaTarifaEspec = ivaTarifaEspec.add(tax) }
+                }
+            }
+            totalImpuesto = totalImpuesto.add(tax)
+        }
+
+        val total = subtotal.add(totalImpuesto)
+        _state.update { it.copy(
+            subtotal               = subtotal,
+            totalDescuento         = totalDesc,
+            totalImpuesto          = totalImpuesto,
+            total                  = total,
+            subtotal15             = subtotal15,
+            subtotal5              = subtotal5,
+            subtotalTarifaEspecial = subtotalTarifaEspec,
+            subtotal0              = subtotal0,
+            subtotalNoObjeto       = subtotalNoObjeto,
+            subtotalExento         = subtotalExento,
+            iva15                  = iva15,
+            iva5                   = iva5,
+            ivaTarifaEspecial      = ivaTarifaEspec
+        ) }
+    }
+
+    private fun recalcularSubtotalFila(d: NcDetalleItemUi): NcDetalleItemUi {
+        val sub = d.precioUnitario.multiply(d.cantidad).subtract(d.descuento).max(BigDecimal.ZERO)
+        return d.copy(subtotalItem = sub)
+    }
+
+    // ── Tercero search ────────────────────────────────────────────────────────
+    fun setNumeroIdentificacionBusqueda(v: String) {
+        _state.update { it.copy(
+            numeroIdentificacion   = v,
+            idTercero              = null,
+            terceroDropdownVisible = false,
+            terceroSugerencias     = emptyList()
+        )}
+        terceroSearchJob?.cancel()
+        if (v.trim().length >= 2) {
+            terceroSearchJob = scope.launch {
+                delay(300)
+                buscarTercerosPorId(v.trim())
+            }
+        }
+    }
+
+    private fun buscarTercerosPorId(query: String) {
+        scope.launch {
+            _state.update { it.copy(buscandoTercero = true) }
+            try {
+                val filterDto = GeTerceroFilterDto().apply { filter = query }
+                val result    = tercerosService.findAllPaginate(idData, filterDto, PageRequest.of(0, 10, Sort.unsorted()))
+                val lista     = result.content ?: emptyList()
+                _state.update { it.copy(
+                    buscandoTercero        = false,
+                    terceroSugerencias     = lista,
+                    terceroDropdownVisible = lista.isNotEmpty()
+                )}
+            } catch (e: Exception) {
+                _state.update { it.copy(buscandoTercero = false, terceroSugerencias = emptyList(), terceroDropdownVisible = false) }
+            }
+        }
+    }
+
+    fun seleccionarTercero(t: GeTerceroGetListDto) {
+        _state.update { it.copy(
+            idTercero              = t.idTercero,
+            terceroNombre          = t.tercero ?: "",
+            terceroQuery           = t.tercero ?: "",
+            tipoIdentificacion     = t.tipoIdentificacion?.let { ti -> runCatching { TipoIdentificacion.valueOf(ti) }.getOrNull() } ?: TipoIdentificacion.R,
+            numeroIdentificacion   = t.numeroIdentificacion ?: "",
+            email                  = t.email ?: "",
+            direccion              = t.direccion ?: "",
+            telefonos              = t.telefonos ?: "",
+            terceroSugerencias     = emptyList(),
+            terceroDropdownVisible = false
+        )}
+    }
+
+    fun limpiarTercero() {
+        _state.update { it.copy(
+            idTercero              = null,
+            terceroNombre          = "",
+            terceroQuery           = "",
+            tipoIdentificacion     = TipoIdentificacion.R,
+            numeroIdentificacion   = "",
+            email                  = "",
+            direccion              = "",
+            telefonos              = "",
+            terceroSugerencias     = emptyList(),
+            terceroDropdownVisible = false
+        )}
+        terceroSearchJob?.cancel()
+    }
+
+    fun cerrarDropdownTercero() = _state.update { it.copy(terceroDropdownVisible = false) }
+
+    // ── Detalle — diálogo de búsqueda de item ────────────────────────────────
+    fun abrirDialogoItem(key: UUID? = null) {
+        _state.update { it.copy(
+            showItemDialog       = true,
+            itemDialogKeyDestino = key,
+            itemDialogQuery      = "",
+            itemDialogResultados = emptyList(),
+            itemDialogBuscando   = false
+        )}
+    }
+
+    fun cerrarDialogoItem() {
+        itemDialogSearchJob?.cancel()
+        _state.update { it.copy(showItemDialog = false, itemDialogKeyDestino = null, itemDialogQuery = "", itemDialogResultados = emptyList()) }
+    }
+
+    fun setItemDialogQuery(v: String) {
+        _state.update { it.copy(itemDialogQuery = v, itemDialogResultados = emptyList()) }
+        itemDialogSearchJob?.cancel()
+        if (v.trim().length >= 2) {
+            itemDialogSearchJob = scope.launch {
+                delay(300)
+                buscarItemsDialogo(v.trim())
+            }
+        }
+    }
+
+    private fun buscarItemsDialogo(query: String) {
+        scope.launch {
+            _state.update { it.copy(itemDialogBuscando = true) }
+            try {
+                val filterDto = GeItemListFilterDto().apply { filter = query }
+                val result    = itemsService.findAllPaginate(idData, idEmpresa, filterDto, PageRequest.of(0, 30, Sort.unsorted()))
+                _state.update { it.copy(itemDialogBuscando = false, itemDialogResultados = result.content ?: emptyList()) }
+            } catch (e: Exception) {
+                _state.update { it.copy(itemDialogBuscando = false, itemDialogResultados = emptyList()) }
+            }
+        }
+    }
+
+    fun seleccionarItemDesdeDialogo(item: GeItemGetListDto) {
+        val s = _state.value
+        val impUi = item.impuestos?.firstOrNull()?.let { itemImp ->
+            s.impuestosDisponibles.find { it.codigo == itemImp.codigo && it.codigoPorcentaje == itemImp.codigoPorcentaje }
+        } ?: s.impuestosDisponibles.firstOrNull()
+        val precio     = item.precios?.firstOrNull()?.precio1 ?: BigDecimal.ZERO
+        val keyDestino = s.itemDialogKeyDestino
+
+        val nuevaFila = NcDetalleItemUi(
+            key             = keyDestino ?: UUID.randomUUID(),
+            itemOrden       = if (keyDestino == null) s.detalle.size + 1 else s.detalle.find { it.key == keyDestino }?.itemOrden ?: 1,
+            idItem          = item.idItem,
+            codigoPrincipal = item.codigoPrincipal ?: "",
+            codigoAuxiliar  = item.codigoAuxiliar ?: "",
+            codigoBarras    = item.codigoBarras ?: "",
+            descripcion     = item.descripcion ?: "",
+            precioUnitario  = precio,
+            cantidad        = s.detalle.find { it.key == keyDestino }?.cantidad ?: BigDecimal.ONE,
+            descuento       = BigDecimal.ZERO,
+            impuesto        = impUi
+        ).let { recalcularSubtotalFila(it) }
+
+        _state.update { st ->
+            val nuevaLista = if (keyDestino == null) st.detalle + nuevaFila
+                            else st.detalle.map { if (it.key == keyDestino) nuevaFila else it }
+            st.copy(
+                detalle              = nuevaLista,
+                showItemDialog       = false,
+                itemDialogKeyDestino = null,
+                itemDialogQuery      = "",
+                itemDialogResultados = emptyList()
+            )
+        }
+        recalcularTotales(_state.value.detalle)
+    }
+
+    // ── Detalle — setters de campos ───────────────────────────────────────────
+    fun setDetalleCantidad(key: UUID, v: BigDecimal) {
+        _state.update { s ->
+            val lista = s.detalle.map { d -> if (d.key != key) d else recalcularSubtotalFila(d.copy(cantidad = v)) }
+            s.copy(detalle = lista)
+        }
+        recalcularTotales(_state.value.detalle)
+    }
+
+    fun setDetallePrecio(key: UUID, v: BigDecimal) {
+        _state.update { s ->
+            val lista = s.detalle.map { d -> if (d.key != key) d else recalcularSubtotalFila(d.copy(precioUnitario = v)) }
+            s.copy(detalle = lista)
+        }
+        recalcularTotales(_state.value.detalle)
+    }
+
+    fun setDetalleDescuento(key: UUID, v: BigDecimal) {
+        _state.update { s ->
+            val lista = s.detalle.map { d -> if (d.key != key) d else recalcularSubtotalFila(d.copy(descuento = v)) }
+            s.copy(detalle = lista)
+        }
+        recalcularTotales(_state.value.detalle)
+    }
+
+    fun setDetalleImpuesto(key: UUID, imp: GeImpuestoResponseDto?) {
+        _state.update { s ->
+            s.copy(detalle = s.detalle.map { d -> if (d.key != key) d else d.copy(impuesto = imp) })
+        }
+        recalcularTotales(_state.value.detalle)
+    }
+
+    fun setDetalleUnidadMedida(key: UUID, v: String) {
+        _state.update { s ->
+            s.copy(detalle = s.detalle.map { d -> if (d.key != key) d else d.copy(unidadMedida = v) })
+        }
+    }
+
+    fun agregarDetalle() = abrirDialogoItem()
+
+    fun eliminarDetalle(key: UUID) {
+        _state.update { s ->
+            val lista = s.detalle.filter { it.key != key }
+                .mapIndexed { idx, d -> d.copy(itemOrden = idx + 1) }
+            s.copy(detalle = lista)
+        }
+        recalcularTotales(_state.value.detalle)
+    }
+
+    // ── Campos adicionales ────────────────────────────────────────────────────
+    fun abrirDialogoCampoAdicional() =
+        _state.update { it.copy(showCampoAdicionalDialog = true, dialogCaNombre = "", dialogCaValor = "") }
+
+    fun cerrarDialogoCampoAdicional() =
+        _state.update { it.copy(showCampoAdicionalDialog = false, dialogCaNombre = "", dialogCaValor = "") }
+
+    fun setDialogCaNombre(v: String) = _state.update { it.copy(dialogCaNombre = v) }
+    fun setDialogCaValor(v: String)  = _state.update { it.copy(dialogCaValor = v) }
+
+    fun confirmarCampoAdicional() {
+        val s = _state.value
+        if (s.dialogCaNombre.isBlank()) {
+            _state.update { it.copy(errorMessage = "El nombre del campo no puede estar vacío") }
+            return
+        }
+        val nuevo = NcCampoAdicionalUi(nombre = s.dialogCaNombre.trim(), valor = s.dialogCaValor.trim())
+        _state.update { it.copy(
+            camposAdicionales        = it.camposAdicionales + nuevo,
+            showCampoAdicionalDialog = false,
+            dialogCaNombre           = "",
+            dialogCaValor            = ""
+        )}
+    }
+
+    fun eliminarCampoAdicional(key: UUID) =
+        _state.update { it.copy(camposAdicionales = it.camposAdicionales.filter { c -> c.key != key }) }
+
+    // ── Setters de encabezado ─────────────────────────────────────────────────
+    fun setAmbiente(v: Int) = _state.update { it.copy(ambiente = v) }
+
+    fun seleccionarSerie(serie: AdEmpresaSerieFacturaDto) {
+        _state.update { it.copy(serie = serie.serie, secuencial = serie.secuencial ?: "") }
+    }
+
+    // Setters exclusivos NCR
+    fun setConcepto(v: String)           = _state.update { it.copy(concepto = v) }
+    fun setModCodigoDocumento(v: String) = _state.update { it.copy(modCodigoDocumento = v) }
+    fun setModSerie(v: String)           = _state.update { it.copy(modSerie = v) }
+    fun setModSecuencial(v: String)      = _state.update { it.copy(modSecuencial = v) }
+    fun setModFechaEmision(v: String)    = _state.update { it.copy(modFechaEmision = v) }
+
+    // ── Setters de cliente ────────────────────────────────────────────────────
+    fun setTerceroNombre(v: String)  = _state.update { it.copy(terceroNombre = v) }
+    fun setEmail(v: String)          = _state.update { it.copy(email = v) }
+    fun setDireccion(v: String)      = _state.update { it.copy(direccion = v) }
+    fun setTelefonos(v: String)      = _state.update { it.copy(telefonos = v) }
+
+    fun dismissError() = _state.update { it.copy(errorMessage = null) }
+    fun onDestroy()    = scope.cancel()
+}
