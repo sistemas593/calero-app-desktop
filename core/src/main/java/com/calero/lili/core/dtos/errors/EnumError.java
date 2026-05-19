@@ -95,6 +95,10 @@ public enum EnumError {
     FACTURA_INFORMACION_DETALLE_ADICIONAL("Los campos de Detalle Adicional no se encuentran"),
     FACTURA_RELACIONADO_NOT_FOUND("El campo relacionado no se encuentra"),
     FACTURA_ERROR_FORMATO_COLUMNAS_INFO_DETALLES("Formato de columna incorrecto"),
+    FACTURA_IMPUESTO_ERROR("El codigo de impuesto y el codigo de porcentaje no existe"),
+
+    FACTURA_FECHA_EMISION("La fecha de emisión no puede ser diferente a la del dia de hoy"),
+
 
     PARAMETRO_IDENTIFICACION_NOT_FOUND("La identificación del trabajador no se encuentra"),
     PARAMETRO_ANIO_Y_VALOR_NOT_FOUND("El año o el valor no se encuentran "),

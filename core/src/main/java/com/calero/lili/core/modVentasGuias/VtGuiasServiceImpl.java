@@ -83,6 +83,8 @@ public class VtGuiasServiceImpl {
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa, CreationRequestGuiaRemisionDto request,
                                          String usuario, String origenCertificado) {
 
+
+        validarNumeroAutorizacion(request);
         DateUtils.validarFechaEmisionGuia(request.getFechaEmision(), request.getFechaIniTransporte());
         Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData, idEmpresa, request.getSerie(), request.getSecuencial());
 
@@ -159,6 +161,7 @@ public class VtGuiasServiceImpl {
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationRequestGuiaRemisionDto request,
                               String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
 
+        validarNumeroAutorizacion(request);
         VtGuiaEntity vtGuiaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
         validarAutorizacion(vtGuiaEntity);
         DateUtils.validarFechaEmision(request.getFechaEmision());
@@ -596,6 +599,26 @@ public class VtGuiasServiceImpl {
             throw new GeneralException("El documento no puede modificarse por que ya esta autorizado");
         }
 
+    }
+
+    private void validarNumeroAutorizacion(CreationRequestGuiaRemisionDto request) {
+
+
+        if (request.getFormatoDocumento().equals(FormatoDocumento.F)) {
+            if (Objects.isNull(request.getNumeroAutorizacion()) || request.getNumeroAutorizacion().isEmpty()) {
+                throw new GeneralException("Un documento físico debe tener número de autorización");
+            }
+
+            if (request.getNumeroAutorizacion().length() == 49 || request.getNumeroAutorizacion().length() == 10) {
+
+                if (!request.getNumeroAutorizacion().matches("\\d+")) {
+                    throw new GeneralException("El número de autorización no puede contener caracteres que no sean númericos");
+                }
+
+            } else {
+                throw new GeneralException("El número de autorización no cumple con la cantidad de dígitos");
+            }
+        }
     }
 
 }

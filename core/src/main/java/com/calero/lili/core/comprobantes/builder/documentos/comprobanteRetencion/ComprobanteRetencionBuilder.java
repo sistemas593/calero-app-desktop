@@ -63,7 +63,7 @@ public class ComprobanteRetencionBuilder {
         BigDecimal importeTotal = validarImporteTotal(impuesto.getValoresEntity(), totalSinImpuestos);
 
         DocSustento docSustento = DocSustento.builder()
-                .codSustento(impuesto.getCodigoSustento().getCodigoSustento())
+                .codSustento(impuesto.getCodigoSustento().name().replace("S", ""))
                 .codDocSustento(impuesto.getDocumento().getCodigoDocumento())
                 .numDocSustento(impuesto.getSerie() + impuesto.getSecuencial())
                 .fechaEmisionDocSustento(DateUtils.toString(impuesto.getFechaEmision()))

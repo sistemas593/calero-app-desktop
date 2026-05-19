@@ -84,6 +84,7 @@ public class ComprasRetencionesServiceImpl {
                                          String usuario, String origenCertificado) {
 
 
+        validarNumeroAutorizacion(request);
         DateUtils.validarFechaEmision(request.getFechaEmisionRetencion());
         GeTerceroEntity proveedor = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
                 .orElseThrow(() -> new GeneralException("El tercero seleccionado no existe"));
@@ -147,6 +148,7 @@ public class ComprasRetencionesServiceImpl {
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationRetencionRequestDto request,
                               String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
 
+        validarNumeroAutorizacion(request);
         CpRetencionesEntity retencionesEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         validarAutorizacion(retencionesEntity);
@@ -582,6 +584,26 @@ public class ComprasRetencionesServiceImpl {
             throw new GeneralException("El documento no puede modificarse por que ya esta autorizado");
         }
 
+    }
+
+    private void validarNumeroAutorizacion(CreationRetencionRequestDto request) {
+
+
+        if (request.getFormatoDocumento().equals(FormatoDocumento.F)) {
+            if (Objects.isNull(request.getNumeroAutorizacionRetencion()) || request.getNumeroAutorizacionRetencion().isEmpty()) {
+                throw new GeneralException("Un documento físico debe tener número de autorización");
+            }
+
+            if (request.getNumeroAutorizacionRetencion().length() == 49 || request.getNumeroAutorizacionRetencion().length() == 10) {
+
+                if (!request.getNumeroAutorizacionRetencion().matches("\\d+")) {
+                    throw new GeneralException("El número de autorización no puede contener caracteres que no sean númericos");
+                }
+
+            } else {
+                throw new GeneralException("El número de autorización no cumple con la cantidad de dígitos");
+            }
+        }
     }
 
 }

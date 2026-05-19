@@ -25,6 +25,8 @@ import com.calero.lili.core.modCompras.modComprasImpuestos.projection.ComprasImp
 import com.calero.lili.core.modCompras.modComprasImpuestos.projection.OneProjection;
 import com.calero.lili.core.modCompras.modComprasImpuestos.projection.TotalesProjection;
 import com.calero.lili.core.modCompras.modComprasRetenciones.CpRetencionesEntity;
+import com.calero.lili.core.modTerceros.GeTerceroEntity;
+import com.calero.lili.core.modTerceros.GeTercerosRepository;
 import com.calero.lili.core.tablas.tbPaises.TbPaisEntity;
 import com.calero.lili.core.tablas.tbPaises.TbPaisesRepository;
 import com.calero.lili.core.tablas.tbPaises.tbParaisosFiscales.TbParaisoFiscalEntity;
@@ -91,13 +93,13 @@ public class CpImpuestosServiceImpl {
     private final AdIvaPorcentajeServiceImpl adIvaPorcentajeService;
     private final TbPaisesRepository tbPaisesRepository;
     private final TbParaisoFiscalRepository tbParaisoFiscalRepository;
+    private final GeTercerosRepository geTercerosRepository;
 
-
-    // TODO ERROR DE TERCERO SI NO EXISTE CONTROLARLO
-    // QUE EXISTA 10 DIGITOS O 49 SOLO ESOS DOS NADA MAS Y SOLO NUMEROS
 
     public ResponseDto create(Long idData, Long idEmpresa, CreationCompraImpuestoRequestDto request, String usuario) {
 
+
+        validarNumeroAutorizacion(request);
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
                 DateUtils.toLocalDate(request.getFechaEmision()));
 
@@ -113,6 +115,11 @@ public class CpImpuestosServiceImpl {
         validarReembolso(request);
         validarPagoExterior(request);
         CpImpuestosEntity impuestosEntity = cpImpuestosBuilder.builderEntity(request, idData, idEmpresa);
+
+        GeTerceroEntity proveedor = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Id de tercero {0} no existe", request.getIdTercero())));
+
+        impuestosEntity.setTercero(proveedor);
         impuestosEntity.setOrigen(validarCodigoImpuesto(request));
         impuestosEntity.setCreatedBy(usuario);
         impuestosEntity.setCreatedDate(LocalDateTime.now());
@@ -226,6 +233,7 @@ public class CpImpuestosServiceImpl {
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationCompraImpuestoRequestDto request,
                               String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
 
+        validarNumeroAutorizacion(request);
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
                 DateUtils.toLocalDate(request.getFechaEmision()));
 
@@ -246,8 +254,13 @@ public class CpImpuestosServiceImpl {
         }
 
         validacionCodigoImpuesto(request);
+
         CpImpuestosEntity impuestosEntity = cpImpuestosBuilder.builderUpdateEntity(request, vtVentaEntity);
 
+        GeTerceroEntity proveedor = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Id de tercero {0} no existe", request.getIdTercero())));
+
+        impuestosEntity.setTercero(proveedor);
         impuestosEntity.setModifiedBy(usuario);
         impuestosEntity.setModifiedDate(LocalDateTime.now());
 
@@ -361,7 +374,7 @@ public class CpImpuestosServiceImpl {
                     throw new GeneralException("La fecha no puede ser mayor a un año respecto a la fecha de emisión del documento");
                 }
 
-                if (!comprobanteSustentoService.validacionCodigos(codigoDocumento, request.getCodigoSustento().getCodigoSustento())) {
+                if (!comprobanteSustentoService.validacionCodigos(codigoDocumento, request.getCodigoSustento().name().replace("S", ""))) {
                     throw new GeneralException(MessageFormat.format("La combinación de código de documento: {0} y código de sustento: {1} es inválida.",
                             codigoDocumento, request.getCodigoSustento()));
                 }
@@ -756,7 +769,7 @@ public class CpImpuestosServiceImpl {
     private void validacionCodigoImpuesto(CreationCompraImpuestoRequestDto model) {
 
         if (Objects.nonNull(model.getCodigoSustento())) {
-            if (!comprobanteSustentoService.validacionCodigos(model.getCodigoDocumento(), model.getCodigoSustento().getCodigoSustento())) {
+            if (!comprobanteSustentoService.validacionCodigos(model.getCodigoDocumento(), model.getCodigoSustento().name().replace("S", ""))) {
                 throw new GeneralException(MessageFormat.format("La combinación de código de documento: {0} y código de sustento: {1} es inválida.",
                         model.getCodigoDocumento(), model.getCodigoSustento()));
             }
@@ -838,6 +851,21 @@ public class CpImpuestosServiceImpl {
 
         throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
     }
+
+    private void validarNumeroAutorizacion(CreationCompraImpuestoRequestDto request) {
+
+
+        if (request.getNumeroAutorizacion().length() == 49 || request.getNumeroAutorizacion().length() == 10) {
+
+            if (!request.getNumeroAutorizacion().matches("\\d+")) {
+                throw new GeneralException("El número de autorización no puede contener caracteres que no sean númericos");
+            }
+
+        } else {
+            throw new GeneralException("El número de autorización no cumple con la cantidad de dígitos");
+        }
+    }
+
 
 }
 

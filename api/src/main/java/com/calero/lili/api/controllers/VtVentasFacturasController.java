@@ -157,10 +157,11 @@ public class VtVentasFacturasController {
     @PostMapping("facturas/excel/{idEmpresa}/{sucursal}")
     @PreAuthorize("hasAuthority('VT_FC_IMEX')")
     public void uploadFacturasExcel(@RequestParam("file") MultipartFile file,
-                                    @PathVariable("idEmpresa") Long idEmpresa) {
+                                    @PathVariable("idEmpresa") Long idEmpresa,
+                                    @PathVariable("sucursal") String sucursal) {
         try {
             vtVentasFacturasExcelService.cargarExcelFacturas(idDataService.getIdData(), idEmpresa, file,
-                    auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+                    auditorAware.getCurrentAuditor().orElse("SYSTEM"), sucursal);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -185,6 +186,14 @@ public class VtVentasFacturasController {
                 .contentType(MediaType.TEXT_PLAIN)
                 .contentLength(txt.length)
                 .body(txt);
+    }
+
+    @PostMapping("facturas/generar-comprobante/{idEmpresa}")
+    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyAuthority('VT_FC_MO_PR', 'VT_FC_MO_SC', 'VT_FC_MO_TD')")
+    public void generarComprobanteLote(@PathVariable("idEmpresa") Long idEmpresa) {
+        vtVentasService.generarComprobanteLote(idDataService.getIdData(), idEmpresa,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
 }

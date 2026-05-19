@@ -7,7 +7,6 @@ import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CreationCompraImp
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetListDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.PagoExterior;
-import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.tablas.tbDocumentos.TbDocumentoEntity;
 import com.calero.lili.core.utils.DateUtils;
 import lombok.AllArgsConstructor;
@@ -59,7 +58,6 @@ public class CpImpuestosBuilder {
                         ? reembolsoBuilder.builderListEntity(model.getReembolsos(), idData, idEmpresa)
                         : null)
                 .pagoExterior(Objects.nonNull(model.getPagoExterior()) ? model.getPagoExterior() : null)
-                .tercero(builderProveedor(model.getIdTercero()))
                 .codigosEntity(Objects.nonNull(model.getImpuestoCodigos())
                         ? impuestoCodigoBuilder.builderList(model.getImpuestoCodigos(), idData, idEmpresa)
                         : null)
@@ -103,7 +101,6 @@ public class CpImpuestosBuilder {
                         ? reembolsoBuilder.builderListEntity(model.getReembolsos(), item.getIdData(), item.getIdEmpresa())
                         : item.getReembolsosEntity())
                 .pagoExterior(Objects.nonNull(model.getPagoExterior()) ? model.getPagoExterior() : null)
-                .tercero(builderProveedor(model.getIdTercero()))
                 .codigosEntity(Objects.nonNull(model.getImpuestoCodigos())
                         ? impuestoCodigoBuilder.builderList(model.getImpuestoCodigos(), item.getIdData(), item.getIdEmpresa())
                         : item.getCodigosEntity())
@@ -153,6 +150,9 @@ public class CpImpuestosBuilder {
                 .codigoSustento(Objects.nonNull(model.getCodigoSustento())
                         ? model.getCodigoSustento()
                         : null)
+                .sustento(Objects.nonNull(model.getCodigoSustento())
+                        ? model.getCodigoSustento().getNombreSustento()
+                        : null)
                 .fechaEmision(DateUtils.toString(model.getFechaEmision()))
                 .fechaRegistro(Objects.nonNull(model.getFechaRegistro())
                         ? DateUtils.toString(model.getFechaRegistro())
@@ -197,6 +197,9 @@ public class CpImpuestosBuilder {
                 .codigoSustento(Objects.nonNull(model.getCodigoSustento())
                         ? model.getCodigoSustento()
                         : null)
+                .sustento(Objects.nonNull(model.getCodigoSustento())
+                        ? model.getCodigoSustento().getNombreSustento()
+                        : null)
                 .impuestoCodigos(Objects.nonNull(model.getCodigosEntity())
                         ? impuestoCodigoBuilder.builderListResponse(model.getCodigosEntity())
                         : null)
@@ -212,12 +215,6 @@ public class CpImpuestosBuilder {
         return list.stream()
                 .map(this::builderGetListDto)
                 .toList();
-    }
-
-    public GeTerceroEntity builderProveedor(UUID idTercero) {
-        return GeTerceroEntity.builder()
-                .idTercero(idTercero)
-                .build();
     }
 
 

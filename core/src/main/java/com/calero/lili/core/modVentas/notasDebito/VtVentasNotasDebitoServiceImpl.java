@@ -28,13 +28,11 @@ import com.calero.lili.core.modVentas.VtVentasPersistenceService;
 import com.calero.lili.core.modVentas.VtVentasRepository;
 import com.calero.lili.core.modVentas.builder.GetListResponseBuilder;
 import com.calero.lili.core.modVentas.dto.GetListDto;
-import com.calero.lili.core.modVentas.dto.GetListDtoTotalizado;
 import com.calero.lili.core.modVentas.notasDebito.builder.VtNotasDebitoBuilder;
 import com.calero.lili.core.modVentas.notasDebito.dto.CreationNotaDebitoRequestDto;
 import com.calero.lili.core.modVentas.notasDebito.dto.FilterListDto;
 import com.calero.lili.core.modVentas.notasDebito.dto.GetNotaDebitoDto;
 import com.calero.lili.core.modVentas.projection.OneProjection;
-import com.calero.lili.core.modVentas.projection.TotalesProjection;
 import com.calero.lili.core.modVentas.service.ValidarServiceImpl;
 import com.calero.lili.core.utils.DateUtils;
 import com.calero.lili.core.utils.validaciones.ValidarCampoAscii;
@@ -79,6 +77,7 @@ public class VtVentasNotasDebitoServiceImpl {
 
         DateUtils.validarFechaEmision(request.getFechaEmision());
         ValidarCampoAscii.validarStrings(request);
+        validarNumeroAutorizacion(request);
 
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
                 DateUtils.toLocalDate(request.getFechaEmision()));
@@ -154,7 +153,7 @@ public class VtVentasNotasDebitoServiceImpl {
                               FilterListDto filters, TipoPermiso tipoBusqueda) {
 
         VtVentaEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
-
+        validarNumeroAutorizacion(request);
         validarService.validarNoModificacion(vtVentaEntity);
 
         DateUtils.validarFechaEmision(request.getFechaEmision());
@@ -434,6 +433,26 @@ public class VtVentasNotasDebitoServiceImpl {
         if (tercero.getNumeroIdentificacion().equals("9999999999")) {
             if (request.getTotal().compareTo(new BigDecimal("50")) > 0) {
                 throw new GeneralException("El total no puede ser mayor a 50 para el consumidor final");
+            }
+        }
+    }
+
+    private void validarNumeroAutorizacion(CreationNotaDebitoRequestDto request) {
+
+
+        if (request.getFormatoDocumento().equals(FormatoDocumento.F)) {
+            if (Objects.isNull(request.getNumeroAutorizacion()) || request.getNumeroAutorizacion().isEmpty()) {
+                throw new GeneralException("Un documento físico debe tener número de autorización");
+            }
+
+            if (request.getNumeroAutorizacion().length() == 49 || request.getNumeroAutorizacion().length() == 10) {
+
+                if (!request.getNumeroAutorizacion().matches("\\d+")) {
+                    throw new GeneralException("El número de autorización no puede contener caracteres que no sean númericos");
+                }
+
+            } else {
+                throw new GeneralException("El número de autorización no cumple con la cantidad de dígitos");
             }
         }
     }

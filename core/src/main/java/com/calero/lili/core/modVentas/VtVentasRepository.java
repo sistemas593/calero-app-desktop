@@ -458,4 +458,21 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
     List<VtVentaEntity> obtenerTodosParaAutorizar(@Param("idData") Long idData,
                                                   @Param("idEmpresa") Long idEmpresa);
 
+
+    @Query("""
+            SELECT vtVentaEntity
+            FROM VtVentaEntity vtVentaEntity
+            WHERE vtVentaEntity.idData = :idData
+              AND vtVentaEntity.idEmpresa = :idEmpresa
+              AND vtVentaEntity.existeComprobante = false
+              AND vtVentaEntity.tipoVenta = 'FAC'
+              AND vtVentaEntity.fechaEmision >= :fechaEmisionDesde
+              AND vtVentaEntity.fechaEmision <= :fechaEmisionHasta
+            """)
+    List<VtVentaEntity> findAllFacturasSinComprobante(
+            @Param("idData") Long idData,
+            @Param("idEmpresa") Long idEmpresa,
+            @Param("fechaEmisionDesde") LocalDateTime fechaEmisionDesde,
+            @Param("fechaEmisionHasta") LocalDateTime fechaEmisionHasta);
+
 }

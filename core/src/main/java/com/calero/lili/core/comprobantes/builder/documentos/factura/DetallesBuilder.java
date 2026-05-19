@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @AllArgsConstructor
@@ -19,6 +20,7 @@ public class DetallesBuilder {
     private final FormatoValores formatoValores;
 
     public List<Detalle> builderListDetalle(List<VtVentaDetalleEntity> list) {
+        if (Objects.isNull(list)) return null;
         return list.stream()
                 .map(this::builderDetalle)
                 .toList();

@@ -44,7 +44,7 @@ public class AtsBuilder {
 
     public DetalleCompras builderDetalleRetencion(CpImpuestosEntity model, CpRetencionesEntity item) {
         return DetalleCompras.builder()
-                .codSustento(model.getCodigoSustento().getCodigoSustento())
+                .codSustento(model.getCodigoSustento().name().replace("S", ""))
                 .tpIdProv(model.getTipoProveedor())
                 .idProv(model.getTercero().getNumeroIdentificacion())
                 .tipoComprobante(model.getDocumento().getCodigoDocumento())
@@ -106,7 +106,7 @@ public class AtsBuilder {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         return DetalleCompras.builder()
-                .codSustento(model.getCodigoSustento().getCodigoSustento())
+                .codSustento(model.getCodigoSustento().name().replace("S", ""))
                 .tpIdProv(validacionTipoId(model.getTercero().getTipoIdentificacion()))
                 .idProv(model.getTercero().getNumeroIdentificacion())
                 .tipoComprobante(model.getDocumento().getCodigoDocumento())

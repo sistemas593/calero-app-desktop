@@ -35,6 +35,7 @@ import com.calero.lili.core.modVentas.VtVentasRepository;
 import com.calero.lili.core.modVentas.builder.GetListResponseBuilder;
 import com.calero.lili.core.modVentas.dto.DetailDto;
 import com.calero.lili.core.modVentas.dto.GetListDto;
+import com.calero.lili.core.modVentas.facturas.dto.CreationFacturaRequestDto;
 import com.calero.lili.core.modVentas.facturas.dto.FilterListDto;
 import com.calero.lili.core.modVentas.notasCredito.builder.VtNotasCreditoBuilder;
 import com.calero.lili.core.modVentas.notasCredito.dto.CreationNotaCreditoRequestDto;
@@ -101,6 +102,7 @@ public class VtVentasNotasCreditoServiceImpl {
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa, CreationNotaCreditoRequestDto request,
                                          String usuario, String origenCertificado) {
 
+        validarNumeroAutorizacion(request);
         DateUtils.validarFechaEmision(request.getFechaEmision());
         ValidarCampoAscii.validarStrings(request);
 
@@ -181,6 +183,7 @@ public class VtVentasNotasCreditoServiceImpl {
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationNotaCreditoRequestDto request,
                               String usuario, TipoPermiso tipoBusqueda, FilterListDto filters) {
 
+        validarNumeroAutorizacion(request);
         VtVentaEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         validarService.validarNoModificacion(vtVentaEntity);
@@ -797,6 +800,32 @@ public class VtVentasNotasCreditoServiceImpl {
         request.setSubtotal(subtotal);
         request.setTotal(subtotal.add(totalImpuesto));
 
+    }
+
+    private void validarNumeroAutorizacion(CreationNotaCreditoRequestDto request) {
+
+
+        if (request.getFormatoDocumento().equals(FormatoDocumento.F)) {
+            if (Objects.isNull(request.getNumeroAutorizacion()) || request.getNumeroAutorizacion().isEmpty()) {
+                throw new GeneralException("Un documento físico debe tener número de autorización");
+            }
+
+            if (request.getNumeroAutorizacion().length() == 49 || request.getNumeroAutorizacion().length() == 10) {
+
+                if (!request.getNumeroAutorizacion().matches("\\d+")) {
+                    throw new GeneralException("El número de autorización no puede contener caracteres que no sean númericos");
+                }
+
+            } else {
+                throw new GeneralException("El número de autorización no cumple con la cantidad de dígitos");
+            }
+        }
+
+        if (request.getFormatoDocumento().equals(FormatoDocumento.E)) {
+            if (Objects.nonNull(request.getNumeroAutorizacion()) && !request.getNumeroAutorizacion().isEmpty()) {
+                throw new GeneralException("Un documento electrónico no debe tener número de autorización");
+            }
+        }
     }
 
 }

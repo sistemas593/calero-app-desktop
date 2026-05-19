@@ -6,13 +6,16 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @AllArgsConstructor
 public class ImpuestoBuilder {
 
     private final FormatoValores formatoValores;
+
     public List<Impuesto> builderListImpuesto(List<VtVentaDetalleEntity.Impuestos> list) {
+        if (Objects.isNull(list)) return null;
         return list.stream()
                 .map(this::builderImpuesto)
                 .toList();

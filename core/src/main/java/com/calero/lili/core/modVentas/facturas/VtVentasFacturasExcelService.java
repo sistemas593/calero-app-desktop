@@ -4,18 +4,26 @@ import com.calero.lili.core.builder.DetalleErrorBuilder;
 import com.calero.lili.core.dtos.InformacionAdicional;
 import com.calero.lili.core.dtos.errors.DetalleError;
 import com.calero.lili.core.dtos.errors.EnumError;
+import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.TipoClienteProveedor;
 import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.enums.TipoVenta;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.errors.exceptions.ListErrorException;
+import com.calero.lili.core.modAdminEmpresasSucursales.AdEmpresasSucursalesEntity;
+import com.calero.lili.core.modAdminEmpresasSucursales.AdEmpresasSucursalesRepository;
 import com.calero.lili.core.modComprasItems.GeItemEntity;
 import com.calero.lili.core.modComprasItems.GeItemsRepository;
+import com.calero.lili.core.modComprasItems.dto.GeItemGetListDto;
+import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosEntity;
+import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosItemsRepository;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
 import com.calero.lili.core.modTerceros.GeTercerosTipoRepository;
 import com.calero.lili.core.modTerceros.builder.GeTercerosTipoBuilder;
 import com.calero.lili.core.modVentas.VtVentaDetalleEntity;
 import com.calero.lili.core.modVentas.VtVentaEntity;
+import com.calero.lili.core.modVentas.VtVentaValoresEntity;
 import com.calero.lili.core.modVentas.VtVentasRepository;
 import com.calero.lili.core.modVentas.projection.OneProjection;
 import com.calero.lili.core.utils.DateUtils;
@@ -30,6 +38,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.MessageFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,18 +53,18 @@ import java.util.UUID;
 public class VtVentasFacturasExcelService {
 
 
-    // validar los campos de tercero tipo no se estan guardando y al guardar no duplicar los tipos.
-
-
     private final VtVentasRepository vtVentasRepository;
     private final GeItemsRepository geItemsRepository;
     private final GeTercerosRepository geTercerosRepository;
     private final DetalleErrorBuilder detalleErrorBuilder;
     private final GeTercerosTipoRepository geTercerosTipoRepository;
     private final GeTercerosTipoBuilder geTercerosTipoBuilder;
+    private final AdEmpresasSucursalesRepository adEmpresasSucursalesRepository;
+    private final GeImpuestosItemsRepository geImpuestosItemsRepository;
 
 
-    public void cargarExcelFacturas(Long idData, Long idEmpresa, MultipartFile file, String usuario) throws IOException {
+    public void cargarExcelFacturas(Long idData, Long idEmpresa,
+                                    MultipartFile file, String usuario, String sucursal) throws IOException {
 
         InputStream is = file.getInputStream();
         Workbook workbook = StreamingReader.builder()
@@ -63,6 +74,14 @@ public class VtVentasFacturasExcelService {
 
         List<DetalleError> detalleErrores = new ArrayList<>();
         List<VtVentaEntity> facturas = new ArrayList<>();
+
+
+        Optional<AdEmpresasSucursalesEntity> sucursalEntity = adEmpresasSucursalesRepository
+                .findfirstByIdDataAndIdEmpresaAAndSucursal(idData, idEmpresa, sucursal);
+
+        if (sucursalEntity.isEmpty()) {
+            throw new GeneralException(MessageFormat.format("La sucursal {0} no existe ", sucursal));
+        }
 
         boolean isHeader = true;
         for (Sheet sheet : workbook) {
@@ -89,6 +108,20 @@ public class VtVentasFacturasExcelService {
                 factura.setCreatedDate(LocalDateTime.now());
                 factura.setCreatedBy(usuario);
 
+                factura.setAmbiente(1);
+                factura.setCodigoDocumento("18");
+                factura.setAnulada(Boolean.FALSE);
+                factura.setFleteInternacional(new BigDecimal("0.00"));
+                factura.setFormatoDocumento(FormatoDocumento.E);
+                factura.setGastosAduaneros(new BigDecimal("0.00"));
+                factura.setGastosTransporteOtros(new BigDecimal("0.00"));
+                factura.setLiquidar("S");
+                factura.setNumeroItems(1);
+                factura.setSeguroInternacional(new BigDecimal("0.00"));
+                factura.setTipoEmision(1);
+                factura.setTipoIngreso("VL");
+                factura.setSucursal(sucursal);
+                factura.setExisteComprobante(Boolean.FALSE);
 
                 cabeceraFactura(idData, idEmpresa, row, factura, detalleErrores, linea);
                 detalleFactura(idData, idEmpresa, row, factura, detalleErrores, linea);
@@ -126,6 +159,7 @@ public class VtVentasFacturasExcelService {
             detalle.setDescuento(new BigDecimal(row.getCell(19).getStringCellValue()));
             setearDetalleAdicional(row, linea, detalle, detalleErrores);
 
+            validarValores(factura, row, linea, detalleErrores, detalle);
             Optional<GeItemEntity> itemEntity = geItemsRepository.findByCodigoItem(idData, idEmpresa, row.getCell(11).getStringCellValue());
 
             if (itemEntity.isPresent()) {
@@ -146,6 +180,68 @@ public class VtVentasFacturasExcelService {
         }
 
         factura.setDetalle(detalles);
+
+    }
+
+    private void validarValores(VtVentaEntity factura, Row row, int linea,
+                                List<DetalleError> detalleErrores, VtVentaDetalleEntity detalle) {
+
+        List<VtVentaValoresEntity> valoresEntity = new ArrayList<>();
+
+        BigDecimal subtotal = new BigDecimal(row.getCell(16).getStringCellValue())
+                .multiply(new BigDecimal(row.getCell(18).getStringCellValue()));
+
+        detalle.setSubtotalItem(subtotal);
+        factura.setSubtotal(subtotal);
+        factura.setTotalDescuento(new BigDecimal(row.getCell(19).getStringCellValue()));
+        BigDecimal subTotalDescuento = subtotal.subtract(factura.getTotalDescuento());
+
+        String clave = row.getCell(20).getStringCellValue() + "-" + row.getCell(21).getStringCellValue();
+
+        Optional<GeImpuestosEntity> impuesto = geImpuestosItemsRepository.findCodigoAndCodigoPorcentaje(clave);
+
+        if (impuesto.isPresent()) {
+
+            VtVentaValoresEntity valor = new VtVentaValoresEntity();
+            BigDecimal valorImpuesto = subtotal
+                    .multiply(impuesto.get().getTarifa())
+                    .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+
+            valor.setIdVentaValores(UUID.randomUUID());
+            valor.setBaseImponible(subtotal);
+            valor.setTarifa(impuesto.get().getTarifa());
+            valor.setCodigo(impuesto.get().getCodigo());
+            valor.setCodigoPorcentaje(impuesto.get().getCodigoPorcentaje());
+            valor.setValor(valorImpuesto);
+            valor.setIdData(factura.getIdData());
+            valor.setIdEmpresa(factura.getIdEmpresa());
+
+            factura.setTotal(subTotalDescuento.add(valorImpuesto));
+            factura.setTotalImpuesto(valorImpuesto);
+
+            List<VtVentaDetalleEntity.Impuestos> impuestos = new ArrayList<>();
+
+            VtVentaDetalleEntity.Impuestos impuestoDetalle = VtVentaDetalleEntity.Impuestos.builder()
+                    .codigo(valor.getCodigo())
+                    .codigoPorcentaje(valor.getCodigoPorcentaje())
+                    .tarifa(valor.getTarifa())
+                    .baseImponible(valor.getBaseImponible())
+                    .valor(valor.getValor())
+                    .build();
+
+            impuestos.add(impuestoDetalle);
+            detalle.setImpuesto(impuestos);
+
+            valoresEntity.add(valor);
+            factura.setValoresEntity(valoresEntity);
+
+
+        } else {
+            DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.FACTURA_IMPUESTO_ERROR);
+            detalleError.setDetalle("Codigo Impuesto : " + row.getCell(20).getStringCellValue() + " Codigo Porcentaje: " + row.getCell(21).getStringCellValue());
+            detalleErrores.add(detalleError);
+        }
+
 
     }
 
@@ -171,7 +267,17 @@ public class VtVentasFacturasExcelService {
         }
 
         if (Objects.nonNull(row.getCell(2))) {
-            factura.setFechaEmision(DateUtils.toLocalExcelDateTimeFechaDesde(row.getCell(2).getStringCellValue()));
+
+            String fechaEmision = row.getCell(2).getStringCellValue();
+            LocalDate fecha = DateUtils.toLocalDate(fechaEmision);
+
+            if (!fecha.isEqual(LocalDate.now())) {
+                DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.FACTURA_FECHA_EMISION);
+                detalleError.setDetalle("Fecha del excel: " + fechaEmision + " Fecha actual: " + DateUtils.toString(LocalDate.now()));
+                detalleErrores.add(detalleError);
+                return;
+            }
+            factura.setFechaEmision(DateUtils.toLocalExcelDateTimeFechaDesde(fechaEmision));
         } else {
             detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.FACTURA_FECHA_EMISION_NOT_FOUND));
         }
@@ -357,7 +463,7 @@ public class VtVentasFacturasExcelService {
 
     private static void throwErrors(List<DetalleError> detalleErrores) {
         List<String> list = detalleErrores.stream()
-                .map(detalleError -> detalleError.getLinea() + "   " + detalleError.getType().getDescription())
+                .map(detalleError -> detalleError.getLinea() + "   " + detalleError.getType().getDescription() + " " + detalleError.getDetalle())
                 .toList();
         throw new ListErrorException(list);
     }

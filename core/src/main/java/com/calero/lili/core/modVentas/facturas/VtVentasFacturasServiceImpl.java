@@ -113,12 +113,11 @@ public class VtVentasFacturasServiceImpl {
     private final ValidarServiceImpl validarService;
 
 
-    //TODO  SI UN NUEVO DOCUMENTO Y ES ELECTRONICO, EL NUMERO DE AUTORIZACION DEBE ESTAR VACIO, DEVOLVER UN ERROR (FAC, NDB, NCR, GUIAS, RETENCIONES)
-
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa,
                                          CreationFacturaRequestDto request, String usuario, String origenCertificado) {
 
 
+        validarNumeroAutorizacion(request);
         DateUtils.validarFechaEmision(request.getFechaEmision());
         ValidarCampoAscii.validarStrings(request);
 
@@ -146,7 +145,7 @@ public class VtVentasFacturasServiceImpl {
         validarCentroCostos(request, idData, idEmpresa);
 
         VtVentaEntity vtVentaEntity = vtFacturasBuilder.builderEntity(request, idData, idEmpresa);
-
+        validarEstadoDocumentoFisico(vtVentaEntity);
         vtVentaEntity.setCreatedBy(usuario);
         vtVentaEntity.setCreatedDate(LocalDateTime.now());
 
@@ -204,6 +203,7 @@ public class VtVentasFacturasServiceImpl {
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationFacturaRequestDto request,
                               FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
+        validarNumeroAutorizacion(request);
         VtVentaEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         validarService.validarNoModificacion(vtVentaEntity);
@@ -1075,5 +1075,57 @@ public class VtVentasFacturasServiceImpl {
         request.setDireccion(null);
         request.setEmail(null);
     }
+
+    private void validarNumeroAutorizacion(CreationFacturaRequestDto request) {
+
+
+        if (request.getFormatoDocumento().equals(FormatoDocumento.F)) {
+            if (Objects.isNull(request.getNumeroAutorizacion()) || request.getNumeroAutorizacion().isEmpty()) {
+                throw new GeneralException("Un documento físico debe tener número de autorización");
+            }
+
+            if (request.getNumeroAutorizacion().length() == 49 || request.getNumeroAutorizacion().length() == 10) {
+
+                if (!request.getNumeroAutorizacion().matches("\\d+")) {
+                    throw new GeneralException("El número de autorización no puede contener caracteres que no sean númericos");
+                }
+
+            } else {
+                throw new GeneralException("El número de autorización no cumple con la cantidad de dígitos");
+            }
+        }
+
+        if (request.getFormatoDocumento().equals(FormatoDocumento.E)) {
+            if (Objects.nonNull(request.getNumeroAutorizacion()) && !request.getNumeroAutorizacion().isEmpty()) {
+                throw new GeneralException("Un documento electrónico no debe tener número de autorización");
+            }
+        }
+    }
+
+    private void validarEstadoDocumentoFisico(VtVentaEntity factura) {
+        if (factura.getFormatoDocumento().equals(FormatoDocumento.F)) {
+            factura.setEstadoDocumento(EstadoDocumento.ENV);
+        }
+    }
+
+
+    public void generarComprobanteLote(Long idData, Long idEmpresa, String usuario) {
+
+        LocalDateTime fechaActual = LocalDateTime.now();
+        LocalDateTime fechaDesde = LocalDate.now()
+                .minusDays(5).atStartOfDay();
+
+        List<VtVentaEntity> facturas = vtVentaRepository.findAllFacturasSinComprobante(idData, idEmpresa, fechaDesde, fechaActual);
+
+        for (VtVentaEntity factura : facturas) {
+            vtComprobanteService.getComprobanteXmlFactura(idData, idEmpresa, factura);
+            factura.setExisteComprobante(Boolean.TRUE);
+            factura.setModifiedBy(usuario);
+            factura.setModifiedDate(LocalDateTime.now());
+            vtVentaRepository.save(factura);
+        }
+    }
+
+
 }
 
