@@ -114,6 +114,7 @@ public class CpImpuestosServiceImpl {
         validacionCodigoImpuesto(request);
         validarReembolso(request);
         validarPagoExterior(request);
+        validarInfoAddicional(request);
         CpImpuestosEntity impuestosEntity = cpImpuestosBuilder.builderEntity(request, idData, idEmpresa);
 
         GeTerceroEntity proveedor = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
@@ -253,6 +254,7 @@ public class CpImpuestosServiceImpl {
             }
         }
 
+        validarInfoAddicional(request);
         validacionCodigoImpuesto(request);
 
         CpImpuestosEntity impuestosEntity = cpImpuestosBuilder.builderUpdateEntity(request, vtVentaEntity);
@@ -866,6 +868,15 @@ public class CpImpuestosServiceImpl {
         }
     }
 
+
+    public void validarInfoAddicional(CreationCompraImpuestoRequestDto request) {
+
+        if (Objects.nonNull(request.getInformacionAdicional())) {
+            if (request.getInformacionAdicional().isEmpty()) {
+                request.setInformacionAdicional(null);
+            }
+        }
+    }
 
 }
 

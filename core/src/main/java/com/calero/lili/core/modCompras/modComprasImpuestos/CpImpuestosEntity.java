@@ -2,6 +2,7 @@ package com.calero.lili.core.modCompras.modComprasImpuestos;
 
 import com.calero.lili.core.Auditable;
 import com.calero.lili.core.dtos.FormasPagoSri;
+import com.calero.lili.core.dtos.InformacionAdicional;
 import com.calero.lili.core.dtos.Mensajes;
 import com.calero.lili.core.enums.SustentoCodigos;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.PagoExterior;
@@ -155,4 +156,8 @@ public class CpImpuestosEntity extends Auditable {
     private List<FormasPagoSri> formasPagoSri;
 
     private Boolean existeComprobante;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private List<InformacionAdicional> informacionAdicional;
 }

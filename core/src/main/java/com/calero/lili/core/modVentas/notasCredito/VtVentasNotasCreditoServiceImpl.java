@@ -35,7 +35,6 @@ import com.calero.lili.core.modVentas.VtVentasRepository;
 import com.calero.lili.core.modVentas.builder.GetListResponseBuilder;
 import com.calero.lili.core.modVentas.dto.DetailDto;
 import com.calero.lili.core.modVentas.dto.GetListDto;
-import com.calero.lili.core.modVentas.facturas.dto.CreationFacturaRequestDto;
 import com.calero.lili.core.modVentas.facturas.dto.FilterListDto;
 import com.calero.lili.core.modVentas.notasCredito.builder.VtNotasCreditoBuilder;
 import com.calero.lili.core.modVentas.notasCredito.dto.CreationNotaCreditoRequestDto;
@@ -661,16 +660,17 @@ public class VtVentasNotasCreditoServiceImpl {
 
 
     public void validarInfoAddicional(CreationNotaCreditoRequestDto request) {
+
         if (Objects.nonNull(request.getInformacionAdicional())) {
             if (request.getInformacionAdicional().isEmpty()) {
-                throw new GeneralException("La información adicional se envia pero esta vacia");
+                request.setInformacionAdicional(null);
             }
         }
 
         for (DetailDto item : request.getDetalle()) {
             if (Objects.nonNull(item.getDetAdicional())) {
                 if (item.getDetAdicional().isEmpty()) {
-                    throw new GeneralException("En la lista de detalles, se envia detalle adicional pero este esta vacio");
+                    item.setDetAdicional(null);
                 }
             }
         }

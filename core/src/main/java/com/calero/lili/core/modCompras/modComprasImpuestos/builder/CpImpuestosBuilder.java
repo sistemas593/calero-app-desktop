@@ -1,6 +1,7 @@
 package com.calero.lili.core.modCompras.modComprasImpuestos.builder;
 
 import com.calero.lili.core.builder.FormasPagoBuilder;
+import com.calero.lili.core.builder.InformacionAdicionalBuilder;
 import com.calero.lili.core.dtos.FormasPagoSri;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CreationCompraImpuestoRequestDto;
@@ -26,6 +27,7 @@ public class CpImpuestosBuilder {
     private final ReembolsoBuilder reembolsoBuilder;
     private final ImpuestoCodigoBuilder impuestoCodigoBuilder;
     private final FormasPagoBuilder formasPagoBuilder;
+    private final InformacionAdicionalBuilder informacionAdicionalBuilder;
 
     public CpImpuestosEntity builderEntity(CreationCompraImpuestoRequestDto model, Long idData, Long idEmpresa) {
         return CpImpuestosEntity.builder()
@@ -67,6 +69,7 @@ public class CpImpuestosBuilder {
                         : "01")
                 .destino(model.getDestino())
                 .existeComprobante(Boolean.FALSE)
+                .informacionAdicional(informacionAdicionalBuilder.builderList(model.getInformacionAdicional()))
                 .build();
     }
 
@@ -110,6 +113,7 @@ public class CpImpuestosBuilder {
                         : item.getPagoLocExt())
                 .destino(model.getDestino())
                 .existeComprobante(item.getExisteComprobante())
+                .informacionAdicional(informacionAdicionalBuilder.builderList(model.getInformacionAdicional()))
                 .build();
     }
 
@@ -169,6 +173,7 @@ public class CpImpuestosBuilder {
                 .terceroNombre(Objects.nonNull(model.getTercero()) ? model.getTercero().getTercero() : null)
                 .existeComprobante(model.getExisteComprobante())
                 .formasPagoSri(builderFormasDePagoSriResponseBuilder(model.getFormasPagoSri()))
+                .informacionAdicional(informacionAdicionalBuilder.builderListDto(model.getInformacionAdicional()))
                 .build();
     }
 
@@ -208,6 +213,7 @@ public class CpImpuestosBuilder {
                 .terceroNombre(Objects.nonNull(model.getTercero()) ? model.getTercero().getTercero() : null)
                 .numeroIdentificacion(Objects.nonNull(model.getTercero()) ? model.getTercero().getNumeroIdentificacion() : null)
                 .existeComprobante(model.getExisteComprobante())
+                .informacionAdicional(informacionAdicionalBuilder.builderListDto(model.getInformacionAdicional()))
                 .build();
     }
 

@@ -32,6 +32,8 @@ import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.Liquid
 import com.calero.lili.core.modComprasItems.GeItemsRepository;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
+import com.calero.lili.core.modVentas.dto.DetailDto;
+import com.calero.lili.core.modVentas.facturas.dto.CreationFacturaRequestDto;
 import com.calero.lili.core.utils.DateUtils;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -738,19 +740,20 @@ public class LiquidacionesServiceImpl {
     }
 
     public void validarInfoAddicional(CreationRequestLiquidacionCompraDto request) {
+
         if (Objects.nonNull(request.getInformacionAdicional())) {
             if (request.getInformacionAdicional().isEmpty()) {
-                throw new GeneralException("La información adicional se envia pero esta vacia");
-            }
-        }
-        for (CreationRequestLiquidacionCompraDto.DetailDto item : request.getDetalle()) {
-            if (Objects.nonNull(item.getDetAdicional())) {
-                if (item.getDetAdicional().isEmpty()) {
-                    throw new GeneralException("En la lista de detalles, se envia detalle adicional pero este esta vacio");
-                }
+                request.setInformacionAdicional(null);
             }
         }
 
+        for (CreationRequestLiquidacionCompraDto.DetailDto item : request.getDetalle()) {
+            if (Objects.nonNull(item.getDetAdicional())) {
+                if (item.getDetAdicional().isEmpty()) {
+                    item.setDetAdicional(null);
+                }
+            }
+        }
     }
 
 

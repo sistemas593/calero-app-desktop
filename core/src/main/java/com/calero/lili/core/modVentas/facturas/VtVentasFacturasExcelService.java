@@ -4,6 +4,7 @@ import com.calero.lili.core.builder.DetalleErrorBuilder;
 import com.calero.lili.core.dtos.InformacionAdicional;
 import com.calero.lili.core.dtos.errors.DetalleError;
 import com.calero.lili.core.dtos.errors.EnumError;
+import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.TipoClienteProveedor;
 import com.calero.lili.core.enums.TipoIdentificacion;
@@ -14,7 +15,6 @@ import com.calero.lili.core.modAdminEmpresasSucursales.AdEmpresasSucursalesEntit
 import com.calero.lili.core.modAdminEmpresasSucursales.AdEmpresasSucursalesRepository;
 import com.calero.lili.core.modComprasItems.GeItemEntity;
 import com.calero.lili.core.modComprasItems.GeItemsRepository;
-import com.calero.lili.core.modComprasItems.dto.GeItemGetListDto;
 import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosEntity;
 import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosItemsRepository;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
@@ -43,6 +43,7 @@ import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -139,6 +140,7 @@ public class VtVentasFacturasExcelService {
 
 
     }
+
 
     private void detalleFactura(Long idData, Long idEmpresa, Row row, VtVentaEntity factura, List<DetalleError> detalleErrores, int linea) {
 
@@ -479,5 +481,166 @@ public class VtVentasFacturasExcelService {
         return true;
     }
 
+
+    public void cargarExcelVentasImpuestos(Long idData, Long idEmpresa,
+                                           MultipartFile file, String usuario, String sucursal) throws IOException {
+
+        InputStream is = file.getInputStream();
+        Workbook workbook = StreamingReader.builder()
+                .rowCacheSize(500000)
+                .bufferSize(131072)
+                .open(is);
+
+        List<DetalleError> detalleErrores = new ArrayList<>();
+        List<VtVentaEntity> facturas = new ArrayList<>();
+
+
+        Optional<AdEmpresasSucursalesEntity> sucursalEntity = adEmpresasSucursalesRepository
+                .findfirstByIdDataAndIdEmpresaAAndSucursal(idData, idEmpresa, sucursal);
+
+        if (sucursalEntity.isEmpty()) {
+            throw new GeneralException(MessageFormat.format("La sucursal {0} no existe ", sucursal));
+        }
+
+        boolean isHeader = true;
+        for (Sheet sheet : workbook) {
+
+            for (Row row : sheet) {
+
+                if (isRowEmpty(row)) {
+                    continue;
+                }
+
+                int linea = row.getRowNum() + 1;
+
+                if (isHeader) {
+                    isHeader = false;
+                    continue;
+                }
+
+
+                VtVentaEntity factura = new VtVentaEntity();
+                factura.setIdVenta(UUID.randomUUID());
+                factura.setIdData(idData);
+                factura.setIdEmpresa(idEmpresa);
+                factura.setCreatedDate(LocalDateTime.now());
+                factura.setCreatedBy(usuario);
+
+                factura.setAmbiente(1);
+                factura.setCodigoDocumento("18");
+                factura.setAnulada(Boolean.FALSE);
+                factura.setFleteInternacional(new BigDecimal("0.00"));
+                factura.setFormatoDocumento(FormatoDocumento.E);
+                factura.setGastosAduaneros(new BigDecimal("0.00"));
+                factura.setGastosTransporteOtros(new BigDecimal("0.00"));
+                factura.setLiquidar("S");
+                factura.setNumeroItems(1);
+                factura.setSeguroInternacional(new BigDecimal("0.00"));
+                factura.setTipoEmision(1);
+                factura.setExisteComprobante(Boolean.FALSE);
+                factura.setComprobante(null);
+
+
+                if (Objects.nonNull(row.getCell(2)) && Objects.nonNull(row.getCell(3))) {
+                    Optional<OneProjection> x = vtVentasRepository.findExistBySecuencial(idData, idEmpresa, TipoVenta.FAC.name(),
+                            row.getCell(0).getStringCellValue(), row.getCell(1).getStringCellValue());
+
+                    if (x.isEmpty()) {
+                        factura.setSerie(row.getCell(2).getStringCellValue());
+                        factura.setSecuencial(row.getCell(3).getStringCellValue());
+                    } else {
+                        detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.FACTURA_EXISTS));
+                    }
+                }
+
+                if (Objects.nonNull(row.getCell(0))) {
+
+                    String tipoVenta = row.getCell(0).getStringCellValue();
+
+                    String[] tipos = {"FAC", "NDB", "NCR"};
+                    if (Arrays.asList(tipos).contains(tipoVenta)) {
+                        factura.setTipoVenta(tipoVenta);
+                    } else {
+                        DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.FACTURA_IMPUESTO_NO_TIPO_DOCUMENTO);
+                        detalleError.setDetalle("El tipo de venta:" + tipoVenta + " , no corresponde a ningún tipo de ventas");
+                        detalleErrores.add(detalleError);
+                    }
+
+                } else {
+                    DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.FACTURA_IMPUESTO_NO_TIPO_DOCUMENTO);
+                    detalleErrores.add(detalleError);
+                }
+
+
+                if (Objects.nonNull(row.getCell(1))) {
+
+                    String tipoDocumento = row.getCell(1).getStringCellValue();
+                    if (tipoDocumento.equals("S")) {
+                        factura.setFormatoDocumento(FormatoDocumento.E);
+                        factura.setEstadoDocumento(EstadoDocumento.AUT);
+                    } else if (tipoDocumento.equals("N")) {
+                        factura.setFormatoDocumento(FormatoDocumento.F);
+                    }
+
+                } else {
+                    DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.FACTURA_IMPUESTO_NO_FORMATO_DOCUMENTO);
+                    detalleErrores.add(detalleError);
+                }
+
+                if (Objects.nonNull(row.getCell(4))) {
+                    factura.setTipoVenta(row.getCell(4).getStringCellValue());
+                } else {
+                    DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.FACTURA_IMPUESTO_NO_TIPO_VENTA);
+                    detalleErrores.add(detalleError);
+                }
+
+
+                if (Objects.nonNull(row.getCell(5)) && Objects.nonNull(row.getCell(6))
+                        && Objects.nonNull(row.getCell(7))) {
+
+                    Optional<GeTerceroEntity> cliente = geTercerosRepository
+                            .getFindExistByNumeroIdentificacion(idData, row.getCell(5).getStringCellValue());
+
+                    if (cliente.isPresent()) {
+                        factura.setTercero(cliente.get());
+                    } else {
+                        GeTerceroEntity tercero = new GeTerceroEntity();
+
+                        String tipoIdentificacion = row.getCell(7).getStringCellValue();
+                        if (!tipoIdentificacion.contains("0")) {
+                            tipoIdentificacion = "0" + tipoIdentificacion;
+                        }
+                        tercero.setIdData(idData);
+                        tercero.setIdTercero(UUID.randomUUID());
+                        tercero.setNumeroIdentificacion(row.getCell(5).getStringCellValue());
+                        tercero.setTipoIdentificacion(TipoIdentificacion.obtenerTipoIdentificacion(tipoIdentificacion).name());
+                        tercero.setTercero(row.getCell(6).getStringCellValue());
+                        tercero.setDireccion("");
+                        tercero.setEmail("");
+                        tercero.setTelefonos("");
+                        tercero.setCreatedBy(factura.getCreatedBy());
+                        tercero.setCreatedDate(LocalDateTime.now());
+
+                        GeTerceroEntity terceroEntity = geTercerosRepository.save(tercero);
+                        saveTipoTercero(terceroEntity);
+                        factura.setTercero(terceroEntity);
+
+                    }
+                } else {
+                    detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.FACTURA_IMPUESTO_INFORMACION_CLIENTE_NOT_FOUND));
+                }
+
+
+
+            }
+
+            if (detalleErrores.isEmpty()) {
+                vtVentasRepository.saveAll(facturas);
+            } else {
+                throwErrors(detalleErrores);
+            }
+
+        }
+    }
 
 }

@@ -511,16 +511,17 @@ public class VtGuiasServiceImpl {
 
 
     public void validarInfoAddicional(CreationRequestGuiaRemisionDto request) {
+
         if (Objects.nonNull(request.getInformacionAdicional())) {
             if (request.getInformacionAdicional().isEmpty()) {
-                throw new GeneralException("La información adicional se envia pero esta vacia");
+                request.setInformacionAdicional(null);
             }
         }
 
         for (CreationRequestGuiaRemisionDto.DetailGuiaRemisionDto item : request.getDetalle()) {
             if (Objects.nonNull(item.getDetAdicional())) {
                 if (item.getDetAdicional().isEmpty()) {
-                    throw new GeneralException("En la lista de detalles, se envia detalle adicional pero este esta vacio");
+                    item.setDetAdicional(null);
                 }
             }
         }

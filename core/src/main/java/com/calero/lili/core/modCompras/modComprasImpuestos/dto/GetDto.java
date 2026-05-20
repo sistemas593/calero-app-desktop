@@ -1,5 +1,6 @@
 package com.calero.lili.core.modCompras.modComprasImpuestos.dto;
 
+import com.calero.lili.core.dtos.InformacionAdicionalDto;
 import com.calero.lili.core.enums.SustentoCodigos;
 import com.calero.lili.core.modCompras.dto.ImpuestoCodigoDto;
 import jakarta.persistence.Column;
@@ -87,6 +88,8 @@ public class GetDto {
 
     private List<ImpuestoCodigoDto> impuestoCodigos;
     private Boolean existeComprobante;
+
+    private List<InformacionAdicionalDto> informacionAdicional;
 
     /*private TbDocumentosGetOneDto documento;
     private TbSustentosGetOneDto sustento;*/

@@ -1,6 +1,7 @@
 package com.calero.lili.core.modCompras.modComprasImpuestos.dto;
 
 import com.calero.lili.core.dtos.FormasPagoDto;
+import com.calero.lili.core.dtos.InformacionAdicionalDto;
 import com.calero.lili.core.enums.SustentoCodigos;
 import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.modCompras.dto.ImpuestoCodigoDto;

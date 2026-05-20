@@ -28,6 +28,8 @@ import com.calero.lili.core.modCompras.modComprasRetenciones.dto.GetListDtoTotal
 import com.calero.lili.core.modCompras.modComprasRetenciones.projection.TotalesProjection;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
+import com.calero.lili.core.modVentas.dto.DetailDto;
+import com.calero.lili.core.modVentas.facturas.dto.CreationFacturaRequestDto;
 import com.calero.lili.core.utils.DateUtils;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -510,7 +512,7 @@ public class ComprasRetencionesServiceImpl {
     public void validarInfoAddicional(CreationRetencionRequestDto request) {
         if (Objects.nonNull(request.getInformacionAdicional())) {
             if (request.getInformacionAdicional().isEmpty()) {
-                throw new GeneralException("La información adicional se envia pero esta vacia");
+                request.setInformacionAdicional(null);
             }
         }
     }

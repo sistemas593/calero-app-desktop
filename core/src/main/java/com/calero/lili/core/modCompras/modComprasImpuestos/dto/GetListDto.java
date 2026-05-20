@@ -1,5 +1,6 @@
 package com.calero.lili.core.modCompras.modComprasImpuestos.dto;
 
+import com.calero.lili.core.dtos.InformacionAdicionalDto;
 import com.calero.lili.core.enums.SustentoCodigos;
 import com.calero.lili.core.modCompras.dto.ImpuestoCodigoDto;
 import lombok.AllArgsConstructor;
@@ -46,5 +47,7 @@ public class GetListDto {
 
     private String destino;
     private Boolean existeComprobante;
+
+    private List<InformacionAdicionalDto> informacionAdicional;
 
 }
