@@ -58,20 +58,23 @@ public interface ComprasRetencionesRepository extends JpaRepository<CpRetencione
             "(:secuencial IS NULL OR vtVentasEntity.secuencialRetencion = :secuencial) AND " +
             "(:numeroAutorizacion IS NULL OR vtVentasEntity.numeroAutorizacionRetencion = :numeroAutorizacion ) AND " +
             "( cast(:fechaEmisionDesde as date) is null OR vtVentasEntity.fechaEmisionRetencion >= :fechaEmisionDesde ) AND " +
-            "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmisionRetencion <= :fechaEmisionHasta )"
-            ,
+            "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmisionRetencion <= :fechaEmisionHasta ) AND " +
+            "( cast(:fechaPeriodoFiscalDesde as date) is null OR vtVentasEntity.periodoFiscal >= :fechaPeriodoFiscalDesde ) AND " +
+            "( cast(:fechaPeriodoFiscalHasta as date) is null OR vtVentasEntity.periodoFiscal <= :fechaPeriodoFiscalHasta )",
+
             countQuery = "SELECT COUNT(1) " +
                     "FROM CpRetencionesEntity vtVentasEntity " +
-                    "WHERE ( vtVentasEntity.idData = :idData)  AND " +
-                    "(vtVentasEntity.idEmpresa = :idEmpresa) AND " +
+                    "WHERE vtVentasEntity.idData = :idData AND " +
+                    "vtVentasEntity.idEmpresa = :idEmpresa AND " +
                     "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
                     "(:usuario IS NULL OR vtVentasEntity.createdBy = :usuario) AND " +
                     "(:serie IS NULL OR vtVentasEntity.serieRetencion = :serie ) AND " +
                     "(:secuencial IS NULL OR vtVentasEntity.secuencialRetencion = :secuencial ) AND " +
                     "(:numeroAutorizacion IS NULL OR vtVentasEntity.numeroAutorizacionRetencion = :numeroAutorizacion ) AND " +
                     "( cast(:fechaEmisionDesde as date) is null OR vtVentasEntity.fechaEmisionRetencion >= :fechaEmisionDesde ) AND " +
-                    "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmisionRetencion <= :fechaEmisionHasta )"
-    )
+                    "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmisionRetencion <= :fechaEmisionHasta ) AND " +
+                    "( cast(:fechaPeriodoFiscalDesde as date) is null OR vtVentasEntity.periodoFiscal >= :fechaPeriodoFiscalDesde ) AND " +
+                    "( cast(:fechaPeriodoFiscalHasta as date) is null OR vtVentasEntity.periodoFiscal <= :fechaPeriodoFiscalHasta) ")
     Page<CpRetencionesEntity> findAllPaginate(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa,
                                               @Param("sucursal") String sucursal,
                                               @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
@@ -80,6 +83,8 @@ public interface ComprasRetencionesRepository extends JpaRepository<CpRetencione
                                               @Param("secuencial") String secuencial,
                                               @Param("numeroAutorizacion") String numeroAutorizacion,
                                               @Param("usuario") String usuario,
+                                              @Param("fechaPeriodoFiscalDesde") LocalDate fechaPeriodoFiscalDesde,
+                                              @Param("fechaPeriodoFiscalHasta") LocalDate fechaPeriodoFiscalHasta,
                                               Pageable pageable);
 
     @Query(
@@ -98,8 +103,10 @@ public interface ComprasRetencionesRepository extends JpaRepository<CpRetencione
                     "AND (:sucursal IS NULL OR cpr.sucursal = :sucursal) " +
                     "AND (:serie IS NULL OR cpr.serie_retencion = :serie) " +
                     "AND (:secuencial IS NULL OR cpr.secuencial_retencion = :secuencial) " +
-                    "AND (:fechaEmisionDesde IS NULL OR cpr.fecha_emision_retencion >= :fechaEmisionDesde) " +
-                    "AND (:fechaEmisionHasta IS NULL OR cpr.fecha_emision_retencion <= :fechaEmisionHasta) " +
+                    "AND (cast(:fechaEmisionDesde as date) IS NULL OR cpr.fecha_emision_retencion >= cast(:fechaEmisionDesde as date)) " +
+                    "AND (cast(:fechaEmisionHasta as date) IS NULL OR cpr.fecha_emision_retencion <= cast(:fechaEmisionHasta as date)) " +
+                    "AND (cast(:fechaPeriodoFiscalDesde as date) IS NULL OR cpr.fecha_emision_retencion >= cast(:fechaPeriodoFiscalDesde as date))  " +
+                    "AND (cast(:fechaPeriodoFiscalHasta as date) IS NULL OR cpr.fecha_emision_retencion <= cast(:fechaPeriodoFiscalHasta as date))  " +
                     "GROUP BY cpiv.codigo, cpiv.codigo_porcentaje",
             nativeQuery = true
     )
@@ -108,7 +115,9 @@ public interface ComprasRetencionesRepository extends JpaRepository<CpRetencione
                                          @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
                                          @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
                                          @Param("serie") String serie,
-                                         @Param("secuencial") String secuencial);
+                                         @Param("secuencial") String secuencial,
+                                         @Param("fechaPeriodoFiscalDesde") LocalDate fechaPeriodoFiscalDesde,
+                                         @Param("fechaPeriodoFiscalHasta") LocalDate fechaPeriodoFiscalHasta);
 
 
     @Query(value = "SELECT vtVentasEntity " +

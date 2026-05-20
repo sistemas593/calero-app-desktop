@@ -28,8 +28,6 @@ import com.calero.lili.core.modCompras.modComprasRetenciones.dto.GetListDtoTotal
 import com.calero.lili.core.modCompras.modComprasRetenciones.projection.TotalesProjection;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
-import com.calero.lili.core.modVentas.dto.DetailDto;
-import com.calero.lili.core.modVentas.facturas.dto.CreationFacturaRequestDto;
 import com.calero.lili.core.utils.DateUtils;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -206,8 +204,10 @@ public class ComprasRetencionesServiceImpl {
 
         CpRetencionesEntity cpRetencionesEntity = validacionTipoBusqueda(idData, idEmpresa,
                 idVenta, filters, tipoBusqueda, usuario);
+
         GetDto response = cpRetencionesBuilder.builderResponse(cpRetencionesEntity);
-        response.setListCompraImpuesto(cpImpuestosService.getListCompraImpuestoForIdParent(idVenta, idEmpresa, idData));
+
+        response.setListCompraImpuesto(cpImpuestosService.getListCompraImpuestoForIdRetencion(idVenta, idEmpresa, idData));
         return response;
     }
 
@@ -255,7 +255,8 @@ public class ComprasRetencionesServiceImpl {
 
         Page<CpRetencionesEntity> page = comprasRetencionesRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(),
                 filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(),
-                filters.getSerie(), filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
+                filters.getSerie(), filters.getSecuencial(), filters.getNumeroAutorizacion(), null,
+                filters.getFechaPeriodoFiscalDesde(), filters.getFechaPeriodoFiscalHasta(), pageable);
 
         List<GetListDto> dtoList = page.stream().map(entidad -> {
                     GetListDto response = cpRetencionesBuilder.builderListResponse(entidad);
@@ -265,7 +266,8 @@ public class ComprasRetencionesServiceImpl {
                 }
         ).toList();
         List<TotalesProjection> totalValoresProjection = comprasRetencionesRepository.totalValores(idData, idEmpresa, filters.getSucursal(),
-                filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getSerie(), filters.getSecuencial());
+                filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getSerie(), filters.getSecuencial(),
+                filters.getFechaPeriodoFiscalDesde(), filters.getFechaPeriodoFiscalHasta());
 
         GetListDtoTotalizado totalesDto = new GetListDtoTotalizado<>();
         totalesDto.setContent(dtoList);
@@ -526,14 +528,16 @@ public class ComprasRetencionesServiceImpl {
                 return comprasRetencionesRepository.findAllPaginate(idData, idEmpresa, null,
                         filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(),
                         filters.getSerie(),
-                        filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
+                        filters.getSecuencial(), filters.getNumeroAutorizacion(), null,
+                        filters.getFechaPeriodoFiscalDesde(), filters.getFechaPeriodoFiscalHasta(), pageable);
             }
             case SUCURSAL -> {
                 if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
                     return comprasRetencionesRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(),
                             filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(),
                             filters.getSerie(),
-                            filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
+                            filters.getSecuencial(), filters.getNumeroAutorizacion(), null,
+                            filters.getFechaPeriodoFiscalDesde(), filters.getFechaPeriodoFiscalHasta(), pageable);
                 } else {
                     throw new GeneralException("Es requerido el parametro de la sucursal");
                 }
@@ -541,7 +545,8 @@ public class ComprasRetencionesServiceImpl {
             case PROPIAS -> {
                 return comprasRetencionesRepository.findAllPaginate(idData, idEmpresa, null,
                         filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(),
-                        filters.getSerie(), filters.getSecuencial(), filters.getNumeroAutorizacion(), usuario, pageable);
+                        filters.getSerie(), filters.getSecuencial(), filters.getNumeroAutorizacion(), usuario,
+                        filters.getFechaPeriodoFiscalDesde(), filters.getFechaPeriodoFiscalHasta(), pageable);
             }
         }
         throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));

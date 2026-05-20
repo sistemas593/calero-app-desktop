@@ -878,5 +878,12 @@ public class CpImpuestosServiceImpl {
         }
     }
 
+    public List<GetListDto> getListCompraImpuestoForIdRetencion(UUID idRetencion, Long idEmpresa, Long idData) {
+        List<GetListDto> response = cpImpuestosBuilder.builderListResponse(cpImpuestosRepository
+                .idRetencion(idData, idEmpresa, idRetencion));
+        if (Objects.nonNull(response)) return response;
+        return null;
+    }
+
 }
 

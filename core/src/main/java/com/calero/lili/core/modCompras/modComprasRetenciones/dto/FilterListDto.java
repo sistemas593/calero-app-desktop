@@ -20,20 +20,34 @@ public class FilterListDto {
     private String fechaEmisionHasta;
     private String numeroIdentificacion;
     private String numeroAutorizacion;
+    private String fechaPeriodoFiscalDesde;
+    private String fechaPeriodoFiscalHasta;
+    private Boolean anulada;
+    private Boolean impresa;
+
 
     public LocalDate getFechaEmisionDesde() {
-        if(fechaEmisionDesde == null)
+        if (fechaEmisionDesde == null)
             return null;
         return DateUtils.toLocalDate(fechaEmisionDesde);
     }
 
     public LocalDate getFechaEmisionHasta() {
-        if(fechaEmisionHasta == null)
+        if (fechaEmisionHasta == null)
             return null;
         return DateUtils.toLocalDate(fechaEmisionHasta);
     }
 
-    private Boolean anulada;
-    private Boolean impresa;
+    public LocalDate getFechaPeriodoFiscalDesde() {
+        if (fechaPeriodoFiscalDesde == null)
+            return null;
+        return DateUtils.toLocalDate(fechaPeriodoFiscalDesde);
+    }
+
+    public LocalDate getFechaPeriodoFiscalHasta() {
+        if (fechaPeriodoFiscalHasta == null)
+            return null;
+        return DateUtils.toLocalDate(fechaPeriodoFiscalHasta);
+    }
 
 }

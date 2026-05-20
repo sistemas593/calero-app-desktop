@@ -567,8 +567,7 @@ public class VtVentasFacturasExcelService {
                     }
 
                 } else {
-                    DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.FACTURA_IMPUESTO_NO_TIPO_DOCUMENTO);
-                    detalleErrores.add(detalleError);
+                    detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.FACTURA_IMPUESTO_NO_TIPO_DOCUMENTO));
                 }
 
 
@@ -583,15 +582,13 @@ public class VtVentasFacturasExcelService {
                     }
 
                 } else {
-                    DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.FACTURA_IMPUESTO_NO_FORMATO_DOCUMENTO);
-                    detalleErrores.add(detalleError);
+                    detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.FACTURA_IMPUESTO_NO_FORMATO_DOCUMENTO));
                 }
 
                 if (Objects.nonNull(row.getCell(4))) {
                     factura.setTipoVenta(row.getCell(4).getStringCellValue());
                 } else {
-                    DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.FACTURA_IMPUESTO_NO_TIPO_VENTA);
-                    detalleErrores.add(detalleError);
+                    detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.FACTURA_IMPUESTO_NO_TIPO_VENTA));
                 }
 
 
@@ -637,6 +634,15 @@ public class VtVentasFacturasExcelService {
                     detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.FACTURA_IMPUESTO_INFORMACION_CLIENTE_NOT_FOUND));
                 }
 
+                if (Objects.nonNull(row.getCell(8))) {
+                    factura.setRelacionado(row.getCell(8).getStringCellValue());
+                } else {
+                    detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.FACTURA_RELACIONADO_NOT_FOUND));
+                }
+
+
+                valoresFacturaImpuesto(idData, idEmpresa, factura, row, linea, detalleErrores);
+                facturas.add(factura);
 
             }
 
@@ -647,6 +653,49 @@ public class VtVentasFacturasExcelService {
             }
 
         }
+    }
+
+    private void valoresFacturaImpuesto(Long idData, Long idEmpresa, VtVentaEntity factura, Row row, int linea, List<DetalleError> detalleErrores) {
+
+        List<VtVentaValoresEntity> valores = new ArrayList<>();
+
+        // NO OBJETO
+        if (Objects.nonNull(row.getCell(11)) && Objects.nonNull(row.getCell(12)) && Objects.nonNull(row.getCell(13))
+                && Objects.nonNull(row.getCell(14)) && Objects.nonNull(row.getCell(15))
+                && Objects.nonNull(row.getCell(16)) && Objects.nonNull(row.getCell(17))) {
+
+            BigDecimal valorNoObjeto = new BigDecimal(row.getCell(11).getStringCellValue());
+            if (!valorNoObjeto.equals(BigDecimal.ZERO)) {
+                VtVentaValoresEntity noObjeto = new VtVentaValoresEntity();
+                noObjeto.setCodigo("2");
+                noObjeto.setCodigoPorcentaje("6");
+                noObjeto.setBaseImponible(valorNoObjeto);
+                noObjeto.setTarifa(new BigDecimal("0.00"));
+                noObjeto.setValor(new BigDecimal("0.00"));
+                noObjeto.setIdData(idData);
+                noObjeto.setIdEmpresa(idEmpresa);
+                valores.add(noObjeto);
+            }
+
+            BigDecimal valorCero = new BigDecimal(row.getCell(12).getStringCellValue());
+            if (!valorCero.equals(BigDecimal.ZERO)) {
+                VtVentaValoresEntity cero = new VtVentaValoresEntity();
+                cero.setCodigo("2");
+                cero.setCodigoPorcentaje("7");
+                cero.setBaseImponible(valorCero);
+                cero.setTarifa(new BigDecimal("0.00"));
+                cero.setValor(new BigDecimal("0.00"));
+                cero.setIdData(idData);
+                cero.setIdEmpresa(idEmpresa);
+                valores.add(cero);
+            }
+
+            // TODO DEMAS VALORES QUE FALTAN
+
+        } else {
+            detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.FACTURA_IMPUESTO_NO_TIPO_DOCUMENTO));
+        }
+
     }
 
 }

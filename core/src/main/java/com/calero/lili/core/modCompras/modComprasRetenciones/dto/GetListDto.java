@@ -36,5 +36,6 @@ public class GetListDto {
     private String email;
     private EstadoDocumento estadoDocumento;
     private Integer emailEstado;
+    private String periodoFiscal;
 
 }

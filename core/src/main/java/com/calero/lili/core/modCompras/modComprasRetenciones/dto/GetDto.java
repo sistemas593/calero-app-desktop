@@ -68,4 +68,5 @@ public class GetDto {
     private FormatoDocumento formatoDocumento;
     private EstadoDocumento estadoDocumento;
     private Integer emailEstado;
+    private String periodoFiscal;
 }

@@ -102,6 +102,7 @@ public class CpRetencionesBuilder {
                 .numeroAutorizacionRetencion(model.getNumeroAutorizacionRetencion())
                 .estadoDocumento(model.getEstadoDocumento())
                 .emailEstado(model.getEmailEstado())
+                .periodoFiscal(Objects.nonNull(model.getPeriodoFiscal()) ? DateUtils.toString(model.getPeriodoFiscal()) : null)
                 .build();
 
     }
@@ -125,6 +126,7 @@ public class CpRetencionesBuilder {
                 .numeroAutorizacionRetencion(model.getNumeroAutorizacionRetencion())
                 .estadoDocumento(model.getEstadoDocumento())
                 .emailEstado(model.getEmailEstado())
+                .periodoFiscal(Objects.nonNull(model.getPeriodoFiscal()) ? DateUtils.toString(model.getPeriodoFiscal()) : null)
                 .build();
     }
 

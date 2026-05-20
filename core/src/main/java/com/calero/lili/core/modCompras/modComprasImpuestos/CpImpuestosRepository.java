@@ -62,7 +62,7 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
                                                   @Param("serie") String serie,
                                                   @Param("secuencial") String secuencial,
                                                   @Param("numeroAutorizacion") String numeroAutorizacion,
-                                                  @Param("codigoSustento")SustentoCodigos codigoSustento);
+                                                  @Param("codigoSustento") SustentoCodigos codigoSustento);
 
     @Query(
             value = "SELECT entity " +
@@ -426,5 +426,15 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
             "cpr.codigo_documento_reemb, cpr.serie_reemb, " +
             "cpr.secuencial_reemb, cpr.numero_autorizacion_reemb, cpr.fecha_emision_reemb;", nativeQuery = true)
     List<ComprasImpuestoProjection> getCompraImpuesto(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("fechaDesde") LocalDate fechaDesde, @Param("fechaHasta") LocalDate fechaHasta);
+
+    @Query(value = "SELECT entity " +
+            "FROM CpImpuestosEntity entity " +
+            "WHERE entity.idData = :idData " +
+            "AND entity.idEmpresa = :idEmpresa " +
+            "AND entity.retencion.idRetencion = :idRetencion")
+    List<CpImpuestosEntity> idRetencion(@Param("idData") Long idData,
+                                              @Param("idEmpresa") Long idEmpresa,
+                                              @Param("idRetencion") UUID idRetencion);
+
 
 }
