@@ -140,6 +140,8 @@ public class AutorizacionBuilder {
                 .build();
     }
 
+    // TODO SI LA FECHA DE EMISION COINCIDE CON EL MES Y AÑO DEL PERIODO FISCAL SE DEBE COLOCAR LA FECHA DE EMISION EN EL PERIODO FISCAL, SI NO SE DEBE COLOCAR EL EL ULTIMO DIA DEL MES QUE VIENE EN PERIODO FISCAL
+    // TODO EN COMPRAS Y EN VENTAS RETENCION
     public VtRetencionesEntity builderRetencionRecibidaDos(CampoAutorizacionDto model, ComprobanteRetencion documento,
                                                            Long idData, Long idEmpresa,
                                                            GeTerceroEntity cliente) {

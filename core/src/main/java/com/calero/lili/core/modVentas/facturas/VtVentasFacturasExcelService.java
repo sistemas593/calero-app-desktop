@@ -596,7 +596,7 @@ public class VtVentasFacturasExcelService {
 
 
                 if (Objects.nonNull(row.getCell(5)) && Objects.nonNull(row.getCell(6))
-                        && Objects.nonNull(row.getCell(7))) {
+                        && Objects.nonNull(row.getCell(7)) && Objects.nonNull(row.getCell(9))) {
 
                     Optional<GeTerceroEntity> cliente = geTercerosRepository
                             .getFindExistByNumeroIdentificacion(idData, row.getCell(5).getStringCellValue());
@@ -609,6 +609,13 @@ public class VtVentasFacturasExcelService {
                         String tipoIdentificacion = row.getCell(7).getStringCellValue();
                         if (!tipoIdentificacion.contains("0")) {
                             tipoIdentificacion = "0" + tipoIdentificacion;
+                        }
+
+                        String tipoCliente = row.getCell(9).getStringCellValue();
+                        if (!tipoCliente.isEmpty()) {
+                            tercero.setTipoClienteProveedor(TipoClienteProveedor.valueOf(tipoCliente));
+                        } else {
+                            tercero.setTipoClienteProveedor(null);
                         }
                         tercero.setIdData(idData);
                         tercero.setIdTercero(UUID.randomUUID());
@@ -629,7 +636,6 @@ public class VtVentasFacturasExcelService {
                 } else {
                     detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.FACTURA_IMPUESTO_INFORMACION_CLIENTE_NOT_FOUND));
                 }
-
 
 
             }

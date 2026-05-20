@@ -168,7 +168,7 @@ public enum EnumError {
     FACTURA_IMPUESTO_NO_TIPO_DOCUMENTO("El valor del tipo documento no se encuentra"),
     FACTURA_IMPUESTO_NO_FORMATO_DOCUMENTO("El valor del formato de documento no se encuentra"),
     FACTURA_IMPUESTO_NO_TIPO_VENTA("El valor del tipo de venta no se encuentra"),
-    FACTURA_IMPUESTO_INFORMACION_CLIENTE_NOT_FOUND("Los campos de RUC/Cédula, Nombre Cliente, Tipo identificación, no se encuentran"),
+    FACTURA_IMPUESTO_INFORMACION_CLIENTE_NOT_FOUND("Los campos de RUC/Cédula, Nombre Cliente, Tipo identificación, Tipo Cliente no se encuentran"),
 
 
     ;
