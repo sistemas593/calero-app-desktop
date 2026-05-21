@@ -91,7 +91,6 @@ public class CpRetencionesBuilder {
                 .numeroIdentificacion(Objects.nonNull(model.getProveedor()) ? model.getProveedor().getNumeroIdentificacion() : null)
                 .terceroNombre(Objects.nonNull(model.getProveedor()) ? model.getProveedor().getTercero() : null)
                 .tipoIdentificacion(Objects.nonNull(model.getProveedor()) ? model.getProveedor().getTipoIdentificacion() : null)
-                .email(model.getEmail())
                 .total(model.getTotal())
                 .anulada(model.getAnulada())
                 .fechaAutorizacion(Objects.nonNull(model.getFechaAutorizacion())
@@ -103,6 +102,7 @@ public class CpRetencionesBuilder {
                 .estadoDocumento(model.getEstadoDocumento())
                 .emailEstado(model.getEmailEstado())
                 .periodoFiscal(Objects.nonNull(model.getPeriodoFiscal()) ? DateUtils.toString(model.getPeriodoFiscal()) : null)
+                .existeComprobante(model.getExisteComprobante())
                 .build();
 
     }
@@ -127,7 +127,10 @@ public class CpRetencionesBuilder {
                 .estadoDocumento(model.getEstadoDocumento())
                 .emailEstado(model.getEmailEstado())
                 .periodoFiscal(Objects.nonNull(model.getPeriodoFiscal()) ? DateUtils.toString(model.getPeriodoFiscal()) : null)
+                .existeComprobante(model.getExisteComprobante())
                 .build();
     }
+
+
 
 }

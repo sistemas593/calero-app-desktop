@@ -37,5 +37,6 @@ public class GetListDto {
     private EstadoDocumento estadoDocumento;
     private Integer emailEstado;
     private String periodoFiscal;
+    private Boolean existeComprobante;
 
 }

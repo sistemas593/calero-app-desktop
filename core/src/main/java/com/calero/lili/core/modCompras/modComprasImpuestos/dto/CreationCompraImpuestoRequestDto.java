@@ -29,13 +29,13 @@ public class CreationCompraImpuestoRequestDto {
     @NotEmpty(message = "No existe la sucursal")
     private String sucursal;
 
-    private String formatoDocumento;
-
     @NotEmpty(message = "No existe la serie")
     private String serie;
+
     @NotEmpty(message = "No existe el secuencial")
     private String secuencial;
 
+    @NotEmpty(message = "No existe el número de autorización")
     private String numeroAutorizacion;
 
     @NotEmpty(message = "No existe la fecha de emision")

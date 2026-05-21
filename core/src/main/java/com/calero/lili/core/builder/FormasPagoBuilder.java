@@ -13,6 +13,7 @@ public class FormasPagoBuilder {
 
 
     public List<FormasPagoDto> builderListDto(List<FormasPagoSri> modelList) {
+        if(Objects.isNull(modelList)) return new ArrayList<>();
         return modelList
                 .stream()
                 .map(this::builder)

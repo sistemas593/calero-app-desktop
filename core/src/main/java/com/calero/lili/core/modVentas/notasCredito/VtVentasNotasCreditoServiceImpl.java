@@ -822,8 +822,10 @@ public class VtVentasNotasCreditoServiceImpl {
         }
 
         if (request.getFormatoDocumento().equals(FormatoDocumento.E)) {
-            if (Objects.nonNull(request.getNumeroAutorizacion()) && !request.getNumeroAutorizacion().isEmpty()) {
-                throw new GeneralException("Un documento electrónico no debe tener número de autorización");
+            if (Objects.nonNull(request.getNumeroAutorizacion())) {
+                if (request.getNumeroAutorizacion().isEmpty()) {
+                    request.setNumeroAutorizacion(null);
+                }
             }
         }
     }

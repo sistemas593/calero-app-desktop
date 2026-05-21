@@ -6,6 +6,7 @@ import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirCreationRequestDto;
 import com.calero.lili.core.enums.CodigoImpuesto;
+import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
@@ -25,6 +26,7 @@ import com.calero.lili.core.modCompras.modComprasImpuestos.projection.ComprasImp
 import com.calero.lili.core.modCompras.modComprasImpuestos.projection.OneProjection;
 import com.calero.lili.core.modCompras.modComprasImpuestos.projection.TotalesProjection;
 import com.calero.lili.core.modCompras.modComprasRetenciones.CpRetencionesEntity;
+import com.calero.lili.core.modCompras.modComprasRetenciones.dto.CompraImpuestoResponseDto;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
 import com.calero.lili.core.tablas.tbPaises.TbPaisEntity;
@@ -864,7 +866,7 @@ public class CpImpuestosServiceImpl {
             }
 
         } else {
-            throw new GeneralException("El número de autorización no cumple con la cantidad de dígitos");
+            throw new GeneralException("El número de autorización no cumple con la cantidad de dígitos 10/49");
         }
     }
 
@@ -878,8 +880,8 @@ public class CpImpuestosServiceImpl {
         }
     }
 
-    public List<GetListDto> getListCompraImpuestoForIdRetencion(UUID idRetencion, Long idEmpresa, Long idData) {
-        List<GetListDto> response = cpImpuestosBuilder.builderListResponse(cpImpuestosRepository
+    public List<CompraImpuestoResponseDto> getListCompraImpuestoForIdRetencion(UUID idRetencion, Long idEmpresa, Long idData) {
+        List<CompraImpuestoResponseDto> response = cpImpuestosBuilder.builderCompraImpuestoDtoList(cpImpuestosRepository
                 .idRetencion(idData, idEmpresa, idRetencion));
         if (Objects.nonNull(response)) return response;
         return null;

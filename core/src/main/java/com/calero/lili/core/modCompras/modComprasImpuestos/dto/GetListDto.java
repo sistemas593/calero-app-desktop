@@ -28,7 +28,6 @@ public class GetListDto {
     private String terceroNombre;
     private String numeroIdentificacion;
     private int numeroItems;
-    private String formatoDocumento;
     private Boolean anulada;
     private List<ResponseValoresDto> valores;
     private String fechaAutorizacion;

@@ -640,8 +640,7 @@ public class VtVentasFacturasExcelService {
                     detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.FACTURA_RELACIONADO_NOT_FOUND));
                 }
 
-
-                valoresFacturaImpuesto(idData, idEmpresa, factura, row, linea, detalleErrores);
+                valoresFacturaImpuesto(idData, idEmpresa, factura, row);
                 facturas.add(factura);
 
             }
@@ -655,14 +654,13 @@ public class VtVentasFacturasExcelService {
         }
     }
 
-    private void valoresFacturaImpuesto(Long idData, Long idEmpresa, VtVentaEntity factura, Row row, int linea, List<DetalleError> detalleErrores) {
+    private void valoresFacturaImpuesto(Long idData, Long idEmpresa,
+                                        VtVentaEntity factura, Row row) {
 
         List<VtVentaValoresEntity> valores = new ArrayList<>();
 
-        // NO OBJETO
-        if (Objects.nonNull(row.getCell(11)) && Objects.nonNull(row.getCell(12)) && Objects.nonNull(row.getCell(13))
-                && Objects.nonNull(row.getCell(14)) && Objects.nonNull(row.getCell(15))
-                && Objects.nonNull(row.getCell(16)) && Objects.nonNull(row.getCell(17))) {
+        // NO OBJETO y CERO
+        if (Objects.nonNull(row.getCell(11)) && Objects.nonNull(row.getCell(12))) {
 
             BigDecimal valorNoObjeto = new BigDecimal(row.getCell(11).getStringCellValue());
             if (!valorNoObjeto.equals(BigDecimal.ZERO)) {
@@ -690,12 +688,71 @@ public class VtVentasFacturasExcelService {
                 valores.add(cero);
             }
 
-            // TODO DEMAS VALORES QUE FALTAN
-
-        } else {
-            detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.FACTURA_IMPUESTO_NO_TIPO_DOCUMENTO));
         }
 
+        // BASE 5
+        if (Objects.nonNull(row.getCell(13)) && Objects.nonNull(row.getCell(14))) {
+
+            BigDecimal valorIva5 = new BigDecimal(row.getCell(14).getStringCellValue());
+            BigDecimal valorBase5 = new BigDecimal(row.getCell(13).getStringCellValue());
+
+            if (!valorIva5.equals(BigDecimal.ZERO) && !valorBase5.equals(BigDecimal.ZERO)) {
+                VtVentaValoresEntity valor = new VtVentaValoresEntity();
+
+                valor.setCodigo("2");
+                valor.setCodigoPorcentaje("5");
+                valor.setTarifa(new BigDecimal("5.00"));
+                valor.setBaseImponible(valorBase5);
+                valor.setValor(valorIva5);
+                valor.setIdEmpresa(idData);
+                valor.setIdEmpresa(idEmpresa);
+                valores.add(valor);
+            }
+        }
+
+        // BASE 8
+        if (Objects.nonNull(row.getCell(15)) && Objects.nonNull(row.getCell(16))) {
+
+            BigDecimal valorIva8 = new BigDecimal(row.getCell(16).getStringCellValue());
+            BigDecimal valorBase8 = new BigDecimal(row.getCell(15).getStringCellValue());
+
+            if (!valorIva8.equals(BigDecimal.ZERO) && !valorBase8.equals(BigDecimal.ZERO)) {
+                VtVentaValoresEntity valor = new VtVentaValoresEntity();
+
+                valor.setCodigo("2");
+                valor.setCodigoPorcentaje("8");
+                valor.setTarifa(new BigDecimal("8.00"));
+                valor.setBaseImponible(valorBase8);
+                valor.setValor(valorIva8);
+                valor.setIdEmpresa(idData);
+                valor.setIdEmpresa(idEmpresa);
+                valores.add(valor);
+            }
+
+        }
+
+
+        if (Objects.nonNull(row.getCell(17)) && Objects.nonNull(row.getCell(18))) {
+
+            BigDecimal valorIva15 = new BigDecimal(row.getCell(18).getStringCellValue());
+            BigDecimal valorBase15 = new BigDecimal(row.getCell(17).getStringCellValue());
+
+            if (!valorIva15.equals(BigDecimal.ZERO) && !valorBase15.equals(BigDecimal.ZERO)) {
+                VtVentaValoresEntity valor = new VtVentaValoresEntity();
+
+                valor.setCodigo("2");
+                valor.setCodigoPorcentaje("4");
+                valor.setTarifa(new BigDecimal("15.00"));
+                valor.setBaseImponible(valorBase15);
+                valor.setValor(valorIva15);
+                valor.setIdEmpresa(idData);
+                valor.setIdEmpresa(idEmpresa);
+                valores.add(valor);
+            }
+
+        }
+
+        factura.setValoresEntity(valores);
     }
 
 }

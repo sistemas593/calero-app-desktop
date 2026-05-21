@@ -25,6 +25,8 @@ public class CreationRetencionRequestDto {
     private String numeroAutorizacionRetencion;
     private String email;
     private Boolean impresa;
+    @NotNull(message = "Es requerido compras impuestos")
+    @NotEmpty(message = "Es requerido compras impuestos")
     private List<CompraImpuestosDto> compraImpuestos;
     private List<InformacionAdicionalDto> informacionAdicional;
     private Integer ambiente;

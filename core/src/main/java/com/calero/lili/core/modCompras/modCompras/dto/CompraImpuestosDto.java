@@ -18,8 +18,8 @@ import java.util.UUID;
 public class CompraImpuestosDto {
 
     private UUID compraImpuestoId;
-    @NotNull(message = "La lista de codigos no se encuetra")
-    @NotEmpty(message = "La lista de codigos no se encuetra")
+    @NotNull(message = "La lista de codigos no se encuentra")
+    @NotEmpty(message = "La lista de codigos no se encuentra")
     private List<ImpuestoCodigoDto> impuestoCodigos;
 
 }

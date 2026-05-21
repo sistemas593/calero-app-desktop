@@ -458,6 +458,14 @@ public class VtVentasNotasDebitoServiceImpl {
                 throw new GeneralException("El número de autorización no cumple con la cantidad de dígitos");
             }
         }
+
+        if (request.getFormatoDocumento().equals(FormatoDocumento.E)) {
+            if (Objects.nonNull(request.getNumeroAutorizacion())) {
+                if (request.getNumeroAutorizacion().isEmpty()) {
+                    request.setNumeroAutorizacion(null);
+                }
+            }
+        }
     }
 
 }

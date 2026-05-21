@@ -44,14 +44,16 @@ public class ProcesarDocumentosController {
     @ResponseStatus(HttpStatus.CREATED)
     public RespuestaProcesoGetDto procesarLiquidacion(@PathVariable("idEmpresa") Long idEmpresa,
                                                       @PathVariable("id") UUID id) {
-        return documentosService.procesarLiquidacion(idDataService.getIdData(), idEmpresa, id, "LOC");
+        return documentosService.procesarLiquidacion(idDataService.getIdData(), idEmpresa, id, "WEB");
     }
+
+    // todo mandar a autorizar
 
     @PostMapping("comprobantes-retencion/{idEmpresa}/{id}")
     @ResponseStatus(HttpStatus.CREATED)
     public RespuestaProcesoGetDto procesarComprobanteRetencion(@PathVariable("idEmpresa") Long idEmpresa,
                                                                @PathVariable("id") UUID id) {
-        return documentosService.procesarComprobanteRetencion(idDataService.getIdData(), idEmpresa, id, "WEB");
+        return documentosService.procesarComprobanteRetencion(idDataService.getIdData(), idEmpresa, id, "LOC");
     }
 
 //    @PostMapping()

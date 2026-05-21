@@ -167,6 +167,19 @@ public class VtVentasFacturasController {
         }
     }
 
+    @PostMapping("facturas-impuestos/excel/{idEmpresa}/{sucursal}")
+    @PreAuthorize("hasAuthority('VT_FC_IMEX')")
+    public void uploadFacturasImpuestosExcel(@RequestParam("file") MultipartFile file,
+                                             @PathVariable("idEmpresa") Long idEmpresa,
+                                             @PathVariable("sucursal") String sucursal) {
+        try {
+            vtVentasFacturasExcelService.cargarExcelVentasImpuestos(idDataService.getIdData(), idEmpresa, file,
+                    auditorAware.getCurrentAuditor().orElse("SYSTEM"), sucursal);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @PostMapping("facturas/asiento/{idEmpresa}/{idVenta}")
     @PreAuthorize("hasAuthority('VT_FC_CR')")
     public ResponseDto createAsientoVenta(@PathVariable("idEmpresa") Long idEmpresa,

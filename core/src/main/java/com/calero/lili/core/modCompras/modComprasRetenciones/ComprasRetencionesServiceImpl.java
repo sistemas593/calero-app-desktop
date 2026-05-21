@@ -25,6 +25,7 @@ import com.calero.lili.core.modCompras.modComprasRetenciones.dto.FilterListDto;
 import com.calero.lili.core.modCompras.modComprasRetenciones.dto.GetDto;
 import com.calero.lili.core.modCompras.modComprasRetenciones.dto.GetListDto;
 import com.calero.lili.core.modCompras.modComprasRetenciones.dto.GetListDtoTotalizado;
+import com.calero.lili.core.modCompras.modComprasRetenciones.projection.DeEmitidasRetencionesProjection;
 import com.calero.lili.core.modCompras.modComprasRetenciones.projection.TotalesProjection;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
@@ -59,6 +60,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.IntStream;
 
@@ -80,11 +82,21 @@ public class ComprasRetencionesServiceImpl {
     private final AdEmpresasRepository adEmpresasRepository;
 
 
+    // TODO VALIDAR QUE NO DEJE CREAR RETENCIONES REPETIDAS CON EL MISMO NÚMERO DE SERIE Y SECUENCIAL
+    // TODO LIGAR COMPRA IMPUESTO SIEMPRE A UNA RETENCIÓN, NO DEJAR QUE SE CREEN COMPRA IMPUESTO SIN UNA RETENCIÓN ASOCIADA
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa, CreationRetencionRequestDto request,
                                          String usuario, String origenCertificado) {
 
 
         validarNumeroAutorizacion(request);
+        Optional<DeEmitidasRetencionesProjection> existingRetencion = comprasRetencionesRepository
+                .findExistBySecuencial(idData, idEmpresa, request.getSerieRetencion(), request.getSecuencialRetencion());
+
+        if (existingRetencion.isPresent()) {
+            throw new GeneralException(MessageFormat.format("El documento ya existe : " +
+                    "Serie: {0} Secuencia: {1}", request.getSerieRetencion(), request.getSecuencialRetencion()));
+        }
+
         DateUtils.validarFechaEmision(request.getFechaEmisionRetencion());
         GeTerceroEntity proveedor = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
                 .orElseThrow(() -> new GeneralException("El tercero seleccionado no existe"));
@@ -206,7 +218,6 @@ public class ComprasRetencionesServiceImpl {
                 idVenta, filters, tipoBusqueda, usuario);
 
         GetDto response = cpRetencionesBuilder.builderResponse(cpRetencionesEntity);
-
         response.setListCompraImpuesto(cpImpuestosService.getListCompraImpuestoForIdRetencion(idVenta, idEmpresa, idData));
         return response;
     }
@@ -611,6 +622,15 @@ public class ComprasRetencionesServiceImpl {
                 throw new GeneralException("El número de autorización no cumple con la cantidad de dígitos");
             }
         }
+
+        if (request.getFormatoDocumento().equals(FormatoDocumento.E)) {
+            if (Objects.nonNull(request.getNumeroAutorizacionRetencion())) {
+                if (request.getNumeroAutorizacionRetencion().isEmpty()) {
+                    request.setNumeroAutorizacionRetencion(null);
+                }
+            }
+        }
+
     }
 
 }

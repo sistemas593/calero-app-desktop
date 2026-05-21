@@ -8,6 +8,7 @@ import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CreationCompraImp
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetListDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.PagoExterior;
+import com.calero.lili.core.modCompras.modComprasRetenciones.dto.CompraImpuestoResponseDto;
 import com.calero.lili.core.tablas.tbDocumentos.TbDocumentoEntity;
 import com.calero.lili.core.utils.DateUtils;
 import lombok.AllArgsConstructor;
@@ -258,6 +259,39 @@ public class CpImpuestosBuilder {
                 .total(model.getTotal())
                 .plazo(model.getPlazo())
                 .unidadTiempo(model.getUnidadTiempo())
+                .build();
+    }
+
+
+    public List<CompraImpuestoResponseDto> builderCompraImpuestoDtoList(List<CpImpuestosEntity> list) {
+        return list.stream()
+                .map(this::builderCompraImpuestoDto)
+                .toList();
+    }
+
+    private CompraImpuestoResponseDto builderCompraImpuestoDto(CpImpuestosEntity model) {
+        return CompraImpuestoResponseDto.builder()
+                .idImpuestos(model.getIdImpuestos())
+                .serie(model.getSerie())
+                .secuencial(model.getSecuencial())
+                .numeroAutorizacion(model.getNumeroAutorizacion())
+                .fechaEmision(Objects.nonNull(model.getFechaEmision())
+                        ? DateUtils.toString(model.getFechaEmision())
+                        : null)
+                .codigoDocumento(Objects.nonNull(model.getDocumento())
+                        ? model.getDocumento().getCodigoDocumento()
+                        : null)
+                .documento(Objects.nonNull(model.getDocumento())
+                        ? model.getDocumento().getDocumento()
+                        : null)
+                .numeroAutorizacion(model.getNumeroAutorizacion())
+
+                .codigoSustento(Objects.nonNull(model.getCodigoSustento())
+                        ? model.getCodigoSustento()
+                        : null)
+                .sustento(Objects.nonNull(model.getCodigoSustento())
+                        ? model.getCodigoSustento().getNombreSustento()
+                        : null)
                 .build();
     }
 

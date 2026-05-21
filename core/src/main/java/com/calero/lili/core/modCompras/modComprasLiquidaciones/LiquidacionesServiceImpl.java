@@ -93,6 +93,7 @@ public class LiquidacionesServiceImpl {
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa, CreationRequestLiquidacionCompraDto request,
                                          String usuario, String origenCertificado) {
 
+        validarNumeroAutorizacion(request);
         DateUtils.validarFechaEmision(request.getFechaEmision());
         Optional<OneProjection> existingFactura = liquidacionesRepository
                 .findExistBySecuencial(idData, idEmpresa, request.getSerie(), request.getSecuencial());
@@ -209,6 +210,7 @@ public class LiquidacionesServiceImpl {
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationRequestLiquidacionCompraDto request,
                               String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
 
+        validarNumeroAutorizacion(request);
         CpLiquidacionesEntity cpLiquidacionesEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
         validarAutorizacion(cpLiquidacionesEntity);
         DateUtils.validarFechaEmision(request.getFechaEmision());
@@ -834,6 +836,34 @@ public class LiquidacionesServiceImpl {
             throw new GeneralException("El documento no puede modificarse por que ya esta autorizado");
         }
 
+    }
+
+    private void validarNumeroAutorizacion(CreationRequestLiquidacionCompraDto request) {
+
+
+        if (request.getFormatoDocumento().equals(FormatoDocumento.F)) {
+            if (Objects.isNull(request.getNumeroAutorizacion()) || request.getNumeroAutorizacion().isEmpty()) {
+                throw new GeneralException("Un documento físico debe tener número de autorización");
+            }
+
+            if (request.getNumeroAutorizacion().length() == 49 || request.getNumeroAutorizacion().length() == 10) {
+
+                if (!request.getNumeroAutorizacion().matches("\\d+")) {
+                    throw new GeneralException("El número de autorización no puede contener caracteres que no sean númericos");
+                }
+
+            } else {
+                throw new GeneralException("El número de autorización no cumple con la cantidad de dígitos");
+            }
+        }
+
+        if (request.getFormatoDocumento().equals(FormatoDocumento.E)) {
+            if (Objects.nonNull(request.getNumeroAutorizacion())) {
+                if (request.getNumeroAutorizacion().isEmpty()) {
+                    request.setNumeroAutorizacion(null);
+                }
+            }
+        }
     }
 
 }

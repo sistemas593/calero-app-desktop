@@ -33,11 +33,19 @@ public interface ComprasRetencionesRepository extends JpaRepository<CpRetencione
                                                  @Param("sucursal") String sucursal,
                                                  @Param("usuario") String usuario);
 
-    @Transactional
-    @Modifying
-    @Query("DELETE FROM CpRetencionesEntity e " +
-            "WHERE e.idData = :idData AND e.idEmpresa = :idEmpresa AND e.idRetencion = :idVenta")
-    void deleteById(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("idVenta") UUID idVenta);
+    @Query(value = """
+            SELECT cp.id_data as id_data
+            FROM cp_retenciones cp
+            WHERE cp.id_data = :idData
+            AND cp.id_empresa = :idEmpresa
+            AND cp.serie_retencion = :serie
+            AND cp.secuencial_retencion = :secuencial
+            """, nativeQuery = true)
+    Optional<DeEmitidasRetencionesProjection> findExistBySecuencial(@Param("idData") Long idData,
+                                                                    @Param("idEmpresa") Long idEmpresa,
+                                                                    @Param("serie") String serie,
+                                                                    @Param("secuencial") String secuencial
+    );
 
 
     @Query(value = "SELECT cp_retenciones.id_data as id_data " +
