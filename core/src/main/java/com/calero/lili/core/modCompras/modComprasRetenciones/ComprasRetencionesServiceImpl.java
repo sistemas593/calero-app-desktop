@@ -82,8 +82,6 @@ public class ComprasRetencionesServiceImpl {
     private final AdEmpresasRepository adEmpresasRepository;
 
 
-    // TODO VALIDAR QUE NO DEJE CREAR RETENCIONES REPETIDAS CON EL MISMO NÚMERO DE SERIE Y SECUENCIAL
-    // TODO LIGAR COMPRA IMPUESTO SIEMPRE A UNA RETENCIÓN, NO DEJAR QUE SE CREEN COMPRA IMPUESTO SIN UNA RETENCIÓN ASOCIADA
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa, CreationRetencionRequestDto request,
                                          String usuario, String origenCertificado) {
 
