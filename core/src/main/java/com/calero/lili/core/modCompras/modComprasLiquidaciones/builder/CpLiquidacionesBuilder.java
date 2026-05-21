@@ -168,6 +168,7 @@ public class CpLiquidacionesBuilder {
                         ? model.getProveedor().getNumeroIdentificacion() : null)
                 .concepto(model.getConcepto())
                 .existeComprobante(model.getExisteComprobante())
+                .informacionAdicional(informacionAdicionalBuilder.builderListDto(model.getInformacionAdicional()))
                 .build();
     }
 

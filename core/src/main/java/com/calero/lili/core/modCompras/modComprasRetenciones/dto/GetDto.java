@@ -1,5 +1,6 @@
 package com.calero.lili.core.modCompras.modComprasRetenciones.dto;
 
+import com.calero.lili.core.dtos.InformacionAdicionalDto;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
 import lombok.AllArgsConstructor;
@@ -40,7 +41,6 @@ public class GetDto {
     private String fechaAutorizacion;
     private String claveAcceso;
 
-    // TODO CREAR UN NUEVO DTO PARA PODER PASAR LOS CAMPOS QUE SEÑALE
     private List<CompraImpuestoResponseDto> listCompraImpuesto;
 
     private Integer ambiente;
@@ -50,6 +50,7 @@ public class GetDto {
     private String periodoFiscal;
     private Boolean existeComprobante;
 
+    private List<InformacionAdicionalDto> informacionAdicional;
 
 
 }
