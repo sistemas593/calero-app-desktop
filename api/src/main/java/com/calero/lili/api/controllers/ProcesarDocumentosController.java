@@ -47,7 +47,6 @@ public class ProcesarDocumentosController {
         return documentosService.procesarLiquidacion(idDataService.getIdData(), idEmpresa, id, "WEB");
     }
 
-    // todo mandar a autorizar
 
     @PostMapping("comprobantes-retencion/{idEmpresa}/{id}")
     @ResponseStatus(HttpStatus.CREATED)

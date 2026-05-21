@@ -6,7 +6,6 @@ import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirCreationRequestDto;
 import com.calero.lili.core.enums.CodigoImpuesto;
-import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
@@ -35,6 +34,7 @@ import com.calero.lili.core.tablas.tbPaises.tbParaisosFiscales.TbParaisoFiscalEn
 import com.calero.lili.core.tablas.tbPaises.tbParaisosFiscales.TbParaisoFiscalRepository;
 import com.calero.lili.core.utils.ComprobanteSustentoService;
 import com.calero.lili.core.utils.DateUtils;
+import com.calero.lili.core.utils.ValidacionDocumentosGeneral;
 import com.calero.lili.core.utils.validaciones.ValidarValoresComprobantesPdf;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -101,6 +101,7 @@ public class CpImpuestosServiceImpl {
     public ResponseDto create(Long idData, Long idEmpresa, CreationCompraImpuestoRequestDto request, String usuario) {
 
 
+        ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencial());
         validarNumeroAutorizacion(request);
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
                 DateUtils.toLocalDate(request.getFechaEmision()));

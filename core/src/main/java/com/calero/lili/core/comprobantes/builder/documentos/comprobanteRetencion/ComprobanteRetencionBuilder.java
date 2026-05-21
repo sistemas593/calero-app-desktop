@@ -9,6 +9,7 @@ import com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencion.DocSust
 import com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencion.ImpuestoDocSustento;
 import com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencion.InfoCompRetencion;
 import com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencion.Retencion;
+import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosCodigosEntity;
@@ -43,7 +44,7 @@ public class ComprobanteRetencionBuilder {
 
         return ComprobanteRetencion.builder()
                 .id(ConstantesDocumento.NOMBRE_COMPROBANTE)
-                .version(ConstantesDocumento.VERSION_2_1_0)
+                .version(ConstantesDocumento.VERSION_2_0_0)
                 .infoTributaria(infoTributariaRetencionBuilder.builderInfoTributaria(retencion, empresa, serie))
                 .infoCompRetencion(infoCompRetencionBuilder(retencion, empresa, serie, proveedor))
                 .docSustento(builderListDocumentoSustento(listaImpuestos))
@@ -139,7 +140,7 @@ public class ComprobanteRetencionBuilder {
                 .contribuyenteEspecial(Objects.isNull(empresa.getContribuyenteEspecial())
                         || empresa.getContribuyenteEspecial().isEmpty() ? null : empresa.getContribuyenteEspecial())
                 .obligadoContabilidad(ObligadoContabilidad.getObligadoContabilidad(empresa.getObligadoContabilidad()))
-                .tipoIdentificacionSujetoRetenido(retencion.getProveedor().getTipoIdentificacion())
+                .tipoIdentificacionSujetoRetenido(TipoIdentificacion.valueOf(retencion.getProveedor().getTipoIdentificacion()).getCodigo())
                 .parteRel(retencion.getRelacionado())
                 .razonSocialSujetoRetenido(proveedor.getTercero())
                 .identificacionSujetoRetenido(retencion.getProveedor().getNumeroIdentificacion())

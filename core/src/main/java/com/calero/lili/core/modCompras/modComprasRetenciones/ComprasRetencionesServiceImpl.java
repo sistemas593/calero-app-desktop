@@ -30,6 +30,7 @@ import com.calero.lili.core.modCompras.modComprasRetenciones.projection.TotalesP
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
 import com.calero.lili.core.utils.DateUtils;
+import com.calero.lili.core.utils.ValidacionDocumentosGeneral;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Phrase;
@@ -86,6 +87,7 @@ public class ComprasRetencionesServiceImpl {
                                          String usuario, String origenCertificado) {
 
 
+        ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencialRetencion());
         validarNumeroAutorizacion(request);
         Optional<DeEmitidasRetencionesProjection> existingRetencion = comprasRetencionesRepository
                 .findExistBySecuencial(idData, idEmpresa, request.getSerieRetencion(), request.getSecuencialRetencion());
