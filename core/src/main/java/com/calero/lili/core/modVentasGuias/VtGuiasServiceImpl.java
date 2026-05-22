@@ -29,6 +29,7 @@ import com.calero.lili.core.modVentasGuias.dto.GetDto;
 import com.calero.lili.core.modVentasGuias.dto.GetListDto;
 import com.calero.lili.core.modVentasGuias.projection.OneProjection;
 import com.calero.lili.core.utils.DateUtils;
+import com.calero.lili.core.utils.ValidacionDocumentosGeneral;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Phrase;
@@ -84,6 +85,7 @@ public class VtGuiasServiceImpl {
                                          String usuario, String origenCertificado) {
 
 
+        ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencial());
         validarNumeroAutorizacion(request);
         DateUtils.validarFechaEmisionGuia(request.getFechaEmision(), request.getFechaIniTransporte());
         Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData, idEmpresa, request.getSerie(), request.getSecuencial());
@@ -161,6 +163,7 @@ public class VtGuiasServiceImpl {
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationRequestGuiaRemisionDto request,
                               String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
 
+        ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencial());
         validarNumeroAutorizacion(request);
         VtGuiaEntity vtGuiaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
         validarAutorizacion(vtGuiaEntity);

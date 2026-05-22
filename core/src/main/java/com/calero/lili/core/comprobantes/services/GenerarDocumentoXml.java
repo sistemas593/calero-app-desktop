@@ -23,6 +23,7 @@ import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosEntity;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.CpLiquidacionesEntity;
 import com.calero.lili.core.modCompras.modComprasRetenciones.CpRetencionesEntity;
+import com.calero.lili.core.modCompras.modComprasRetenciones.dto.CreationRetencionRequestDto;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
 import com.calero.lili.core.modVentas.VtVentaEntity;
@@ -126,7 +127,7 @@ public class GenerarDocumentoXml {
 
         guiaRemision.setClaveAcceso(claveAcceso);
 
-       return guiaRemisionBuilder.builderGuiaRemision(guiaRemision, empresaEntity, serieEntity);
+        return guiaRemisionBuilder.builderGuiaRemision(guiaRemision, empresaEntity, serieEntity);
 
     }
 
@@ -134,6 +135,7 @@ public class GenerarDocumentoXml {
                                                             AdEmpresaEntity empresaEntity,
                                                             AdEmpresasSeriesEntity serieEntity,
                                                             List<CpImpuestosEntity> listImpuestos,
+                                                            CreationRetencionRequestDto request,
                                                             GeTerceroEntity proveedor) {
 
 
@@ -144,7 +146,7 @@ public class GenerarDocumentoXml {
 
         retencion.setClaveAcceso(claveAcceso);
         return comprobanteRetencionBuilder.builderComprobanteRetencion(retencion, empresaEntity,
-                serieEntity, listImpuestos, proveedor);
+                serieEntity, listImpuestos, proveedor, request);
 
     }
 

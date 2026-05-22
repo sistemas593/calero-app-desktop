@@ -43,14 +43,13 @@ public class ComprobanteServiceImpl {
     private final CpImpuestosRepository cpImpuestosRepository;
 
 
-    public void getComprobanteXmlFactura(Long idData, Long idEmpresa, VtVentaEntity vtVentaEntity) {
+    public void getComprobanteXmlFactura(Long idData, VtVentaEntity vtVentaEntity, AdEmpresaEntity adEmpresa, AdEmpresasSeriesEntity serie) {
 
         if (vtVentaEntity.getFormatoDocumento().equals(FormatoDocumento.E)) {
 
             validarCliente(idData, vtVentaEntity.getTercero().getIdTercero());
 
-            Factura factura = generarDocumentoXml.generarFactura(vtVentaEntity,
-                    obtenerEmpresa(idData, idEmpresa), obtenerEmpresaSerie(idData, idEmpresa, vtVentaEntity.getSerie()));
+            Factura factura = generarDocumentoXml.generarFactura(vtVentaEntity, adEmpresa, serie);
 
             vtVentaEntity.setComprobante(XmlUtils.convertToXmlString(Factura.class, factura));
             vtVentaEntity.setEstadoDocumento(EstadoDocumento.ENV);
@@ -113,7 +112,7 @@ public class ComprobanteServiceImpl {
 
             ComprobanteRetencion comprobanteRetencion = generarDocumentoXml.generarComprobanteRetencion(retencion,
                     obtenerEmpresa(idData, idEmpresa), obtenerEmpresaSerie(idData, idEmpresa, retencion.getSerieRetencion()),
-                    obtenerListaImpuestos(idData, idEmpresa, request), obtenerProveedor(idData, retencion.getProveedor().getIdTercero()));
+                    obtenerListaImpuestos(idData, idEmpresa, request), request, obtenerProveedor(idData, retencion.getProveedor().getIdTercero()));
 
             retencion.setComprobante(XmlUtils.convertToXmlString(ComprobanteRetencion.class, comprobanteRetencion));
             retencion.setEstadoDocumento(EstadoDocumento.ENV);
@@ -126,13 +125,13 @@ public class ComprobanteServiceImpl {
     }
 
 
-    private AdEmpresaEntity obtenerEmpresa(Long idData, Long idEmpresa) {
+    public AdEmpresaEntity obtenerEmpresa(Long idData, Long idEmpresa) {
         return adEmpresasRepository
                 .findById(idData, idEmpresa)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Data {0} Empresa {1} no existe", idData, idEmpresa)));
     }
 
-    private AdEmpresasSeriesEntity obtenerEmpresaSerie(Long idData, Long idEmpresa, String serie) {
+    public AdEmpresasSeriesEntity obtenerEmpresaSerie(Long idData, Long idEmpresa, String serie) {
         return adEmpresasSeriesRepository
                 .findBySerie(idData, idEmpresa, serie)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Empresa {0}, serie {1} no existe", idEmpresa, serie)));
@@ -152,7 +151,7 @@ public class ComprobanteServiceImpl {
         List<UUID> list = request.getCompraImpuestos().stream()
                 .map(CompraImpuestosDto::getCompraImpuestoId)
                 .toList();
+
         return cpImpuestosRepository.findByListFacturasIdList(idData, idEmpresa, list);
     }
-
 }

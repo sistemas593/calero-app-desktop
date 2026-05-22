@@ -21,8 +21,10 @@ import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.enums.TipoVenta;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.errors.exceptions.NotFoundException;
+import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.modAdminEmpresas.projection.MomentoEnvioProjection;
+import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesEntity;
 import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
 import com.calero.lili.core.modComprasItems.GeItemsRepository;
 import com.calero.lili.core.modContabilidad.modAsientos.CnAsientosEntity;
@@ -55,6 +57,7 @@ import com.calero.lili.core.modVentas.service.ValidarServiceImpl;
 import com.calero.lili.core.tablas.tbPaises.TbPaisEntity;
 import com.calero.lili.core.tablas.tbPaises.TbPaisesRepository;
 import com.calero.lili.core.utils.DateUtils;
+import com.calero.lili.core.utils.ValidacionDocumentosGeneral;
 import com.calero.lili.core.utils.validaciones.ValidarCampoAscii;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -118,6 +121,10 @@ public class VtVentasFacturasServiceImpl {
                                          CreationFacturaRequestDto request, String usuario, String origenCertificado) {
 
 
+        AdEmpresaEntity empresa = vtComprobanteService.obtenerEmpresa(idData, idEmpresa);
+        AdEmpresasSeriesEntity serie = vtComprobanteService.obtenerEmpresaSerie(idData, idEmpresa, request.getSerie());
+
+        ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencial());
         validarNumeroAutorizacion(request);
         DateUtils.validarFechaEmision(request.getFechaEmision());
         ValidarCampoAscii.validarStrings(request);
@@ -156,7 +163,7 @@ public class VtVentasFacturasServiceImpl {
 
 
         validateReembolso(request, vtVentaEntity);
-        vtComprobanteService.getComprobanteXmlFactura(idData, idEmpresa, vtVentaEntity);
+        vtComprobanteService.getComprobanteXmlFactura(idData, vtVentaEntity, empresa, serie);
 
         VtVentaEntity saved = facturasPersistenceService.guardarFactura(vtVentaEntity, request, idData, idEmpresa, tercero);
 
@@ -204,6 +211,12 @@ public class VtVentasFacturasServiceImpl {
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationFacturaRequestDto request,
                               FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
+
+        AdEmpresaEntity empresa = vtComprobanteService.obtenerEmpresa(idData, idEmpresa);
+        AdEmpresasSeriesEntity serie = vtComprobanteService.obtenerEmpresaSerie(idData, idEmpresa, request.getSerie());
+
+        ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencial());
+
         validarNumeroAutorizacion(request);
         VtVentaEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
@@ -247,7 +260,7 @@ public class VtVentasFacturasServiceImpl {
         update.setTipoEmision(getTipoEmision(request));
 
         validarReembolsoUpdate(request, update);
-        vtComprobanteService.getComprobanteXmlFactura(idData, idEmpresa, update);
+        vtComprobanteService.getComprobanteXmlFactura(idData, update, empresa, serie);
         VtVentaEntity vtVentaEntityDto = vtVentaRepository.save(update);
 
         if (request.getCuentaPorCobrar()) {
@@ -1117,11 +1130,12 @@ public class VtVentasFacturasServiceImpl {
         LocalDateTime fechaActual = LocalDateTime.now();
         LocalDateTime fechaDesde = LocalDate.now()
                 .minusDays(5).atStartOfDay();
-
+        AdEmpresaEntity empresa = vtComprobanteService.obtenerEmpresa(idData, idEmpresa);
         List<VtVentaEntity> facturas = vtVentaRepository.findAllFacturasSinComprobante(idData, idEmpresa, fechaDesde, fechaActual);
-
         for (VtVentaEntity factura : facturas) {
-            vtComprobanteService.getComprobanteXmlFactura(idData, idEmpresa, factura);
+
+            AdEmpresasSeriesEntity serie = vtComprobanteService.obtenerEmpresaSerie(idData, idEmpresa, factura.getSerie());
+            vtComprobanteService.getComprobanteXmlFactura(idData, factura, empresa, serie);
             factura.setExisteComprobante(Boolean.TRUE);
             factura.setModifiedBy(usuario);
             factura.setModifiedDate(LocalDateTime.now());

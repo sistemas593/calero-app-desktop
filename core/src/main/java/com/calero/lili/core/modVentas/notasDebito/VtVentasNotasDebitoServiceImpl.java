@@ -37,6 +37,7 @@ import com.calero.lili.core.modVentas.notasDebito.dto.GetNotaDebitoDto;
 import com.calero.lili.core.modVentas.projection.OneProjection;
 import com.calero.lili.core.modVentas.service.ValidarServiceImpl;
 import com.calero.lili.core.utils.DateUtils;
+import com.calero.lili.core.utils.ValidacionDocumentosGeneral;
 import com.calero.lili.core.utils.validaciones.ValidarCampoAscii;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -77,6 +78,7 @@ public class VtVentasNotasDebitoServiceImpl {
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa,
                                          CreationNotaDebitoRequestDto request, String usuario, String origenCertificado) {
 
+        ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencial());
         DateUtils.validarFechaEmision(request.getFechaEmision());
         ValidarCampoAscii.validarStrings(request);
         validarNumeroAutorizacion(request);
@@ -154,6 +156,7 @@ public class VtVentasNotasDebitoServiceImpl {
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationNotaDebitoRequestDto request, String usuario,
                               FilterListDto filters, TipoPermiso tipoBusqueda) {
 
+        ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencial());
         VtVentaEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
         validarNumeroAutorizacion(request);
         validarService.validarNoModificacion(vtVentaEntity);

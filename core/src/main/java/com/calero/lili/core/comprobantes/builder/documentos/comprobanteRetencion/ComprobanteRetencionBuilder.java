@@ -12,10 +12,12 @@ import com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencion.Retenci
 import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesEntity;
-import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosCodigosEntity;
+import com.calero.lili.core.modCompras.dto.ImpuestoCodigoDto;
+import com.calero.lili.core.modCompras.modCompras.dto.CompraImpuestosDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosValoresEntity;
 import com.calero.lili.core.modCompras.modComprasRetenciones.CpRetencionesEntity;
+import com.calero.lili.core.modCompras.modComprasRetenciones.dto.CreationRetencionRequestDto;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.utils.DateUtils;
 import com.calero.lili.core.utils.validaciones.ObligadoContabilidad;
@@ -23,8 +25,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -40,22 +47,51 @@ public class ComprobanteRetencionBuilder {
                                                             AdEmpresaEntity empresa,
                                                             AdEmpresasSeriesEntity serie,
                                                             List<CpImpuestosEntity> listaImpuestos,
-                                                            GeTerceroEntity proveedor) {
+                                                            GeTerceroEntity proveedor,
+                                                            CreationRetencionRequestDto request) {
 
         return ComprobanteRetencion.builder()
                 .id(ConstantesDocumento.NOMBRE_COMPROBANTE)
                 .version(ConstantesDocumento.VERSION_2_0_0)
                 .infoTributaria(infoTributariaRetencionBuilder.builderInfoTributaria(retencion, empresa, serie))
                 .infoCompRetencion(infoCompRetencionBuilder(retencion, empresa, serie, proveedor))
-                .docSustento(builderListDocumentoSustento(listaImpuestos))
+                .docSustento(builderListDocumentoSustento(listaImpuestos, request))
                 .campoAdicional(campoAdicionalBuilder.builderListCampoAdicional(retencion.getInformacionAdicional()))
                 .build();
     }
 
-    private List<DocSustento> builderListDocumentoSustento(List<CpImpuestosEntity> listaImpuestos) {
-        return listaImpuestos.stream()
-                .map(this::builderDocSustento)
-                .toList();
+    private List<DocSustento> builderListDocumentoSustento(List<CpImpuestosEntity> listaImpuestos, CreationRetencionRequestDto request) {
+
+        Map<UUID, List<ImpuestoCodigoDto>> codigosPorImpuesto =
+                request.getCompraImpuestos()
+                        .stream()
+                        .collect(Collectors.toMap(
+                                CompraImpuestosDto::getCompraImpuestoId,
+                                CompraImpuestosDto::getImpuestoCodigos
+                        ));
+
+        List<DocSustento> docSustentos = new ArrayList<>();
+
+        for (CpImpuestosEntity impuesto : listaImpuestos) {
+
+            DocSustento docSustento = builderDocSustento(impuesto);
+
+            List<ImpuestoCodigoDto> impuestoCodigos =
+                    codigosPorImpuesto.getOrDefault(
+                            impuesto.getIdImpuestos(),
+                            Collections.emptyList()
+                    );
+
+            docSustento.setRetencion(
+                    impuestoCodigos.stream()
+                            .map(this::builderRetencion)
+                            .toList()
+            );
+
+            docSustentos.add(docSustento);
+        }
+
+        return docSustentos;
     }
 
     private DocSustento builderDocSustento(CpImpuestosEntity impuesto) {
@@ -77,7 +113,6 @@ public class ComprobanteRetencionBuilder {
                 .totalSinImpuestos(formatoValores.convertirBigDecimalToString(totalSinImpuestos))
                 .importeTotal(formatoValores.convertirBigDecimalToString(importeTotal))
                 .impuestoDocSustento(builderImpuestoList(impuesto.getValoresEntity()))
-                .retencion(builderListRetencion(impuesto.getCodigosEntity()))
                 .pago(formaDePagoBuilder.builderListFormaPagos(impuesto.getFormasPagoSri()))
                 .build();
 
@@ -98,11 +133,24 @@ public class ComprobanteRetencionBuilder {
         return docSustento;
     }
 
-    private List<Retencion> builderListRetencion(List<CpImpuestosCodigosEntity> codigosEntity) {
+
+    private Retencion builderRetencion(ImpuestoCodigoDto retencion) {
+        return Retencion.builder()
+                .codigo(retencion.getCodigo().getCodigo())
+                .codigoRetencion(retencion.getCodigoRetencion())
+                .baseImponible(formatoValores.convertirBigDecimalToString(retencion.getBaseImponible()))
+                .porcentajeRetener(formatoValores.convertirBigDecimalToString(retencion.getPorcentajeRetener()))
+                .valorRetenido(formatoValores.convertirBigDecimalToString(retencion.getValorRetenido()))
+                .build();
+    }
+
+    /*private List<Retencion> builderListRetencion(List<CpImpuestosCodigosEntity> codigosEntity) {
         return codigosEntity.stream()
                 .map(this::builderRetencion)
                 .toList();
     }
+
+
 
     private Retencion builderRetencion(CpImpuestosCodigosEntity retencion) {
         return Retencion.builder()
@@ -112,7 +160,7 @@ public class ComprobanteRetencionBuilder {
                 .porcentajeRetener(formatoValores.convertirBigDecimalToString(retencion.getPorcentajeRetener()))
                 .valorRetenido(formatoValores.convertirBigDecimalToString(retencion.getValorRetenido()))
                 .build();
-    }
+    }*/
 
     private List<ImpuestoDocSustento> builderImpuestoList(List<CpImpuestosValoresEntity> valoresEntity) {
         return valoresEntity.stream()

@@ -13,6 +13,7 @@ import com.calero.lili.core.modVentas.reembolsos.dto.GetListDtoTotalizado;
 import com.calero.lili.core.modVentas.reembolsos.dto.ResponseReembolsoDto;
 import com.calero.lili.core.modVentas.reembolsos.projection.TotalesProjection;
 import com.calero.lili.core.utils.DateUtils;
+import com.calero.lili.core.utils.ValidacionDocumentosGeneral;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Phrase;
@@ -59,6 +60,7 @@ public class VtVentasReembolsoServiceImpl {
 
     public ResponseDto create(Long idData, Long idEmpresa, CreationRequestReembolsoDto request, String usuario) {
 
+        ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencialReemb());
         validarToleranciaValores(request);
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getReembolsosValores()),
                 DateUtils.toLocalDate(request.getFechaEmisionReemb()));
@@ -81,6 +83,7 @@ public class VtVentasReembolsoServiceImpl {
 
     public ResponseDto update(Long idData, Long idEmpresa, UUID id, CreationRequestReembolsoDto request, String usuario) {
 
+        ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencialReemb());
         validarToleranciaValores(request);
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getReembolsosValores()),
                 DateUtils.toLocalDate(request.getFechaEmisionReemb()));

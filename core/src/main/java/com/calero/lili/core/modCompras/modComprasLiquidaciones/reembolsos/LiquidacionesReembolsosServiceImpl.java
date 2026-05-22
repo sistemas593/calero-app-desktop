@@ -15,6 +15,7 @@ import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.builde
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.dto.GetReembolsoDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.dto.ReembolsoRequestDto;
 import com.calero.lili.core.utils.DateUtils;
+import com.calero.lili.core.utils.ValidacionDocumentosGeneral;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Phrase;
@@ -60,10 +61,10 @@ public class LiquidacionesReembolsosServiceImpl {
     private final ResponseApiBuilder responseApiBuilder;
     private final AdIvaPorcentajeServiceImpl adIvaPorcentajeService;
 
-    // TODO MODIFCAR PARA ACEPTAR ID DATA EN EL REPOSITORIO COLOCARLE PARA LAS BUSQUEDAS Y A LOS VALORES
 
     public ResponseDto create(Long idData, Long idEmpresa, ReembolsoRequestDto request, String usuario) {
 
+        ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencialReemb());
         validarValores(request);
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getReembolsosValores()),
                 DateUtils.toLocalDate(request.getFechaEmisionReemb()));
@@ -89,6 +90,7 @@ public class LiquidacionesReembolsosServiceImpl {
     public ResponseDto update(Long idData, Long idEmpresa, UUID idReembolso, ReembolsoRequestDto request,
                               String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
 
+        ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencialReemb());
         validarValores(request);
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getReembolsosValores()),
                 DateUtils.toLocalDate(request.getFechaEmisionReemb()));

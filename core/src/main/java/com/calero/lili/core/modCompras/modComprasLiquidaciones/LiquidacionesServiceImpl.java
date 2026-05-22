@@ -35,6 +35,7 @@ import com.calero.lili.core.modTerceros.GeTercerosRepository;
 import com.calero.lili.core.modVentas.dto.DetailDto;
 import com.calero.lili.core.modVentas.facturas.dto.CreationFacturaRequestDto;
 import com.calero.lili.core.utils.DateUtils;
+import com.calero.lili.core.utils.ValidacionDocumentosGeneral;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Phrase;
@@ -93,6 +94,7 @@ public class LiquidacionesServiceImpl {
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa, CreationRequestLiquidacionCompraDto request,
                                          String usuario, String origenCertificado) {
 
+        ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencial());
         validarNumeroAutorizacion(request);
         DateUtils.validarFechaEmision(request.getFechaEmision());
         Optional<OneProjection> existingFactura = liquidacionesRepository
@@ -210,6 +212,7 @@ public class LiquidacionesServiceImpl {
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationRequestLiquidacionCompraDto request,
                               String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
 
+        ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencial());
         validarNumeroAutorizacion(request);
         CpLiquidacionesEntity cpLiquidacionesEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
         validarAutorizacion(cpLiquidacionesEntity);
