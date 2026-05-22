@@ -888,6 +888,7 @@ public class CpImpuestosServiceImpl {
 
         for (CpImpuestosEntity cpImpuesto : list) {
             CompraImpuestoResponseDto dto = cpImpuestosBuilder.builderCompraImpuestoDto(cpImpuesto);
+            dto.setImpuestoCodigos(builderResponseListCodigosImpuesto(cpImpuesto));
             if (Objects.nonNull(cpImpuesto.getValoresEntity())) {
 
                 BigDecimal subtotal = cpImpuesto.getValoresEntity()
@@ -910,14 +911,13 @@ public class CpImpuestosServiceImpl {
         return response;
     }
 
-    public List<CodigoImpuestoResponseDto> builderResponseListCodigosImpuesto(List<CpImpuestosEntity> list) {
+    private List<CodigoImpuestoResponseDto> builderResponseListCodigosImpuesto(CpImpuestosEntity impuesto) {
 
         List<CodigoImpuestoResponseDto> codigosImpuesto = new ArrayList<>();
-        for (CpImpuestosEntity impuesto : list) {
-            if (Objects.nonNull(impuesto.getCodigosEntity())) {
-                for (CpImpuestosCodigosEntity cpCodigo : impuesto.getCodigosEntity()) {
-                    codigosImpuesto.add(cpImpuestosBuilder.builderCodigoImpuestoResponse(cpCodigo));
-                }
+
+        if (Objects.nonNull(impuesto.getCodigosEntity())) {
+            for (CpImpuestosCodigosEntity cpCodigo : impuesto.getCodigosEntity()) {
+                codigosImpuesto.add(cpImpuestosBuilder.builderCodigoImpuestoResponse(cpCodigo));
             }
         }
         return codigosImpuesto;

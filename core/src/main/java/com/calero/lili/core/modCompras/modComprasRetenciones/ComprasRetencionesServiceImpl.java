@@ -220,8 +220,7 @@ public class ComprasRetencionesServiceImpl {
 
         GetDto response = cpRetencionesBuilder.builderResponse(cpRetencionesEntity);
         List<CpImpuestosEntity> listaImpuestos = cpImpuestosService.getListCompraImpuestoForIdRetencion(idVenta, idEmpresa, idData);
-        response.setListCompraImpuesto(cpImpuestosService.builderResponseListCompraImpuesto(listaImpuestos));
-        response.setListCodigoImpuestos(cpImpuestosService.builderResponseListCodigosImpuesto(listaImpuestos));
+        response.setCompraImpuestos(cpImpuestosService.builderResponseListCompraImpuesto(listaImpuestos));
         return response;
     }
 

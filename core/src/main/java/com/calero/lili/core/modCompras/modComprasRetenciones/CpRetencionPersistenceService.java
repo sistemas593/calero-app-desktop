@@ -19,15 +19,13 @@ public class CpRetencionPersistenceService {
 
     private final ComprasRetencionesRepository comprasRetencionesRepository;
     private final CpImpuestosServiceImpl cpImpuestosService;
-    //private final ComprobanteServiceImpl comprobanteService;
+    private final ComprobanteServiceImpl comprobanteService;
 
     @Transactional
     public CpRetencionesEntity guardarRetencion(CpRetencionesEntity entidad, CreationRetencionRequestDto request) {
 
         CpRetencionesEntity saved = comprasRetencionesRepository.save(entidad);
         guardarCpImpuesto(request, saved);
-        //comprobanteService.getComprobanteXmlRetencion(entidad.getIdData(), entidad.getIdEmpresa(), entidad, request);
-
         return saved;
     }
 
@@ -61,5 +59,4 @@ public class CpRetencionPersistenceService {
         }
         return CodigoImpuesto.IMC.name();
     }
-
 }

@@ -43,8 +43,7 @@ public class GetDto {
     private String fechaAutorizacion;
     private String claveAcceso;
 
-    private List<CompraImpuestoResponseDto> listCompraImpuesto;
-    private List<CodigoImpuestoResponseDto> listCodigoImpuestos;
+    private List<CompraImpuestoResponseDto> compraImpuestos;
 
     private Integer ambiente;
     private FormatoDocumento formatoDocumento;
