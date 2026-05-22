@@ -3,17 +3,20 @@ package com.calero.lili.core.modCompras.modComprasImpuestos.builder;
 import com.calero.lili.core.builder.FormasPagoBuilder;
 import com.calero.lili.core.builder.InformacionAdicionalBuilder;
 import com.calero.lili.core.dtos.FormasPagoSri;
+import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosCodigosEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CreationCompraImpuestoRequestDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetListDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.PagoExterior;
+import com.calero.lili.core.modCompras.modComprasRetenciones.dto.CodigoImpuestoResponseDto;
 import com.calero.lili.core.modCompras.modComprasRetenciones.dto.CompraImpuestoResponseDto;
 import com.calero.lili.core.tablas.tbDocumentos.TbDocumentoEntity;
 import com.calero.lili.core.utils.DateUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -263,13 +266,9 @@ public class CpImpuestosBuilder {
     }
 
 
-    public List<CompraImpuestoResponseDto> builderCompraImpuestoDtoList(List<CpImpuestosEntity> list) {
-        return list.stream()
-                .map(this::builderCompraImpuestoDto)
-                .toList();
-    }
 
-    private CompraImpuestoResponseDto builderCompraImpuestoDto(CpImpuestosEntity model) {
+
+    public CompraImpuestoResponseDto builderCompraImpuestoDto(CpImpuestosEntity model) {
         return CompraImpuestoResponseDto.builder()
                 .idImpuestos(model.getIdImpuestos())
                 .serie(model.getSerie())
@@ -292,6 +291,20 @@ public class CpImpuestosBuilder {
                 .sustento(Objects.nonNull(model.getCodigoSustento())
                         ? model.getCodigoSustento().getNombreSustento()
                         : null)
+                .subtotal(BigDecimal.ZERO)
+                .impuestos(BigDecimal.ZERO)
+                .build();
+    }
+
+
+    public CodigoImpuestoResponseDto builderCodigoImpuestoResponse(CpImpuestosCodigosEntity model) {
+        return CodigoImpuestoResponseDto.builder()
+                .idImpuestoCodigo(model.getIdImpuestosCodigo())
+                .baseImponible(model.getBaseImponible())
+                .porcentajeRetener(model.getPorcentajeRetener())
+                .valorRetenido(model.getValorRetenido())
+                .codigoRetencion(model.getCodigoRetencion())
+                .codigo(model.getCodigo())
                 .build();
     }
 

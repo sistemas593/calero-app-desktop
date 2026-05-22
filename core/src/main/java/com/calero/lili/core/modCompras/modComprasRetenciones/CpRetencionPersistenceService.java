@@ -1,5 +1,6 @@
 package com.calero.lili.core.modCompras.modComprasRetenciones;
 
+import com.calero.lili.core.comprobantes.services.ComprobanteServiceImpl;
 import com.calero.lili.core.dtos.CompraImpuestosDto;
 import com.calero.lili.core.enums.CodigoImpuesto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosServiceImpl;
@@ -18,18 +19,20 @@ public class CpRetencionPersistenceService {
 
     private final ComprasRetencionesRepository comprasRetencionesRepository;
     private final CpImpuestosServiceImpl cpImpuestosService;
+    //private final ComprobanteServiceImpl comprobanteService;
 
     @Transactional
-    public CpRetencionesEntity guardarRetencion(CpRetencionesEntity retencionesEntity, CreationRetencionRequestDto request) {
+    public CpRetencionesEntity guardarRetencion(CpRetencionesEntity entidad, CreationRetencionRequestDto request) {
 
-        CpRetencionesEntity saved = comprasRetencionesRepository.save(retencionesEntity);
-        validarImpuesto(request, saved);
+        CpRetencionesEntity saved = comprasRetencionesRepository.save(entidad);
+        guardarCpImpuesto(request, saved);
+        //comprobanteService.getComprobanteXmlRetencion(entidad.getIdData(), entidad.getIdEmpresa(), entidad, request);
 
         return saved;
     }
 
-    private void validarImpuesto(CreationRetencionRequestDto request,
-                                 CpRetencionesEntity entidad) {
+    private void guardarCpImpuesto(CreationRetencionRequestDto request,
+                                   CpRetencionesEntity entidad) {
         if (Objects.nonNull(request.getCompraImpuestos())) {
             builderListSave(request).forEach(item -> {
                 cpImpuestosService.updateImpuestoRetencion(entidad, item);

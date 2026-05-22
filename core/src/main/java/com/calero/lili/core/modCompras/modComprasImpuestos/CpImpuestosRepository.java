@@ -226,6 +226,7 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
 
     @Query(value = "SELECT entity " +
             "FROM CpImpuestosEntity entity " +
+            "LEFT JOIN FETCH entity.codigosEntity " +
             "WHERE entity.idData = :idData " +
             "AND entity.idEmpresa = :idEmpresa " +
             "AND entity.idImpuestos IN :listIdFacturas")
@@ -433,8 +434,8 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
             "AND entity.idEmpresa = :idEmpresa " +
             "AND entity.retencion.idRetencion = :idRetencion")
     List<CpImpuestosEntity> idRetencion(@Param("idData") Long idData,
-                                              @Param("idEmpresa") Long idEmpresa,
-                                              @Param("idRetencion") UUID idRetencion);
+                                        @Param("idEmpresa") Long idEmpresa,
+                                        @Param("idRetencion") UUID idRetencion);
 
 
 }

@@ -25,6 +25,7 @@ import com.calero.lili.core.modCompras.modComprasImpuestos.projection.ComprasImp
 import com.calero.lili.core.modCompras.modComprasImpuestos.projection.OneProjection;
 import com.calero.lili.core.modCompras.modComprasImpuestos.projection.TotalesProjection;
 import com.calero.lili.core.modCompras.modComprasRetenciones.CpRetencionesEntity;
+import com.calero.lili.core.modCompras.modComprasRetenciones.dto.CodigoImpuestoResponseDto;
 import com.calero.lili.core.modCompras.modComprasRetenciones.dto.CompraImpuestoResponseDto;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
@@ -881,11 +882,49 @@ public class CpImpuestosServiceImpl {
         }
     }
 
-    public List<CompraImpuestoResponseDto> getListCompraImpuestoForIdRetencion(UUID idRetencion, Long idEmpresa, Long idData) {
-        List<CompraImpuestoResponseDto> response = cpImpuestosBuilder.builderCompraImpuestoDtoList(cpImpuestosRepository
-                .idRetencion(idData, idEmpresa, idRetencion));
-        if (Objects.nonNull(response)) return response;
-        return null;
+    public List<CompraImpuestoResponseDto> builderResponseListCompraImpuesto(List<CpImpuestosEntity> list) {
+
+        List<CompraImpuestoResponseDto> response = new ArrayList<>();
+
+        for (CpImpuestosEntity cpImpuesto : list) {
+            CompraImpuestoResponseDto dto = cpImpuestosBuilder.builderCompraImpuestoDto(cpImpuesto);
+            if (Objects.nonNull(cpImpuesto.getValoresEntity())) {
+
+                BigDecimal subtotal = cpImpuesto.getValoresEntity()
+                        .stream()
+                        .map(CpImpuestosValoresEntity::getBaseImponible)
+                        .filter(Objects::nonNull)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                BigDecimal impuesto = cpImpuesto.getValoresEntity()
+                        .stream()
+                        .map(CpImpuestosValoresEntity::getValor)
+                        .filter(Objects::nonNull)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                dto.setSubtotal(subtotal);
+                dto.setImpuestos(impuesto);
+            }
+            response.add(dto);
+        }
+        return response;
+    }
+
+    public List<CodigoImpuestoResponseDto> builderResponseListCodigosImpuesto(List<CpImpuestosEntity> list) {
+
+        List<CodigoImpuestoResponseDto> codigosImpuesto = new ArrayList<>();
+        for (CpImpuestosEntity impuesto : list) {
+            if (Objects.nonNull(impuesto.getCodigosEntity())) {
+                for (CpImpuestosCodigosEntity cpCodigo : impuesto.getCodigosEntity()) {
+                    codigosImpuesto.add(cpImpuestosBuilder.builderCodigoImpuestoResponse(cpCodigo));
+                }
+            }
+        }
+        return codigosImpuesto;
+    }
+
+    public List<CpImpuestosEntity> getListCompraImpuestoForIdRetencion(UUID idRetencion, Long idEmpresa, Long idData) {
+        return cpImpuestosRepository.idRetencion(idData, idEmpresa, idRetencion);
     }
 
 }

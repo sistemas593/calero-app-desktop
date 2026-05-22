@@ -18,6 +18,7 @@ import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.modAdminEmpresas.projection.MomentoEnvioProjection;
+import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosServiceImpl;
 import com.calero.lili.core.modCompras.modComprasRetenciones.builder.CpRetencionesBuilder;
 import com.calero.lili.core.modCompras.modComprasRetenciones.dto.CreationRetencionRequestDto;
@@ -218,7 +219,9 @@ public class ComprasRetencionesServiceImpl {
                 idVenta, filters, tipoBusqueda, usuario);
 
         GetDto response = cpRetencionesBuilder.builderResponse(cpRetencionesEntity);
-        response.setListCompraImpuesto(cpImpuestosService.getListCompraImpuestoForIdRetencion(idVenta, idEmpresa, idData));
+        List<CpImpuestosEntity> listaImpuestos = cpImpuestosService.getListCompraImpuestoForIdRetencion(idVenta, idEmpresa, idData);
+        response.setListCompraImpuesto(cpImpuestosService.builderResponseListCompraImpuesto(listaImpuestos));
+        response.setListCodigoImpuestos(cpImpuestosService.builderResponseListCodigosImpuesto(listaImpuestos));
         return response;
     }
 

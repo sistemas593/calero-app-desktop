@@ -113,6 +113,7 @@ public class VtVentasFacturasServiceImpl {
     private final ValidarServiceImpl validarService;
 
 
+    // TODO VALIDAR EMPRESA Y EMPRESA SERIE QUE EXISTAN PARA LUEGO PASARLE AL GENERAR EL XML ( EN TODOS LOS DOCUMENTOS)
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa,
                                          CreationFacturaRequestDto request, String usuario, String origenCertificado) {
 

@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data
@@ -13,6 +14,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CompraImpuestoResponseDto {
+
+    // TODO TRAER EL SUBTOTAL E IMPUESTOS, BASES IMPONIBLES = SUMA DE SUBTOTAL, IMPUESTOS = VALOR
 
     private UUID idImpuestos;
     private String serie;
@@ -23,4 +26,6 @@ public class CompraImpuestoResponseDto {
     private String documento;
     private SustentoCodigos codigoSustento;
     private String sustento;
+    private BigDecimal subtotal;
+    private BigDecimal impuestos;
 }

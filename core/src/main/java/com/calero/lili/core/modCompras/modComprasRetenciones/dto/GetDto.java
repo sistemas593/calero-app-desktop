@@ -18,6 +18,8 @@ import java.util.UUID;
 @AllArgsConstructor
 public class GetDto {
 
+    // todo devolver lista de codigos impuesto.
+
     private UUID idRetencion;
     private String sucursal;
     private String numeroAutorizacionRetencion;
@@ -42,6 +44,7 @@ public class GetDto {
     private String claveAcceso;
 
     private List<CompraImpuestoResponseDto> listCompraImpuesto;
+    private List<CodigoImpuestoResponseDto> listCodigoImpuestos;
 
     private Integer ambiente;
     private FormatoDocumento formatoDocumento;

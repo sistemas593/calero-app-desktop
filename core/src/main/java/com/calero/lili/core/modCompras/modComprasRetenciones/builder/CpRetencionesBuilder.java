@@ -77,6 +77,7 @@ public class CpRetencionesBuilder {
                 .relacionado(model.getRelacionado())
                 .emailEstado(EmailEstado.NO_ENTREGADO.getTipo())
                 .existeComprobante(item.getExisteComprobante())
+                .formatoDocumento(model.getFormatoDocumento())
                 .build();
     }
 
