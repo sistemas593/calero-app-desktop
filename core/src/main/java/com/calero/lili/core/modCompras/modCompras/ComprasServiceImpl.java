@@ -18,7 +18,7 @@ import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.dtos.ResponseDto;
-import com.calero.lili.core.enums.CodigoImpuesto;
+import com.calero.lili.core.enums.OrigenImpuestos;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.utils.DateUtils;
 import com.lowagie.text.Document;
@@ -109,17 +109,17 @@ public class ComprasServiceImpl {
                     .listCodigosImpuesto(Objects.nonNull(item.getImpuestoCodigos())
                             ? item.getImpuestoCodigos()
                             : null)
-                    .origen(validarCodigoImpuesto(item))
+                    .origen(setearOrigen(item))
                     .build());
         });
         return listImpuesto;
     }
 
-    private String validarCodigoImpuesto(CompraImpuestosDto model) {
+    private String setearOrigen(CompraImpuestosDto model) {
         if (Objects.nonNull(model.getImpuestoCodigos())) {
-            return CodigoImpuesto.COC.name();
+            return OrigenImpuestos.CCC.name();
         }
-        return CodigoImpuesto.COM.name();
+        return OrigenImpuestos.CSC.name();
     }
 
     @Transactional

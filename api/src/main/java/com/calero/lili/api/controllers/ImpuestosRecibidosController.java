@@ -29,7 +29,6 @@ public class ImpuestosRecibidosController {
     private final AuditorAwareImpl auditorAware;
 
 
-    // TODO CREAR OTRO ENDPOINT, RECIBIR FORMATO DEL SRI O FORMATO NORMAL. 1 FORMATO NORMAL SI ES 2 ES NUEVO ARCHIVO, OBLIGATORIO
     @PostMapping("files/{idEmpresa}")
     @ResponseStatus(HttpStatus.CREATED)
     public CpImpuestosRecibirListCreationResponseDto createFiles(@PathVariable("idEmpresa") Long idEmpresa,

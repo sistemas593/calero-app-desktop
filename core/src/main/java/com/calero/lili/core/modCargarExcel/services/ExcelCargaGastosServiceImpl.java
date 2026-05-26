@@ -36,7 +36,7 @@ public class ExcelCargaGastosServiceImpl {
     private final GeItemsGruposRepository geItemsGruposRepository;
     private final GeImpuestosItemsRepository geImpuestosItemsRepository;
 
-
+    // TODO VALIDAR QUE SEA UN EXCEL EN TODOS LOS SERVICIOS.
     public void cargarItemsGastos(Long idData, MultipartFile file, Long idEmpresa) throws IOException {
 
 

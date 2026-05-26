@@ -1,7 +1,7 @@
 package com.calero.lili.core.modCompras.modComprasLiquidaciones;
 
 import com.calero.lili.core.dtos.CompraImpuestosDto;
-import com.calero.lili.core.enums.CodigoImpuesto;
+import com.calero.lili.core.enums.OrigenImpuestos;
 import com.calero.lili.core.enums.TipoDocumentoSerie;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosEntity;
@@ -66,17 +66,17 @@ public class LiquidacionPersistenceService {
                     .listCodigosImpuesto(Objects.nonNull(item.getImpuestoCodigos())
                             ? item.getImpuestoCodigos()
                             : null)
-                    .origen(validarCodigoImpuesto(item))
+                    .origen(setearOrigen(item))
                     .build());
         });
         return listImpuesto;
     }
 
-    private String validarCodigoImpuesto(CreationCompraImpuestoRequestDto model) {
+    private String setearOrigen(CreationCompraImpuestoRequestDto model) {
         if (Objects.nonNull(model.getImpuestoCodigos())) {
-            return CodigoImpuesto.LIC.name();
+            return OrigenImpuestos.LCC.name();
         }
-        return CodigoImpuesto.LIQ.name();
+        return OrigenImpuestos.LSC.name();
     }
 
 }

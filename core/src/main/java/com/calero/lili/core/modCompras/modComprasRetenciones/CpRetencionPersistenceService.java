@@ -1,7 +1,7 @@
 package com.calero.lili.core.modCompras.modComprasRetenciones;
 
 import com.calero.lili.core.dtos.CompraImpuestosDto;
-import com.calero.lili.core.enums.CodigoImpuesto;
+import com.calero.lili.core.enums.OrigenImpuestos;
 import com.calero.lili.core.enums.TipoDocumentoSerie;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosEntity;
@@ -50,7 +50,7 @@ public class CpRetencionPersistenceService {
     @Transactional
     public CpRetencionesEntity actualizarRetencion(CpRetencionesEntity entidad, CreationRetencionRequestDto request) {
         CpRetencionesEntity saved = comprasRetencionesRepository.save(entidad);
-        guardarCpImpuesto(request, saved);
+        actualizarCpImpuesto(request, saved);
         return saved;
     }
 
@@ -58,7 +58,16 @@ public class CpRetencionPersistenceService {
                                    CpRetencionesEntity entidad) {
         if (Objects.nonNull(request.getCompraImpuestos())) {
             builderListSave(request).forEach(item -> {
-                cpImpuestosService.updateImpuestoRetencion(entidad, item);
+                cpImpuestosService.guardarImpuestoRetencion(entidad, item);
+            });
+        }
+    }
+
+    private void actualizarCpImpuesto(CreationRetencionRequestDto request,
+                                      CpRetencionesEntity entidad) {
+        if (Objects.nonNull(request.getCompraImpuestos())) {
+            builderListSave(request).forEach(item -> {
+                cpImpuestosService.actualizarImpuestoRetencion(entidad, item);
             });
         }
     }
@@ -72,16 +81,11 @@ public class CpRetencionPersistenceService {
                     .listCodigosImpuesto(Objects.nonNull(item.getImpuestoCodigos())
                             ? item.getImpuestoCodigos()
                             : null)
-                    .origen(validarCodigoImpuesto(item))
+                    .origen(OrigenImpuestos.RCC.name())
                     .build());
         });
         return listImpuesto;
     }
 
-    private String validarCodigoImpuesto(com.calero.lili.core.modCompras.modCompras.dto.CompraImpuestosDto model) {
-        if (Objects.nonNull(model.getImpuestoCodigos())) {
-            return CodigoImpuesto.IMP.name();
-        }
-        return CodigoImpuesto.IMC.name();
-    }
+
 }

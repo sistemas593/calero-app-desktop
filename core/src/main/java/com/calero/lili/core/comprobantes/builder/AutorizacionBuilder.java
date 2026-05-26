@@ -24,6 +24,7 @@ import com.calero.lili.core.enums.CodigoRetencion;
 import com.calero.lili.core.enums.EmailEstado;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
+import com.calero.lili.core.enums.OrigenImpuestos;
 import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.enums.TipoIngreso;
 import com.calero.lili.core.enums.TipoVenta;
@@ -77,6 +78,7 @@ public class AutorizacionBuilder {
                 .formasPagoSri(builderListFormasPagoSri(documento.getInfoFactura().getPago()))
                 .pagoLocExt("01")
                 .existeComprobante(Boolean.TRUE)
+                .origen(OrigenImpuestos.XDF.name())
                 .build();
     }
 
@@ -115,6 +117,7 @@ public class AutorizacionBuilder {
                 .documento(builderTipoDocumento(CodigoDocumento.NOTA_CREDITO))
                 .tercero(proveedor)
                 .existeComprobante(Boolean.TRUE)
+                .origen(OrigenImpuestos.XDF.name())
                 .build();
     }
 
@@ -137,6 +140,7 @@ public class AutorizacionBuilder {
                 .tercero(proveedor)
                 .formasPagoSri(builderListFormasPagoSri(documento.getInfoNotaDebito().getPago()))
                 .existeComprobante(Boolean.TRUE)
+                .origen(OrigenImpuestos.XDF.name())
                 .build();
     }
 

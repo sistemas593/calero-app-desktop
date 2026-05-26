@@ -5,7 +5,7 @@ import com.calero.lili.core.dtos.CompraImpuestosDto;
 import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirCreationRequestDto;
-import com.calero.lili.core.enums.CodigoImpuesto;
+import com.calero.lili.core.enums.OrigenImpuestos;
 import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
@@ -125,7 +125,7 @@ public class CpImpuestosServiceImpl {
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id de tercero {0} no existe", request.getIdTercero())));
 
         impuestosEntity.setTercero(proveedor);
-        impuestosEntity.setOrigen(validarCodigoImpuesto(request));
+        impuestosEntity.setOrigen(setearOrigen(request));
         impuestosEntity.setCreatedBy(usuario);
         impuestosEntity.setCreatedDate(LocalDateTime.now());
         return responseApiBuilder.builderResponse(cpImpuestosRepository
@@ -270,17 +270,17 @@ public class CpImpuestosServiceImpl {
         impuestosEntity.setModifiedBy(usuario);
         impuestosEntity.setModifiedDate(LocalDateTime.now());
 
-        impuestosEntity.setOrigen(validarCodigoImpuesto(request));
+        impuestosEntity.setOrigen(setearOrigen(request));
         cpImpuestosRepository.save(impuestosEntity);
         return responseApiBuilder.builderResponse(vtVentaEntity.getIdImpuestos().toString());
 
     }
 
-    private String validarCodigoImpuesto(CreationCompraImpuestoRequestDto model) {
+    private String setearOrigen(CreationCompraImpuestoRequestDto model) {
         if (Objects.nonNull(model.getImpuestoCodigos())) {
-            return CodigoImpuesto.MAC.name();
+            return OrigenImpuestos.ICC.name();
         }
-        return CodigoImpuesto.MAN.name();
+        return OrigenImpuestos.ISC.name();
     }
 
 
@@ -388,6 +388,7 @@ public class CpImpuestosServiceImpl {
                 impuesto.setDestino(request.getDestino().name());
                 impuesto.setFechaRegistro(DateUtils.toLocalDate(request.getFechaRegistro()));
                 impuesto.setCodigoSustento(request.getCodigoSustento());
+                impuesto.setOrigen(OrigenImpuestos.DSC.name());
 
                 cpImpuestosRepository.save(impuesto);
 
@@ -731,22 +732,44 @@ public class CpImpuestosServiceImpl {
     }
 
 
-    public void updateImpuestoRetencion(CpRetencionesEntity entidad, CompraImpuestosDto model) {
+    public void guardarImpuestoRetencion(CpRetencionesEntity entidad, CompraImpuestosDto model) {
 
-        try {
-            CpImpuestosEntity impuesto = cpImpuestosRepository.findById(entidad.getIdData(), entidad.getIdEmpresa(), model.getIdCompraImpuesto())
-                    .orElseThrow(() -> new GeneralException("No existe impuesto para asignarse"));
 
+        CpImpuestosEntity impuesto = cpImpuestosRepository.findById(entidad.getIdData(), entidad.getIdEmpresa(), model.getIdCompraImpuesto())
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("El impuesto con id {0} para asignarse", model.getIdCompraImpuesto())));
+
+       /* if (Objects.nonNull(impuesto.getRetencion())) {
+            throw new GeneralException(MessageFormat.format("El documento con id {0}  ya posee una retención asignada",
+                    model.getIdCompraImpuesto()));
+        }*/
+
+        if (permiteRetencion(impuesto.getOrigen())) {
             impuesto.setRetencion(entidad);
             impuesto.setOrigen(model.getOrigen());
             List<CpImpuestosCodigosEntity> listCodigos = impuestoCodigoBuilder.builderMultiList(model.getListCodigosImpuesto(),
                     entidad.getIdData(), entidad.getIdEmpresa());
             validateCodigosEntity(impuesto, listCodigos);
             cpImpuestosRepository.save(impuesto);
-        } catch (Exception ex) {
-            log.info(ex.getMessage());
+
+        } else {
+            throw new GeneralException(MessageFormat.format("El documento con id {0} y su origen: {1} no corresponde para guardar una retención",
+                    model.getIdCompraImpuesto(), impuesto.getOrigen()));
         }
 
+    }
+
+
+    public void actualizarImpuestoRetencion(CpRetencionesEntity entidad, CompraImpuestosDto model) {
+
+        CpImpuestosEntity impuesto = cpImpuestosRepository.findById(entidad.getIdData(), entidad.getIdEmpresa(), model.getIdCompraImpuesto())
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("El impuesto con id {0} para asignarse", model.getIdCompraImpuesto())));
+
+        impuesto.setRetencion(entidad);
+        impuesto.setOrigen(model.getOrigen());
+        List<CpImpuestosCodigosEntity> listCodigos = impuestoCodigoBuilder.builderMultiList(model.getListCodigosImpuesto(),
+                entidad.getIdData(), entidad.getIdEmpresa());
+        validateCodigosEntity(impuesto, listCodigos);
+        cpImpuestosRepository.save(impuesto);
     }
 
     private void validateCodigosEntity(CpImpuestosEntity impuesto, List<CpImpuestosCodigosEntity> listCodigos) {
@@ -925,6 +948,13 @@ public class CpImpuestosServiceImpl {
 
     public List<CpImpuestosEntity> getListCompraImpuestoForIdRetencion(UUID idRetencion, Long idEmpresa, Long idData) {
         return cpImpuestosRepository.idRetencion(idData, idEmpresa, idRetencion);
+    }
+
+    private Boolean permiteRetencion(String origen) {
+        if (OrigenImpuestos.XDF.name().equals(origen)) return Boolean.TRUE;
+        if (OrigenImpuestos.ISC.name().equals(origen)) return Boolean.TRUE;
+        if (OrigenImpuestos.DSC.name().equals(origen)) return Boolean.TRUE;
+        return Boolean.FALSE;
     }
 
 }
