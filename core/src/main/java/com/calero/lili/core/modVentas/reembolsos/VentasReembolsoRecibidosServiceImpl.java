@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @AllArgsConstructor
@@ -34,6 +35,19 @@ public class VentasReembolsoRecibidosServiceImpl {
         for (MultipartFile file : files) {
 
             String nameFile = XmlUtils.getNameForFile(file);
+
+            String extension = XmlUtils.getExtensionFile(file);
+            if (Objects.isNull(extension) || !"xml".equalsIgnoreCase(extension.trim())) {
+                CpImpuestosRecibirResponseDto res = cpImpuestoRecibirBuilder
+                        .builder(
+                                nameFile,
+                                "El archivo no corresponde a un XML válido",
+                                Boolean.FALSE,
+                                ""
+                        );
+                listaRespuestas.add(res);
+                continue;
+            }
 
             CpImpuestosRecibirResponseDto res = cpImpuestoRecibirBuilder
                     .builder(nameFile, MensajeComprobante.NOT_ERROR, Boolean.TRUE, "");
