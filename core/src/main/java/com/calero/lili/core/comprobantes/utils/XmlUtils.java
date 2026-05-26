@@ -159,5 +159,16 @@ public class XmlUtils {
         }
     }
 
+    public static String getExtensionFile(MultipartFile file) {
+        String nombreArchivo = file.getOriginalFilename();
+
+        String extension = "";
+        if (nombreArchivo != null && nombreArchivo.contains(".")) {
+            extension = nombreArchivo.substring(nombreArchivo.lastIndexOf(".") + 1);
+        }
+
+        return extension;
+    }
+
 
 }

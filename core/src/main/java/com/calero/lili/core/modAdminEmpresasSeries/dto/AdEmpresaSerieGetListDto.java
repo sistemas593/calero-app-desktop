@@ -1,6 +1,7 @@
 package com.calero.lili.core.modAdminEmpresasSeries.dto;
 
 import com.calero.lili.core.enums.FormatoDocumento;
+import com.calero.lili.core.enums.TipoDocumentoSerie;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -38,7 +39,7 @@ public class AdEmpresaSerieGetListDto {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class Documentos {
-        private String documento;
+        private TipoDocumentoSerie documento;
         private String numeroAutorizacion;
         private String secuencial;
         private FormatoDocumento formatoDocumento;

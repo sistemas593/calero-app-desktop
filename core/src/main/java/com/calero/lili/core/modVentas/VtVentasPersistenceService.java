@@ -1,6 +1,6 @@
 package com.calero.lili.core.modVentas;
 
-import com.calero.lili.core.enums.TipoVenta;
+import com.calero.lili.core.enums.TipoDocumentoSerie;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosEntity;
 import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosRepository;
@@ -39,10 +39,10 @@ public class VtVentasPersistenceService {
         }
 
         AdEmpresasSeriesDocumentosEntity documentosEntity = adEmpresasSeriesDocumentosRepository
-                .findBySerieAndDocumento(idData, idEmpresa, request.getSerie(), TipoVenta.FAC.name())
+                .findBySerieAndDocumento(idData, idEmpresa, request.getSerie(), TipoDocumentoSerie.FAC.name())
                 .orElseThrow(() -> new GeneralException(
                         MessageFormat.format("Serie {0}, Secuencial {1}, documento {2} no existe",
-                                request.getSerie(), request.getSecuencial(), TipoVenta.FAC.name())
+                                request.getSerie(), request.getSecuencial(), TipoDocumentoSerie.FAC.name())
                 ));
 
         int nuevo = Integer.parseInt(request.getSecuencial()) + 1;
@@ -61,10 +61,10 @@ public class VtVentasPersistenceService {
         VtVentaEntity saved = vtVentaRepository.save(notaCredito);
 
         AdEmpresasSeriesDocumentosEntity documentosEntity = adEmpresasSeriesDocumentosRepository
-                .findBySerieAndDocumento(idData, idEmpresa, request.getSerie(), TipoVenta.FAC.name())
+                .findBySerieAndDocumento(idData, idEmpresa, request.getSerie(), TipoDocumentoSerie.NCR.name())
                 .orElseThrow(() -> new GeneralException(
                         MessageFormat.format("Serie {0}, Secuencial {1}, documento {2} no existe",
-                                request.getSerie(), request.getSecuencial(), TipoVenta.FAC.name())
+                                request.getSerie(), request.getSecuencial(), TipoDocumentoSerie.NCR.name())
                 ));
 
         int nuevo = Integer.parseInt(request.getSecuencial()) + 1;
@@ -83,8 +83,9 @@ public class VtVentasPersistenceService {
         VtVentaEntity saved = vtVentaRepository.save(notaCredito);
 
         AdEmpresasSeriesDocumentosEntity documentosEntity = adEmpresasSeriesDocumentosRepository
-                .findBySerieAndDocumento(idData, idEmpresa, request.getSerie(), TipoVenta.NDB.name())
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("Serie {0}, documento {1} no existe", request.getSerie(), TipoVenta.NDB.name())));
+                .findBySerieAndDocumento(idData, idEmpresa, request.getSerie(), TipoDocumentoSerie.NDB.name())
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Serie {0}, documento {1} no existe", request.getSerie(),
+                        TipoDocumentoSerie.NDB.name())));
 
         int nuevo = Integer.parseInt(request.getSecuencial()) + 1;
         String sec = request.getSecuencial();

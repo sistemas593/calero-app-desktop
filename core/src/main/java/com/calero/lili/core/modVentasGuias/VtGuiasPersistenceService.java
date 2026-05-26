@@ -1,5 +1,6 @@
 package com.calero.lili.core.modVentasGuias;
 
+import com.calero.lili.core.enums.TipoDocumentoSerie;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosEntity;
 import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosRepository;
@@ -27,8 +28,9 @@ public class VtGuiasPersistenceService {
         VtGuiaEntity saved = vtGuiasRepository.save(guiaEntity);
 
         AdEmpresasSeriesDocumentosEntity documentosEntity = adEmpresasSeriesDocumentosRepository
-                .findBySerieAndDocumento(idData, idEmpresa, request.getSerie(), "GRM")
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("Serie {0}, documento {1} no existe", request.getSerie(), request.getSecuencial())));
+                .findBySerieAndDocumento(idData, idEmpresa, request.getSerie(), TipoDocumentoSerie.GRM.name())
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Serie {0}, documento {1} no existe",
+                        request.getSerie(), request.getSecuencial())));
 
 
         int nuevo = Integer.parseInt(request.getSecuencial()) + 1;

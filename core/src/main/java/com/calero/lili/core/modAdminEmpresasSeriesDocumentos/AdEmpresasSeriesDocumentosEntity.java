@@ -1,6 +1,7 @@
 package com.calero.lili.core.modAdminEmpresasSeriesDocumentos;
 
 import com.calero.lili.core.enums.FormatoDocumento;
+import com.calero.lili.core.enums.TipoDocumentoSerie;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -27,7 +28,8 @@ public class AdEmpresasSeriesDocumentosEntity {
     private UUID idDocumento;
     private Long idData;
     private Long idEmpresa;
-    private String documento;
+    @Enumerated(EnumType.STRING)
+    private TipoDocumentoSerie documento;
     private String numeroAutorizacion;
     private String secuencial;
     private String desde;

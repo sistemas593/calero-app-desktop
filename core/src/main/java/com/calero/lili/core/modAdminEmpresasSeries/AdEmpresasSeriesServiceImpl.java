@@ -1,18 +1,19 @@
 package com.calero.lili.core.modAdminEmpresasSeries;
 
-import com.calero.lili.core.modAdminEmpresasSeries.builder.AdEmpresasSeriesBuilder;
-import com.calero.lili.core.modAdminEmpresasSeries.dto.AdEmpresaSerieCreationRequestDto;
-import com.calero.lili.core.modAdminEmpresasSeries.dto.AdEmpresaSerieGetDto;
-import com.calero.lili.core.modAdminEmpresasSeries.dto.AdEmpresaSerieGetListDto;
-import com.calero.lili.core.modAdminEmpresasSeries.dto.AdEmpresaSerieFacturaDto;
-import com.calero.lili.core.modAdminEmpresasSeries.dto.AdEmpresaSerieListFilterDto;
 import com.calero.lili.core.builder.ResponseApiBuilder;
-import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosEntity;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.dtos.ResponseDto;
+import com.calero.lili.core.enums.TipoDocumentoSerie;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
+import com.calero.lili.core.modAdminEmpresasSeries.builder.AdEmpresasSeriesBuilder;
+import com.calero.lili.core.modAdminEmpresasSeries.dto.AdEmpresaSerieCreationRequestDto;
+import com.calero.lili.core.modAdminEmpresasSeries.dto.AdEmpresaSerieFacturaDto;
+import com.calero.lili.core.modAdminEmpresasSeries.dto.AdEmpresaSerieGetDto;
+import com.calero.lili.core.modAdminEmpresasSeries.dto.AdEmpresaSerieGetListDto;
+import com.calero.lili.core.modAdminEmpresasSeries.dto.AdEmpresaSerieListFilterDto;
+import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -64,11 +65,11 @@ public class AdEmpresasSeriesServiceImpl {
 
         if (!request.getDocumentos().isEmpty()) {
 
-            Set<String> tiposUnicos = new HashSet<>();
+            Set<TipoDocumentoSerie> tiposUnicos = new HashSet<>();
 
             for (AdEmpresaSerieCreationRequestDto.Documentos model : request.getDocumentos()) {
 
-                if(Objects.isNull(model.getSecuencial()) || model.getSecuencial().isEmpty()){
+                if (Objects.isNull(model.getSecuencial()) || model.getSecuencial().isEmpty()) {
                     throw new GeneralException("El secuencial no puede ser nulo, ni vacío");
                 }
 
@@ -77,7 +78,7 @@ public class AdEmpresasSeriesServiceImpl {
                 }
 
                 if (!tiposUnicos.add(model.getDocumento())) {
-                    throw new GeneralException("Solo puede existir un documento por tipo: " + model.getDocumento());
+                    throw new GeneralException("Solo puede existir un documento por tipo: " + model.getDocumento().getDescripcion());
                 }
 
             }
@@ -153,10 +154,10 @@ public class AdEmpresasSeriesServiceImpl {
         List<AdEmpresasSeriesEntity> all = adEmpresasSeriesRepository.findAllWithDocumentos(idData, idEmpresa);
         return all.stream()
                 .filter(s -> s.getDocumentosEntity().stream()
-                        .anyMatch(d -> "FAC".equals(d.getDocumento())))
+                        .anyMatch(d -> TipoDocumentoSerie.FAC.equals(d.getDocumento())))
                 .map(s -> {
                     String secuencial = s.getDocumentosEntity().stream()
-                            .filter(d -> "FAC".equals(d.getDocumento()))
+                            .filter(d -> TipoDocumentoSerie.FAC.equals(d.getDocumento()))
                             .map(AdEmpresasSeriesDocumentosEntity::getSecuencial)
                             .findFirst()
                             .orElse("");
@@ -174,10 +175,10 @@ public class AdEmpresasSeriesServiceImpl {
         List<AdEmpresasSeriesEntity> all = adEmpresasSeriesRepository.findAllWithDocumentos(idData, idEmpresa);
         return all.stream()
                 .filter(s -> s.getDocumentosEntity().stream()
-                        .anyMatch(d -> "NCR".equals(d.getDocumento())))
+                        .anyMatch(d -> TipoDocumentoSerie.NCR.equals(d.getDocumento())))
                 .map(s -> {
                     String secuencial = s.getDocumentosEntity().stream()
-                            .filter(d -> "NCR".equals(d.getDocumento()))
+                            .filter(d -> TipoDocumentoSerie.NCR.equals(d.getDocumento()))
                             .map(AdEmpresasSeriesDocumentosEntity::getSecuencial)
                             .findFirst()
                             .orElse("");

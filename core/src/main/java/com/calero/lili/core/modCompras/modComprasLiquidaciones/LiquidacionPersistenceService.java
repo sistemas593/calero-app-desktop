@@ -2,6 +2,7 @@ package com.calero.lili.core.modCompras.modComprasLiquidaciones;
 
 import com.calero.lili.core.dtos.CompraImpuestosDto;
 import com.calero.lili.core.enums.CodigoImpuesto;
+import com.calero.lili.core.enums.TipoDocumentoSerie;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosEntity;
 import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosRepository;
@@ -33,7 +34,7 @@ public class LiquidacionPersistenceService {
 
 
         AdEmpresasSeriesDocumentosEntity documentosEntity = adEmpresasSeriesDocumentosRepository
-                .findBySerieAndDocumento(idData, idEmpresa, request.getSerie(), "LIQ")
+                .findBySerieAndDocumento(idData, idEmpresa, request.getSerie(), TipoDocumentoSerie.LIQ.name())
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Serie {0} no existe", request.getSerie())));
 
         int nuevo = Integer.parseInt(request.getSecuencial()) + 1;

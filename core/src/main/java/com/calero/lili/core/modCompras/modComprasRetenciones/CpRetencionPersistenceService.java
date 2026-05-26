@@ -2,6 +2,7 @@ package com.calero.lili.core.modCompras.modComprasRetenciones;
 
 import com.calero.lili.core.dtos.CompraImpuestosDto;
 import com.calero.lili.core.enums.CodigoImpuesto;
+import com.calero.lili.core.enums.TipoDocumentoSerie;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosEntity;
 import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosRepository;
@@ -31,19 +32,25 @@ public class CpRetencionPersistenceService {
         CpRetencionesEntity saved = comprasRetencionesRepository.save(entidad);
         guardarCpImpuesto(request, saved);
 
-        // TODO REVISAR EL TIPO DEL DOCUMENTO QUE SE DEBE PASAR.
-       /* AdEmpresasSeriesDocumentosEntity documentosEntity = adEmpresasSeriesDocumentosRepository
-                .findBySerieAndDocumento(entidad.getIdData(), entidad.getIdEmpresa(), request.getSerieRetencion(), "RET")
+        AdEmpresasSeriesDocumentosEntity documentosEntity = adEmpresasSeriesDocumentosRepository
+                .findBySerieAndDocumento(entidad.getIdData(), entidad.getIdEmpresa(), request.getSerieRetencion(), TipoDocumentoSerie.CRT.name())
                 .orElseThrow(() -> new GeneralException(
                         MessageFormat.format("Serie {0}, Secuencial {1}, documento {2} no existe",
-                                request.getSerieRetencion(), request.getSecuencialRetencion(), "RET")
+                                request.getSerieRetencion(), request.getSecuencialRetencion(), TipoDocumentoSerie.CRT.name())
                 ));
 
         int nuevo = Integer.parseInt(request.getSecuencialRetencion()) + 1;
         String sec = request.getSecuencialRetencion();
         DecimalFormat df = new DecimalFormat(sec.replaceAll("[1-9]", "0"));
-        documentosEntity.setSecuencial(df.format(nuevo));*/
+        documentosEntity.setSecuencial(df.format(nuevo));
 
+        return saved;
+    }
+
+    @Transactional
+    public CpRetencionesEntity actualizarRetencion(CpRetencionesEntity entidad, CreationRetencionRequestDto request) {
+        CpRetencionesEntity saved = comprasRetencionesRepository.save(entidad);
+        guardarCpImpuesto(request, saved);
         return saved;
     }
 

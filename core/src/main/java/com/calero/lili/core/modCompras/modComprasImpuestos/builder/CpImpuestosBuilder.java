@@ -118,6 +118,7 @@ public class CpImpuestosBuilder {
                 .destino(model.getDestino())
                 .existeComprobante(item.getExisteComprobante())
                 .informacionAdicional(informacionAdicionalBuilder.builderList(model.getInformacionAdicional()))
+                .retencion(Objects.nonNull(item.getRetencion()) ? item.getRetencion() : null)
                 .build();
     }
 
@@ -264,8 +265,6 @@ public class CpImpuestosBuilder {
                 .unidadTiempo(model.getUnidadTiempo())
                 .build();
     }
-
-
 
 
     public CompraImpuestoResponseDto builderCompraImpuestoDto(CpImpuestosEntity model) {
