@@ -186,8 +186,8 @@ public class ComprasRetencionesServiceImpl {
         update.setEmail(proveedor.getEmail());
 
         comprobanteService.getComprobanteXmlRetencion(idData, idEmpresa, update, request);
-        comprasRetencionesRepository.save(update);
-        return responseApiBuilder.builderResponse(retencionesEntity.getIdRetencion().toString());
+        CpRetencionesEntity saved = cpRetencionPersistenceService.guardarRetencion(update, request);
+        return responseApiBuilder.builderResponse(saved.getIdRetencion().toString());
 
     }
 
