@@ -48,6 +48,7 @@ public class GeTerceroGetOneDto {
     private SexoEnum sexo;
     private OrigenIngresosEnum origenIngresos;
     private EstadoCivilEnum estadoCivil;
+    private String codigoTercero;
 
     @Data
     @AllArgsConstructor

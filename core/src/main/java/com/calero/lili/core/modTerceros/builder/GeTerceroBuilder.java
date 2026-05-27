@@ -42,6 +42,7 @@ public class GeTerceroBuilder {
                 .origenIngresos(model.getOrigenIngresos())
                 .sexo(model.getSexo())
                 .estadoCivil(model.getEstadoCivil())
+                .codigoTercero(model.getCodigoTercero())
                 //.datosAdicionales(model.getDatosAdicionales())
                 .build();
     }
@@ -68,6 +69,7 @@ public class GeTerceroBuilder {
                 .origenIngresos(model.getOrigenIngresos())
                 .sexo(model.getSexo())
                 .estadoCivil(model.getEstadoCivil())
+                .codigoTercero(model.getCodigoTercero())
                 //.datosAdicionales(model.getDatosAdicionales())
                 .build();
     }
@@ -97,6 +99,7 @@ public class GeTerceroBuilder {
                 .provincia(Objects.nonNull(model.getProvincia()) ? model.getProvincia().getProvincia() : null)
                 .codigoPais(Objects.nonNull(model.getPais()) ? model.getPais().getCodigoPais() : null)
                 .pais(Objects.nonNull(model.getPais()) ? model.getPais().getPais() : null)
+                .codigoTercero(model.getCodigoTercero())
                 .build();
     }
 
@@ -128,6 +131,7 @@ public class GeTerceroBuilder {
                 .provincia(Objects.nonNull(model.getProvincia()) ? model.getProvincia().getProvincia() : null)
                 .codigoPais(Objects.nonNull(model.getPais()) ? model.getPais().getCodigoPais() : null)
                 .pais(Objects.nonNull(model.getPais()) ? model.getPais().getPais() : null)
+                .codigoTercero(model.getCodigoTercero())
                 .build();
     }
 

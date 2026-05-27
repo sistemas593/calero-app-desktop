@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -73,6 +74,13 @@ public interface GeTercerosRepository extends JpaRepository<GeTerceroEntity, UUI
                                           @Param("filterContent") String filterContent,
                                           @Param("tipo") Integer tipo,
                                           Pageable pageable);
+
+
+    @Query(value = "SELECT entity " +
+            "FROM GeTerceroEntity entity " +
+            "where entity.idData = :idData and " +
+            "entity.codigoTercero in :codigos")
+    List<GeTerceroEntity> findAllCodigosTercero(@Param("idData") Long idData, @Param("codigos") List<String> codigos);
 
 
 }

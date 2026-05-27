@@ -98,6 +98,7 @@ public enum EnumError {
     FACTURA_IMPUESTO_ERROR("El codigo de impuesto y el codigo de porcentaje no existe"),
 
     FACTURA_FECHA_EMISION("La fecha de emisión no puede ser diferente a la del dia de hoy"),
+    FACTURA_FORMA_PAGO_SRI("El codigo de la forma de pago no se encuentra"),
 
 
     PARAMETRO_IDENTIFICACION_NOT_FOUND("La identificación del trabajador no se encuentra"),

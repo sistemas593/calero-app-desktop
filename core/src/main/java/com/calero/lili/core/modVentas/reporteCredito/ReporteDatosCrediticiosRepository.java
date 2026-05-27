@@ -9,12 +9,12 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface ReporteDatosCrediticiosRepository extends JpaRepository<ReporteDatosCrediticiosEntity, UUID> {
+public interface ReporteDatosCrediticiosRepository extends JpaRepository<DatosCrediticiosDetalleEntity, UUID> {
 
     @Query(value = "SELECT entity " +
-            "FROM ReporteDatosCrediticiosEntity entity " +
+            "FROM DatosCrediticiosDetalleEntity entity " +
             "where entity.idData = :idData and entity.idEmpresa = :idEmpresa")
-    List<ReporteDatosCrediticiosEntity> getFindAll(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa);
+    List<DatosCrediticiosDetalleEntity> getFindAll(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa);
 
 
 }

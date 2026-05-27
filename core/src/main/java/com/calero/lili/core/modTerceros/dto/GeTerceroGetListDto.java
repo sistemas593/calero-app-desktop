@@ -46,6 +46,7 @@ public class GeTerceroGetListDto {
     private SexoEnum sexo;
     private OrigenIngresosEnum origenIngresos;
     private EstadoCivilEnum estadoCivil;
+    private String codigoTercero;
 
     private List<TipoTercerosDto> tipoTerceros;
 

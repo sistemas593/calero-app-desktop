@@ -1,6 +1,7 @@
 package com.calero.lili.core.modVentas.facturas;
 
 import com.calero.lili.core.builder.DetalleErrorBuilder;
+import com.calero.lili.core.dtos.FormasPagoSri;
 import com.calero.lili.core.dtos.InformacionAdicional;
 import com.calero.lili.core.dtos.errors.DetalleError;
 import com.calero.lili.core.dtos.errors.EnumError;
@@ -586,7 +587,7 @@ public class VtVentasFacturasExcelService {
                 }
 
                 if (Objects.nonNull(row.getCell(4))) {
-                    factura.setTipoVenta(row.getCell(4).getStringCellValue());
+                    factura.setTipoIngreso(row.getCell(4).getStringCellValue());
                 } else {
                     detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.FACTURA_IMPUESTO_NO_TIPO_VENTA));
                 }
@@ -641,6 +642,7 @@ public class VtVentasFacturasExcelService {
                 }
 
                 valoresFacturaImpuesto(idData, idEmpresa, factura, row);
+                setearFormaDePagoSri(factura, row, linea, detalleErrores);
                 facturas.add(factura);
 
             }
@@ -654,8 +656,12 @@ public class VtVentasFacturasExcelService {
         }
     }
 
+
     private void valoresFacturaImpuesto(Long idData, Long idEmpresa,
                                         VtVentaEntity factura, Row row) {
+
+        BigDecimal subtotal = BigDecimal.ZERO;
+        BigDecimal totalImpuesto = BigDecimal.ZERO;
 
         List<VtVentaValoresEntity> valores = new ArrayList<>();
 
@@ -663,6 +669,8 @@ public class VtVentasFacturasExcelService {
         if (Objects.nonNull(row.getCell(11)) && Objects.nonNull(row.getCell(12))) {
 
             BigDecimal valorNoObjeto = convetirValor(row.getCell(11).getStringCellValue());
+            subtotal = subtotal.add(valorNoObjeto);
+
             if (!valorNoObjeto.equals(BigDecimal.ZERO)) {
                 VtVentaValoresEntity noObjeto = new VtVentaValoresEntity();
                 noObjeto.setIdVentaValores(UUID.randomUUID());
@@ -677,6 +685,7 @@ public class VtVentasFacturasExcelService {
             }
 
             BigDecimal valorCero = convetirValor(row.getCell(12).getStringCellValue());
+            subtotal = subtotal.add(valorCero);
             if (!valorCero.equals(BigDecimal.ZERO)) {
 
                 VtVentaValoresEntity cero = new VtVentaValoresEntity();
@@ -699,6 +708,9 @@ public class VtVentasFacturasExcelService {
             BigDecimal valorIva5 = convetirValor(row.getCell(14).getStringCellValue());
             BigDecimal valorBase5 = convetirValor(row.getCell(13).getStringCellValue());
 
+            subtotal = subtotal.add(valorBase5);
+            totalImpuesto = totalImpuesto.add(valorIva5);
+
             if (!valorIva5.equals(BigDecimal.ZERO) && !valorBase5.equals(BigDecimal.ZERO)) {
                 VtVentaValoresEntity valor = new VtVentaValoresEntity();
 
@@ -708,7 +720,7 @@ public class VtVentasFacturasExcelService {
                 valor.setTarifa(new BigDecimal("5.00"));
                 valor.setBaseImponible(valorBase5);
                 valor.setValor(valorIva5);
-                valor.setIdEmpresa(idData);
+                valor.setIdData(idData);
                 valor.setIdEmpresa(idEmpresa);
                 valores.add(valor);
             }
@@ -720,6 +732,11 @@ public class VtVentasFacturasExcelService {
             BigDecimal valorIva8 = convetirValor(row.getCell(16).getStringCellValue());
             BigDecimal valorBase8 = convetirValor(row.getCell(15).getStringCellValue());
 
+
+            subtotal = subtotal.add(valorBase8);
+            totalImpuesto = totalImpuesto.add(valorIva8);
+
+
             if (!valorIva8.equals(BigDecimal.ZERO) && !valorBase8.equals(BigDecimal.ZERO)) {
                 VtVentaValoresEntity valor = new VtVentaValoresEntity();
 
@@ -729,7 +746,7 @@ public class VtVentasFacturasExcelService {
                 valor.setTarifa(new BigDecimal("8.00"));
                 valor.setBaseImponible(valorBase8);
                 valor.setValor(valorIva8);
-                valor.setIdEmpresa(idData);
+                valor.setIdData(idData);
                 valor.setIdEmpresa(idEmpresa);
                 valores.add(valor);
             }
@@ -742,6 +759,9 @@ public class VtVentasFacturasExcelService {
             BigDecimal valorIva15 = convetirValor(row.getCell(18).getStringCellValue());
             BigDecimal valorBase15 = convetirValor(row.getCell(17).getStringCellValue());
 
+            subtotal = subtotal.add(valorBase15);
+            totalImpuesto = totalImpuesto.add(valorIva15);
+
             if (!valorIva15.equals(BigDecimal.ZERO) && !valorBase15.equals(BigDecimal.ZERO)) {
                 VtVentaValoresEntity valor = new VtVentaValoresEntity();
 
@@ -751,14 +771,34 @@ public class VtVentasFacturasExcelService {
                 valor.setTarifa(new BigDecimal("15.00"));
                 valor.setBaseImponible(valorBase15);
                 valor.setValor(valorIva15);
-                valor.setIdEmpresa(idData);
+                valor.setIdData(idData);
                 valor.setIdEmpresa(idEmpresa);
                 valores.add(valor);
             }
 
         }
 
+        factura.setTotalDescuento(new BigDecimal("0.00"));
+        factura.setSubtotal(subtotal);
+        factura.setTotalImpuesto(totalImpuesto);
+        factura.setTotal(subtotal.add(totalImpuesto));
         factura.setValoresEntity(valores);
+    }
+
+
+    private void setearFormaDePagoSri(VtVentaEntity factura, Row row, int linea, List<DetalleError> detalleErrores) {
+        List<FormasPagoSri> formasPagos = new ArrayList<>();
+        if (Objects.nonNull(row.getCell(20))) {
+            FormasPagoSri formaPago = FormasPagoSri.builder()
+                    .formaPago(row.getCell(20).getStringCellValue())
+                    .total(factura.getTotal())
+                    .build();
+            formasPagos.add(formaPago);
+
+            factura.setFormasPagoSri(formasPagos);
+        } else {
+            detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.FACTURA_FORMA_PAGO_SRI));
+        }
     }
 
 
@@ -775,5 +815,4 @@ public class VtVentasFacturasExcelService {
         }
         return new BigDecimal(valor);
     }
-
 }

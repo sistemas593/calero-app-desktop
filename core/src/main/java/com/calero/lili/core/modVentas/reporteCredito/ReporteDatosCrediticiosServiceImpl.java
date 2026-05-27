@@ -19,7 +19,7 @@ public class ReporteDatosCrediticiosServiceImpl {
 
     public byte[] generarTxt(Long idData, Long idEmpresa) {
 
-        List<ReporteDatosCrediticiosEntity> lista = reporteDatosCrediticiosRepository.getFindAll(idData, idEmpresa);
+        List<DatosCrediticiosDetalleEntity> lista = reporteDatosCrediticiosRepository.getFindAll(idData, idEmpresa);
 
         if (lista.isEmpty()) {
             throw new GeneralException("No existe información para generar el reporte");
@@ -27,14 +27,14 @@ public class ReporteDatosCrediticiosServiceImpl {
 
         StringBuilder sb = new StringBuilder();
 
-        for (ReporteDatosCrediticiosEntity f : lista) {
+        for (DatosCrediticiosDetalleEntity f : lista) {
             sb.append(construirLinea(f)).append("\n");
         }
 
         return sb.toString().getBytes(StandardCharsets.UTF_8);
     }
 
-    private String construirLinea(ReporteDatosCrediticiosEntity f) {
+    private String construirLinea(DatosCrediticiosDetalleEntity f) {
 
 
         // TODO REVISAR ESTO TODAVIA EL REPORTE LA VALIDACION PARA ENVIAR LOS PARAMETROS CORRECTOS

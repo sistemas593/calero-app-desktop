@@ -23,14 +23,14 @@ import java.util.UUID;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "reporte_datos_crediticios")
+@Table(name = "datos_crediticios_detalle")
 @Builder
-public class ReporteDatosCrediticiosEntity {
+public class DatosCrediticiosDetalleEntity {
 
 
     @Id
     @Column(unique = true, updatable = false, nullable = false)
-    private UUID idDatosCrediticios;
+    private UUID idDatosCrediticiosDetalle;
 
     private Long idData;
 

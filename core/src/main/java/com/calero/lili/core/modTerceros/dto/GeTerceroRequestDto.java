@@ -53,6 +53,7 @@ public class GeTerceroRequestDto {
     private SexoEnum sexo;
     private OrigenIngresosEnum origenIngresos;
     private EstadoCivilEnum estadoCivil;
+    private String codigoTercero;
 
    /* @NotNull(message = "Es requerido saber si se requiere datos adicionales")
     private Boolean datosAdicionales;*/

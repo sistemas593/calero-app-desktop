@@ -146,6 +146,7 @@ public class GeTerceroEntity extends Auditable implements Serializable {
     @JoinColumn(name = "codigoPais", referencedColumnName = "codigoPais")
     private TbPaisEntity pais;
 
+    private String codigoTercero;
 
 
     // no esta en tercero la relacion
