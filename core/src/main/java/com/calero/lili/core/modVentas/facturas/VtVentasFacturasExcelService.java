@@ -540,6 +540,7 @@ public class VtVentasFacturasExcelService {
                 factura.setTipoEmision(1);
                 factura.setExisteComprobante(Boolean.FALSE);
                 factura.setComprobante(null);
+                factura.setSucursal(sucursal);
 
 
                 if (Objects.nonNull(row.getCell(2)) && Objects.nonNull(row.getCell(3))) {

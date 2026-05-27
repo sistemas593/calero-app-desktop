@@ -1,6 +1,7 @@
 package com.calero.lili.core.utils;
 
 import com.calero.lili.core.errors.exceptions.GeneralException;
+import groovyjarjarantlr.collections.List;
 
 import java.text.MessageFormat;
 import java.time.LocalDate;
@@ -62,12 +63,6 @@ public class DateUtils {
 
     public static String toStringFechaEmision(LocalDateTime date) {
         return date.format(formatter);
-    }
-
-    public static LocalDate toLocalDateOffsetTime(String dateOffsetTime) {
-        OffsetDateTime offsetDateTime = OffsetDateTime.parse(dateOffsetTime, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-        return offsetDateTime.toLocalDate();
-
     }
 
     public static String obtenerFormatoFechaLetras(LocalDate fechaAsiento) {

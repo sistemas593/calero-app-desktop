@@ -34,7 +34,7 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
                     "AND ca.fecha_asiento BETWEEN :fechaAsientoInicio AND :fechaAsientoHasta " +
                     "AND ca.sucursal = :sucursal " +
                     "AND ca.tipo_asiento <> 'SI' " +
-                    "AND ca.deleted = false AND " +
+                    "AND ca.deleted = false " +
                     "GROUP BY cpc.codigo_cuenta, cpc.cuenta, cpc.id_cuenta, cpc.mayor " +
                     "ORDER BY cpc.codigo_cuenta",
             nativeQuery = true
