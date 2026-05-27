@@ -662,9 +662,10 @@ public class VtVentasFacturasExcelService {
         // NO OBJETO y CERO
         if (Objects.nonNull(row.getCell(11)) && Objects.nonNull(row.getCell(12))) {
 
-            BigDecimal valorNoObjeto = new BigDecimal(row.getCell(11).getStringCellValue());
+            BigDecimal valorNoObjeto = convetirValor(row.getCell(11).getStringCellValue());
             if (!valorNoObjeto.equals(BigDecimal.ZERO)) {
                 VtVentaValoresEntity noObjeto = new VtVentaValoresEntity();
+                noObjeto.setIdVentaValores(UUID.randomUUID());
                 noObjeto.setCodigo("2");
                 noObjeto.setCodigoPorcentaje("6");
                 noObjeto.setBaseImponible(valorNoObjeto);
@@ -675,9 +676,11 @@ public class VtVentasFacturasExcelService {
                 valores.add(noObjeto);
             }
 
-            BigDecimal valorCero = new BigDecimal(row.getCell(12).getStringCellValue());
+            BigDecimal valorCero = convetirValor(row.getCell(12).getStringCellValue());
             if (!valorCero.equals(BigDecimal.ZERO)) {
+
                 VtVentaValoresEntity cero = new VtVentaValoresEntity();
+                cero.setIdVentaValores(UUID.randomUUID());
                 cero.setCodigo("2");
                 cero.setCodigoPorcentaje("7");
                 cero.setBaseImponible(valorCero);
@@ -693,12 +696,13 @@ public class VtVentasFacturasExcelService {
         // BASE 5
         if (Objects.nonNull(row.getCell(13)) && Objects.nonNull(row.getCell(14))) {
 
-            BigDecimal valorIva5 = new BigDecimal(row.getCell(14).getStringCellValue());
-            BigDecimal valorBase5 = new BigDecimal(row.getCell(13).getStringCellValue());
+            BigDecimal valorIva5 = convetirValor(row.getCell(14).getStringCellValue());
+            BigDecimal valorBase5 = convetirValor(row.getCell(13).getStringCellValue());
 
             if (!valorIva5.equals(BigDecimal.ZERO) && !valorBase5.equals(BigDecimal.ZERO)) {
                 VtVentaValoresEntity valor = new VtVentaValoresEntity();
 
+                valor.setIdVentaValores(UUID.randomUUID());
                 valor.setCodigo("2");
                 valor.setCodigoPorcentaje("5");
                 valor.setTarifa(new BigDecimal("5.00"));
@@ -713,12 +717,13 @@ public class VtVentasFacturasExcelService {
         // BASE 8
         if (Objects.nonNull(row.getCell(15)) && Objects.nonNull(row.getCell(16))) {
 
-            BigDecimal valorIva8 = new BigDecimal(row.getCell(16).getStringCellValue());
-            BigDecimal valorBase8 = new BigDecimal(row.getCell(15).getStringCellValue());
+            BigDecimal valorIva8 = convetirValor(row.getCell(16).getStringCellValue());
+            BigDecimal valorBase8 = convetirValor(row.getCell(15).getStringCellValue());
 
             if (!valorIva8.equals(BigDecimal.ZERO) && !valorBase8.equals(BigDecimal.ZERO)) {
                 VtVentaValoresEntity valor = new VtVentaValoresEntity();
 
+                valor.setIdVentaValores(UUID.randomUUID());
                 valor.setCodigo("2");
                 valor.setCodigoPorcentaje("8");
                 valor.setTarifa(new BigDecimal("8.00"));
@@ -734,12 +739,13 @@ public class VtVentasFacturasExcelService {
 
         if (Objects.nonNull(row.getCell(17)) && Objects.nonNull(row.getCell(18))) {
 
-            BigDecimal valorIva15 = new BigDecimal(row.getCell(18).getStringCellValue());
-            BigDecimal valorBase15 = new BigDecimal(row.getCell(17).getStringCellValue());
+            BigDecimal valorIva15 = convetirValor(row.getCell(18).getStringCellValue());
+            BigDecimal valorBase15 = convetirValor(row.getCell(17).getStringCellValue());
 
             if (!valorIva15.equals(BigDecimal.ZERO) && !valorBase15.equals(BigDecimal.ZERO)) {
                 VtVentaValoresEntity valor = new VtVentaValoresEntity();
 
+                valor.setIdVentaValores(UUID.randomUUID());
                 valor.setCodigo("2");
                 valor.setCodigoPorcentaje("4");
                 valor.setTarifa(new BigDecimal("15.00"));
@@ -753,6 +759,21 @@ public class VtVentasFacturasExcelService {
         }
 
         factura.setValoresEntity(valores);
+    }
+
+
+    private BigDecimal convetirValor(String valor) {
+        valor = valor.trim();
+        if (valor.contains(",") && valor.contains(".")) {
+            if (valor.lastIndexOf(",") > valor.lastIndexOf(".")) {
+                valor = valor.replace(".", "").replace(",", ".");
+            } else {
+                valor = valor.replace(",", "");
+            }
+        } else if (valor.contains(",")) {
+            valor = valor.replace(",", ".");
+        }
+        return new BigDecimal(valor);
     }
 
 }
