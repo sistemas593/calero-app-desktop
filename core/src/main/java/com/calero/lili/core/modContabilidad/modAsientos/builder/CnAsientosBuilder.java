@@ -4,7 +4,6 @@ import com.calero.lili.core.modContabilidad.modAsientos.CnAsientosEntity;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.CreationAsientosRequestDto;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.GetDto;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.GetListDto;
-import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.utils.DateUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -15,6 +14,7 @@ import java.util.UUID;
 @Component
 @AllArgsConstructor
 public class CnAsientosBuilder {
+
 
     private final CnAsientosDetallesBuilder cnAsientosDetallesBuilder;
 
@@ -31,14 +31,24 @@ public class CnAsientosBuilder {
                 .concepto(model.getConcepto())
                 .mayorizado(model.getMayorizado())
                 .anulada(model.getAnulada())
-                .detalleEntity(cnAsientosDetallesBuilder.builderList(model.getDetalle(), idData, idEmpresa))
-                .tercero(builderTercero(model.getIdTercero()))
                 .build();
     }
 
 
     public CnAsientosEntity builderUpdateEntity(CreationAsientosRequestDto model, CnAsientosEntity item) {
-        return CnAsientosEntity.builder()
+
+        item.setSucursal(model.getSucursal());
+        item.setIdPeriodo(model.getIdPeriodo());
+        item.setTipoAsiento(model.getTipoAsiento());
+        item.setNumeroAsiento(model.getNumeroAsiento());
+        item.setFechaAsiento(DateUtils.toLocalDate(model.getFechaAsiento()));
+        item.setConcepto(model.getConcepto());
+        item.setMayorizado(model.getMayorizado());
+        item.setAnulada(model.getAnulada());
+
+
+        return item;
+       /*return CnAsientosEntity.builder()
                 .idAsiento(item.getIdAsiento())
                 .idData(item.getIdData())
                 .idEmpresa(item.getIdEmpresa())
@@ -50,9 +60,7 @@ public class CnAsientosBuilder {
                 .concepto(model.getConcepto())
                 .mayorizado(model.getMayorizado())
                 .anulada(model.getAnulada())
-                .detalleEntity(cnAsientosDetallesBuilder.builderList(model.getDetalle(), item.getIdData(), item.getIdEmpresa()))
-                .tercero(builderTercero(model.getIdTercero()))
-                .build();
+                .build();*/
     }
 
     public GetDto builderResponse(CnAsientosEntity model) {
@@ -82,15 +90,6 @@ public class CnAsientosBuilder {
                 .concepto(model.getConcepto())
                 .mayorizado(model.getMayorizado())
                 .anulada(model.getAnulada())
-                .build();
-    }
-
-
-    private GeTerceroEntity builderTercero(UUID idTercero) {
-        if (Objects.isNull(idTercero)) return null;
-
-        return GeTerceroEntity.builder()
-                .idTercero(idTercero)
                 .build();
     }
 }

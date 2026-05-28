@@ -1,6 +1,7 @@
 package com.calero.lili.api.controllers;
 
 
+import com.calero.lili.api.utils.IdDataServiceImpl;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.FilterListDto;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.LibroDiarioDto;
 import com.calero.lili.core.modContabilidad.modPlanCuentas.dto.CnPlanCuentaListFilterDto;
@@ -14,8 +15,6 @@ import com.calero.lili.core.modContabilidad.modReportes.CnReporteEstadoPerdidasG
 import com.calero.lili.core.modContabilidad.modReportes.CnReporteMayorGeneralServiceImpl;
 import com.calero.lili.core.modContabilidad.modReportes.dto.BalanceValoresDto;
 import com.calero.lili.core.modContabilidad.modReportes.dto.MayorGeneralDto;
-import com.calero.lili.api.utils.IdDataServiceImpl;
-import com.calero.lili.core.dtos.PaginatedDto;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -59,11 +59,10 @@ public class CnReportesController {
     @GetMapping("balance-comprobacion/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAuthority('CN_AS_BL')")
-    public PaginatedDto<BalanceValoresDto> getBalanceComprobacion(@PathVariable("idEmpresa") Long idEmpresa,
-                                                                  CnPlanCuentaListFilterDto filters,
-                                                                  Pageable pageable) {
+    public List<BalanceValoresDto> getBalanceComprobacion(@PathVariable("idEmpresa") Long idEmpresa,
+                                                          CnPlanCuentaListFilterDto filters) {
 
-        return cnBalanceComprobacionService.getBalanceComprobacion(idDataService.getIdData(), idEmpresa, filters, pageable);
+        return cnBalanceComprobacionService.getBalanceComprobacion(idDataService.getIdData(), idEmpresa, filters);
 
     }
 
@@ -155,20 +154,18 @@ public class CnReportesController {
     @GetMapping("libro-diario/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAuthority('CN_AS_RP')")
-    public PaginatedDto<LibroDiarioDto> reporteLibroDiario(@PathVariable("idEmpresa") Long idEmpresa,
-                                                           FilterListDto filters,
-                                                           Pageable pageable) {
-        return cnLibroDiarioService.reportLibroDiario(idDataService.getIdData(), idEmpresa, filters, pageable);
+    public List<LibroDiarioDto> reporteLibroDiario(@PathVariable("idEmpresa") Long idEmpresa,
+                                                   FilterListDto filters) {
+        return cnLibroDiarioService.reportLibroDiario(idDataService.getIdData(), idEmpresa, filters);
     }
 
 
     @GetMapping("estado-financiero/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAuthority('CN_AS_BL')")
-    public PaginatedDto<BalanceValoresDto> reporteEstadoFinancieroPageable(@PathVariable("idEmpresa") Long idEmpresa,
-                                                                           CnPlanCuentaListFilterDto filters,
-                                                                           Pageable pageable) {
-        return cnEstadoSituacionFinancieraService.getReporteEstadoFinancieroPaginado(idDataService.getIdData(), idEmpresa, filters, pageable);
+    public List<BalanceValoresDto> reporteEstadoFinancieroPageable(@PathVariable("idEmpresa") Long idEmpresa,
+                                                                   CnPlanCuentaListFilterDto filters) {
+        return cnEstadoSituacionFinancieraService.getReporteEstadoFinancieroPaginado(idDataService.getIdData(), idEmpresa, filters);
 
     }
 
@@ -193,10 +190,9 @@ public class CnReportesController {
     @GetMapping("estado-resultados/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAuthority('CN_AS_BL')")
-    public PaginatedDto<BalanceValoresDto> reporteEstadoResultadosPageable(@PathVariable("idEmpresa") Long idEmpresa,
-                                                                           CnPlanCuentaListFilterDto filters,
-                                                                           Pageable pageable) {
-        return cnReporteEstadoPerdidasGananciasService.getReporteEstadoPerdidasGanancias(idDataService.getIdData(), idEmpresa, filters, pageable);
+    public List<BalanceValoresDto> reporteEstadoResultadosPageable(@PathVariable("idEmpresa") Long idEmpresa,
+                                                                   CnPlanCuentaListFilterDto filters) {
+        return cnReporteEstadoPerdidasGananciasService.getReporteEstadoPerdidasGanancias(idDataService.getIdData(), idEmpresa, filters);
     }
 
     @GetMapping("estado-resultados/pdf/{idEmpresa}")

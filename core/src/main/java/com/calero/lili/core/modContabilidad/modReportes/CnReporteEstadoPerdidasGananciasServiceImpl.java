@@ -59,12 +59,11 @@ public class CnReporteEstadoPerdidasGananciasServiceImpl {
      * @param idData    identificador lógico del entorno/data
      * @param idEmpresa identificador de la empresa
      * @param filters   filtros de búsqueda (fechaEmisionDesde, fechaEmisionHasta, sucursal, opciones)
-     * @param pageable  parámetros de paginación y ordenamiento
      * @return PaginatedDto\<BalanceValoresDto> con la página de resultados del Estado de Pérdidas y Ganancias
      * @throws GeneralException cuando la validación de fechas falla o ocurre un error al obtener/procesar los datos
      */
-    public PaginatedDto<BalanceValoresDto> getReporteEstadoPerdidasGanancias(Long idData, Long idEmpresa,
-                                                                             CnPlanCuentaListFilterDto filters, Pageable pageable) {
+    public List<BalanceValoresDto> getReporteEstadoPerdidasGanancias(Long idData, Long idEmpresa,
+                                                                     CnPlanCuentaListFilterDto filters) {
 
         DateUtils.validacionFechas(filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta());
 
@@ -91,7 +90,7 @@ public class CnReporteEstadoPerdidasGananciasServiceImpl {
 
         resultado.forEach(BalanceValoresDto::limpiarMeses);
 
-        return mayorizacionService.getPageResponse(resultado, pageable);
+        return resultado;
 
     }
 

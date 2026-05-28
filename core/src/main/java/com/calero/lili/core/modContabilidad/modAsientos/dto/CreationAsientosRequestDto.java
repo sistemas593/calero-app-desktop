@@ -34,7 +34,7 @@ public class CreationAsientosRequestDto {
 
     @Valid
     @NotEmpty(message = "No existen detalle de items")
-    private List<DetailDto> detalle;
+    private List<@Valid DetailDto> detalle;
 
     @Data
     @AllArgsConstructor

@@ -62,8 +62,8 @@ public class CnEstadoSituacionFinancieraServiceImpl {
      * @return PaginatedDto\<BalanceValoresDto> con la página de resultados
      * @throws GeneralException cuando falla la validación de fechas u ocurre un error al obtener/procesar datos
      */
-    public PaginatedDto<BalanceValoresDto> getReporteEstadoFinancieroPaginado(Long idData, Long idEmpresa,
-                                                                              CnPlanCuentaListFilterDto filters, Pageable pageable) {
+    public List<BalanceValoresDto> getReporteEstadoFinancieroPaginado(Long idData, Long idEmpresa,
+                                                                      CnPlanCuentaListFilterDto filters) {
 
         DateUtils.validacionFechas(filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta());
 
@@ -96,7 +96,7 @@ public class CnEstadoSituacionFinancieraServiceImpl {
 
         });
 
-        return mayorizacionService.getPageResponse(resultado, pageable);
+        return resultado;
 
     }
 

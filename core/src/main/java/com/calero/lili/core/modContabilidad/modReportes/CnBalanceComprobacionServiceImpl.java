@@ -1,5 +1,8 @@
 package com.calero.lili.core.modContabilidad.modReportes;
 
+import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
+import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.modContabilidad.modPlanCuentas.CnPlanCuentaEntity;
 import com.calero.lili.core.modContabilidad.modPlanCuentas.CnPlanCuentasRepository;
 import com.calero.lili.core.modContabilidad.modPlanCuentas.dto.CnPlanCuentaListFilterDto;
@@ -8,10 +11,6 @@ import com.calero.lili.core.modContabilidad.modReportes.dto.BalanceComprobacionP
 import com.calero.lili.core.modContabilidad.modReportes.dto.BalanceValoresDto;
 import com.calero.lili.core.modContabilidad.modReportes.projection.BalanceValoresProjection;
 import com.calero.lili.core.modContabilidad.modReportes.projection.SaldoInicialBCProjection;
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.errors.exceptions.GeneralException;
-import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
-import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.utils.ConstanteReportes;
 import com.calero.lili.core.utils.DateUtils;
 import lombok.AllArgsConstructor;
@@ -59,12 +58,11 @@ public class CnBalanceComprobacionServiceImpl {
      * @param idData    identificador lógico del entorno/data
      * @param idEmpresa identificador de la empresa
      * @param filters   filtros de búsqueda (fechas, cuenta inicial/final, sucursal, mayor)
-     * @param pageable  parámetros de paginación y ordenamiento
      * @return PaginatedDto\<BalanceValoresDto> con la página de resultados del balance
      * @throws GeneralException cuando la validación de fechas falla u ocurre un error en la obtención de datos
      */
-    public PaginatedDto<BalanceValoresDto> getBalanceComprobacion(Long idData, Long idEmpresa,
-                                                                  CnPlanCuentaListFilterDto filters, Pageable pageable) {
+    public List<BalanceValoresDto> getBalanceComprobacion(Long idData, Long idEmpresa,
+                                                          CnPlanCuentaListFilterDto filters) {
 
         DateUtils.validacionFechas(filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta());
         List<SaldoInicialBCProjection> listSaldoInicial = null;
@@ -103,10 +101,7 @@ public class CnBalanceComprobacionServiceImpl {
         }
 
 
-        List<BalanceValoresDto> resultado = getListaValores(listValores, listSaldoInicial, merged, filters.getMayor());
-
-        return mayorizacionService.getPageResponse(validarListaResultados(resultado, filters), pageable);
-
+        return getListaValores(listValores, listSaldoInicial, merged, filters.getMayor());
     }
 
     /**

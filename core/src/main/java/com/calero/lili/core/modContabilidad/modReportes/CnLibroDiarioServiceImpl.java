@@ -1,15 +1,14 @@
 package com.calero.lili.core.modContabilidad.modReportes;
 
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
+import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.modContabilidad.modAsientos.CnAsientosEntity;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.FilterListDto;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.LibroDiarioDto;
 import com.calero.lili.core.modContabilidad.modPlanCuentas.dto.FilaReporteMayorContableDto;
 import com.calero.lili.core.modContabilidad.modReportes.builder.CnLibroDiarioBuilder;
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.Paginator;
-import com.calero.lili.core.errors.exceptions.GeneralException;
-import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
-import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.utils.DateUtils;
 import com.lowagie.text.DocumentException;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,7 +24,6 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -243,34 +241,14 @@ public class CnLibroDiarioServiceImpl {
      * @param idData    identificador lógico del entorno/data
      * @param idEmpresa identificador de la empresa
      * @param filters   filtros de búsqueda (sucursal, fechaEmisionDesde, fechaEmisionHasta)
-     * @param pageable  parámetros de paginación y ordenamiento
      * @return {@link PaginatedDto}\<LibroDiarioDto> con la página de resultados y su paginador
      */
-    public PaginatedDto<LibroDiarioDto> reportLibroDiario(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable) {
+    public List<LibroDiarioDto> reportLibroDiario(Long idData, Long idEmpresa, FilterListDto filters) {
 
-        Page<CnAsientosEntity> page = cnReportesRepository
-                .findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), pageable);
+        List<CnAsientosEntity> page = cnReportesRepository
+                .findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta());
 
-        List<LibroDiarioDto> dtoList = page.stream().map(cnLibroDiarioBuilder::builderLibroDiario).toList();
-
-        PaginatedDto paginatedDto = new PaginatedDto();
-        paginatedDto.setContent(dtoList);
-
-        Paginator paginated = new Paginator();
-        paginated.setTotalElements(page.getTotalElements());
-        paginated.setTotalPages(page.getTotalPages());
-        paginated.setNumberOfElements(page.getNumberOfElements());
-        paginated.setSize(page.getSize());
-        paginated.setFirst(page.isFirst());
-        paginated.setLast(page.isLast());
-        paginated.setPageNumber(page.getPageable().getPageNumber());
-        paginated.setPageSize(page.getPageable().getPageSize());
-        paginated.setEmpty(page.isEmpty());
-        paginated.setNumber(page.getNumber());
-
-        paginatedDto.setPaginator(paginated);
-
-        return paginatedDto;
+        return page.stream().map(cnLibroDiarioBuilder::builderLibroDiario).toList();
     }
 
 }
