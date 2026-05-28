@@ -13,6 +13,7 @@ import com.calero.lili.core.modVentas.facturas.dto.CreationFacturaRequestDto;
 import com.calero.lili.core.modVentas.facturas.dto.FilterListDto;
 import com.calero.lili.core.modVentas.facturas.dto.GetFacturaDto;
 import com.calero.lili.core.modVentas.reporteCredito.DatosCrediticiosExcelServiceImpl;
+import com.calero.lili.core.modVentas.reporteCredito.DatosCrediticiosSaldoExcelServiceImpl;
 import com.calero.lili.core.modVentas.reporteCredito.ReporteDatosCrediticiosServiceImpl;
 import com.lowagie.text.DocumentException;
 import jakarta.servlet.http.HttpServletResponse;
@@ -59,6 +60,8 @@ public class VtVentasFacturasController {
     private final AuditorAwareImpl auditorAware;
     private final ReporteDatosCrediticiosServiceImpl reporteDatosCrediticiosService;
     private final DatosCrediticiosExcelServiceImpl datosCrediticiosExcelService;
+    private final DatosCrediticiosSaldoExcelServiceImpl datosCrediticiosSaldoExcelService;
+
 
     @PostMapping("facturas/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.CREATED)
@@ -209,6 +212,17 @@ public class VtVentasFacturasController {
                                             @RequestParam("fechaDatos") String fechaDatos) {
         try {
             datosCrediticiosExcelService.cargarDatosCrediticios(idDataService.getIdData(), idEmpresa, file, fechaDatos);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    @PostMapping("/datos-crediticios-saldos/excel/{idEmpresa}")
+    public void uploadDatosCrediticiosSaldosExcel(@RequestParam("file") MultipartFile file,
+                                                  @PathVariable("idEmpresa") Long idEmpresa) {
+        try {
+            datosCrediticiosSaldoExcelService.cargarSaldoDatosCrediticios(idDataService.getIdData(), idEmpresa, file);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -38,28 +38,25 @@ public class DatosCrediticiosExcelServiceImpl {
 
     public void cargarDatosCrediticios(Long idData, Long idEmpresa, MultipartFile file, String fechaDatos) throws IOException {
 
-        InputStream is = file.getInputStream();
-        Workbook workbook = StreamingReader.builder()
-                .rowCacheSize(500000)
-                .bufferSize(131072)
-                .open(is);
 
         // Primer paso: recolectar códigos únicos de los clientes
-        Set<String> codigosUnicos = new LinkedHashSet<>();
-        boolean isHeader = true;
-        for (Sheet sheet : workbook) {
-            for (Row row : sheet) {
-                if (isRowEmpty(row)) continue;
-                if (isHeader) {
-                    isHeader = false;
-                    continue;
-                }
-
-                var cellCodigo = row.getCell(0);
-                if (cellCodigo != null) {
-                    String codigo = cellCodigo.getStringCellValue();
-                    if (codigo != null && !codigo.isBlank()) {
-                        codigosUnicos.add(codigo);
+        Set<String> codigosUnicos = new HashSet<>();
+        try (InputStream is1 = file.getInputStream();
+             Workbook wb1 = StreamingReader.builder()
+                     .rowCacheSize(100)
+                     .bufferSize(4096)
+                     .open(is1)) {
+            for (Sheet sheet : wb1) {
+                boolean isHeader = true;
+                for (Row row : sheet) {
+                    if (isRowEmpty(row)) continue;
+                    if (isHeader) {
+                        isHeader = false;
+                        continue;
+                    }
+                    if (Objects.nonNull(row.getCell(0))) {
+                        String codigo = row.getCell(0).getStringCellValue();
+                        if (!codigo.isBlank()) codigosUnicos.add(codigo);
                     }
                 }
             }
@@ -80,7 +77,7 @@ public class DatosCrediticiosExcelServiceImpl {
                 .bufferSize(131072)
                 .open(file.getInputStream());
 
-        isHeader = true;
+        boolean isHeader = true;
         for (Sheet sheet : workbook2) {
             for (Row row : sheet) {
                 if (isRowEmpty(row)) continue;
@@ -116,6 +113,10 @@ public class DatosCrediticiosExcelServiceImpl {
 
         List<DatosCrediticiosDetalleEntity> listaDetalles = new ArrayList<>();
         DatosCrediticiosDetalleEntity detalle = new DatosCrediticiosDetalleEntity();
+
+        detalle.setIdData(entidad.getIdData());
+        detalle.setIdEmpresa(entidad.getIdEmpresa());
+        detalle.setIdDatosCrediticiosDetalle(UUID.randomUUID());
 
         if (Objects.nonNull(row.getCell(0))) {
 
@@ -261,6 +262,4 @@ public class DatosCrediticiosExcelServiceImpl {
         }
         return new BigDecimal(valor);
     }
-
-
 }

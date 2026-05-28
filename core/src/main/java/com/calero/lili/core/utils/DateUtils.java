@@ -1,7 +1,6 @@
 package com.calero.lili.core.utils;
 
 import com.calero.lili.core.errors.exceptions.GeneralException;
-import groovyjarjarantlr.collections.List;
 
 import java.text.MessageFormat;
 import java.time.LocalDate;
@@ -156,5 +155,11 @@ public class DateUtils {
     public static String toLocalDatePeriodoFiscal(LocalDate periodoFiscal) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yyyy");
         return periodoFiscal.format(formatter);
+    }
+
+
+    public static LocalDate toLocalDateExcelFiles(String fecha) {
+        DateTimeFormatter formatterEntrada = DateTimeFormatter.ofPattern("d/M/yyyy");
+        return LocalDate.parse(fecha, formatterEntrada);
     }
 }
