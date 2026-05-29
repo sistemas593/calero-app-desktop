@@ -1,6 +1,7 @@
 package com.calero.lili.core.modContabilidad.modReportes;
 
 import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
@@ -24,6 +25,7 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -243,12 +245,33 @@ public class CnLibroDiarioServiceImpl {
      * @param filters   filtros de búsqueda (sucursal, fechaEmisionDesde, fechaEmisionHasta)
      * @return {@link PaginatedDto}\<LibroDiarioDto> con la página de resultados y su paginador
      */
-    public List<LibroDiarioDto> reportLibroDiario(Long idData, Long idEmpresa, FilterListDto filters) {
+    public PaginatedDto<LibroDiarioDto> reportLibroDiario(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable) {
 
-        List<CnAsientosEntity> page = cnReportesRepository
-                .findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta());
+        Page<CnAsientosEntity> page = cnReportesRepository
+                .findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
+                        filters.getFechaEmisionHasta(), pageable);
 
-        return page.stream().map(cnLibroDiarioBuilder::builderLibroDiario).toList();
+        List<LibroDiarioDto> dtoList = page.stream().map(cnLibroDiarioBuilder::builderLibroDiario).toList();
+
+        PaginatedDto paginatedDto = new PaginatedDto();
+        paginatedDto.setContent(dtoList);
+
+        Paginator paginated = new Paginator();
+        paginated.setTotalElements(page.getTotalElements());
+        paginated.setTotalPages(page.getTotalPages());
+        paginated.setNumberOfElements(page.getNumberOfElements());
+        paginated.setSize(page.getSize());
+        paginated.setFirst(page.isFirst());
+        paginated.setLast(page.isLast());
+        paginated.setPageNumber(page.getPageable().getPageNumber());
+        paginated.setPageSize(page.getPageable().getPageSize());
+        paginated.setEmpty(page.isEmpty());
+        paginated.setNumber(page.getNumber());
+
+        paginatedDto.setPaginator(paginated);
+
+        return paginatedDto;
+
     }
 
 }

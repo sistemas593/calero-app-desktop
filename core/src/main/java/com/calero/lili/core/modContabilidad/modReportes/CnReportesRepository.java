@@ -383,12 +383,21 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
             "vtVentasEntity.idEmpresa = :idEmpresa AND " +
             "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
             "( cast(:fechaAsientoDesde as date) is null OR vtVentasEntity.fechaAsiento >= :fechaAsientoDesde ) AND " +
-            "( cast(:fechaAsientoHasta as date) is null OR vtVentasEntity.fechaAsiento <= :fechaAsientoHasta )")
-    List<CnAsientosEntity> findAllPaginate(@Param("idData") Long idData,
+            "( cast(:fechaAsientoHasta as date) is null OR vtVentasEntity.fechaAsiento <= :fechaAsientoHasta )",
+
+            countQuery = "SELECT COUNT(1) " +
+                    "FROM CnAsientosEntity vtVentasEntity " +
+                    "WHERE ( vtVentasEntity.idData = :idData)  AND " +
+                    "(vtVentasEntity.idEmpresa = :idEmpresa) AND " +
+                    "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
+                    "( cast(:fechaAsientoDesde as date) is null OR vtVentasEntity.fechaAsiento >= :fechaAsientoDesde ) AND " +
+                    "( cast(:fechaAsientoHasta as date) is null OR vtVentasEntity.fechaAsiento <= :fechaAsientoHasta )")
+    Page<CnAsientosEntity> findAllPaginate(@Param("idData") Long idData,
                                            @Param("idEmpresa") Long idEmpresa,
                                            @Param("sucursal") String sucursal,
                                            @Param("fechaAsientoDesde") LocalDate fechaAsientoDesde,
-                                           @Param("fechaAsientoHasta") LocalDate fechaAsientoHasta);
+                                           @Param("fechaAsientoHasta") LocalDate fechaAsientoHasta,
+                                           Pageable pageable);
 
 
     @Query(value = """

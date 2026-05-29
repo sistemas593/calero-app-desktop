@@ -82,5 +82,12 @@ public interface GeTercerosRepository extends JpaRepository<GeTerceroEntity, UUI
             "entity.codigoTercero in :codigos")
     List<GeTerceroEntity> findAllCodigosTercero(@Param("idData") Long idData, @Param("codigos") List<String> codigos);
 
+    @Query(value = "SELECT id_tercero as idTercero " +
+            "FROM ge_terceros entity " +
+            "where entity.id_data = :idData and " +
+            "entity.codigo_tercero = :codigoTercero and entity.deleted = false ", nativeQuery = true)
+    Optional<GeTerceroProjection> findExistByCodigoTercero(@Param("idData") Long idData,
+                                                           @Param("codigoTercero") String codigoTercero);
+
 
 }

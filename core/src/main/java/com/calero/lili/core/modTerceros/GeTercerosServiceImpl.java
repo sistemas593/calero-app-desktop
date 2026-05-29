@@ -74,6 +74,7 @@ public class GeTercerosServiceImpl {
         validarTransportista(request);
         //validarTrabajador(request);
         GeTerceroEntity tercero = clienteBuilder.builderEntity(request, idData);
+        validarCodigoTercero(request, tercero);
         validarLocalidad(tercero, request);
         tercero.setCreatedBy(usuario);
         tercero.setCreatedDate(LocalDateTime.now());
@@ -94,10 +95,10 @@ public class GeTercerosServiceImpl {
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Cliente con id {0} no existe", id)));
 
         validarTransportista(request);
-       // validarTrabajador(request);
+        // validarTrabajador(request);
 
         GeTerceroEntity update = clienteBuilder.builderUpdateEntity(request, actualizar);
-
+        validarUpdateCodigoTercero(request, update);
         validarLocalidad(update, request);
         update.setModifiedBy(usuario);
         update.setModifiedDate(LocalDateTime.now());
@@ -312,6 +313,54 @@ public class GeTercerosServiceImpl {
         }
 
     }
+
+    public void validarCodigoTercero(GeTerceroRequestDto request, GeTerceroEntity tercero) {
+        if (Objects.isNull(request.getCodigoTercero()) || request.getCodigoTercero().isEmpty()) {
+            tercero.setCodigoTercero(null);
+        } else {
+            Optional<GeTerceroProjection> vtClientesEntityExist = vtClientesRepository
+                    .findExistByCodigoTercero(tercero.getIdData(), request.getCodigoTercero());
+
+            if (vtClientesEntityExist.isPresent()) {
+                throw new GeneralException(MessageFormat.format("El tercero con codigo {0}, ya existe", request.getCodigoTercero()));
+            }
+            tercero.setCodigoTercero(request.getCodigoTercero());
+        }
+    }
+
+    public void validarUpdateCodigoTercero(GeTerceroRequestDto request, GeTerceroEntity tercero) {
+        if (Objects.isNull(request.getCodigoTercero()) || request.getCodigoTercero().isEmpty()) {
+            tercero.setCodigoTercero(null);
+        } else {
+
+            if (Objects.nonNull(tercero.getCodigoTercero())) {
+                if (tercero.getCodigoTercero().equals(request.getCodigoTercero())) {
+                    tercero.setCodigoTercero(request.getCodigoTercero());
+                } else {
+                    Optional<GeTerceroProjection> vtClientesEntityExist = vtClientesRepository
+                            .findExistByCodigoTercero(tercero.getIdData(), request.getCodigoTercero());
+
+                    if (vtClientesEntityExist.isPresent()) {
+
+                        throw new GeneralException(MessageFormat.format("El tercero con codigo {0}, ya existe", request.getCodigoTercero()));
+                    }
+
+                    tercero.setCodigoTercero(request.getCodigoTercero());
+                }
+            } else {
+                Optional<GeTerceroProjection> vtClientesEntityExist = vtClientesRepository
+                        .findExistByCodigoTercero(tercero.getIdData(), request.getCodigoTercero());
+
+                if (vtClientesEntityExist.isPresent()) {
+
+                    throw new GeneralException(MessageFormat.format("El tercero con codigo {0}, ya existe", request.getCodigoTercero()));
+                }
+
+                tercero.setCodigoTercero(request.getCodigoTercero());
+            }
+        }
+    }
 }
+
 
 

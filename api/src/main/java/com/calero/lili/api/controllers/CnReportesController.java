@@ -2,6 +2,7 @@ package com.calero.lili.api.controllers;
 
 
 import com.calero.lili.api.utils.IdDataServiceImpl;
+import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.FilterListDto;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.LibroDiarioDto;
 import com.calero.lili.core.modContabilidad.modPlanCuentas.dto.CnPlanCuentaListFilterDto;
@@ -154,9 +155,9 @@ public class CnReportesController {
     @GetMapping("libro-diario/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAuthority('CN_AS_RP')")
-    public List<LibroDiarioDto> reporteLibroDiario(@PathVariable("idEmpresa") Long idEmpresa,
-                                                   FilterListDto filters) {
-        return cnLibroDiarioService.reportLibroDiario(idDataService.getIdData(), idEmpresa, filters);
+    public PaginatedDto<LibroDiarioDto> reporteLibroDiario(@PathVariable("idEmpresa") Long idEmpresa,
+                                                           FilterListDto filters, Pageable pageable) {
+        return cnLibroDiarioService.reportLibroDiario(idDataService.getIdData(), idEmpresa, filters, pageable);
     }
 
 
