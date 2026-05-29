@@ -137,7 +137,8 @@ public class TsComprobanteIngresoServiceImpl {
 
         Page<CnAsientosEntity> page = cnAsientosRepository
                 .findAllPaginate(idData, idEmpresa, filter.getSucursal(),
-                        filter.getFechaComprobanteDesde(), filter.getFechaComprobanteHasta(), null, pageable);
+                        filter.getFechaComprobanteDesde(), filter.getFechaComprobanteHasta(), null, filter.getTipoAsiento(),
+                        filter.getNumeroAsientoDesde(), filter.getNumeroAsientoHasta(), pageable);
 
         PaginatedDto paginatedDto = new PaginatedDto<AdEmpresaGetListDto>();
 

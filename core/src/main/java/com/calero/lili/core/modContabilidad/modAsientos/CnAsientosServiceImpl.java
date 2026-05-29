@@ -21,19 +21,36 @@ import com.calero.lili.core.modContabilidad.modPlanCuentas.CnPlanCuentaEntity;
 import com.calero.lili.core.modContabilidad.modPlanCuentas.CnPlanCuentasRepository;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
+import com.calero.lili.core.modVentas.VtVentaEntity;
+import com.calero.lili.core.modVentas.VtVentaValoresEntity;
+import com.calero.lili.core.utils.DateUtils;
+import com.lowagie.text.Document;
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.Phrase;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.awt.*;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -158,19 +175,22 @@ public class CnAsientosServiceImpl {
         switch (tipoBusqueda) {
             case TODAS -> {
                 return cnAsientosRepository.findAllPaginate(idData, idEmpresa, null,
-                        filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), null, pageable);
+                        filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), null,
+                        filters.getTipoAsiento(), filters.getNumeroAsientoDesde(), filters.getNumeroAsientoHasta(), pageable);
             }
             case SUCURSAL -> {
                 if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
                     return cnAsientosRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(),
-                            filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), null, pageable);
+                            filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), null, filters.getTipoAsiento(),
+                            filters.getNumeroAsientoDesde(), filters.getNumeroAsientoHasta(), pageable);
                 } else {
                     throw new GeneralException("Es requerido el parametro de la sucursal");
                 }
             }
             case PROPIAS -> {
                 return cnAsientosRepository.findAllPaginate(idData, idEmpresa, null,
-                        filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), usuario, pageable);
+                        filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), usuario, filters.getTipoAsiento(),
+                        filters.getNumeroAsientoDesde(), filters.getNumeroAsientoHasta(), pageable);
             }
         }
         throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
@@ -305,6 +325,136 @@ public class CnAsientosServiceImpl {
         }
 
     }
+
+    @Transactional(readOnly = true)
+    public void exportarExcel(Long idData, Long idEmpresa, OutputStream outputStream, FilterListDto filters) throws IOException {
+
+        List<CnAsientosEntity> asientos = cnAsientosRepository.findAll(idData, idEmpresa, filters.getSucursal(),
+                filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getTipoAsiento(),
+                filters.getNumeroAsientoDesde(), filters.getNumeroAsientoHasta());
+
+        if (!asientos.isEmpty()) {
+
+
+            try (XSSFWorkbook workbook = new XSSFWorkbook()) {
+                XSSFSheet sheet = workbook.createSheet("Facturas");
+                XSSFRow headerRow = sheet.createRow(0);
+
+                String[] columnNames = {"NúmeroAsiento", "Concepto", "Sucursal", "TipoAsiento", "NumeroIdentificación",
+                        "FechaAsiento", "NúmeroDocumento", "TipoDocumento", "Debe", "Haber"};
+
+
+                IntStream.range(0, columnNames.length)
+                        .forEach(i -> headerRow.createCell(i).setCellValue(columnNames[i]));
+
+                for (int i = 0; i < asientos.size(); i++) {
+                    CnAsientosEntity asiento = asientos.get(i);
+                    XSSFRow row = sheet.createRow(i + 1);
+
+                    row.createCell(0).setCellValue(asiento.getNumeroAsiento());
+                    row.createCell(1).setCellValue(asiento.getConcepto());
+                    row.createCell(2).setCellValue(asiento.getSucursal());
+                    row.createCell(3).setCellValue(asiento.getTipoAsiento().name());
+                    row.createCell(4).setCellValue(Objects.nonNull(asiento.getTercero())
+                            ? asiento.getTercero().getNumeroIdentificacion() : "");
+                    row.createCell(5).setCellValue(Objects.nonNull(asiento.getFechaAsiento())
+                            ? DateUtils.toString(asiento.getFechaAsiento()) : "");
+
+                    for (CnAsientosDetalleEntity detalle : asiento.getDetalleEntity()) {
+
+                        row.createCell(6).setCellValue(detalle.getNumeroDocumento());
+                        row.createCell(7).setCellValue(detalle.getTipoDocumento());
+                        row.createCell(8).setCellValue(Objects.nonNull(detalle.getDebe()) ? detalle.getDebe().toString() : "0.00");
+                        row.createCell(9).setCellValue(Objects.nonNull(detalle.getHaber()) ? detalle.getHaber().toString() : "0.00");
+                    }
+                }
+
+
+                try (OutputStream os = outputStream) {
+                    workbook.write(os);
+                }
+            } catch (IOException e) {
+                log.error("Error al crear el archivo Excel", e);
+                throw e;
+            }
+        } else {
+            log.warn("No se encontraron facturas con los filtros proporcionados.");
+            outputStream.write("No se encontraron facturas con los filtros proporcionados".getBytes());
+            outputStream.flush();
+            outputStream.close();
+        }
+    }
+
+
+    @Transactional(readOnly = true)
+    public void exportarPDF(Long idData, Long idEmpresa, OutputStream outputStream, FilterListDto filters) throws DocumentException, IOException {
+
+        List<CnAsientosEntity> asientos = cnAsientosRepository.findAll(idData, idEmpresa, filters.getSucursal(),
+                filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getTipoAsiento(),
+                filters.getNumeroAsientoDesde(), filters.getNumeroAsientoHasta());
+
+        if (!asientos.isEmpty()) {
+
+            // Iniciar el documento PDF
+            Document document = new Document();
+            PdfWriter.getInstance(document, outputStream);
+            document.open();
+
+            // Crear la tabla y los encabezados del PDF
+            PdfPTable table = new PdfPTable(4); // Número de columnas
+            table.setWidthPercentage(100);
+            table.setSpacingBefore(10f);
+            table.setSpacingAfter(10f);
+
+            // definimos los nombres de las columnas, excluyendo el campo XML
+            String[] columnNames = {"NúmeroAsiento", "Concepto", "Sucursal", "TipoAsiento", "NumeroIdentificación",
+                    "FechaAsiento", "NúmeroDocumento", "TipoDocumento", "Debe", "Haber"};
+
+            // Añadir columnas
+            for (String columnName : columnNames) {
+                PdfPCell header = new PdfPCell();
+                header.setBackgroundColor(Color.LIGHT_GRAY);
+                header.setBorderWidth(1);
+                header.setPhrase(new Phrase(columnName));
+                table.addCell(header);
+            }
+
+            // Añadir filas con los datos de las facturas
+            for (CnAsientosEntity asiento : asientos) {
+
+                table.addCell(asiento.getNumeroAsiento());
+                table.addCell(asiento.getConcepto());
+                table.addCell(asiento.getSucursal());
+                table.addCell(asiento.getTipoAsiento().name());
+                table.addCell(Objects.nonNull(asiento.getTercero()) ? asiento.getTercero().getNumeroIdentificacion() : "");
+                table.addCell(DateUtils.toString(asiento.getFechaAsiento()));
+
+                for (CnAsientosDetalleEntity detalle : asiento.getDetalleEntity()) {
+
+                    table.addCell(detalle.getNumeroDocumento());
+                    table.addCell(detalle.getTipoDocumento());
+                    table.addCell(detalle.getDebe().toString());
+                    table.addCell(detalle.getHaber().toString());
+                }
+            }
+
+            // Añadir la tabla al documento y cerrar
+            document.add(table);
+            document.close();
+        } else {
+            // Manejar el caso en el que no se encuentren facturas
+            try {
+                outputStream.write("No se encontraron asientos con los filtros proporcionados".getBytes());
+                outputStream.flush();
+                outputStream.close();
+            } catch (IOException e) {
+                log.error("Error al escribir el archivo PDF", e);
+            }
+
+        }
+    }
+
+
 }
 
 

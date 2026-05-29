@@ -1,9 +1,9 @@
 package com.calero.lili.core.modContabilidad.modAsientos;
 
+import com.calero.lili.core.enums.TipoAsiento;
 import com.calero.lili.core.modContabilidad.modAsientos.projection.OneDetalleProjection;
 import com.calero.lili.core.modContabilidad.modAsientos.projection.OneProjection;
 import com.calero.lili.core.modContabilidad.modAsientos.projection.TotalesProjection;
-import com.calero.lili.core.enums.TipoAsiento;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -75,7 +75,10 @@ public interface CnAsientosRepository extends JpaRepository<CnAsientosEntity, UU
             "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
             "(:usuario IS NULL OR vtVentasEntity.createdBy = :usuario) AND " +
             "( cast(:fechaAsientoDesde as date) is null OR vtVentasEntity.fechaAsiento >= :fechaAsientoDesde ) AND " +
-            "( cast(:fechaAsientoHasta as date) is null OR vtVentasEntity.fechaAsiento <= :fechaAsientoHasta )"
+            "( cast(:fechaAsientoHasta as date) is null OR vtVentasEntity.fechaAsiento <= :fechaAsientoHasta ) AND " +
+            "(:tipoAsiento is NULL or vtVentasEntity.tipoAsiento = :tipoAsiento) AND " +
+            "(:numeroAsientoDesde is null OR vtVentasEntity.numeroAsiento >= :numeroAsientoDesde) AND " +
+            "(:numeroAsientoHasta is null OR vtVentasEntity.numeroAsiento <= :numeroAsientoHasta) "
             ,
             countQuery = "SELECT COUNT(1) " +
                     "FROM CnAsientosEntity vtVentasEntity " +
@@ -84,12 +87,18 @@ public interface CnAsientosRepository extends JpaRepository<CnAsientosEntity, UU
                     "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
                     "(:usuario IS NULL OR vtVentasEntity.createdBy = :usuario) AND " +
                     "( cast(:fechaAsientoDesde as date) is null OR vtVentasEntity.fechaAsiento >= :fechaAsientoDesde ) AND " +
-                    "( cast(:fechaAsientoHasta as date) is null OR vtVentasEntity.fechaAsiento <= :fechaAsientoHasta )")
+                    "( cast(:fechaAsientoHasta as date) is null OR vtVentasEntity.fechaAsiento <= :fechaAsientoHasta ) AND " +
+                    "(:tipoAsiento is NULL or vtVentasEntity.tipoAsiento = :tipoAsiento) AND " +
+                    "(:numeroAsientoDesde is null OR vtVentasEntity.numeroAsiento >= :numeroAsientoDesde) AND " +
+                    "(:numeroAsientoHasta is null OR vtVentasEntity.numeroAsiento <= :numeroAsientoHasta) ")
     Page<CnAsientosEntity> findAllPaginate(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa,
                                            @Param("sucursal") String sucursal,
                                            @Param("fechaAsientoDesde") LocalDate fechaAsientoDesde,
                                            @Param("fechaAsientoHasta") LocalDate fechaAsientoHasta,
                                            @Param("usuario") String usuario,
+                                           @Param("tipoAsiento") TipoAsiento tipoAsiento,
+                                           @Param("numeroAsientoDesde") String numeroAsientoDesde,
+                                           @Param("numeroAsientoHasta") String numeroAsientoHasta,
                                            Pageable pageable);
 
 //    @Query(
@@ -129,12 +138,19 @@ public interface CnAsientosRepository extends JpaRepository<CnAsientosEntity, UU
             "WHERE vtVentasEntity.idData = :idData  AND " +
             "vtVentasEntity.idEmpresa = :idEmpresa AND " +
             "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
-            "(" +
             "( cast(:fechaAsientoDesde as date) is null OR vtVentasEntity.fechaAsiento >= :fechaAsientoDesde ) AND " +
-            "( cast(:fechaAsientoHasta as date) is null OR vtVentasEntity.fechaAsiento <= :fechaAsientoHasta )  " +
-            ")"
-    )
-    List<CnAsientosEntity> findAll(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("sucursal") String sucursal, @Param("fechaAsientoDesde") LocalDate fechaAsientoDesde, @Param("fechaAsientoHasta") LocalDate fechaAsientoHasta);
+            "( cast(:fechaAsientoHasta as date) is null OR vtVentasEntity.fechaAsiento <= :fechaAsientoHasta ) AND " +
+            "(:tipoAsiento is NULL or vtVentasEntity.tipoAsiento = :tipoAsiento) AND " +
+            "(:numeroAsientoDesde is null OR vtVentasEntity.numeroAsiento >= :numeroAsientoDesde) AND " +
+            "(:numeroAsientoHasta is null OR vtVentasEntity.numeroAsiento <= :numeroAsientoHasta) ")
+    List<CnAsientosEntity> findAll(@Param("idData") Long idData,
+                                   @Param("idEmpresa") Long idEmpresa,
+                                   @Param("sucursal") String sucursal,
+                                   @Param("fechaAsientoDesde") LocalDate fechaAsientoDesde,
+                                   @Param("fechaAsientoHasta") LocalDate fechaAsientoHasta,
+                                   @Param("tipoAsiento") TipoAsiento tipoAsiento,
+                                   @Param("numeroAsientoDesde") String numeroAsientoDesde,
+                                   @Param("numeroAsientoHasta") String numeroAsientoHasta);
 
 
     @Query("SELECT vtVentasEntity FROM CnAsientosEntity vtVentasEntity WHERE vtVentasEntity.idData = :idData AND" +

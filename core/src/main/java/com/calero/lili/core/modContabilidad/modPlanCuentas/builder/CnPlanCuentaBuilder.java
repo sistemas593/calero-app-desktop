@@ -26,17 +26,14 @@ public class CnPlanCuentaBuilder {
     }
 
     public CnPlanCuentaEntity builderUpdateEntity(CnPlanCuentaCreationRequestDto model, CnPlanCuentaEntity item) {
-        return CnPlanCuentaEntity.builder()
-                .idCuenta(item.getIdCuenta())
-                .idData(item.getIdData())
-                .idEmpresa(item.getIdEmpresa())
-                .idCuentaPadre(model.getIdCuentaPadre())
-                .codigoCuenta(model.getCodigoCuenta())
-                .codigoCuentaOriginal(model.getCodigoCuentaOriginal())
-                .cuenta(model.getCuenta())
-                .mayor(model.getMayor())
-                .tipoAuxiliar(model.getTipoAuxiliar())
-                .build();
+
+        item.setIdCuentaPadre(model.getIdCuentaPadre());
+        item.setCodigoCuenta(model.getCodigoCuenta());
+        item.setCodigoCuentaOriginal(model.getCodigoCuentaOriginal());
+        item.setCuenta(model.getCuenta());
+        item.setMayor(model.getMayor());
+        item.setTipoAuxiliar(model.getTipoAuxiliar());
+        return item;
     }
 
     public CnPlanCuentaGetOneDto builderResponse(CnPlanCuentaEntity model) {

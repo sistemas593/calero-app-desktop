@@ -28,6 +28,7 @@ import com.calero.lili.core.modVentas.VtVentaValoresEntity;
 import com.calero.lili.core.modVentas.VtVentasRepository;
 import com.calero.lili.core.modVentas.projection.OneProjection;
 import com.calero.lili.core.utils.DateUtils;
+import com.calero.lili.core.utils.ValidarTipoArchivo;
 import com.monitorjbl.xlsx.StreamingReader;
 import lombok.AllArgsConstructor;
 import org.apache.poi.ss.usermodel.Row;
@@ -67,6 +68,10 @@ public class VtVentasFacturasExcelService {
 
     public void cargarExcelFacturas(Long idData, Long idEmpresa,
                                     MultipartFile file, String usuario, String sucursal) throws IOException {
+
+        if (!ValidarTipoArchivo.validarTipoExcel(file)) {
+            throw new GeneralException("El archivo debe ser Excel (.xls o .xlsx)");
+        }
 
         InputStream is = file.getInputStream();
         Workbook workbook = StreamingReader.builder()
@@ -483,8 +488,18 @@ public class VtVentasFacturasExcelService {
     }
 
 
+    // Recibir perido
     public void cargarExcelVentasImpuestos(Long idData, Long idEmpresa,
-                                           MultipartFile file, String usuario, String sucursal) throws IOException {
+                                           MultipartFile file, String usuario, String sucursal, String periodo) throws IOException {
+
+        // validar el periodo, todas las fechas deben ser del mes y año del periodo
+
+        LocalDate fechaPeriodo = DateUtils.toPeriodoFiscalDate(periodo);
+
+        if (!ValidarTipoArchivo.validarTipoExcel(file)) {
+            throw new GeneralException("El archivo debe ser Excel (.xls o .xlsx)");
+        }
+
 
         InputStream is = file.getInputStream();
         Workbook workbook = StreamingReader.builder()
@@ -641,6 +656,27 @@ public class VtVentasFacturasExcelService {
                 } else {
                     detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.FACTURA_RELACIONADO_NOT_FOUND));
                 }
+
+                if (Objects.nonNull(row.getCell(10))) {
+
+                    String fecha = row.getCell(10).getStringCellValue();
+                    LocalDateTime fechaEmision = DateUtils
+                            .toLocalExcelDateTimeFechaDesde(fecha);
+
+                    if (fechaPeriodo.getYear() == fechaEmision.getYear()
+                            && fechaPeriodo.getMonthValue() == fechaEmision.getMonthValue()) {
+
+                        factura.setFechaEmision(fechaEmision);
+                    } else {
+                        DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DOCUMENTO_ERROR);
+                        detalleError.setDetalle("La fecha: " + fecha + " no corresponde con el periodo: " + periodo);
+                        detalleErrores.add(detalleError);
+                    }
+
+                } else {
+                    detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.FACTURA_FECHA_EMISION));
+                }
+
 
                 valoresFacturaImpuesto(idData, idEmpresa, factura, row);
                 setearFormaDePagoSri(factura, row, linea, detalleErrores);

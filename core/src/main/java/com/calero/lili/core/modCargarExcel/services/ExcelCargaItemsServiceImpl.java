@@ -1,5 +1,6 @@
 package com.calero.lili.core.modCargarExcel.services;
 
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosEntity;
 import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosItemsRepository;
 import com.calero.lili.core.modComprasItems.GeItemEntity;
@@ -13,6 +14,7 @@ import com.calero.lili.core.modComprasItemsMarcas.GeItemsMarcasEntity;
 import com.calero.lili.core.modComprasItemsMarcas.GeItemsMarcasRepository;
 import com.calero.lili.core.modComprasItemsMedidas.GeItemsMedidasEntity;
 import com.calero.lili.core.modComprasItemsMedidas.GeItemsMedidasRepository;
+import com.calero.lili.core.utils.ValidarTipoArchivo;
 import com.calero.lili.core.utils.validaciones.ValidarCampoAscii;
 import com.calero.lili.core.builder.DetalleErrorBuilder;
 import com.calero.lili.core.dtos.enums.TipoItemEnum;
@@ -49,6 +51,9 @@ public class ExcelCargaItemsServiceImpl {
 
     public void cargarItemsProductos(Long idData, MultipartFile file, Long idEmpresa) throws IOException {
 
+        if (!ValidarTipoArchivo.validarTipoExcel(file)) {
+            throw new GeneralException("El archivo debe ser Excel (.xls o .xlsx)");
+        }
 
         InputStream is = file.getInputStream();
         Workbook workbook = StreamingReader.builder()

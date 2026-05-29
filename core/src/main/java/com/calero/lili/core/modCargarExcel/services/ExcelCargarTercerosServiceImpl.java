@@ -18,6 +18,7 @@ import com.calero.lili.core.modTerceros.GeTercerosTipoRepository;
 import com.calero.lili.core.modTerceros.projections.GeTerceroProjection;
 import com.calero.lili.core.tablas.tbPaises.TbPaisEntity;
 import com.calero.lili.core.tablas.tbPaises.TbPaisesRepository;
+import com.calero.lili.core.utils.ValidarTipoArchivo;
 import com.calero.lili.core.utils.validaciones.ValidarIdentificacion;
 import com.calero.lili.core.builder.DetalleErrorBuilder;
 import com.calero.lili.core.dtos.errors.DetalleError;
@@ -60,6 +61,10 @@ public class ExcelCargarTercerosServiceImpl {
     private final TbPaisesRepository tbPaisesRepository;
 
     public void carga(Long idData, MultipartFile file) throws IOException {
+
+        if (!ValidarTipoArchivo.validarTipoExcel(file)) {
+            throw new GeneralException("El archivo debe ser Excel (.xls o .xlsx)");
+        }
 
         long startTimeRead = System.currentTimeMillis();
         InputStream is = file.getInputStream();

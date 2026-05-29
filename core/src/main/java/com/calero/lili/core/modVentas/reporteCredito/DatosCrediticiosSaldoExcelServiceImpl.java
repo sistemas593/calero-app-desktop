@@ -94,13 +94,13 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
                         entidadesActualizar.add(entidad);
 
                     } else {
-                        DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DATOS_CREDITICIOS_ERROR);
+                        DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DOCUMENTO_ERROR);
                         detalleError.setDetalle("El detalle con número de operación " + numeroOperacion + " no existe");
                         detalleErrores.add(detalleError);
                     }
 
                 } else {
-                    DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DATOS_CREDITICIOS_ERROR);
+                    DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DOCUMENTO_ERROR);
                     detalleError.setDetalle("El número operación o el valor del saldo de la operación no se encuentran");
                     detalleErrores.add(detalleError);
                 }

@@ -3,9 +3,11 @@ package com.calero.lili.core.modCargarExcel.services;
 import com.calero.lili.core.builder.DetalleErrorBuilder;
 import com.calero.lili.core.dtos.errors.DetalleError;
 import com.calero.lili.core.dtos.errors.EnumError;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.errors.exceptions.ListErrorException;
 import com.calero.lili.core.modComprasItemsCategorias.GeItemsCategoriaEntity;
 import com.calero.lili.core.modComprasItemsCategorias.GeItemsCategoriaRepository;
+import com.calero.lili.core.utils.ValidarTipoArchivo;
 import com.monitorjbl.xlsx.StreamingReader;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Row;
@@ -31,6 +33,10 @@ public class ExcelCargarCategoriasServiceImpl {
 
 
     public void cargarCategoria(Long idData, MultipartFile file) throws IOException {
+
+        if (!ValidarTipoArchivo.validarTipoExcel(file)) {
+            throw new GeneralException("El archivo debe ser Excel (.xls o .xlsx)");
+        }
 
         InputStream is = file.getInputStream();
         Workbook workbook = StreamingReader.builder()

@@ -489,7 +489,6 @@ public class VtVentasFacturasServiceImpl {
     }
 
 
-    // TODO EN TODOS LOS REPORTES DE EXCEL DE LOS CRUD COLOCAR EL NUMERO DE IDENTIFICAION Y EL NOMBRE DEL TECERO. y revisar que se colcoque bien los valores.
     @Transactional(readOnly = true)
     public void exportarExcel(Long idData, Long idEmpresa, OutputStream outputStream, FilterListDto filter) throws IOException {
 

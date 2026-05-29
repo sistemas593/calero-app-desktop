@@ -14,6 +14,7 @@ import com.calero.lili.core.modContabilidad.modAsientos.CnAsientosRepository;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.FilterListDto;
 import com.calero.lili.core.modContabilidad.modPlanCuentas.CnPlanCuentaEntity;
 import com.calero.lili.core.modContabilidad.modPlanCuentas.CnPlanCuentasRepository;
+import com.calero.lili.core.utils.ValidarTipoArchivo;
 import com.monitorjbl.xlsx.StreamingReader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -55,6 +56,10 @@ public class ExcelCargarAsientosServiceImpl {
 
     @Transactional
     public void cargarAsientos(Long idData, Long idEmpresa, MultipartFile file, FilterListDto request, String usuario) throws IOException {
+
+        if (!ValidarTipoArchivo.validarTipoExcel(file)) {
+            throw new GeneralException("El archivo debe ser Excel (.xls o .xlsx)");
+        }
 
         List<DetalleError> detalleErrores = new ArrayList<>();
         List<CnAsientosEntity> listItems = new ArrayList<>();

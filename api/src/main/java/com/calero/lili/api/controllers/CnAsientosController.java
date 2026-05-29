@@ -9,6 +9,8 @@ import com.calero.lili.core.modContabilidad.modAsientos.dto.CreationAsientosRequ
 import com.calero.lili.core.modContabilidad.modAsientos.dto.FilterListDto;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.GetDto;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.GetListDto;
+import com.lowagie.text.DocumentException;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +28,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.UUID;
 
 @Slf4j
@@ -35,7 +41,7 @@ import java.util.UUID;
 @CrossOrigin(originPatterns = "*")
 public class CnAsientosController {
 
-    private final CnAsientosServiceImpl vtVentasService;
+    private final CnAsientosServiceImpl cnAsientosService;
     private final IdDataServiceImpl idDataService;
     private final AuditorAwareImpl auditorAware;
 
@@ -44,7 +50,7 @@ public class CnAsientosController {
     @PreAuthorize("hasAuthority('CN_AS_CR')")
     public ResponseDto create(@PathVariable("idEmpresa") Long idEmpresa,
                               @Valid @RequestBody CreationAsientosRequestDto request) {
-        return vtVentasService.create(idDataService.getIdData(), idEmpresa, request,
+        return cnAsientosService.create(idDataService.getIdData(), idEmpresa, request,
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
@@ -55,7 +61,7 @@ public class CnAsientosController {
                               @PathVariable("idAsiento") UUID idAsiento,
                               @RequestBody CreationAsientosRequestDto request,
                               FilterListDto filters) {
-        return vtVentasService.update(idDataService.getIdData(), idEmpresa, idAsiento, request,
+        return cnAsientosService.update(idDataService.getIdData(), idEmpresa, idAsiento, request,
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"),
                 filters,
                 auditorAware.getTipoPermisoModificarAsiento());
@@ -67,7 +73,7 @@ public class CnAsientosController {
     public void delete(@PathVariable("idEmpresa") Long idEmpresa,
                        @PathVariable("idAsiento") UUID idAsiento,
                        FilterListDto filters) {
-        vtVentasService.delete(idDataService.getIdData(), idEmpresa, idAsiento,
+        cnAsientosService.delete(idDataService.getIdData(), idEmpresa, idAsiento,
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"),
                 filters,
                 auditorAware.getTipoPermisoEliminarAsiento());
@@ -79,7 +85,7 @@ public class CnAsientosController {
     public GetDto findById(@PathVariable("idEmpresa") Long idEmpresa,
                            @PathVariable("idAsiento") UUID idAsiento,
                            FilterListDto filters) {
-        return vtVentasService.findById(idDataService.getIdData(), idEmpresa, idAsiento,
+        return cnAsientosService.findById(idDataService.getIdData(), idEmpresa, idAsiento,
                 filters,
                 auditorAware.getTipoPermisoVerAsiento(),
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"));
@@ -91,8 +97,31 @@ public class CnAsientosController {
     public PaginatedDto<GetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
                                                     FilterListDto filters,
                                                     Pageable pageable) {
-        return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable,
+        return cnAsientosService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable,
                 auditorAware.getTipoPermisoVerAsiento(),
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+    }
+
+    @GetMapping("excel/{idEmpresa}")
+    //@PreAuthorize("hasAuthority('VT_FC_EX')")
+    public void exportarExcel(HttpServletResponse response,
+                              @PathVariable("idEmpresa") Long idEmpresa,
+                              FilterListDto filter) throws IOException {
+        String fileName = "Asientos_" + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + ".xlsx";
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+        log.info("Iniciando la exportación a Excel con el filtro: {}", filter);
+        cnAsientosService.exportarExcel(idDataService.getIdData(), idEmpresa, response.getOutputStream(), filter);
+    }
+
+    @GetMapping("pdf/{idEmpresa}")
+   // @PreAuthorize("hasAuthority('VT_FC_EX')")
+    public void exportarPDF(HttpServletResponse response,
+                            @PathVariable("idEmpresa") Long idEmpresa,
+                            FilterListDto filters) throws DocumentException, IOException {
+        String fileName = "Asientos_" + LocalDateTime.now() + ".pdf";
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+        cnAsientosService.exportarPDF(idDataService.getIdData(), idEmpresa, response.getOutputStream(), filters);
     }
 }

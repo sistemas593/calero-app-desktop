@@ -7,9 +7,11 @@ import com.calero.lili.core.comprobantes.objetosXml.ctasXCobrar.DetalleCtasXCobr
 import com.calero.lili.core.comprobantes.objetosXml.ctasXCobrar.DetallePasivo;
 import com.calero.lili.core.comprobantes.objetosXml.ctasXCobrar.Pasivo;
 import com.calero.lili.core.comprobantes.utils.XmlUtils;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.errors.exceptions.ListErrorException;
 import com.calero.lili.core.modCargarExcelDP.builder.ErrorCargaBuilder;
 import com.calero.lili.core.modCargarExcelDP.dto.ErrorCargaDto;
+import com.calero.lili.core.utils.ValidarTipoArchivo;
 import com.calero.lili.core.utils.validaciones.ValidarIdentificacion;
 import com.monitorjbl.xlsx.StreamingReader;
 import lombok.AllArgsConstructor;
@@ -52,6 +54,11 @@ public class ExcelCtasCobrarServiceImpl {
         if (Objects.isNull(file)) {
             throw new ListErrorException(List.of("Archivo no encontrado o no seleccionado"));
         }
+
+        if (!ValidarTipoArchivo.validarTipoExcel(file)) {
+            throw new GeneralException("El archivo debe ser Excel (.xls o .xlsx)");
+        }
+
 
         InputStream is = file.getInputStream();
         Workbook workbook = StreamingReader.builder()

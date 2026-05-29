@@ -14,52 +14,16 @@ import java.util.UUID;
 @AllArgsConstructor
 public class DetalleGetDto {
 
-    private Cuenta cuentas;
+    private UUID idCuenta;
+    private String cuenta;
+    private String codigoCuenta;
 
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Builder
-    public static class Cuenta {
-        private UUID idCuenta;
-        private String cuenta;
-        private String codigoCuenta;
-    }
+    private UUID idTercero;
+    private String numeroIdentificacion;
+    private String tercero;
 
-
-    private Proveedor proveedor;
-
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Builder
-    public static class Proveedor {
-        private UUID idTercero;
-        private String proveedor;
-    }
-
-
-    private Cliente cliente;
-
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Builder
-    public static class Cliente {
-        private UUID idTercero;
-        private String cliente;
-    }
-
-    private GeItem item;
-
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Builder
-    public static class GeItem {
-        private UUID idItem;
-        private String item;
-    }
+    private UUID idItem;
+    private String item;
 
     private int itemOrden;
 
@@ -74,7 +38,5 @@ public class DetalleGetDto {
     private BigDecimal debe;
 
     private BigDecimal haber;
-
-    private UUID idConciliacion;
 
 }

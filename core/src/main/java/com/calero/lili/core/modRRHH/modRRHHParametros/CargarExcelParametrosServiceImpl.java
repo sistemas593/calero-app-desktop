@@ -3,12 +3,14 @@ package com.calero.lili.core.modRRHH.modRRHHParametros;
 import com.calero.lili.core.builder.DetalleErrorBuilder;
 import com.calero.lili.core.dtos.errors.EnumError;
 import com.calero.lili.core.dtos.errors.DetalleError;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.errors.exceptions.ListErrorException;
 import com.calero.lili.core.modRRHH.modRRHHParametros.builder.RhRolParametroBuilder;
 import com.calero.lili.core.modRRHH.modRRHHRublos.RubrosEntity;
 import com.calero.lili.core.modRRHH.modRRHHRublos.RubrosRepository;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
+import com.calero.lili.core.utils.ValidarTipoArchivo;
 import com.monitorjbl.xlsx.StreamingReader;
 import lombok.AllArgsConstructor;
 import org.apache.poi.ss.usermodel.Row;
@@ -43,9 +45,11 @@ public class CargarExcelParametrosServiceImpl {
     private final RhRolParametroBuilder rhRolParametroBuilder;
     private final RhParametrosCargaRepository rhParametrosCargaRepository;
 
-    // TODO CAMBIAR LA FORMA DE LA LOGICA DEL SWITCH PARA USAR DIRECTAMENTE TODOS LOS CODIGOS RUBROS Y EN SI NO USAR CODIGO RUBROS LA CLASE QUE SE REALIZO PARA ESO
-
     public void cargarParametrosExcel(Long idData, Long idEmpresa, MultipartFile file) throws IOException {
+
+        if (!ValidarTipoArchivo.validarTipoExcel(file)) {
+            throw new GeneralException("El archivo debe ser Excel (.xls o .xlsx)");
+        }
 
         InputStream is = file.getInputStream();
         Workbook workbook = StreamingReader.builder()

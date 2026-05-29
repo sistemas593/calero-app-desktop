@@ -1,5 +1,6 @@
 package com.calero.lili.core.modCargarExcel.services;
 
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosEntity;
 import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosItemsRepository;
 import com.calero.lili.core.modComprasItems.GeItemEntity;
@@ -11,6 +12,7 @@ import com.calero.lili.core.dtos.enums.TipoItemEnum;
 import com.calero.lili.core.dtos.errors.DetalleError;
 import com.calero.lili.core.dtos.errors.EnumError;
 import com.calero.lili.core.errors.exceptions.ListErrorException;
+import com.calero.lili.core.utils.ValidarTipoArchivo;
 import com.monitorjbl.xlsx.StreamingReader;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Row;
@@ -39,6 +41,9 @@ public class ExcelCargaGastosServiceImpl {
     // TODO VALIDAR QUE SEA UN EXCEL EN TODOS LOS SERVICIOS.
     public void cargarItemsGastos(Long idData, MultipartFile file, Long idEmpresa) throws IOException {
 
+        if (!ValidarTipoArchivo.validarTipoExcel(file)) {
+            throw new GeneralException("El archivo debe ser Excel (.xls o .xlsx)");
+        }
 
         InputStream is = file.getInputStream();
         Workbook workbook = StreamingReader.builder()

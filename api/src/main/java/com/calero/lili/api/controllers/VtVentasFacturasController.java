@@ -176,10 +176,11 @@ public class VtVentasFacturasController {
     @PreAuthorize("hasAuthority('VT_FC_IMEX')")
     public void uploadFacturasImpuestosExcel(@RequestParam("file") MultipartFile file,
                                              @PathVariable("idEmpresa") Long idEmpresa,
-                                             @PathVariable("sucursal") String sucursal) {
+                                             @PathVariable("sucursal") String sucursal,
+                                             @RequestParam("periodo") String periodo) {
         try {
             vtVentasFacturasExcelService.cargarExcelVentasImpuestos(idDataService.getIdData(), idEmpresa, file,
-                    auditorAware.getCurrentAuditor().orElse("SYSTEM"), sucursal);
+                    auditorAware.getCurrentAuditor().orElse("SYSTEM"), sucursal, periodo);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

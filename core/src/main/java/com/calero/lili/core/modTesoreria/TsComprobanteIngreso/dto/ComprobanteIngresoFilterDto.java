@@ -1,5 +1,6 @@
 package com.calero.lili.core.modTesoreria.TsComprobanteIngreso.dto;
 
+import com.calero.lili.core.enums.TipoAsiento;
 import com.calero.lili.core.utils.DateUtils;
 import lombok.Data;
 
@@ -13,6 +14,9 @@ public class ComprobanteIngresoFilterDto {
     private String fechaComprobanteDesde;
     private String fechaComprobanteHasta;
     private String sucursal;
+    private TipoAsiento tipoAsiento;
+    private String numeroAsientoDesde;
+    private String numeroAsientoHasta;
 
 
     public LocalDate getFechaComprobanteDesde() {

@@ -3,9 +3,11 @@ package com.calero.lili.core.modContabilidad.services;
 import com.calero.lili.core.builder.DetalleErrorBuilder;
 import com.calero.lili.core.dtos.errors.DetalleError;
 import com.calero.lili.core.dtos.errors.EnumError;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.errors.exceptions.ListErrorException;
 import com.calero.lili.core.modContabilidad.modPlanCuentas.CnPlanCuentaEntity;
 import com.calero.lili.core.modContabilidad.modPlanCuentas.CnPlanCuentasRepository;
+import com.calero.lili.core.utils.ValidarTipoArchivo;
 import com.monitorjbl.xlsx.StreamingReader;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Row;
@@ -34,8 +36,10 @@ public class ExcelCargaPlanCuentasServiceImpl {
     @Transactional
     public void cargarPlanDeCuentas(Long idData, MultipartFile file, Long idEmpresa, String usuario) throws IOException {
 
-// BUSCAR TODAS LAS CUENTAS QUE EXISTAN DE LA EMPRESA (CONTEO DE CUENTAS)
-        // SI QUE EXISTEN LAS CUENTAS, SI EXISTE AL MENOS UNA NO SE REALIZA EL PROCESO, Y SE ENVIA UN ERROR
+        if (!ValidarTipoArchivo.validarTipoExcel(file)) {
+            throw new GeneralException("El archivo debe ser Excel (.xls o .xlsx)");
+        }
+
         InputStream is = file.getInputStream();
         Workbook workbook = StreamingReader.builder()
                 .rowCacheSize(500000)

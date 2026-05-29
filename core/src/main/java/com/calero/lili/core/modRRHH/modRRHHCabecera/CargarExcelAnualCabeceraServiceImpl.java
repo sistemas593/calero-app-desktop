@@ -4,6 +4,7 @@ import com.calero.lili.core.builder.DetalleErrorBuilder;
 import com.calero.lili.core.dtos.errors.DetalleError;
 import com.calero.lili.core.dtos.errors.EnumError;
 import com.calero.lili.core.enums.TipoRubro;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.errors.exceptions.ListErrorException;
 import com.calero.lili.core.modRRHH.RhPeriodosEntity;
 import com.calero.lili.core.modRRHH.RhPeriodosRepository;
@@ -12,6 +13,7 @@ import com.calero.lili.core.modRRHH.modRRHHRublos.RubrosRepository;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
 import com.calero.lili.core.utils.DateUtils;
+import com.calero.lili.core.utils.ValidarTipoArchivo;
 import com.monitorjbl.xlsx.StreamingReader;
 import lombok.AllArgsConstructor;
 import org.apache.poi.ss.usermodel.Row;
@@ -47,6 +49,10 @@ public class CargarExcelAnualCabeceraServiceImpl {
     private final RhPeriodosRepository rhPeriodosRepository;
 
     public void cargarRolCabeceraAnual(Long idData, Long idEmpresa, MultipartFile file) throws IOException {
+
+        if (!ValidarTipoArchivo.validarTipoExcel(file)) {
+            throw new GeneralException("El archivo debe ser Excel (.xls o .xlsx)");
+        }
 
         InputStream is = file.getInputStream();
         Workbook workbook = StreamingReader.builder()

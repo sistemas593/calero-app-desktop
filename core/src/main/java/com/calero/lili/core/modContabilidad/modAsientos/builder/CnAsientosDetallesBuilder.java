@@ -1,11 +1,9 @@
 package com.calero.lili.core.modContabilidad.modAsientos.builder;
 
-import com.calero.lili.core.modComprasItems.GeItemEntity;
 import com.calero.lili.core.modContabilidad.modAsientos.CnAsientosDetalleEntity;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.CreationAsientosRequestDto;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.detalles.DetalleGetDto;
 import com.calero.lili.core.modContabilidad.modPlanCuentas.CnPlanCuentaEntity;
-import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.utils.DateUtils;
 import org.springframework.stereotype.Component;
 
@@ -58,37 +56,14 @@ public class CnAsientosDetallesBuilder {
                         ? DateUtils.toString(model.getFechaDocumento()) : null)
                 .debe(model.getDebe())
                 .haber(model.getHaber())
-                .cuentas(builderResponseCuenta(model.getCuenta()))
-                .cliente(builderReponseTercero(model.getTercero()))
-                .item(builderResponseItem(model.getGeItem()))
+                .idCuenta(Objects.nonNull(model.getCuenta()) ? model.getCuenta().getIdCuenta() : null)
+                .cuenta(Objects.nonNull(model.getCuenta()) ? model.getCuenta().getCuenta() : null)
+                .codigoCuenta(Objects.nonNull(model.getCuenta()) ? model.getCuenta().getCodigoCuenta() : null)
+                .idTercero(Objects.nonNull(model.getTercero()) ? model.getTercero().getIdTercero() : null)
+                .numeroIdentificacion(Objects.nonNull(model.getTercero()) ? model.getTercero().getNumeroIdentificacion() : null)
+                .tercero(Objects.nonNull(model.getTercero()) ? model.getTercero().getTercero() : null)
+                .idItem(Objects.nonNull(model.getGeItem()) ? model.getGeItem().getIdItem() : null)
+                .item(Objects.nonNull(model.getGeItem()) ? model.getGeItem().getDescripcion() : null)
                 .build();
     }
-
-    private DetalleGetDto.Cliente builderReponseTercero(GeTerceroEntity cliente) {
-        if (Objects.isNull(cliente)) return null;
-        return DetalleGetDto.Cliente.builder()
-                .idTercero(cliente.getIdTercero())
-                .cliente(cliente.getTercero())
-                .build();
-    }
-
-
-    private DetalleGetDto.GeItem builderResponseItem(GeItemEntity geItem) {
-        if (Objects.isNull(geItem)) return null;
-        return DetalleGetDto.GeItem.builder()
-                .idItem(geItem.getIdItem())
-                .item(geItem.getDescripcion())
-                .build();
-    }
-
-
-    private DetalleGetDto.Cuenta builderResponseCuenta(CnPlanCuentaEntity cuenta) {
-        if (Objects.isNull(cuenta)) return null;
-        return DetalleGetDto.Cuenta.builder()
-                .idCuenta(cuenta.getIdCuenta())
-                .codigoCuenta(cuenta.getCodigoCuenta())
-                .cuenta(cuenta.getCuenta())
-                .build();
-    }
-
 }

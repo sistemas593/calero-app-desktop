@@ -59,14 +59,6 @@ public class CreationAsientosRequestDto {
 
         private BigDecimal haber;
 
-        private String tipoAuxiliar;
-
-        private String nombreAuxiliar;
-
-        private String numeroIdentificacionAuxiliar;
-
-        private UUID idConciliacion;
-
         private UUID idTercero;
 
         private UUID idItem;

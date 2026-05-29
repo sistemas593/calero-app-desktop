@@ -124,13 +124,13 @@ public class DatosCrediticiosExcelServiceImpl {
             if (Objects.nonNull(tercero)) {
                 detalle.setTercero(tercero);
             } else {
-                DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DATOS_CREDITICIOS_ERROR);
+                DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DOCUMENTO_ERROR);
                 detalleError.setDetalle("El codigo " + row.getCell(0).getStringCellValue() + "no se encuentra registrado");
                 detalleErrores.add(detalleError);
             }
 
         } else {
-            DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DATOS_CREDITICIOS_ERROR);
+            DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DOCUMENTO_ERROR);
             detalleError.setDetalle("El codigo del tercero no se encuentra");
             detalleErrores.add(detalleError);
         }
@@ -139,7 +139,7 @@ public class DatosCrediticiosExcelServiceImpl {
         if (Objects.nonNull(row.getCell(1))) {
             detalle.setNumeroOperacion(row.getCell(1).getStringCellValue());
         } else {
-            DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DATOS_CREDITICIOS_ERROR);
+            DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DOCUMENTO_ERROR);
             detalleError.setDetalle("El número de la operación no se encuentra");
             detalleErrores.add(detalleError);
         }
@@ -148,7 +148,7 @@ public class DatosCrediticiosExcelServiceImpl {
         if (Objects.nonNull(row.getCell(3))) {
             detalle.setFechaConcesion(DateUtils.toLocalDate(row.getCell(3).getStringCellValue()));
         } else {
-            DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DATOS_CREDITICIOS_ERROR);
+            DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DOCUMENTO_ERROR);
             detalleError.setDetalle("La fecha de concesión no se encuentra");
             detalleErrores.add(detalleError);
         }
@@ -156,7 +156,7 @@ public class DatosCrediticiosExcelServiceImpl {
         if (Objects.nonNull(row.getCell(4))) {
             detalle.setFechaVencimiento(DateUtils.toLocalDate(row.getCell(4).getStringCellValue()));
         } else {
-            DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DATOS_CREDITICIOS_ERROR);
+            DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DOCUMENTO_ERROR);
             detalleError.setDetalle("La fecha de vencimiento no se encuentra");
             detalleErrores.add(detalleError);
         }
@@ -217,7 +217,7 @@ public class DatosCrediticiosExcelServiceImpl {
             }
 
         } else {
-            DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DATOS_CREDITICIOS_ERROR);
+            DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DOCUMENTO_ERROR);
             detalleError.setDetalle("Los dias de mora no se encuentra");
             detalleErrores.add(detalleError);
         }
