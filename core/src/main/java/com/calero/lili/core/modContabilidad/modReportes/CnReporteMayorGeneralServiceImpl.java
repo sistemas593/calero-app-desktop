@@ -1,7 +1,7 @@
 package com.calero.lili.core.modContabilidad.modReportes;
 
 import com.calero.lili.core.comprobantes.builder.documentos.FormatoValores;
-import com.calero.lili.core.modContabilidad.modAsientos.dto.FilterListDto;
+import com.calero.lili.core.modContabilidad.modAsientos.dto.FilterAsientoListDto;
 import com.calero.lili.core.modContabilidad.modCentroCostos.CnCentroCostosEntity;
 import com.calero.lili.core.modContabilidad.modCentroCostos.CnCentroCostosRepository;
 import com.calero.lili.core.modContabilidad.modPlanCuentas.CnPlanCuentaEntity;
@@ -75,7 +75,7 @@ public class CnReporteMayorGeneralServiceImpl {
      * @return {@link MayorGeneralDto} con la cabecera y detalle paginado (o detalle nulo si no hay registros)
      * @throws GeneralException cuando la cuenta no existe, es cuenta mayor o ocurre un error en la obtención de datos
      */
-    public MayorGeneralDto reporteMayorGeneral(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable) {
+    public MayorGeneralDto reporteMayorGeneral(Long idData, Long idEmpresa, FilterAsientoListDto filters, Pageable pageable) {
 
         Page<MayorGeneralProjection> detalles = null;
         CabeceraMayorProjection cabecera = null;
@@ -196,7 +196,7 @@ public class CnReporteMayorGeneralServiceImpl {
      * @throws GeneralException cuando la cuenta no es válida
      */
     public void reporteMayorGeneralExcel(Long idData, Long idEmpresa,
-                                         HttpServletResponse response, FilterListDto filters) throws IOException {
+                                         HttpServletResponse response, FilterAsientoListDto filters) throws IOException {
 
         validarCentroCostos(idData, idEmpresa, filters.getCodigoCentroCostos());
         validarCuenta(idData, idEmpresa, filters.getCodigoCuenta());
@@ -272,7 +272,7 @@ public class CnReporteMayorGeneralServiceImpl {
      * Flujo:
      * - Valida la cuenta.
      * - Consulta los detalles (lista completa) según la lógica de fechas.
-     * - Convierte las proyecciones a DTOs y delega en {@link #getReportPdf(List, FilterListDto, Long, Long)} para generar el PDF.
+     * - Convierte las proyecciones a DTOs y delega en {@link #getReportPdf(List, FilterAsientoListDto, Long, Long)} para generar el PDF.
      *
      * @param idData    identificador lógico del entorno/data
      * @param idEmpresa identificador de la empresa
@@ -280,7 +280,7 @@ public class CnReporteMayorGeneralServiceImpl {
      * @return arreglo de bytes con el contenido del PDF generado
      * @throws GeneralException cuando la cuenta no es válida o ocurre un error durante la generación del PDF
      */
-    public byte[] reporteMayorGeneralPdf(Long idData, Long idEmpresa, FilterListDto filters) {
+    public byte[] reporteMayorGeneralPdf(Long idData, Long idEmpresa, FilterAsientoListDto filters) {
 
         validarCentroCostos(idData, idEmpresa, filters.getCodigoCentroCostos());
         validarCuenta(idData, idEmpresa, filters.getCodigoCuenta());
@@ -324,7 +324,7 @@ public class CnReporteMayorGeneralServiceImpl {
      * @return arreglo de bytes con el PDF generado
      * @throws GeneralException cuando ocurre cualquier error durante la compilación, llenado o exportación del PDF
      */
-    private byte[] getReportPdf(List<MayorGeneralDto.DetalleMayorGeneralDto> list, FilterListDto filters,
+    private byte[] getReportPdf(List<MayorGeneralDto.DetalleMayorGeneralDto> list, FilterAsientoListDto filters,
                                 Long idData, Long idEmpresa) {
         try {
 

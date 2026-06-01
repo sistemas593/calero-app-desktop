@@ -11,7 +11,7 @@ import com.calero.lili.core.modAdminEmpresasSucursales.AdEmpresasSucursalesRepos
 import com.calero.lili.core.modContabilidad.modAsientos.CnAsientosDetalleEntity;
 import com.calero.lili.core.modContabilidad.modAsientos.CnAsientosEntity;
 import com.calero.lili.core.modContabilidad.modAsientos.CnAsientosRepository;
-import com.calero.lili.core.modContabilidad.modAsientos.dto.FilterListDto;
+import com.calero.lili.core.modContabilidad.modAsientos.dto.FilterAsientoListDto;
 import com.calero.lili.core.modContabilidad.modPlanCuentas.CnPlanCuentaEntity;
 import com.calero.lili.core.modContabilidad.modPlanCuentas.CnPlanCuentasRepository;
 import com.calero.lili.core.utils.ValidarTipoArchivo;
@@ -55,7 +55,7 @@ public class ExcelCargarAsientosServiceImpl {
 
 
     @Transactional
-    public void cargarAsientos(Long idData, Long idEmpresa, MultipartFile file, FilterListDto request, String usuario) throws IOException {
+    public void cargarAsientos(Long idData, Long idEmpresa, MultipartFile file, FilterAsientoListDto request, String usuario) throws IOException {
 
         if (!ValidarTipoArchivo.validarTipoExcel(file)) {
             throw new GeneralException("El archivo debe ser Excel (.xls o .xlsx)");
@@ -340,7 +340,7 @@ public class ExcelCargarAsientosServiceImpl {
         return true;
     }
 
-    public void obtenerAsientos(Long idData, Long idEmpresa, FilterListDto model, List<DetalleError> detalleErrores) {
+    public void obtenerAsientos(Long idData, Long idEmpresa, FilterAsientoListDto model, List<DetalleError> detalleErrores) {
 
         Long totalAsientos = cnAsientosRepository.countByEmpresaAndFechaBetween(idData, idEmpresa,
                 model.getFechaEmisionDesde(), model.getFechaEmisionHasta());

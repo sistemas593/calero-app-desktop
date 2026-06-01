@@ -12,7 +12,7 @@ import com.calero.lili.core.modComprasItems.GeItemsRepository;
 import com.calero.lili.core.modContabilidad.modAsientos.builder.CnAsientosBuilder;
 import com.calero.lili.core.modContabilidad.modAsientos.builder.CnAsientosDetallesBuilder;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.CreationAsientosRequestDto;
-import com.calero.lili.core.modContabilidad.modAsientos.dto.FilterListDto;
+import com.calero.lili.core.modContabilidad.modAsientos.dto.FilterAsientoListDto;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.GetDto;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.GetListDto;
 import com.calero.lili.core.modContabilidad.modCentroCostos.CnCentroCostosEntity;
@@ -21,8 +21,6 @@ import com.calero.lili.core.modContabilidad.modPlanCuentas.CnPlanCuentaEntity;
 import com.calero.lili.core.modContabilidad.modPlanCuentas.CnPlanCuentasRepository;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
-import com.calero.lili.core.modVentas.VtVentaEntity;
-import com.calero.lili.core.modVentas.VtVentaValoresEntity;
 import com.calero.lili.core.utils.DateUtils;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -43,7 +41,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.awt.*;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -85,7 +82,7 @@ public class CnAsientosServiceImpl {
 
     @Transactional
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationAsientosRequestDto request,
-                              String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
+                              String usuario, FilterAsientoListDto filters, TipoPermiso tipoBusqueda) {
 
         CnAsientosEntity exists = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
         validarSucursal(request, idData, idEmpresa);
@@ -101,7 +98,7 @@ public class CnAsientosServiceImpl {
     }
 
     public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario,
-                       FilterListDto filters, TipoPermiso tipoBusqueda) {
+                       FilterAsientoListDto filters, TipoPermiso tipoBusqueda) {
 
         CnAsientosEntity venta = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
@@ -115,13 +112,13 @@ public class CnAsientosServiceImpl {
 
 
     public GetDto findById(Long idData, Long idEmpresa, UUID idVenta,
-                           FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+                           FilterAsientoListDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         CnAsientosEntity cnAsientosEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
         return cnAsientosBuilder.builderResponse(cnAsientosEntity);
     }
 
-    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable,
+    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterAsientoListDto filters, Pageable pageable,
                                                     TipoPermiso tipoBusqueda, String usuario) {
 
         Page<CnAsientosEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
@@ -170,7 +167,7 @@ public class CnAsientosServiceImpl {
 
 
     private Page<CnAsientosEntity> getTipoBusquedaPaginado(Long idData, Long idEmpresa,
-                                                           FilterListDto filters, Pageable pageable,
+                                                           FilterAsientoListDto filters, Pageable pageable,
                                                            TipoPermiso tipoBusqueda, String usuario) {
         switch (tipoBusqueda) {
             case TODAS -> {
@@ -197,7 +194,7 @@ public class CnAsientosServiceImpl {
     }
 
     private CnAsientosEntity validacionTipoBusqueda(Long idData, Long idEmpresa, UUID idVenta,
-                                                    FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+                                                    FilterAsientoListDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         switch (tipoBusqueda) {
             case TODAS:
@@ -327,7 +324,7 @@ public class CnAsientosServiceImpl {
     }
 
     @Transactional(readOnly = true)
-    public void exportarExcel(Long idData, Long idEmpresa, OutputStream outputStream, FilterListDto filters) throws IOException {
+    public void exportarExcel(Long idData, Long idEmpresa, OutputStream outputStream, FilterAsientoListDto filters) throws IOException {
 
         List<CnAsientosEntity> asientos = cnAsientosRepository.findAll(idData, idEmpresa, filters.getSucursal(),
                 filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getTipoAsiento(),
@@ -387,7 +384,7 @@ public class CnAsientosServiceImpl {
 
 
     @Transactional(readOnly = true)
-    public void exportarPDF(Long idData, Long idEmpresa, OutputStream outputStream, FilterListDto filters) throws DocumentException, IOException {
+    public void exportarPDF(Long idData, Long idEmpresa, OutputStream outputStream, FilterAsientoListDto filters) throws DocumentException, IOException {
 
         List<CnAsientosEntity> asientos = cnAsientosRepository.findAll(idData, idEmpresa, filters.getSucursal(),
                 filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getTipoAsiento(),

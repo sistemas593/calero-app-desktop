@@ -3,7 +3,7 @@ package com.calero.lili.api.controllers;
 
 import com.calero.lili.api.utils.IdDataServiceImpl;
 import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.modContabilidad.modAsientos.dto.FilterListDto;
+import com.calero.lili.core.modContabilidad.modAsientos.dto.FilterAsientoListDto;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.LibroDiarioDto;
 import com.calero.lili.core.modContabilidad.modPlanCuentas.dto.CnPlanCuentaListFilterDto;
 import com.calero.lili.core.modContabilidad.modReportes.CnAsientosComprobanteDiario;
@@ -99,7 +99,7 @@ public class CnReportesController {
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAuthority('CN_AS_RP')")
     public MayorGeneralDto reporteMayorGeneral(@PathVariable("idEmpresa") Long idEmpresa,
-                                               FilterListDto filters,
+                                               FilterAsientoListDto filters,
                                                Pageable pageable) {
         return reporteMayorGeneral.reporteMayorGeneral(idDataService.getIdData(), idEmpresa, filters, pageable);
     }
@@ -107,14 +107,14 @@ public class CnReportesController {
     @GetMapping("mayor-general/excel/{idEmpresa}")
     @PreAuthorize("hasAuthority('CN_AS_RP')")
     public void reporteMayorGeneralExportarExcel(HttpServletResponse response, @PathVariable("idEmpresa") Long idEmpresa,
-                                                 FilterListDto filters) throws IOException {
+                                                 FilterAsientoListDto filters) throws IOException {
         reporteMayorGeneral.reporteMayorGeneralExcel(idDataService.getIdData(), idEmpresa, response, filters);
     }
 
     @GetMapping("mayor-general/pdf/{idEmpresa}")
     @PreAuthorize("hasAuthority('CN_AS_RP')")
     public ResponseEntity<byte[]> reporteMayorGeneralPdf(HttpServletResponse response, @PathVariable("idEmpresa") Long idEmpresa,
-                                                         FilterListDto filters) throws IOException {
+                                                         FilterAsientoListDto filters) throws IOException {
 
         byte[] pdf = reporteMayorGeneral.reporteMayorGeneralPdf(idDataService.getIdData(), idEmpresa, filters);
 
@@ -130,7 +130,7 @@ public class CnReportesController {
     @GetMapping("libro-diario/excel/{idEmpresa}")
     @PreAuthorize("hasAuthority('CN_AS_RP')")
     public void reporteLibroDiarioExportarExcel(HttpServletResponse response, @PathVariable("idEmpresa") Long idEmpresa,
-                                                FilterListDto filters) throws IOException {
+                                                FilterAsientoListDto filters) throws IOException {
         cnLibroDiarioService.reportLibroDiarioExcel(idDataService.getIdData(), idEmpresa, response, filters);
     }
 
@@ -139,7 +139,7 @@ public class CnReportesController {
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAuthority('CN_AS_RP')")
     public ResponseEntity<byte[]> generarRetencionFuente(@PathVariable("idEmpresa") Long idEmpresa,
-                                                         FilterListDto filters) throws IOException {
+                                                         FilterAsientoListDto filters) throws IOException {
 
         byte[] pdf = cnLibroDiarioService.generarReporteLibroDiarioPDF(idDataService.getIdData(), idEmpresa, filters);
 
@@ -156,7 +156,7 @@ public class CnReportesController {
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAuthority('CN_AS_RP')")
     public PaginatedDto<LibroDiarioDto> reporteLibroDiario(@PathVariable("idEmpresa") Long idEmpresa,
-                                                           FilterListDto filters, Pageable pageable) {
+                                                           FilterAsientoListDto filters, Pageable pageable) {
         return cnLibroDiarioService.reportLibroDiario(idDataService.getIdData(), idEmpresa, filters, pageable);
     }
 

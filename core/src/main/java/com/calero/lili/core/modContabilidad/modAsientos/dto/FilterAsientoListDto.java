@@ -10,7 +10,7 @@ import java.util.Objects;
 
 @Data
 @ToString
-public class FilterListDto {
+public class FilterAsientoListDto {
 
     private String sucursal;
     private String codigoDocumento;

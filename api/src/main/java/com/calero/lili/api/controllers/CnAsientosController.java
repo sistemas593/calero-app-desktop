@@ -6,7 +6,7 @@ import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.modContabilidad.modAsientos.CnAsientosServiceImpl;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.CreationAsientosRequestDto;
-import com.calero.lili.core.modContabilidad.modAsientos.dto.FilterListDto;
+import com.calero.lili.core.modContabilidad.modAsientos.dto.FilterAsientoListDto;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.GetDto;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.GetListDto;
 import com.lowagie.text.DocumentException;
@@ -60,7 +60,7 @@ public class CnAsientosController {
     public ResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                               @PathVariable("idAsiento") UUID idAsiento,
                               @RequestBody CreationAsientosRequestDto request,
-                              FilterListDto filters) {
+                              FilterAsientoListDto filters) {
         return cnAsientosService.update(idDataService.getIdData(), idEmpresa, idAsiento, request,
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"),
                 filters,
@@ -72,7 +72,7 @@ public class CnAsientosController {
     @PreAuthorize("hasAnyAuthority('CN_AS_EL_PR','CN_AS_EL_SC','CN_AS_EL_TD')")
     public void delete(@PathVariable("idEmpresa") Long idEmpresa,
                        @PathVariable("idAsiento") UUID idAsiento,
-                       FilterListDto filters) {
+                       FilterAsientoListDto filters) {
         cnAsientosService.delete(idDataService.getIdData(), idEmpresa, idAsiento,
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"),
                 filters,
@@ -84,7 +84,7 @@ public class CnAsientosController {
     @PreAuthorize("hasAnyAuthority('CN_AS_VR_PR','CN_AS_VR_SC','CN_AS_VR_TD')")
     public GetDto findById(@PathVariable("idEmpresa") Long idEmpresa,
                            @PathVariable("idAsiento") UUID idAsiento,
-                           FilterListDto filters) {
+                           FilterAsientoListDto filters) {
         return cnAsientosService.findById(idDataService.getIdData(), idEmpresa, idAsiento,
                 filters,
                 auditorAware.getTipoPermisoVerAsiento(),
@@ -95,7 +95,7 @@ public class CnAsientosController {
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('CN_AS_VR_PR','CN_AS_VR_SC','CN_AS_VR_TD')")
     public PaginatedDto<GetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
-                                                    FilterListDto filters,
+                                                    FilterAsientoListDto filters,
                                                     Pageable pageable) {
         return cnAsientosService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable,
                 auditorAware.getTipoPermisoVerAsiento(),
@@ -106,7 +106,7 @@ public class CnAsientosController {
     //@PreAuthorize("hasAuthority('VT_FC_EX')")
     public void exportarExcel(HttpServletResponse response,
                               @PathVariable("idEmpresa") Long idEmpresa,
-                              FilterListDto filter) throws IOException {
+                              FilterAsientoListDto filter) throws IOException {
         String fileName = "Asientos_" + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + ".xlsx";
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
@@ -118,7 +118,7 @@ public class CnAsientosController {
    // @PreAuthorize("hasAuthority('VT_FC_EX')")
     public void exportarPDF(HttpServletResponse response,
                             @PathVariable("idEmpresa") Long idEmpresa,
-                            FilterListDto filters) throws DocumentException, IOException {
+                            FilterAsientoListDto filters) throws DocumentException, IOException {
         String fileName = "Asientos_" + LocalDateTime.now() + ".pdf";
         response.setContentType("application/pdf");
         response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");

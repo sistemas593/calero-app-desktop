@@ -1,6 +1,6 @@
 package com.calero.lili.api.controllers;
 
-import com.calero.lili.core.modContabilidad.modAsientos.dto.FilterListDto;
+import com.calero.lili.core.modContabilidad.modAsientos.dto.FilterAsientoListDto;
 import com.calero.lili.core.modContabilidad.services.ExcelCargaPlanCuentasServiceImpl;
 import com.calero.lili.core.modContabilidad.services.ExcelCargarAsientosServiceImpl;
 import com.calero.lili.api.utils.IdDataServiceImpl;
@@ -44,7 +44,7 @@ public class ContabilidadExcelCargarController {
     @PreAuthorize("hasAuthority('CN_PC_IMEX')")
     public void uploadFileAsientos(@RequestBody MultipartFile file,
                                    @PathVariable("idEmpresa") Long idEmpresa,
-                                   FilterListDto request) {
+                                   FilterAsientoListDto request) {
         try {
             excelCargarAsientosService.cargarAsientos(idDataService.getIdData(), idEmpresa, file, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
         } catch (IOException e) {

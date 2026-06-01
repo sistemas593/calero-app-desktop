@@ -6,7 +6,7 @@ import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.modContabilidad.modAsientos.CnAsientosEntity;
-import com.calero.lili.core.modContabilidad.modAsientos.dto.FilterListDto;
+import com.calero.lili.core.modContabilidad.modAsientos.dto.FilterAsientoListDto;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.LibroDiarioDto;
 import com.calero.lili.core.modContabilidad.modPlanCuentas.dto.FilaReporteMayorContableDto;
 import com.calero.lili.core.modContabilidad.modReportes.builder.CnLibroDiarioBuilder;
@@ -68,7 +68,7 @@ public class CnLibroDiarioServiceImpl {
      * @throws GeneralException cuando no existen datos a mostrar
      */
     public void reportLibroDiarioExcel(Long idData, Long idEmpresa,
-                                       HttpServletResponse response, FilterListDto filters) throws IOException {
+                                       HttpServletResponse response, FilterAsientoListDto filters) throws IOException {
 
 
         List<LibroDiarioDto> detalles = cnReportesRepository
@@ -147,7 +147,7 @@ public class CnLibroDiarioServiceImpl {
      * @throws GeneralException  cuando no existen datos a mostrar o ocurre cualquier otro error durante la generación
      */
     public byte[] generarReporteLibroDiarioPDF(Long idData, Long idEmpresa,
-                                               FilterListDto filters) throws DocumentException {
+                                               FilterAsientoListDto filters) throws DocumentException {
 
         try {
             List<FilaReporteMayorContableDto> detalles = mapToReporte(idData, idEmpresa, filters);
@@ -196,7 +196,7 @@ public class CnLibroDiarioServiceImpl {
      * @param filters   filtros de búsqueda (sucursal, fechaEmisionDesde, fechaEmisionHasta)
      * @return lista de {@link FilaReporteMayorContableDto} lista para consumo por JasperReports o exportaciones
      */
-    public List<FilaReporteMayorContableDto> mapToReporte(Long idData, Long idEmpresa, FilterListDto filters) {
+    public List<FilaReporteMayorContableDto> mapToReporte(Long idData, Long idEmpresa, FilterAsientoListDto filters) {
 
         List<LibroDiarioDto> lista = cnReportesRepository
                 .findAll(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
@@ -245,7 +245,7 @@ public class CnLibroDiarioServiceImpl {
      * @param filters   filtros de búsqueda (sucursal, fechaEmisionDesde, fechaEmisionHasta)
      * @return {@link PaginatedDto}\<LibroDiarioDto> con la página de resultados y su paginador
      */
-    public PaginatedDto<LibroDiarioDto> reportLibroDiario(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable) {
+    public PaginatedDto<LibroDiarioDto> reportLibroDiario(Long idData, Long idEmpresa, FilterAsientoListDto filters, Pageable pageable) {
 
         Page<CnAsientosEntity> page = cnReportesRepository
                 .findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
