@@ -174,6 +174,8 @@ public enum EnumError {
 
 
     DOCUMENTO_ERROR("Existe un error en el documento: "),
+    TERCERO_ERROR("Existe un error en el tercero: "),
+    CODIGO_TERCERO_YA_EXISTE("El codigo de tercero ya existe"),
     ;
     private String description;
 }

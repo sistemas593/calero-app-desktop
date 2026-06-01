@@ -1,5 +1,6 @@
 package com.calero.lili.core.modVentas.modVentasImpuestos.builder;
 
+import com.calero.lili.core.builder.FormasPagoBuilder;
 import com.calero.lili.core.enums.EmailEstado;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.Liquidar;
@@ -20,6 +21,7 @@ import java.util.UUID;
 public class VtVentasImpuestoBuilder {
 
     private final VtVentaValoresBuilder vtVentaValoresBuilder;
+    private final FormasPagoBuilder formasPagoBuilder;
 
     public VtVentaEntity builderEntity(CreationVentaImpuestoRequestDto model, Long idData, Long idEmpresa) {
         return VtVentaEntity.builder()
@@ -56,6 +58,7 @@ public class VtVentasImpuestoBuilder {
                 .estadoDocumento(EstadoDocumento.AUT)
                 .ambiente(2)
                 .origen(OrigenEnum.IMP)
+                .formasPagoSri(formasPagoBuilder.builderList(model.getFormasPagoSri()))
                 .build();
     }
 
@@ -96,6 +99,7 @@ public class VtVentasImpuestoBuilder {
                 .ambiente(2)
                 .existeComprobante(Boolean.FALSE)
                 .origen(OrigenEnum.IMP)
+                .formasPagoSri(formasPagoBuilder.builderList(model.getFormasPagoSri()))
                 .build();
     }
 

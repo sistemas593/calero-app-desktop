@@ -1,5 +1,6 @@
 package com.calero.lili.core.modVentas.modVentasImpuestos.dto;
 
+import com.calero.lili.core.dtos.FormasPagoDto;
 import com.calero.lili.core.dtos.ValoresDto;
 import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.Liquidar;
@@ -79,5 +80,7 @@ public class CreationVentaImpuestoRequestDto {
     private BigDecimal total;
 
     private BigDecimal totalImpuesto;
+
+    private List<FormasPagoDto> formasPagoSri;
 
 }
