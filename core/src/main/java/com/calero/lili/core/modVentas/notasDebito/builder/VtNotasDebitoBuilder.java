@@ -5,6 +5,7 @@ import com.calero.lili.core.builder.InformacionAdicionalBuilder;
 import com.calero.lili.core.enums.Ambiente;
 import com.calero.lili.core.enums.EmailEstado;
 import com.calero.lili.core.enums.Liquidar;
+import com.calero.lili.core.enums.OrigenEnum;
 import com.calero.lili.core.enums.TipoIngreso;
 import com.calero.lili.core.enums.TipoVenta;
 import com.calero.lili.core.modVentas.VtVentaEntity;
@@ -78,6 +79,7 @@ public class VtNotasDebitoBuilder {
                 .anulada(Boolean.FALSE)
                 .concepto(model.getConcepto())
                 .existeComprobante(Boolean.TRUE)
+                .origen(OrigenEnum.VTS)
                 .build();
     }
 
@@ -133,6 +135,7 @@ public class VtNotasDebitoBuilder {
                 .anulada(item.getAnulada())
                 .concepto(model.getConcepto())
                 .existeComprobante(item.getExisteComprobante())
+                .origen(OrigenEnum.VTS)
                 .build();
     }
 

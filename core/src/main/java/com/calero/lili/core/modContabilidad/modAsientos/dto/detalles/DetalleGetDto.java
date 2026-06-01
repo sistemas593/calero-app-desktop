@@ -39,4 +39,8 @@ public class DetalleGetDto {
 
     private BigDecimal haber;
 
+    private UUID idCentroCosto;
+    private String centroCosto;
+
+
 }

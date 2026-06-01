@@ -15,6 +15,7 @@ import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.dtos.ValoresDto;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
+import com.calero.lili.core.enums.OrigenEnum;
 import com.calero.lili.core.enums.TipoEmision;
 import com.calero.lili.core.enums.TipoIngreso;
 import com.calero.lili.core.enums.TipoPermiso;
@@ -219,7 +220,7 @@ public class VtVentasFacturasServiceImpl {
 
         validarNumeroAutorizacion(request);
         VtVentaEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
-
+        validacionModulo(vtVentaEntity);
         validarService.validarNoModificacion(vtVentaEntity);
 
         DateUtils.validarFechaEmision(request.getFechaEmision());
@@ -970,7 +971,7 @@ public class VtVentasFacturasServiceImpl {
             case TODAS -> {
                 return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
                         filters.getFechaEmisionHasta(), filters.getIdTercero(), filters.getTipoVenta(), filters.getSerie(),
-                        filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
+                        filters.getSecuencial(), filters.getNumeroAutorizacion(), null, OrigenEnum.VTS, pageable);
             }
 
             case SUCURSAL -> {
@@ -978,7 +979,7 @@ public class VtVentasFacturasServiceImpl {
 
                     return vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
                             filters.getFechaEmisionHasta(), filters.getIdTercero(), filters.getTipoVenta(), filters.getSerie(),
-                            filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
+                            filters.getSecuencial(), filters.getNumeroAutorizacion(), null, OrigenEnum.VTS, pageable);
                 } else {
                     throw new GeneralException("Es requerido el parametro de la sucursal");
                 }
@@ -987,7 +988,7 @@ public class VtVentasFacturasServiceImpl {
             case PROPIAS -> {
                 return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
                         filters.getFechaEmisionHasta(), filters.getIdTercero(), filters.getTipoVenta(), filters.getSerie(),
-                        filters.getSecuencial(), filters.getNumeroAutorizacion(), usuario, pageable);
+                        filters.getSecuencial(), filters.getNumeroAutorizacion(), usuario, OrigenEnum.VTS, pageable);
             }
         }
 
@@ -1142,6 +1143,13 @@ public class VtVentasFacturasServiceImpl {
         }
     }
 
+
+    private void validacionModulo(VtVentaEntity vtVentaEntity) {
+        if (!vtVentaEntity.getOrigen().equals(OrigenEnum.VTS)) {
+            throw new GeneralException(MessageFormat
+                    .format("El documento con id: {0} no corresponde al módulo de ventas", vtVentaEntity.getIdVenta()));
+        }
+    }
 
 }
 

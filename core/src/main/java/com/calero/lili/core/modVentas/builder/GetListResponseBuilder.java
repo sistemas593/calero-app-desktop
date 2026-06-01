@@ -34,7 +34,7 @@ public class GetListResponseBuilder {
                 .cuotas(model.getCuotas())
                 .formatoDocumento(model.getFormatoDocumento())
                 .estadoDocumento(model.getEstadoDocumento())
-                .emailEstado(model.getEmailEstado().toString())
+                .emailEstado(Objects.nonNull(model.getEmailEstado()) ? model.getEmailEstado().toString() : null)
                 .anulada(model.getAnulada())
                 .impresa(model.getImpresa())
                 .subtotal(model.getSubtotal())
@@ -44,6 +44,7 @@ public class GetListResponseBuilder {
                 .ambiente(model.getAmbiente())
                 .email(model.getEmail())
                 .existeComprobante(model.getExisteComprobante())
+                .origen(model.getOrigen())
                 .build();
     }
 
@@ -94,6 +95,7 @@ public class GetListResponseBuilder {
                 .ambiente(model.getAmbiente())
                 .email(model.getEmail())
                 .existeComprobante(model.getExisteComprobante())
+                .origen(model.getOrigen())
                 .build();
     }
 

@@ -8,6 +8,7 @@ import com.calero.lili.core.enums.ComercioExterior;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormaPago;
 import com.calero.lili.core.enums.FormatoDocumento;
+import com.calero.lili.core.enums.OrigenEnum;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modVentas.reembolsos.VtVentaReembolsosEntity;
 import com.calero.lili.core.modVentasVendedores.VtVendedorEntity;
@@ -252,6 +253,9 @@ public class VtVentaEntity extends Auditable {
     private VtVendedorEntity vendedor;
 
     private UUID idAsiento;
+
+    @Enumerated(EnumType.STRING)
+    private OrigenEnum origen;
 
     // al traer las facturas anuladas los valores deben ser cero, total, subtotal.
 

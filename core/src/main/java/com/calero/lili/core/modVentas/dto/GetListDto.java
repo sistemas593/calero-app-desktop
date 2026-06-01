@@ -2,6 +2,7 @@ package com.calero.lili.core.modVentas.dto;
 
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
+import com.calero.lili.core.enums.OrigenEnum;
 import lombok.Builder;
 import lombok.Data;
 
@@ -43,5 +44,5 @@ public class GetListDto {
     private Integer ambiente;
     private String email;
     private Boolean existeComprobante;
-
+    private OrigenEnum origen;
 }

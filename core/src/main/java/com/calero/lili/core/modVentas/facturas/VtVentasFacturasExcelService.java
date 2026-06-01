@@ -7,6 +7,7 @@ import com.calero.lili.core.dtos.errors.DetalleError;
 import com.calero.lili.core.dtos.errors.EnumError;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
+import com.calero.lili.core.enums.OrigenEnum;
 import com.calero.lili.core.enums.TipoClienteProveedor;
 import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.enums.TipoVenta;
@@ -129,6 +130,7 @@ public class VtVentasFacturasExcelService {
                 factura.setTipoIngreso("VL");
                 factura.setSucursal(sucursal);
                 factura.setExisteComprobante(Boolean.FALSE);
+                factura.setOrigen(OrigenEnum.VTS);
 
                 cabeceraFactura(idData, idEmpresa, row, factura, detalleErrores, linea);
                 detalleFactura(idData, idEmpresa, row, factura, detalleErrores, linea);
@@ -556,6 +558,7 @@ public class VtVentasFacturasExcelService {
                 factura.setExisteComprobante(Boolean.FALSE);
                 factura.setComprobante(null);
                 factura.setSucursal(sucursal);
+                factura.setOrigen(OrigenEnum.IMP);
 
 
                 if (Objects.nonNull(row.getCell(2)) && Objects.nonNull(row.getCell(3))) {
