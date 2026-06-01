@@ -80,6 +80,4 @@ public class CreationVentaImpuestoRequestDto {
 
     private BigDecimal totalImpuesto;
 
-    @NotNull(message = "Cuentas por cobrar no existe")
-    private Boolean cuentaPorCobrar;
 }
