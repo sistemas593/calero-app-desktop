@@ -41,6 +41,7 @@ public class DetalleGetDto {
 
     private UUID idCentroCosto;
     private String centroCosto;
+    private String codigoCentroCosto;
 
 
 }

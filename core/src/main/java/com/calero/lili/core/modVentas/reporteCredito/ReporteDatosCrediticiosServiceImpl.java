@@ -6,6 +6,7 @@ import com.calero.lili.core.utils.DateUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
@@ -41,10 +42,6 @@ public class ReporteDatosCrediticiosServiceImpl {
         String parroquia = "|";
         String canton = "|";
         String provincia = "|";
-        String sexo = "|";
-        String estadoCivil = "|";
-        String origenIngresos = "|";
-
         if (f.getTercero().getDatosAdicionales()) {
 
 
@@ -64,7 +61,7 @@ public class ReporteDatosCrediticiosServiceImpl {
 
         return String.join("|",
                 f.getNumeroOperacion(),
-                DateUtils.toString(f.getFechaConcesion()),
+                Objects.nonNull(f.getFechaConcesion()) ? DateUtils.toString(f.getFechaConcesion()) : "|",
                 f.getTercero().getTipoIdentificacion(),
                 f.getTercero().getNumeroIdentificacion(),
                 f.getTercero().getTercero(),
@@ -72,33 +69,33 @@ public class ReporteDatosCrediticiosServiceImpl {
                 provincia,
                 canton,
                 parroquia,
-                f.getTercero().getSexo().name(),
-                f.getTercero().getEstadoCivil().name(),
-                f.getTercero().getOrigenIngresos().name(),
-                formatoValores.convertirBigDecimalToString(f.getValorOperacion()),
-                formatoValores.convertirBigDecimalToString(f.getSaldoOperacion()),
-                DateUtils.toString(f.getFechaConcesion()),
-                DateUtils.toString(f.getFechaVencimiento()),
-                DateUtils.toString(f.getFechaExigible()),
-                f.getPlazoOperacion().toString(),
-                f.getPeriodicidadPago().toString(),
-                f.getDiasMorosidad().toString(),
-                formatoValores.convertirBigDecimalToString(f.getMontoMorosidad()),
-                formatoValores.convertirBigDecimalToString(f.getMontoInteresMora()),
-                formatoValores.convertirBigDecimalToString(f.getValorXVencer1a30Dias()),
-                formatoValores.convertirBigDecimalToString(f.getValorXVencer31a90Dias()),
-                formatoValores.convertirBigDecimalToString(f.getValorVencido91a180Dias()),
-                formatoValores.convertirBigDecimalToString(f.getValorXVencer181a360Dias()),
-                formatoValores.convertirBigDecimalToString(f.getValorXVencerMas360Dias()),
-                formatoValores.convertirBigDecimalToString(f.getValorVencido1a30Dias()),
-                formatoValores.convertirBigDecimalToString(f.getValorVencido31a90Dias()),
-                formatoValores.convertirBigDecimalToString(f.getValorVencido91a180Dias()),
-                formatoValores.convertirBigDecimalToString(f.getValorVencido181a360Dias()),
-                formatoValores.convertirBigDecimalToString(f.getValorVencidoMas360Dias()),
-                formatoValores.convertirBigDecimalToString(f.getValorDemandaJudicial()),
-                formatoValores.convertirBigDecimalToString(f.getCarteraCastigada()),
-                formatoValores.convertirBigDecimalToString(f.getCoutaCredito()),
-                DateUtils.toString(f.getFechaCancelacion()),
+                Objects.nonNull(f.getTercero().getSexo()) ? f.getTercero().getSexo().name() : "|",
+                Objects.nonNull(f.getTercero().getEstadoCivil()) ? f.getTercero().getEstadoCivil().name() : "|",
+                Objects.nonNull(f.getTercero().getOrigenIngresos()) ? f.getTercero().getOrigenIngresos().name() : "|",
+                formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getValorOperacion()) ? f.getValorOperacion() : BigDecimal.ZERO),
+                formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getSaldoOperacion()) ? f.getSaldoOperacion() : BigDecimal.ZERO),
+                Objects.nonNull(f.getFechaConcesion()) ? DateUtils.toString(f.getFechaConcesion()) : "|",
+                Objects.nonNull(f.getFechaVencimiento()) ? DateUtils.toString(f.getFechaVencimiento()) : "|",
+                Objects.nonNull(f.getFechaExigible()) ? DateUtils.toString(f.getFechaExigible()) : "|",
+                Objects.nonNull(f.getPlazoOperacion()) ? f.getPlazoOperacion().toString() : "|",
+                Objects.nonNull(f.getPeriodicidadPago()) ? f.getPeriodicidadPago().toString() : "|",
+                Objects.nonNull(f.getDiasMorosidad()) ? f.getDiasMorosidad().toString() : "|",
+                formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getMontoMorosidad()) ? f.getMontoMorosidad() : BigDecimal.ZERO),
+                formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getMontoInteresMora()) ? f.getMontoInteresMora() : BigDecimal.ZERO),
+                formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getValorXVencer1a30Dias()) ? f.getValorXVencer1a30Dias() : BigDecimal.ZERO),
+                formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getValorXVencer31a90Dias()) ? f.getValorXVencer31a90Dias() : BigDecimal.ZERO),
+                formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getValorXVencer91a180Dias()) ? f.getValorXVencer91a180Dias() : BigDecimal.ZERO),
+                formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getValorXVencer181a360Dias()) ? f.getValorXVencer181a360Dias() : BigDecimal.ZERO),
+                formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getValorXVencerMas360Dias()) ? f.getValorXVencerMas360Dias() : BigDecimal.ZERO),
+                formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getValorVencido1a30Dias()) ? f.getValorVencido1a30Dias() : BigDecimal.ZERO),
+                formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getValorVencido31a90Dias()) ? f.getValorVencido31a90Dias() : BigDecimal.ZERO),
+                formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getValorVencido91a180Dias()) ? f.getValorVencido91a180Dias() : BigDecimal.ZERO),
+                formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getValorVencido181a360Dias()) ? f.getValorVencido181a360Dias() : BigDecimal.ZERO),
+                formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getValorVencidoMas360Dias()) ? f.getValorVencidoMas360Dias() : BigDecimal.ZERO),
+                formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getValorDemandaJudicial()) ? f.getValorDemandaJudicial() : BigDecimal.ZERO),
+                formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getCarteraCastigada()) ? f.getCarteraCastigada() : BigDecimal.ZERO),
+                formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getCoutaCredito()) ? f.getCoutaCredito() : BigDecimal.ZERO),
+                Objects.nonNull(f.getFechaCancelacion()) ? DateUtils.toString(f.getFechaCancelacion()) : "|",
                 f.getFormaCancelacion());
     }
 
