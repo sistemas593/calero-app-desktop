@@ -447,12 +447,15 @@ public class ExcelCargarTercerosServiceImpl {
                     .map(ParroquiaEntity::getCodigoParroquia)
                     .anyMatch(codigo -> codigo.equals(row.getCell(15).getStringCellValue()));
 
+
             if (!existe) {
                 DetalleError detalle = detalleErrorBuilder.builderDetalleError(linea, EnumError.PARROQUIA_NOT_EXIST);
                 detalle.setDetalle(MessageFormat.format("El codigo de la parroquia {0}, no coincide con el canton: {1}",
                         row.getCell(14).getStringCellValue(), tercero.getCanton().getCanton()));
                 listaErrores.add(detalle);
             }
+
+
 
         }
 
@@ -495,6 +498,7 @@ public class ExcelCargarTercerosServiceImpl {
                 tercero.setIdData(idData);
                 tercero.setCreatedDate(LocalDateTime.now());
                 tercero.setCreatedBy(usuario);
+
 
                 if (Objects.nonNull(row.getCell(0))) {
                     String codigoTercero = row.getCell(0).getStringCellValue();

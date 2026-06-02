@@ -1068,7 +1068,6 @@ public class VtVentasFacturasServiceImpl {
                         terceroEntity.setTercero(request.getTerceroNombre());
                         terceroEntity.setDireccion(request.getDireccion());
                         terceroEntity.setEmail(request.getEmail());
-                        terceroEntity.setDatosAdicionales(Boolean.FALSE);
 
                         return geTercerosRepository.save(terceroEntity);
                     });

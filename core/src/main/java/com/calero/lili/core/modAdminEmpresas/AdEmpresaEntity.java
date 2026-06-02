@@ -100,4 +100,6 @@ public class AdEmpresaEntity extends Auditable {
 
     // Ruta absoluta del logo en el sistema local (modo LOC, opcional)
     private String rutaLogo;
+
+    private String codigoDinardap;
 }

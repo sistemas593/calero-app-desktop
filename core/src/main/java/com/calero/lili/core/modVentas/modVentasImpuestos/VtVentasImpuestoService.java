@@ -19,7 +19,6 @@ import com.calero.lili.core.modVentas.modVentasImpuestos.builder.VtVentasImpuest
 import com.calero.lili.core.modVentas.modVentasImpuestos.dto.CreationVentaImpuestoRequestDto;
 import com.calero.lili.core.modVentas.modVentasImpuestos.dto.VentaImpuestoResponseDto;
 import com.calero.lili.core.modVentas.projection.OneProjection;
-import com.calero.lili.core.utils.DateUtils;
 import com.calero.lili.core.utils.ValidacionDocumentosGeneral;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -217,7 +216,6 @@ public class VtVentasImpuestoService {
                         nuevo.setTercero(request.getTerceroNombre());
                         nuevo.setDireccion(request.getDireccion());
                         nuevo.setEmail(request.getEmail());
-                        nuevo.setDatosAdicionales(Boolean.FALSE);
                         return geTercerosRepository.save(nuevo);
                     });
 

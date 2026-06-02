@@ -15,6 +15,7 @@ import com.calero.lili.core.modVentas.VtVentaEntity;
 import com.calero.lili.core.utils.DateUtils;
 import com.calero.lili.core.utils.validaciones.ObligadoContabilidad;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
@@ -54,7 +55,7 @@ public class FacturaBuilder {
                 .obligadoContabilidad(ObligadoContabilidad.getObligadoContabilidad(empresa.getObligadoContabilidad()))
                 .tipoIdentificacionComprador(TipoIdentificacion.valueOf(venta.getTercero().getTipoIdentificacion()).getCodigo())
                 .razonSocialComprador(venta.getTercero().getTercero())
-                .direccionComprador(venta.getTercero().getDireccion())
+                .direccionComprador(validarDireccionComprador(venta))
                 .identificacionComprador(venta.getTercero().getNumeroIdentificacion())
                 .totalSinImpuestos(formatoValores.convertirBigDecimalToString(venta.getSubtotal()))
                 .totalDescuento(formatoValores.convertirBigDecimalToString(venta.getTotalDescuento()))
@@ -65,6 +66,19 @@ public class FacturaBuilder {
                 .propina(ConstantesDocumento.PROPINA)
                 .guiaRemision(validarGuiaRemision(venta))
                 .build();
+    }
+
+
+    private String validarDireccionComprador(VtVentaEntity venta) {
+        if (Objects.nonNull(venta.getTercero().getDireccion())) {
+            if (!venta.getTercero().getDireccion().isEmpty()) {
+                return venta.getTercero().getDireccion();
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
     }
 
     private String validarGuiaRemision(VtVentaEntity venta) {

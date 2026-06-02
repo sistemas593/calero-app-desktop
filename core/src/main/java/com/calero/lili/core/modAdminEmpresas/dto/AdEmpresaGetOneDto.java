@@ -54,6 +54,7 @@ public class AdEmpresaGetOneDto {
     private int momentoEnvioGuiaRemision;
     private int momentoEnvioLiquidacion;
     private int momentoEnvioComprobanteRetencion;
+    private String codigoDinardap;
 
 
 }

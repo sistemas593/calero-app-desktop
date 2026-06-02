@@ -72,4 +72,6 @@ public class AdEmpresaRequestDto {
     private int ambienteGuiaRemision;
     private int ambienteLiquidacion;
     private int ambienteComprobanteRetencion;
+
+    private String codigoDinardap;
 }

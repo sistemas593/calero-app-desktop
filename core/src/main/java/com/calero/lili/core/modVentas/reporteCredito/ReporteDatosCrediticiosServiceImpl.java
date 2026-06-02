@@ -1,7 +1,10 @@
 package com.calero.lili.core.modVentas.reporteCredito;
 
 import com.calero.lili.core.comprobantes.builder.documentos.FormatoValores;
+import com.calero.lili.core.enums.TipoClienteProveedor;
 import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
+import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.utils.DateUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,12 +18,17 @@ import java.util.Objects;
 @AllArgsConstructor
 public class ReporteDatosCrediticiosServiceImpl {
 
-    private final ReporteDatosCrediticiosRepository reporteDatosCrediticiosRepository;
+
+    private final DatosCrediticiosRepository datosCrediticiosRepository;
+    private final AdEmpresasRepository adEmpresasRepository;
     private final FormatoValores formatoValores;
 
     public byte[] generarTxt(Long idData, Long idEmpresa) {
 
-        List<DatosCrediticiosDetalleEntity> lista = reporteDatosCrediticiosRepository.getFindAll(idData, idEmpresa);
+        List<DatosCrediticiosEntity> lista = datosCrediticiosRepository.getFindAll(idData, idEmpresa);
+
+        AdEmpresaEntity empresa = adEmpresasRepository.findById(idData, idEmpresa)
+                .orElseThrow(() -> new GeneralException("No se encontró la empresa con idData: " + idData + " e idEmpresa: " + idEmpresa));
 
         if (lista.isEmpty()) {
             throw new GeneralException("No existe información para generar el reporte");
@@ -28,40 +36,66 @@ public class ReporteDatosCrediticiosServiceImpl {
 
         StringBuilder sb = new StringBuilder();
 
-        for (DatosCrediticiosDetalleEntity f : lista) {
-            sb.append(construirLinea(f)).append("\n");
+        for (DatosCrediticiosEntity cabecera : lista) {
+            for (DatosCrediticiosDetalleEntity f : cabecera.getDatosCrediticiosDetalle()) {
+                sb.append(construirLinea(cabecera, f, empresa)).append("\n");
+            }
         }
+
 
         return sb.toString().getBytes(StandardCharsets.UTF_8);
     }
 
-    private String construirLinea(DatosCrediticiosDetalleEntity f) {
+    private String construirLinea(DatosCrediticiosEntity cabecera, DatosCrediticiosDetalleEntity f, AdEmpresaEntity empresa) {
+
+        String parroquia = "";
+        String canton = "";
+        String provincia = "";
+
+        String sexo = "|";
+        String estadoCivil = "|";
+        String origenIngreso = "|";
 
 
-        // TODO REVISAR ESTO TODAVIA EL REPORTE LA VALIDACION PARA ENVIAR LOS PARAMETROS CORRECTOS
-        String parroquia = "|";
-        String canton = "|";
-        String provincia = "|";
-        if (f.getTercero().getDatosAdicionales()) {
+        if (Objects.nonNull(f.getTercero().getParroquia())) {
 
-
-            if (Objects.nonNull(f.getTercero().getParroquia())) {
-                parroquia = parroquia.replace("|", f.getTercero().getParroquia().getCodigoParroquia());
-
-                if (Objects.nonNull(f.getTercero().getParroquia().getCanton())) {
-                    canton = canton.replace("|", f.getTercero().getParroquia().getCanton().getCodigoCanton());
-
-                    if (Objects.nonNull(f.getTercero().getParroquia().getCanton().getProvincia())) {
-                        provincia = provincia.replace("|", f.getTercero().getParroquia().getCanton().getProvincia().getCodigoProvincia());
-                    }
+            String x = f.getTercero().getParroquia().getCodigoParroquia();
+            parroquia = x.substring(x.length() - 2);
+            if (Objects.nonNull(f.getTercero().getParroquia().getCanton())) {
+                String z = f.getTercero().getParroquia().getCanton().getCodigoCanton();
+                canton = z.substring(z.length() - 2);
+                if (Objects.nonNull(f.getTercero().getParroquia().getCanton().getProvincia())) {
+                    provincia = f.getTercero().getParroquia().getCanton().getProvincia().getCodigoProvincia();
                 }
+            }
 
+        } else {
+            throw new GeneralException("El tercero con identificación "
+                    + f.getTercero().getNumeroIdentificacion() + " no tiene asignada una parroquia, lo cual es obligatorio para generar el reporte.");
+        }
+
+
+        if (Objects.nonNull(f.getTercero().getTipoClienteProveedor())) {
+
+            if (f.getTercero().getTipoClienteProveedor().equals(TipoClienteProveedor.N)) {
+
+                if (Objects.nonNull(f.getTercero().getSexo())
+                        && Objects.nonNull(f.getTercero().getEstadoCivil())
+                        && Objects.nonNull(f.getTercero().getOrigenIngresos())) {
+
+                    sexo = sexo.replace("|", f.getTercero().getSexo().name());
+                    estadoCivil = estadoCivil.replace("|", f.getTercero().getEstadoCivil().name());
+                    origenIngreso = origenIngreso.replace("|", f.getTercero().getOrigenIngresos().name());
+                } else {
+                    throw new GeneralException("El tercero con identificación "
+                            + f.getTercero().getNumeroIdentificacion() + " es un cliente natural, por lo tanto debe tener asignados los campos sexo, estado civil y origen de ingresos para generar el reporte.");
+                }
             }
         }
 
         return String.join("|",
-                f.getNumeroOperacion(),
-                Objects.nonNull(f.getFechaConcesion()) ? DateUtils.toString(f.getFechaConcesion()) : "|",
+                Objects.nonNull(empresa.getCodigoDinardap()) ? empresa.getCodigoDinardap() : "|",
+                DateUtils.toString(cabecera.getFechaDatos()),
                 f.getTercero().getTipoIdentificacion(),
                 f.getTercero().getNumeroIdentificacion(),
                 f.getTercero().getTercero(),
@@ -69,9 +103,10 @@ public class ReporteDatosCrediticiosServiceImpl {
                 provincia,
                 canton,
                 parroquia,
-                Objects.nonNull(f.getTercero().getSexo()) ? f.getTercero().getSexo().name() : "|",
-                Objects.nonNull(f.getTercero().getEstadoCivil()) ? f.getTercero().getEstadoCivil().name() : "|",
-                Objects.nonNull(f.getTercero().getOrigenIngresos()) ? f.getTercero().getOrigenIngresos().name() : "|",
+                sexo,
+                estadoCivil,
+                origenIngreso,
+                f.getNumeroOperacion(),
                 formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getValorOperacion()) ? f.getValorOperacion() : BigDecimal.ZERO),
                 formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getSaldoOperacion()) ? f.getSaldoOperacion() : BigDecimal.ZERO),
                 Objects.nonNull(f.getFechaConcesion()) ? DateUtils.toString(f.getFechaConcesion()) : "|",
@@ -96,7 +131,7 @@ public class ReporteDatosCrediticiosServiceImpl {
                 formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getCarteraCastigada()) ? f.getCarteraCastigada() : BigDecimal.ZERO),
                 formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getCoutaCredito()) ? f.getCoutaCredito() : BigDecimal.ZERO),
                 Objects.nonNull(f.getFechaCancelacion()) ? DateUtils.toString(f.getFechaCancelacion()) : "|",
-                f.getFormaCancelacion());
+                Objects.nonNull(f.getFormaCancelacion()) ? f.getFormaCancelacion() : "|"); // TODO Tipos Efectivo (E), Cheque(C), Tarjeta de Crédito (T)
     }
 
 }

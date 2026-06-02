@@ -66,6 +66,9 @@ public class AdEmpresaBuilder {
                 .momentoEnvioComprobanteRetencion(model.getMomentoEnvioComprobanteRetencion())
                 .rutaArchivoFirma(model.getRutaArchivoFirma())
                 .rutaLogo(model.getRutaLogo())
+                .codigoDinardap(Objects.nonNull(model.getCodigoDinardap())
+                        ? model.getCodigoDinardap()
+                        : null)
                 .build();
     }
 
@@ -114,6 +117,9 @@ public class AdEmpresaBuilder {
                 .momentoEnvioComprobanteRetencion(model.getMomentoEnvioComprobanteRetencion())
                 .rutaArchivoFirma(model.getRutaArchivoFirma())
                 .rutaLogo(model.getRutaLogo())
+                .codigoDinardap(Objects.nonNull(model.getCodigoDinardap())
+                        ? model.getCodigoDinardap()
+                        : null)
                 .build();
     }
 
@@ -166,6 +172,7 @@ public class AdEmpresaBuilder {
                 .momentoEnvioComprobanteRetencion(model.getMomentoEnvioComprobanteRetencion())
                 .rutaArchivoFirma(model.getRutaArchivoFirma())
                 .rutaLogo(model.getRutaLogo())
+                .codigoDinardap(model.getCodigoDinardap())
                 .build();
     }
 

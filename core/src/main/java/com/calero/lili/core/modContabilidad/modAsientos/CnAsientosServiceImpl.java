@@ -171,7 +171,7 @@ public class CnAsientosServiceImpl {
                                                            TipoPermiso tipoBusqueda, String usuario) {
         switch (tipoBusqueda) {
             case TODAS -> {
-                return cnAsientosRepository.findAllPaginate(idData, idEmpresa, null,
+                return cnAsientosRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(),
                         filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), null,
                         filters.getTipoAsiento(), filters.getNumeroAsientoDesde(), filters.getNumeroAsientoHasta(), pageable);
             }
@@ -185,7 +185,7 @@ public class CnAsientosServiceImpl {
                 }
             }
             case PROPIAS -> {
-                return cnAsientosRepository.findAllPaginate(idData, idEmpresa, null,
+                return cnAsientosRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(),
                         filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), usuario, filters.getTipoAsiento(),
                         filters.getNumeroAsientoDesde(), filters.getNumeroAsientoHasta(), pageable);
             }
@@ -199,7 +199,7 @@ public class CnAsientosServiceImpl {
         switch (tipoBusqueda) {
             case TODAS:
                 return cnAsientosRepository
-                        .findByIdEntity(idData, idEmpresa, idVenta, null, null)
+                        .findByIdEntity(idData, idEmpresa, idVenta, filters.getSucursal(), null)
                         .orElseThrow(() -> new GeneralException(MessageFormat.format("La factura con ID {0} no existe", idVenta)));
 
             case SUCURSAL: {
@@ -216,7 +216,7 @@ public class CnAsientosServiceImpl {
             case PROPIAS: {
 
                 return cnAsientosRepository
-                        .findByIdEntity(idData, idEmpresa, idVenta, null, usuario)
+                        .findByIdEntity(idData, idEmpresa, idVenta, filters.getSucursal(), usuario)
                         .orElseThrow(() -> new GeneralException(MessageFormat.format("No tiene acceso al documento el usuario: {0}", usuario)));
 
             }

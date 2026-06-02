@@ -104,8 +104,6 @@ public class GeTerceroEntity extends Auditable implements Serializable {
     @Column(name = "estado_civil")
     private EstadoCivilEnum estadoCivil;
 
-    private Boolean datosAdicionales;
-
     @Builder.Default
     @OneToMany(mappedBy = "tercero")
     @JsonIgnore
