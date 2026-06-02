@@ -1,5 +1,6 @@
 package com.calero.lili.api.controllers;
 
+import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.core.modCargarExcel.services.ExcelCargaGastosServiceImpl;
 import com.calero.lili.core.modCargarExcel.services.ExcelCargaItemsServiceImpl;
 import com.calero.lili.core.modCargarExcel.services.ExcelCargaMarcasServiceImpl;
@@ -41,11 +42,12 @@ public class ExcelCargarController {
     private final ExcelCargarTrabajadoresServiceImpl excelCargarTrabajadoresService;
 
     private final IdDataServiceImpl idDataService;
+    private final AuditorAwareImpl auditorAware;
 
     @PostMapping("/terceros")
     public void uploadFileClientes(@RequestBody MultipartFile file) {
         try {
-            clientesService.carga(idDataService.getIdData(), file);
+            clientesService.carga(idDataService.getIdData(), file, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -55,7 +57,7 @@ public class ExcelCargarController {
     @PostMapping("/terceros-clientes")
     public void uploadFileTerceroClientes(@RequestBody MultipartFile file) {
         try {
-            clientesService.cargarExcelTerceros(idDataService.getIdData(), file);
+            clientesService.cargarExcelTerceros(idDataService.getIdData(), file,  auditorAware.getCurrentAuditor().orElse("SYSTEM"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

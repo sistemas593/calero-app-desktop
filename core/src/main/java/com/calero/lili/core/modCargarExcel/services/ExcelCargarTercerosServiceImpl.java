@@ -37,6 +37,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -57,7 +58,7 @@ public class ExcelCargarTercerosServiceImpl {
     private final ParroquiaRepository parroquiaRepository;
     private final TbPaisesRepository tbPaisesRepository;
 
-    public void carga(Long idData, MultipartFile file) throws IOException {
+    public void carga(Long idData, MultipartFile file, String usuario) throws IOException {
 
         if (!ValidarTipoArchivo.validarTipoExcel(file)) {
             throw new GeneralException("El archivo debe ser Excel (.xls o .xlsx)");
@@ -90,6 +91,8 @@ public class ExcelCargarTercerosServiceImpl {
                 UUID tokenIdTercero = UUID.randomUUID();
                 cliente.setIdTercero(tokenIdTercero);
                 cliente.setIdData(idData);
+                cliente.setCreatedBy(usuario);
+                cliente.setCreatedDate(LocalDateTime.now());
 
                 if (row.getCell(0) == null) {
 
@@ -456,7 +459,7 @@ public class ExcelCargarTercerosServiceImpl {
     }
 
 
-    public void cargarExcelTerceros(Long idData, MultipartFile file) throws IOException {
+    public void cargarExcelTerceros(Long idData, MultipartFile file, String usuario) throws IOException {
 
 
         if (!ValidarTipoArchivo.validarTipoExcel(file)) {
@@ -478,6 +481,9 @@ public class ExcelCargarTercerosServiceImpl {
         for (Sheet sheet : workbook) {
             boolean isHeader = true;
             for (Row row : sheet) {
+
+                if (isRowEmpty(row)) continue;
+
                 int linea = row.getRowNum() + 1;
                 if (isHeader) {
                     isHeader = false;
@@ -487,7 +493,8 @@ public class ExcelCargarTercerosServiceImpl {
                 GeTerceroEntity tercero = new GeTerceroEntity();
                 tercero.setIdTercero(UUID.randomUUID());
                 tercero.setIdData(idData);
-
+                tercero.setCreatedDate(LocalDateTime.now());
+                tercero.setCreatedBy(usuario);
 
                 if (Objects.nonNull(row.getCell(0))) {
                     String codigoTercero = row.getCell(0).getStringCellValue();
@@ -774,6 +781,17 @@ public class ExcelCargarTercerosServiceImpl {
             }
         }
 
+    }
+
+    private boolean isRowEmpty(Row row) {
+        if (row == null) return true;
+
+        for (int c = row.getFirstCellNum(); c < row.getLastCellNum(); c++) {
+            if (row.getCell(c, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL) != null) {
+                return false;
+            }
+        }
+        return true;
     }
 
 }

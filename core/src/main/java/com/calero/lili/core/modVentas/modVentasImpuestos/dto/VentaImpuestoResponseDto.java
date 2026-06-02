@@ -1,5 +1,6 @@
 package com.calero.lili.core.modVentas.modVentasImpuestos.dto;
 
+import com.calero.lili.core.dtos.FormasPagoDto;
 import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.modVentas.facturas.dto.ResponseValoresDto;
 import lombok.AllArgsConstructor;
@@ -56,4 +57,6 @@ public class VentaImpuestoResponseDto {
 
     private FormatoDocumento formatoDocumento;
     private Boolean existeComprobante;
+
+    private List<FormasPagoDto> formasPagoSri;
 }

@@ -139,6 +139,7 @@ public class VtVentasImpuestoBuilder {
                 .formatoDocumento(model.getFormatoDocumento())
                 .existeComprobante(model.getExisteComprobante())
                 .existeComprobante(model.getExisteComprobante())
+                .formasPagoSri(formasPagoBuilder.builderListDto(model.getFormasPagoSri()))
                 .build();
     }
 }
