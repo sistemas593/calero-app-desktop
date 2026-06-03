@@ -17,6 +17,7 @@ public class CnLibroDiarioBuilder {
                 .idAsiento(model.getIdAsiento())
                 .fechaAsiento(DateUtils.toString(model.getFechaAsiento()))
                 .numeroAsiento(model.getNumeroAsiento())
+                .tipoAsiento(model.getTipoAsiento())
                 .concepto(model.getConcepto())
                 .detalleCuentas(builderListDetalleLibroDiario(model.getDetalleEntity()))
                 .build();

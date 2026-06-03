@@ -165,7 +165,7 @@ public class DatosCrediticiosExcelServiceImpl {
         if (Objects.nonNull(row.getCell(6)) && Objects.nonNull(row.getCell(7))) {
 
             BigDecimal valor = convetirValor(row.getCell(7).getStringCellValue());
-            int diasMora = Integer.parseInt(row.getCell(6).getStringCellValue());
+            int diasMora = convertirEntero(row.getCell(6).getStringCellValue());
             int rango = Math.abs(diasMora);
             detalle.setValorOperacion(valor);
 
@@ -261,5 +261,19 @@ public class DatosCrediticiosExcelServiceImpl {
             valor = valor.replace(",", ".");
         }
         return new BigDecimal(valor);
+    }
+
+    private Integer convertirEntero(String valor) {
+        if (valor == null || valor.trim().isEmpty()) {
+            return null;
+        }
+
+        valor = valor.trim();
+
+        // Elimina puntos y comas usados como separadores de miles
+        valor = valor.replace(".", "")
+                .replace(",", "");
+
+        return Integer.parseInt(valor);
     }
 }

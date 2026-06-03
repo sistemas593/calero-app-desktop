@@ -85,7 +85,6 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
 
 
                 if (Objects.nonNull(row.getCell(0)) && Objects.nonNull(row.getCell(1))) {
-
                     String numeroOperacion = row.getCell(0).getStringCellValue();
                     DatosCrediticiosDetalleEntity entidad = mapDatos.get(numeroOperacion);
                     if (Objects.nonNull(entidad)) {
@@ -119,7 +118,7 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
         if (row == null) return true;
 
         for (int c = row.getFirstCellNum(); c < row.getLastCellNum(); c++) {
-            if (row.getCell(c, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL) != null) {
+            if (row.getCell(c) != null) {
                 return false;
             }
         }

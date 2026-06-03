@@ -1,6 +1,7 @@
 package com.calero.lili.core.modContabilidad.modAsientos.dto;
 
 
+import com.calero.lili.core.enums.TipoAsiento;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,6 +20,7 @@ public class LibroDiarioDto {
     private UUID idAsiento;
     private String fechaAsiento;
     private String numeroAsiento;
+    private TipoAsiento tipoAsiento;
     private String concepto;
 
     private List<DetalleCuenta> detalleCuentas;

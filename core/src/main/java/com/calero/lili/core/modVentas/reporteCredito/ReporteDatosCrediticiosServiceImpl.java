@@ -52,9 +52,9 @@ public class ReporteDatosCrediticiosServiceImpl {
         String canton = "";
         String provincia = "";
 
-        String sexo = "|";
-        String estadoCivil = "|";
-        String origenIngreso = "|";
+        String sexo = "";
+        String estadoCivil = "";
+        String origenIngreso = "";
 
 
         if (Objects.nonNull(f.getTercero().getParroquia())) {
@@ -94,7 +94,7 @@ public class ReporteDatosCrediticiosServiceImpl {
         }
 
         return String.join("|",
-                Objects.nonNull(empresa.getCodigoDinardap()) ? empresa.getCodigoDinardap() : "|",
+                Objects.nonNull(empresa.getCodigoDinardap()) ? empresa.getCodigoDinardap() : "",
                 DateUtils.toString(cabecera.getFechaDatos()),
                 f.getTercero().getTipoIdentificacion(),
                 f.getTercero().getNumeroIdentificacion(),
@@ -109,12 +109,12 @@ public class ReporteDatosCrediticiosServiceImpl {
                 f.getNumeroOperacion(),
                 formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getValorOperacion()) ? f.getValorOperacion() : BigDecimal.ZERO),
                 formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getSaldoOperacion()) ? f.getSaldoOperacion() : BigDecimal.ZERO),
-                Objects.nonNull(f.getFechaConcesion()) ? DateUtils.toString(f.getFechaConcesion()) : "|",
-                Objects.nonNull(f.getFechaVencimiento()) ? DateUtils.toString(f.getFechaVencimiento()) : "|",
-                Objects.nonNull(f.getFechaExigible()) ? DateUtils.toString(f.getFechaExigible()) : "|",
-                Objects.nonNull(f.getPlazoOperacion()) ? f.getPlazoOperacion().toString() : "|",
-                Objects.nonNull(f.getPeriodicidadPago()) ? f.getPeriodicidadPago().toString() : "|",
-                Objects.nonNull(f.getDiasMorosidad()) ? f.getDiasMorosidad().toString() : "|",
+                Objects.nonNull(f.getFechaConcesion()) ? DateUtils.toString(f.getFechaConcesion()) : "",
+                Objects.nonNull(f.getFechaVencimiento()) ? DateUtils.toString(f.getFechaVencimiento()) : "",
+                Objects.nonNull(f.getFechaExigible()) ? DateUtils.toString(f.getFechaExigible()) : "",
+                Objects.nonNull(f.getPlazoOperacion()) ? f.getPlazoOperacion().toString() : "",
+                Objects.nonNull(f.getPeriodicidadPago()) ? f.getPeriodicidadPago().toString() : "",
+                Objects.nonNull(f.getDiasMorosidad()) ? f.getDiasMorosidad().toString() : "",
                 formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getMontoMorosidad()) ? f.getMontoMorosidad() : BigDecimal.ZERO),
                 formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getMontoInteresMora()) ? f.getMontoInteresMora() : BigDecimal.ZERO),
                 formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getValorXVencer1a30Dias()) ? f.getValorXVencer1a30Dias() : BigDecimal.ZERO),
@@ -130,8 +130,8 @@ public class ReporteDatosCrediticiosServiceImpl {
                 formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getValorDemandaJudicial()) ? f.getValorDemandaJudicial() : BigDecimal.ZERO),
                 formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getCarteraCastigada()) ? f.getCarteraCastigada() : BigDecimal.ZERO),
                 formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getCoutaCredito()) ? f.getCoutaCredito() : BigDecimal.ZERO),
-                Objects.nonNull(f.getFechaCancelacion()) ? DateUtils.toString(f.getFechaCancelacion()) : "|",
-                Objects.nonNull(f.getFormaCancelacion()) ? f.getFormaCancelacion() : "|"); // TODO Tipos Efectivo (E), Cheque(C), Tarjeta de Crédito (T)
+                Objects.nonNull(f.getFechaCancelacion()) ? DateUtils.toString(f.getFechaCancelacion()) : "",
+                Objects.nonNull(f.getFormaCancelacion()) ? f.getFormaCancelacion() : ""); // TODO Tipos Efectivo (E), Cheque(C), Tarjeta de Crédito (T)
     }
 
 }

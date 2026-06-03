@@ -120,7 +120,7 @@ public class GeTerceroEntity extends Auditable implements Serializable {
     private List<CpLiquidacionesEntity> cpLiquidacionesEntity = new ArrayList<>();
 
     @Builder.Default
-    @OneToMany(mappedBy = "tercero")
+    @OneToMany(mappedBy = "tercero", fetch = FetchType.LAZY)
     @JsonIgnore
     private List<GeTercerosTipoEntity> geTercerosTipoEntities = new ArrayList<>();
 
