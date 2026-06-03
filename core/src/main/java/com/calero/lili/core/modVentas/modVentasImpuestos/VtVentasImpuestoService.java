@@ -14,7 +14,7 @@ import com.calero.lili.core.modVentas.VtVentaEntity;
 import com.calero.lili.core.modVentas.VtVentasRepository;
 import com.calero.lili.core.modVentas.builder.GetListResponseBuilder;
 import com.calero.lili.core.modVentas.dto.GetListDto;
-import com.calero.lili.core.modVentas.facturas.dto.FilterListDto;
+import com.calero.lili.core.modVentas.facturas.dto.FilterListVentasDto;
 import com.calero.lili.core.modVentas.modVentasImpuestos.builder.VtVentasImpuestoBuilder;
 import com.calero.lili.core.modVentas.modVentasImpuestos.dto.CreationVentaImpuestoRequestDto;
 import com.calero.lili.core.modVentas.modVentasImpuestos.dto.VentaImpuestoResponseDto;
@@ -79,7 +79,7 @@ public class VtVentasImpuestoService {
     @Transactional
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta,
                               CreationVentaImpuestoRequestDto request,
-                              FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+                              FilterListVentasDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencial());
         validarNumeroAutorizacion(request);
@@ -113,7 +113,7 @@ public class VtVentasImpuestoService {
 
     @Transactional
     public ResponseDto delete(Long idData, Long idEmpresa, UUID idVenta,
-                              FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+                              FilterListVentasDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         VtVentaEntity entity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
@@ -128,7 +128,7 @@ public class VtVentasImpuestoService {
 
     @Transactional(readOnly = true)
     public VentaImpuestoResponseDto findById(Long idData, Long idEmpresa, UUID idVenta,
-                                             FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+                                             FilterListVentasDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         VtVentaEntity entity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
@@ -137,7 +137,7 @@ public class VtVentasImpuestoService {
 
     @Transactional(readOnly = true)
     public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa,
-                                                    FilterListDto filters, Pageable pageable,
+                                                    FilterListVentasDto filters, Pageable pageable,
                                                     TipoPermiso tipoBusqueda, String usuario) {
 
         Page<VtVentaEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
@@ -171,7 +171,7 @@ public class VtVentasImpuestoService {
 
     @Transactional
     public ResponseDto updateAnulada(Long idData, Long idEmpresa, UUID idVenta,
-                                     FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+                                     FilterListVentasDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         VtVentaEntity entity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
@@ -248,7 +248,7 @@ public class VtVentasImpuestoService {
     }
 
     private VtVentaEntity validacionTipoBusqueda(Long idData, Long idEmpresa, UUID idVenta,
-                                                 FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+                                                 FilterListVentasDto filters, TipoPermiso tipoBusqueda, String usuario) {
         switch (tipoBusqueda) {
             case TODAS:
                 return vtVentaRepository
@@ -277,7 +277,7 @@ public class VtVentasImpuestoService {
         throw new GeneralException(MessageFormat.format("El tipo de búsqueda: {0} no existe", tipoBusqueda));
     }
 
-    private Page<VtVentaEntity> getTipoBusquedaPaginado(Long idData, Long idEmpresa, FilterListDto filters,
+    private Page<VtVentaEntity> getTipoBusquedaPaginado(Long idData, Long idEmpresa, FilterListVentasDto filters,
                                                         Pageable pageable, TipoPermiso tipoBusqueda, String usuario) {
         switch (tipoBusqueda) {
             case TODAS -> {

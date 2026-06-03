@@ -20,10 +20,8 @@ import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.enums.TipoVenta;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.errors.exceptions.NotFoundException;
-import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.modAdminEmpresas.projection.MomentoEnvioProjection;
-import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesEntity;
 import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
 import com.calero.lili.core.modComprasItems.GeItemsRepository;
 import com.calero.lili.core.modContabilidad.modAsientos.CnAsientosEntity;
@@ -38,7 +36,7 @@ import com.calero.lili.core.modVentas.VtVentasRepository;
 import com.calero.lili.core.modVentas.builder.GetListResponseBuilder;
 import com.calero.lili.core.modVentas.dto.DetailDto;
 import com.calero.lili.core.modVentas.dto.GetListDto;
-import com.calero.lili.core.modVentas.facturas.dto.FilterListDto;
+import com.calero.lili.core.modVentas.facturas.dto.FilterListVentasDto;
 import com.calero.lili.core.modVentas.notasCredito.builder.VtNotasCreditoBuilder;
 import com.calero.lili.core.modVentas.notasCredito.dto.CreationNotaCreditoRequestDto;
 import com.calero.lili.core.modVentas.notasCredito.dto.GetNotaCreditoDto;
@@ -186,7 +184,7 @@ public class VtVentasNotasCreditoServiceImpl {
 
     @Transactional
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationNotaCreditoRequestDto request,
-                              String usuario, TipoPermiso tipoBusqueda, FilterListDto filters) {
+                              String usuario, TipoPermiso tipoBusqueda, FilterListVentasDto filters) {
 
         ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencial());
         validarNumeroAutorizacion(request);
@@ -243,7 +241,7 @@ public class VtVentasNotasCreditoServiceImpl {
         }
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario, TipoPermiso tipoBusqueda, FilterListDto filters) {
+    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario, TipoPermiso tipoBusqueda, FilterListVentasDto filters) {
 
         VtVentaEntity venta = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
@@ -255,7 +253,7 @@ public class VtVentasNotasCreditoServiceImpl {
     }
 
     public GetNotaCreditoDto findById(Long idData, Long idEmpresa, UUID idVenta, String usuario,
-                                      TipoPermiso tipoBusqueda, FilterListDto filters) {
+                                      TipoPermiso tipoBusqueda, FilterListVentasDto filters) {
 
         VtVentaEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
@@ -264,7 +262,7 @@ public class VtVentasNotasCreditoServiceImpl {
 
 
     public List<Mensajes> findByMensajes(Long idData, Long idEmpresa, UUID idVenta, String usuario,
-                                         TipoPermiso tipoBusqueda, FilterListDto filters) {
+                                         TipoPermiso tipoBusqueda, FilterListVentasDto filters) {
 
         VtVentaEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
@@ -273,7 +271,7 @@ public class VtVentasNotasCreditoServiceImpl {
 
 
     @Transactional(readOnly = true)
-    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable,
+    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListVentasDto filters, Pageable pageable,
                                                     TipoPermiso tipoBusqueda, String usuario) {
 
         filters.setTipoVenta("NCR");
@@ -351,7 +349,7 @@ public class VtVentasNotasCreditoServiceImpl {
     }*/
 
 
-    public void exportarExcel(Long idData, Long idEmpresa, OutputStream response, FilterListDto filter) throws IOException {
+    public void exportarExcel(Long idData, Long idEmpresa, OutputStream response, FilterListVentasDto filter) throws IOException {
 
         log.info("Iniciando la exportación a Excel con el filtro: {}", filter);
         List<VtVentaEntity> facturas = vtVentaRepository.findAll(idData, idEmpresa, filter.getSucursal(), filter.getFechaEmisionDesde(),
@@ -505,7 +503,7 @@ public class VtVentasNotasCreditoServiceImpl {
         }
     }
 
-    public void exportarPDF(Long idData, Long idEmpresa, HttpServletResponse response, FilterListDto filters) throws DocumentException, IOException {
+    public void exportarPDF(Long idData, Long idEmpresa, HttpServletResponse response, FilterListVentasDto filters) throws DocumentException, IOException {
 
         List<VtVentaEntity> facturas = vtVentaRepository.findAll(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
                 filters.getFechaEmisionHasta(), filters.getTipoVenta(), filters.getSerie(), filters.getSecuencial());
@@ -653,7 +651,7 @@ public class VtVentasNotasCreditoServiceImpl {
 
 
     public ResponseDto updateAnulada(Long idData, Long idEmpresa, UUID idVenta, String usuario,
-                                     TipoPermiso tipoBusqueda, FilterListDto filters) {
+                                     TipoPermiso tipoBusqueda, FilterListVentasDto filters) {
 
         VtVentaEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
@@ -719,7 +717,7 @@ public class VtVentasNotasCreditoServiceImpl {
     }
 
 
-    private Page<VtVentaEntity> getTipoBusquedaPaginado(Long idData, Long idEmpresa, FilterListDto filters,
+    private Page<VtVentaEntity> getTipoBusquedaPaginado(Long idData, Long idEmpresa, FilterListVentasDto filters,
                                                         Pageable pageable, TipoPermiso tipoBusqueda, String usuario) {
 
         switch (tipoBusqueda) {
@@ -751,7 +749,7 @@ public class VtVentasNotasCreditoServiceImpl {
 
 
     private VtVentaEntity validacionTipoBusqueda(Long idData, Long idEmpresa, UUID idVenta,
-                                                 FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+                                                 FilterListVentasDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         switch (tipoBusqueda) {
             case TODAS:

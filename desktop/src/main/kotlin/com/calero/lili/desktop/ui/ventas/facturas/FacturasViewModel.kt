@@ -7,10 +7,9 @@ import com.calero.lili.core.modTerceros.GeTercerosServiceImpl
 import com.calero.lili.core.modTerceros.dto.GeTerceroFilterDto
 import com.calero.lili.core.modTerceros.dto.GeTerceroGetListDto
 import com.calero.lili.core.modVentas.dto.GetListDto
-import com.calero.lili.core.modVentas.VtVentaEntity
 import com.calero.lili.core.modVentas.facturas.VtVentasFacturasServiceImpl
 import com.calero.lili.core.comprobantesWs.services.GetXmlVtVentasFacturasServiceImpl
-import com.calero.lili.core.modVentas.facturas.dto.FilterListDto
+import com.calero.lili.core.modVentas.facturas.dto.FilterListVentasDto
 import java.awt.print.PrinterJob
 import java.io.FileOutputStream
 import java.time.LocalDateTime
@@ -107,7 +106,7 @@ class FacturasViewModel(
         scope.launch {
             _state.update { it.copy(isLoading = true, errorMessage = null) }
             try {
-                val filtro = FilterListDto()
+                val filtro = FilterListVentasDto()
                 filtro.serie      = s.filterSerie.trim().ifBlank { null }
                 filtro.secuencial = s.filterSecuencial.trim().ifBlank { null }
                 filtro.anulada    = s.filterEstado.anulada
@@ -365,7 +364,7 @@ class FacturasViewModel(
                 val s = _state.value
 
                 // Mismo FilterListDto que cargar()
-                val filtro = FilterListDto()
+                val filtro = FilterListVentasDto()
                 filtro.serie      = s.filterSerie.trim().ifBlank { null }
                 filtro.secuencial = s.filterSecuencial.trim().ifBlank { null }
                 filtro.anulada    = s.filterEstado.anulada

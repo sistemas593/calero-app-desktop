@@ -7,7 +7,7 @@ import com.calero.lili.core.modVentas.dto.GetListDto;
 import com.calero.lili.core.modVentas.dto.GetListDtoTotalizado;
 import com.calero.lili.core.modVentas.facturas.VtVentasFacturasExcelService;
 import com.calero.lili.core.modVentas.facturas.VtVentasFacturasServiceImpl;
-import com.calero.lili.core.modVentas.facturas.dto.FilterListDto;
+import com.calero.lili.core.modVentas.facturas.dto.FilterListVentasDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -36,7 +36,7 @@ public class VtVentasReporteController {
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('VT_FC_VR_PR','VT_FC_VR_SC','VT_FC_VR_TD')")
     public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(@PathVariable("idEmpresa") Long idEmpresa,
-                                                                      FilterListDto filters,
+                                                                      FilterListVentasDto filters,
                                                                       Pageable pageable) {
         log.info("Filters = {}", filters);
         return vtVentasService.findAllPaginateTotalizado(idDataService.getIdData(), idEmpresa, filters,

@@ -6,7 +6,7 @@ import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirCreationRequestDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosServiceImpl;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CreationCompraImpuestoRequestDto;
-import com.calero.lili.core.modCompras.modComprasImpuestos.dto.FilterListDto;
+import com.calero.lili.core.modCompras.modComprasImpuestos.dto.FilterListCompraImpuestoDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetListDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetListDtoTotalizado;
@@ -57,7 +57,7 @@ public class CpImpuestosController {
     public ResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                               @PathVariable("idCompraImpuesto") UUID idCompraImpuesto,
                               @RequestBody CreationCompraImpuestoRequestDto request,
-                              FilterListDto filters) {
+                              FilterListCompraImpuestoDto filters) {
         return vtVentasService.update(idDataService.getIdData(), idEmpresa, idCompraImpuesto, request,
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"),
                 filters,
@@ -69,7 +69,7 @@ public class CpImpuestosController {
     @PreAuthorize("hasAnyAuthority('CP_CI_EL_PR','CP_CI_EL_SC','CP_CI_EL_TD')")
     public void delete(@PathVariable("idEmpresa") Long idEmpresa,
                        @PathVariable("idRecibida") UUID idRecibida,
-                       FilterListDto filters) {
+                       FilterListCompraImpuestoDto filters) {
         vtVentasService.delete(idDataService.getIdData(), idEmpresa, idRecibida,
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"),
                 filters,
@@ -81,7 +81,7 @@ public class CpImpuestosController {
     @PreAuthorize("hasAnyAuthority('CP_CI_VR_PR','CP_CI_VR_SC','CP_CI_VR_TD')")
     public GetDto findById(@PathVariable("idEmpresa") Long idEmpresa,
                            @PathVariable("idRecibida") UUID idRecibida,
-                           FilterListDto filters) {
+                           FilterListCompraImpuestoDto filters) {
         return vtVentasService.findById(idDataService.getIdData(), idEmpresa, idRecibida,
                 filters,
                 auditorAware.getTipoPermisoVerImpuesto(),
@@ -92,7 +92,7 @@ public class CpImpuestosController {
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('CP_CI_VR_PR','CP_CI_VR_SC','CP_CI_VR_TD')")
     public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(@PathVariable("idEmpresa") Long idEmpresa,
-                                                                      FilterListDto filters,
+                                                                      FilterListCompraImpuestoDto filters,
                                                                       Pageable pageable) {
         log.info("Filters = {}", filters);
         return vtVentasService.findAllPaginateTotalizado(idDataService.getIdData(), idEmpresa, filters, pageable,
@@ -104,7 +104,7 @@ public class CpImpuestosController {
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAuthority('CP_CI_EX')")
     public void exportarExcel(@PathVariable("idEmpresa") Long idEmpresa,
-                              FilterListDto filter,
+                              FilterListCompraImpuestoDto filter,
                               HttpServletResponse response) throws IOException {
         log.info("Iniciando la exportación a Excel con el filtro: {}", filter);
         vtVentasService.exportarExcel(idDataService.getIdData(), idEmpresa, response, filter);
@@ -114,7 +114,7 @@ public class CpImpuestosController {
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAuthority('CP_CI_EX')")
     public void exportarPDF(@PathVariable("idEmpresa") Long idEmpresa,
-                            FilterListDto filter,
+                            FilterListCompraImpuestoDto filter,
                             HttpServletResponse response) throws IOException {
         vtVentasService.exportarPDF(idDataService.getIdData(), idEmpresa, response, filter);
     }

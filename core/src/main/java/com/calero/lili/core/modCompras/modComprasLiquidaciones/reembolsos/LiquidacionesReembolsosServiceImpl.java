@@ -7,7 +7,7 @@ import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
-import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.FilterListDto;
+import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.FilterListComprasLiquidacionesDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.GetListDtoTotalizado;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.detalles.ValoresDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.projection.TotalesProjection;
@@ -88,7 +88,7 @@ public class LiquidacionesReembolsosServiceImpl {
 
     @Transactional
     public ResponseDto update(Long idData, Long idEmpresa, UUID idReembolso, ReembolsoRequestDto request,
-                              String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
+                              String usuario, FilterListComprasLiquidacionesDto filters, TipoPermiso tipoBusqueda) {
 
         ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencialReemb());
         validarValores(request);
@@ -115,7 +115,7 @@ public class LiquidacionesReembolsosServiceImpl {
     }
 
     public void delete(Long idData, Long idEmpresa, UUID idReembolso, String usuario,
-                       FilterListDto filters, TipoPermiso tipoBusqueda) {
+                       FilterListComprasLiquidacionesDto filters, TipoPermiso tipoBusqueda) {
 
         CpLiquidacionesReembolsosEntity entidad = validacionTipoBusqueda(idData, idEmpresa, idReembolso, filters, tipoBusqueda, usuario);
 
@@ -128,14 +128,14 @@ public class LiquidacionesReembolsosServiceImpl {
     }
 
     public GetReembolsoDto findById(Long idData, Long idEmpresa, UUID idReembolso,
-                                    FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+                                    FilterListComprasLiquidacionesDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         CpLiquidacionesReembolsosEntity reembolso = validacionTipoBusqueda(idData, idEmpresa, idReembolso, filters, tipoBusqueda, usuario);
         return cpLiquidacionesReembolsosBuilder.builderResponse(reembolso);
     }
 
 
-    public PaginatedDto<GetReembolsoDto> findAllPaginate(Long idData, Long idEmpresa, FilterListDto filtro, Pageable pageable,
+    public PaginatedDto<GetReembolsoDto> findAllPaginate(Long idData, Long idEmpresa, FilterListComprasLiquidacionesDto filtro, Pageable pageable,
                                                          TipoPermiso tipoBusqueda, String usuario) {
 
         validarFiltroUtilizado(filtro);
@@ -168,7 +168,7 @@ public class LiquidacionesReembolsosServiceImpl {
 
 
     public GetListDtoTotalizado<GetReembolsoDto> findAllPaginateTotalizado(Long idData, Long idEmpresa,
-                                                                           FilterListDto filtro, Pageable pageable) {
+                                                                           FilterListComprasLiquidacionesDto filtro, Pageable pageable) {
 
 
         validarFiltroUtilizado(filtro);
@@ -209,7 +209,7 @@ public class LiquidacionesReembolsosServiceImpl {
     }
 
 
-    public void exportarExcel(Long idData, Long idEmpresa, HttpServletResponse response, FilterListDto filter) throws IOException {
+    public void exportarExcel(Long idData, Long idEmpresa, HttpServletResponse response, FilterListComprasLiquidacionesDto filter) throws IOException {
 
         log.info("Iniciando la exportación a Excel con el filtro: {}", filter);
         List<CpLiquidacionesReembolsosEntity> facturas = reembolsosRepository.getFindAll(idData, idEmpresa,
@@ -327,7 +327,7 @@ public class LiquidacionesReembolsosServiceImpl {
         }
     }
 
-    public void exportarPDF(Long idData, Long idEmpresa, HttpServletResponse response, FilterListDto filters) throws DocumentException, IOException {
+    public void exportarPDF(Long idData, Long idEmpresa, HttpServletResponse response, FilterListComprasLiquidacionesDto filters) throws DocumentException, IOException {
 
         List<CpLiquidacionesReembolsosEntity> facturas = reembolsosRepository.getFindAll(idData, idEmpresa,
                 filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta());
@@ -465,7 +465,7 @@ public class LiquidacionesReembolsosServiceImpl {
 
 
     private Page<CpLiquidacionesReembolsosEntity> getTipoBusquedaPaginado(Long idData, Long idEmpresa,
-                                                                          FilterListDto filtro, Pageable pageable,
+                                                                          FilterListComprasLiquidacionesDto filtro, Pageable pageable,
                                                                           TipoPermiso tipoBusqueda, String usuario) {
         switch (tipoBusqueda) {
             case TODAS -> {
@@ -493,7 +493,7 @@ public class LiquidacionesReembolsosServiceImpl {
 
 
     private CpLiquidacionesReembolsosEntity validacionTipoBusqueda(Long idData, Long idEmpresa, UUID idVenta,
-                                                                   FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+                                                                   FilterListComprasLiquidacionesDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         switch (tipoBusqueda) {
             case TODAS:
@@ -525,7 +525,7 @@ public class LiquidacionesReembolsosServiceImpl {
     }
 
 
-    private void validarFiltroUtilizado(FilterListDto filtro) {
+    private void validarFiltroUtilizado(FilterListComprasLiquidacionesDto filtro) {
         if (Objects.isNull(filtro.getUtilizado())) {
             throw new GeneralException("El parametro utilizado es requerido");
         }

@@ -10,7 +10,7 @@ import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
 import com.calero.lili.core.modVentasPedidos.builder.VtPedidoBuilder;
 import com.calero.lili.core.modVentasPedidos.dto.CreationComprasPedidosRequestDto;
-import com.calero.lili.core.modVentasPedidos.dto.FilterListDto;
+import com.calero.lili.core.modVentasPedidos.dto.FilterListVentasPedidosDto;
 import com.calero.lili.core.modVentasPedidos.dto.GetDto;
 import com.calero.lili.core.modVentasPedidos.dto.GetListDto;
 import com.calero.lili.core.modVentasPedidos.dto.GetListDtoTotalizado;
@@ -89,7 +89,7 @@ public class PedidosServiceImpl {
 
     @Transactional
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationComprasPedidosRequestDto request,
-                              String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
+                              String usuario, FilterListVentasPedidosDto filters, TipoPermiso tipoBusqueda) {
 
 
         VtPedidoEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
@@ -119,7 +119,7 @@ public class PedidosServiceImpl {
     }
 
     public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario,
-                       FilterListDto filters, TipoPermiso tipoBusqueda) {
+                       FilterListVentasPedidosDto filters, TipoPermiso tipoBusqueda) {
 
 
         VtPedidoEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
@@ -133,14 +133,14 @@ public class PedidosServiceImpl {
     }
 
 
-    public GetDto findById(Long idData, Long idEmpresa, UUID idVenta, FilterListDto filters,
+    public GetDto findById(Long idData, Long idEmpresa, UUID idVenta, FilterListVentasPedidosDto filters,
                            TipoPermiso tipoBusqueda, String usuario) {
 
         VtPedidoEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
         return vtPedidoBuilder.builderResponse(vtVentaEntity);
     }
 
-    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable,
+    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListVentasPedidosDto filters, Pageable pageable,
                                                     TipoPermiso tipoBusqueda, String usuario) {
 
         Page<VtPedidoEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
@@ -167,7 +167,7 @@ public class PedidosServiceImpl {
         return paginatedDto;
     }
 
-    private Page<VtPedidoEntity> getTipoBusquedaPaginado(Long idData, Long idEmpresa, FilterListDto filters,
+    private Page<VtPedidoEntity> getTipoBusquedaPaginado(Long idData, Long idEmpresa, FilterListVentasPedidosDto filters,
                                                          Pageable pageable, TipoPermiso tipoBusqueda, String usuario) {
         switch (tipoBusqueda) {
             case TODAS -> {
@@ -196,7 +196,7 @@ public class PedidosServiceImpl {
         throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
     }
 
-    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable) {
+    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListVentasPedidosDto filters, Pageable pageable) {
 
         Page<VtPedidoEntity> page = vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getSerie(), filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
 
@@ -229,7 +229,7 @@ public class PedidosServiceImpl {
     }
 
 
-    public void exportarExcel(Long idData, Long idEmpresa, HttpServletResponse response, FilterListDto filter) throws IOException {
+    public void exportarExcel(Long idData, Long idEmpresa, HttpServletResponse response, FilterListVentasPedidosDto filter) throws IOException {
 
         log.info("Iniciando la exportación a Excel con el filtro: {}", filter);
         List<VtPedidoEntity> facturas = vtVentaRepository.findAll(idData, idEmpresa, filter.getSucursal(), filter.getFechaEmisionDesde(), filter.getFechaEmisionHasta(), filter.getNumeroIdentificacion(), filter.getSerie(), filter.getSecuencial());
@@ -348,7 +348,7 @@ public class PedidosServiceImpl {
     }
 
 
-    public void exportarPDF(Long idData, Long idEmpresa, HttpServletResponse response, FilterListDto filters) throws DocumentException, IOException {
+    public void exportarPDF(Long idData, Long idEmpresa, HttpServletResponse response, FilterListVentasPedidosDto filters) throws DocumentException, IOException {
 
         List<VtPedidoEntity> facturas = vtVentaRepository.findAll(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getSerie(), filters.getSecuencial());
 
@@ -476,7 +476,7 @@ public class PedidosServiceImpl {
     }
 
     private VtPedidoEntity validacionTipoBusqueda(Long idData, Long idEmpresa, UUID idVenta,
-                                                  FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+                                                  FilterListVentasPedidosDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         switch (tipoBusqueda) {
             case TODAS:

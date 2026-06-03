@@ -6,7 +6,7 @@ import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.modVentasPedidos.PedidosServiceImpl;
 import com.calero.lili.core.modVentasPedidos.dto.CreationComprasPedidosRequestDto;
-import com.calero.lili.core.modVentasPedidos.dto.FilterListDto;
+import com.calero.lili.core.modVentasPedidos.dto.FilterListVentasPedidosDto;
 import com.calero.lili.core.modVentasPedidos.dto.GetDto;
 import com.calero.lili.core.modVentasPedidos.dto.GetListDto;
 import com.calero.lili.core.modVentasPedidos.dto.GetListDtoTotalizado;
@@ -58,7 +58,7 @@ public class PedidosController {
     public ResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                               @PathVariable("idVenta") UUID idVenta,
                               @RequestBody CreationComprasPedidosRequestDto request,
-                              FilterListDto filters) {
+                              FilterListVentasPedidosDto filters) {
         return vtVentasService.update(idDataService.getIdData(), idEmpresa, idVenta, request,
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"),
                 filters,
@@ -70,7 +70,7 @@ public class PedidosController {
     @PreAuthorize("hasAnyAuthority('VT_PD_EL_PR','VT_PD_EL_SC','VT_PD_EL_TD')")
     public void delete(@PathVariable("idEmpresa") Long idEmpresa,
                        @PathVariable("idVenta") UUID idVenta,
-                       FilterListDto filters) {
+                       FilterListVentasPedidosDto filters) {
         vtVentasService.delete(idDataService.getIdData(), idEmpresa, idVenta,
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"),
                 filters,
@@ -82,7 +82,7 @@ public class PedidosController {
     @PreAuthorize("hasAnyAuthority('VT_PD_VR_PR','VT_PD_VR_SC','VT_PD_VR_TD')")
     public GetDto findById(@PathVariable("idEmpresa") Long idEmpresa,
                            @PathVariable("idVenta") UUID idVenta,
-                           FilterListDto filters) {
+                           FilterListVentasPedidosDto filters) {
         return vtVentasService.findById(idDataService.getIdData(), idEmpresa, idVenta,
                 filters,
                 auditorAware.getTipoPermisoVerPedido(),
@@ -93,7 +93,7 @@ public class PedidosController {
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('VT_PD_VR_PR','VT_PD_VR_SC','VT_PD_VR_TD')")
     public PaginatedDto<GetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
-                                                    FilterListDto filters,
+                                                    FilterListVentasPedidosDto filters,
                                                     Pageable pageable) {
         return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable,
                 auditorAware.getTipoPermisoVerPedido(),
@@ -105,7 +105,7 @@ public class PedidosController {
     @PreAuthorize("hasAnyAuthority('VT_PD_VR_PR','VT_PD_VR_SC','VT_PD_VR_TD')")
     public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(
             @PathVariable("idEmpresa") Long idEmpresa,
-            FilterListDto filters,
+            FilterListVentasPedidosDto filters,
             Pageable pageable) {
         log.info("Filters = {}", filters);
         return vtVentasService.findAllPaginateTotalizado(idDataService.getIdData(), idEmpresa, filters, pageable);
@@ -115,7 +115,7 @@ public class PedidosController {
     @PreAuthorize("hasAuthority('VT_PD_EX')")
     public void exportarExcel(HttpServletResponse response,
                               @PathVariable("idEmpresa") Long idEmpresa,
-                              FilterListDto filter) throws IOException {
+                              FilterListVentasPedidosDto filter) throws IOException {
         log.info("Iniciando la exportación a Excel con el filtro: {}", filter);
         vtVentasService.exportarExcel(idDataService.getIdData(), idEmpresa, response, filter);
     }
@@ -124,7 +124,7 @@ public class PedidosController {
     @PreAuthorize("hasAuthority('VT_PD_EX')")
     public void exportarPDF(HttpServletResponse response,
                             @PathVariable("idEmpresa") Long idEmpresa,
-                            FilterListDto filters) throws DocumentException, IOException {
+                            FilterListVentasPedidosDto filters) throws DocumentException, IOException {
         vtVentasService.exportarPDF(idDataService.getIdData(), idEmpresa, response, filters);
     }
 

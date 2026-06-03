@@ -7,7 +7,7 @@ import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirListCreationResponseDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.comprobantes.DocumentoRecibidosServiceImpl;
-import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.FilterListDto;
+import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.FilterListComprasLiquidacionesDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.GetListDtoTotalizado;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.LiquidacionesReembolsoPdfXmlServiceImpl;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.LiquidacionesReembolsosServiceImpl;
@@ -65,7 +65,7 @@ public class LiquidacionReembolsosController {
     public ResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                               @PathVariable("idReembolso") UUID idReembolso,
                               @Valid @RequestBody ReembolsoRequestDto request,
-                              FilterListDto filters) {
+                              FilterListComprasLiquidacionesDto filters) {
 
         return reembolsosService.update(idDataService.getIdData(), idEmpresa, idReembolso, request,
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"), filters,
@@ -77,7 +77,7 @@ public class LiquidacionReembolsosController {
     @PreAuthorize("hasAnyAuthority('LQ_LQR_EL_PR','LQ_LQR_EL_SC','LQ_LQR_EL_TD')")
     public void delete(@PathVariable("idEmpresa") Long idEmpresa,
                        @PathVariable("idReembolso") UUID idReembolso,
-                       FilterListDto filters) {
+                       FilterListComprasLiquidacionesDto filters) {
 
         reembolsosService.delete(idDataService.getIdData(), idEmpresa, idReembolso,
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"),
@@ -90,7 +90,7 @@ public class LiquidacionReembolsosController {
     @PreAuthorize("hasAnyAuthority('LQ_LQR_VR_PR','LQ_LQR_VR_SC','LQ_LQR_VR_TD')")
     public GetReembolsoDto findById(@PathVariable("idEmpresa") Long idEmpresa,
                                     @PathVariable("idReembolso") UUID idReembolso,
-                                    FilterListDto filters) {
+                                    FilterListComprasLiquidacionesDto filters) {
 
         return reembolsosService.findById(idDataService.getIdData(), idEmpresa, idReembolso, filters,
                 auditorAware.getTipoPermisoVerReembolso(),
@@ -101,7 +101,7 @@ public class LiquidacionReembolsosController {
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('LQ_LQR_VR_PR','LQ_LQR_VR_SC','LQ_LQR_VR_TD')")
     public PaginatedDto<GetReembolsoDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
-                                                         FilterListDto filters, Pageable pageable) {
+                                                         FilterListComprasLiquidacionesDto filters, Pageable pageable) {
 
         return reembolsosService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable,
                 auditorAware.getTipoPermisoVerReembolso(),
@@ -112,7 +112,7 @@ public class LiquidacionReembolsosController {
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('LQ_LQR_VR_PR','LQ_LQR_VR_SC','LQ_LQR_VR_TD')")
     public GetListDtoTotalizado<GetReembolsoDto> findAllPaginateTotalizado(@PathVariable("idEmpresa") Long idEmpresa,
-                                                                           FilterListDto filters,
+                                                                           FilterListComprasLiquidacionesDto filters,
                                                                            Pageable pageable) {
         return reembolsosService.findAllPaginateTotalizado(idDataService.getIdData(), idEmpresa, filters, pageable);
     }
@@ -120,14 +120,14 @@ public class LiquidacionReembolsosController {
     @GetMapping("excel/{idEmpresa}")
     @PreAuthorize("hasAuthority('LQ_LQR_EX')")
     public void exportarExcel(@PathVariable("idEmpresa") Long idEmpresa,
-                              HttpServletResponse response, FilterListDto filter) throws IOException {
+                              HttpServletResponse response, FilterListComprasLiquidacionesDto filter) throws IOException {
         reembolsosService.exportarExcel(idDataService.getIdData(), idEmpresa, response, filter);
     }
 
     @GetMapping("pdf/{idEmpresa}")
     @PreAuthorize("hasAuthority('LQ_LQR_EX')")
     public void exportarPDF(@PathVariable("idEmpresa") Long idEmpresa,
-                            HttpServletResponse response, FilterListDto filters) throws DocumentException, IOException {
+                            HttpServletResponse response, FilterListComprasLiquidacionesDto filters) throws DocumentException, IOException {
         reembolsosService.exportarPDF(idDataService.getIdData(), idEmpresa, response, filters);
     }
 

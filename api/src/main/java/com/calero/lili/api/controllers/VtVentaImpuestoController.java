@@ -5,7 +5,7 @@ import com.calero.lili.api.utils.IdDataServiceImpl;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.modVentas.dto.GetListDto;
-import com.calero.lili.core.modVentas.facturas.dto.FilterListDto;
+import com.calero.lili.core.modVentas.facturas.dto.FilterListVentasDto;
 import com.calero.lili.core.modVentas.modVentasImpuestos.VtVentasImpuestoService;
 import com.calero.lili.core.modVentas.modVentasImpuestos.dto.CreationVentaImpuestoRequestDto;
 import com.calero.lili.core.modVentas.modVentasImpuestos.dto.VentaImpuestoResponseDto;
@@ -54,7 +54,7 @@ public class VtVentaImpuestoController {
     public ResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                               @PathVariable("idVenta") UUID idVenta,
                               @RequestBody CreationVentaImpuestoRequestDto request,
-                              FilterListDto filters) {
+                              FilterListVentasDto filters) {
         return vtVentasImpuestoService.update(idDataService.getIdData(), idEmpresa, idVenta, request, filters,
                 auditorAware.getTipoPermisoFacturaModificar(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
@@ -64,7 +64,7 @@ public class VtVentaImpuestoController {
     @PreAuthorize("hasAnyAuthority('VT_FC_EL_PR', 'VT_FC_EL_SC', 'VT_FC_EL_TD')")
     public void delete(@PathVariable("idEmpresa") Long idEmpresa,
                        @PathVariable("idVenta") UUID idVenta,
-                       FilterListDto filters) {
+                       FilterListVentasDto filters) {
         vtVentasImpuestoService.delete(idDataService.getIdData(), idEmpresa, idVenta, filters,
                 auditorAware.getTipoPermisoFacturaEliminar(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
@@ -74,7 +74,7 @@ public class VtVentaImpuestoController {
     @PreAuthorize("hasAnyAuthority('VT_FC_VR_PR', 'VT_FC_VR_SC', 'VT_FC_VR_TD')")
     public VentaImpuestoResponseDto findById(@PathVariable("idEmpresa") Long idEmpresa,
                                              @PathVariable("idVenta") UUID idVenta,
-                                             FilterListDto filters) {
+                                             FilterListVentasDto filters) {
         return vtVentasImpuestoService.findById(idDataService.getIdData(), idEmpresa, idVenta, filters,
                 auditorAware.getTipoPermisoFacturaVer(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
@@ -83,7 +83,7 @@ public class VtVentaImpuestoController {
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('VT_FC_VR_PR', 'VT_FC_VR_SC', 'VT_FC_VR_TD')")
     public PaginatedDto<GetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
-                                                    FilterListDto filters,
+                                                    FilterListVentasDto filters,
                                                     Pageable pageable) {
         return vtVentasImpuestoService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable,
                 auditorAware.getTipoPermisoFacturaVer(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
@@ -94,7 +94,7 @@ public class VtVentaImpuestoController {
     @PreAuthorize("hasAnyAuthority('VT_FC_AN_PR', 'VT_FC_AN_SC', 'VT_FC_AN_TD')")
     public ResponseDto updateAnulada(@PathVariable("idEmpresa") Long idEmpresa,
                                      @PathVariable("idVenta") UUID idVenta,
-                                     FilterListDto filters) {
+                                     FilterListVentasDto filters) {
         return vtVentasImpuestoService.updateAnulada(idDataService.getIdData(), idEmpresa, idVenta, filters,
                 auditorAware.getTipoPermisoFacturaAnular(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }

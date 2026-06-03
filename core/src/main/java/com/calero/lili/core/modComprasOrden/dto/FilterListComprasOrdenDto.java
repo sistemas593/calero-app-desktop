@@ -1,4 +1,4 @@
-package com.calero.lili.core.modVentas.notasCredito.dto;
+package com.calero.lili.core.modComprasOrden.dto;
 
 import com.calero.lili.core.utils.DateUtils;
 import lombok.Data;
@@ -8,26 +8,22 @@ import java.time.LocalDate;
 
 @Data
 @ToString
-public class FilterListDto {
-    private Long idFactura;
+public class FilterListComprasOrdenDto {
+
+
     private String sucursal;
-    private String tipoVenta;
-    private String codigoDocumento;
-    private String serie;
     private String secuencial;
     private String fechaEmisionDesde;
     private String fechaEmisionHasta;
-    private String numeroIdentificacion;
-    private String numeroAutorizacion;
 
     public LocalDate getFechaEmisionDesde() {
-        if(fechaEmisionDesde == null)
+        if (fechaEmisionDesde == null)
             return null;
         return DateUtils.toLocalDate(fechaEmisionDesde);
     }
 
     public LocalDate getFechaEmisionHasta() {
-        if(fechaEmisionHasta == null)
+        if (fechaEmisionHasta == null)
             return null;
         return DateUtils.toLocalDate(fechaEmisionHasta);
     }

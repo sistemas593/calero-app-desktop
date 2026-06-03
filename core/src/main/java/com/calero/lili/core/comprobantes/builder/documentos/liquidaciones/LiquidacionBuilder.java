@@ -16,8 +16,8 @@ import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesEntity;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.CpLiquidacionesDetalleEntity;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.CpLiquidacionesEntity;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.CpLiquidacionesValoresEntity;
-import com.calero.lili.core.utils.validaciones.ObligadoContabilidad;
 import com.calero.lili.core.utils.DateUtils;
+import com.calero.lili.core.utils.validaciones.ObligadoContabilidad;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -106,7 +106,7 @@ public class LiquidacionBuilder {
                 .tipoIdentificacionProveedor(TipoIdentificacion.valueOf(liquidacion.getProveedor().getTipoIdentificacion()).getCodigo())
                 .razonSocialProveedor(liquidacion.getProveedor().getTercero())
                 .identificacionProveedor(liquidacion.getProveedor().getNumeroIdentificacion())
-                .direccionProveedor(liquidacion.getProveedor().getDireccion())
+                .direccionProveedor(validarDireccionComprador(liquidacion))
                 .totalSinImpuestos(formatoValores.convertirBigDecimalToString(liquidacion.getSubtotal()))
                 .totalDescuento(formatoValores.convertirBigDecimalToString(liquidacion.getTotalDescuento()))
                 .totalImpuesto(builderListTotalImpuesto(liquidacion.getValoresEntity()))
@@ -132,5 +132,16 @@ public class LiquidacionBuilder {
                 .build();
     }
 
+    private String validarDireccionComprador(CpLiquidacionesEntity liquidacion) {
+        if (Objects.nonNull(liquidacion.getProveedor().getDireccion())) {
+            if (!liquidacion.getProveedor().getDireccion().isEmpty()) {
+                return liquidacion.getProveedor().getDireccion();
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
 
 }

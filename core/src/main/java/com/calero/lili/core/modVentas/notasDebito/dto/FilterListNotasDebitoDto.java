@@ -1,36 +1,33 @@
-package com.calero.lili.core.modCompras.modCompras.dto;
+package com.calero.lili.core.modVentas.notasDebito.dto;
 
-import com.calero.lili.core.enums.TipoVenta;
 import com.calero.lili.core.utils.DateUtils;
 import lombok.Data;
 import lombok.ToString;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @ToString
-public class FilterListDto {
-    private Long idFactura;
+public class FilterListNotasDebitoDto {
+
     private String sucursal;
-    private TipoVenta tipoVenta;
-    private String codigoDocumento;
+    private String tipoVenta;
     private String serie;
     private String secuencial;
     private String fechaEmisionDesde;
     private String fechaEmisionHasta;
-    private String numeroIdentificacion;
     private String numeroAutorizacion;
 
-    public LocalDate getFechaEmisionDesde() {
+    public LocalDateTime getFechaEmisionDesde() {
         if(fechaEmisionDesde == null)
             return null;
-        return DateUtils.toLocalDate(fechaEmisionDesde);
+        return DateUtils.toLocalDateTimeFechaDesde(fechaEmisionDesde);
     }
 
-    public LocalDate getFechaEmisionHasta() {
+    public LocalDateTime getFechaEmisionHasta() {
         if(fechaEmisionHasta == null)
             return null;
-        return DateUtils.toLocalDate(fechaEmisionHasta);
+        return DateUtils.toLocalDateTimeFechaDesde(fechaEmisionHasta);
     }
 
     private Boolean anulada;

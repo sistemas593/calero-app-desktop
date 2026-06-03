@@ -5,7 +5,7 @@ import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.modCompras.modCompras.builder.CpComprasBuilder;
 import com.calero.lili.core.modCompras.modCompras.dto.CompraImpuestosDto;
 import com.calero.lili.core.modCompras.modCompras.dto.CompraRequestDto;
-import com.calero.lili.core.modCompras.modCompras.dto.FilterListDto;
+import com.calero.lili.core.modCompras.modCompras.dto.FilterListComprasDto;
 import com.calero.lili.core.modCompras.modCompras.dto.GetDto;
 import com.calero.lili.core.modCompras.modCompras.dto.GetListDto;
 import com.calero.lili.core.modCompras.modCompras.dto.GetListDtoTotalizado;
@@ -124,7 +124,7 @@ public class ComprasServiceImpl {
 
     @Transactional
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta,
-                              CompraRequestDto request, String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
+                              CompraRequestDto request, String usuario, FilterListComprasDto filters, TipoPermiso tipoBusqueda) {
 
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
                 DateUtils.toLocalDate(request.getFechaEmision()));
@@ -149,7 +149,7 @@ public class ComprasServiceImpl {
     }
 
     public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario,
-                       FilterListDto filters, TipoPermiso tipoBusqueda) {
+                       FilterListComprasDto filters, TipoPermiso tipoBusqueda) {
 
 
         CpComprasEntity compra = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
@@ -164,7 +164,7 @@ public class ComprasServiceImpl {
 
 
     public GetDto findById(Long idData, Long idEmpresa, UUID idVenta,
-                           FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+                           FilterListComprasDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         CpComprasEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
@@ -173,7 +173,7 @@ public class ComprasServiceImpl {
         return response;
     }
 
-    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable,
+    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListComprasDto filters, Pageable pageable,
                                                     TipoPermiso tipoBusqueda, String usuario) {
 
         Page<CpComprasEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
@@ -204,7 +204,7 @@ public class ComprasServiceImpl {
         return paginatedDto;
     }
 
-    private Page<CpComprasEntity> getTipoBusquedaPaginado(Long idData, Long idEmpresa, FilterListDto filters,
+    private Page<CpComprasEntity> getTipoBusquedaPaginado(Long idData, Long idEmpresa, FilterListComprasDto filters,
                                                           Pageable pageable, TipoPermiso tipoBusqueda, String usuario) {
         switch (tipoBusqueda) {
             case TODAS -> {
@@ -230,7 +230,7 @@ public class ComprasServiceImpl {
         throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
     }
 
-    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable) {
+    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListComprasDto filters, Pageable pageable) {
 
         Page<CpComprasEntity> page = comprasRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(),
                 filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(),
@@ -270,7 +270,7 @@ public class ComprasServiceImpl {
     }
 
 
-    public void exportarExcel(Long idData, Long idEmpresa, HttpServletResponse response, FilterListDto filter) throws IOException {
+    public void exportarExcel(Long idData, Long idEmpresa, HttpServletResponse response, FilterListComprasDto filter) throws IOException {
 
 
         log.info("Iniciando la exportación a Excel con el filtro: {}", filter);
@@ -389,7 +389,7 @@ public class ComprasServiceImpl {
     }
 
 
-    public void exportarPDF(Long idData, Long idEmpresa, HttpServletResponse response, FilterListDto filters) throws DocumentException, IOException {
+    public void exportarPDF(Long idData, Long idEmpresa, HttpServletResponse response, FilterListComprasDto filters) throws DocumentException, IOException {
 
         List<CpComprasEntity> facturas = comprasRepository.findAll(idData, idEmpresa, filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getSerie(), filters.getSecuencial());
 
@@ -529,7 +529,7 @@ public class ComprasServiceImpl {
     }
 
     private CpComprasEntity validacionTipoBusqueda(Long idData, Long idEmpresa, UUID idVenta,
-                                                   FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+                                                   FilterListComprasDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         switch (tipoBusqueda) {
             case TODAS:

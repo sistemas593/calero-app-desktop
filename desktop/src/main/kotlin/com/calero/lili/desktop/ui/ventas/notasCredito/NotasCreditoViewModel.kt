@@ -9,7 +9,7 @@ import com.calero.lili.core.modTerceros.dto.GeTerceroGetListDto
 import com.calero.lili.core.modVentas.dto.GetListDto
 import com.calero.lili.core.modVentas.notasCredito.VtVentasNotasCreditoServiceImpl
 import com.calero.lili.core.comprobantesWs.services.GetXmlVtVentasNotasCreditoServiceImpl
-import com.calero.lili.core.modVentas.facturas.dto.FilterListDto
+import com.calero.lili.core.modVentas.facturas.dto.FilterListVentasDto
 import java.awt.print.PrinterJob
 import java.io.FileOutputStream
 import java.time.LocalDateTime
@@ -106,7 +106,7 @@ class NotasCreditoViewModel(
         scope.launch {
             _state.update { it.copy(isLoading = true, errorMessage = null) }
             try {
-                val filtro = FilterListDto()
+                val filtro = FilterListVentasDto()
                 filtro.serie = s.filterSerie.trim().ifBlank { null }
                 filtro.secuencial = s.filterSecuencial.trim().ifBlank { null }
                 filtro.anulada = s.filterEstado.anulada
@@ -354,7 +354,7 @@ class NotasCreditoViewModel(
             try {
                 val s = _state.value
 
-                val filtro = FilterListDto()
+                val filtro = FilterListVentasDto()
                 filtro.serie = s.filterSerie.trim().ifBlank { null }
                 filtro.secuencial = s.filterSecuencial.trim().ifBlank { null }
                 filtro.anulada = s.filterEstado.anulada

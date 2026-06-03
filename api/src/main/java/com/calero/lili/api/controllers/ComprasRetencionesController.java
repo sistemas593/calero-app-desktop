@@ -4,11 +4,10 @@ import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.api.utils.IdDataServiceImpl;
 import com.calero.lili.core.comprobantesWs.RespuestaProcesoGetDto;
 import com.calero.lili.core.dtos.Mensajes;
-import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.modCompras.modComprasRetenciones.ComprasRetencionesServiceImpl;
 import com.calero.lili.core.modCompras.modComprasRetenciones.dto.CreationRetencionRequestDto;
-import com.calero.lili.core.modCompras.modComprasRetenciones.dto.FilterListDto;
+import com.calero.lili.core.modCompras.modComprasRetenciones.dto.FilterListCompraRetencionesDto;
 import com.calero.lili.core.modCompras.modComprasRetenciones.dto.GetDto;
 import com.calero.lili.core.modCompras.modComprasRetenciones.dto.GetListDto;
 import com.calero.lili.core.modCompras.modComprasRetenciones.dto.GetListDtoTotalizado;
@@ -61,7 +60,7 @@ public class ComprasRetencionesController {
     public ResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                               @PathVariable("idRetencion") UUID idRetencion,
                               @RequestBody CreationRetencionRequestDto request,
-                              FilterListDto filters) {
+                              FilterListCompraRetencionesDto filters) {
         return vtVentasService.update(idDataService.getIdData(), idEmpresa, idRetencion, request,
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"),
                 filters,
@@ -73,7 +72,7 @@ public class ComprasRetencionesController {
     @PreAuthorize("hasAnyAuthority('CP_RT_EL_PR','CP_RT_EL_SC','CP_RT_EL_TD')")
     public void delete(@PathVariable("idEmpresa") Long idEmpresa,
                        @PathVariable("idRetencion") UUID idRetencion,
-                       FilterListDto filters) {
+                       FilterListCompraRetencionesDto filters) {
         vtVentasService.delete(idDataService.getIdData(), idEmpresa, idRetencion,
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"),
                 filters,
@@ -85,7 +84,7 @@ public class ComprasRetencionesController {
     @PreAuthorize("hasAnyAuthority('CP_RT_VR_PR','CP_RT_VR_SC','CP_RT_VR_TD')")
     public GetDto findById(@PathVariable("idEmpresa") Long idEmpresa,
                            @PathVariable("idRetencion") UUID idRetencion,
-                           FilterListDto filters) {
+                           FilterListCompraRetencionesDto filters) {
         return vtVentasService.findById(idDataService.getIdData(), idEmpresa, idRetencion,
                 filters,
                 auditorAware.getTipoPermisoVerCompraRetencion(),
@@ -97,7 +96,7 @@ public class ComprasRetencionesController {
     @PreAuthorize("hasAnyAuthority('CP_RT_VR_PR','CP_RT_VR_SC','CP_RT_VR_TD')")
     public List<Mensajes> findByIdMensajes(@PathVariable("idEmpresa") Long idEmpresa,
                                            @PathVariable("idRetencion") UUID idRetencion,
-                                           FilterListDto filters) {
+                                           FilterListCompraRetencionesDto filters) {
         return vtVentasService.findByIdMensajes(idDataService.getIdData(), idEmpresa, idRetencion,
                 filters,
                 auditorAware.getTipoPermisoVerCompraRetencion(),
@@ -119,7 +118,7 @@ public class ComprasRetencionesController {
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('CP_RT_VR_PR','CP_RT_VR_SC','CP_RT_VR_TD')")
     public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(@PathVariable("idEmpresa") Long idEmpresa,
-                                                                      FilterListDto filters,
+                                                                      FilterListCompraRetencionesDto filters,
                                                                       Pageable pageable) {
         log.info("Filters = {}", filters);
         return vtVentasService.findAllPaginateTotalizado(idDataService.getIdData(), idEmpresa, filters, pageable);
@@ -129,7 +128,7 @@ public class ComprasRetencionesController {
     @PreAuthorize("hasAuthority('CP_RT_EX')")
     public void exportarExcel(HttpServletResponse response,
                               @PathVariable("idEmpresa") Long idEmpresa,
-                              FilterListDto filter) throws IOException {
+                              FilterListCompraRetencionesDto filter) throws IOException {
         log.info("Iniciando la exportación a Excel con el filtro: {}", filter);
         vtVentasService.exportarExcel(idDataService.getIdData(), idEmpresa, response, filter);
     }
@@ -138,7 +137,7 @@ public class ComprasRetencionesController {
     @PreAuthorize("hasAuthority('CP_RT_EX')")
     public void exportarPDF(HttpServletResponse response,
                             @PathVariable("idEmpresa") Long idEmpresa,
-                            FilterListDto filters) throws DocumentException, IOException {
+                            FilterListCompraRetencionesDto filters) throws DocumentException, IOException {
         vtVentasService.exportarPDF(idDataService.getIdData(), idEmpresa, response, filters);
     }
 
@@ -146,7 +145,7 @@ public class ComprasRetencionesController {
     @PreAuthorize("hasAnyAuthority('CP_RT_AN_PR','CP_RT_AN_SC','CP_RT_AN_TD')")
     public ResponseDto updateAnulada(@PathVariable("idEmpresa") Long idEmpresa,
                                      @PathVariable("idRetencion") UUID idRetencion,
-                                     FilterListDto filters) {
+                                     FilterListCompraRetencionesDto filters) {
         return vtVentasService.updateAnulada(idDataService.getIdData(), idEmpresa, idRetencion,
                 filters,
                 auditorAware.getTipoPermisoAnularCompraRetencion(),

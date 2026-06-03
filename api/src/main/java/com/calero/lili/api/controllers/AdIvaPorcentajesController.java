@@ -3,7 +3,7 @@ package com.calero.lili.api.controllers;
 import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
 import com.calero.lili.core.modAdminPorcentajes.dto.AdIvaPorcentajesDto;
 import com.calero.lili.core.modAdminPorcentajes.dto.AdIvaPorcentajesResponseDto;
-import com.calero.lili.core.modAdminPorcentajes.dto.FilterListDto;
+import com.calero.lili.core.modAdminPorcentajes.dto.FilterListAdIvaPorcentajeDto;
 import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.core.dtos.PaginatedDto;
 import jakarta.validation.Valid;
@@ -57,7 +57,7 @@ public class AdIvaPorcentajesController {
     @GetMapping("listar")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAuthority('US_PE_VR')")
-    public PaginatedDto<AdIvaPorcentajesResponseDto> findAllPaginate(FilterListDto filters,
+    public PaginatedDto<AdIvaPorcentajesResponseDto> findAllPaginate(FilterListAdIvaPorcentajeDto filters,
                                                                      Pageable pageable) {
         return adIvaPorcentajeService.findAllPaginate(filters, pageable);
     }

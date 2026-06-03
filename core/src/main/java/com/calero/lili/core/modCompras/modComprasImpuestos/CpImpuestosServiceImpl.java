@@ -15,7 +15,7 @@ import com.calero.lili.core.modCompras.modComprasImpuestos.builder.CpImpuestosBu
 import com.calero.lili.core.modCompras.modComprasImpuestos.builder.ImpuestoCodigoBuilder;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.AcumulacionProveedorTotalesDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CreationCompraImpuestoRequestDto;
-import com.calero.lili.core.modCompras.modComprasImpuestos.dto.FilterListDto;
+import com.calero.lili.core.modCompras.modComprasImpuestos.dto.FilterListCompraImpuestoDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetListDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetListDtoTotalizado;
@@ -236,7 +236,7 @@ public class CpImpuestosServiceImpl {
 
     @Transactional
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationCompraImpuestoRequestDto request,
-                              String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
+                              String usuario, FilterListCompraImpuestoDto filters, TipoPermiso tipoBusqueda) {
 
         validarNumeroAutorizacion(request);
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
@@ -285,7 +285,7 @@ public class CpImpuestosServiceImpl {
 
 
     public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario,
-                       FilterListDto filters, TipoPermiso tipoBusqueda) {
+                       FilterListCompraImpuestoDto filters, TipoPermiso tipoBusqueda) {
 
         CpImpuestosEntity impuestosEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
         impuestosEntity.setDelete(Boolean.TRUE);
@@ -299,7 +299,7 @@ public class CpImpuestosServiceImpl {
 
 
     public GetDto findById(Long idData, Long idEmpresa, UUID id,
-                           FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+                           FilterListCompraImpuestoDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         CpImpuestosEntity entity = validacionTipoBusqueda(idData, idEmpresa, id, filters, tipoBusqueda, usuario);
         GetDto dto = cpImpuestosBuilder.builderDto(entity);
@@ -330,7 +330,7 @@ public class CpImpuestosServiceImpl {
         return dto;
     }
 
-    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable,
+    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListCompraImpuestoDto filters, Pageable pageable,
                                                                       TipoPermiso tipoBusqueda, String usuario) {
 
         Page<CpImpuestosEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
@@ -407,7 +407,7 @@ public class CpImpuestosServiceImpl {
     }
 
 
-    public void exportarExcel(Long idData, Long idEmpresa, HttpServletResponse response, FilterListDto filter) throws IOException {
+    public void exportarExcel(Long idData, Long idEmpresa, HttpServletResponse response, FilterListCompraImpuestoDto filter) throws IOException {
 
 
         DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
@@ -479,7 +479,7 @@ public class CpImpuestosServiceImpl {
         }
     }
 
-    public void exportarPDF(Long idData, Long idEmpresa, HttpServletResponse response, FilterListDto filter) throws IOException {
+    public void exportarPDF(Long idData, Long idEmpresa, HttpServletResponse response, FilterListCompraImpuestoDto filter) throws IOException {
 
 
         response.setContentType("application/pdf");
@@ -817,7 +817,7 @@ public class CpImpuestosServiceImpl {
 
 
     private Page<CpImpuestosEntity> getTipoBusquedaPaginado(Long idData, Long idEmpresa,
-                                                            FilterListDto filters, Pageable pageable,
+                                                            FilterListCompraImpuestoDto filters, Pageable pageable,
                                                             TipoPermiso tipoBusqueda, String usuario) {
         switch (tipoBusqueda) {
             case TODAS -> {
@@ -850,7 +850,7 @@ public class CpImpuestosServiceImpl {
     }
 
     private CpImpuestosEntity validacionTipoBusqueda(Long idData, Long idEmpresa, UUID idVenta,
-                                                     FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+                                                     FilterListCompraImpuestoDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         switch (tipoBusqueda) {
             case TODAS:

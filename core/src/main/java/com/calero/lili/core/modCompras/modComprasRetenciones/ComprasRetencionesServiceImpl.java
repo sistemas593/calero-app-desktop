@@ -22,7 +22,7 @@ import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosServiceImpl;
 import com.calero.lili.core.modCompras.modComprasRetenciones.builder.CpRetencionesBuilder;
 import com.calero.lili.core.modCompras.modComprasRetenciones.dto.CreationRetencionRequestDto;
-import com.calero.lili.core.modCompras.modComprasRetenciones.dto.FilterListDto;
+import com.calero.lili.core.modCompras.modComprasRetenciones.dto.FilterListCompraRetencionesDto;
 import com.calero.lili.core.modCompras.modComprasRetenciones.dto.GetDto;
 import com.calero.lili.core.modCompras.modComprasRetenciones.dto.GetListDto;
 import com.calero.lili.core.modCompras.modComprasRetenciones.dto.GetListDtoTotalizado;
@@ -159,7 +159,7 @@ public class ComprasRetencionesServiceImpl {
 
     @Transactional
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationRetencionRequestDto request,
-                              String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
+                              String usuario, FilterListCompraRetencionesDto filters, TipoPermiso tipoBusqueda) {
 
         validarNumeroAutorizacion(request);
         CpRetencionesEntity retencionesEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
@@ -197,7 +197,7 @@ public class ComprasRetencionesServiceImpl {
         }
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario, FilterListDto filters,
+    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario, FilterListCompraRetencionesDto filters,
                        TipoPermiso tipoBusqueda) {
 
 
@@ -213,7 +213,7 @@ public class ComprasRetencionesServiceImpl {
 
 
     public GetDto findById(Long idData, Long idEmpresa, UUID idVenta,
-                           FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+                           FilterListCompraRetencionesDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         CpRetencionesEntity cpRetencionesEntity = validacionTipoBusqueda(idData, idEmpresa,
                 idVenta, filters, tipoBusqueda, usuario);
@@ -226,13 +226,13 @@ public class ComprasRetencionesServiceImpl {
 
 
     public List<Mensajes> findByIdMensajes(Long idData, Long idEmpresa, UUID idRetencion,
-                                           FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+                                           FilterListCompraRetencionesDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         CpRetencionesEntity cpRetencionesEntity = validacionTipoBusqueda(idData, idEmpresa, idRetencion, filters, tipoBusqueda, usuario);
         return cpRetencionesEntity.getMensajes();
     }
 
-    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable,
+    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListCompraRetencionesDto filters, Pageable pageable,
                                                     TipoPermiso tipoBusqueda, String usuario) {
 
         Page<CpRetencionesEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
@@ -264,7 +264,7 @@ public class ComprasRetencionesServiceImpl {
         return paginatedDto;
     }
 
-    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable) {
+    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListCompraRetencionesDto filters, Pageable pageable) {
 
         Page<CpRetencionesEntity> page = comprasRetencionesRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(),
                 filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(),
@@ -306,7 +306,7 @@ public class ComprasRetencionesServiceImpl {
 
     }
 
-    public void exportarExcel(Long idData, Long idEmpresa, HttpServletResponse response, FilterListDto filter) throws
+    public void exportarExcel(Long idData, Long idEmpresa, HttpServletResponse response, FilterListCompraRetencionesDto filter) throws
             IOException {
 
 
@@ -396,7 +396,7 @@ public class ComprasRetencionesServiceImpl {
     }
 
 
-    public void exportarPDF(Long idData, Long idEmpresa, HttpServletResponse response, FilterListDto filters) throws
+    public void exportarPDF(Long idData, Long idEmpresa, HttpServletResponse response, FilterListCompraRetencionesDto filters) throws
             DocumentException, IOException {
 
         List<CpRetencionesEntity> facturas = comprasRetencionesRepository.findAll(idData, idEmpresa, filters.getSucursal(),
@@ -512,7 +512,7 @@ public class ComprasRetencionesServiceImpl {
 
 
     public ResponseDto updateAnulada(Long idData, Long idEmpresa, UUID idRetencion,
-                                     FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+                                     FilterListCompraRetencionesDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         CpRetencionesEntity cpRetencionesEntity = validacionTipoBusqueda(idData, idEmpresa, idRetencion, filters, tipoBusqueda, usuario);
         if (!cpRetencionesEntity.getAnulada()) {
@@ -534,7 +534,7 @@ public class ComprasRetencionesServiceImpl {
 
 
     private Page<CpRetencionesEntity> getTipoBusquedaPaginado(Long idData, Long idEmpresa,
-                                                              FilterListDto filters, Pageable pageable,
+                                                              FilterListCompraRetencionesDto filters, Pageable pageable,
                                                               TipoPermiso tipoBusqueda, String usuario) {
         switch (tipoBusqueda) {
             case TODAS -> {
@@ -566,7 +566,7 @@ public class ComprasRetencionesServiceImpl {
     }
 
     private CpRetencionesEntity validacionTipoBusqueda(Long idData, Long idEmpresa, UUID idVenta,
-                                                       FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+                                                       FilterListCompraRetencionesDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         switch (tipoBusqueda) {
             case TODAS:

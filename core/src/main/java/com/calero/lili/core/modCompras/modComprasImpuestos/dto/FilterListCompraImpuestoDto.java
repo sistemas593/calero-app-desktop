@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 @Data
 @ToString
-public class FilterListDto {
+public class FilterListCompraImpuestoDto {
     private String numeroAutorizacion;
     private String tipoDocumento;
     private String serie;

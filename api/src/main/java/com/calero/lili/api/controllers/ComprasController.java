@@ -6,7 +6,7 @@ import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.modCompras.modCompras.ComprasServiceImpl;
 import com.calero.lili.core.modCompras.modCompras.dto.CompraRequestDto;
-import com.calero.lili.core.modCompras.modCompras.dto.FilterListDto;
+import com.calero.lili.core.modCompras.modCompras.dto.FilterListComprasDto;
 import com.calero.lili.core.modCompras.modCompras.dto.GetDto;
 import com.calero.lili.core.modCompras.modCompras.dto.GetListDto;
 import com.calero.lili.core.modCompras.modCompras.dto.GetListDtoTotalizado;
@@ -58,7 +58,7 @@ public class ComprasController {
     public ResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                               @PathVariable("idCompra") UUID idCompra,
                               @RequestBody CompraRequestDto request,
-                              FilterListDto filters) {
+                              FilterListComprasDto filters) {
         return vtVentasService.update(idDataService.getIdData(), idEmpresa, idCompra, request,
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"),
                 filters,
@@ -70,7 +70,7 @@ public class ComprasController {
     @PreAuthorize("hasAnyAuthority('CP_CP_EL_PR','CP_CP_EL_SC','CP_CP_EL_TD')")
     public void delete(@PathVariable("idEmpresa") Long idEmpresa,
                        @PathVariable("idCompra") UUID idCompra,
-                       FilterListDto filters) {
+                       FilterListComprasDto filters) {
         vtVentasService.delete(idDataService.getIdData(), idEmpresa, idCompra,
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"),
                 filters,
@@ -82,7 +82,7 @@ public class ComprasController {
     @PreAuthorize("hasAnyAuthority('CP_CP_VR_PR','CP_CP_VR_SC','CP_CP_VR_TD')")
     public GetDto findById(@PathVariable("idEmpresa") Long idEmpresa,
                            @PathVariable("idCompra") UUID idCompra,
-                           FilterListDto filters) {
+                           FilterListComprasDto filters) {
         return vtVentasService.findById(idDataService.getIdData(), idEmpresa, idCompra,
                 filters,
                 auditorAware.getTipoPermisoVerCompra(),
@@ -93,7 +93,7 @@ public class ComprasController {
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('CP_CP_VR_PR','CP_CP_VR_SC','CP_CP_VR_TD')")
     public PaginatedDto<GetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
-                                                    FilterListDto filters,
+                                                    FilterListComprasDto filters,
                                                     Pageable pageable) {
         return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable,
                 auditorAware.getTipoPermisoVerCompra(),
@@ -105,7 +105,7 @@ public class ComprasController {
     @PreAuthorize("hasAnyAuthority('CP_CP_VR_PR','CP_CP_VR_SC','CP_CP_VR_TD')")
     public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(
             @PathVariable("idEmpresa") Long idEmpresa,
-            FilterListDto filters,
+            FilterListComprasDto filters,
             Pageable pageable) {
         log.info("Filters = {}", filters);
         return vtVentasService.findAllPaginateTotalizado(idDataService.getIdData(), idEmpresa, filters, pageable);
@@ -115,7 +115,7 @@ public class ComprasController {
     @PreAuthorize("hasAuthority('CP_CP_EX')")
     public void exportarExcel(HttpServletResponse response,
                               @PathVariable("idEmpresa") Long idEmpresa,
-                              FilterListDto filter) throws IOException {
+                              FilterListComprasDto filter) throws IOException {
         log.info("Iniciando la exportación a Excel con el filtro: {}", filter);
         vtVentasService.exportarExcel(idDataService.getIdData(), idEmpresa, response, filter);
     }
@@ -124,7 +124,7 @@ public class ComprasController {
     @PreAuthorize("hasAuthority('CP_CP_EX')")
     public void exportarPDF(HttpServletResponse response,
                             @PathVariable("idEmpresa") Long idEmpresa,
-                            FilterListDto filters) throws DocumentException, IOException {
+                            FilterListComprasDto filters) throws DocumentException, IOException {
         vtVentasService.exportarPDF(idDataService.getIdData(), idEmpresa, response, filters);
     }
 

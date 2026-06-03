@@ -6,7 +6,7 @@ import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminPorcentajes.builder.AdIvaPorcentajeBuilder;
 import com.calero.lili.core.modAdminPorcentajes.dto.AdIvaPorcentajesDto;
 import com.calero.lili.core.modAdminPorcentajes.dto.AdIvaPorcentajesResponseDto;
-import com.calero.lili.core.modAdminPorcentajes.dto.FilterListDto;
+import com.calero.lili.core.modAdminPorcentajes.dto.FilterListAdIvaPorcentajeDto;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -70,7 +70,7 @@ public class AdIvaPorcentajeServiceImpl {
     }
 
 
-    public PaginatedDto<AdIvaPorcentajesResponseDto> findAllPaginate(FilterListDto filtro, Pageable pageable) {
+    public PaginatedDto<AdIvaPorcentajesResponseDto> findAllPaginate(FilterListAdIvaPorcentajeDto filtro, Pageable pageable) {
 
         Page<AdIvaPorcentajesEntity> page = adIvaPorcentajesRepository.findAllPaginate(filtro.getFechaDesde(),
                 filtro.getFechaHasta(), pageable);

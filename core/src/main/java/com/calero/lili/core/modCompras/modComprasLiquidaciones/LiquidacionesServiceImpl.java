@@ -21,7 +21,7 @@ import com.calero.lili.core.modAdminEmpresas.projection.MomentoEnvioProjection;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosServiceImpl;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.builder.CpLiquidacionesBuilder;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.CreationRequestLiquidacionCompraDto;
-import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.FilterListDto;
+import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.FilterListComprasLiquidacionesDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.GetDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.GetListDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.GetListDtoTotalizado;
@@ -32,8 +32,6 @@ import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.Liquid
 import com.calero.lili.core.modComprasItems.GeItemsRepository;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
-import com.calero.lili.core.modVentas.dto.DetailDto;
-import com.calero.lili.core.modVentas.facturas.dto.CreationFacturaRequestDto;
 import com.calero.lili.core.utils.DateUtils;
 import com.calero.lili.core.utils.ValidacionDocumentosGeneral;
 import com.lowagie.text.Document;
@@ -210,7 +208,7 @@ public class LiquidacionesServiceImpl {
 
     @Transactional
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationRequestLiquidacionCompraDto request,
-                              String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
+                              String usuario, FilterListComprasLiquidacionesDto filters, TipoPermiso tipoBusqueda) {
 
         ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencial());
         validarNumeroAutorizacion(request);
@@ -259,7 +257,7 @@ public class LiquidacionesServiceImpl {
     }
 
     public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario,
-                       FilterListDto filters, TipoPermiso tipoBusqueda) {
+                       FilterListComprasLiquidacionesDto filters, TipoPermiso tipoBusqueda) {
 
         CpLiquidacionesEntity liquidacion = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
@@ -273,7 +271,7 @@ public class LiquidacionesServiceImpl {
 
 
     public GetDto findById(Long idData, Long idEmpresa, UUID idVenta,
-                           FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+                           FilterListComprasLiquidacionesDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         CpLiquidacionesEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
@@ -284,14 +282,14 @@ public class LiquidacionesServiceImpl {
 
 
     public List<Mensajes> findByIdMensajes(Long idData, Long idEmpresa, UUID idVenta,
-                                           FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+                                           FilterListComprasLiquidacionesDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         CpLiquidacionesEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         return vtVentaEntity.getMensajes();
     }
 
-    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable,
+    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListComprasLiquidacionesDto filters, Pageable pageable,
                                                     TipoPermiso tipoBusqueda, String usuario) {
 
         Page<CpLiquidacionesEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
@@ -331,7 +329,7 @@ public class LiquidacionesServiceImpl {
         return paginatedDto;
     }
 
-    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable) {
+    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListComprasLiquidacionesDto filters, Pageable pageable) {
 
 
         Page<CpLiquidacionesEntity> page = liquidacionesRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getSerie(), filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
@@ -377,7 +375,7 @@ public class LiquidacionesServiceImpl {
     }
 
 
-    public void exportarExcel(Long idData, Long idEmpresa, HttpServletResponse response, FilterListDto filter) throws IOException {
+    public void exportarExcel(Long idData, Long idEmpresa, HttpServletResponse response, FilterListComprasLiquidacionesDto filter) throws IOException {
 
 
         log.info("Iniciando la exportación a Excel con el filtro: {}", filter);
@@ -540,7 +538,7 @@ public class LiquidacionesServiceImpl {
     }
 
 
-    public void exportarPDF(Long idData, Long idEmpresa, HttpServletResponse response, FilterListDto filters) throws DocumentException, IOException {
+    public void exportarPDF(Long idData, Long idEmpresa, HttpServletResponse response, FilterListComprasLiquidacionesDto filters) throws DocumentException, IOException {
 
 
         List<CpLiquidacionesEntity> facturas = liquidacionesRepository.findAll(idData, idEmpresa, filters.getSucursal(),
@@ -732,7 +730,7 @@ public class LiquidacionesServiceImpl {
     }
 
     public ResponseDto updateAnulada(Long idData, Long idEmpresa, UUID idLiquidacion,
-                                     FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+                                     FilterListComprasLiquidacionesDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         CpLiquidacionesEntity cpLiquidacionesEntity = validacionTipoBusqueda(idData, idEmpresa, idLiquidacion, filters, tipoBusqueda, usuario);
 
@@ -771,7 +769,7 @@ public class LiquidacionesServiceImpl {
     }
 
     private Page<CpLiquidacionesEntity> getTipoBusquedaPaginado(Long idData, Long idEmpresa,
-                                                                FilterListDto filters, Pageable pageable,
+                                                                FilterListComprasLiquidacionesDto filters, Pageable pageable,
                                                                 TipoPermiso tipoBusqueda, String usuario) {
         switch (tipoBusqueda) {
             case TODAS -> {
@@ -801,7 +799,7 @@ public class LiquidacionesServiceImpl {
     }
 
     private CpLiquidacionesEntity validacionTipoBusqueda(Long idData, Long idEmpresa, UUID idVenta,
-                                                         FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+                                                         FilterListComprasLiquidacionesDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         switch (tipoBusqueda) {
             case TODAS:

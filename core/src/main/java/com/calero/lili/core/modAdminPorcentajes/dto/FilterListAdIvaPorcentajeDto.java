@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 @Data
 @ToString
-public class FilterListDto {
+public class FilterListAdIvaPorcentajeDto {
 
     private String fechaDesde;
     private String fechaHasta;

@@ -5,7 +5,7 @@ import com.calero.lili.api.utils.IdDataServiceImpl;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.modComprasOrden.OrdenComprasServiceImpl;
-import com.calero.lili.core.modComprasOrden.dto.FilterListDto;
+import com.calero.lili.core.modComprasOrden.dto.FilterListComprasOrdenDto;
 import com.calero.lili.core.modComprasOrden.dto.GetDto;
 import com.calero.lili.core.modComprasOrden.dto.GetListDto;
 import com.calero.lili.core.modComprasOrden.dto.GetListDtoTotalizado;
@@ -58,7 +58,7 @@ public class OrdenComprasController {
     public ResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                               @PathVariable("idOrdenCompra") UUID idOrdenCompra,
                               @RequestBody OrdenCompraRequestDto request,
-                              FilterListDto filters) {
+                              FilterListComprasOrdenDto filters) {
         return vtVentasService.update(idDataService.getIdData(), idEmpresa, idOrdenCompra, request,
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"),
                 filters,
@@ -70,7 +70,7 @@ public class OrdenComprasController {
     @PreAuthorize("hasAnyAuthority('CP_OC_EL_PR','CP_OC_EL_SC','CP_OC_EL_TD')")
     public void delete(@PathVariable("idEmpresa") Long idEmpresa,
                        @PathVariable("idOrdenCompra") UUID idOrdenCompra,
-                       FilterListDto filters) {
+                       FilterListComprasOrdenDto filters) {
         vtVentasService.delete(idDataService.getIdData(), idEmpresa, idOrdenCompra,
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"),
                 filters,
@@ -82,7 +82,7 @@ public class OrdenComprasController {
     @PreAuthorize("hasAnyAuthority('CP_OC_VR_PR','CP_OC_VR_SC','CP_OC_VR_TD')")
     public GetDto findById(@PathVariable("idEmpresa") Long idEmpresa,
                            @PathVariable("idOrdenCompra") UUID idOrdenCompra,
-                           FilterListDto filters) {
+                           FilterListComprasOrdenDto filters) {
         return vtVentasService.findById(idDataService.getIdData(), idEmpresa, idOrdenCompra,
                 filters,
                 auditorAware.getTipoPermisoVerOrdenCompra(),
@@ -93,7 +93,7 @@ public class OrdenComprasController {
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('CP_OC_VR_PR','CP_OC_VR_SC','CP_OC_VR_TD')")
     public PaginatedDto<GetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
-                                                    FilterListDto filters,
+                                                    FilterListComprasOrdenDto filters,
                                                     Pageable pageable) {
         return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable,
                 auditorAware.getTipoPermisoVerOrdenCompra(),
@@ -104,7 +104,7 @@ public class OrdenComprasController {
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('CP_OC_VR_PR','CP_OC_VR_SC','CP_OC_VR_TD')")
     public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(@PathVariable("idEmpresa") Long idEmpresa,
-                                                                      FilterListDto filters,
+                                                                      FilterListComprasOrdenDto filters,
                                                                       Pageable pageable) {
         log.info("Filters = {}", filters);
         return vtVentasService.findAllPaginateTotalizado(idDataService.getIdData(), idEmpresa, filters, pageable);
@@ -114,7 +114,7 @@ public class OrdenComprasController {
     @PreAuthorize("hasAuthority('CP_OC_EX')")
     public void exportarExcel(HttpServletResponse response,
                               @PathVariable("idEmpresa") Long idEmpresa,
-                              FilterListDto filter) throws IOException {
+                              FilterListComprasOrdenDto filter) throws IOException {
         log.info("Iniciando la exportación a Excel con el filtro: {}", filter);
         vtVentasService.exportarExcel(idDataService.getIdData(), idEmpresa, response, filter);
     }
@@ -123,7 +123,7 @@ public class OrdenComprasController {
     @PreAuthorize("hasAuthority('CP_OC_EX')")
     public void exportarPDF(HttpServletResponse response,
                             @PathVariable("idEmpresa") Long idEmpresa,
-                            FilterListDto filters) throws DocumentException, IOException {
+                            FilterListComprasOrdenDto filters) throws DocumentException, IOException {
         vtVentasService.exportarPDF(idDataService.getIdData(), idEmpresa, response, filters);
     }
 
@@ -131,7 +131,7 @@ public class OrdenComprasController {
     @PreAuthorize("hasAnyAuthority('CP_OC_AN_PR','CP_OC_AN_SC','CP_OC_AN_TD')")
     public ResponseDto updateAnulada(@PathVariable("idEmpresa") Long idEmpresa,
                                      @PathVariable("idOrdenCompra") UUID idOrdenCompra,
-                                     FilterListDto filters) {
+                                     FilterListComprasOrdenDto filters) {
         return vtVentasService.updateAnulada(idDataService.getIdData(), idEmpresa, idOrdenCompra,
                 filters,
                 auditorAware.getTipoPermisoAnularOrdenCompra(),

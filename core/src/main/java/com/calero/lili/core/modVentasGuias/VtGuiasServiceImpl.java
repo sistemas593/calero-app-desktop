@@ -24,7 +24,7 @@ import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
 import com.calero.lili.core.modVentasGuias.builder.VtGuiaBuilder;
 import com.calero.lili.core.modVentasGuias.dto.CreationRequestGuiaRemisionDto;
-import com.calero.lili.core.modVentasGuias.dto.FilterListDto;
+import com.calero.lili.core.modVentasGuias.dto.FilterListVentasGuiasDto;
 import com.calero.lili.core.modVentasGuias.dto.GetDto;
 import com.calero.lili.core.modVentasGuias.dto.GetListDto;
 import com.calero.lili.core.modVentasGuias.projection.OneProjection;
@@ -161,7 +161,7 @@ public class VtGuiasServiceImpl {
 
     @Transactional
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationRequestGuiaRemisionDto request,
-                              String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
+                              String usuario, FilterListVentasGuiasDto filters, TipoPermiso tipoBusqueda) {
 
         ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencial());
         validarNumeroAutorizacion(request);
@@ -211,7 +211,7 @@ public class VtGuiasServiceImpl {
         }
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
+    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario, FilterListVentasGuiasDto filters, TipoPermiso tipoBusqueda) {
 
         VtGuiaEntity vtGuiaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
@@ -225,7 +225,7 @@ public class VtGuiasServiceImpl {
 
 
     public GetDto findById(Long idData, Long idEmpresa, UUID idVenta,
-                           FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+                           FilterListVentasGuiasDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         VtGuiaEntity vtGuiaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
         return vtGuiaBuilder.builderResponse(vtGuiaEntity);
@@ -233,14 +233,14 @@ public class VtGuiasServiceImpl {
 
 
     public List<Mensajes> findByIdMensajes(Long idData, Long idEmpresa, UUID idVenta,
-                                           FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+                                           FilterListVentasGuiasDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         VtGuiaEntity vtGuiaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         return vtGuiaEntity.getMensajes();
     }
 
-    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable,
+    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListVentasGuiasDto filters, Pageable pageable,
                                                     TipoPermiso tipoBusqueda, String usuario) {
 
         Page<VtGuiaEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
@@ -268,7 +268,7 @@ public class VtGuiasServiceImpl {
     }
 
 
-    public void exportarExcel(Long idData, Long idEmpresa, HttpServletResponse response, FilterListDto filter) throws IOException {
+    public void exportarExcel(Long idData, Long idEmpresa, HttpServletResponse response, FilterListVentasGuiasDto filter) throws IOException {
 
         log.info("Iniciando la exportación a Excel con el filtro: {}", filter);
         List<VtGuiaEntity> facturas = vtVentaRepository.findAll(idData, idEmpresa, filter.getSucursal(), filter.getFechaEmisionDesde(), filter.getFechaEmisionHasta(), filter.getSerie(), filter.getSecuencial());
@@ -357,7 +357,7 @@ public class VtGuiasServiceImpl {
     }
 
 
-    public void exportarPDF(Long idData, Long idEmpresa, HttpServletResponse response, FilterListDto filters) throws DocumentException, IOException {
+    public void exportarPDF(Long idData, Long idEmpresa, HttpServletResponse response, FilterListVentasGuiasDto filters) throws DocumentException, IOException {
 
         List<VtGuiaEntity> facturas = vtVentaRepository.findAll(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getSerie(), filters.getSecuencial());
 
@@ -489,7 +489,7 @@ public class VtGuiasServiceImpl {
     }
 
     public ResponseDto updateAnulada(Long idData, Long idEmpresa, UUID idVenta,
-                                     FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+                                     FilterListVentasGuiasDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         VtGuiaEntity vtGuiaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
@@ -538,7 +538,7 @@ public class VtGuiasServiceImpl {
 
     }
 
-    private Page<VtGuiaEntity> getTipoBusquedaPaginado(Long idData, Long idEmpresa, FilterListDto filters,
+    private Page<VtGuiaEntity> getTipoBusquedaPaginado(Long idData, Long idEmpresa, FilterListVentasGuiasDto filters,
                                                        Pageable pageable, TipoPermiso tipoBusqueda, String usuario) {
         switch (tipoBusqueda) {
             case TODAS -> {
@@ -565,7 +565,7 @@ public class VtGuiasServiceImpl {
     }
 
     private VtGuiaEntity validacionTipoBusqueda(Long idData, Long idEmpresa, UUID idVenta,
-                                                FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+                                                FilterListVentasGuiasDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         switch (tipoBusqueda) {
             case TODAS:

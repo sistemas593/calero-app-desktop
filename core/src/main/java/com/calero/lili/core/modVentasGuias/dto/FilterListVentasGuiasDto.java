@@ -1,6 +1,5 @@
-package com.calero.lili.core.modVentasCotizaciones.dto;
+package com.calero.lili.core.modVentasGuias.dto;
 
-import com.calero.lili.core.enums.TipoVenta;
 import com.calero.lili.core.utils.DateUtils;
 import lombok.Data;
 import lombok.ToString;
@@ -9,16 +8,13 @@ import java.time.LocalDate;
 
 @Data
 @ToString
-public class FilterListDto {
-    private Long idFactura;
+public class FilterListVentasGuiasDto {
+
     private String sucursal;
-    private TipoVenta tipoVenta;
-    private String codigoDocumento;
     private String serie;
     private String secuencial;
     private String fechaEmisionDesde;
     private String fechaEmisionHasta;
-    private String numeroIdentificacion;
     private String numeroAutorizacion;
 
     public LocalDate getFechaEmisionDesde() {

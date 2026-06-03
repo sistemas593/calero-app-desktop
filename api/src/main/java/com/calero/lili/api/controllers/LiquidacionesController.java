@@ -8,7 +8,7 @@ import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.LiquidacionesServiceImpl;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.CreationRequestLiquidacionCompraDto;
-import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.FilterListDto;
+import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.FilterListComprasLiquidacionesDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.GetDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.GetListDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.GetListDtoTotalizado;
@@ -61,7 +61,7 @@ public class LiquidacionesController {
     public ResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                               @PathVariable("idLiquidacion") UUID idLiquidacion,
                               @RequestBody CreationRequestLiquidacionCompraDto request,
-                              FilterListDto filters) {
+                              FilterListComprasLiquidacionesDto filters) {
         return vtVentasService.update(idDataService.getIdData(), idEmpresa, idLiquidacion, request,
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"),
                 filters,
@@ -73,7 +73,7 @@ public class LiquidacionesController {
     @PreAuthorize("hasAnyAuthority('LQ_LQ_EL_PR','LQ_LQ_EL_SC','LQ_LQ_EL_TD')")
     public void delete(@PathVariable("idEmpresa") Long idEmpresa,
                        @PathVariable("idLiquidacion") UUID idLiquidacion,
-                       FilterListDto filters) {
+                       FilterListComprasLiquidacionesDto filters) {
         vtVentasService.delete(idDataService.getIdData(), idEmpresa, idLiquidacion,
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"),
                 filters,
@@ -85,7 +85,7 @@ public class LiquidacionesController {
     @PreAuthorize("hasAnyAuthority('LQ_LQ_VR_PR','LQ_LQ_VR_SC','LQ_LQ_VR_TD')")
     public GetDto findById(@PathVariable("idEmpresa") Long idEmpresa,
                            @PathVariable("idLiquidacion") UUID idLiquidacion,
-                           FilterListDto filters) {
+                           FilterListComprasLiquidacionesDto filters) {
         return vtVentasService.findById(idDataService.getIdData(), idEmpresa, idLiquidacion,
                 filters,
                 auditorAware.getTipoPermisoVerLiquidacion(),
@@ -97,7 +97,7 @@ public class LiquidacionesController {
     @PreAuthorize("hasAnyAuthority('LQ_LQ_VR_PR','LQ_LQ_VR_SC','LQ_LQ_VR_TD')")
     public List<Mensajes> findByIdMensajes(@PathVariable("idEmpresa") Long idEmpresa,
                                            @PathVariable("idLiquidacion") UUID idLiquidacion,
-                                           FilterListDto filters) {
+                                           FilterListComprasLiquidacionesDto filters) {
         return vtVentasService.findByIdMensajes(idDataService.getIdData(), idEmpresa, idLiquidacion,
                 filters,
                 auditorAware.getTipoPermisoVerLiquidacion(),
@@ -108,7 +108,7 @@ public class LiquidacionesController {
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('LQ_LQ_VR_PR','LQ_LQ_VR_SC','LQ_LQ_VR_TD')")
     public PaginatedDto<GetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
-                                                    FilterListDto filters,
+                                                    FilterListComprasLiquidacionesDto filters,
                                                     Pageable pageable) {
         return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable,
                 auditorAware.getTipoPermisoVerLiquidacion(),
@@ -119,7 +119,7 @@ public class LiquidacionesController {
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('LQ_LQ_VR_PR','LQ_LQ_VR_SC','LQ_LQ_VR_TD')")
     public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(@PathVariable("idEmpresa") Long idEmpresa,
-                                                                      FilterListDto filters,
+                                                                      FilterListComprasLiquidacionesDto filters,
                                                                       Pageable pageable) {
         log.info("Filters = {}", filters);
         return vtVentasService.findAllPaginateTotalizado(idDataService.getIdData(), idEmpresa, filters, pageable);
@@ -129,7 +129,7 @@ public class LiquidacionesController {
     @PreAuthorize("hasAuthority('LQ_LQ_EX')")
     public void exportarExcel(HttpServletResponse response,
                               @PathVariable("idEmpresa") Long idEmpresa,
-                              FilterListDto filter) throws IOException {
+                              FilterListComprasLiquidacionesDto filter) throws IOException {
         log.info("Iniciando la exportación a Excel con el filtro: {}", filter);
         vtVentasService.exportarExcel(idDataService.getIdData(), idEmpresa, response, filter);
     }
@@ -138,7 +138,7 @@ public class LiquidacionesController {
     @PreAuthorize("hasAuthority('LQ_LQ_EX')")
     public void exportarPDF(HttpServletResponse response,
                             @PathVariable("idEmpresa") Long idEmpresa,
-                            FilterListDto filters) throws DocumentException, IOException {
+                            FilterListComprasLiquidacionesDto filters) throws DocumentException, IOException {
         vtVentasService.exportarPDF(idDataService.getIdData(), idEmpresa, response, filters);
     }
 
@@ -146,7 +146,7 @@ public class LiquidacionesController {
     @PreAuthorize("hasAnyAuthority('LQ_LQ_AN_PR','LQ_LQ_AN_SC','LQ_LQ_AN_TD')")
     public ResponseDto updateAnulada(@PathVariable("idEmpresa") Long idEmpresa,
                                      @PathVariable("idLiquidacion") UUID idLiquidacion,
-                                     FilterListDto filters) {
+                                     FilterListComprasLiquidacionesDto filters) {
         return vtVentasService.updateAnulada(idDataService.getIdData(), idEmpresa, idLiquidacion,
                 filters,
                 auditorAware.getTipoPermisoAnularLiquidacion(),

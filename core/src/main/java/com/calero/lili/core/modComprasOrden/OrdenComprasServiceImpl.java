@@ -7,7 +7,7 @@ import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modComprasOrden.builder.CpOrdenComprasBuilder;
-import com.calero.lili.core.modComprasOrden.dto.FilterListDto;
+import com.calero.lili.core.modComprasOrden.dto.FilterListComprasOrdenDto;
 import com.calero.lili.core.modComprasOrden.dto.GetDto;
 import com.calero.lili.core.modComprasOrden.dto.GetListDto;
 import com.calero.lili.core.modComprasOrden.dto.GetListDtoTotalizado;
@@ -78,7 +78,7 @@ public class OrdenComprasServiceImpl {
 
     @Transactional
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, OrdenCompraRequestDto request,
-                              String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
+                              String usuario, FilterListComprasOrdenDto filters, TipoPermiso tipoBusqueda) {
 
         GeTerceroEntity tercero = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
                 .orElseThrow(() -> new GeneralException("No existe tercero"));
@@ -97,7 +97,7 @@ public class OrdenComprasServiceImpl {
     }
 
     public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario,
-                       FilterListDto filters, TipoPermiso tipoBusqueda) {
+                       FilterListComprasOrdenDto filters, TipoPermiso tipoBusqueda) {
 
         CpOrdenComprasEntity venta = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
         venta.setDelete(Boolean.TRUE);
@@ -111,13 +111,13 @@ public class OrdenComprasServiceImpl {
 
 
     public GetDto findById(Long idData, Long idEmpresa, UUID idVenta,
-                           FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+                           FilterListComprasOrdenDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         CpOrdenComprasEntity cpOrdenComprasEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
         return cpOrdenComprasBuilder.builderGetDto(cpOrdenComprasEntity);
     }
 
-    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable,
+    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListComprasOrdenDto filters, Pageable pageable,
                                                     TipoPermiso tipoBusqueda, String usuario) {
 
         Page<CpOrdenComprasEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
@@ -149,7 +149,7 @@ public class OrdenComprasServiceImpl {
         return paginatedDto;
     }
 
-    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable) {
+    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListComprasOrdenDto filters, Pageable pageable) {
 
         Page<CpOrdenComprasEntity> page = ordenComprasRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(),
                 filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getSecuencial(), null, pageable);
@@ -188,7 +188,7 @@ public class OrdenComprasServiceImpl {
     }
 
 
-    public void exportarExcel(Long idData, Long idEmpresa, HttpServletResponse response, FilterListDto filter) throws IOException {
+    public void exportarExcel(Long idData, Long idEmpresa, HttpServletResponse response, FilterListComprasOrdenDto filter) throws IOException {
 
 
         log.info("Iniciando la exportación a Excel con el filtro: {}", filter);
@@ -346,7 +346,7 @@ public class OrdenComprasServiceImpl {
     }
 
 
-    public void exportarPDF(Long idData, Long idEmpresa, HttpServletResponse response, FilterListDto filters) throws DocumentException, IOException {
+    public void exportarPDF(Long idData, Long idEmpresa, HttpServletResponse response, FilterListComprasOrdenDto filters) throws DocumentException, IOException {
 
         List<CpOrdenComprasEntity> facturas = ordenComprasRepository.findAll(idData, idEmpresa, filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getSecuencial(), filters.getSucursal());
 
@@ -510,7 +510,7 @@ public class OrdenComprasServiceImpl {
     }
 
     public ResponseDto updateAnulada(Long idData, Long idEmpresa, UUID idOrdenCompra,
-                                     FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+                                     FilterListComprasOrdenDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         CpOrdenComprasEntity cpOrdenComprasEntity = validacionTipoBusqueda(idData, idEmpresa, idOrdenCompra, filters, tipoBusqueda, usuario);
 
@@ -524,7 +524,7 @@ public class OrdenComprasServiceImpl {
 
 
     private Page<CpOrdenComprasEntity> getTipoBusquedaPaginado(Long idData, Long idEmpresa,
-                                                               FilterListDto filters, Pageable pageable,
+                                                               FilterListComprasOrdenDto filters, Pageable pageable,
                                                                TipoPermiso tipoBusqueda, String usuario) {
         switch (tipoBusqueda) {
             case TODAS -> {
@@ -551,7 +551,7 @@ public class OrdenComprasServiceImpl {
     }
 
     private CpOrdenComprasEntity validacionTipoBusqueda(Long idData, Long idEmpresa, UUID idVenta,
-                                                        FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+                                                        FilterListComprasOrdenDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         switch (tipoBusqueda) {
             case TODAS:

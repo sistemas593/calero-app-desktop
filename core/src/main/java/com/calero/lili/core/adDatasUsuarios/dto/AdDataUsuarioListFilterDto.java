@@ -7,7 +7,6 @@ import lombok.ToString;
 @ToString
 public class AdDataUsuarioListFilterDto {
 
-    private String idRegistro;
     private Long idData;
     private Long idUsuario;
 

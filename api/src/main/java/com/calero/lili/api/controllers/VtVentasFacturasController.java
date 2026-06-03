@@ -10,7 +10,7 @@ import com.calero.lili.core.modVentas.dto.GetListDto;
 import com.calero.lili.core.modVentas.facturas.VtVentasFacturasExcelService;
 import com.calero.lili.core.modVentas.facturas.VtVentasFacturasServiceImpl;
 import com.calero.lili.core.modVentas.facturas.dto.CreationFacturaRequestDto;
-import com.calero.lili.core.modVentas.facturas.dto.FilterListDto;
+import com.calero.lili.core.modVentas.facturas.dto.FilterListVentasDto;
 import com.calero.lili.core.modVentas.facturas.dto.GetFacturaDto;
 import com.calero.lili.core.modVentas.reporteCredito.DatosCrediticiosExcelServiceImpl;
 import com.calero.lili.core.modVentas.reporteCredito.DatosCrediticiosSaldoExcelServiceImpl;
@@ -78,7 +78,7 @@ public class VtVentasFacturasController {
     public ResponseDto updateFactura(@PathVariable("idEmpresa") Long idEmpresa,
                                      @PathVariable("idVenta") UUID idVenta,
                                      @RequestBody CreationFacturaRequestDto request,
-                                     FilterListDto filters) {
+                                     FilterListVentasDto filters) {
         return vtVentasService.update(idDataService.getIdData(), idEmpresa, idVenta, request, filters,
                 auditorAware.getTipoPermisoFacturaModificar(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
@@ -88,7 +88,7 @@ public class VtVentasFacturasController {
     @PreAuthorize("hasAnyAuthority('VT_FC_EL_PR', 'VT_FC_EL_SC', 'VT_FC_EL_TD')")
     public void deleteFactura(@PathVariable("idEmpresa") Long idEmpresa,
                               @PathVariable("idVenta") UUID idVenta,
-                              FilterListDto filters) {
+                              FilterListVentasDto filters) {
         vtVentasService.delete(idDataService.getIdData(), idEmpresa, idVenta, filters,
                 auditorAware.getTipoPermisoFacturaEliminar(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
@@ -98,7 +98,7 @@ public class VtVentasFacturasController {
     @PreAuthorize("hasAnyAuthority('VT_FC_VR_PR','VT_FC_VR_SC','VT_FC_VR_TD')")
     public GetFacturaDto findFacturaById(@PathVariable("idEmpresa") Long idEmpresa,
                                          @PathVariable("idVenta") UUID idVenta,
-                                         FilterListDto filters) {
+                                         FilterListVentasDto filters) {
         return vtVentasService.findById(idDataService.getIdData(), idEmpresa, idVenta, filters,
                 auditorAware.getTipoPermisoFacturaVer(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
 
@@ -110,7 +110,7 @@ public class VtVentasFacturasController {
     @PreAuthorize("hasAnyAuthority('VT_FC_VR_PR','VT_FC_VR_SC','VT_FC_VR_TD')")
     public List<Mensajes> findMensajeById(@PathVariable("idEmpresa") Long idEmpresa,
                                           @PathVariable("idVenta") UUID idVenta,
-                                          FilterListDto filters) {
+                                          FilterListVentasDto filters) {
 
         return vtVentasService.findMensajeById(idDataService.getIdData(), idEmpresa, idVenta, filters,
                 auditorAware.getTipoPermisoFacturaVer(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
@@ -120,7 +120,7 @@ public class VtVentasFacturasController {
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('VT_FC_VR_PR','VT_FC_VR_SC','VT_FC_VR_TD')")
     public PaginatedDto<GetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
-                                                    FilterListDto filters,
+                                                    FilterListVentasDto filters,
                                                     Pageable pageable) {
         return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable,
                 auditorAware.getTipoPermisoFacturaVer(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
@@ -131,7 +131,7 @@ public class VtVentasFacturasController {
     @PreAuthorize("hasAuthority('VT_FC_EX')")
     public void exportarExcel(HttpServletResponse response,
                               @PathVariable("idEmpresa") Long idEmpresa,
-                              FilterListDto filter) throws IOException {
+                              FilterListVentasDto filter) throws IOException {
         String fileName = "Facturas_" + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + ".xlsx";
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
@@ -143,7 +143,7 @@ public class VtVentasFacturasController {
     @PreAuthorize("hasAuthority('VT_FC_EX')")
     public void exportarPDF(HttpServletResponse response,
                             @PathVariable("idEmpresa") Long idEmpresa,
-                            FilterListDto filters) throws DocumentException, IOException {
+                            FilterListVentasDto filters) throws DocumentException, IOException {
         String fileName = "facturas_" + LocalDateTime.now() + ".pdf";
         response.setContentType("application/pdf");
         response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
@@ -154,7 +154,7 @@ public class VtVentasFacturasController {
     @PreAuthorize("hasAnyAuthority('VT_FC_AN_PR', 'VT_FC_AN_SC', 'VT_FC_AN_TD')")
     public ResponseDto updateAnulada(@PathVariable("idEmpresa") Long idEmpresa,
                                      @PathVariable("idVenta") UUID idVenta,
-                                     FilterListDto filters) {
+                                     FilterListVentasDto filters) {
         return vtVentasService.updateAnulada(idDataService.getIdData(), idEmpresa, idVenta, filters,
                 auditorAware.getTipoPermisoFacturaAnular(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }

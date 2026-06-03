@@ -7,10 +7,9 @@ import com.calero.lili.core.dtos.Mensajes;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.modVentas.dto.GetListDto;
-import com.calero.lili.core.modVentas.dto.GetListDtoTotalizado;
 import com.calero.lili.core.modVentas.notasDebito.VtVentasNotasDebitoServiceImpl;
 import com.calero.lili.core.modVentas.notasDebito.dto.CreationNotaDebitoRequestDto;
-import com.calero.lili.core.modVentas.notasDebito.dto.FilterListDto;
+import com.calero.lili.core.modVentas.notasDebito.dto.FilterListNotasDebitoDto;
 import com.calero.lili.core.modVentas.notasDebito.dto.GetNotaDebitoDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -58,7 +57,7 @@ public class VtVentasNotasDebitoController {
     public ResponseDto updateNotaDebito(@PathVariable("idEmpresa") Long idEmpresa,
                                         @PathVariable("idVenta") UUID idVenta,
                                         @RequestBody CreationNotaDebitoRequestDto request,
-                                        FilterListDto filters) {
+                                        FilterListNotasDebitoDto filters) {
         return vtVentasService.update(idDataService.getIdData(), idEmpresa, idVenta, request,
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"),
                 filters,
@@ -70,7 +69,7 @@ public class VtVentasNotasDebitoController {
     @PreAuthorize("hasAnyAuthority('VT_ND_EL_PR','VT_ND_EL_SC','VT_ND_EL_TD')")
     public void deleteNotaDebito(@PathVariable("idEmpresa") Long idEmpresa,
                                  @PathVariable("idVenta") UUID idVenta,
-                                 FilterListDto filters) {
+                                 FilterListNotasDebitoDto filters) {
         vtVentasService.delete(idDataService.getIdData(), idEmpresa, idVenta,
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"),
                 filters,
@@ -82,7 +81,7 @@ public class VtVentasNotasDebitoController {
     @PreAuthorize("hasAnyAuthority('VT_ND_VR_PR','VT_ND_VR_SC','VT_ND_VR_TD')")
     public GetNotaDebitoDto findNotaDebitoById(@PathVariable("idEmpresa") Long idEmpresa,
                                                @PathVariable("idVenta") UUID idVenta,
-                                               FilterListDto filters) {
+                                               FilterListNotasDebitoDto filters) {
         return vtVentasService.findById(idDataService.getIdData(), idEmpresa, idVenta,
                 filters,
                 auditorAware.getTipoPermisoVerNotaDebito(),
@@ -94,7 +93,7 @@ public class VtVentasNotasDebitoController {
     @PreAuthorize("hasAnyAuthority('VT_ND_VR_PR','VT_ND_VR_SC','VT_ND_VR_TD')")
     public List<Mensajes> findByIdMensajes(@PathVariable("idEmpresa") Long idEmpresa,
                                            @PathVariable("idVenta") UUID idVenta,
-                                           FilterListDto filters) {
+                                           FilterListNotasDebitoDto filters) {
         return vtVentasService.findByIdMensajes(idDataService.getIdData(), idEmpresa, idVenta,
                 filters,
                 auditorAware.getTipoPermisoVerNotaDebito(),
@@ -105,7 +104,7 @@ public class VtVentasNotasDebitoController {
     @PreAuthorize("hasAnyAuthority('VT_ND_AN_PR','VT_ND_AN_SC','VT_ND_AN_TD')")
     public ResponseDto updateAnulada(@PathVariable("idEmpresa") Long idEmpresa,
                                      @PathVariable("idVenta") UUID idVenta,
-                                     FilterListDto filters) {
+                                     FilterListNotasDebitoDto filters) {
         return vtVentasService.updateAnulada(idDataService.getIdData(), idEmpresa, idVenta,
                 filters,
                 auditorAware.getTipoPermisoAnularNotaDebito(),
@@ -116,7 +115,7 @@ public class VtVentasNotasDebitoController {
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('VT_ND_VR_PR','VT_ND_VR_SC','VT_ND_VR_TD')")
     public PaginatedDto<GetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
-                                                    FilterListDto filters, Pageable pageable) {
+                                                    FilterListNotasDebitoDto filters, Pageable pageable) {
         return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable,
                 auditorAware.getTipoPermisoVerNotaDebito(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }

@@ -10,7 +10,7 @@ import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
 import com.calero.lili.core.modVentasCotizaciones.builder.VtCotizacionBuilder;
 import com.calero.lili.core.modVentasCotizaciones.dto.CreationVentasCotizacionesRequestDto;
-import com.calero.lili.core.modVentasCotizaciones.dto.FilterListDto;
+import com.calero.lili.core.modVentasCotizaciones.dto.FilterListVentasCotizacionesDto;
 import com.calero.lili.core.modVentasCotizaciones.dto.GetDto;
 import com.calero.lili.core.modVentasCotizaciones.dto.GetListDto;
 import com.calero.lili.core.modVentasCotizaciones.dto.GetListDtoTotalizado;
@@ -92,7 +92,7 @@ public class CotizacionesServiceImpl {
 
     @Transactional
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationVentasCotizacionesRequestDto request,
-                              String usuario, FilterListDto filters, TipoPermiso tipoBusqueda) {
+                              String usuario, FilterListVentasCotizacionesDto filters, TipoPermiso tipoBusqueda) {
 
         VtCotizacionEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
@@ -122,7 +122,7 @@ public class CotizacionesServiceImpl {
     }
 
     public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario,
-                       FilterListDto filters, TipoPermiso tipoBusqueda) {
+                       FilterListVentasCotizacionesDto filters, TipoPermiso tipoBusqueda) {
 
         VtCotizacionEntity vtCotizacionEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
@@ -136,14 +136,14 @@ public class CotizacionesServiceImpl {
 
 
     public GetDto findById(Long idData, Long idEmpresa, UUID idVenta,
-                           FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+                           FilterListVentasCotizacionesDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         VtCotizacionEntity vtCotizacionEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         return vtCotizacionBuilder.builderResponse(vtCotizacionEntity);
     }
 
-    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable,
+    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListVentasCotizacionesDto filters, Pageable pageable,
                                                     TipoPermiso tipoBusqueda, String usuario) {
 
         Page<VtCotizacionEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
@@ -170,7 +170,7 @@ public class CotizacionesServiceImpl {
         return paginatedDto;
     }
 
-    private Page<VtCotizacionEntity> getTipoBusquedaPaginado(Long idData, Long idEmpresa, FilterListDto filters,
+    private Page<VtCotizacionEntity> getTipoBusquedaPaginado(Long idData, Long idEmpresa, FilterListVentasCotizacionesDto filters,
                                                              Pageable pageable, TipoPermiso tipoBusqueda, String usuario) {
         switch (tipoBusqueda) {
             case TODAS -> {
@@ -196,7 +196,7 @@ public class CotizacionesServiceImpl {
         throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
     }
 
-    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListDto filters, Pageable pageable) {
+    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListVentasCotizacionesDto filters, Pageable pageable) {
 
 
         Page<VtCotizacionEntity> page = cotizacionesRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getSecuencial(), null, pageable);
@@ -230,7 +230,7 @@ public class CotizacionesServiceImpl {
     }
 
 
-    public void exportarExcel(Long idData, Long idEmpresa, HttpServletResponse response, FilterListDto filter) throws IOException {
+    public void exportarExcel(Long idData, Long idEmpresa, HttpServletResponse response, FilterListVentasCotizacionesDto filter) throws IOException {
 
         log.info("Iniciando la exportación a Excel con el filtro: {}", filter);
         List<VtCotizacionEntity> facturas = cotizacionesRepository.findAll(idData, idEmpresa, filter.getSucursal(), filter.getFechaEmisionDesde(), filter.getFechaEmisionHasta(), filter.getNumeroIdentificacion(), filter.getSecuencial());
@@ -347,7 +347,7 @@ public class CotizacionesServiceImpl {
     }
 
 
-    public void exportarPDF(Long idData, Long idEmpresa, HttpServletResponse response, FilterListDto filters) throws DocumentException, IOException {
+    public void exportarPDF(Long idData, Long idEmpresa, HttpServletResponse response, FilterListVentasCotizacionesDto filters) throws DocumentException, IOException {
 
         List<VtCotizacionEntity> facturas = cotizacionesRepository.findAll(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getSecuencial());
 
@@ -474,7 +474,7 @@ public class CotizacionesServiceImpl {
 
 
     private VtCotizacionEntity validacionTipoBusqueda(Long idData, Long idEmpresa, UUID idVenta,
-                                                      FilterListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+                                                      FilterListVentasCotizacionesDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         switch (tipoBusqueda) {
             case TODAS:

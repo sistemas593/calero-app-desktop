@@ -31,7 +31,7 @@ import com.calero.lili.core.dtos.ValoresDto
 import com.calero.lili.core.modVentas.dto.DetailDto
 import com.calero.lili.core.modVentas.facturas.VtVentasFacturasServiceImpl
 import com.calero.lili.core.modVentas.facturas.dto.CreationFacturaRequestDto
-import com.calero.lili.core.modVentas.facturas.dto.FilterListDto
+import com.calero.lili.core.modVentas.facturas.dto.FilterListVentasDto
 import java.awt.print.PrinterJob
 import java.io.FileOutputStream
 import java.math.BigDecimal
@@ -229,7 +229,7 @@ class FacturaFormViewModel(
     private fun cargarFactura(id: UUID, impuestos: List<GeImpuestoResponseDto>, formasPagoDisp: List<TbFormaPagoSriGetOneDto> = emptyList()) {
         scope.launch {
             try {
-                val dto     = service.findById(idData, idEmpresa, id, FilterListDto(), TipoPermiso.TODAS, USUARIO)
+                val dto     = service.findById(idData, idEmpresa, id, FilterListVentasDto(), TipoPermiso.TODAS, USUARIO)
                 val tercero = runCatching { tercerosService.findById(idData, dto.idTercero, idEmpresa) }.getOrNull()
 
                 val detalleUi = dto.detalle?.mapIndexed { idx, d ->
@@ -318,7 +318,8 @@ class FacturaFormViewModel(
                     service.create(idData, idEmpresa, request, USUARIO, "LOC").idDocumento
                 } else {
                     UUID.fromString(
-                        service.update(idData, idEmpresa, idFactura, request, FilterListDto(), TipoPermiso.TODAS, USUARIO).id
+                        service.update(idData, idEmpresa, idFactura, request,
+                            FilterListVentasDto(), TipoPermiso.TODAS, USUARIO).id
                     )
                 }
 

@@ -8,7 +8,7 @@ import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.modVentasGuias.VtGuiasServiceImpl;
 import com.calero.lili.core.modVentasGuias.dto.CreationRequestGuiaRemisionDto;
-import com.calero.lili.core.modVentasGuias.dto.FilterListDto;
+import com.calero.lili.core.modVentasGuias.dto.FilterListVentasGuiasDto;
 import com.calero.lili.core.modVentasGuias.dto.GetDto;
 import com.calero.lili.core.modVentasGuias.dto.GetListDto;
 import com.lowagie.text.DocumentException;
@@ -60,7 +60,7 @@ public class VtGuiaController {
     public ResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                               @PathVariable("idGuia") UUID idGuia,
                               @RequestBody CreationRequestGuiaRemisionDto request,
-                              FilterListDto filters) {
+                              FilterListVentasGuiasDto filters) {
         return vtVentasService.update(idDataService.getIdData(), idEmpresa, idGuia, request,
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"),
                 filters,
@@ -72,7 +72,7 @@ public class VtGuiaController {
     @PreAuthorize("hasAnyAuthority('VT_GR_EL_PR','VT_GR_EL_SC','VT_GR_EL_TD')")
     public void delete(@PathVariable("idEmpresa") Long idEmpresa,
                        @PathVariable("idGuia") UUID idGuia,
-                       FilterListDto filters) {
+                       FilterListVentasGuiasDto filters) {
         vtVentasService.delete(idDataService.getIdData(), idEmpresa, idGuia,
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"),
                 filters,
@@ -84,7 +84,7 @@ public class VtGuiaController {
     @PreAuthorize("hasAnyAuthority('VT_GR_VR_PR','VT_GR_VR_SC','VT_GR_VR_TD')")
     public GetDto findById(@PathVariable("idEmpresa") Long idEmpresa,
                            @PathVariable("idGuia") UUID idGuia,
-                           FilterListDto filters) {
+                           FilterListVentasGuiasDto filters) {
         return vtVentasService.findById(idDataService.getIdData(), idEmpresa, idGuia,
                 filters,
                 auditorAware.getTipoPermisoVerGuia(),
@@ -96,7 +96,7 @@ public class VtGuiaController {
     @PreAuthorize("hasAnyAuthority('VT_GR_VR_PR','VT_GR_VR_SC','VT_GR_VR_TD')")
     public List<Mensajes> findByIdMensajes(@PathVariable("idEmpresa") Long idEmpresa,
                                            @PathVariable("idGuia") UUID idGuia,
-                                           FilterListDto filters) {
+                                           FilterListVentasGuiasDto filters) {
         return vtVentasService.findByIdMensajes(idDataService.getIdData(), idEmpresa, idGuia,
                 filters,
                 auditorAware.getTipoPermisoVerGuia(),
@@ -107,7 +107,7 @@ public class VtGuiaController {
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('VT_GR_VR_PR','VT_GR_VR_SC','VT_GR_VR_TD')")
     public PaginatedDto<GetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
-                                                    FilterListDto filters,
+                                                    FilterListVentasGuiasDto filters,
                                                     Pageable pageable) {
         return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable,
                 auditorAware.getTipoPermisoVerGuia(),
@@ -118,7 +118,7 @@ public class VtGuiaController {
     @PreAuthorize("hasAuthority('VT_GR_EX')")
     public void exportarExcel(HttpServletResponse response,
                               @PathVariable("idEmpresa") Long idEmpresa,
-                              FilterListDto filter) throws IOException {
+                              FilterListVentasGuiasDto filter) throws IOException {
         log.info("Iniciando la exportación a Excel con el filtro: {}", filter);
         vtVentasService.exportarExcel(idDataService.getIdData(), idEmpresa, response, filter);
     }
@@ -127,7 +127,7 @@ public class VtGuiaController {
     @PreAuthorize("hasAuthority('VT_GR_EX')")
     public void exportarPDF(HttpServletResponse response,
                             @PathVariable("idEmpresa") Long idEmpresa,
-                            FilterListDto filters) throws DocumentException, IOException {
+                            FilterListVentasGuiasDto filters) throws DocumentException, IOException {
         vtVentasService.exportarPDF(idDataService.getIdData(), idEmpresa, response, filters);
     }
 
@@ -135,7 +135,7 @@ public class VtGuiaController {
     @PreAuthorize("hasAnyAuthority('VT_GR_AN_PR','VT_GR_AN_SC','VT_GR_AN_TD')")
     public ResponseDto updateAnulada(@PathVariable("idEmpresa") Long idEmpresa,
                                      @PathVariable("idVenta") UUID idVenta,
-                                     FilterListDto filters) {
+                                     FilterListVentasGuiasDto filters) {
         return vtVentasService.updateAnulada(idDataService.getIdData(), idEmpresa, idVenta,
                 filters,
                 auditorAware.getTipoPermisoAnularGuia(),

@@ -17,7 +17,6 @@ import com.calero.lili.core.modComprasItems.dto.GeItemGetListDto
 import com.calero.lili.core.modComprasItems.dto.GeItemListFilterDto
 import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestoItemsServiceImpl
 import com.calero.lili.core.modComprasItemsImpuesto.dto.GeImpuestoResponseDto
-import com.calero.lili.core.dtos.FilterDto
 import com.calero.lili.core.modTerceros.GeTercerosServiceImpl
 import com.calero.lili.core.modTerceros.dto.GeTerceroFilterDto
 import com.calero.lili.core.modTerceros.dto.GeTerceroGetListDto
@@ -26,7 +25,7 @@ import com.calero.lili.core.dtos.ValoresDto
 import com.calero.lili.core.modVentas.dto.DetailDto
 import com.calero.lili.core.modVentas.notasCredito.VtVentasNotasCreditoServiceImpl
 import com.calero.lili.core.modVentas.notasCredito.dto.CreationNotaCreditoRequestDto
-import com.calero.lili.core.modVentas.facturas.dto.FilterListDto
+import com.calero.lili.core.modVentas.facturas.dto.FilterListVentasDto
 import java.awt.print.PrinterJob
 import java.io.FileOutputStream
 import java.math.BigDecimal
@@ -202,7 +201,7 @@ class NotaCreditoFormViewModel(
     private fun cargarNotaCredito(id: UUID, impuestos: List<GeImpuestoResponseDto>) {
         scope.launch {
             try {
-                val dto = service.findById(idData, idEmpresa, id, USUARIO, TipoPermiso.TODAS, FilterListDto())
+                val dto = service.findById(idData, idEmpresa, id, USUARIO, TipoPermiso.TODAS, FilterListVentasDto())
                 val tercero = runCatching { tercerosService.findById(idData, dto.idTercero, idEmpresa) }.getOrNull()
 
                 val detalleUi = dto.detalle?.mapIndexed { idx, d ->

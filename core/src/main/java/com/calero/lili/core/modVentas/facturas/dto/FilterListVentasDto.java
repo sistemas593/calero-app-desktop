@@ -9,11 +9,11 @@ import java.util.UUID;
 
 @Data
 @ToString
-public class FilterListDto {
-    private Long idFactura;
+public class FilterListVentasDto {
+
+
     private String sucursal;
     private String tipoVenta;
-    private String codigoDocumento;
     private String serie;
     private String secuencial;
     private String fechaEmisionDesde;
@@ -22,16 +22,15 @@ public class FilterListDto {
     private String numeroIdentificacion;
     private String terceroNombre;
     private String numeroAutorizacion;
-    private Integer utilizado;
 
     public LocalDateTime getFechaEmisionDesde() {
-        if(fechaEmisionDesde == null)
+        if (fechaEmisionDesde == null)
             return null;
         return DateUtils.toLocalDateTimeFechaDesde(fechaEmisionDesde);
     }
 
     public LocalDateTime getFechaEmisionHasta() {
-        if(fechaEmisionHasta == null)
+        if (fechaEmisionHasta == null)
             return null;
         return DateUtils.toLocalDateTimeFechaHasta(fechaEmisionHasta);
     }
