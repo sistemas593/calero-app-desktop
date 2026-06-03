@@ -5,6 +5,7 @@ import com.calero.lili.core.dtos.CompraImpuestosDto;
 import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirCreationRequestDto;
+import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.OrigenImpuestos;
 import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.errors.exceptions.GeneralException;
@@ -245,6 +246,11 @@ public class CpImpuestosServiceImpl {
         validarPagoExterior(request);
         CpImpuestosEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
+        if (!vtVentaEntity.getOrigen().equals("ISC") && !vtVentaEntity.getOrigen().equals("ICC")
+                && !vtVentaEntity.getOrigen().equals("DSC") && !vtVentaEntity.getOrigen().equals("XDF")) {
+            throw new GeneralException("No se puede modificar el documento cuando no corresponde a un impuesto de tipo" +
+                    " ISC, ICC, DSC o XDF");
+        }
 
         if (!vtVentaEntity.getTercero().getNumeroIdentificacion().equals(request.getNumeroIdentificacion())
                 || !vtVentaEntity.getSerie().equals(request.getSerie())
@@ -275,6 +281,60 @@ public class CpImpuestosServiceImpl {
         return responseApiBuilder.builderResponse(vtVentaEntity.getIdImpuestos().toString());
 
     }
+
+    @Transactional
+    public ResponseDto updateFacturaDesdeRetencion(Long idData, Long idEmpresa, UUID idVenta, CreationCompraImpuestoRequestDto request,
+                                                   String usuario, FilterListCompraImpuestoDto filters, TipoPermiso tipoBusqueda) {
+
+        validarNumeroAutorizacion(request);
+        adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
+                DateUtils.toLocalDate(request.getFechaEmision()));
+
+        validarPagoExterior(request);
+        CpImpuestosEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
+
+        if (!vtVentaEntity.getOrigen().equals("RCC")) {
+            throw new GeneralException("No se puede modificar el documento cuando no corresponde a un impuesto de tipo RCC");
+        }
+
+        CpRetencionesEntity retencion = vtVentaEntity.getRetencion();
+
+        if (retencion.getEstadoDocumento().equals(EstadoDocumento.AUT)) {
+            throw new GeneralException("No se puede modificar el documento cuando la retención asociada se encuentra AUTORIZADA");
+        }
+
+
+        if (!vtVentaEntity.getTercero().getNumeroIdentificacion().equals(request.getNumeroIdentificacion())
+                || !vtVentaEntity.getSerie().equals(request.getSerie())
+                || !vtVentaEntity.getSecuencial().equals(request.getSecuencial())
+                || !vtVentaEntity.getNumeroAutorizacion().equals(request.getNumeroAutorizacion())
+                || !vtVentaEntity.getCodigoSustento().equals(request.getCodigoSustento())) {
+
+            Optional<OneProjection> existingFactura = cpImpuestosRepository.findExistBySecuencial(idData, idEmpresa, request.getNumeroIdentificacion(), request.getSerie(), request.getSecuencial(), request.getNumeroAutorizacion(), request.getCodigoSustento());
+            if (existingFactura.isPresent()) {
+                throw new GeneralException(MessageFormat.format("El registro ya existe - numeroIdentificacion{0} Serie: {1} Secuencial: {2} numeroAutorizacion {3} codigoSustento {4}", request.getNumeroIdentificacion(), request.getSerie(), request.getSecuencial(), request.getNumeroAutorizacion(), request.getCodigoSustento()));
+            }
+        }
+
+        validarInfoAddicional(request);
+        validacionCodigoImpuesto(request);
+
+        CpImpuestosEntity impuestosEntity = cpImpuestosBuilder.builderUpdateEntity(request, vtVentaEntity);
+
+        GeTerceroEntity proveedor = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Id de tercero {0} no existe", request.getIdTercero())));
+
+        impuestosEntity.setTercero(proveedor);
+        impuestosEntity.setModifiedBy(usuario);
+        impuestosEntity.setModifiedDate(LocalDateTime.now());
+        retencion.setEstadoDocumento(EstadoDocumento.PEN);
+        impuestosEntity.setOrigen(OrigenImpuestos.RCC.name());
+        cpImpuestosRepository.save(impuestosEntity);
+
+        return responseApiBuilder.builderResponse(vtVentaEntity.getIdImpuestos().toString());
+
+    }
+
 
     private String setearOrigen(CreationCompraImpuestoRequestDto model) {
         if (Objects.nonNull(model.getImpuestoCodigos())) {

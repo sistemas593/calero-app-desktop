@@ -64,6 +64,20 @@ public class CpImpuestosController {
                 auditorAware.getTipoPermisoModificarImpuesto());
     }
 
+
+    @PutMapping("facturas-retencion/{idEmpresa}/{idCompraImpuesto}")
+    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyAuthority('CP_CI_MO_PR','CP_CI_MO_SC','CP_CI_MO_TD')")
+    public ResponseDto updateFacturaDesdeRetencion(@PathVariable("idEmpresa") Long idEmpresa,
+                                                   @PathVariable("idCompraImpuesto") UUID idCompraImpuesto,
+                                                   @RequestBody CreationCompraImpuestoRequestDto request,
+                                                   FilterListCompraImpuestoDto filters) {
+        return vtVentasService.updateFacturaDesdeRetencion(idDataService.getIdData(), idEmpresa, idCompraImpuesto, request,
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"),
+                filters,
+                auditorAware.getTipoPermisoModificarImpuesto());
+    }
+
     @DeleteMapping("facturas/{idEmpresa}/{idRecibida}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasAnyAuthority('CP_CI_EL_PR','CP_CI_EL_SC','CP_CI_EL_TD')")
