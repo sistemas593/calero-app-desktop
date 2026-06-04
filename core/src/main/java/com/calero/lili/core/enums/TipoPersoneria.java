@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Getter
-public enum TipoClienteProveedor {
+public enum TipoPersoneria {
 
     N("01"),
     J("02");

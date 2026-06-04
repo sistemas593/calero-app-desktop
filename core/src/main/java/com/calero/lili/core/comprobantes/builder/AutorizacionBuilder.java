@@ -35,6 +35,7 @@ import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.CpLiqu
 import com.calero.lili.core.modCompras.modComprasRetenciones.CpRetencionReferencias;
 import com.calero.lili.core.modCompras.modComprasRetenciones.CpRetencionesEntity;
 import com.calero.lili.core.modComprasItems.GeItemEntity;
+import com.calero.lili.core.modComprasItems.GeItemsPreciosEntity;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modVentas.VtVentaDetalleEntity;
 import com.calero.lili.core.modVentas.VtVentaEntity;
@@ -855,7 +856,26 @@ public class AutorizacionBuilder {
                 .idData(idData)
                 .codigoPrincipal(detalle.getCodigoPrincipal())
                 .codigoAuxiliar(detalle.getCodigoAuxiliar())
+                .descripcion(detalle.getDescripcion())
+                .geItemsPreciosEntities(builderListPreciosItem(idData, idEmpresa))
                 .build();
+    }
+
+    private List<GeItemsPreciosEntity> builderListPreciosItem(Long idData, Long idEmpresa) {
+        List<GeItemsPreciosEntity> lista = new ArrayList<>();
+        GeItemsPreciosEntity precio = GeItemsPreciosEntity.builder()
+                .idItemsPrecio(UUID.randomUUID())
+                .idData(idData)
+                .idEmpresa(idEmpresa)
+                .precio1(BigDecimal.ZERO)
+                .precio2(BigDecimal.ZERO)
+                .precio3(BigDecimal.ZERO)
+                .precio4(BigDecimal.ZERO)
+                .precio5(BigDecimal.ZERO)
+                .build();
+
+        lista.add(precio);
+        return lista;
     }
 
     public GeItemEntity builderNotaCreditoItem(com.calero.lili.core.comprobantes.objetosXml.notaCredito.Detalle detalle,

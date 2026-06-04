@@ -93,9 +93,7 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
                         entidadesActualizar.add(entidad);
 
                     } else {
-                        DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DOCUMENTO_ERROR);
-                        detalleError.setDetalle("El detalle con número de operación " + numeroOperacion + " no existe");
-                        detalleErrores.add(detalleError);
+                        continue;
                     }
 
                 } else {

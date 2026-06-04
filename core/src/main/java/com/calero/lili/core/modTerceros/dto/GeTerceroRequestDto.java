@@ -3,7 +3,7 @@ package com.calero.lili.core.modTerceros.dto;
 import com.calero.lili.core.enums.EstadoCivilEnum;
 import com.calero.lili.core.enums.OrigenIngresosEnum;
 import com.calero.lili.core.enums.SexoEnum;
-import com.calero.lili.core.enums.TipoClienteProveedor;
+import com.calero.lili.core.enums.TipoPersoneria;
 import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.modRRHH.modRRHHTrabajadores.dto.RequestTrabajadorDto;
 import jakarta.validation.constraints.NotEmpty;
@@ -33,7 +33,7 @@ public class GeTerceroRequestDto {
 
     private String observaciones;
 
-    private TipoClienteProveedor tipoClienteProveedor;
+    private TipoPersoneria tipoPersoneria;
     private String relacionado;
 
     private String ciudad;

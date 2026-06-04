@@ -8,7 +8,7 @@ import com.calero.lili.core.dtos.errors.EnumError;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.OrigenEnum;
-import com.calero.lili.core.enums.TipoClienteProveedor;
+import com.calero.lili.core.enums.TipoPersoneria;
 import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.enums.TipoVenta;
 import com.calero.lili.core.errors.exceptions.GeneralException;
@@ -338,7 +338,7 @@ public class VtVentasFacturasExcelService {
                 tercero.setDireccion(row.getCell(8).getStringCellValue());
                 tercero.setEmail(row.getCell(10).getStringCellValue());
                 tercero.setTelefonos(row.getCell(9).getStringCellValue());
-                tercero.setTipoClienteProveedor(TipoClienteProveedor.valueOf(row.getCell(5).getStringCellValue()));
+                tercero.setTipoPersoneria(TipoPersoneria.valueOf(row.getCell(5).getStringCellValue()));
                 tercero.setCreatedBy(factura.getCreatedBy());
                 tercero.setCreatedDate(LocalDateTime.now());
 
@@ -630,9 +630,9 @@ public class VtVentasFacturasExcelService {
 
                         String tipoCliente = row.getCell(9).getStringCellValue();
                         if (!tipoCliente.isEmpty()) {
-                            tercero.setTipoClienteProveedor(TipoClienteProveedor.valueOf(tipoCliente));
+                            tercero.setTipoPersoneria(TipoPersoneria.valueOf(tipoCliente));
                         } else {
-                            tercero.setTipoClienteProveedor(null);
+                            tercero.setTipoPersoneria(null);
                         }
                         tercero.setIdData(idData);
                         tercero.setIdTercero(UUID.randomUUID());

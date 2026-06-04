@@ -40,10 +40,8 @@ public class GeItemsMarcasServiceImpl {
 
     public GeItemMedidaCreationResponseDto update(Long idData, UUID id, GeItemsMarcasCreationRequestDto request, String usuario) {
 
-        GeItemsMarcasEntity entidad = geItemsMarcasRepository.findById(idData, id);
-        if (Objects.isNull(entidad)) {
-            throw new GeneralException(MessageFormat.format("Id {0} no existe", id));
-        }
+        GeItemsMarcasEntity entidad = geItemsMarcasRepository.findById(idData, id)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no existe", id)));
 
         GeItemsMarcasEntity update = getItemsMarcasBuilder.builderUpdateEntity(request, entidad);
         update.setModifiedBy(usuario);
@@ -53,10 +51,8 @@ public class GeItemsMarcasServiceImpl {
     }
 
     public void delete(Long idData, UUID id, String usuario) {
-        GeItemsMarcasEntity entidad = geItemsMarcasRepository.findById(idData, id);
-        if (Objects.isNull(entidad)) {
-            throw new GeneralException(MessageFormat.format("Id {0} no existe", id));
-        }
+        GeItemsMarcasEntity entidad = geItemsMarcasRepository.findById(idData, id)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no existe", id)));
 
         entidad.setDelete(Boolean.TRUE);
         entidad.setDeletedBy(usuario);
@@ -67,12 +63,8 @@ public class GeItemsMarcasServiceImpl {
     }
 
     public GeItemMedidaCreationResponseDto findFirstById(Long idData, UUID id) {
-
-        GeItemsMarcasEntity entidad = geItemsMarcasRepository.findById(idData, id);
-        if (entidad == null) {
-            throw new GeneralException(MessageFormat.format("Id {0} no existe", id));
-        }
-        return getItemsMarcasBuilder.builderResponse(entidad);
+        return getItemsMarcasBuilder.builderResponse(geItemsMarcasRepository.findById(idData, id)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no existe", id))));
     }
 
     public PaginatedDto<GeItemMarcasReportDto> findAllPaginate(Long idData, GeItemMedidaListFilterDto filters, Pageable pageable) {

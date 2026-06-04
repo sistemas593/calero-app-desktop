@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import javax.swing.text.html.Option;
+import java.util.Optional;
 import java.util.UUID;
 
 
@@ -17,7 +19,7 @@ public interface GeItemsGruposRepository extends JpaRepository<GeItemGrupoEntity
             "WHERE e.idData = :idData AND " +
             "e.idEmpresa = :idEmpresa AND " +
             "e.idGrupo = :idGrupo ")
-    GeItemGrupoEntity findByIdGrupo(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("idGrupo") UUID idGrupo);
+    Optional<GeItemGrupoEntity> findByIdGrupo(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("idGrupo") UUID idGrupo);
 
 
     @Query(

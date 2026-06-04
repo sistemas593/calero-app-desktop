@@ -4,7 +4,7 @@ import com.calero.lili.core.Auditable;
 import com.calero.lili.core.enums.EstadoCivilEnum;
 import com.calero.lili.core.enums.OrigenIngresosEnum;
 import com.calero.lili.core.enums.SexoEnum;
-import com.calero.lili.core.enums.TipoClienteProveedor;
+import com.calero.lili.core.enums.TipoPersoneria;
 import com.calero.lili.core.modAdDatasConfiguraciones.VtClientesConfiguracionesEntity;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.CpLiquidacionesEntity;
 import com.calero.lili.core.modLocalidades.modCantones.CantonEntity;
@@ -73,8 +73,8 @@ public class GeTerceroEntity extends Auditable implements Serializable {
     private String observaciones;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "tipo_cliente_proveedor")
-    private TipoClienteProveedor tipoClienteProveedor;
+    @Column(name = "tipo_personeria")
+    private TipoPersoneria tipoPersoneria;
 
     @Column(name = "ciudad", length = 60)
     private String ciudad;

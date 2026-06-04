@@ -1,6 +1,6 @@
 package com.calero.lili.desktop.ui.terceros
 
-import com.calero.lili.core.enums.TipoClienteProveedor
+import com.calero.lili.core.enums.TipoPersoneria
 import com.calero.lili.core.enums.TipoIdentificacion
 import com.calero.lili.core.modTerceros.GeTercerosServiceImpl
 import com.calero.lili.core.modTerceros.dto.GeTerceroRequestDto
@@ -115,7 +115,7 @@ class ClienteFormViewModel(
             .email(current.email.trim().ifBlank { null })
             .web(current.web.trim().ifBlank { null })
             .observaciones(current.observaciones.trim().ifBlank { null })
-            .tipoClienteProveedor(parseTipoClienteProveedor(current.tipoClienteProveedor))
+            .tipoPersoneria(parseTipoClienteProveedor(current.tipoClienteProveedor))
             .cliente(GeTerceroRequestDto.TipoTercerosClienteDto(true, null))
             .proveedor(GeTerceroRequestDto.TipoTercerosProveedorDto(false, null))
             .transportista(GeTerceroRequestDto.TipoTercerosTransportistaDto(false, null))
@@ -163,8 +163,8 @@ class ClienteFormViewModel(
         return try { TipoIdentificacion.valueOf(valor) } catch (_: Exception) { null }
     }
 
-    private fun parseTipoClienteProveedor(valor: String?): TipoClienteProveedor? {
+    private fun parseTipoClienteProveedor(valor: String?): TipoPersoneria? {
         if (valor.isNullOrBlank()) return null
-        return try { TipoClienteProveedor.valueOf(valor) } catch (_: Exception) { null }
+        return try { TipoPersoneria.valueOf(valor) } catch (_: Exception) { null }
     }
 }

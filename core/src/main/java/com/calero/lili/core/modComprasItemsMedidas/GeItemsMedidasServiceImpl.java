@@ -1,13 +1,13 @@
 package com.calero.lili.core.modComprasItemsMedidas;
 
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.Paginator;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modComprasItemsMedidas.builder.GetItemsMedidasBuilder;
 import com.calero.lili.core.modComprasItemsMedidas.dto.GeItemMedidaCreationRequestDto;
 import com.calero.lili.core.modComprasItemsMedidas.dto.GeItemMedidaCreationResponseDto;
 import com.calero.lili.core.modComprasItemsMedidas.dto.GeItemMedidaListFilterDto;
 import com.calero.lili.core.modComprasItemsMedidas.dto.GeItemMedidaReportDto;
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.Paginator;
-import com.calero.lili.core.errors.exceptions.GeneralException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -39,10 +38,8 @@ public class GeItemsMedidasServiceImpl {
 
     public GeItemMedidaCreationResponseDto update(Long idData, UUID id, GeItemMedidaCreationRequestDto request, String usuario) {
 
-        GeItemsMedidasEntity entidad = geItemsMedidasRepository.findById(idData, id);
-        if (Objects.isNull(entidad)) {
-            throw new GeneralException(MessageFormat.format("Id {0} no existe", id));
-        }
+        GeItemsMedidasEntity entidad = geItemsMedidasRepository
+                .findById(idData, id).orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no existe", id)));
 
         GeItemsMedidasEntity update = getItemsMedidasBuilder.builderUpdateEntity(request, entidad);
         update.setModifiedBy(usuario);
@@ -52,10 +49,9 @@ public class GeItemsMedidasServiceImpl {
     }
 
     public void delete(Long idData, UUID id, String usuario) {
-        GeItemsMedidasEntity entidad = geItemsMedidasRepository.findById(idData, id);
-        if (Objects.isNull(entidad)) {
-            throw new GeneralException(MessageFormat.format("Id {0} no existe", id));
-        }
+        GeItemsMedidasEntity entidad = geItemsMedidasRepository
+                .findById(idData, id).orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no existe", id)));
+
 
         entidad.setDelete(Boolean.TRUE);
         entidad.setDeletedBy(usuario);
@@ -65,12 +61,8 @@ public class GeItemsMedidasServiceImpl {
     }
 
     public GeItemMedidaCreationResponseDto findFirstById(Long idData, UUID id) {
-
-        GeItemsMedidasEntity entidad = geItemsMedidasRepository.findById(idData, id);
-        if (entidad == null) {
-            throw new GeneralException(MessageFormat.format("Id {0} no existe", id));
-        }
-        return getItemsMedidasBuilder.builderResponse(entidad);
+        return getItemsMedidasBuilder.builderResponse(geItemsMedidasRepository
+                .findById(idData, id).orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no existe", id))));
     }
 
     public PaginatedDto<GeItemMedidaReportDto> findAllPaginate(Long idData, GeItemMedidaListFilterDto filters, Pageable pageable) {

@@ -24,6 +24,9 @@ public class GeItemsPreciosEntity {
     @Column(name = "id_data")
     private Long idData;
 
+    @Column(name = "id_empresa")
+    private Long idEmpresa;
+
     @Id
     @Column(unique = true, updatable = false, nullable = false)
     private UUID idItemsPrecio;

@@ -2,7 +2,7 @@ package com.calero.lili.core.modTerceros;
 
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
-import com.calero.lili.core.enums.TipoClienteProveedor;
+import com.calero.lili.core.enums.TipoPersoneria;
 import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modLocalidades.modCantones.CantonEntity;
@@ -226,7 +226,7 @@ public class GeTercerosServiceImpl {
 
     private static void validarClienteProveedor(GeTerceroRequestDto request) {
 
-        if (request.getTipoClienteProveedor().equals(TipoClienteProveedor.N)) {
+        if (request.getTipoPersoneria().equals(TipoPersoneria.N)) {
             if (Objects.isNull(request.getSexo())
                     || Objects.isNull(request.getOrigenIngresos())
                     || Objects.isNull(request.getEstadoCivil())) {
@@ -234,7 +234,7 @@ public class GeTercerosServiceImpl {
                 throw new GeneralException(
                         "Sexo, origen de ingresos y estado civil son requeridos para persona natural");
             }
-        } else if (request.getTipoClienteProveedor().equals(TipoClienteProveedor.J)) {
+        } else if (request.getTipoPersoneria().equals(TipoPersoneria.J)) {
             if (Objects.nonNull(request.getSexo())
                     || Objects.nonNull(request.getOrigenIngresos())
                     || Objects.nonNull(request.getEstadoCivil())) {

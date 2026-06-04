@@ -1,15 +1,5 @@
 package com.calero.lili.core.modComprasItems;
 
-import com.calero.lili.core.modComprasItems.builder.GetItemBuilder;
-import com.calero.lili.core.modComprasItems.dto.GeItemGetListDto;
-import com.calero.lili.core.modComprasItems.dto.GeItemGetOneDto;
-import com.calero.lili.core.modComprasItems.dto.GeItemListFilterDto;
-import com.calero.lili.core.modComprasItems.dto.GeItemRequestDto;
-import com.calero.lili.core.modComprasItems.dto.GeItemRequestListDto;
-import com.calero.lili.core.modComprasItems.dto.GeMedidasResponseDto;
-import com.calero.lili.core.modComprasItemsMedidas.GeItemsMedidasEntity;
-import com.calero.lili.core.modComprasItemsMedidas.GeItemsMedidasRepository;
-import com.calero.lili.core.utils.validaciones.ValidarCampoAscii;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.dtos.errors.DetallesErrores;
@@ -17,17 +7,32 @@ import com.calero.lili.core.dtos.errors.ListCreationResponseDto;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
+import com.calero.lili.core.modComprasItems.builder.GetItemBuilder;
+import com.calero.lili.core.modComprasItems.dto.GeItemGetListDto;
+import com.calero.lili.core.modComprasItems.dto.GeItemGetOneDto;
+import com.calero.lili.core.modComprasItems.dto.GeItemListFilterDto;
+import com.calero.lili.core.modComprasItems.dto.GeItemRequestDto;
+import com.calero.lili.core.modComprasItems.dto.GeItemRequestListDto;
+import com.calero.lili.core.modComprasItems.dto.GeMedidasItemsDto;
+import com.calero.lili.core.modComprasItems.dto.GeMedidasResponseDto;
+import com.calero.lili.core.modComprasItemsCategorias.GeItemsCategoriaEntity;
+import com.calero.lili.core.modComprasItemsCategorias.GeItemsCategoriaRepository;
+import com.calero.lili.core.modComprasItemsGrupos.GeItemGrupoEntity;
+import com.calero.lili.core.modComprasItemsGrupos.GeItemsGruposRepository;
+import com.calero.lili.core.modComprasItemsMarcas.GeItemsMarcasEntity;
+import com.calero.lili.core.modComprasItemsMarcas.GeItemsMarcasRepository;
+import com.calero.lili.core.modComprasItemsMedidas.GeItemsMedidasEntity;
+import com.calero.lili.core.modComprasItemsMedidas.GeItemsMedidasRepository;
+import com.calero.lili.core.utils.validaciones.ValidarCampoAscii;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -42,6 +47,9 @@ public class GeItemsServiceImpl {
     private final AdEmpresasRepository adEmpresasRepository;
     private final GetItemBuilder getItemBuilder;
     private final GeItemsMedidasRepository geItemsMedidasRepository;
+    private final GeItemsMarcasRepository geItemsMarcasRepository;
+    private final GeItemsGruposRepository geItemsGruposRepository;
+    private final GeItemsCategoriaRepository geItemsCategoriaRepository;
 
 
     @Transactional
@@ -58,7 +66,10 @@ public class GeItemsServiceImpl {
             throw new GeneralException(MessageFormat.format("El item con codigo {0} ya existe", request.getCodigoPrincipal()));
         }
 
+
         GeItemEntity entity = getItemBuilder.builderEntity(request, idData, idEmpresa);
+        validacionGrupoMarcaCategoria(request, entity);
+        validarMedidas(request, entity);
         entity.setCreatedBy(usuario);
         entity.setCreatedDate(LocalDateTime.now());
         return getItemBuilder.builderListResponse(geItemsRepository.save(entity));
@@ -197,7 +208,7 @@ public class GeItemsServiceImpl {
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no existe", id)));
 
         GeItemEntity update = getItemBuilder.builderUpdateEntity(request, entidad);
-
+        validacionGrupoMarcaCategoria(request, update);
         update.setModifiedBy(usuario);
         update.setModifiedDate(LocalDateTime.now());
 
@@ -233,12 +244,9 @@ public class GeItemsServiceImpl {
         return entidad.getMedidas()
                 .stream()
                 .map(item -> {
-                    GeItemsMedidasEntity medida = geItemsMedidasRepository.findById(idData, item.getIdUnidadMedida());
-                    if (Objects.nonNull(medida)) {
-                        return getItemBuilder.builderResponseMedidas(medida, item.getFactor());
-                    } else {
-                        return null;
-                    }
+                    Optional<GeItemsMedidasEntity> medida = geItemsMedidasRepository.findById(idData, item.getIdUnidadMedida());
+                    return medida.map(geItemsMedidasEntity ->
+                            getItemBuilder.builderResponseMedidas(geItemsMedidasEntity, item.getFactor())).orElse(null);
                 }).toList();
     }
 
@@ -278,9 +286,57 @@ public class GeItemsServiceImpl {
     private void validateDetalleAdicionalSize(GeItemRequestDto request) {
 
         if (Objects.nonNull(request.getDetallesAdicionales())) {
-            if(request.getDetallesAdicionales().size() > 3) {
+            if (request.getDetallesAdicionales().size() > 3) {
                 throw new GeneralException("No se pueden agregar mas de 3 detalles adicionales");
             }
+        }
+    }
+
+
+    private void validacionGrupoMarcaCategoria(GeItemRequestDto request, GeItemEntity entidad) {
+
+        if (Objects.nonNull(request.getIdGrupo())) {
+            GeItemGrupoEntity grupo = geItemsGruposRepository.findByIdGrupo(entidad.getIdData(),
+                            entidad.getIdEmpresa(), request.getIdGrupo())
+                    .orElseThrow(() -> new GeneralException(MessageFormat.format("Grupo con id {0} no existe", request.getIdGrupo())));
+            entidad.setGrupos(grupo);
+        } else {
+            entidad.setGrupos(null);
+        }
+
+
+        if (Objects.nonNull(request.getIdMarca())) {
+            GeItemsMarcasEntity marca = geItemsMarcasRepository.findById(entidad.getIdData(), request.getIdMarca())
+                    .orElseThrow(() -> new GeneralException(MessageFormat.format("Marca con id {0} no existe", request.getIdMarca())));
+            entidad.setMarcas(marca);
+        } else {
+            entidad.setMarcas(null);
+        }
+
+        if (Objects.nonNull(request.getIdCategoria())) {
+            GeItemsCategoriaEntity categoria = geItemsCategoriaRepository.findById(entidad.getIdData(), request.getIdCategoria())
+                    .orElseThrow(() -> new GeneralException(MessageFormat.format("Categoria con id {0} no existe", request.getIdCategoria())));
+            entidad.setCategorias(categoria);
+        } else {
+            entidad.setCategorias(null);
+        }
+    }
+
+    private void validarMedidas(GeItemRequestDto request, GeItemEntity entity) {
+        if (Objects.nonNull(request.getMedidas())) {
+            List<GeMedidasItemsEntity> listaMedidas = new ArrayList<>();
+            for (GeMedidasItemsDto medida : request.getMedidas()) {
+                GeItemsMedidasEntity medidaEntity = geItemsMedidasRepository.findById(entity.getIdData(), medida.getIdMedida())
+                        .orElseThrow(() -> new GeneralException(MessageFormat.format("Unidad de medida con id {0} no existe", medida.getIdMedida())));
+
+                GeMedidasItemsEntity itemMedida = new GeMedidasItemsEntity();
+                itemMedida.setIdUnidadMedida(medidaEntity.getIdUnidadMedida());
+                itemMedida.setFactor(medida.getFactor());
+                listaMedidas.add(itemMedida);
+            }
+            entity.setMedidas(listaMedidas);
+        } else {
+            entity.setMedidas(null);
         }
     }
 }

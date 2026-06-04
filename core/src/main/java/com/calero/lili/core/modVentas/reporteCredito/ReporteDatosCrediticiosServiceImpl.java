@@ -1,7 +1,7 @@
 package com.calero.lili.core.modVentas.reporteCredito;
 
 import com.calero.lili.core.comprobantes.builder.documentos.FormatoValores;
-import com.calero.lili.core.enums.TipoClienteProveedor;
+import com.calero.lili.core.enums.TipoPersoneria;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
@@ -75,9 +75,9 @@ public class ReporteDatosCrediticiosServiceImpl {
         }
 
 
-        if (Objects.nonNull(f.getTercero().getTipoClienteProveedor())) {
+        if (Objects.nonNull(f.getTercero().getTipoPersoneria())) {
 
-            if (f.getTercero().getTipoClienteProveedor().equals(TipoClienteProveedor.N)) {
+            if (f.getTercero().getTipoPersoneria().equals(TipoPersoneria.N)) {
 
                 if (Objects.nonNull(f.getTercero().getSexo())
                         && Objects.nonNull(f.getTercero().getEstadoCivil())
@@ -99,7 +99,7 @@ public class ReporteDatosCrediticiosServiceImpl {
                 f.getTercero().getTipoIdentificacion(),
                 f.getTercero().getNumeroIdentificacion(),
                 f.getTercero().getTercero(),
-                f.getTercero().getTipoClienteProveedor().name(),
+                f.getTercero().getTipoPersoneria().name(),
                 provincia,
                 canton,
                 parroquia,

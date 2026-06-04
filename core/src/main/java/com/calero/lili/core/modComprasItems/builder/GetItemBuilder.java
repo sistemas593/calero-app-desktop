@@ -1,6 +1,5 @@
 package com.calero.lili.core.modComprasItems.builder;
 
-import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosEntity;
 import com.calero.lili.core.modComprasItems.GeItemEntity;
 import com.calero.lili.core.modComprasItems.GeItemsPreciosEntity;
 import com.calero.lili.core.modComprasItems.GeMedidasItemsEntity;
@@ -11,6 +10,7 @@ import com.calero.lili.core.modComprasItems.dto.GeMedidasItemsDto;
 import com.calero.lili.core.modComprasItems.dto.GeMedidasResponseDto;
 import com.calero.lili.core.modComprasItemsCategorias.GeItemsCategoriaEntity;
 import com.calero.lili.core.modComprasItemsGrupos.GeItemGrupoEntity;
+import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosEntity;
 import com.calero.lili.core.modComprasItemsMarcas.GeItemsMarcasEntity;
 import com.calero.lili.core.modComprasItemsMedidas.GeItemsMedidasEntity;
 import lombok.AllArgsConstructor;
@@ -38,11 +38,7 @@ public class GetItemBuilder {
                 .tipoItem(model.getTipoItem())
                 .detallesAdicionales(builderListDetalles(model.getDetallesAdicionales()))
                 .impuestos(builderListImpuestos(model.getImpuestos()))
-                .geItemsPreciosEntities(geItemsPreciosBuilder.builderListPrecios(model.getPrecios()))
-                .grupos(builderGrupo(model.getIdGrupo()))
-                .marcas(builderMarca(model.getIdMarca()))
-                .categorias(builderCategoria(model.getIdCategoria()))
-                .medidas(builderListMedidas(model.getMedidas()))
+                .geItemsPreciosEntities(geItemsPreciosBuilder.builderListPrecios(model.getPrecios(), idData, idEmpresa))
                 .caracteristicas(model.getCaracteristicas())
                 .build();
     }
@@ -54,10 +50,6 @@ public class GetItemBuilder {
         item.setDescripcion(model.getDescripcion());
         item.setTipoItem(model.getTipoItem());
         item.setCaracteristicas(model.getCaracteristicas());
-        item.setGrupos(builderGrupo(model.getIdGrupo()));
-        item.setMarcas(builderMarca(model.getIdMarca()));
-        item.setCategorias(builderCategoria(model.getIdCategoria()));
-
         List<GeItemEntity.DetalleAdicional> nuevosDetalles = builderListDetalles(model.getDetallesAdicionales());
         if (item.getDetallesAdicionales() != null) {
             item.getDetallesAdicionales().clear();
@@ -74,7 +66,7 @@ public class GetItemBuilder {
             item.setImpuestos(nuevosImpuestos);
         }
 
-        List<GeItemsPreciosEntity> nuevosPrecios = geItemsPreciosBuilder.builderListPrecios(model.getPrecios());
+        List<GeItemsPreciosEntity> nuevosPrecios = geItemsPreciosBuilder.builderListPrecios(model.getPrecios(), item.getIdData(), item.getIdEmpresa());
         if (item.getGeItemsPreciosEntities() != null) {
             item.getGeItemsPreciosEntities().clear();
             if (nuevosPrecios != null) item.getGeItemsPreciosEntities().addAll(nuevosPrecios);

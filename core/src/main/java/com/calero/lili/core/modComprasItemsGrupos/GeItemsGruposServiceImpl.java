@@ -40,10 +40,8 @@ public class GeItemsGruposServiceImpl {
 
     public ResponseDto update(Long idData, Long idEmpresa, UUID id, GeItemGrupoCreationRequestDto request, String usuario) {
 
-        GeItemGrupoEntity entidad = geItemsGruposRepository.findByIdGrupo(idData, idEmpresa, id);
-        if (Objects.isNull(entidad)) {
-            throw new GeneralException(MessageFormat.format("Id {0} no existe", id));
-        }
+        GeItemGrupoEntity entidad = geItemsGruposRepository.findByIdGrupo(idData, idEmpresa, id)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no existe", id)));
 
         GeItemGrupoEntity entity = getItemGrupoBuilder.builderUpdateEntity(request, entidad);
         entity.setModifiedBy(usuario);
@@ -54,10 +52,9 @@ public class GeItemsGruposServiceImpl {
 
     public void delete(Long idData, Long idEmpresa, UUID id, String usuario) {
 
-        GeItemGrupoEntity entidad = geItemsGruposRepository.findByIdGrupo(idData, idEmpresa, id);
-        if (Objects.isNull(entidad)) {
-            throw new GeneralException(MessageFormat.format("Id {0} no existe", id));
-        }
+        GeItemGrupoEntity entidad = geItemsGruposRepository.findByIdGrupo(idData, idEmpresa, id)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no existe", id)));
+
         entidad.setDelete(Boolean.TRUE);
         entidad.setDeletedBy(usuario);
         entidad.setDeletedDate(LocalDateTime.now());
@@ -67,11 +64,8 @@ public class GeItemsGruposServiceImpl {
 
     public GeItemGrupoGetOneDto findFirstById(Long idData, Long idEmpresa, UUID id) {
 
-        GeItemGrupoEntity entidad = geItemsGruposRepository.findByIdGrupo(idData, idEmpresa, id);
-        if (entidad == null) {
-            throw new GeneralException(MessageFormat.format("Id {0} no existe", id));
-        }
-        return getItemGrupoBuilder.builderDto(entidad);
+        return getItemGrupoBuilder.builderDto(geItemsGruposRepository.findByIdGrupo(idData, idEmpresa, id)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no existe", id))));
     }
 
     public PaginatedDto<GeItemGrupoGetListDto> findAllPaginate(Long idData, Long idEmpresa, GeItemGrupoListFilterDto filters, Pageable pageable) {

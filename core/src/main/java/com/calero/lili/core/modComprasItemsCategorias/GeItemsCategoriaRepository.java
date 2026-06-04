@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -24,7 +25,7 @@ public interface GeItemsCategoriaRepository extends JpaRepository<GeItemsCategor
             "FROM GeItemsCategoriaEntity e " +
             "WHERE e.idData = :idData AND " +
             "e.idCategoria = :id")
-    GeItemsCategoriaEntity findById(@Param("idData") Long idData, @Param("id") UUID id);
+    Optional<GeItemsCategoriaEntity> findById(@Param("idData") Long idData, @Param("id") UUID id);
 
     @Query(
             value = "SELECT entity " +

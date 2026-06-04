@@ -6,7 +6,7 @@ import com.calero.lili.core.dtos.errors.EnumError;
 import com.calero.lili.core.enums.EstadoCivilEnum;
 import com.calero.lili.core.enums.OrigenIngresosEnum;
 import com.calero.lili.core.enums.SexoEnum;
-import com.calero.lili.core.enums.TipoClienteProveedor;
+import com.calero.lili.core.enums.TipoPersoneria;
 import com.calero.lili.core.enums.TipoTercero;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.errors.exceptions.ListErrorException;
@@ -184,14 +184,14 @@ public class ExcelCargarTercerosServiceImpl {
                     cliente.setObservaciones(webObservaciones);
                 }
 
-                cliente.setTipoClienteProveedor(null);
+                cliente.setTipoPersoneria(null);
                 if (row.getCell(11) == null) {
                     DetalleError detalle = detalleErrorBuilder.builderDetalleError(linea, EnumError.TIPO_CLIENTE_NOT_FOUND);
                     listaErrores.add(detalle);
                 } else {
                     String tipoCliente = row.getCell(11).getStringCellValue();
                     try {
-                        cliente.setTipoClienteProveedor(TipoClienteProveedor.valueOf(tipoCliente));
+                        cliente.setTipoPersoneria(TipoPersoneria.valueOf(tipoCliente));
                     } catch (Exception e) {
                         DetalleError detalle = detalleErrorBuilder.builderDetalleError(linea, EnumError.TIPO);
                         listaErrores.add(detalle);
@@ -549,14 +549,14 @@ public class ExcelCargarTercerosServiceImpl {
                     String tipoCliente = row.getCell(4).getStringCellValue();
                     if (!tipoCliente.isEmpty()) {
                         try {
-                            tercero.setTipoClienteProveedor(TipoClienteProveedor.valueOf(tipoCliente));
+                            tercero.setTipoPersoneria(TipoPersoneria.valueOf(tipoCliente));
                         } catch (Exception e) {
                             DetalleError detalle = detalleErrorBuilder.builderDetalleError(linea, EnumError.TERCERO_ERROR);
                             detalle.setDetalle("El tipo de cliente/proveedor : " + tipoCliente + " es incorrecto, debe ser NATURAL (N) o JURÍDICO (J)");
                             listaErrores.add(detalle);
                         }
                     } else {
-                        tercero.setTipoClienteProveedor(null);
+                        tercero.setTipoPersoneria(null);
                     }
 
 
