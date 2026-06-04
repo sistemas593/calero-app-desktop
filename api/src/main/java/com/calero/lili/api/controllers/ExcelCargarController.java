@@ -53,17 +53,6 @@ public class ExcelCargarController {
         }
     }
 
-
-    @PostMapping("/terceros-clientes")
-    public void uploadFileTerceroClientes(@RequestBody MultipartFile file) {
-        try {
-            clientesService.cargarExcelTerceros(idDataService.getIdData(), file,  auditorAware.getCurrentAuditor().orElse("SYSTEM"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
     @PostMapping("/items/productos/{idEmpresa}")
     public void uploadFileItemsProductos(@RequestBody MultipartFile file, @PathVariable("idEmpresa") Long idEmpresa) {
         try {

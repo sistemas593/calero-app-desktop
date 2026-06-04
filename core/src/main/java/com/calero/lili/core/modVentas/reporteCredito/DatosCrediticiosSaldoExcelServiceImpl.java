@@ -88,7 +88,38 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
                     String numeroOperacion = row.getCell(0).getStringCellValue();
                     DatosCrediticiosDetalleEntity entidad = mapDatos.get(numeroOperacion);
                     if (Objects.nonNull(entidad)) {
+
                         BigDecimal saldo = convetirValor(row.getCell(1).getStringCellValue());
+
+
+                        if (!entidad.getDiasMorosidad().equals(0)) {
+
+                            if (entidad.getDiasMorosidad() <= 30) {
+
+                                entidad.setValorVencido1a30Dias(saldo);
+
+                            } else if (entidad.getDiasMorosidad() <= 90) {
+
+                                entidad.setValorVencido31a90Dias(saldo);
+
+                            } else if (entidad.getDiasMorosidad() <= 180) {
+
+                                entidad.setValorVencido91a180Dias(saldo);
+
+
+                            } else if (entidad.getDiasMorosidad() <= 360) {
+
+                                entidad.setValorVencido181a360Dias(saldo);
+
+                            } else {
+                                // EN EL CASO DE QUE EL NUMERO DE DIAS MOROSIDAD SUPERE LOS 360 DIAS, SE DEBE SETEAR EL MISMO VALOR
+                                // EN VALOR DE DEMANDA JUDICIAL.
+                                entidad.setValorVencidoMas360Dias(saldo);
+                                entidad.setValorDemandaJudicial(saldo);
+                            }
+                        }
+
+
                         entidad.setSaldoOperacion(saldo);
                         entidadesActualizar.add(entidad);
 

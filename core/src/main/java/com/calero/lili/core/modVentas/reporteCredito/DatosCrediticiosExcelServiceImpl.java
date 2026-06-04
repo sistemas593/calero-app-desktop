@@ -162,15 +162,70 @@ public class DatosCrediticiosExcelServiceImpl {
         }
 
 
+        // LOS VALORES VAN RELACIONADO CON LOS DIAS DE MORA
+        // SI EL DIA DE MORA ES NEGATIVO EL VALOR DEBE IR EN LOS DIAS POR VENCER, Y SI ES POSITIVO DEBE IR EN LOS DIAS VENCIDOS
+        // EN CASO DE SER NEGATIVOS LOS DIAS DE MORA LOS DIAS DE MOROSIDAD SON CERO Y SI SON POSITIVOS LOS DIAS SE SETEA LOS DIAS QUE ESTE EN EL EXCEL.
         if (Objects.nonNull(row.getCell(6)) && Objects.nonNull(row.getCell(7))) {
 
             BigDecimal valor = convetirValor(row.getCell(7).getStringCellValue());
             int diasMora = convertirEntero(row.getCell(6).getStringCellValue());
             int rango = Math.abs(diasMora);
+
+            // EL VALOR DE OPERACION Y EL DE CUOTA DE CREDITO SON EL MISMO
             detalle.setValorOperacion(valor);
+            detalle.setCoutaCredito(valor);
+
+            // SETEAR PRIMERO TODOS LOS VALORES EN CERO
+            detalle.setValorVencido1a30Dias(BigDecimal.ZERO);
+            detalle.setValorVencido31a90Dias(BigDecimal.ZERO);
+            detalle.setValorVencido91a180Dias(BigDecimal.ZERO);
+            detalle.setValorVencido181a360Dias(BigDecimal.ZERO);
+            detalle.setValorVencidoMas360Dias(BigDecimal.ZERO);
+
+            detalle.setValorXVencer1a30Dias(BigDecimal.ZERO);
+            detalle.setValorXVencer31a90Dias(BigDecimal.ZERO);
+            detalle.setValorXVencer91a180Dias(BigDecimal.ZERO);
+            detalle.setValorXVencer181a360Dias(BigDecimal.ZERO);
+            detalle.setValorXVencerMas360Dias(BigDecimal.ZERO);
+
+            detalle.setMontoMorosidad(BigDecimal.ZERO);
+            detalle.setMontoInteresMora(BigDecimal.ZERO);
+            detalle.setCarteraCastigada(BigDecimal.ZERO);
+            detalle.setValorDemandaJudicial(BigDecimal.ZERO);
 
             if (esPositivo(diasMora)) {
 
+                detalle.setDiasMorosidad(diasMora);
+                if (rango <= 30) {
+
+                    detalle.setValorVencido1a30Dias(valor);
+
+
+                } else if (rango <= 90) {
+
+                    detalle.setValorVencido31a90Dias(valor);
+
+
+                } else if (rango <= 180) {
+
+                    detalle.setValorVencido91a180Dias(valor);
+
+
+                } else if (rango <= 360) {
+
+                    detalle.setValorVencido181a360Dias(valor);
+
+
+                } else {
+                    // EN EL CASO DE QUE EL NUMERO DE DIAS MOROSIDAD SUPERE LOS 360 DIAS, SE DEBE SETEAR EL MISMO VALOR
+                    // EN VALOR DE DEMANDA JUDICIAL.
+                    detalle.setValorVencidoMas360Dias(valor);
+                    detalle.setValorDemandaJudicial(valor);
+                }
+
+            } else {
+
+                detalle.setDiasMorosidad(0);
                 if (rango <= 30) {
 
                     detalle.setValorXVencer1a30Dias(valor);
@@ -190,29 +245,7 @@ public class DatosCrediticiosExcelServiceImpl {
                 } else {
 
                     detalle.setValorXVencerMas360Dias(valor);
-                }
 
-            } else {
-
-                if (rango <= 30) {
-
-                    detalle.setValorVencido1a30Dias(valor);
-
-                } else if (rango <= 90) {
-
-                    detalle.setValorVencido31a90Dias(valor);
-
-                } else if (rango <= 180) {
-
-                    detalle.setValorVencido91a180Dias(valor);
-
-                } else if (rango <= 360) {
-
-                    detalle.setValorVencido181a360Dias(valor);
-
-                } else {
-
-                    detalle.setValorVencidoMas360Dias(valor);
                 }
             }
 
