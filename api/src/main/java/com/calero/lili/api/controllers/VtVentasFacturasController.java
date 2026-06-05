@@ -15,6 +15,7 @@ import com.calero.lili.core.modVentas.facturas.dto.GetFacturaDto;
 import com.calero.lili.core.modVentas.reporteCredito.DatosCrediticiosExcelServiceImpl;
 import com.calero.lili.core.modVentas.reporteCredito.DatosCrediticiosSaldoExcelServiceImpl;
 import com.calero.lili.core.modVentas.reporteCredito.ReporteDatosCrediticiosServiceImpl;
+import com.calero.lili.core.modVentas.reporteCredito.dto.FilterDatosCrediticiosDto;
 import com.lowagie.text.DocumentException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -194,10 +195,11 @@ public class VtVentasFacturasController {
     }
 
     @GetMapping("reporte/datos-crediticios/{idEmpresa}")
-    public ResponseEntity<byte[]> reporteDatosCrediticios(@PathVariable("idEmpresa") Long idEmpresa) {
+    public ResponseEntity<byte[]> reporteDatosCrediticios(@PathVariable("idEmpresa") Long idEmpresa,
+                                                          FilterDatosCrediticiosDto filter) {
 
 
-        byte[] txt = reporteDatosCrediticiosService.generarTxt(idDataService.getIdData(), idEmpresa); // tu byte[]
+        byte[] txt = reporteDatosCrediticiosService.generarTxt(idDataService.getIdData(), idEmpresa, filter); // tu byte[]
         String nombre = "reporte-datos-crediticios" + ".txt";
 
         return ResponseEntity.ok()
@@ -210,9 +212,9 @@ public class VtVentasFacturasController {
     @PostMapping("/datos-crediticios/excel/{idEmpresa}")
     public void uploadDatosCrediticiosExcel(@RequestParam("file") MultipartFile file,
                                             @PathVariable("idEmpresa") Long idEmpresa,
-                                            @RequestParam("fechaDatos") String fechaDatos) {
+                                            @RequestParam("periodo") String periodo) {
         try {
-            datosCrediticiosExcelService.cargarDatosCrediticios(idDataService.getIdData(), idEmpresa, file, fechaDatos);
+            datosCrediticiosExcelService.cargarDatosCrediticios(idDataService.getIdData(), idEmpresa, file, periodo);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

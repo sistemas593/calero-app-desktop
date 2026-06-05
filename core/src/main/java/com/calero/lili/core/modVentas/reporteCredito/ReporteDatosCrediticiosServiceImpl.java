@@ -5,12 +5,16 @@ import com.calero.lili.core.enums.TipoPersoneria;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
+import com.calero.lili.core.modVentas.reporteCredito.dto.FilterDatosCrediticiosDto;
+import com.calero.lili.core.modVentas.reporteCredito.projection.DatosCrediticiosProjection;
 import com.calero.lili.core.utils.DateUtils;
+import com.calero.lili.core.utils.DatosCrediticiosValorBusquedaService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
@@ -22,10 +26,12 @@ public class ReporteDatosCrediticiosServiceImpl {
     private final DatosCrediticiosRepository datosCrediticiosRepository;
     private final AdEmpresasRepository adEmpresasRepository;
     private final FormatoValores formatoValores;
+    private final DatosCrediticiosValorBusquedaService valorBusquedaService;
 
-    public byte[] generarTxt(Long idData, Long idEmpresa) {
+    public byte[] generarTxt(Long idData, Long idEmpresa, FilterDatosCrediticiosDto filter) {
 
-        List<DatosCrediticiosEntity> lista = datosCrediticiosRepository.getFindAll(idData, idEmpresa);
+        List<DatosCrediticiosProjection> lista = datosCrediticiosRepository.obtenerDatosCrediticios(idData, idEmpresa,
+                valorBusquedaService.obtenerValorAnual(filter.getPeriodo()), filter.getPeriodo());
 
         AdEmpresaEntity empresa = adEmpresasRepository.findById(idData, idEmpresa)
                 .orElseThrow(() -> new GeneralException("No se encontró la empresa con idData: " + idData + " e idEmpresa: " + idEmpresa));
@@ -36,17 +42,16 @@ public class ReporteDatosCrediticiosServiceImpl {
 
         StringBuilder sb = new StringBuilder();
 
-        for (DatosCrediticiosEntity cabecera : lista) {
-            for (DatosCrediticiosDetalleEntity f : cabecera.getDatosCrediticiosDetalle()) {
-                sb.append(construirLinea(cabecera, f, empresa)).append("\n");
-            }
+        for (DatosCrediticiosProjection cabecera : lista) {
+            sb.append(construirLinea(cabecera, empresa)).append("\n");
+
         }
 
 
         return sb.toString().getBytes(StandardCharsets.UTF_8);
     }
 
-    private String construirLinea(DatosCrediticiosEntity cabecera, DatosCrediticiosDetalleEntity f, AdEmpresaEntity empresa) {
+    private String construirLinea(DatosCrediticiosProjection f, AdEmpresaEntity empresa) {
 
         String parroquia = "";
         String canton = "";
@@ -57,49 +62,53 @@ public class ReporteDatosCrediticiosServiceImpl {
         String origenIngreso = "";
 
 
-        if (Objects.nonNull(f.getTercero().getParroquia())) {
+        if (Objects.nonNull(f.getCodigoParroquia())) {
 
-            String x = f.getTercero().getParroquia().getCodigoParroquia();
+            String x = f.getCodigoParroquia();
             parroquia = x.substring(x.length() - 2);
-            if (Objects.nonNull(f.getTercero().getParroquia().getCanton())) {
-                String z = f.getTercero().getParroquia().getCanton().getCodigoCanton();
+            if (Objects.nonNull(f.getCodigoCanton())) {
+                String z = f.getCodigoCanton();
                 canton = z.substring(z.length() - 2);
-                if (Objects.nonNull(f.getTercero().getParroquia().getCanton().getProvincia())) {
-                    provincia = f.getTercero().getParroquia().getCanton().getProvincia().getCodigoProvincia();
+                if (Objects.nonNull(f.getCodigoProvincia())) {
+                    provincia = f.getCodigoProvincia();
                 }
             }
 
         } else {
             throw new GeneralException("El tercero con identificación "
-                    + f.getTercero().getNumeroIdentificacion() + " no tiene asignada una parroquia, lo cual es obligatorio para generar el reporte.");
+                    + f.getIdentificacionSujeto() + " no tiene asignada una parroquia, lo cual es obligatorio para generar el reporte.");
         }
 
 
-        if (Objects.nonNull(f.getTercero().getTipoPersoneria())) {
+        if (Objects.nonNull(f.getClaseSujeto())) {
 
-            if (f.getTercero().getTipoPersoneria().equals(TipoPersoneria.N)) {
+            if (f.getClaseSujeto().equals(TipoPersoneria.N.name())) {
 
-                if (Objects.nonNull(f.getTercero().getSexo())
-                        && Objects.nonNull(f.getTercero().getEstadoCivil())
-                        && Objects.nonNull(f.getTercero().getOrigenIngresos())) {
+                if (Objects.nonNull(f.getSexo())
+                        && Objects.nonNull(f.getEstadoCivil())
+                        && Objects.nonNull(f.getOrigenIngresos())) {
 
-                    sexo = sexo.replace("|", f.getTercero().getSexo().name());
-                    estadoCivil = estadoCivil.replace("|", f.getTercero().getEstadoCivil().name());
-                    origenIngreso = origenIngreso.replace("|", f.getTercero().getOrigenIngresos().name());
+                    sexo = sexo.replace("", f.getSexo());
+                    estadoCivil = estadoCivil.replace("", f.getEstadoCivil());
+                    origenIngreso = origenIngreso.replace("", f.getOrigenIngresos());
+
                 } else {
                     throw new GeneralException("El tercero con identificación "
-                            + f.getTercero().getNumeroIdentificacion() + " es un cliente natural, por lo tanto debe tener asignados los campos sexo, estado civil y origen de ingresos para generar el reporte.");
+                            + f.getIdentificacionSujeto() + " es un cliente natural, por lo tanto debe tener asignados los campos sexo, estado civil y origen de ingresos para generar el reporte.");
                 }
             }
         }
 
+        LocalDate fechaDatos = DateUtils.toPeriodoDate(f.getPeriodo());
+
+
         return String.join("|",
                 Objects.nonNull(empresa.getCodigoDinardap()) ? empresa.getCodigoDinardap() : "",
-                DateUtils.toString(cabecera.getFechaDatos()),
-                f.getTercero().getTipoIdentificacion(),
-                f.getTercero().getNumeroIdentificacion(),
-                f.getTercero().getTercero(),
-                f.getTercero().getTipoPersoneria().name(),
+                DateUtils.toString(fechaDatos),
+                f.getTipoIdentificacion(),
+                f.getIdentificacionSujeto(),
+                f.getNombreSujeto(),
+                f.getClaseSujeto(),
                 provincia,
                 canton,
                 parroquia,
@@ -113,15 +122,15 @@ public class ReporteDatosCrediticiosServiceImpl {
                 Objects.nonNull(f.getFechaVencimiento()) ? DateUtils.toString(f.getFechaVencimiento()) : "",
                 Objects.nonNull(f.getFechaExigible()) ? DateUtils.toString(f.getFechaExigible()) : "",
                 Objects.nonNull(f.getPlazoOperacion()) ? f.getPlazoOperacion().toString() : "",
-                Objects.nonNull(f.getPeriodicidadPago()) ? f.getPeriodicidadPago().toString() : "",
-                Objects.nonNull(f.getDiasMorosidad()) ? f.getDiasMorosidad().toString() : "",
-                formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getMontoMorosidad()) ? f.getMontoMorosidad() : BigDecimal.ZERO),
+                Objects.nonNull(f.getPeriosidadPago()) ? f.getPeriosidadPago() : "",
+                Objects.nonNull(f.getDiasMorosidad()) ? retornarDiasCorrectos(f.getDiasMorosidad()) : "",
+                formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getMontoMorisidad()) ? f.getMontoMorisidad() : BigDecimal.ZERO),
                 formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getMontoInteresMora()) ? f.getMontoInteresMora() : BigDecimal.ZERO),
-                formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getValorXVencer1a30Dias()) ? f.getValorXVencer1a30Dias() : BigDecimal.ZERO),
-                formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getValorXVencer31a90Dias()) ? f.getValorXVencer31a90Dias() : BigDecimal.ZERO),
-                formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getValorXVencer91a180Dias()) ? f.getValorXVencer91a180Dias() : BigDecimal.ZERO),
-                formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getValorXVencer181a360Dias()) ? f.getValorXVencer181a360Dias() : BigDecimal.ZERO),
-                formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getValorXVencerMas360Dias()) ? f.getValorXVencerMas360Dias() : BigDecimal.ZERO),
+                formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getValorPorVencer1a30Dias()) ? f.getValorPorVencer1a30Dias() : BigDecimal.ZERO),
+                formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getValorPorVencer31a90Dias()) ? f.getValorPorVencer31a90Dias() : BigDecimal.ZERO),
+                formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getValorPorVencer91a180Dias()) ? f.getValorPorVencer91a180Dias() : BigDecimal.ZERO),
+                formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getValorPorVencer181a360Dias()) ? f.getValorPorVencer181a360Dias() : BigDecimal.ZERO),
+                formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getValorPorVencerMas360Dias()) ? f.getValorPorVencerMas360Dias() : BigDecimal.ZERO),
                 formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getValorVencido1a30Dias()) ? f.getValorVencido1a30Dias() : BigDecimal.ZERO),
                 formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getValorVencido31a90Dias()) ? f.getValorVencido31a90Dias() : BigDecimal.ZERO),
                 formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getValorVencido91a180Dias()) ? f.getValorVencido91a180Dias() : BigDecimal.ZERO),
@@ -129,9 +138,17 @@ public class ReporteDatosCrediticiosServiceImpl {
                 formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getValorVencidoMas360Dias()) ? f.getValorVencidoMas360Dias() : BigDecimal.ZERO),
                 formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getValorDemandaJudicial()) ? f.getValorDemandaJudicial() : BigDecimal.ZERO),
                 formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getCarteraCastigada()) ? f.getCarteraCastigada() : BigDecimal.ZERO),
-                formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getCoutaCredito()) ? f.getCoutaCredito() : BigDecimal.ZERO),
+                formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getCuotaCredito()) ? f.getCuotaCredito() : BigDecimal.ZERO),
                 Objects.nonNull(f.getFechaCancelacion()) ? DateUtils.toString(f.getFechaCancelacion()) : "",
                 Objects.nonNull(f.getFormaCancelacion()) ? f.getFormaCancelacion() : ""); // TODO Tipos Efectivo (E), Cheque(C), Tarjeta de Crédito (T)
+    }
+
+    private String retornarDiasCorrectos(Integer diasMorosidad) {
+        if (diasMorosidad >= 0) {
+            return diasMorosidad.toString();
+        } else {
+            return "0";
+        }
     }
 
 }

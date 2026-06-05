@@ -36,7 +36,7 @@ public class DatosCrediticiosExcelServiceImpl {
     private final GeTercerosRepository geTercerosRepository;
     private final DetalleErrorBuilder detalleErrorBuilder;
 
-    public void cargarDatosCrediticios(Long idData, Long idEmpresa, MultipartFile file, String fechaDatos) throws IOException {
+    public void cargarDatosCrediticios(Long idData, Long idEmpresa, MultipartFile file, String periodo) throws IOException {
 
 
         // Primer paso: recolectar códigos únicos de los clientes
@@ -72,10 +72,20 @@ public class DatosCrediticiosExcelServiceImpl {
 
         List<DetalleError> detalleErrores = new ArrayList<>();
         List<DatosCrediticiosEntity> datosCrediticiosList = new ArrayList<>();
+        List<DatosCrediticiosDetalleEntity> listaDetalles = new ArrayList<>();
         Workbook workbook2 = StreamingReader.builder()
                 .rowCacheSize(500000)
                 .bufferSize(131072)
                 .open(file.getInputStream());
+
+
+        DatosCrediticiosEntity entidad = new DatosCrediticiosEntity();
+        entidad.setIdDatosCrediticios(UUID.randomUUID());
+        entidad.setIdData(idData);
+        entidad.setIdEmpresa(idEmpresa);
+        entidad.setCodigoEntidad("");
+        entidad.setPeriodo(periodo);
+
 
         boolean isHeader = true;
         for (Sheet sheet : workbook2) {
@@ -89,17 +99,12 @@ public class DatosCrediticiosExcelServiceImpl {
                     continue;
                 }
 
-                DatosCrediticiosEntity entidad = new DatosCrediticiosEntity();
-                entidad.setIdDatosCrediticios(UUID.randomUUID());
-                entidad.setIdData(idData);
-                entidad.setIdEmpresa(idEmpresa);
-                entidad.setCodigoEntidad("");
-                entidad.setFechaDatos(DateUtils.toLocalDate(fechaDatos));
-
-                setearDetalles(mapTercero, entidad, row, linea, detalleErrores);
+                setearDetalles(mapTercero, entidad, row, linea, detalleErrores, listaDetalles);
                 datosCrediticiosList.add(entidad);
 
             }
+
+            entidad.setDatosCrediticiosDetalle(listaDetalles);
 
             if (detalleErrores.isEmpty()) {
                 datosCrediticiosRepository.saveAll(datosCrediticiosList);
@@ -109,9 +114,10 @@ public class DatosCrediticiosExcelServiceImpl {
         }
     }
 
-    private void setearDetalles(Map<String, GeTerceroEntity> mapTercero, DatosCrediticiosEntity entidad, Row row, int linea, List<DetalleError> detalleErrores) {
+    private void setearDetalles(Map<String, GeTerceroEntity> mapTercero, DatosCrediticiosEntity entidad, Row row, int linea,
+                                List<DetalleError> detalleErrores, List<DatosCrediticiosDetalleEntity> listaDetalles) {
 
-        List<DatosCrediticiosDetalleEntity> listaDetalles = new ArrayList<>();
+
         DatosCrediticiosDetalleEntity detalle = new DatosCrediticiosDetalleEntity();
 
         detalle.setIdData(entidad.getIdData());
@@ -155,6 +161,8 @@ public class DatosCrediticiosExcelServiceImpl {
 
         if (Objects.nonNull(row.getCell(4))) {
             detalle.setFechaVencimiento(DateUtils.toLocalDate(row.getCell(4).getStringCellValue()));
+            detalle.setFechaExigible(DateUtils.toLocalDate(row.getCell(4).getStringCellValue()));
+
         } else {
             DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DOCUMENTO_ERROR);
             detalleError.setDetalle("La fecha de vencimiento no se encuentra");
@@ -169,7 +177,8 @@ public class DatosCrediticiosExcelServiceImpl {
 
             BigDecimal valor = convetirValor(row.getCell(7).getStringCellValue());
             int diasMora = convertirEntero(row.getCell(6).getStringCellValue());
-            int rango = Math.abs(diasMora);
+
+            detalle.setDiasMorosidad(diasMora);
 
             // EL VALOR DE OPERACION Y EL DE CUOTA DE CREDITO SON EL MISMO
             detalle.setValorOperacion(valor);
@@ -193,61 +202,6 @@ public class DatosCrediticiosExcelServiceImpl {
             detalle.setCarteraCastigada(BigDecimal.ZERO);
             detalle.setValorDemandaJudicial(BigDecimal.ZERO);
 
-            if (esPositivo(diasMora)) {
-
-                detalle.setDiasMorosidad(diasMora);
-                if (rango <= 30) {
-
-                    detalle.setValorVencido1a30Dias(valor);
-
-
-                } else if (rango <= 90) {
-
-                    detalle.setValorVencido31a90Dias(valor);
-
-
-                } else if (rango <= 180) {
-
-                    detalle.setValorVencido91a180Dias(valor);
-
-
-                } else if (rango <= 360) {
-
-                    detalle.setValorVencido181a360Dias(valor);
-
-
-                } else {
-                    // EN EL CASO DE QUE EL NUMERO DE DIAS MOROSIDAD SUPERE LOS 360 DIAS, SE DEBE SETEAR EL MISMO VALOR
-                    // EN VALOR DE DEMANDA JUDICIAL.
-                    detalle.setValorVencidoMas360Dias(valor);
-                    detalle.setValorDemandaJudicial(valor);
-                }
-
-            } else {
-
-                detalle.setDiasMorosidad(0);
-                if (rango <= 30) {
-
-                    detalle.setValorXVencer1a30Dias(valor);
-
-                } else if (rango <= 90) {
-
-                    detalle.setValorXVencer31a90Dias(valor);
-
-                } else if (rango <= 180) {
-
-                    detalle.setValorXVencer91a180Dias(valor);
-
-                } else if (rango <= 360) {
-
-                    detalle.setValorXVencer181a360Dias(valor);
-
-                } else {
-
-                    detalle.setValorXVencerMas360Dias(valor);
-
-                }
-            }
 
         } else {
             DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DOCUMENTO_ERROR);
@@ -256,11 +210,6 @@ public class DatosCrediticiosExcelServiceImpl {
         }
 
         listaDetalles.add(detalle);
-        entidad.setDatosCrediticiosDetalle(listaDetalles);
-    }
-
-    private boolean esPositivo(Integer diasMora) {
-        return diasMora >= 0;
     }
 
     private boolean isRowEmpty(Row row) {

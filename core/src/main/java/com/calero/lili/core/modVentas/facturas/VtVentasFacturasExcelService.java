@@ -496,7 +496,7 @@ public class VtVentasFacturasExcelService {
 
         // validar el periodo, todas las fechas deben ser del mes y año del periodo
 
-        LocalDate fechaPeriodo = DateUtils.toPeriodoFiscalDate(periodo);
+        LocalDate fechaPeriodo = DateUtils.toPeriodoDate(periodo);
 
         if (!ValidarTipoArchivo.validarTipoExcel(file)) {
             throw new GeneralException("El archivo debe ser Excel (.xls o .xlsx)");

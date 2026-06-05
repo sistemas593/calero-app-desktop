@@ -165,7 +165,7 @@ public class AutorizacionBuilder {
                 .valoresEntity(builderListValoresRetencion(documento.getDocSustento(), idData, idEmpresa))
                 .claveAcceso(documento.getInfoTributaria().getClaveAcceso())
                 .formatoDocumento(FormatoDocumento.E)
-                .periodoFiscal(DateUtils.toPeriodoFiscalDate(documento.getInfoCompRetencion().getPeriodoFiscal()))
+                .periodoFiscal(DateUtils.toPeriodoDate(documento.getInfoCompRetencion().getPeriodoFiscal()))
                 .existeComprobante(Boolean.TRUE)
                 .build();
     }
@@ -189,7 +189,7 @@ public class AutorizacionBuilder {
                 .valoresEntity(builderImpuestos(documento.getImpuesto(), idData, idEmpresa))
                 .claveAcceso(documento.getInfoTributaria().getClaveAcceso())
                 .formatoDocumento(FormatoDocumento.E)
-                .periodoFiscal(DateUtils.toPeriodoFiscalDate(documento.getInfoCompRetencion().getPeriodoFiscal()))
+                .periodoFiscal(DateUtils.toPeriodoDate(documento.getInfoCompRetencion().getPeriodoFiscal()))
                 .build();
     }
 
@@ -260,7 +260,7 @@ public class AutorizacionBuilder {
                 .fechaEmisionRetencion(DateUtils.toLocalDate(documento.getInfoCompRetencion().getFechaEmision()))
                 .proveedor(proveedor)
                 .referencias(builderReferencias(documento))
-                .periodoFiscal(DateUtils.toPeriodoFiscalDate(documento.getInfoCompRetencion().getPeriodoFiscal()))
+                .periodoFiscal(DateUtils.toPeriodoDate(documento.getInfoCompRetencion().getPeriodoFiscal()))
                 .informacionAdicional(builderInformacionListAdicional(documento.getCampoAdicional()))
                 .ambiente(Ambiente.obtenerAmbiente(Integer.parseInt(documento.getInfoTributaria().getAmbiente())))
                 .claveAcceso(model.getNumeroAutorizacion())
@@ -294,7 +294,7 @@ public class AutorizacionBuilder {
                 .fechaEmisionRetencion(DateUtils.toLocalDate(documento.getInfoCompRetencion().getFechaEmision()))
                 .proveedor(proveedor)
                 .referencias(builderImpuestosReferencias(documento))
-                .periodoFiscal(DateUtils.toPeriodoFiscalDate(documento.getInfoCompRetencion().getPeriodoFiscal()))
+                .periodoFiscal(DateUtils.toPeriodoDate(documento.getInfoCompRetencion().getPeriodoFiscal()))
                 .informacionAdicional(builderInformacionListAdicional(documento.getCampoAdicional()))
                 .ambiente(Ambiente.obtenerAmbiente(Integer.parseInt(documento.getInfoTributaria().getAmbiente())))
                 .claveAcceso(documento.getInfoTributaria().getClaveAcceso())

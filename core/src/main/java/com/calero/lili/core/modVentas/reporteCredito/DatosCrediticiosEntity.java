@@ -1,6 +1,5 @@
 package com.calero.lili.core.modVentas.reporteCredito;
 
-import com.calero.lili.core.Auditable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,7 +13,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -38,7 +36,7 @@ public class DatosCrediticiosEntity {
 
     private String codigoEntidad;
 
-    private LocalDate fechaDatos;
+    private String periodo;
 
 
     @Builder.Default

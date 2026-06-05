@@ -90,24 +90,25 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
                     if (Objects.nonNull(entidad)) {
 
                         BigDecimal saldo = convetirValor(row.getCell(1).getStringCellValue());
+                        int rango = Math.abs(entidad.getDiasMorosidad());
 
+                        if (esPositivo(entidad.getDiasMorosidad())) {
 
-                        if (!entidad.getDiasMorosidad().equals(0)) {
-
-                            if (entidad.getDiasMorosidad() <= 30) {
+                            entidad.setMontoMorosidad(saldo);
+                            if (rango <= 30) {
 
                                 entidad.setValorVencido1a30Dias(saldo);
 
-                            } else if (entidad.getDiasMorosidad() <= 90) {
+                            } else if (rango <= 90) {
 
                                 entidad.setValorVencido31a90Dias(saldo);
 
-                            } else if (entidad.getDiasMorosidad() <= 180) {
+                            } else if (rango <= 180) {
 
                                 entidad.setValorVencido91a180Dias(saldo);
 
 
-                            } else if (entidad.getDiasMorosidad() <= 360) {
+                            } else if (rango <= 360) {
 
                                 entidad.setValorVencido181a360Dias(saldo);
 
@@ -116,6 +117,26 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
                                 // EN VALOR DE DEMANDA JUDICIAL.
                                 entidad.setValorVencidoMas360Dias(saldo);
                                 entidad.setValorDemandaJudicial(saldo);
+                            }
+                        } else {
+                            if (rango <= 30) {
+
+                                entidad.setValorXVencer1a30Dias(saldo);
+
+                            } else if (rango <= 90) {
+
+                                entidad.setValorXVencer31a90Dias(saldo);
+
+                            } else if (rango <= 180) {
+
+                                entidad.setValorXVencer91a180Dias(saldo);
+
+                            } else if (rango <= 360) {
+
+                                entidad.setValorXVencer181a360Dias(saldo);
+
+                            } else {
+                                entidad.setValorXVencerMas360Dias(saldo);
                             }
                         }
 
@@ -174,5 +195,10 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
             valor = valor.replace(",", ".");
         }
         return new BigDecimal(valor);
+    }
+
+
+    private boolean esPositivo(Integer diasMora) {
+        return diasMora >= 0;
     }
 }

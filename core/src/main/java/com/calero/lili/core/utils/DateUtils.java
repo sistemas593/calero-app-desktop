@@ -146,7 +146,7 @@ public class DateUtils {
         return fechaAutorizacion.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
     }
 
-    public static LocalDate toPeriodoFiscalDate(String periodoFiscal) {
+    public static LocalDate toPeriodoDate(String periodoFiscal) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yyyy");
         YearMonth yearMonth = YearMonth.parse(periodoFiscal, formatter);
         return yearMonth.atEndOfMonth();
