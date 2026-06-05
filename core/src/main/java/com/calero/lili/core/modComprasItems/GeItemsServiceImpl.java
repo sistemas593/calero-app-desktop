@@ -330,6 +330,7 @@ public class GeItemsServiceImpl {
                         .orElseThrow(() -> new GeneralException(MessageFormat.format("Unidad de medida con id {0} no existe", medida.getIdMedida())));
 
                 GeMedidasItemsEntity itemMedida = new GeMedidasItemsEntity();
+                itemMedida.setIdItemMedida(UUID.randomUUID());
                 itemMedida.setIdUnidadMedida(medidaEntity.getIdUnidadMedida());
                 itemMedida.setFactor(medida.getFactor());
                 listaMedidas.add(itemMedida);
