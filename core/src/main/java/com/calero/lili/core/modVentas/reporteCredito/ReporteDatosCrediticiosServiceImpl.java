@@ -14,9 +14,12 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
+import java.text.Normalizer;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -107,7 +110,7 @@ public class ReporteDatosCrediticiosServiceImpl {
                 DateUtils.toString(fechaDatos),
                 f.getTipoIdentificacion(),
                 f.getIdentificacionSujeto(),
-                f.getNombreSujeto(),
+                formatearTextoNombreSujeto(f.getNombreSujeto()),
                 f.getClaseSujeto(),
                 provincia,
                 canton,
@@ -143,12 +146,33 @@ public class ReporteDatosCrediticiosServiceImpl {
                 Objects.nonNull(f.getFormaCancelacion()) ? f.getFormaCancelacion() : ""); // TODO Tipos Efectivo (E), Cheque(C), Tarjeta de Crédito (T)
     }
 
+    private String formatearTextoNombreSujeto(String nombreSujeto) {
+        if (Objects.nonNull(nombreSujeto)) {
+
+            nombreSujeto = nombreSujeto.toUpperCase()
+                    .replace("Ñ", "N");
+
+            return Normalizer.normalize(nombreSujeto, Normalizer.Form.NFD)
+                    .replaceAll("\\p{M}", "");
+        }
+
+        return "";
+    }
+
     private String retornarDiasCorrectos(Integer diasMorosidad) {
         if (diasMorosidad >= 0) {
             return diasMorosidad.toString();
         } else {
             return "0";
         }
+    }
+
+    public void delete(Long idData, Long idEmpresa, String periodo) {
+
+        DatosCrediticiosEntity entidad = datosCrediticiosRepository.findByPeriodo(idData, idEmpresa, periodo)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("El periodo {0} no existe", periodo)));
+        datosCrediticiosRepository.delete(entidad);
+
     }
 
 }

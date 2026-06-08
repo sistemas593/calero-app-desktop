@@ -12,20 +12,13 @@ import com.calero.lili.core.modVentas.facturas.VtVentasFacturasServiceImpl;
 import com.calero.lili.core.modVentas.facturas.dto.CreationFacturaRequestDto;
 import com.calero.lili.core.modVentas.facturas.dto.FilterListVentasDto;
 import com.calero.lili.core.modVentas.facturas.dto.GetFacturaDto;
-import com.calero.lili.core.modVentas.reporteCredito.DatosCrediticiosExcelServiceImpl;
-import com.calero.lili.core.modVentas.reporteCredito.DatosCrediticiosSaldoExcelServiceImpl;
-import com.calero.lili.core.modVentas.reporteCredito.ReporteDatosCrediticiosServiceImpl;
-import com.calero.lili.core.modVentas.reporteCredito.dto.FilterDatosCrediticiosDto;
 import com.lowagie.text.DocumentException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -59,10 +52,6 @@ public class VtVentasFacturasController {
     private final IdDataServiceImpl idDataService;
     private final VtVentasFacturasExcelService vtVentasFacturasExcelService;
     private final AuditorAwareImpl auditorAware;
-    private final ReporteDatosCrediticiosServiceImpl reporteDatosCrediticiosService;
-    private final DatosCrediticiosExcelServiceImpl datosCrediticiosExcelService;
-    private final DatosCrediticiosSaldoExcelServiceImpl datosCrediticiosSaldoExcelService;
-
 
     @PostMapping("facturas/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.CREATED)
@@ -194,42 +183,6 @@ public class VtVentasFacturasController {
         return vtVentasService.createAsientoVenta(idDataService.getIdData(), idEmpresa, idVenta);
     }
 
-    @GetMapping("reporte/datos-crediticios/{idEmpresa}")
-    public ResponseEntity<byte[]> reporteDatosCrediticios(@PathVariable("idEmpresa") Long idEmpresa,
-                                                          FilterDatosCrediticiosDto filter) {
-
-
-        byte[] txt = reporteDatosCrediticiosService.generarTxt(idDataService.getIdData(), idEmpresa, filter); // tu byte[]
-        String nombre = "reporte-datos-crediticios" + ".txt";
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + nombre)
-                .contentType(MediaType.TEXT_PLAIN)
-                .contentLength(txt.length)
-                .body(txt);
-    }
-
-    @PostMapping("/datos-crediticios/excel/{idEmpresa}")
-    public void uploadDatosCrediticiosExcel(@RequestParam("file") MultipartFile file,
-                                            @PathVariable("idEmpresa") Long idEmpresa,
-                                            @RequestParam("periodo") String periodo) {
-        try {
-            datosCrediticiosExcelService.cargarDatosCrediticios(idDataService.getIdData(), idEmpresa, file, periodo);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
-    @PostMapping("/datos-crediticios-saldos/excel/{idEmpresa}")
-    public void uploadDatosCrediticiosSaldosExcel(@RequestParam("file") MultipartFile file,
-                                                  @PathVariable("idEmpresa") Long idEmpresa) {
-        try {
-            datosCrediticiosSaldoExcelService.cargarSaldoDatosCrediticios(idDataService.getIdData(), idEmpresa, file);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
 
     @PostMapping("facturas/generar-comprobante/{idEmpresa}")

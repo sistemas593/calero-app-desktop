@@ -93,7 +93,6 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
                         int rango = Math.abs(entidad.getDiasMorosidad());
 
                         if (esPositivo(entidad.getDiasMorosidad())) {
-
                             entidad.setMontoMorosidad(saldo);
                             if (rango <= 30) {
 
@@ -110,15 +109,21 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
 
                             } else if (rango <= 360) {
 
+
+                                // EN EL CASO DE QUE EL NUMERO DE DIAS MOROSIDAD SUPERE LOS de 181  SE DEBE SETEAR EL MISMO VALOR
+                                // EN VALOR DE DEMANDA JUDICIAL.
+
                                 entidad.setValorVencido181a360Dias(saldo);
+                                entidad.setValorDemandaJudicial(saldo);
 
                             } else {
-                                // EN EL CASO DE QUE EL NUMERO DE DIAS MOROSIDAD SUPERE LOS 360 DIAS, SE DEBE SETEAR EL MISMO VALOR
+                                // EN EL CASO DE QUE EL NUMERO DE DIAS MOROSIDAD SUPERE LOS de 180 a 360 DIAS, SE DEBE SETEAR EL MISMO VALOR
                                 // EN VALOR DE DEMANDA JUDICIAL.
                                 entidad.setValorVencidoMas360Dias(saldo);
                                 entidad.setValorDemandaJudicial(saldo);
                             }
                         } else {
+
                             if (rango <= 30) {
 
                                 entidad.setValorXVencer1a30Dias(saldo);
@@ -199,6 +204,6 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
 
 
     private boolean esPositivo(Integer diasMora) {
-        return diasMora >= 0;
+        return diasMora > 0;
     }
 }

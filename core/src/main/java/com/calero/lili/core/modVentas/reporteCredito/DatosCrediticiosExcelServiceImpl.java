@@ -3,6 +3,7 @@ package com.calero.lili.core.modVentas.reporteCredito;
 import com.calero.lili.core.builder.DetalleErrorBuilder;
 import com.calero.lili.core.dtos.errors.DetalleError;
 import com.calero.lili.core.dtos.errors.EnumError;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.errors.exceptions.ListErrorException;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
@@ -18,11 +19,13 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
@@ -78,6 +81,11 @@ public class DatosCrediticiosExcelServiceImpl {
                 .bufferSize(131072)
                 .open(file.getInputStream());
 
+
+        Optional<DatosCrediticiosEntity> datosCrediticios = datosCrediticiosRepository.findByPeriodo(idData, idEmpresa, periodo);
+        if (datosCrediticios.isPresent()) {
+            throw new GeneralException(MessageFormat.format("El periodo {0} ya existe ", periodo));
+        }
 
         DatosCrediticiosEntity entidad = new DatosCrediticiosEntity();
         entidad.setIdDatosCrediticios(UUID.randomUUID());

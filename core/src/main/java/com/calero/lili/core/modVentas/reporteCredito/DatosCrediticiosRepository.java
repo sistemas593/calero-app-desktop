@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -64,6 +65,7 @@ public interface DatosCrediticiosRepository extends JpaRepository<DatosCreditici
             AND dcc.id_empresa =:idEmpresa 
                 AND dcd.saldo_operacion >= :saldoMinimo
               AND dcc.periodo = :periodo
+              ORDER BY gt.tercero ASC
             """, nativeQuery = true)
     List<DatosCrediticiosProjection> obtenerDatosCrediticios(@Param("idData") Long idData,
                                                              @Param("idEmpresa") Long idEmpresa,
@@ -73,7 +75,9 @@ public interface DatosCrediticiosRepository extends JpaRepository<DatosCreditici
 
     @Query(value = "SELECT entity " +
             "FROM DatosCrediticiosEntity entity " +
-            "where entity.idData = :idData and entity.idEmpresa = :idEmpresa")
-    List<DatosCrediticiosEntity> getFindAll(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa);
+            "where entity.idData = :idData and entity.idEmpresa = :idEmpresa and entity.periodo = :periodo")
+    Optional<DatosCrediticiosEntity> findByPeriodo(@Param("idData") Long idData,
+                                                   @Param("idEmpresa") Long idEmpresa,
+                                                   @Param("periodo") String periodo);
 
 }
