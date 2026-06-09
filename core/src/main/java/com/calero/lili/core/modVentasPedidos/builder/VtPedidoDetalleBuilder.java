@@ -1,8 +1,9 @@
 package com.calero.lili.core.modVentasPedidos.builder;
 
+import com.calero.lili.core.dtos.ImpuestoItemsDto;
 import com.calero.lili.core.modComprasItems.GeItemEntity;
+import com.calero.lili.core.modVentas.dto.DetailDto;
 import com.calero.lili.core.modVentasPedidos.VtPedidoDetalleEntity;
-import com.calero.lili.core.modVentasPedidos.dto.CreationComprasPedidosRequestDto;
 import com.calero.lili.core.modVentasPedidos.dto.detalles.DetalleGetDto;
 import org.springframework.stereotype.Component;
 
@@ -12,13 +13,13 @@ import java.util.UUID;
 @Component
 public class VtPedidoDetalleBuilder {
 
-    public List<VtPedidoDetalleEntity> builderList(List<CreationComprasPedidosRequestDto.DetailDto> list) {
+    public List<VtPedidoDetalleEntity> builderList(List<DetailDto> list) {
         return list.stream()
                 .map(this::builderPedidoDetalle)
                 .toList();
     }
 
-    private VtPedidoDetalleEntity builderPedidoDetalle(CreationComprasPedidosRequestDto.DetailDto model) {
+    private VtPedidoDetalleEntity builderPedidoDetalle(DetailDto model) {
         return VtPedidoDetalleEntity.builder()
                 .idPedidoDetalle(UUID.randomUUID())
                 .codigoPrincipal(model.getCodigoPrincipal())
@@ -44,13 +45,13 @@ public class VtPedidoDetalleBuilder {
                 .build();
     }
 
-    private List<VtPedidoDetalleEntity.Impuestos> builderListImpuestos(List<CreationComprasPedidosRequestDto.DetailDto.Impuestos> list) {
+    private List<VtPedidoDetalleEntity.Impuestos> builderListImpuestos(List<ImpuestoItemsDto> list) {
         return list.stream()
                 .map(this::builderImpuestos)
                 .toList();
     }
 
-    private VtPedidoDetalleEntity.Impuestos builderImpuestos(CreationComprasPedidosRequestDto.DetailDto.Impuestos model) {
+    private VtPedidoDetalleEntity.Impuestos builderImpuestos(ImpuestoItemsDto model) {
         return VtPedidoDetalleEntity.Impuestos.builder()
                 .codigo(model.getCodigo())
                 .codigoPorcentaje(model.getCodigoPorcentaje())
@@ -60,13 +61,13 @@ public class VtPedidoDetalleBuilder {
     }
 
 
-    private List<VtPedidoDetalleEntity.DetalleAdicional> builderListDetalleAddicional(List<CreationComprasPedidosRequestDto.DetailDto.DetalleAdicional> list) {
+    private List<VtPedidoDetalleEntity.DetalleAdicional> builderListDetalleAddicional(List<DetailDto.DetalleAdicional> list) {
         return list.stream()
                 .map(this::builderDetalle)
                 .toList();
     }
 
-    private VtPedidoDetalleEntity.DetalleAdicional builderDetalle(CreationComprasPedidosRequestDto.DetailDto.DetalleAdicional model) {
+    private VtPedidoDetalleEntity.DetalleAdicional builderDetalle(DetailDto.DetalleAdicional model) {
         return VtPedidoDetalleEntity.DetalleAdicional.builder()
                 .nombre(model.getNombre())
                 .valor(model.getValor())

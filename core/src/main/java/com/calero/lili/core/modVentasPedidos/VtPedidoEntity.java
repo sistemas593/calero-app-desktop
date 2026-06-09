@@ -1,10 +1,9 @@
 package com.calero.lili.core.modVentasPedidos;
 
+import com.calero.lili.core.Auditable;
 import com.calero.lili.core.dtos.InformacionAdicional;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
-import com.calero.lili.core.enums.TipoIdentificacion;
-import com.calero.lili.core.Auditable;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -125,11 +124,6 @@ public class VtPedidoEntity extends Auditable {
     @Column(name = "impresa")
     private Boolean impresa;
 
-    private TipoIdentificacion tipoIdentificacion;
-    private String numeroIdentificacion;
-
-    @Column(name = "tercero")
-    private String terceroNombre;
 
     private String tipoCliente;
     private String relacionado;

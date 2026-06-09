@@ -10,17 +10,14 @@ import com.calero.lili.core.enums.TipoPersoneria;
 import com.calero.lili.core.enums.TipoTercero;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.errors.exceptions.ListErrorException;
-import com.calero.lili.core.modLocalidades.modCantones.CantonEntity;
 import com.calero.lili.core.modLocalidades.modCantones.CantonRepository;
 import com.calero.lili.core.modLocalidades.modParroquias.ParroquiaEntity;
 import com.calero.lili.core.modLocalidades.modParroquias.ParroquiaRepository;
-import com.calero.lili.core.modLocalidades.modProvincias.ProvinciaEntity;
 import com.calero.lili.core.modLocalidades.modProvincias.ProvinciaRepository;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
 import com.calero.lili.core.modTerceros.GeTercerosTipoEntity;
 import com.calero.lili.core.modTerceros.GeTercerosTipoRepository;
-import com.calero.lili.core.modTerceros.projections.GeTerceroProjection;
 import com.calero.lili.core.tablas.tbPaises.TbPaisEntity;
 import com.calero.lili.core.tablas.tbPaises.TbPaisesRepository;
 import com.calero.lili.core.utils.ValidarTipoArchivo;
@@ -36,13 +33,16 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -65,221 +65,197 @@ public class ExcelCargarTercerosServiceImpl {
         }
 
         long startTimeRead = System.currentTimeMillis();
-        InputStream is = file.getInputStream();
-        Workbook workbook = StreamingReader.builder()
-                .rowCacheSize(500000)
-                .bufferSize(131072)
-                .open(is);
 
+        // Paso único: leer todas las filas en memoria una sola vez
+        record FilaExcel(int linea, String[] celdas) {
+        }
+        List<FilaExcel> filas = new ArrayList<>();
+        Set<String> codigosLocalidades = new HashSet<>();
+        Set<String> codigosPaises = new HashSet<>();
+        Set<String> identificaciones = new HashSet<>();
+        Set<String> codigosTercero = new HashSet<>();
+
+        try (InputStream is = file.getInputStream();
+             Workbook workbook = StreamingReader.builder()
+                     .rowCacheSize(500)
+                     .bufferSize(65536)
+                     .open(is)) {
+            for (Sheet sheet : workbook) {
+                boolean isHeader = true;
+                for (Row row : sheet) {
+                    if (isRowEmpty(row)) continue;
+                    if (isHeader) {
+                        isHeader = false;
+                        continue;
+                    }
+
+                    int lastCell = row.getLastCellNum();
+                    String[] celdas = new String[Math.max(lastCell, 21)];
+                    for (int i = 0; i < lastCell; i++) {
+                        celdas[i] = row.getCell(i) != null ? row.getCell(i).getStringCellValue() : null;
+                    }
+                    filas.add(new FilaExcel(row.getRowNum() + 1, celdas));
+
+                    if (celdas[2] != null && !celdas[2].isBlank()) identificaciones.add(celdas[2]);
+                    if (celdas[3] != null && !celdas[3].isBlank()) codigosTercero.add(celdas[3]);
+                    if (celdas[12] != null && !celdas[12].isBlank()) codigosPaises.add(celdas[12]);
+
+                    String prov = celdas[13], cant = celdas[14], parr = celdas[15];
+                    if (prov != null && !prov.isBlank() && cant != null && !cant.isBlank() && parr != null && !parr.isBlank()) {
+                        codigosLocalidades.add(prov + cant + parr);
+                    }
+                }
+            }
+        }
+
+        // Bulk queries — una sola consulta por categoría
+        Map<String, ParroquiaEntity> parroquias = codigosLocalidades.isEmpty() ? Map.of() :
+                parroquiaRepository.findAllByCodigoParroquia(new ArrayList<>(codigosLocalidades))
+                        .stream().collect(Collectors.toMap(ParroquiaEntity::getCodigoParroquia, Function.identity()));
+
+        Map<String, TbPaisEntity> paises = codigosPaises.isEmpty() ? Map.of() :
+                tbPaisesRepository.findAllByCodigoPaises(new ArrayList<>(codigosPaises))
+                        .stream().collect(Collectors.toMap(TbPaisEntity::getCodigoPais, Function.identity()));
+
+        Set<String> identificacionesExistentes = identificaciones.isEmpty() ? Set.of() :
+                new HashSet<>(clientesRepository.findAllExistByNumeroIdentificacion(idData, new ArrayList<>(identificaciones)));
+
+        Set<String> codigosTerceroExistentes = codigosTercero.isEmpty() ? Set.of() :
+                new HashSet<>(clientesRepository.findAllExistByCodigoTercero(idData, new ArrayList<>(codigosTercero)));
+
+        // Procesar filas desde memoria
         List<DetalleError> listaErrores = new ArrayList<>();
-
         List<GeTerceroEntity> tercerosLista = new ArrayList<>();
         List<GeTercerosTipoEntity> tercerosTipoClienteLista = new ArrayList<>();
         List<GeTercerosTipoEntity> tercerosTipoProveedorLista = new ArrayList<>();
 
-        for (Sheet sheet : workbook) {
-            boolean isHeader = true;
-            for (Row row : sheet) {
-                int linea = row.getRowNum() + 1;
-                if (isRowEmpty(row)) continue;
-                if (isHeader) {
-                    isHeader = false;
-                    continue;
+        for (FilaExcel fila : filas) {
+            String[] celdas = fila.celdas();
+            int linea = fila.linea();
+
+            GeTerceroEntity cliente = new GeTerceroEntity();
+            UUID tokenIdTercero = UUID.randomUUID();
+            cliente.setIdTercero(tokenIdTercero);
+            cliente.setIdData(idData);
+            cliente.setCreatedBy(usuario);
+            cliente.setCreatedDate(LocalDateTime.now());
+
+            if (celda(celdas, 0) == null) {
+                listaErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.CLIENT_NAME_NOT_FOUND));
+            } else {
+                cliente.setTercero(celda(celdas, 0));
+            }
+
+            String tipoId = celda(celdas, 1);
+            String numId = celda(celdas, 2);
+
+            if ((tipoId == null && numId != null) || (tipoId != null && numId == null)) {
+                listaErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.TIPO_IDENTIFICACION_NUMERO_IDENTIFICACION));
+            }
+
+            if (tipoId != null && numId != null) {
+                boolean tipoIdentificacionCorrecto = true;
+                try {
+                    cliente.setTipoIdentificacion(tipoId);
+                } catch (IllegalArgumentException e) {
+                    tipoIdentificacionCorrecto = false;
+                    listaErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.TIPO_IDENTIFICACION_INCORRECTO));
                 }
 
-                GeTerceroEntity cliente = new GeTerceroEntity();
-                UUID tokenIdTercero = UUID.randomUUID();
-                cliente.setIdTercero(tokenIdTercero);
-                cliente.setIdData(idData);
-                cliente.setCreatedBy(usuario);
-                cliente.setCreatedDate(LocalDateTime.now());
+                if (tipoIdentificacionCorrecto) {
+                    cliente.setNumeroIdentificacion(numId);
 
-                if (row.getCell(0) == null) {
-
-                    DetalleError detalle = detalleErrorBuilder.builderDetalleError(linea, EnumError.CLIENT_NAME_NOT_FOUND);
-                    listaErrores.add(detalle);
-                } else {
-                    String clienteCelda = row.getCell(0).getStringCellValue();
-                    cliente.setTercero(clienteCelda);
-                }
-
-                if ((row.getCell(1) == null && (row.getCell(2) != null)) || (row.getCell(1) != null && (row.getCell(2) == null))) {
-                    DetalleError detalle = detalleErrorBuilder.builderDetalleError(linea, EnumError.TIPO_IDENTIFICACION_NUMERO_IDENTIFICACION);
-                    listaErrores.add(detalle);
-                }
-
-                if (row.getCell(1) != null && (row.getCell(2) != null)) {
-
-                    String tipoIdentificacionCelda = row.getCell(1).getStringCellValue();
-                    String numeroIdentificacionCelda = row.getCell(2).getStringCellValue();
-
-                    Boolean tipoIdentificacionCorrecto = Boolean.TRUE;
-                    try {
-                        cliente.setTipoIdentificacion(tipoIdentificacionCelda);
-                    } catch (IllegalArgumentException e) {
-                        tipoIdentificacionCorrecto = Boolean.FALSE;
-                        DetalleError detalle = detalleErrorBuilder.builderDetalleError(linea, EnumError.TIPO_IDENTIFICACION_INCORRECTO);
-                        listaErrores.add(detalle);
-                    }
-
-                    if (tipoIdentificacionCorrecto) {
-                        cliente.setNumeroIdentificacion(numeroIdentificacionCelda);
-
-                        if (cliente.getTipoIdentificacion().equals("R")) {
-                            try {
-                                validarIdentificacion.validarRuc(cliente.getNumeroIdentificacion());
-                            } catch (Exception e) {
-                                System.out.println(e.getMessage());
-                                DetalleError detalle = detalleErrorBuilder.builderDetalleError(linea, EnumError.RUC_INCORRECTO);
-                                listaErrores.add(detalle);
-                            }
+                    if (cliente.getTipoIdentificacion().equals("R")) {
+                        try {
+                            validarIdentificacion.validarRuc(numId);
+                        } catch (Exception e) {
+                            System.out.println(e.getMessage());
+                            listaErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.RUC_INCORRECTO));
                         }
+                    }
 
-                        if (cliente.getTipoIdentificacion().equals("C")) {
-                            try {
-                                validarIdentificacion.validarCedula(cliente.getNumeroIdentificacion());
-                            } catch (Exception e) {
-                                System.out.println(e.getMessage());
-                                DetalleError detalle = detalleErrorBuilder.builderDetalleError(linea, EnumError.CEDULA_INCORRECTA);
-                                listaErrores.add(detalle);
-                            }
+                    if (cliente.getTipoIdentificacion().equals("C")) {
+                        try {
+                            validarIdentificacion.validarCedula(numId);
+                        } catch (Exception e) {
+                            System.out.println(e.getMessage());
+                            listaErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.CEDULA_INCORRECTA));
                         }
+                    }
 
-                        Optional<GeTerceroProjection> existe = clientesRepository.findExistByNumeroIdentificacion(idData, cliente.getNumeroIdentificacion());
-                        if (existe.isPresent()) {
-                            DetalleError detalle = detalleErrorBuilder.builderDetalleError(linea, EnumError.NUMERO_IDENTIFICACION_YA_EXISTE);
-                            listaErrores.add(detalle);
-                        }
-
+                    if (identificacionesExistentes.contains(numId)) {
+                        listaErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.NUMERO_IDENTIFICACION_YA_EXISTE));
                     }
                 }
+            }
 
-
-                if (row.getCell(3) == null) {
-                    cliente.setCodigoTercero(null);
-                } else {
-
-                    String codigoTercero = row.getCell(3).getStringCellValue();
-                    clientesRepository.findExistByCodigoTercero(idData, codigoTercero)
-                            .ifPresent(existe -> {
-                                DetalleError detalle = detalleErrorBuilder.builderDetalleError(linea, EnumError.CODIGO_TERCERO_YA_EXISTE);
-                                detalle.setDetalle("El código tercero: " + codigoTercero);
-                                listaErrores.add(detalle);
-                            });
-                    cliente.setCodigoTercero(codigoTercero);
-                }
-
-
-                if (row.getCell(4) == null) {
-                    cliente.setWeb("");
-                } else {
-                    String webCelda = row.getCell(4).getStringCellValue();
-                    cliente.setWeb(webCelda);
-                }
-
-                if (row.getCell(10) == null) {
-                    cliente.setObservaciones("");
-                } else {
-                    String webObservaciones = row.getCell(10).getStringCellValue();
-                    cliente.setObservaciones(webObservaciones);
-                }
-
-                cliente.setTipoPersoneria(null);
-                if (row.getCell(11) == null) {
-                    DetalleError detalle = detalleErrorBuilder.builderDetalleError(linea, EnumError.TIPO_CLIENTE_NOT_FOUND);
-                    listaErrores.add(detalle);
-                } else {
-                    String tipoCliente = row.getCell(11).getStringCellValue();
-                    try {
-                        cliente.setTipoPersoneria(TipoPersoneria.valueOf(tipoCliente));
-                    } catch (Exception e) {
-                        DetalleError detalle = detalleErrorBuilder.builderDetalleError(linea, EnumError.TIPO);
-                        listaErrores.add(detalle);
-                    }
-                }
-
-
-                if (row.getCell(5) == null) {
-                    DetalleError detalle = detalleErrorBuilder.builderDetalleError(linea, EnumError.DIRECCION_NOT_FOUND);
-                    listaErrores.add(detalle);
-                } else {
-                    String direccionCelda = row.getCell(5).getStringCellValue();
-
-                    String ciudadCelda = "";
-                    if (row.getCell(6) != null) {
-                        ciudadCelda = row.getCell(6).getStringCellValue();
-                    }
-                    String telefonosCelda = "";
-                    if (row.getCell(7) != null) {
-                        telefonosCelda = row.getCell(7).getStringCellValue();
-                    }
-                    String contactoCelda = "";
-                    if (row.getCell(8) != null) {
-                        contactoCelda = row.getCell(8).getStringCellValue();
-                    }
-                    String emailCelda = "";
-                    if (row.getCell(9) != null) {
-                        emailCelda = row.getCell(9).getStringCellValue();
-                    }
-
-                    cliente.setDireccion(direccionCelda);
-                    cliente.setCiudad(ciudadCelda);
-                    cliente.setTelefonos(telefonosCelda);
-                    cliente.setContacto(contactoCelda);
-                    cliente.setEmail(emailCelda);
-
-                }
-
-
-                if (row.getCell(19) != null && row.getCell(20) != null) {
-
-                    if (Objects.equals(row.getCell(19).getStringCellValue(), "S")) {
-
-                        GeTercerosTipoEntity tercerosClientes = new GeTercerosTipoEntity();
-
-                        tercerosClientes.setIdTerceroTipo(UUID.randomUUID());
-                        tercerosClientes.setTipo(TipoTercero.CLIENTE.getTipo());
-                        tercerosClientes.setTercero(GeTerceroEntity.builder()
-                                .idTercero(tokenIdTercero)
-                                .build());
-
-                        tercerosTipoClienteLista.add(tercerosClientes);
-                    }
-
-                    if (Objects.equals(row.getCell(20).getStringCellValue(), "S")) {
-
-                        GeTercerosTipoEntity tercerosProveedores = new GeTercerosTipoEntity();
-
-                        tercerosProveedores.setIdTerceroTipo(UUID.randomUUID());
-                        tercerosProveedores.setTipo(TipoTercero.PROVEEDOR.getTipo());
-                        tercerosProveedores.setTercero(GeTerceroEntity.builder()
-                                .idTercero(tokenIdTercero)
-                                .build());
-                        tercerosTipoProveedorLista.add(tercerosProveedores);
-                    }
-
-
-                } else {
-                    DetalleError detalle = detalleErrorBuilder.builderDetalleError(linea, EnumError.ES_TERCERO_ERROR);
+            String codTercero = celda(celdas, 3);
+            if (codTercero == null) {
+                cliente.setCodigoTercero(null);
+            } else {
+                if (codigosTerceroExistentes.contains(codTercero)) {
+                    DetalleError detalle = detalleErrorBuilder.builderDetalleError(linea, EnumError.CODIGO_TERCERO_YA_EXISTE);
+                    detalle.setDetalle("El código tercero: " + codTercero);
                     listaErrores.add(detalle);
                 }
+                cliente.setCodigoTercero(codTercero);
+            }
 
+            cliente.setWeb(celda(celdas, 4) != null ? celda(celdas, 4) : "");
+            cliente.setObservaciones(celda(celdas, 10) != null ? celda(celdas, 10) : "");
 
-                validarNuevaInformacion(cliente, row, listaErrores, linea);
-
-
-                if (listaErrores.isEmpty()) {
-                    tercerosLista.add(cliente);
+            cliente.setTipoPersoneria(null);
+            String tipoPersoneria = celda(celdas, 11);
+            if (tipoPersoneria == null) {
+                listaErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.TIPO_CLIENTE_NOT_FOUND));
+            } else {
+                try {
+                    cliente.setTipoPersoneria(TipoPersoneria.valueOf(tipoPersoneria));
+                } catch (Exception e) {
+                    listaErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.TIPO));
                 }
+            }
 
+            String direccion = celda(celdas, 5);
+            if (direccion == null) {
+                listaErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.DIRECCION_NOT_FOUND));
+            } else {
+                cliente.setDireccion(direccion);
+                cliente.setCiudad(celda(celdas, 6) != null ? celda(celdas, 6) : "");
+                cliente.setTelefonos(celda(celdas, 7) != null ? celda(celdas, 7) : "");
+                cliente.setContacto(celda(celdas, 8) != null ? celda(celdas, 8) : "");
+                cliente.setEmail(celda(celdas, 9) != null ? celda(celdas, 9) : "");
+            }
+
+            String esCliente = celda(celdas, 19);
+            String esProveedor = celda(celdas, 20);
+            if (esCliente != null && esProveedor != null) {
+                if (Objects.equals(esCliente, "S")) {
+                    GeTercerosTipoEntity tercerosClientes = new GeTercerosTipoEntity();
+                    tercerosClientes.setIdTerceroTipo(UUID.randomUUID());
+                    tercerosClientes.setTipo(TipoTercero.CLIENTE.getTipo());
+                    tercerosClientes.setTercero(GeTerceroEntity.builder().idTercero(tokenIdTercero).build());
+                    tercerosTipoClienteLista.add(tercerosClientes);
+                }
+                if (Objects.equals(esProveedor, "S")) {
+                    GeTercerosTipoEntity tercerosProveedores = new GeTercerosTipoEntity();
+                    tercerosProveedores.setIdTerceroTipo(UUID.randomUUID());
+                    tercerosProveedores.setTipo(TipoTercero.PROVEEDOR.getTipo());
+                    tercerosProveedores.setTercero(GeTerceroEntity.builder().idTercero(tokenIdTercero).build());
+                    tercerosTipoProveedorLista.add(tercerosProveedores);
+                }
+            } else {
+                listaErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.ES_TERCERO_ERROR));
+            }
+
+            validarNuevaInformacion(parroquias, paises, cliente, celdas, listaErrores, linea);
+
+            if (listaErrores.isEmpty()) {
+                tercerosLista.add(cliente);
             }
         }
 
-
         long endTimeRead = System.currentTimeMillis();
-        log.info("-> Reading finished, time " + (endTimeRead - startTimeRead) + " ms");
-
-        log.info("-> Inserting");
 
 
         long startTimeWrite = System.currentTimeMillis();
@@ -288,217 +264,102 @@ public class ExcelCargarTercerosServiceImpl {
             clientesRepository.saveAll(tercerosLista);
             geTercerosTipoRepository.saveAll(tercerosTipoClienteLista);
             geTercerosTipoRepository.saveAll(tercerosTipoProveedorLista);
-
         } else {
-            List<String> list = listaErrores.stream().map(detalleError -> detalleError.getLinea() + "   " + detalleError.getType().getDescription() + " " + detalleError.getDetalle()).toList();
+            List<String> list = listaErrores.stream()
+                    .map(detalleError -> detalleError.getLinea() + "   " + detalleError.getType().getDescription() + " " + detalleError.getDetalle())
+                    .toList();
             throw new ListErrorException(list);
         }
 
         long endTimeWrite = System.currentTimeMillis();
-        log.info("-> Write finished, time " + (endTimeWrite - startTimeWrite) + " ms");
     }
 
-    private void validarNuevaInformacion(GeTerceroEntity cliente, Row row, List<DetalleError> listaErrores, int linea) {
-
-        setearLocalidadesTercero(row, cliente, linea, listaErrores);
-        setearInformacionTercero(row, cliente, linea, listaErrores);
-        validacionLocalidades(cliente, listaErrores, row, linea);
-
+    private void validarNuevaInformacion(Map<String, ParroquiaEntity> parroquias, Map<String, TbPaisEntity> paises,
+                                         GeTerceroEntity cliente, String[] celdas, List<DetalleError> listaErrores, int linea) {
+        setearLocalidadesTercero(parroquias, paises, celdas, cliente, linea, listaErrores);
+        setearInformacionTercero(celdas, cliente, linea, listaErrores);
     }
 
-    private void validacionLocalidades(GeTerceroEntity tercero, List<DetalleError> listaErrores, Row row, int linea) {
+    private void setearLocalidadesTercero(Map<String, ParroquiaEntity> parroquias, Map<String, TbPaisEntity> paises,
+                                          String[] celdas, GeTerceroEntity tercero, int linea, List<DetalleError> listaErrores) {
 
-
-        if (Objects.nonNull(tercero.getProvincia()) && Objects.nonNull(tercero.getCanton())) {
-
-            String codigoCanton = row.getCell(13).getStringCellValue() + row.getCell(14).getStringCellValue();
-            boolean existe = tercero.getProvincia().getCantones().stream()
-                    .map(CantonEntity::getCodigoCanton)
-                    .anyMatch(codigo -> codigo.equals(codigoCanton));
-
-            if (!existe) {
-
-                DetalleError detalle = detalleErrorBuilder.builderDetalleError(linea, EnumError.CANTON_NOT_EXIST);
-                detalle.setDetalle(MessageFormat.format("El codigo del canton {0}, no coincide con la provincia: {1}",
-                        codigoCanton, tercero.getProvincia().getProvincia()));
-                listaErrores.add(detalle);
-            }
-
-        }
-
-
-        if (Objects.nonNull(tercero.getCanton()) && Objects.nonNull(tercero.getParroquia())) {
-
-            String codigoParroquia = row.getCell(13).getStringCellValue() + row.getCell(14).getStringCellValue()
-                    + row.getCell(15).getStringCellValue();
-            boolean existe = tercero.getCanton().getParroquias().stream()
-                    .map(ParroquiaEntity::getCodigoParroquia)
-                    .anyMatch(codigo -> codigo.equals(codigoParroquia));
-
-
-            if (!existe) {
-                DetalleError detalle = detalleErrorBuilder.builderDetalleError(linea, EnumError.PARROQUIA_NOT_EXIST);
-                detalle.setDetalle(MessageFormat.format("El codigo de la parroquia {0}, no coincide con el canton: {1}",
-                        codigoParroquia, tercero.getCanton().getCanton()));
-                listaErrores.add(detalle);
-            }
-
-
-        }
-
-    }
-
-    private void setearLocalidadesTercero(Row row, GeTerceroEntity tercero, int linea, List<DetalleError> listaErrores) {
-
-
-        if (row.getCell(12) == null) {
-            tercero.setPais(null);
+        String codigoPais = celda(celdas, 12);
+        if (codigoPais != null) {
+            tercero.setPais(paises.get(codigoPais));
         } else {
-            String codigoPais = row.getCell(12).getStringCellValue();
-            if (!codigoPais.isEmpty()) {
-                Optional<TbPaisEntity> pais = tbPaisesRepository.findById(codigoPais);
-                if (pais.isPresent()) {
-                    tercero.setPais(pais.get());
-                } else {
-                    DetalleError detalle = detalleErrorBuilder.builderDetalleError(linea, EnumError.PAIS_NOT_EXIST);
-                    detalle.setDetalle(MessageFormat.format("El codigo del país: {0} ", codigoPais));
-                    listaErrores.add(detalle);
-                }
-            } else {
-                tercero.setPais(null);
-            }
+            tercero.setPais(null);
         }
 
-        String codigoProvincia = "";
-        String codigoCanton = "";
+        String prov = celda(celdas, 13);
+        String cant = celda(celdas, 14);
+        String parr = celda(celdas, 15);
 
-        if (Objects.nonNull(row.getCell(13)) && !row.getCell(13).getStringCellValue().isEmpty()) {
-            codigoProvincia = row.getCell(13).getStringCellValue();
-            if (!codigoProvincia.isEmpty()) {
-                Optional<ProvinciaEntity> provincia = provinciaRepository.getForFindById(codigoProvincia);
-                if (provincia.isPresent()) {
-                    tercero.setProvincia(provincia.get());
-                } else {
-                    DetalleError detalle = detalleErrorBuilder.builderDetalleError(linea, EnumError.PROVINCIA_NOT_EXIST);
-                    detalle.setDetalle(MessageFormat.format("El codigo provincia: {0} ", codigoProvincia));
-                    listaErrores.add(detalle);
-                }
+        if (prov != null && cant != null && parr != null) {
+            ParroquiaEntity parroquia = parroquias.get(prov + cant + parr);
+            if (Objects.nonNull(parroquia)) {
+                tercero.setParroquia(parroquia);
+                tercero.setCanton(parroquia.getCanton());
+                tercero.setProvincia(parroquia.getCanton().getProvincia());
             } else {
                 tercero.setProvincia(null);
-            }
-
-        } else {
-            tercero.setProvincia(null);
-        }
-
-        if (Objects.nonNull(row.getCell(14)) && !row.getCell(14).getStringCellValue().isEmpty()) {
-            codigoCanton = row.getCell(14).getStringCellValue();
-
-            if (Objects.nonNull(tercero.getProvincia())) {
-                if (!codigoCanton.isEmpty()) {
-                    String busquedaCodigoCanton = codigoProvincia + codigoCanton;
-                    Optional<CantonEntity> canton = cantonRepository.getForFindById(busquedaCodigoCanton);
-                    if (canton.isPresent()) {
-                        tercero.setCanton(canton.get());
-                    } else {
-                        DetalleError detalle = detalleErrorBuilder.builderDetalleError(linea, EnumError.CANTON_NOT_EXIST);
-                        detalle.setDetalle(MessageFormat.format("El codigo canton: {0} ", busquedaCodigoCanton));
-                        listaErrores.add(detalle);
-                    }
-                } else {
-                    tercero.setCanton(null);
-                }
-
-            } else {
                 tercero.setCanton(null);
-            }
-
-        } else {
-            tercero.setCanton(null);
-        }
-
-
-        if (Objects.nonNull(row.getCell(15)) && !row.getCell(15).getStringCellValue().isEmpty()) {
-            String codigoParroquia = row.getCell(15).getStringCellValue();
-
-            if (Objects.nonNull(tercero.getCanton())) {
-                if (!codigoParroquia.isEmpty()) {
-                    String busquedaCodigoParroquia = codigoProvincia + codigoCanton + codigoParroquia;
-                    Optional<ParroquiaEntity> parroquia = parroquiaRepository.getForFindById(busquedaCodigoParroquia);
-                    if (parroquia.isPresent()) {
-                        tercero.setParroquia(parroquia.get());
-                    } else {
-                        DetalleError detalle = detalleErrorBuilder.builderDetalleError(linea, EnumError.PARROQUIA_NOT_EXIST);
-                        detalle.setDetalle(MessageFormat.format("El codigo parroquia: {0} ", busquedaCodigoParroquia));
-                        listaErrores.add(detalle);
-                    }
-                } else {
-                    tercero.setParroquia(null);
-                }
-            } else {
                 tercero.setParroquia(null);
             }
         } else {
+            tercero.setProvincia(null);
+            tercero.setCanton(null);
             tercero.setParroquia(null);
         }
     }
 
-    private void setearInformacionTercero(Row row, GeTerceroEntity tercero, int linea, List<DetalleError> listaErrores) {
+    private void setearInformacionTercero(String[] celdas, GeTerceroEntity tercero, int linea, List<DetalleError> listaErrores) {
 
         tercero.setEstadoCivil(null);
         tercero.setSexo(null);
         tercero.setOrigenIngresos(null);
 
-        if (Objects.nonNull(row.getCell(16))) {
-
-            String sexo = row.getCell(16).getStringCellValue();
-            if (!sexo.isEmpty()) {
-                try {
-                    tercero.setSexo(SexoEnum.valueOf(sexo));
-                } catch (Exception e) {
-                    DetalleError detalle = detalleErrorBuilder.builderDetalleError(linea, EnumError.TERCERO_ERROR);
-                    detalle.setDetalle("El sexo: " + sexo + " es incorrecto, debe ser M o F");
-                    listaErrores.add(detalle);
-                }
-
+        String sexo = celda(celdas, 16);
+        if (sexo != null) {
+            try {
+                tercero.setSexo(SexoEnum.valueOf(sexo));
+            } catch (Exception e) {
+                DetalleError detalle = detalleErrorBuilder.builderDetalleError(linea, EnumError.TERCERO_ERROR);
+                detalle.setDetalle("El sexo: " + sexo + " es incorrecto, debe ser M o F");
+                listaErrores.add(detalle);
             }
         }
 
-
-        if (Objects.nonNull(row.getCell(17))) {
-
-            String estadoCivil = row.getCell(17).getStringCellValue();
-            if (!estadoCivil.isEmpty()) {
-                try {
-                    tercero.setEstadoCivil(EstadoCivilEnum.valueOf(estadoCivil));
-                } catch (Exception e) {
-                    DetalleError detalle = detalleErrorBuilder.builderDetalleError(linea, EnumError.TERCERO_ERROR);
-                    detalle.setDetalle("El estado civil: " + estadoCivil + " es incorrecto, debe ser SOLTERO (S)," +
-                            " CASADO (C), DIVORCIADO (D) o VIUDO (V), UNIÓN LIBRE (U)");
-                    listaErrores.add(detalle);
-                }
-
+        String estadoCivil = celda(celdas, 17);
+        if (estadoCivil != null) {
+            try {
+                tercero.setEstadoCivil(EstadoCivilEnum.valueOf(estadoCivil));
+            } catch (Exception e) {
+                DetalleError detalle = detalleErrorBuilder.builderDetalleError(linea, EnumError.TERCERO_ERROR);
+                detalle.setDetalle("El estado civil: " + estadoCivil + " es incorrecto, debe ser SOLTERO (S)," +
+                        " CASADO (C), DIVORCIADO (D) o VIUDO (V), UNIÓN LIBRE (U)");
+                listaErrores.add(detalle);
             }
         }
 
-        if (Objects.nonNull(row.getCell(18))) {
-
-            String origenIngresos = row.getCell(18).getStringCellValue();
-            if (!origenIngresos.isEmpty()) {
-                try {
-                    tercero.setOrigenIngresos(OrigenIngresosEnum.valueOf(origenIngresos));
-                } catch (Exception e) {
-                    DetalleError detalle = detalleErrorBuilder.builderDetalleError(linea, EnumError.TERCERO_ERROR);
-                    detalle.setDetalle("El origen de ingresos: " + origenIngresos + " es incorrecto," +
-                            " debe ser EMPLEADO PÚBLICO (B), EMPLEADO PRIVADO (V)," +
-                            " INDEPENDIENTE (I), AMA DE CASA O ESTUDIANTE (A), RENTISTA (R)," +
-                            " JUBILADO (H) o REMESAS DEL EXTERIOR (M)");
-                    listaErrores.add(detalle);
-                }
-
+        String origenIngresos = celda(celdas, 18);
+        if (origenIngresos != null) {
+            try {
+                tercero.setOrigenIngresos(OrigenIngresosEnum.valueOf(origenIngresos));
+            } catch (Exception e) {
+                DetalleError detalle = detalleErrorBuilder.builderDetalleError(linea, EnumError.TERCERO_ERROR);
+                detalle.setDetalle("El origen de ingresos: " + origenIngresos + " es incorrecto," +
+                        " debe ser EMPLEADO PÚBLICO (B), EMPLEADO PRIVADO (V)," +
+                        " INDEPENDIENTE (I), AMA DE CASA O ESTUDIANTE (A), RENTISTA (R)," +
+                        " JUBILADO (H) o REMESAS DEL EXTERIOR (M)");
+                listaErrores.add(detalle);
             }
         }
+    }
 
+    private String celda(String[] celdas, int idx) {
+        if (idx >= celdas.length) return null;
+        String v = celdas[idx];
+        return (v != null && !v.isBlank()) ? v : null;
     }
 
     private boolean isRowEmpty(Row row) {

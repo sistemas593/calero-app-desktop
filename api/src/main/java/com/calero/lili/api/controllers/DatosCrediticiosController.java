@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -77,7 +78,6 @@ public class DatosCrediticiosController {
     @DeleteMapping("eliminar/{idEmpresa}")
     public void delete(@PathVariable("idEmpresa") Long idEmpresa,
                        @RequestParam("periodo") String periodo) {
-
         reporteDatosCrediticiosService.delete(idDataService.getIdData(), idEmpresa, periodo);
 
     }

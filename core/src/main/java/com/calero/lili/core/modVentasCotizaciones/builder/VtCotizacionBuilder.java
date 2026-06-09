@@ -46,11 +46,12 @@ public class VtCotizacionBuilder {
                 .idVendedor(model.getIdVendedor())
                 .anulada(model.getAnulada())
                 .impresa(model.getImpresa())
-                .tipoIdentificacion(model.getTipoIdentificacion())
-                .numeroIdentificacion(model.getNumeroIdentificacion())
                 .informacionAdicional(informacionAdicionalBuilder.builderList(model.getInformacionAdicional()))
                 .concepto(model.getConcepto())
                 .fechaEmision(DateUtils.toLocalDate(model.getFechaEmision()))
+                .anulada(Objects.nonNull(model.getAnulada())
+                        ? model.getAnulada()
+                        : Boolean.FALSE)
                 .build();
     }
 
@@ -74,7 +75,6 @@ public class VtCotizacionBuilder {
                         : null)
                 .cuotas(model.getCuotas())
                 .emailEstado(model.getEmailEstado())
-                .email(model.getEmail())
                 .numeroItems(model.getNumeroItems())
                 .subtotal(model.getSubtotal())
                 .totalDescuento(model.getTotalDescuento())
@@ -82,16 +82,16 @@ public class VtCotizacionBuilder {
                 .idVendedor(model.getIdVendedor())
                 .anulada(model.getAnulada())
                 .impresa(model.getImpresa())
-                .tipoIdentificacion(model.getTipoIdentificacion())
-                .numeroIdentificacion(model.getNumeroIdentificacion())
                 .informacionAdicional(informacionAdicionalBuilder.builderList(model.getInformacionAdicional()))
                 .concepto(model.getConcepto())
                 .fechaEmision(Objects.nonNull(model.getFechaEmision())
                         ? DateUtils.toLocalDate(model.getFechaEmision())
                         : null)
+                .anulada(Objects.nonNull(model.getAnulada())
+                        ? model.getAnulada()
+                        : Boolean.FALSE)
                 .build();
     }
-
 
 
     public GetDto builderResponse(VtCotizacionEntity model) {
@@ -114,9 +114,8 @@ public class VtCotizacionBuilder {
                 .totalDescuento(model.getTotalDescuento())
                 .total(model.getTotal())
                 .anulada(model.getAnulada())
-                .tipoIdentificacion(model.getTipoIdentificacion().name())
-                .numeroIdentificacion(model.getNumeroIdentificacion())
-                .terceroNombre(model.getTerceroNombre())
+                .idTercero(Objects.nonNull(model.getCliente()) ? model.getCliente().getIdTercero() : null)
+                .terceroNombre(Objects.nonNull(model.getCliente()) ? model.getCliente().getTercero() : null)
                 .informacionAdicional(informacionAdicionalBuilder.builderListDto(model.getInformacionAdicional()))
                 .fechaEmision(DateUtils.toString(model.getFechaEmision()))
                 .detalle(vtCotizacionDetalleBuilder.builderListDto(model.getDetalle()))
@@ -137,8 +136,8 @@ public class VtCotizacionBuilder {
                 .totalDescuento(model.getTotalDescuento())
                 .total(model.getTotal())
                 .anulada(model.getAnulada())
-                .numeroIdentificacion(model.getNumeroIdentificacion())
-                .terceroNombre(model.getTerceroNombre())
+                .idTercero(Objects.nonNull(model.getCliente()) ? model.getCliente().getIdTercero() : null)
+                .terceroNombre(Objects.nonNull(model.getCliente()) ? model.getCliente().getTercero() : null)
                 .fechaEmision(model.getFechaEmision().toString())
                 .valores(vtCotizacionValoresBuilder.builderListValoresDto(model.getValoresEntity()))
                 .detalle(vtCotizacionDetalleBuilder.builderListDto(model.getDetalle()))

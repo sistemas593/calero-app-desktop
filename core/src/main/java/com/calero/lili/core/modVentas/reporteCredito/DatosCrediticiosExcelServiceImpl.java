@@ -41,51 +41,45 @@ public class DatosCrediticiosExcelServiceImpl {
 
     public void cargarDatosCrediticios(Long idData, Long idEmpresa, MultipartFile file, String periodo) throws IOException {
 
+        Optional<DatosCrediticiosEntity> datosCrediticiosExistente = datosCrediticiosRepository.findByPeriodo(idData, idEmpresa, periodo);
+        if (datosCrediticiosExistente.isPresent()) {
+            throw new GeneralException(MessageFormat.format("El periodo {0} ya existe ", periodo));
+        }
 
-        // Primer paso: recolectar códigos únicos de los clientes
+        // Paso único: leer todas las filas en memoria una sola vez
+        record FilaExcel(int linea, String[] celdas) {}
+        List<FilaExcel> filas = new ArrayList<>();
         Set<String> codigosUnicos = new HashSet<>();
-        try (InputStream is1 = file.getInputStream();
-             Workbook wb1 = StreamingReader.builder()
-                     .rowCacheSize(100)
-                     .bufferSize(4096)
-                     .open(is1)) {
-            for (Sheet sheet : wb1) {
+
+        try (InputStream is = file.getInputStream();
+             Workbook wb = StreamingReader.builder()
+                     .rowCacheSize(500)
+                     .bufferSize(65536)
+                     .open(is)) {
+            for (Sheet sheet : wb) {
                 boolean isHeader = true;
                 for (Row row : sheet) {
                     if (isRowEmpty(row)) continue;
-                    if (isHeader) {
-                        isHeader = false;
-                        continue;
+                    if (isHeader) { isHeader = false; continue; }
+
+                    int lastCell = row.getLastCellNum();
+                    String[] celdas = new String[lastCell];
+                    for (int i = 0; i < lastCell; i++) {
+                        celdas[i] = row.getCell(i) != null ? row.getCell(i).getStringCellValue() : null;
                     }
-                    if (Objects.nonNull(row.getCell(0))) {
-                        String codigo = row.getCell(0).getStringCellValue();
-                        if (!codigo.isBlank()) codigosUnicos.add(codigo);
+                    filas.add(new FilaExcel(row.getRowNum() + 1, celdas));
+
+                    if (celdas[0] != null && !celdas[0].isBlank()) {
+                        codigosUnicos.add(celdas[0]);
                     }
                 }
             }
         }
 
-
-        // Segundo paso: procesar filas con los datos de la consulta
-        List<String> codigos = new ArrayList<>(codigosUnicos);
         Map<String, GeTerceroEntity> mapTercero =
-                geTercerosRepository.findAllCodigosTercero(idData, codigos)
+                geTercerosRepository.findAllCodigosTercero(idData, new ArrayList<>(codigosUnicos))
                         .stream()
                         .collect(Collectors.toMap(GeTerceroEntity::getCodigoTercero, Function.identity()));
-
-        List<DetalleError> detalleErrores = new ArrayList<>();
-        List<DatosCrediticiosEntity> datosCrediticiosList = new ArrayList<>();
-        List<DatosCrediticiosDetalleEntity> listaDetalles = new ArrayList<>();
-        Workbook workbook2 = StreamingReader.builder()
-                .rowCacheSize(500000)
-                .bufferSize(131072)
-                .open(file.getInputStream());
-
-
-        Optional<DatosCrediticiosEntity> datosCrediticios = datosCrediticiosRepository.findByPeriodo(idData, idEmpresa, periodo);
-        if (datosCrediticios.isPresent()) {
-            throw new GeneralException(MessageFormat.format("El periodo {0} ya existe ", periodo));
-        }
 
         DatosCrediticiosEntity entidad = new DatosCrediticiosEntity();
         entidad.setIdDatosCrediticios(UUID.randomUUID());
@@ -94,123 +88,102 @@ public class DatosCrediticiosExcelServiceImpl {
         entidad.setCodigoEntidad("");
         entidad.setPeriodo(periodo);
 
+        List<DetalleError> detalleErrores = new ArrayList<>();
+        List<DatosCrediticiosDetalleEntity> listaDetalles = new ArrayList<>();
 
-        boolean isHeader = true;
-        for (Sheet sheet : workbook2) {
-            for (Row row : sheet) {
-                if (isRowEmpty(row)) continue;
+        for (FilaExcel fila : filas) {
+            setearDetallesDesdeArreglo(mapTercero, entidad, fila.celdas(), fila.linea(), detalleErrores, listaDetalles);
+        }
 
-                int linea = row.getRowNum() + 1;
+        entidad.setDatosCrediticiosDetalle(listaDetalles);
 
-                if (isHeader) {
-                    isHeader = false;
-                    continue;
-                }
-
-                setearDetalles(mapTercero, entidad, row, linea, detalleErrores, listaDetalles);
-                datosCrediticiosList.add(entidad);
-
-            }
-
-            entidad.setDatosCrediticiosDetalle(listaDetalles);
-
-            if (detalleErrores.isEmpty()) {
-                datosCrediticiosRepository.saveAll(datosCrediticiosList);
-            } else {
-                throwErrors(detalleErrores);
-            }
+        if (detalleErrores.isEmpty()) {
+            datosCrediticiosRepository.save(entidad);
+        } else {
+            throwErrors(detalleErrores);
         }
     }
 
-    private void setearDetalles(Map<String, GeTerceroEntity> mapTercero, DatosCrediticiosEntity entidad, Row row, int linea,
-                                List<DetalleError> detalleErrores, List<DatosCrediticiosDetalleEntity> listaDetalles) {
-
+    private void setearDetallesDesdeArreglo(Map<String, GeTerceroEntity> mapTercero, DatosCrediticiosEntity entidad,
+                                            String[] celdas, int linea,
+                                            List<DetalleError> detalleErrores, List<DatosCrediticiosDetalleEntity> listaDetalles) {
 
         DatosCrediticiosDetalleEntity detalle = new DatosCrediticiosDetalleEntity();
-
         detalle.setIdData(entidad.getIdData());
         detalle.setIdEmpresa(entidad.getIdEmpresa());
         detalle.setIdDatosCrediticiosDetalle(UUID.randomUUID());
 
-        if (Objects.nonNull(row.getCell(0))) {
-
-            GeTerceroEntity tercero = mapTercero.get(row.getCell(0).getStringCellValue());
+        String celda0 = celda(celdas, 0);
+        if (celda0 != null) {
+            GeTerceroEntity tercero = mapTercero.get(celda0);
             if (Objects.nonNull(tercero)) {
                 detalle.setTercero(tercero);
             } else {
                 DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DOCUMENTO_ERROR);
-                detalleError.setDetalle("El codigo " + row.getCell(0).getStringCellValue() + "no se encuentra registrado");
+                detalleError.setDetalle("El codigo " + celda0 + " no se encuentra registrado");
                 detalleErrores.add(detalleError);
             }
-
         } else {
             DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DOCUMENTO_ERROR);
             detalleError.setDetalle("El codigo del tercero no se encuentra");
             detalleErrores.add(detalleError);
         }
 
-
-        if (Objects.nonNull(row.getCell(1))) {
-            detalle.setNumeroOperacion(row.getCell(1).getStringCellValue());
+        String celda1 = celda(celdas, 1);
+        if (celda1 != null) {
+            detalle.setNumeroOperacion(celda1);
         } else {
             DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DOCUMENTO_ERROR);
             detalleError.setDetalle("El número de la operación no se encuentra");
             detalleErrores.add(detalleError);
         }
 
-
-        if (Objects.nonNull(row.getCell(3))) {
-            detalle.setFechaConcesion(DateUtils.toLocalDate(row.getCell(3).getStringCellValue()));
+        String celda3 = celda(celdas, 3);
+        if (celda3 != null) {
+            detalle.setFechaConcesion(DateUtils.toLocalDate(celda3));
         } else {
             DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DOCUMENTO_ERROR);
             detalleError.setDetalle("La fecha de concesión no se encuentra");
             detalleErrores.add(detalleError);
         }
 
-        if (Objects.nonNull(row.getCell(4))) {
-            detalle.setFechaVencimiento(DateUtils.toLocalDate(row.getCell(4).getStringCellValue()));
-            detalle.setFechaExigible(DateUtils.toLocalDate(row.getCell(4).getStringCellValue()));
-
+        String celda4 = celda(celdas, 4);
+        if (celda4 != null) {
+            detalle.setFechaVencimiento(DateUtils.toLocalDate(celda4));
+            detalle.setFechaExigible(DateUtils.toLocalDate(celda4));
         } else {
             DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DOCUMENTO_ERROR);
             detalleError.setDetalle("La fecha de vencimiento no se encuentra");
             detalleErrores.add(detalleError);
         }
 
-
         // LOS VALORES VAN RELACIONADO CON LOS DIAS DE MORA
         // SI EL DIA DE MORA ES NEGATIVO EL VALOR DEBE IR EN LOS DIAS POR VENCER, Y SI ES POSITIVO DEBE IR EN LOS DIAS VENCIDOS
         // EN CASO DE SER NEGATIVOS LOS DIAS DE MORA LOS DIAS DE MOROSIDAD SON CERO Y SI SON POSITIVOS LOS DIAS SE SETEA LOS DIAS QUE ESTE EN EL EXCEL.
-        if (Objects.nonNull(row.getCell(6)) && Objects.nonNull(row.getCell(7))) {
-
-            BigDecimal valor = convetirValor(row.getCell(7).getStringCellValue());
-            int diasMora = convertirEntero(row.getCell(6).getStringCellValue());
+        String celda6 = celda(celdas, 6);
+        String celda7 = celda(celdas, 7);
+        if (celda6 != null && celda7 != null) {
+            BigDecimal valor = convetirValor(celda7);
+            int diasMora = convertirEntero(celda6);
 
             detalle.setDiasMorosidad(diasMora);
-
-            // EL VALOR DE OPERACION Y EL DE CUOTA DE CREDITO SON EL MISMO
             detalle.setValorOperacion(valor);
             detalle.setCoutaCredito(valor);
 
-            // SETEAR PRIMERO TODOS LOS VALORES EN CERO
             detalle.setValorVencido1a30Dias(BigDecimal.ZERO);
             detalle.setValorVencido31a90Dias(BigDecimal.ZERO);
             detalle.setValorVencido91a180Dias(BigDecimal.ZERO);
             detalle.setValorVencido181a360Dias(BigDecimal.ZERO);
             detalle.setValorVencidoMas360Dias(BigDecimal.ZERO);
-
             detalle.setValorXVencer1a30Dias(BigDecimal.ZERO);
             detalle.setValorXVencer31a90Dias(BigDecimal.ZERO);
             detalle.setValorXVencer91a180Dias(BigDecimal.ZERO);
             detalle.setValorXVencer181a360Dias(BigDecimal.ZERO);
             detalle.setValorXVencerMas360Dias(BigDecimal.ZERO);
-
             detalle.setMontoMorosidad(BigDecimal.ZERO);
             detalle.setMontoInteresMora(BigDecimal.ZERO);
             detalle.setCarteraCastigada(BigDecimal.ZERO);
             detalle.setValorDemandaJudicial(BigDecimal.ZERO);
-
-
         } else {
             DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DOCUMENTO_ERROR);
             detalleError.setDetalle("Los dias de mora no se encuentra");
@@ -218,6 +191,12 @@ public class DatosCrediticiosExcelServiceImpl {
         }
 
         listaDetalles.add(detalle);
+    }
+
+    private String celda(String[] celdas, int idx) {
+        if (idx >= celdas.length) return null;
+        String v = celdas[idx];
+        return (v != null && !v.isBlank()) ? v : null;
     }
 
     private boolean isRowEmpty(Row row) {

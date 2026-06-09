@@ -22,9 +22,6 @@ public class GetDto {
     private String fechaEmision;
     private String secuencial;
     private UUID idTercero;
-
-    private String tipoIdentificacion;
-    private String numeroIdentificacion;
     private String terceroNombre;
     private String email;
 

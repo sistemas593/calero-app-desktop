@@ -1,8 +1,8 @@
 package com.calero.lili.core.modVentasCotizaciones.builder;
 
 
+import com.calero.lili.core.dtos.ValoresDto;
 import com.calero.lili.core.modVentasCotizaciones.VtCotizacionValoresEntity;
-import com.calero.lili.core.modVentasCotizaciones.dto.CreationVentasCotizacionesRequestDto;
 import com.calero.lili.core.modVentasCotizaciones.dto.ResponseValoresDto;
 import org.springframework.stereotype.Component;
 
@@ -12,14 +12,14 @@ import java.util.UUID;
 @Component
 public class VtCotizacionValoresBuilder {
 
-    public List<VtCotizacionValoresEntity> builderList(List<CreationVentasCotizacionesRequestDto.ValoresDto> list, Long idData, Long idEmpresa) {
+    public List<VtCotizacionValoresEntity> builderList(List<ValoresDto> list, Long idData, Long idEmpresa) {
         return list
                 .stream()
                 .map(x -> builderValores(x, idData, idEmpresa))
                 .toList();
     }
 
-    private VtCotizacionValoresEntity builderValores(CreationVentasCotizacionesRequestDto.ValoresDto model, Long idData, Long idEmpresa) {
+    private VtCotizacionValoresEntity builderValores(ValoresDto model, Long idData, Long idEmpresa) {
         return VtCotizacionValoresEntity.builder()
                 .idCotizacionValores(UUID.randomUUID())
                 .idData(idData)

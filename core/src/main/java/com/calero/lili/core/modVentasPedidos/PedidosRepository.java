@@ -70,11 +70,12 @@ public interface PedidosRepository extends JpaRepository<VtPedidoEntity, UUID>, 
 
     @Query(value = "SELECT vtVentasEntity " +
             "FROM VtPedidoEntity vtVentasEntity " +
+            "LEFT JOIN vtVentasEntity.cliente gt " +
             "WHERE vtVentasEntity.idData = :idData  AND " +
             "vtVentasEntity.idEmpresa = :idEmpresa AND " +
             "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
             "(:usuario IS NULL OR vtVentasEntity.createdBy = :usuario) AND " +
-            "(:numeroIdentificacion IS NULL OR vtVentasEntity.numeroIdentificacion = :numeroIdentificacion ) AND " +
+            "(:numeroIdentificacion IS NULL OR gt.numeroIdentificacion = :numeroIdentificacion ) AND " +
             "(:serie IS NULL OR vtVentasEntity.serie = :serie) AND " +
             "(:secuencial IS NULL OR vtVentasEntity.secuencial = :secuencial) AND " +
             "(:numeroAutorizacion IS NULL OR vtVentasEntity.numeroAutorizacion = :numeroAutorizacion ) AND " +
@@ -83,11 +84,12 @@ public interface PedidosRepository extends JpaRepository<VtPedidoEntity, UUID>, 
             ,
             countQuery = "SELECT COUNT(1) " +
                     "FROM VtPedidoEntity vtVentasEntity " +
+                    "LEFT JOIN vtVentasEntity.cliente gt " +
                     "WHERE ( vtVentasEntity.idData = :idData)  AND " +
                     "(vtVentasEntity.idEmpresa = :idEmpresa) AND " +
                     "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
                     "(:usuario IS NULL OR vtVentasEntity.createdBy = :usuario) AND " +
-                    "(:numeroIdentificacion IS NULL OR vtVentasEntity.numeroIdentificacion = :numeroIdentificacion ) AND " +
+                    "(:numeroIdentificacion IS NULL OR gt.numeroIdentificacion = :numeroIdentificacion ) AND " +
                     "(:serie IS NULL OR vtVentasEntity.serie = :serie ) AND " +
                     "(:secuencial IS NULL OR vtVentasEntity.secuencial = :secuencial ) AND " +
                     "(:numeroAutorizacion IS NULL OR vtVentasEntity.numeroAutorizacion = :numeroAutorizacion ) AND " +
@@ -127,10 +129,11 @@ public interface PedidosRepository extends JpaRepository<VtPedidoEntity, UUID>, 
                     "sum(valoresEntity.valor) as totalValor " +
                     "FROM vt_pedidos vtVentaEntity " +
                     "INNER JOIN vt_pedidos_valores valoresEntity ON vtVentaEntity.id_pedido = valoresEntity.id_pedido " +
+                    "LEFT JOIN ge_terceros gt ON vtVentaEntity.id_tercero = gt.id_tercero " +
                     "WHERE ( vtVentaEntity.id_data = :idData)  AND " +
                     "(vtVentaEntity.id_empresa = :idEmpresa) AND  vtVentaEntity.deleted = false AND " +
                     "(:sucursal IS NULL OR vtVentaEntity.sucursal = :sucursal) AND " +
-                    "(:numeroIdentificacion IS NULL OR vtVentaEntity.numero_identificacion = :numeroIdentificacion ) AND " +
+                    "(:numeroIdentificacion IS NULL OR gt.numero_identificacion = :numeroIdentificacion ) AND " +
                     "(:serie IS NULL OR vtVentaEntity.serie = :serie ) AND " +
                     "(:secuencial IS NULL OR vtVentaEntity.secuencial = :secuencial ) AND " +
                     "( cast(:fechaEmisionDesde as date) is null OR vtVentaEntity.fecha_emision >= :fechaEmisionDesde ) AND " +
@@ -141,11 +144,12 @@ public interface PedidosRepository extends JpaRepository<VtPedidoEntity, UUID>, 
 
     @Query(value = "SELECT vtVentasEntity " +
             "FROM VtPedidoEntity vtVentasEntity " +
+            "LEFT JOIN vtVentasEntity.cliente gt " +
             "WHERE vtVentasEntity.idData = :idData  AND " +
             "vtVentasEntity.idEmpresa = :idEmpresa AND " +
             "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
             "(" +
-            "(:numeroIdentificacion IS NULL OR vtVentasEntity.numeroIdentificacion = :numeroIdentificacion) AND " +
+            "(:numeroIdentificacion IS NULL OR gt.numeroIdentificacion = :numeroIdentificacion) AND " +
             "(:serie IS NULL OR vtVentasEntity.serie = :serie) AND " +
             "(:secuencial IS NULL OR vtVentasEntity.secuencial = :secuencial) AND " +
             "( cast(:fechaEmisionDesde as date) is null OR vtVentasEntity.fechaEmision >= :fechaEmisionDesde ) AND " +

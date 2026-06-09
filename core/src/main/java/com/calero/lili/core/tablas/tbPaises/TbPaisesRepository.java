@@ -22,4 +22,11 @@ public interface TbPaisesRepository extends JpaRepository<TbPaisEntity, String> 
             "((:filter IS NULL OR LOWER(entity.codigoPais) LIKE LOWER(CONCAT('%', :filterContent, '%')) ) OR " +
             "(:filter IS NULL OR LOWER(entity.pais) LIKE LOWER(CONCAT('%', :filterContent, '%')) )) ")
     List<TbPaisEntity> findAll(@Param("filter") String filter, @Param("filterContent") String filterContent);
+
+
+
+    @Query("SELECT c FROM TbPaisEntity c WHERE c.codigoPais IN :codigos")
+    List<TbPaisEntity> findAllByCodigoPaises(@Param("codigos") List<String> codigos);
+
+
 }

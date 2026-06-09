@@ -22,6 +22,9 @@ public interface ProvinciaRepository extends JpaRepository<ProvinciaEntity, UUID
     @Query("SELECT c FROM ProvinciaEntity c WHERE c.codigoProvincia = :idProvincia")
     Optional<ProvinciaEntity> getForFindById(@Param("idProvincia") String idProvincia);
 
+    @Query("SELECT c FROM ProvinciaEntity c WHERE c.codigoProvincia IN :codigos")
+    List<ProvinciaEntity> findAllByCodigoProvincia(@Param("codigos") List<String> codigos);
+
 
    /* @Query(
             value = "SELECT c FROM ProvinciaEntity c WHERE (:filterContent IS NULL OR LOWER(c.provincia) LIKE LOWER(CONCAT('%', :filterContent, '%')))",

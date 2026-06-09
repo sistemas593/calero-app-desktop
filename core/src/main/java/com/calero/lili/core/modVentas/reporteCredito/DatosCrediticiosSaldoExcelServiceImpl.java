@@ -33,138 +33,94 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
 
     public void cargarSaldoDatosCrediticios(Long idData, Long idEmpresa, MultipartFile file) throws IOException {
 
+        // Paso único: leer todas las filas en memoria una sola vez
+        record FilaExcel(int linea, String celda0, String celda1) {}
+        List<FilaExcel> filas = new ArrayList<>();
         Set<String> numerosOperacion = new HashSet<>();
-        try (InputStream is1 = file.getInputStream();
-             Workbook wb1 = StreamingReader.builder()
-                     .rowCacheSize(100)
-                     .bufferSize(4096)
-                     .open(is1)) {
-            for (Sheet sheet : wb1) {
+
+        try (InputStream is = file.getInputStream();
+             Workbook wb = StreamingReader.builder()
+                     .rowCacheSize(500)
+                     .bufferSize(65536)
+                     .open(is)) {
+            for (Sheet sheet : wb) {
                 boolean isHeader = true;
                 for (Row row : sheet) {
                     if (isRowEmpty(row)) continue;
-                    if (isHeader) {
-                        isHeader = false;
-                        continue;
-                    }
-                    if (Objects.nonNull(row.getCell(0))) {
-                        String numeroOperacion = row.getCell(0).getStringCellValue();
-                        if (!numeroOperacion.isBlank()) numerosOperacion.add(numeroOperacion);
-                    }
+                    if (isHeader) { isHeader = false; continue; }
+
+                    String c0 = row.getCell(0) != null ? row.getCell(0).getStringCellValue() : null;
+                    String c1 = row.getCell(1) != null ? row.getCell(1).getStringCellValue() : null;
+                    filas.add(new FilaExcel(row.getRowNum() + 1, c0, c1));
+
+                    if (c0 != null && !c0.isBlank()) numerosOperacion.add(c0);
                 }
             }
         }
 
-
-        // Segundo paso: procesar filas con los datos de la consulta
-        List<String> codigos = new ArrayList<>(numerosOperacion);
-
         Map<String, DatosCrediticiosDetalleEntity> mapDatos =
-                datosCrediticiosRepository.findAllNumeroOperacion(idData, idEmpresa, codigos)
+                datosCrediticiosRepository.findAllNumeroOperacion(idData, idEmpresa, new ArrayList<>(numerosOperacion))
                         .stream()
                         .collect(Collectors.toMap(DatosCrediticiosDetalleEntity::getNumeroOperacion, Function.identity()));
 
         List<DetalleError> detalleErrores = new ArrayList<>();
         List<DatosCrediticiosDetalleEntity> entidadesActualizar = new ArrayList<>();
-        Workbook workbook2 = StreamingReader.builder()
-                .rowCacheSize(500000)
-                .bufferSize(131072)
-                .open(file.getInputStream());
 
-        boolean isHeader = true;
-        for (Sheet sheet : workbook2) {
-            for (Row row : sheet) {
-                if (isRowEmpty(row)) continue;
+        for (FilaExcel fila : filas) {
+            if (fila.celda0() != null && fila.celda1() != null) {
+                DatosCrediticiosDetalleEntity entidad = mapDatos.get(fila.celda0());
+                if (entidad == null) continue;
 
-                int linea = row.getRowNum() + 1;
+                BigDecimal saldo = convetirValor(fila.celda1());
+                int rango = Math.abs(entidad.getDiasMorosidad());
 
-                if (isHeader) {
-                    isHeader = false;
-                    continue;
-                }
-
-
-                if (Objects.nonNull(row.getCell(0)) && Objects.nonNull(row.getCell(1))) {
-                    String numeroOperacion = row.getCell(0).getStringCellValue();
-                    DatosCrediticiosDetalleEntity entidad = mapDatos.get(numeroOperacion);
-                    if (Objects.nonNull(entidad)) {
-
-                        BigDecimal saldo = convetirValor(row.getCell(1).getStringCellValue());
-                        int rango = Math.abs(entidad.getDiasMorosidad());
-
-                        if (esPositivo(entidad.getDiasMorosidad())) {
-                            entidad.setMontoMorosidad(saldo);
-                            if (rango <= 30) {
-
-                                entidad.setValorVencido1a30Dias(saldo);
-
-                            } else if (rango <= 90) {
-
-                                entidad.setValorVencido31a90Dias(saldo);
-
-                            } else if (rango <= 180) {
-
-                                entidad.setValorVencido91a180Dias(saldo);
-
-
-                            } else if (rango <= 360) {
-
-
-                                // EN EL CASO DE QUE EL NUMERO DE DIAS MOROSIDAD SUPERE LOS de 181  SE DEBE SETEAR EL MISMO VALOR
-                                // EN VALOR DE DEMANDA JUDICIAL.
-
-                                entidad.setValorVencido181a360Dias(saldo);
-                                entidad.setValorDemandaJudicial(saldo);
-
-                            } else {
-                                // EN EL CASO DE QUE EL NUMERO DE DIAS MOROSIDAD SUPERE LOS de 180 a 360 DIAS, SE DEBE SETEAR EL MISMO VALOR
-                                // EN VALOR DE DEMANDA JUDICIAL.
-                                entidad.setValorVencidoMas360Dias(saldo);
-                                entidad.setValorDemandaJudicial(saldo);
-                            }
-                        } else {
-
-                            if (rango <= 30) {
-
-                                entidad.setValorXVencer1a30Dias(saldo);
-
-                            } else if (rango <= 90) {
-
-                                entidad.setValorXVencer31a90Dias(saldo);
-
-                            } else if (rango <= 180) {
-
-                                entidad.setValorXVencer91a180Dias(saldo);
-
-                            } else if (rango <= 360) {
-
-                                entidad.setValorXVencer181a360Dias(saldo);
-
-                            } else {
-                                entidad.setValorXVencerMas360Dias(saldo);
-                            }
-                        }
-
-
-                        entidad.setSaldoOperacion(saldo);
-                        entidadesActualizar.add(entidad);
-
+                if (esPositivo(entidad.getDiasMorosidad())) {
+                    entidad.setMontoMorosidad(saldo);
+                    if (rango <= 30) {
+                        entidad.setValorVencido1a30Dias(saldo);
+                    } else if (rango <= 90) {
+                        entidad.setValorVencido31a90Dias(saldo);
+                    } else if (rango <= 180) {
+                        entidad.setValorVencido91a180Dias(saldo);
+                    } else if (rango <= 360) {
+                        // EN EL CASO DE QUE EL NUMERO DE DIAS MOROSIDAD SUPERE LOS de 181  SE DEBE SETEAR EL MISMO VALOR
+                        // EN VALOR DE DEMANDA JUDICIAL.
+                        entidad.setValorVencido181a360Dias(saldo);
+                        entidad.setValorDemandaJudicial(saldo);
                     } else {
-                        continue;
+                        // EN EL CASO DE QUE EL NUMERO DE DIAS MOROSIDAD SUPERE LOS de 180 a 360 DIAS, SE DEBE SETEAR EL MISMO VALOR
+                        // EN VALOR DE DEMANDA JUDICIAL.
+                        entidad.setValorVencidoMas360Dias(saldo);
+                        entidad.setValorDemandaJudicial(saldo);
                     }
-
                 } else {
-                    DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DOCUMENTO_ERROR);
-                    detalleError.setDetalle("El número operación o el valor del saldo de la operación no se encuentran");
-                    detalleErrores.add(detalleError);
+                    if (rango <= 30) {
+                        entidad.setValorXVencer1a30Dias(saldo);
+                    } else if (rango <= 90) {
+                        entidad.setValorXVencer31a90Dias(saldo);
+                    } else if (rango <= 180) {
+                        entidad.setValorXVencer91a180Dias(saldo);
+                    } else if (rango <= 360) {
+                        entidad.setValorXVencer181a360Dias(saldo);
+                    } else {
+                        entidad.setValorXVencerMas360Dias(saldo);
+                    }
                 }
-            }
 
-            if (detalleErrores.isEmpty()) {
-                datosCrediticiosRepository.saveAll(entidadesActualizar);
+                entidad.setSaldoOperacion(saldo);
+                entidadesActualizar.add(entidad);
+
             } else {
-                throwErrors(detalleErrores);
+                DetalleError detalleError = detalleErrorBuilder.builderDetalleError(fila.linea(), EnumError.DOCUMENTO_ERROR);
+                detalleError.setDetalle("El número operación o el valor del saldo de la operación no se encuentran");
+                detalleErrores.add(detalleError);
             }
+        }
+
+        if (detalleErrores.isEmpty()) {
+            datosCrediticiosRepository.saveAll(entidadesActualizar);
+        } else {
+            throwErrors(detalleErrores);
         }
     }
 

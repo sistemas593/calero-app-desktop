@@ -1,7 +1,7 @@
 package com.calero.lili.core.modVentasPedidos.builder;
 
+import com.calero.lili.core.dtos.ValoresDto;
 import com.calero.lili.core.modVentasPedidos.VtPedidoValoresEntity;
-import com.calero.lili.core.modVentasPedidos.dto.CreationComprasPedidosRequestDto;
 import com.calero.lili.core.modVentasPedidos.dto.ResponseValoresDto;
 import org.springframework.stereotype.Component;
 
@@ -11,13 +11,13 @@ import java.util.UUID;
 @Component
 public class VtPedidoValoresBuilder {
 
-    public  List<VtPedidoValoresEntity> builderList(List<CreationComprasPedidosRequestDto.ValoresDto> list){
+    public List<VtPedidoValoresEntity> builderList(List<ValoresDto> list) {
         return list.stream()
                 .map(this::builderValores)
                 .toList();
     }
 
-    private VtPedidoValoresEntity builderValores(CreationComprasPedidosRequestDto.ValoresDto model) {
+    private VtPedidoValoresEntity builderValores(ValoresDto model) {
         return VtPedidoValoresEntity.builder()
                 .idPedidoValores(UUID.randomUUID())
                 .codigo(model.getCodigo())
@@ -27,7 +27,7 @@ public class VtPedidoValoresBuilder {
                 .build();
     }
 
-    public List<ResponseValoresDto> builderListResponse(List<VtPedidoValoresEntity> list){
+    public List<ResponseValoresDto> builderListResponse(List<VtPedidoValoresEntity> list) {
         return list.stream()
                 .map(this::builderResponse)
                 .toList();

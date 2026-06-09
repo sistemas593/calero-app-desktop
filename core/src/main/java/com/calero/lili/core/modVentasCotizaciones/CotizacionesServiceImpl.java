@@ -4,10 +4,13 @@ import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.dtos.ResponseDto;
+import com.calero.lili.core.dtos.ValoresDto;
 import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
+import com.calero.lili.core.modVentas.dto.DetailDto;
+import com.calero.lili.core.modVentas.service.ValidarServiceImpl;
 import com.calero.lili.core.modVentasCotizaciones.builder.VtCotizacionBuilder;
 import com.calero.lili.core.modVentasCotizaciones.dto.CreationVentasCotizacionesRequestDto;
 import com.calero.lili.core.modVentasCotizaciones.dto.FilterListVentasCotizacionesDto;
@@ -60,7 +63,7 @@ public class CotizacionesServiceImpl {
     private final VtCotizacionBuilder vtCotizacionBuilder;
     private final ResponseApiBuilder responseApiBuilder;
     private final GeTercerosRepository geTercerosRepository;
-
+    private final ValidarServiceImpl validarService;
 
     public ResponseDto create(Long idData, Long idEmpresa, CreationVentasCotizacionesRequestDto request, String usuario) {
 
@@ -71,6 +74,10 @@ public class CotizacionesServiceImpl {
         }
 
 
+        List<ValoresDto> valores = validarService.validarValores(request.getDetalle());
+        request.setValores(valores);
+        setearValoresCabecera(valores, request);
+
         GeTerceroEntity tercero = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
                 .orElseThrow(() -> new GeneralException("No existe tercero"));
 
@@ -78,8 +85,6 @@ public class CotizacionesServiceImpl {
                 .builderEntity(request, idData, idEmpresa);
 
         vtCotizacion.setCliente(tercero);
-        vtCotizacion.setEmail(tercero.getEmail());
-        vtCotizacion.setTerceroNombre(tercero.getTercero());
         vtCotizacion.setCreatedBy(usuario);
         vtCotizacion.setCreatedDate(LocalDateTime.now());
 
@@ -103,6 +108,11 @@ public class CotizacionesServiceImpl {
             }
         }
 
+
+        List<ValoresDto> valores = validarService.validarValores(request.getDetalle());
+        request.setValores(valores);
+        setearValoresCabecera(valores, request);
+
         GeTerceroEntity tercero = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
                 .orElseThrow(() -> new GeneralException("No existe tercero"));
 
@@ -113,9 +123,6 @@ public class CotizacionesServiceImpl {
         vtCotizacion.setModifiedBy(usuario);
         vtCotizacion.setModifiedDate(LocalDateTime.now());
         vtCotizacion.setCliente(tercero);
-        vtCotizacion.setEmail(tercero.getEmail());
-        vtCotizacion.setTerceroNombre(tercero.getTercero());
-
 
         VtCotizacionEntity vtCotizacionEntity = cotizacionesRepository.save(vtCotizacion);
         return responseApiBuilder.builderResponse(vtCotizacionEntity.getIdCotizacion().toString());
@@ -437,7 +444,7 @@ public class CotizacionesServiceImpl {
 
                 table.addCell(factura.getSecuencial());
                 table.addCell(factura.getFechaEmision().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-                table.addCell(factura.getNumeroIdentificacion());
+                table.addCell(Objects.nonNull(factura.getCliente()) ? factura.getCliente().getNumeroIdentificacion() : "");
 
                 table.addCell(String.valueOf(baseCero));
 
@@ -503,5 +510,24 @@ public class CotizacionesServiceImpl {
         }
 
         throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
+    }
+
+    private void setearValoresCabecera(List<ValoresDto> valores, CreationVentasCotizacionesRequestDto request) {
+
+        BigDecimal totalDescuento = request.getDetalle().stream()
+                .map(DetailDto::getDescuento)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal subtotal = valores.stream()
+                .map(ValoresDto::getBaseImponible)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal totalImpuesto = valores.stream()
+                .map(ValoresDto::getValor)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        request.setTotalDescuento(totalDescuento);
+        request.setSubtotal(subtotal);
+        request.setTotal(subtotal.add(totalImpuesto));
     }
 }

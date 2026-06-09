@@ -1,8 +1,7 @@
 package com.calero.lili.core.modVentasCotizaciones;
 
-import com.calero.lili.core.dtos.InformacionAdicional;
-import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.Auditable;
+import com.calero.lili.core.dtos.InformacionAdicional;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -56,7 +55,7 @@ public class VtCotizacionEntity extends Auditable {
     private LocalDate fechaEmision;
 
     @Column(name = "fecha_anulacion")
-    private  LocalDate fechaAnulacion;
+    private LocalDate fechaAnulacion;
 
     @Column(name = "forma_pago", length = 2)
     private String formaPago;
@@ -66,7 +65,7 @@ public class VtCotizacionEntity extends Auditable {
     @Column(name = "dias_credito")
     private Integer diasCredito;
     @Column(name = "fecha_vencimiento")
-    private  LocalDate fechaVencimiento;
+    private LocalDate fechaVencimiento;
     @Column(name = "cuotas")
     private Integer cuotas;
 
@@ -97,12 +96,6 @@ public class VtCotizacionEntity extends Auditable {
 
     @Column(name = "impresa")
     private Boolean impresa;
-
-    private TipoIdentificacion tipoIdentificacion;
-    private String numeroIdentificacion;
-
-    @Column(name = "cliente")
-    private String terceroNombre;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")

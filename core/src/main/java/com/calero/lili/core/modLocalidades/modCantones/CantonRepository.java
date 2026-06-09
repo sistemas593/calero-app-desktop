@@ -23,6 +23,9 @@ public interface CantonRepository extends JpaRepository<CantonEntity, UUID> {
     @Query("SELECT c FROM CantonEntity c WHERE c.codigoCanton = :idCanton")
     Optional<CantonEntity> getForFindById(@Param("idCanton") String idCanton);
 
+    @Query("SELECT c FROM CantonEntity c WHERE c.codigoCanton IN :codigos")
+    List<CantonEntity> findAllByCodigoCanton(@Param("codigos") List<String> codigos);
+
 
     /*@Query(
             value = "SELECT c FROM CantonEntity c WHERE  c.provincia.codigoProvincia = :codProvincia")

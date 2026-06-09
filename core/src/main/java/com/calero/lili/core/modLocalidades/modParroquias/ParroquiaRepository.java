@@ -17,6 +17,9 @@ public interface ParroquiaRepository extends JpaRepository<ParroquiaEntity, Stri
     @Query("SELECT c FROM ParroquiaEntity c WHERE c.codigoParroquia = :codigoParroquia")
     Optional<ParroquiaEntity> getForFindById(@Param("codigoParroquia") String codigoParroquia);
 
+    @Query("SELECT c FROM ParroquiaEntity c WHERE c.codigoParroquia IN :codigos")
+    List<ParroquiaEntity> findAllByCodigoParroquia(@Param("codigos") List<String> codigos);
+
     @Query("""
             SELECT c 
             FROM ParroquiaEntity c 
@@ -25,6 +28,7 @@ public interface ParroquiaRepository extends JpaRepository<ParroquiaEntity, Stri
     List<ParroquiaEntity> getFindAll(
             @Param("codigoCanton") String codigoCanton,
             @Param("filterContent") String filterContent);
+
 
 
     /*@Query(value = "SELECT c FROM ParroquiaEntity c WHERE (:codigoCanton IS NULL OR c.canton.codigoCanton = :codigoCanton)" )

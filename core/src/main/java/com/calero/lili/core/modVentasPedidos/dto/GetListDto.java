@@ -24,10 +24,8 @@ public class GetListDto {
 
     private String fechaEmision;
 
-    private String terceroNombre;
-    private String numeroIdentificacion;
-
     private UUID idTercero;
+    private String terceroNombre;
 
     private LocalDate fechaVencimiento;
 

@@ -70,22 +70,24 @@ public interface CotizacionesRepository extends JpaRepository<VtCotizacionEntity
 
     @Query(value = "SELECT vtVentasEntity " +
             "FROM VtCotizacionEntity vtVentasEntity " +
+            "LEFT JOIN vtVentasEntity.cliente gt " +
             "WHERE vtVentasEntity.idData = :idData  AND " +
             "vtVentasEntity.idEmpresa = :idEmpresa AND " +
             "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
             "(:usuario IS NULL OR vtVentasEntity.createdBy = :usuario) AND " +
-            "(:numeroIdentificacion IS NULL OR vtVentasEntity.numeroIdentificacion = :numeroIdentificacion ) AND " +
+            "(:numeroIdentificacion IS NULL OR gt.numeroIdentificacion = :numeroIdentificacion ) AND " +
             "(:secuencial IS NULL OR vtVentasEntity.secuencial = :secuencial) AND " +
             "( cast(:fechaEmisionDesde as date) is null OR vtVentasEntity.fechaEmision >= :fechaEmisionDesde ) AND " +
             "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmision <= :fechaEmisionHasta )"
             ,
             countQuery = "SELECT COUNT(1) " +
                     "FROM VtCotizacionEntity vtVentasEntity " +
+                    "LEFT JOIN vtVentasEntity.cliente gt " +
                     "WHERE ( vtVentasEntity.idData = :idData)  AND " +
                     "(vtVentasEntity.idEmpresa = :idEmpresa) AND " +
                     "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
                     "(:usuario IS NULL OR vtVentasEntity.createdBy = :usuario) AND " +
-                    "(:numeroIdentificacion IS NULL OR vtVentasEntity.numeroIdentificacion = :numeroIdentificacion ) AND " +
+                    "(:numeroIdentificacion IS NULL OR gt.numeroIdentificacion = :numeroIdentificacion ) AND " +
                     "(:secuencial IS NULL OR vtVentasEntity.secuencial = :secuencial ) AND " +
                     "( cast(:fechaEmisionDesde as date) is null OR vtVentasEntity.fechaEmision >= :fechaEmisionDesde ) AND " +
                     "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmision <= :fechaEmisionHasta )"
@@ -120,10 +122,11 @@ public interface CotizacionesRepository extends JpaRepository<VtCotizacionEntity
                     "sum(valoresEntity.valor) as totalValor " +
                     "FROM vt_cotizaciones vtVentaEntity " +
                     "INNER JOIN vt_cotizaciones_valores valoresEntity ON vtVentaEntity.id_cotizacion = valoresEntity.id_cotizacion " +
+                    "LEFT JOIN ge_terceros gt ON vtVentaEntity.id_tercero = gt.id_tercero " +
                     "WHERE ( vtVentaEntity.id_data = :idData)  AND " +
                     "(vtVentaEntity.id_empresa = :idEmpresa) AND vtVentaEntity.deleted = false AND " +
                     "(:sucursal IS NULL OR vtVentaEntity.sucursal = :sucursal) AND " +
-                    "(:numeroIdentificacion IS NULL OR vtVentaEntity.numero_identificacion = :numeroIdentificacion ) AND " +
+                    "(:numeroIdentificacion IS NULL OR gt.numero_identificacion = :numeroIdentificacion ) AND " +
                     "(:secuencial IS NULL OR vtVentaEntity.secuencial = :secuencial ) AND " +
                     "( cast(:fechaEmisionDesde as date) is null OR vtVentaEntity.fecha_emision >= :fechaEmisionDesde ) AND " +
                     "( cast(:fechaEmisionHasta as date) is null OR vtVentaEntity.fecha_emision <= :fechaEmisionHasta ) " +
@@ -133,11 +136,12 @@ public interface CotizacionesRepository extends JpaRepository<VtCotizacionEntity
 
     @Query(value = "SELECT vtVentasEntity " +
             "FROM VtCotizacionEntity vtVentasEntity " +
+            "LEFT JOIN vtVentasEntity.cliente gt " +
             "WHERE vtVentasEntity.idData = :idData  AND " +
             "vtVentasEntity.idEmpresa = :idEmpresa AND " +
             "(:sucursal IS NULL OR vtVentasEntity.sucursal = :sucursal) AND " +
             "(" +
-            "(:numeroIdentificacion IS NULL OR vtVentasEntity.numeroIdentificacion = :numeroIdentificacion) AND " +
+            "(:numeroIdentificacion IS NULL OR gt.numeroIdentificacion = :numeroIdentificacion) AND " +
             "(:secuencial IS NULL OR vtVentasEntity.secuencial = :secuencial) AND " +
             "( cast(:fechaEmisionDesde as date) is null OR vtVentasEntity.fechaEmision >= :fechaEmisionDesde ) AND " +
             "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmision <= :fechaEmisionHasta )  " +

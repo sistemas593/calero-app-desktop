@@ -1,9 +1,10 @@
 package com.calero.lili.core.modVentasCotizaciones.builder;
 
 
+import com.calero.lili.core.dtos.ImpuestoItemsDto;
 import com.calero.lili.core.modComprasItems.GeItemEntity;
+import com.calero.lili.core.modVentas.dto.DetailDto;
 import com.calero.lili.core.modVentasCotizaciones.VtCotizacionDetalleEntity;
-import com.calero.lili.core.modVentasCotizaciones.dto.CreationVentasCotizacionesRequestDto;
 import com.calero.lili.core.modVentasCotizaciones.dto.detalles.DetalleGetDto;
 import org.springframework.stereotype.Component;
 
@@ -14,13 +15,13 @@ import java.util.UUID;
 public class VtCotizacionDetalleBuilder {
 
 
-    public List<VtCotizacionDetalleEntity> builderList(List<CreationVentasCotizacionesRequestDto.DetailDto> list, Long idData, Long idEmpresa) {
+    public List<VtCotizacionDetalleEntity> builderList(List<DetailDto> list, Long idData, Long idEmpresa) {
         return list.stream()
                 .map(x -> builderDetalle(x, idData, idEmpresa))
                 .toList();
     }
 
-    private VtCotizacionDetalleEntity builderDetalle(CreationVentasCotizacionesRequestDto.DetailDto model, Long idData, Long idEmpresa) {
+    private VtCotizacionDetalleEntity builderDetalle(DetailDto model, Long idData, Long idEmpresa) {
         return VtCotizacionDetalleEntity.builder()
                 .idCotizacionDetalle(UUID.randomUUID())
                 .idData(idData)
@@ -43,13 +44,13 @@ public class VtCotizacionDetalleBuilder {
     }
 
 
-    private List<VtCotizacionDetalleEntity.Impuestos> builderListImpuestos(List<CreationVentasCotizacionesRequestDto.DetailDto.Impuestos> list) {
+    private List<VtCotizacionDetalleEntity.Impuestos> builderListImpuestos(List<ImpuestoItemsDto> list) {
         return list.stream()
                 .map(this::builderImpuestos)
                 .toList();
     }
 
-    private VtCotizacionDetalleEntity.Impuestos builderImpuestos(CreationVentasCotizacionesRequestDto.DetailDto.Impuestos model) {
+    private VtCotizacionDetalleEntity.Impuestos builderImpuestos(ImpuestoItemsDto model) {
         return VtCotizacionDetalleEntity.Impuestos.builder()
                 .codigo(model.getCodigo())
                 .codigoPorcentaje(model.getCodigoPorcentaje())
@@ -58,13 +59,13 @@ public class VtCotizacionDetalleBuilder {
                 .build();
     }
 
-    private List<VtCotizacionDetalleEntity.DetalleAdicional> builderListDetalleAddicional(List<CreationVentasCotizacionesRequestDto.DetailDto.DetalleAdicional> list) {
+    private List<VtCotizacionDetalleEntity.DetalleAdicional> builderListDetalleAddicional(List<DetailDto.DetalleAdicional> list) {
         return list.stream()
                 .map(this::builderDetalle)
                 .toList();
     }
 
-    private VtCotizacionDetalleEntity.DetalleAdicional builderDetalle(CreationVentasCotizacionesRequestDto.DetailDto.DetalleAdicional model) {
+    private VtCotizacionDetalleEntity.DetalleAdicional builderDetalle(DetailDto.DetalleAdicional model) {
         return VtCotizacionDetalleEntity.DetalleAdicional.builder()
                 .nombre(model.getNombre())
                 .valor(model.getValor())

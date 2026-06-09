@@ -19,7 +19,6 @@ import java.text.Normalizer;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -168,7 +167,6 @@ public class ReporteDatosCrediticiosServiceImpl {
     }
 
     public void delete(Long idData, Long idEmpresa, String periodo) {
-
         DatosCrediticiosEntity entidad = datosCrediticiosRepository.findByPeriodo(idData, idEmpresa, periodo)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("El periodo {0} no existe", periodo)));
         datosCrediticiosRepository.delete(entidad);
