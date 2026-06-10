@@ -7,7 +7,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -63,7 +62,8 @@ public interface DatosCrediticiosRepository extends JpaRepository<DatosCreditici
             
             WHERE dcc.id_data = :idData 
             AND dcc.id_empresa =:idEmpresa 
-                AND dcd.saldo_operacion >= :saldoMinimo
+                AND dcd.valor_operacion >= :saldoMinimo
+                AND dcd.saldo_operacion > 0 
               AND dcc.periodo = :periodo
               ORDER BY gt.tercero ASC
             """, nativeQuery = true)

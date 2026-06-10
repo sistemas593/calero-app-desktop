@@ -4,6 +4,7 @@ import com.calero.lili.core.builder.DetalleErrorBuilder;
 import com.calero.lili.core.dtos.errors.DetalleError;
 import com.calero.lili.core.dtos.errors.EnumError;
 import com.calero.lili.core.errors.exceptions.ListErrorException;
+import com.calero.lili.core.modTerceros.tercerosLegal.TerceroLegaRepository;
 import com.monitorjbl.xlsx.StreamingReader;
 import lombok.AllArgsConstructor;
 import org.apache.poi.ss.usermodel.Row;
@@ -19,8 +20,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -30,11 +31,13 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
 
     private final DatosCrediticiosDetalleRepository datosCrediticiosRepository;
     private final DetalleErrorBuilder detalleErrorBuilder;
+    private final TerceroLegaRepository terceroLegaRepository;
 
     public void cargarSaldoDatosCrediticios(Long idData, Long idEmpresa, MultipartFile file) throws IOException {
 
         // Paso único: leer todas las filas en memoria una sola vez
-        record FilaExcel(int linea, String celda0, String celda1) {}
+        record FilaExcel(int linea, String celda0, String celda1) {
+        }
         List<FilaExcel> filas = new ArrayList<>();
         Set<String> numerosOperacion = new HashSet<>();
 
@@ -47,7 +50,10 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
                 boolean isHeader = true;
                 for (Row row : sheet) {
                     if (isRowEmpty(row)) continue;
-                    if (isHeader) { isHeader = false; continue; }
+                    if (isHeader) {
+                        isHeader = false;
+                        continue;
+                    }
 
                     String c0 = row.getCell(0) != null ? row.getCell(0).getStringCellValue() : null;
                     String c1 = row.getCell(1) != null ? row.getCell(1).getStringCellValue() : null;
@@ -63,6 +69,8 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
                         .stream()
                         .collect(Collectors.toMap(DatosCrediticiosDetalleEntity::getNumeroOperacion, Function.identity()));
 
+        List<UUID> listaIdTerceroLegal = terceroLegaRepository.findByAll(idData, idEmpresa);
+
         List<DetalleError> detalleErrores = new ArrayList<>();
         List<DatosCrediticiosDetalleEntity> entidadesActualizar = new ArrayList<>();
 
@@ -75,6 +83,10 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
                 int rango = Math.abs(entidad.getDiasMorosidad());
 
                 if (esPositivo(entidad.getDiasMorosidad())) {
+
+                    if (listaIdTerceroLegal.contains(entidad.getTercero().getIdTercero())) {
+                        entidad.setValorDemandaJudicial(saldo);
+                    }
                     entidad.setMontoMorosidad(saldo);
                     if (rango <= 30) {
                         entidad.setValorVencido1a30Dias(saldo);
@@ -86,12 +98,11 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
                         // EN EL CASO DE QUE EL NUMERO DE DIAS MOROSIDAD SUPERE LOS de 181  SE DEBE SETEAR EL MISMO VALOR
                         // EN VALOR DE DEMANDA JUDICIAL.
                         entidad.setValorVencido181a360Dias(saldo);
-                        entidad.setValorDemandaJudicial(saldo);
+
                     } else {
                         // EN EL CASO DE QUE EL NUMERO DE DIAS MOROSIDAD SUPERE LOS de 180 a 360 DIAS, SE DEBE SETEAR EL MISMO VALOR
                         // EN VALOR DE DEMANDA JUDICIAL.
                         entidad.setValorVencidoMas360Dias(saldo);
-                        entidad.setValorDemandaJudicial(saldo);
                     }
                 } else {
                     if (rango <= 30) {

@@ -7,6 +7,7 @@ import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.errors.exceptions.ListErrorException;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
+import com.calero.lili.core.modVentas.reporteCredito.enums.DinarapPlazoOperacionEnum;
 import com.calero.lili.core.utils.DateUtils;
 import com.monitorjbl.xlsx.StreamingReader;
 import lombok.AllArgsConstructor;
@@ -47,7 +48,8 @@ public class DatosCrediticiosExcelServiceImpl {
         }
 
         // Paso único: leer todas las filas en memoria una sola vez
-        record FilaExcel(int linea, String[] celdas) {}
+        record FilaExcel(int linea, String[] celdas) {
+        }
         List<FilaExcel> filas = new ArrayList<>();
         Set<String> codigosUnicos = new HashSet<>();
 
@@ -60,7 +62,10 @@ public class DatosCrediticiosExcelServiceImpl {
                 boolean isHeader = true;
                 for (Row row : sheet) {
                     if (isRowEmpty(row)) continue;
-                    if (isHeader) { isHeader = false; continue; }
+                    if (isHeader) {
+                        isHeader = false;
+                        continue;
+                    }
 
                     int lastCell = row.getLastCellNum();
                     String[] celdas = new String[lastCell];
@@ -184,6 +189,23 @@ public class DatosCrediticiosExcelServiceImpl {
             detalle.setMontoInteresMora(BigDecimal.ZERO);
             detalle.setCarteraCastigada(BigDecimal.ZERO);
             detalle.setValorDemandaJudicial(BigDecimal.ZERO);
+
+            String celda8 = celda(celdas, 8);
+            if (celda8 != null) {
+                try {
+                    Integer dias = DinarapPlazoOperacionEnum.getDiasCredito(celda8);
+                    detalle.setPeriodicidadPago(dias);
+                    detalle.setPlazoOperacion(dias);
+                } catch (Exception exception) {
+                    DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DOCUMENTO_ERROR);
+                    detalleError.setDetalle(exception.getMessage());
+                    detalleErrores.add(detalleError);
+                }
+            } else {
+                detalle.setPeriodicidadPago(45);
+                detalle.setPlazoOperacion(45);
+            }
+
         } else {
             DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DOCUMENTO_ERROR);
             detalleError.setDetalle("Los dias de mora no se encuentra");

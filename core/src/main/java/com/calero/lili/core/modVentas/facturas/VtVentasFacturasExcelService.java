@@ -1,6 +1,7 @@
 package com.calero.lili.core.modVentas.facturas;
 
 import com.calero.lili.core.builder.DetalleErrorBuilder;
+import com.calero.lili.core.comprobantes.services.ComprobanteServiceImpl;
 import com.calero.lili.core.dtos.FormasPagoSri;
 import com.calero.lili.core.dtos.InformacionAdicional;
 import com.calero.lili.core.dtos.errors.DetalleError;
@@ -8,11 +9,15 @@ import com.calero.lili.core.dtos.errors.EnumError;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.OrigenEnum;
-import com.calero.lili.core.enums.TipoPersoneria;
 import com.calero.lili.core.enums.TipoIdentificacion;
+import com.calero.lili.core.enums.TipoPersoneria;
 import com.calero.lili.core.enums.TipoVenta;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.errors.exceptions.ListErrorException;
+import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
+import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
+import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesEntity;
+import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesRepository;
 import com.calero.lili.core.modAdminEmpresasSucursales.AdEmpresasSucursalesEntity;
 import com.calero.lili.core.modAdminEmpresasSucursales.AdEmpresasSucursalesRepository;
 import com.calero.lili.core.modComprasItems.GeItemEntity;
@@ -65,6 +70,9 @@ public class VtVentasFacturasExcelService {
     private final GeTercerosTipoBuilder geTercerosTipoBuilder;
     private final AdEmpresasSucursalesRepository adEmpresasSucursalesRepository;
     private final GeImpuestosItemsRepository geImpuestosItemsRepository;
+    private final ComprobanteServiceImpl vtComprobanteService;
+    private final AdEmpresasRepository adEmpresasRepository;
+    private final AdEmpresasSeriesRepository adEmpresasSeriesRepository;
 
 
     public void cargarExcelFacturas(Long idData, Long idEmpresa,
@@ -84,8 +92,14 @@ public class VtVentasFacturasExcelService {
         List<VtVentaEntity> facturas = new ArrayList<>();
 
 
+        AdEmpresaEntity empresa = adEmpresasRepository
+                .findById(idData, idEmpresa)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Data {0} Empresa {1} no existe", idData, idEmpresa)));
+
+
         Optional<AdEmpresasSucursalesEntity> sucursalEntity = adEmpresasSucursalesRepository
                 .findfirstByIdDataAndIdEmpresaAAndSucursal(idData, idEmpresa, sucursal);
+
 
         if (sucursalEntity.isEmpty()) {
             throw new GeneralException(MessageFormat.format("La sucursal {0} no existe ", sucursal));
@@ -129,11 +143,24 @@ public class VtVentasFacturasExcelService {
                 factura.setTipoEmision(1);
                 factura.setTipoIngreso("VL");
                 factura.setSucursal(sucursal);
-                factura.setExisteComprobante(Boolean.FALSE);
                 factura.setOrigen(OrigenEnum.VTS);
+                factura.setEmailEstado(1);
+                factura.setExisteComprobante(Boolean.TRUE);
 
                 cabeceraFactura(idData, idEmpresa, row, factura, detalleErrores, linea);
                 detalleFactura(idData, idEmpresa, row, factura, detalleErrores, linea);
+                setearFormaDePagoSri(factura, row, linea, detalleErrores);
+
+                Optional<AdEmpresasSeriesEntity> empresaSerie = adEmpresasSeriesRepository
+                        .findBySerie(idData, idEmpresa, factura.getSerie());
+
+                if (empresaSerie.isPresent()) {
+                    vtComprobanteService.getComprobanteXmlFactura(idData, factura, empresa, empresaSerie.get());
+                } else {
+                    DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.FACTURA_ERROR_SERIE);
+                    detalleError.setDetalle("La serie: " + factura.getSerie() + " para la empresa con id " + empresa.getIdEmpresa() + "no se encuentra ");
+                    detalleErrores.add(detalleError);
+                }
 
                 facturas.add(factura);
             }
@@ -682,7 +709,7 @@ public class VtVentasFacturasExcelService {
 
 
                 valoresFacturaImpuesto(idData, idEmpresa, factura, row);
-                setearFormaDePagoSri(factura, row, linea, detalleErrores);
+                setearFormaDePagoSriVentaImpuesto(factura, row, linea, 20, detalleErrores);
                 facturas.add(factura);
 
             }
@@ -826,12 +853,14 @@ public class VtVentasFacturasExcelService {
     }
 
 
-    private void setearFormaDePagoSri(VtVentaEntity factura, Row row, int linea, List<DetalleError> detalleErrores) {
+    private void setearFormaDePagoSriVentaImpuesto(VtVentaEntity factura, Row row, int linea, int celda, List<DetalleError> detalleErrores) {
         List<FormasPagoSri> formasPagos = new ArrayList<>();
-        if (Objects.nonNull(row.getCell(20))) {
+        if (Objects.nonNull(row.getCell(celda))) {
             FormasPagoSri formaPago = FormasPagoSri.builder()
-                    .formaPago(row.getCell(20).getStringCellValue())
+                    .plazo("")
+                    .formaPago(row.getCell(celda).getStringCellValue())
                     .total(factura.getTotal())
+                    .unidadTiempo("")
                     .build();
             formasPagos.add(formaPago);
 
@@ -855,4 +884,23 @@ public class VtVentasFacturasExcelService {
         }
         return new BigDecimal(valor);
     }
+
+    private void setearFormaDePagoSri(VtVentaEntity factura, Row row, int linea, List<DetalleError> detalleErrores) {
+        List<FormasPagoSri> formasPagos = new ArrayList<>();
+        if (Objects.nonNull(row.getCell(42)) && Objects.nonNull(row.getCell(26))) {
+            FormasPagoSri formaPago = FormasPagoSri.builder()
+                    .plazo(row.getCell(26).getStringCellValue())
+                    .formaPago(row.getCell(42).getStringCellValue())
+                    .total(factura.getTotal())
+                    .unidadTiempo("")
+                    .build();
+            formasPagos.add(formaPago);
+
+            factura.setFormasPagoSri(formasPagos);
+        } else {
+            detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.FACTURA_FORMA_PAGO_SRI));
+        }
+    }
+
+
 }
