@@ -23,6 +23,7 @@
     <parameter name="cuentaDesde" class="java.lang.String"/>
     <parameter name="totalDebe" class="java.lang.String"/>
     <parameter name="totalHaber" class="java.lang.String"/>
+    <parameter name="cuenta" class="java.lang.String"/>
 
     <!-- ====================== CAMPOS ====================== -->
     <field name="fechaAsiento" class="java.lang.String"/>
@@ -33,10 +34,13 @@
     <field name="saldo" class="java.lang.String"/>
     <field name="concepto" class="java.lang.String"/>
     <field name="cuenta" class="java.lang.String"/>
+    <field name="numeroIdentificacion" class="java.lang.String"/>
+    <field name="tercero" class="java.lang.String"/>
+    <field name="item" class="java.lang.String"/>
 
     <!-- ====================== TITLE ====================== -->
     <title>
-        <band height="80" splitType="Stretch">
+        <band height="100" splitType="Stretch">
 
             <textField>
                 <reportElement x="0" y="0" width="500" height="20"/>
@@ -83,6 +87,16 @@
                 <textFieldExpression><![CDATA[$P{fechaActual}]]></textFieldExpression>
             </textField>
 
+            <textField>
+                <reportElement x="0" y="65" width="555" height="20"/>
+                <textElement>
+                    <font size="10" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[
+        "Cuenta: " + $P{cuenta}
+    ]]></textFieldExpression>
+            </textField>
+
         </band>
     </title>
 
@@ -98,75 +112,51 @@
                 <reportElement x="0" y="3" width="555" height="1"/>
             </line>
 
-            <!-- CUENTA -->
             <staticText>
-                <reportElement x="0" y="6" width="80" height="20"/>
-                <textElement>
-                    <font size="8"/>
-                </textElement>
-                <text><![CDATA[Cuenta]]></text>
-            </staticText>
-
-            <!-- FECHA -->
-            <staticText>
-                <reportElement x="80" y="6" width="60" height="20"/>
-                <textElement>
-                    <font size="8"/>
-                </textElement>
+                <reportElement x="0" y="6" width="55" height="20"/>
                 <text><![CDATA[Fecha]]></text>
             </staticText>
 
-            <!-- TIPO ASIENTO -->
             <staticText>
-                <reportElement x="140" y="6" width="140" height="20"/>
-                <textElement>
-                    <font size="8"/>
-                </textElement>
+                <reportElement x="55" y="6" width="60" height="20"/>
                 <text><![CDATA[Tp.Asiento]]></text>
             </staticText>
 
-            <!-- TD NUMERO -->
             <staticText>
-                <reportElement x="280" y="6" width="60" height="20"/>
-                <textElement textAlignment="Right">
-                    <font size="8"/>
-                </textElement>
-                <text><![CDATA[TD Número]]></text>
+                <reportElement x="115" y="6" width="90" height="20"/>
+                <text><![CDATA[Identificación]]></text>
             </staticText>
 
-            <!-- DETALLE -->
             <staticText>
-                <reportElement x="340" y="6" width="80" height="20"/>
-                <textElement>
-                    <font size="8"/>
-                </textElement>
+                <reportElement x="205" y="6" width="110" height="20"/>
+                <text><![CDATA[Tercero]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="315" y="6" width="70" height="20"/>
+                <text><![CDATA[Item]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="385" y="6" width="70" height="20"/>
                 <text><![CDATA[Detalle]]></text>
             </staticText>
 
-            <!-- DEBE -->
             <staticText>
-                <reportElement x="420" y="6" width="45" height="20"/>
-                <textElement textAlignment="Right">
-                    <font size="8"/>
-                </textElement>
+                <reportElement x="455" y="6" width="35" height="20"/>
+                <textElement textAlignment="Right"/>
                 <text><![CDATA[Debe]]></text>
             </staticText>
 
-            <!-- HABER -->
             <staticText>
-                <reportElement x="465" y="6" width="45" height="20"/>
-                <textElement textAlignment="Right">
-                    <font size="8"/>
-                </textElement>
+                <reportElement x="490" y="6" width="35" height="20"/>
+                <textElement textAlignment="Right"/>
                 <text><![CDATA[Haber]]></text>
             </staticText>
 
-            <!-- SALDO -->
             <staticText>
-                <reportElement x="510" y="6" width="45" height="20"/>
-                <textElement textAlignment="Right">
-                    <font size="8"/>
-                </textElement>
+                <reportElement x="525" y="6" width="30" height="20"/>
+                <textElement textAlignment="Right"/>
                 <text><![CDATA[Saldo]]></text>
             </staticText>
 
@@ -177,75 +167,51 @@
     <detail>
         <band height="20">
 
-            <!-- CUENTA -->
             <textField>
-                <reportElement x="0" y="0" width="80" height="20"/>
-                <textElement>
-                    <font size="8"/>
-                </textElement>
-                <textFieldExpression><![CDATA[$F{cuenta}]]></textFieldExpression>
-            </textField>
-
-            <!-- FECHA -->
-            <textField>
-                <reportElement x="80" y="0" width="60" height="20"/>
-                <textElement>
-                    <font size="8"/>
-                </textElement>
+                <reportElement x="0" y="0" width="55" height="20"/>
                 <textFieldExpression><![CDATA[$F{fechaAsiento}]]></textFieldExpression>
             </textField>
 
-            <!-- TIPO ASIENTO -->
-            <textField isStretchWithOverflow="true">
-                <reportElement x="140" y="0" width="140" height="20"/>
-                <textElement>
-                    <font size="8"/>
-                </textElement>
+            <textField>
+                <reportElement x="55" y="0" width="60" height="20"/>
                 <textFieldExpression><![CDATA[$F{tipoAsiento}]]></textFieldExpression>
             </textField>
 
-            <!-- NUMERO -->
             <textField>
-                <reportElement x="280" y="0" width="60" height="20"/>
-                <textElement textAlignment="Right">
-                    <font size="8"/>
-                </textElement>
-                <textFieldExpression><![CDATA[$F{numeroAsiento}]]></textFieldExpression>
+                <reportElement x="115" y="0" width="90" height="20"/>
+                <textFieldExpression><![CDATA[$F{numeroIdentificacion}]]></textFieldExpression>
             </textField>
 
-            <!-- DETALLE -->
             <textField>
-                <reportElement x="340" y="0" width="80" height="20"/>
-                <textElement>
-                    <font size="8"/>
-                </textElement>
+                <reportElement x="205" y="0" width="110" height="20"/>
+                <textFieldExpression><![CDATA[$F{tercero}]]></textFieldExpression>
+            </textField>
+
+            <textField>
+                <reportElement x="315" y="0" width="70" height="20"/>
+                <textFieldExpression><![CDATA[$F{item}]]></textFieldExpression>
+            </textField>
+
+            <textField>
+                <reportElement x="385" y="0" width="70" height="20"/>
                 <textFieldExpression><![CDATA[$F{concepto}]]></textFieldExpression>
             </textField>
 
-            <!-- DEBE -->
             <textField>
-                <reportElement x="420" y="0" width="45" height="20"/>
-                <textElement textAlignment="Right">
-                    <font size="8"/>
-                </textElement>
+                <reportElement x="455" y="0" width="35" height="20"/>
+                <textElement textAlignment="Right"/>
                 <textFieldExpression><![CDATA[$F{debe}]]></textFieldExpression>
             </textField>
 
-            <!-- HABER -->
             <textField>
-                <reportElement x="465" y="0" width="45" height="20"/>
-                <textElement textAlignment="Right">
-                    <font size="8"/>
-                </textElement>
+                <reportElement x="490" y="0" width="35" height="20"/>
+                <textElement textAlignment="Right"/>
                 <textFieldExpression><![CDATA[$F{haber}]]></textFieldExpression>
             </textField>
 
-            <!-- SALDO -->
             <textField>
-                <reportElement x="510" y="0" width="45" height="20"/>
-                <textElement textAlignment="Right">
-                    <font size="8"/>
-                </textElement>
+                <reportElement x="525" y="0" width="30" height="20"/>
+                <textElement textAlignment="Right"/>
                 <textFieldExpression><![CDATA[$F{saldo}]]></textFieldExpression>
             </textField>
 

@@ -84,9 +84,7 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
 
                 if (esPositivo(entidad.getDiasMorosidad())) {
 
-                    if (listaIdTerceroLegal.contains(entidad.getTercero().getIdTercero())) {
-                        entidad.setValorDemandaJudicial(saldo);
-                    }
+
                     entidad.setMontoMorosidad(saldo);
                     if (rango <= 30) {
                         entidad.setValorVencido1a30Dias(saldo);
@@ -97,11 +95,19 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
                     } else if (rango <= 360) {
                         // EN EL CASO DE QUE EL NUMERO DE DIAS MOROSIDAD SUPERE LOS de 181  SE DEBE SETEAR EL MISMO VALOR
                         // EN VALOR DE DEMANDA JUDICIAL.
+
+                        if (listaIdTerceroLegal.contains(entidad.getTercero().getIdTercero())) {
+                            entidad.setValorDemandaJudicial(saldo);
+                        }
                         entidad.setValorVencido181a360Dias(saldo);
 
                     } else {
                         // EN EL CASO DE QUE EL NUMERO DE DIAS MOROSIDAD SUPERE LOS de 180 a 360 DIAS, SE DEBE SETEAR EL MISMO VALOR
                         // EN VALOR DE DEMANDA JUDICIAL.
+                        if (listaIdTerceroLegal.contains(entidad.getTercero().getIdTercero())) {
+                            entidad.setValorDemandaJudicial(saldo);
+                        }
+
                         entidad.setValorVencidoMas360Dias(saldo);
                     }
                 } else {

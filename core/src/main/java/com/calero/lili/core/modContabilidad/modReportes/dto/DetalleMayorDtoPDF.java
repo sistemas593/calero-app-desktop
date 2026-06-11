@@ -19,6 +19,9 @@ public class DetalleMayorDtoPDF {
     private String haber;
     private String saldo;
     private String cuenta;
+    private String numeroIdentificacion;
+    private String tercero;
+    private String item;
 
 
 }

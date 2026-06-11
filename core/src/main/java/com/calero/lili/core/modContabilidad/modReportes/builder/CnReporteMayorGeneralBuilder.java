@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @AllArgsConstructor
@@ -35,6 +36,14 @@ public class CnReporteMayorGeneralBuilder {
                 .saldo(model.getSaldoAcumulado())
                 .centroCostos(model.getCentroCostos())
                 .codigoCentroCostos(model.getCodigoCentroCostos())
+                .idTercero(model.getIdTercero())
+                .tercero(model.getTercero())
+                .numeroIdentificacion(model.getNumeroIdentificacion())
+                .idItem(model.getIdItem())
+                .item(model.getDescripcion())
+                .tercero(model.getTercero())
+                .numeroIdentificacion(model.getNumeroIdentificacion())
+                .item(model.getDescripcion())
                 .build();
     }
 
@@ -73,6 +82,9 @@ public class CnReporteMayorGeneralBuilder {
                 .saldo(item.getSaldo().compareTo(BigDecimal.ZERO) == 0
                         ? "" : formatoValores.convertirBigDecimalToStringPDF(item.getSaldo()))
                 .cuenta(item.getCuenta())
+                .numeroIdentificacion(Objects.nonNull(item.getNumeroIdentificacion()) ? item.getNumeroIdentificacion() : "")
+                .tercero(Objects.nonNull(item.getTercero()) ? item.getTercero() : "")
+                .item(Objects.nonNull(item.getItem()) ? item.getItem() : "")
                 .build();
     }
 

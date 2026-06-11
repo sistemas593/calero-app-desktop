@@ -7,6 +7,7 @@ import lombok.ToString;
 
 import java.time.LocalDate;
 import java.util.Objects;
+import java.util.UUID;
 
 @Data
 @ToString
@@ -23,6 +24,8 @@ public class FilterAsientoListDto {
     private TipoAsiento tipoAsiento;
     private String numeroAsientoDesde;
     private String numeroAsientoHasta;
+    private UUID idTercero;
+    private UUID idItem;
 
 
     public LocalDate getFechaEmisionDesde() {

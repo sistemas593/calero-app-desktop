@@ -31,4 +31,14 @@ public interface MayorGeneralProjection {
     String getCodigoCentroCostos();
 
     String getCentroCostos();
+
+    UUID getIdTercero();
+
+    String getNumeroIdentificacion();
+
+    String getTercero();
+
+    UUID getIdItem();
+
+    String getDescripcion();
 }

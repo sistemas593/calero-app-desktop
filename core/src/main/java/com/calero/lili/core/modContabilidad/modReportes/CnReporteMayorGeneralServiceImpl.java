@@ -1,6 +1,11 @@
 package com.calero.lili.core.modContabilidad.modReportes;
 
 import com.calero.lili.core.comprobantes.builder.documentos.FormatoValores;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.Paginator;
+import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
+import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.FilterAsientoListDto;
 import com.calero.lili.core.modContabilidad.modCentroCostos.CnCentroCostosEntity;
 import com.calero.lili.core.modContabilidad.modCentroCostos.CnCentroCostosRepository;
@@ -11,11 +16,6 @@ import com.calero.lili.core.modContabilidad.modReportes.dto.DetalleMayorDtoPDF;
 import com.calero.lili.core.modContabilidad.modReportes.dto.MayorGeneralDto;
 import com.calero.lili.core.modContabilidad.modReportes.projection.CabeceraMayorProjection;
 import com.calero.lili.core.modContabilidad.modReportes.projection.MayorGeneralProjection;
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.Paginator;
-import com.calero.lili.core.errors.exceptions.GeneralException;
-import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
-import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.utils.DateUtils;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
@@ -86,21 +86,24 @@ public class CnReporteMayorGeneralServiceImpl {
 
             cabecera = cnReportesRepository
                     .cabeceraMayorGeneralFechaInicialEnero(idData, idEmpresa, filters.getSucursal(), filters.getCodigoCuenta(),
-                            filters.getFechaEmisionDesde(), filters.getCodigoCentroCostos());
+                            filters.getFechaEmisionDesde(), filters.getCodigoCentroCostos(), filters.getIdTercero());
 
             detalles = cnReportesRepository
                     .reporteDetallesPaginadoMayorGeneralFechaInicialEnero(idData, idEmpresa, filters.getSucursal(), filters.getCodigoCuenta(),
-                            filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getCodigoCentroCostos(), pageable);
+                            filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getCodigoCentroCostos(),
+                            filters.getIdTercero(), filters.getIdItem(), pageable);
         } else {
 
             cabecera = cnReportesRepository
                     .cabeceraMayorGeneralFechaDiferentePrimeroEnero(idData, idEmpresa, filters.getSucursal(), filters.getCodigoCuenta(),
-                            filters.getFechaEmisionDesde(), DateUtils.getFechaInicio(filters.getFechaEmisionDesde()), filters.getCodigoCentroCostos());
+                            filters.getFechaEmisionDesde(), DateUtils.getFechaInicio(filters.getFechaEmisionDesde()), filters.getCodigoCentroCostos(),
+                            filters.getIdTercero());
 
             detalles = cnReportesRepository
                     .reportePaginadoMayorGeneralFechaInicialDiferenteEnero(idData, idEmpresa, filters.getSucursal(), filters.getCodigoCuenta(),
                             filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(),
-                            DateUtils.getFechaInicio(filters.getFechaEmisionDesde()), filters.getCodigoCentroCostos(), pageable);
+                            DateUtils.getFechaInicio(filters.getFechaEmisionDesde()), filters.getCodigoCentroCostos(),
+                            filters.getIdTercero(), filters.getIdItem(), pageable);
         }
 
 
@@ -223,7 +226,7 @@ public class CnReporteMayorGeneralServiceImpl {
         log.info("Iniciando generación del excel de reporte mayor: {}", filters.getCodigoDocumento());
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setHeader("Content-Disposition", "attachment; filename=\"" + "reporte-mayor_" + LocalDateTime.now() + ".xlsx" + "\"");
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + "reporte-mayor_" + LocalDate.now() + ".xlsx" + "\"");
         if (!dtoList.isEmpty()) {
 
             try (XSSFWorkbook workbook = new XSSFWorkbook()) {
@@ -232,7 +235,7 @@ public class CnReporteMayorGeneralServiceImpl {
                 XSSFRow headerRow = sheet.createRow(0);
 
                 String[] columnNames = {"fechaAsiento", "tipoAsiento", "numeroAsiento", "tipoDocumento",
-                        "numeroDocumento", "concepto", "debe", "haber", "saldo"};
+                        "numeroDocumento", "numero identifiación", "tercero", "item", "concepto", "debe", "haber", "saldo"};
 
                 IntStream.range(0, columnNames.length)
                         .forEach(i -> headerRow.createCell(i).setCellValue(columnNames[i]));
@@ -246,10 +249,15 @@ public class CnReporteMayorGeneralServiceImpl {
                     row.createCell(2).setCellValue(mayorDetalle.getNumeroAsiento());
                     row.createCell(3).setCellValue(mayorDetalle.getTipoDocumento());
                     row.createCell(4).setCellValue(mayorDetalle.getNumeroDocumento());
-                    row.createCell(5).setCellValue(mayorDetalle.getConcepto());
-                    row.createCell(6).setCellValue(mayorDetalle.getDebe().toString());
-                    row.createCell(7).setCellValue(mayorDetalle.getHaber().toString());
-                    row.createCell(8).setCellValue(mayorDetalle.getSaldo().toString());
+
+                    row.createCell(5).setCellValue(Objects.nonNull(mayorDetalle.getNumeroIdentificacion()) ? mayorDetalle.getNumeroIdentificacion() : "");
+                    row.createCell(6).setCellValue(Objects.nonNull(mayorDetalle.getTercero()) ? mayorDetalle.getTercero() : "");
+                    row.createCell(7).setCellValue(Objects.nonNull(mayorDetalle.getItem()) ? mayorDetalle.getItem() : "");
+
+                    row.createCell(8).setCellValue(mayorDetalle.getConcepto());
+                    row.createCell(9).setCellValue(mayorDetalle.getDebe().toString());
+                    row.createCell(10).setCellValue(mayorDetalle.getHaber().toString());
+                    row.createCell(11).setCellValue(mayorDetalle.getSaldo().toString());
 
                 }
 
@@ -338,6 +346,7 @@ public class CnReporteMayorGeneralServiceImpl {
                     .filter(Objects::nonNull)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+            String cuenta = list.getFirst().getCuenta();
 
             AdEmpresaEntity empresa = adEmpresasRepository.findById(idData, idEmpresa)
                     .orElseThrow(() -> new GeneralException(MessageFormat.format("Empresa con id {0} no existe", idEmpresa)));
@@ -356,6 +365,7 @@ public class CnReporteMayorGeneralServiceImpl {
             parametros.put("fechaHasta", DateUtils.toString(filters.getFechaEmisionHasta()));
             parametros.put("fechaActual", DateUtils.toString(LocalDate.now()));
             parametros.put("cuentaDesde", filters.getCodigoCuenta());
+            parametros.put("cuenta", cuenta);
             parametros.put("totalDebe", formatoValores.convertirBigDecimalToStringPDF(debeTotal));
             parametros.put("totalHaber", formatoValores.convertirBigDecimalToStringPDF(haberTotal));
 

@@ -106,23 +106,26 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
             "join cn_asientos_detalle cad2 on ca2.id_asiento = cad2.id_asiento " +
             "join cn_plan_cuentas cpc2 on cpc2.id_cuenta = cad2.id_cuenta " +
             "left join cn_centro_costos ccc on cad2.id_centro_costos = ccc.id_centro_costos " +
+            "left join ge_terceros gt on ca2.id_tercero = gt.id_tercero " +
             "where ca2.id_data = :idData and ca2.id_empresa = :idEmpresa and ca2.sucursal = :sucursal " +
             "and ca2.tipo_asiento = 'SI' and cpc2.codigo_cuenta = :codigoCuenta and ca2.deleted = false " +
             "and (:codigoCentroCostos is null or ccc.codigo_centro_costos = :codigoCentroCostos) " +
             "and ca2.fecha_asiento between ( cast(:fechaAsientoDesde as date)) and ( cast(:fechaAsientoDesde as date)) " +
+            "and (:idTercero is null or gt.id_tercero = :idTercero) " +
             "group by cpc2.codigo_cuenta, cpc2.cuenta ", nativeQuery = true)
     CabeceraMayorProjection cabeceraMayorGeneralFechaInicialEnero(@Param("idData") Long idData,
                                                                   @Param("idEmpresa") Long idEmpresa,
                                                                   @Param("sucursal") String sucursal,
                                                                   @Param("codigoCuenta") String codigoCuenta,
                                                                   @Param("fechaAsientoDesde") LocalDate fechaAsientoDesde,
-                                                                  @Param("codigoCentroCostos") String codigoCentroCostos);
+                                                                  @Param("codigoCentroCostos") String codigoCentroCostos,
+                                                                  @Param("idTercero") UUID idTercero);
 
 
     @Query(
             value = "select ca.id_asiento, ca.fecha_asiento, ca.tipo_asiento, ca.numero_asiento," +
                     " cad.tipo_documento, cad.numero_documento, ca.concepto," +
-                    " cad.debe, cad.haber, ccc.codigo_centro_costos, ccc.centro_costos," +
+                    " cad.debe, cad.haber, ccc.codigo_centro_costos, ccc.centro_costos, gt.id_tercero, gt.numero_identificacion, gt.tercero, gi.id_item, gi.descripcion, " +
                     " (select coalesce(sum(cad2.debe) - sum(cad2.haber), 0) " +
                     "from cn_asientos ca2 join cn_asientos_detalle cad2 on ca2.id_asiento = cad2.id_asiento" +
                     " join cn_plan_cuentas cpc2 on cpc2.id_cuenta = cad2.id_cuenta" +
@@ -136,18 +139,23 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
                     "join cn_asientos_detalle cad on ca.id_asiento = cad.id_asiento " +
                     "join cn_plan_cuentas cpc on cpc.id_cuenta = cad.id_cuenta " +
                     "left join cn_centro_costos ccc on cad.id_centro_costos = ccc.id_centro_costos " +
+                    "left join ge_terceros gt on cad.id_tercero = gt.id_tercero " +
+                    "left join ge_items gi on cad.id_item = gi.id_item " +
                     "where ca.id_data = :idData and ca.id_empresa = :idEmpresa and ca.sucursal = :sucursal " +
                     "and ca.tipo_asiento <> 'SI' " +
                     "and ca.deleted = false " +
                     "and (:codigoCentroCostos is null or ccc.codigo_centro_costos = :codigoCentroCostos) " +
                     "and ca.fecha_asiento between :fechaAsientoDesde and :fechaAsientoHasta " +
-                    "and cpc.codigo_cuenta = :codigoCuenta order by ca.fecha_asiento, ca.tipo_asiento, ca.numero_asiento",
-
+                    "and (:idTercero is null or gt.id_tercero = :idTercero) " +
+                    "and (:idItem is null or gi.id_item = :idItem) " +
+                    "and cpc.codigo_cuenta = :codigoCuenta order by ca.fecha_asiento, ca.tipo_asiento, ca.numero_asiento ",
             countQuery = "SELECT COUNT(ca.id_asiento) " +
                     "FROM cn_asientos ca " +
                     "JOIN cn_asientos_detalle cad ON ca.id_asiento = cad.id_asiento " +
                     "JOIN cn_plan_cuentas cpc ON cpc.id_cuenta = cad.id_cuenta " +
                     "LEFT JOIN cn_centro_costos ccc ON cad.id_centro_costos = ccc.id_centro_costos " +
+                    "LEFT JOIN ge_terceros gt on cad.id_tercero = gt.id_tercero " +
+                    "LEFT JOIN ge_items gi on cad.id_item = gi.id_item " +
                     "WHERE ca.id_data = :idData " +
                     "AND ca.id_empresa = :idEmpresa " +
                     "AND ca.sucursal = :sucursal " +
@@ -156,7 +164,9 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
                     "AND ca.fecha_asiento BETWEEN :fechaAsientoDesde " +
                     "AND :fechaAsientoHasta " +
                     "AND cpc.codigo_cuenta = :codigoCuenta " +
-                    "AND (:codigoCentroCostos is null or ccc.codigo_centro_costos = :codigoCentroCostos)",
+                    "AND (:codigoCentroCostos is null or ccc.codigo_centro_costos = :codigoCentroCostos)" +
+                    "and (:idTercero is null or gt.id_tercero = :idTercero) " +
+                    "and (:idItem is null or gi.id_item = :idItem) ",
             nativeQuery = true)
     Page<MayorGeneralProjection> reporteDetallesPaginadoMayorGeneralFechaInicialEnero(@Param("idData") Long idData,
                                                                                       @Param("idEmpresa") Long idEmpresa,
@@ -165,6 +175,8 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
                                                                                       @Param("fechaAsientoDesde") LocalDate fechaAsientoDesde,
                                                                                       @Param("fechaAsientoHasta") LocalDate fechaAsientoHasta,
                                                                                       @Param("codigoCentroCostos") String codigoCentroCostos,
+                                                                                      @Param("idTercero") UUID idTercero,
+                                                                                      @Param("idItem") UUID idItem,
                                                                                       Pageable pageable);
 
 
@@ -175,8 +187,10 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
             " join cn_asientos_detalle cad2 on ca2.id_asiento = cad2.id_asiento " +
             " join cn_plan_cuentas cpc2 on cpc2.id_cuenta = cad2.id_cuenta " +
             " left join cn_centro_costos ccc on cad2.id_centro_costos = ccc.id_centro_costos " +
+            " left join ge_terceros gt on ca2.id_tercero = gt.id_tercero " +
             " where ca2.id_data = :idData and ca2.id_empresa = :idEmpresa and ca2.sucursal = :sucursal " +
             " and cpc2.codigo_cuenta = :codigoCuenta " +
+            " and (:idTercero is null or gt.id_tercero = :idTercero) " +
             " and (:codigoCentroCostos is null or ccc.codigo_centro_costos = :codigoCentroCostos) " +
             "and ca2.deleted = false " +
             " and ca2.fecha_asiento between " +
@@ -190,7 +204,8 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
                                                                            @Param("codigoCuenta") String codigoCuenta,
                                                                            @Param("fechaAsientoDesde") LocalDate fechaAsientoDesde,
                                                                            @Param("fechaInicio") LocalDate fechaInicio,
-                                                                           @Param("codigoCentroCostos") String codigoCentroCostos);
+                                                                           @Param("codigoCentroCostos") String codigoCentroCostos,
+                                                                           @Param("idTercero") UUID idTercero);
 
 
     @Query(
@@ -206,6 +221,7 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
                     " cad.haber, " +
                     " ccc.codigo_centro_costos, " +
                     " ccc.centro_costos, " +
+                    " gt.id_tercero, gt.numero_identificacion, gt.tercero, gi.id_item, gi.descripcion, " +
                     " ( " +
                     "   (select coalesce(sum(cad2.debe) - sum(cad2.haber), 0) " +
                     "    from cn_asientos ca2 " +
@@ -232,12 +248,13 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
                     "       order by ca.fecha_asiento, ca.numero_asiento " +
                     "       rows between unbounded preceding and current row " +
                     "   ) " +
-                    " ) as saldo_acumulado, " +
-                    " ccc.codigo_centro_costos, ccc.centro_costos " +
+                    " ) as saldo_acumulado " +
                     " from cn_asientos ca " +
                     " join cn_asientos_detalle cad on ca.id_asiento = cad.id_asiento " +
                     " join cn_plan_cuentas cpc on cpc.id_cuenta = cad.id_cuenta " +
                     " left join cn_centro_costos ccc on cad.id_centro_costos = ccc.id_centro_costos " +
+                    " left join ge_terceros gt on cad.id_tercero = gt.id_tercero " +
+                    " left join ge_items gi on cad.id_item = gi.id_item " +
                     " where ca.id_data = :idData " +
                     "   and ca.id_empresa = :idEmpresa " +
                     "   and ca.sucursal = :sucursal " +
@@ -246,6 +263,8 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
                     "   and ca.fecha_asiento between :fechaAsientoDesde and :fechaAsientoHasta " +
                     "   and cpc.codigo_cuenta = :codigoCuenta " +
                     "   and (:codigoCentroCostos is null or ccc.codigo_centro_costos = :codigoCentroCostos) " +
+                    "   and (:idTercero is null or gt.id_tercero = :idTercero) " +
+                    "   and (:idItem is null or gi.id_item = :idItem) " +
                     " order by ca.fecha_asiento, ca.tipo_asiento, ca.numero_asiento",
 
             countQuery =
@@ -254,6 +273,8 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
                             "JOIN cn_asientos_detalle cad ON ca.id_asiento = cad.id_asiento " +
                             "JOIN cn_plan_cuentas cpc ON cpc.id_cuenta = cad.id_cuenta " +
                             "LEFT JOIN cn_centro_costos ccc ON cad.id_centro_costos = ccc.id_centro_costos " +
+                            "LEFT join ge_terceros gt on cad.id_tercero = gt.id_tercero " +
+                            "LEFT join ge_items gi on cad.id_item = gi.id_item " +
                             "WHERE ca.id_data = :idData " +
                             "AND ca.id_empresa = :idEmpresa " +
                             "AND ca.sucursal = :sucursal " +
@@ -261,7 +282,9 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
                             "AND ca.deleted = false " +
                             "AND ca.fecha_asiento BETWEEN :fechaAsientoDesde AND :fechaAsientoHasta " +
                             "AND (:codigoCentroCostos IS NULL OR ccc.codigo_centro_costos = :codigoCentroCostos) " +
-                            "AND cpc.codigo_cuenta = :codigoCuenta",
+                            "AND cpc.codigo_cuenta = :codigoCuenta " +
+                            "and (:idTercero is null or gt.id_tercero = :idTercero) " +
+                            "and (:idItem is null or gi.id_item = :idItem) ",
 
             nativeQuery = true
     )
@@ -273,12 +296,13 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
                                                                                        @Param("fechaAsientoHasta") LocalDate fechaAsientoHasta,
                                                                                        @Param("fechaInicio") LocalDate fechaInicio,
                                                                                        @Param("codigoCentroCostos") String codigoCentroCostos,
+                                                                                       @Param("idTercero") UUID idTercero,
+                                                                                       @Param("idItem") UUID idItem,
                                                                                        Pageable pageable);
-
 
     @Query(
             value = "select ca.id_asiento, ca.fecha_asiento, cpc.cuenta, ca.tipo_asiento, ca.numero_asiento," +
-                    " cad.tipo_documento, cad.numero_documento, ca.concepto, cad.debe, cad.haber," +
+                    " cad.tipo_documento, cad.numero_documento, ca.concepto, cad.debe, cad.haber, gt.numero_identificacion, gt.tercero, gi.descripcion, " +
                     " (select coalesce(sum(cad2.debe) - sum(cad2.haber), 0) " +
                     " from cn_asientos ca2 join cn_asientos_detalle cad2 on ca2.id_asiento = cad2.id_asiento " +
                     " join cn_plan_cuentas cpc2 on cpc2.id_cuenta = cad2.id_cuenta where ca2.id_data = :idData " +
@@ -289,6 +313,8 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
                     " + sum(case when cad.debe > 0 then cad.debe when cad.haber > 0 then -cad.haber else 0 end) " +
                     " over (order by ca.fecha_asiento, ca.tipo_asiento, ca.numero_asiento rows between unbounded preceding and current row)" + " as saldo_acumulado " +
                     " from cn_asientos ca join cn_asientos_detalle cad on ca.id_asiento = cad.id_asiento " +
+                    " left join ge_terceros gt on cad.id_tercero = gt.id_tercero " +
+                    " left join ge_items gi on cad.id_item = gi.id_item " +
                     " join cn_plan_cuentas cpc on cpc.id_cuenta = cad.id_cuenta where ca.id_data = :idData " +
                     " and ca.id_empresa = :idEmpresa and ca.sucursal = :sucursal and ca.tipo_asiento <> 'SI' " +
                     " and ca.fecha_asiento BETWEEN :fechaAsientoDesde " +
@@ -313,6 +339,7 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
                     " ca.concepto, " +
                     " cad.debe, " +
                     " cad.haber, " +
+                    " gt.numero_identificacion, gt.tercero, gi.descripcion, " +
                     " ( " +
                     "   (select coalesce(sum(cad2.debe) - sum(cad2.haber), 0) " +
                     "    from cn_asientos ca2 " +
@@ -341,6 +368,8 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
                     " from cn_asientos ca " +
                     " join cn_asientos_detalle cad on ca.id_asiento = cad.id_asiento " +
                     " join cn_plan_cuentas cpc on cpc.id_cuenta = cad.id_cuenta " +
+                    " left join ge_terceros gt on cad.id_tercero = gt.id_tercero " +
+                    " left join ge_items gi on cad.id_item = gi.id_item " +
                     " where ca.id_data = :idData " +
                     "   and ca.id_empresa = :idEmpresa " +
                     "   and ca.sucursal = :sucursal " +

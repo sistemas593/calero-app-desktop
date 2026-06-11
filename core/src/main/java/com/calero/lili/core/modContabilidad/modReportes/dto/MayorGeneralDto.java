@@ -44,6 +44,11 @@ public class MayorGeneralDto {
         private String tipoDocumento;
         private String numeroDocumento;
         private String concepto;
+        private UUID idTercero;
+        private String numeroIdentificacion;
+        private String tercero;
+        private UUID idItem;
+        private String item;
         private BigDecimal debe;
         private BigDecimal haber;
         private BigDecimal saldo;
