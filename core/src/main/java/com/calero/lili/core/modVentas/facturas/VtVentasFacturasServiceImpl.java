@@ -132,7 +132,9 @@ public class VtVentasFacturasServiceImpl {
 
         List<ValoresDto> valores = validarService.validarValores(request.getDetalle());
         request.setValores(valores);
+
         setearValoresCabecera(valores, request);
+        validarInformacion(request);
 
         adIvaPorcentajeService.validateIvaPorcentaje(getTarifaValoresInteger(request.getValores()), DateUtils.toLocalDate(request.getFechaEmision()));
         Optional<OneProjection> existingFactura = vtVentaRepository
@@ -148,7 +150,7 @@ public class VtVentasFacturasServiceImpl {
 
         validarTotalConsumidorFinal(request, tercero);
         validarItem(request, idData, idEmpresa);
-        validarInformacion(request);
+
         validarInfoAddicional(request);
         validarAmbiente(request);
         validarCentroCostos(request, idData, idEmpresa);
@@ -295,8 +297,6 @@ public class VtVentasFacturasServiceImpl {
     }
 
     private void validarInformacion(CreationFacturaRequestDto request) {
-
-        validateInfoExportacion(request);
 
         if (Objects.nonNull(request.getGuiaRemisionSerie()) && Objects.isNull(request.getGuiaRemisionSecuencial())) {
             throw new GeneralException("Debe existir guia de remisión secuencial");
@@ -798,7 +798,7 @@ public class VtVentasFacturasServiceImpl {
         }
     }
 
-    private void validateInfoExportacion(CreationFacturaRequestDto request) {
+    private void validarInfoYValoresExportacion(CreationFacturaRequestDto request) {
         if (request.getTipoIngreso().equals(TipoIngreso.EX)) {
 
             if (Objects.isNull(request.getExportacion())) {
@@ -812,7 +812,10 @@ public class VtVentasFacturasServiceImpl {
             }
 
             validacionPaises(request);
-
+            BigDecimal totalExportacion = request.getFleteInternacional().add(request.getSeguroInternacional())
+                    .add(request.getGastosAduaneros()).add(request.getGastosTransporteOtros());
+            BigDecimal total = request.getTotal().add(totalExportacion);
+            request.setTotal(total);
         }
 
         if (!request.getTipoIngreso().equals(TipoIngreso.EX)) {
@@ -1023,6 +1026,7 @@ public class VtVentasFacturasServiceImpl {
         request.setSubtotal(subtotal);
         request.setTotal(subtotal.add(totalImpuesto));
 
+        validarInfoYValoresExportacion(request);
         validarTotalPagoSri(request);
 
     }
