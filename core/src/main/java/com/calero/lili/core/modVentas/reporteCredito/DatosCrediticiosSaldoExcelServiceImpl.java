@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
@@ -96,19 +97,26 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
                         // EN EL CASO DE QUE EL NUMERO DE DIAS MOROSIDAD SUPERE LOS de 181  SE DEBE SETEAR EL MISMO VALOR
                         // EN VALOR DE DEMANDA JUDICIAL.
 
-                        if (listaIdTerceroLegal.contains(entidad.getTercero().getIdTercero())) {
+                        entidad.setValorVencido181a360Dias(saldo);
+                        if (Objects.isNull(entidad.getPeriodicidadPago()) && Objects.isNull(entidad.getPlazoOperacion())) {
+                            entidad.setPeriodicidadPago(45);
+                            entidad.setPlazoOperacion(45);
                             entidad.setValorDemandaJudicial(saldo);
                         }
-                        entidad.setValorVencido181a360Dias(saldo);
+
 
                     } else {
                         // EN EL CASO DE QUE EL NUMERO DE DIAS MOROSIDAD SUPERE LOS de 180 a 360 DIAS, SE DEBE SETEAR EL MISMO VALOR
                         // EN VALOR DE DEMANDA JUDICIAL.
-                        if (listaIdTerceroLegal.contains(entidad.getTercero().getIdTercero())) {
+                        /*if (listaIdTerceroLegal.contains(entidad.getTercero().getIdTercero())) {
+                            entidad.setValorDemandaJudicial(saldo);
+                        }*/
+                        entidad.setValorVencidoMas360Dias(saldo);
+                        if (Objects.isNull(entidad.getPeriodicidadPago()) && Objects.isNull(entidad.getPlazoOperacion())) {
+                            entidad.setPeriodicidadPago(45);
+                            entidad.setPlazoOperacion(45);
                             entidad.setValorDemandaJudicial(saldo);
                         }
-
-                        entidad.setValorVencidoMas360Dias(saldo);
                     }
                 } else {
                     if (rango <= 30) {

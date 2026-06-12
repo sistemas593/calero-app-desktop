@@ -49,6 +49,7 @@ public class MayorGeneralDto {
         private String tercero;
         private UUID idItem;
         private String item;
+        private String codigoItem;
         private BigDecimal debe;
         private BigDecimal haber;
         private BigDecimal saldo;

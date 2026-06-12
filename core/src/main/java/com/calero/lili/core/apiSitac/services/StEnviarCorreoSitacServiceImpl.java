@@ -1,15 +1,16 @@
 package com.calero.lili.core.apiSitac.services;
 
 import com.calero.lili.core.apiSitac.repositories.AdMailsConfigRepository;
+import com.calero.lili.core.apiSitac.repositories.AdMailsEnviadosRepository;
+import com.calero.lili.core.apiSitac.repositories.AdMailsEnviadosTotalRepository;
 import com.calero.lili.core.apiSitac.repositories.entities.AdMailConfigEntity;
+import com.calero.lili.core.apiSitac.repositories.entities.AdMailEnviadosEntity;
+import com.calero.lili.core.apiSitac.repositories.entities.AdMailEnviadosTotalEntity;
 import com.calero.lili.core.modAdDatasConfiguraciones.VtClientesConfiguracionesEntity;
 import com.calero.lili.core.modAdDatasConfiguraciones.VtClientesConfiguracionesRepository;
 import com.calero.lili.core.modAdDatasConfiguraciones.dto.StCorreoRequestDto;
 import com.calero.lili.core.modAdDatasConfiguraciones.dto.StEmpresasEnviarCorreoResponseDto;
-import com.calero.lili.core.apiSitac.repositories.AdMailsEnviadosRepository;
-import com.calero.lili.core.apiSitac.repositories.AdMailsEnviadosTotalRepository;
-import com.calero.lili.core.apiSitac.repositories.entities.AdMailEnviadosEntity;
-import com.calero.lili.core.apiSitac.repositories.entities.AdMailEnviadosTotalEntity;
+import com.calero.lili.core.modAdminlistaNegra.ExcluirCorreosListaNegraServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ public class StEnviarCorreoSitacServiceImpl {
     private final AdMailsEnviadosTotalRepository adMailsEnviadosTotalRepository;
     private final AdMailsConfigRepository adConfigRepository;
     private final EmailSender emailSender;
+    private final ExcluirCorreosListaNegraServiceImpl excluirCorreosListaNegraService;
 
     public StEmpresasEnviarCorreoResponseDto enviarCorreoSitac(String clave, StCorreoRequestDto request) {
 
@@ -68,41 +70,43 @@ public class StEnviarCorreoSitacServiceImpl {
 
         if (enviar.equals("S")) {
 
-            AdMailConfigEntity adConfigMailEntity = adConfigRepository.findByIdConfig(Long.valueOf(1));
-            String jsonBody = generarBody.generarBodyCorreo(request, adConfigMailEntity);
-            emailSender.send(jsonBody, adConfigMailEntity);
-            dto.setRespuesta("Enviado ok");
+            excluirCorreosListaNegraService.validarCorreosEnvio(request);
+            if (!request.getTo().isEmpty()) {
+                AdMailConfigEntity adConfigMailEntity = adConfigRepository.findByIdConfig(Long.valueOf(1));
+                String jsonBody = generarBody.generarBodyCorreo(request, adConfigMailEntity);
+                emailSender.send(jsonBody, adConfigMailEntity);
+                dto.setRespuesta("Enviado ok");
 
-            //if (clave.equals("1920274511419") || clave.equals("1409223410397") || clave.equals("1215204110011") ){
-            //if (request.getCodigoDocumento().equals("01") && request.getSerie().equals("001002") ){
-            long numeroCorreos = request.getTo().chars().filter(ch -> ch == ',').count() + 1;
+                //if (clave.equals("1920274511419") || clave.equals("1409223410397") || clave.equals("1215204110011") ){
+                //if (request.getCodigoDocumento().equals("01") && request.getSerie().equals("001002") ){
+                long numeroCorreos = request.getTo().chars().filter(ch -> ch == ',').count() + 1;
 
-            AdMailEnviadosEntity enviado = new AdMailEnviadosEntity();
-            enviado.setClave1(clave);
-            enviado.setCodigoDocumento(request.getCodigoDocumento());
-            enviado.setSerie(request.getSerie());
-            enviado.setSecuencial(request.getSecuencia());
-            enviado.setMailTo(request.getTo());
-            enviado.setTotal(numeroCorreos);
-            enviado.setFecha(LocalDateTime.now());
-            adMailsEnviadosRepository.save(enviado);
+                AdMailEnviadosEntity enviado = new AdMailEnviadosEntity();
+                enviado.setClave1(clave);
+                enviado.setCodigoDocumento(request.getCodigoDocumento());
+                enviado.setSerie(request.getSerie());
+                enviado.setSecuencial(request.getSecuencia());
+                enviado.setMailTo(request.getTo());
+                enviado.setTotal(numeroCorreos);
+                enviado.setFecha(LocalDateTime.now());
+                adMailsEnviadosRepository.save(enviado);
 
-            String periodo = String.valueOf(LocalDate.now().getYear()) + '-' + StringUtils.leftPad(String.valueOf(LocalDate.now().getMonthValue()), 2, '0');
-            System.out.println(periodo);
-            Optional<AdMailEnviadosTotalEntity> existe = adMailsEnviadosTotalRepository.findByClaveAndPeriodo(clave, periodo);
+                String periodo = String.valueOf(LocalDate.now().getYear()) + '-' + StringUtils.leftPad(String.valueOf(LocalDate.now().getMonthValue()), 2, '0');
+                System.out.println(periodo);
+                Optional<AdMailEnviadosTotalEntity> existe = adMailsEnviadosTotalRepository.findByClaveAndPeriodo(clave, periodo);
 
-            if (!existe.isPresent()) {
-                AdMailEnviadosTotalEntity nuevo = new AdMailEnviadosTotalEntity();
-                nuevo.setClave1(clave);
-                nuevo.setPeriodo(periodo);
-                nuevo.setTotal(numeroCorreos);
-                adMailsEnviadosTotalRepository.save(nuevo);
-            } else {
-                Long total = existe.get().getTotal();
-                existe.get().setTotal(total + numeroCorreos);
-                adMailsEnviadosTotalRepository.save(existe.get());
+                if (!existe.isPresent()) {
+                    AdMailEnviadosTotalEntity nuevo = new AdMailEnviadosTotalEntity();
+                    nuevo.setClave1(clave);
+                    nuevo.setPeriodo(periodo);
+                    nuevo.setTotal(numeroCorreos);
+                    adMailsEnviadosTotalRepository.save(nuevo);
+                } else {
+                    Long total = existe.get().getTotal();
+                    existe.get().setTotal(total + numeroCorreos);
+                    adMailsEnviadosTotalRepository.save(existe.get());
+                }
             }
-
         }
 
         return dto;

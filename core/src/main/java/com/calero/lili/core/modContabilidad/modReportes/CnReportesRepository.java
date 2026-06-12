@@ -302,7 +302,7 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
 
     @Query(
             value = "select ca.id_asiento, ca.fecha_asiento, cpc.cuenta, ca.tipo_asiento, ca.numero_asiento," +
-                    " cad.tipo_documento, cad.numero_documento, ca.concepto, cad.debe, cad.haber, gt.numero_identificacion, gt.tercero, gi.descripcion, " +
+                    " cad.tipo_documento, cad.numero_documento, ca.concepto, cad.debe, cad.haber, gt.numero_identificacion, gt.tercero, gi.descripcion, gi.codigo_principal, " +
                     " (select coalesce(sum(cad2.debe) - sum(cad2.haber), 0) " +
                     " from cn_asientos ca2 join cn_asientos_detalle cad2 on ca2.id_asiento = cad2.id_asiento " +
                     " join cn_plan_cuentas cpc2 on cpc2.id_cuenta = cad2.id_cuenta where ca2.id_data = :idData " +
@@ -339,7 +339,7 @@ public interface CnReportesRepository extends JpaRepository<CnAsientosEntity, UU
                     " ca.concepto, " +
                     " cad.debe, " +
                     " cad.haber, " +
-                    " gt.numero_identificacion, gt.tercero, gi.descripcion, " +
+                    " gt.numero_identificacion, gt.tercero, gi.descripcion,  gi.codigo_principal, " +
                     " ( " +
                     "   (select coalesce(sum(cad2.debe) - sum(cad2.haber), 0) " +
                     "    from cn_asientos ca2 " +

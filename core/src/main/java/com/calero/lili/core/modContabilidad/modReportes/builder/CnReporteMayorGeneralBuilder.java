@@ -44,6 +44,7 @@ public class CnReporteMayorGeneralBuilder {
                 .tercero(model.getTercero())
                 .numeroIdentificacion(model.getNumeroIdentificacion())
                 .item(model.getDescripcion())
+                .codigoItem(model.getCodigoPrincipal())
                 .build();
     }
 
@@ -85,6 +86,7 @@ public class CnReporteMayorGeneralBuilder {
                 .numeroIdentificacion(Objects.nonNull(item.getNumeroIdentificacion()) ? item.getNumeroIdentificacion() : "")
                 .tercero(Objects.nonNull(item.getTercero()) ? item.getTercero() : "")
                 .item(Objects.nonNull(item.getItem()) ? item.getItem() : "")
+                .codigoItem(Objects.nonNull(item.getCodigoItem()) ? item.getCodigoItem() : "")
                 .build();
     }
 

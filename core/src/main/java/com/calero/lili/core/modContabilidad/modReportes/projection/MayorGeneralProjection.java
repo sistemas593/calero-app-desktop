@@ -41,4 +41,6 @@ public interface MayorGeneralProjection {
     UUID getIdItem();
 
     String getDescripcion();
+
+    String getCodigoPrincipal();
 }

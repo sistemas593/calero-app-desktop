@@ -22,6 +22,7 @@ public class DetalleMayorDtoPDF {
     private String numeroIdentificacion;
     private String tercero;
     private String item;
+    private String codigoItem;
 
 
 }

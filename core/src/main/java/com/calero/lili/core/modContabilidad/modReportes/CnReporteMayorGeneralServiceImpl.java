@@ -40,7 +40,6 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -235,7 +234,7 @@ public class CnReporteMayorGeneralServiceImpl {
                 XSSFRow headerRow = sheet.createRow(0);
 
                 String[] columnNames = {"fechaAsiento", "tipoAsiento", "numeroAsiento", "tipoDocumento",
-                        "numeroDocumento", "numero identifiación", "tercero", "item", "concepto", "debe", "haber", "saldo"};
+                        "numeroDocumento", "concepto", "numeroIdentifiación", "tercero", "codigoItem", "item", "debe", "haber", "saldo"};
 
                 IntStream.range(0, columnNames.length)
                         .forEach(i -> headerRow.createCell(i).setCellValue(columnNames[i]));
@@ -249,15 +248,14 @@ public class CnReporteMayorGeneralServiceImpl {
                     row.createCell(2).setCellValue(mayorDetalle.getNumeroAsiento());
                     row.createCell(3).setCellValue(mayorDetalle.getTipoDocumento());
                     row.createCell(4).setCellValue(mayorDetalle.getNumeroDocumento());
-
-                    row.createCell(5).setCellValue(Objects.nonNull(mayorDetalle.getNumeroIdentificacion()) ? mayorDetalle.getNumeroIdentificacion() : "");
-                    row.createCell(6).setCellValue(Objects.nonNull(mayorDetalle.getTercero()) ? mayorDetalle.getTercero() : "");
-                    row.createCell(7).setCellValue(Objects.nonNull(mayorDetalle.getItem()) ? mayorDetalle.getItem() : "");
-
-                    row.createCell(8).setCellValue(mayorDetalle.getConcepto());
-                    row.createCell(9).setCellValue(mayorDetalle.getDebe().toString());
-                    row.createCell(10).setCellValue(mayorDetalle.getHaber().toString());
-                    row.createCell(11).setCellValue(mayorDetalle.getSaldo().toString());
+                    row.createCell(5).setCellValue(mayorDetalle.getConcepto());
+                    row.createCell(6).setCellValue(Objects.nonNull(mayorDetalle.getNumeroIdentificacion()) ? mayorDetalle.getNumeroIdentificacion() : "");
+                    row.createCell(7).setCellValue(Objects.nonNull(mayorDetalle.getTercero()) ? mayorDetalle.getTercero() : "");
+                    row.createCell(8).setCellValue(Objects.nonNull(mayorDetalle.getCodigoItem()) ? mayorDetalle.getCodigoItem() : "");
+                    row.createCell(9).setCellValue(Objects.nonNull(mayorDetalle.getItem()) ? mayorDetalle.getItem() : "");
+                    row.createCell(10).setCellValue(mayorDetalle.getDebe().toString());
+                    row.createCell(11).setCellValue(mayorDetalle.getHaber().toString());
+                    row.createCell(12).setCellValue(mayorDetalle.getSaldo().toString());
 
                 }
 

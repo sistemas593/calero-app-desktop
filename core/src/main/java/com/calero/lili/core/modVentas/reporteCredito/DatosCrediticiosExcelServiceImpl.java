@@ -202,8 +202,8 @@ public class DatosCrediticiosExcelServiceImpl {
                     detalleErrores.add(detalleError);
                 }
             } else {
-                detalle.setPeriodicidadPago(45);
-                detalle.setPlazoOperacion(45);
+                detalle.setPeriodicidadPago(null);
+                detalle.setPlazoOperacion(null);
             }
 
         } else {
