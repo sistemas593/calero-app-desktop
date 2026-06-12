@@ -26,6 +26,7 @@ public class CnReporteMayorGeneralBuilder {
                 .idAsiento(model.getIdAsiento())
                 .fechaAsiento(DateUtils.toString(model.getFechaAsiento()))
                 .cuenta(model.getCuenta())
+                .codigoCuenta(model.getCodigoCuenta())
                 .tipoAsiento(model.getTipoAsiento())
                 .numeroAsiento(model.getNumeroAsiento())
                 .tipoDocumento(model.getTipoDocumento())

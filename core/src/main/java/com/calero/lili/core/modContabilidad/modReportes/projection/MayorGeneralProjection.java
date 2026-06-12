@@ -12,6 +12,8 @@ public interface MayorGeneralProjection {
 
     String getCuenta();
 
+    String getCodigoCuenta();
+
     String getTipoAsiento();
 
     String getNumeroAsiento();

@@ -233,7 +233,7 @@ public class CnReporteMayorGeneralServiceImpl {
                 XSSFSheet sheet = workbook.createSheet("Facturas");
                 XSSFRow headerRow = sheet.createRow(0);
 
-                String[] columnNames = {"fechaAsiento", "tipoAsiento", "numeroAsiento", "tipoDocumento",
+                String[] columnNames = {"fechaAsiento", "codigoCuenta", "nombreCuenta", "tipoAsiento", "numeroAsiento", "tipoDocumento",
                         "numeroDocumento", "concepto", "numeroIdentifiación", "tercero", "codigoItem", "item", "debe", "haber", "saldo"};
 
                 IntStream.range(0, columnNames.length)
@@ -244,18 +244,20 @@ public class CnReporteMayorGeneralServiceImpl {
                     XSSFRow row = sheet.createRow(i + 1);
 
                     row.createCell(0).setCellValue(mayorDetalle.getFechaAsiento());
-                    row.createCell(1).setCellValue(mayorDetalle.getTipoAsiento());
-                    row.createCell(2).setCellValue(mayorDetalle.getNumeroAsiento());
-                    row.createCell(3).setCellValue(mayorDetalle.getTipoDocumento());
-                    row.createCell(4).setCellValue(mayorDetalle.getNumeroDocumento());
-                    row.createCell(5).setCellValue(mayorDetalle.getConcepto());
-                    row.createCell(6).setCellValue(Objects.nonNull(mayorDetalle.getNumeroIdentificacion()) ? mayorDetalle.getNumeroIdentificacion() : "");
-                    row.createCell(7).setCellValue(Objects.nonNull(mayorDetalle.getTercero()) ? mayorDetalle.getTercero() : "");
-                    row.createCell(8).setCellValue(Objects.nonNull(mayorDetalle.getCodigoItem()) ? mayorDetalle.getCodigoItem() : "");
-                    row.createCell(9).setCellValue(Objects.nonNull(mayorDetalle.getItem()) ? mayorDetalle.getItem() : "");
-                    row.createCell(10).setCellValue(mayorDetalle.getDebe().toString());
-                    row.createCell(11).setCellValue(mayorDetalle.getHaber().toString());
-                    row.createCell(12).setCellValue(mayorDetalle.getSaldo().toString());
+                    row.createCell(1).setCellValue(mayorDetalle.getCodigoCuenta());
+                    row.createCell(2).setCellValue(mayorDetalle.getCuenta());
+                    row.createCell(3).setCellValue(mayorDetalle.getTipoAsiento());
+                    row.createCell(4).setCellValue(mayorDetalle.getNumeroAsiento());
+                    row.createCell(5).setCellValue(mayorDetalle.getTipoDocumento());
+                    row.createCell(6).setCellValue(mayorDetalle.getNumeroDocumento());
+                    row.createCell(7).setCellValue(mayorDetalle.getConcepto());
+                    row.createCell(8).setCellValue(Objects.nonNull(mayorDetalle.getNumeroIdentificacion()) ? mayorDetalle.getNumeroIdentificacion() : "");
+                    row.createCell(9).setCellValue(Objects.nonNull(mayorDetalle.getTercero()) ? mayorDetalle.getTercero() : "");
+                    row.createCell(10).setCellValue(Objects.nonNull(mayorDetalle.getCodigoItem()) ? mayorDetalle.getCodigoItem() : "");
+                    row.createCell(11).setCellValue(Objects.nonNull(mayorDetalle.getItem()) ? mayorDetalle.getItem() : "");
+                    row.createCell(12).setCellValue(mayorDetalle.getDebe().toString());
+                    row.createCell(13).setCellValue(mayorDetalle.getHaber().toString());
+                    row.createCell(14).setCellValue(mayorDetalle.getSaldo().toString());
 
                 }
 

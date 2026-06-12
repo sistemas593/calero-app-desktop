@@ -37,6 +37,7 @@ public class MayorGeneralDto {
         private UUID idAsiento;
         private String fechaAsiento;
         private String cuenta;
+        private String codigoCuenta;
         private String codigoCentroCostos;
         private String centroCostos;
         private String tipoAsiento;
