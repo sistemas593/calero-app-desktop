@@ -87,6 +87,8 @@ public class CnReporteMayorGeneralBuilder {
                 .tercero(Objects.nonNull(item.getTercero()) ? item.getTercero() : "")
                 .item(Objects.nonNull(item.getItem()) ? item.getItem() : "")
                 .codigoItem(Objects.nonNull(item.getCodigoItem()) ? item.getCodigoItem() : "")
+                .tipoDocumento(Objects.nonNull(item.getTipoDocumento()) ? item.getTipoDocumento() : "")
+                .numeroDocumento(Objects.nonNull(item.getNumeroDocumento()) ? item.getNumeroDocumento() : "")
                 .build();
     }
 

@@ -14,6 +14,8 @@ public class DetalleMayorDtoPDF {
     private String fechaAsiento;
     private String tipoAsiento;
     private String numeroAsiento;
+    private String tipoDocumento;
+    private String numeroDocumento;
     private String concepto;
     private String debe;
     private String haber;
