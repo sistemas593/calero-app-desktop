@@ -71,12 +71,11 @@ public class StEnviarCorreoSitacServiceImpl {
         if (enviar.equals("S")) {
 
             excluirCorreosListaNegraService.validarCorreosEnvio(request);
+
             if (!request.getTo().isEmpty()) {
                 AdMailConfigEntity adConfigMailEntity = adConfigRepository.findByIdConfig(Long.valueOf(1));
                 String jsonBody = generarBody.generarBodyCorreo(request, adConfigMailEntity);
                 emailSender.send(jsonBody, adConfigMailEntity);
-                dto.setRespuesta("Enviado ok");
-
                 //if (clave.equals("1920274511419") || clave.equals("1409223410397") || clave.equals("1215204110011") ){
                 //if (request.getCodigoDocumento().equals("01") && request.getSerie().equals("001002") ){
                 long numeroCorreos = request.getTo().chars().filter(ch -> ch == ',').count() + 1;
@@ -107,6 +106,7 @@ public class StEnviarCorreoSitacServiceImpl {
                     adMailsEnviadosTotalRepository.save(existe.get());
                 }
             }
+            dto.setRespuesta("Enviado ok");
         }
 
         return dto;
