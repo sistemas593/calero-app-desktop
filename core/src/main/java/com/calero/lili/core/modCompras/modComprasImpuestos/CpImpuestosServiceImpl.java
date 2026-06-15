@@ -338,7 +338,9 @@ public class CpImpuestosServiceImpl {
 
     private String setearOrigen(CreationCompraImpuestoRequestDto model) {
         if (Objects.nonNull(model.getImpuestoCodigos())) {
-            return OrigenImpuestos.ICC.name();
+            if (!model.getImpuestoCodigos().isEmpty()) {
+                return OrigenImpuestos.ICC.name();
+            }
         }
         return OrigenImpuestos.ISC.name();
     }

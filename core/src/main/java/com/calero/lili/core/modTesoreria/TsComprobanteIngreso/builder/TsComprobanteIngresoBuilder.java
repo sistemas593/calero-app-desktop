@@ -4,9 +4,9 @@ import com.calero.lili.core.modContabilidad.modAsientos.CnAsientosEntity;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTesoreria.TsComprobanteIngreso.dto.RequestCreationComprobanteIngresoDto;
 import com.calero.lili.core.modTesoreria.TsComprobanteIngreso.dto.ResponseComprobanteIngresoDto;
-import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.TsBancosMovimentosEntity;
-import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.builder.TsBancosMovimentosBuilder;
-import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.dto.BcBancoMovimientoCreationRequestDto;
+import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.TsComprobantesEntity;
+import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.builder.TsComprobanteBuilder;
+import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.dto.TsComprobanteCreationRequestDto;
 import com.calero.lili.core.utils.DateUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -20,7 +20,7 @@ import java.util.UUID;
 public class TsComprobanteIngresoBuilder {
 
 
-    private final TsBancosMovimentosBuilder tsBancosMovimentosBuilder;
+    private final TsComprobanteBuilder tsComprobanteBuilder;
 
 
     public CnAsientosEntity builderIngresoEntity(RequestCreationComprobanteIngresoDto model,
@@ -65,10 +65,10 @@ public class TsComprobanteIngresoBuilder {
                 .build();
     }
 
-    private List<TsBancosMovimentosEntity> builderListBancosMovimientos(List<BcBancoMovimientoCreationRequestDto> list,
-                                                                        Long idData, Long idEmpresa) {
+    private List<TsComprobantesEntity> builderListBancosMovimientos(List<TsComprobanteCreationRequestDto> list,
+                                                                    Long idData, Long idEmpresa) {
         return list.stream()
-                .map(item -> tsBancosMovimentosBuilder
+                .map(item -> tsComprobanteBuilder
                         .builderEntity(item, idData, idEmpresa))
                 .toList();
     }

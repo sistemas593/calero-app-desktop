@@ -31,6 +31,7 @@ import com.calero.lili.core.modTerceros.builder.GeTercerosTipoBuilder;
 import com.calero.lili.core.modVentas.VtVentaEntity;
 import com.calero.lili.core.modVentas.VtVentasRepository;
 import com.calero.lili.core.modVentas.projection.OneProjection;
+import com.calero.lili.core.utils.DateUtils;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +40,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -152,7 +154,8 @@ public class DeEmitidasComponentsServiceImpl {
 
             String message = "";//validarEmpresa(documento.getInfoTributaria().getRuc(), idEmpresa, idData);
             if (message.isEmpty()) {
-                VtVentaEntity factura = validarFactura(idData, idEmpresa, documento, sucursal, autorizacionDto.getComprobante(), usuario);
+                VtVentaEntity factura = validarFactura(idData, idEmpresa, documento, sucursal,
+                        autorizacionDto.getComprobante(), usuario, autorizacionDto.getFechaAutorizacion());
                 if (Objects.nonNull(factura)) {
 
                     return "";
@@ -400,7 +403,7 @@ public class DeEmitidasComponentsServiceImpl {
 
 
     private VtVentaEntity validarFactura(Long idData, Long idEmpresa, Factura documento,
-                                         String sucursal, String comprobante, String usuario) {
+                                         String sucursal, String comprobante, String usuario, String fechaAutorizacion) {
 
         try {
 
@@ -431,7 +434,8 @@ public class DeEmitidasComponentsServiceImpl {
             int totalItems = factura.getDetalle() != null ? factura.getDetalle().size() : 0;
             factura.setNumeroItems(totalItems);
             factura.setTotalImpuesto(totalImpuesto);
-
+            factura.setFechaAutorizacion(Objects.nonNull(fechaAutorizacion)
+                    ? DateUtils.toLocalDateTime(fechaAutorizacion) : null);
             factura.setCreatedBy(usuario);
             factura.setCreatedDate(LocalDateTime.now());
 

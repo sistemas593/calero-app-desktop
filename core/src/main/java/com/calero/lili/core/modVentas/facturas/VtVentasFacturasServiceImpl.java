@@ -819,8 +819,15 @@ public class VtVentasFacturasServiceImpl {
         }
 
         if (!request.getTipoIngreso().equals(TipoIngreso.EX)) {
+
             if (Objects.nonNull(request.getExportacion())) {
                 throw new GeneralException("El tipo de ingreso no corresponde a una exportación, no es necesario enviar la información de exportación");
+            }
+
+            if (Objects.nonNull(request.getFleteInternacional()) || Objects.nonNull(request.getSeguroInternacional())
+                    || Objects.nonNull(request.getGastosAduaneros()) || Objects.nonNull(request.getGastosTransporteOtros())) {
+
+                throw new GeneralException("Los valores de flete, seguros y gastos internacionales no son necesarios");
             }
         }
 

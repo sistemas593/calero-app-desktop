@@ -1,13 +1,18 @@
 package com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos;
 
 import com.calero.lili.core.Auditable;
+import com.calero.lili.core.enums.EstadoComprobante;
+import com.calero.lili.core.enums.TipoComprobante;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
-import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesFinancieras.TsEntidadEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,6 +23,8 @@ import org.hibernate.annotations.Where;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -27,13 +34,13 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "ts_bancos_movimientos")
+@Table(name = "ts_comprobantes")
 @Where(clause = "deleted = false")
-public class TsBancosMovimentosEntity extends Auditable {
+public class TsComprobantesEntity extends Auditable {
 
     @Id
     @Column(unique = true, updatable = false, nullable = false)
-    private UUID idMovimiento;
+    private UUID idComprobante;
 
     @Column(name = "id_data")
     private Long idData;
@@ -43,60 +50,37 @@ public class TsBancosMovimentosEntity extends Auditable {
 
     private String sucursal;
 
-    @Column(name = "fisico")
-    private Boolean fisico;
-
-    @Column(name = "codigo_serie")
-    private String codigoSerie;
+    @Column(name = "tiene_comprobante")
+    private String tieneComprobante; // S o N
 
     @Column(name = "numero_comprobante")
     private String numeroComprobante;
 
-    @Column(name = "numero_identificacion")
-    private String numeroIdentificacion;
+    private LocalDate fecha;
 
-    @Column(name = "tipo_documento")
-    private String tipoDocumento; //
-
-    @Column(name = "numero_documento")
-    private String numeroDocumento; //
-
-    @Column(name = "movimiento")
-    private String movimiento;
-
-    @Column(name = "fecha_registro")
-    private LocalDate fechaRegistro;
-
-    @Column(name = "fecha_documento")
-    private LocalDate fechaDocumento;
-
-    @Column(name = "valor")
-    private BigDecimal valor; //
+    @Column(name = "total")
+    private BigDecimal total;
 
     @Column(name = "concepto")
     private String concepto;
 
-    @Column(name = "nombre")
-    private String nombre;
-
     @Column(name = "observaciones")
     private String observaciones;
 
-    @Column(name = "id_conciliacion")
-    private UUID idConciliacion;
+    @Enumerated(EnumType.STRING)
+    private TipoComprobante tipoComprobante;
 
-    @Column(name = "tipomovbc")
-    private String tipomovbc;
+    @Enumerated(EnumType.STRING)
+    private EstadoComprobante estadoComprobante;
 
-    @Column(name = "chejercant")
-    private String chejercant;
+    @Builder.Default
+    @JoinColumn(name = "id_comprobante", referencedColumnName = "idComprobante")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TsComprobanteDetallesEntity> detalle = new ArrayList<>();
 
-    @ManyToOne()
-    @JoinColumn(name = "idEntidad", referencedColumnName = "idEntidad")
-    private TsEntidadEntity tsEntidadEntity;
 
     @ManyToOne()
     @JoinColumn(name = "idTercero", referencedColumnName = "idTercero")
-    private GeTerceroEntity vtClienteEntity;
+    private GeTerceroEntity tercero;
 
 }

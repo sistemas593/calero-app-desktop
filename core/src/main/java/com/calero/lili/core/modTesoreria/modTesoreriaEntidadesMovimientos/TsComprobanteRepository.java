@@ -12,28 +12,28 @@ import java.util.UUID;
 
 
 @Repository
-public interface TsBancosMovimientosRepository extends JpaRepository<TsBancosMovimentosEntity, UUID> {
+public interface TsComprobanteRepository extends JpaRepository<TsComprobantesEntity, UUID> {
 
 
 
     @Query(value = "SELECT entity " +
-            "FROM TsBancosMovimentosEntity entity " +
+            "FROM TsComprobantesEntity entity " +
             "WHERE entity.idData = :idData  AND " +
             "entity.idEmpresa = :idEmpresa AND " +
-            "entity.idMovimiento = :idMovimiento ")
-    Optional<TsBancosMovimentosEntity> findByIdEntity(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("idMovimiento") UUID idMovimiento);
+            "entity.idComprobante = :idComprobante ")
+    Optional<TsComprobantesEntity> findByIdEntity(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa, @Param("idComprobante") UUID idComprobante);
 
 
     @Query(
             value = "SELECT entity " +
-                    "FROM TsBancosMovimentosEntity entity " +
+                    "FROM TsComprobantesEntity entity " +
                     "WHERE entity.idData = :idData AND entity.idEmpresa = :idEmpresa",
             countQuery = "SELECT COUNT(entity) " +
-                    "FROM TsBancosMovimentosEntity entity " +
+                    "FROM TsComprobantesEntity entity " +
                     "WHERE entity.idData = :idData AND entity.idEmpresa = :idEmpresa")
-    Page<TsBancosMovimentosEntity> findAllByIdDataAndIdEmpresa(@Param("idData") Long idData,
-                                                               @Param("idEmpresa") Long idEmpresa,
-                                                               Pageable pageable);
+    Page<TsComprobantesEntity> findAllByIdDataAndIdEmpresa(@Param("idData") Long idData,
+                                                           @Param("idEmpresa") Long idEmpresa,
+                                                           Pageable pageable);
 
 
 }

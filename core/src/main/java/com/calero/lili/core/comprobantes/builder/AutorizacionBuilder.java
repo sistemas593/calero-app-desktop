@@ -24,6 +24,8 @@ import com.calero.lili.core.enums.CodigoRetencion;
 import com.calero.lili.core.enums.EmailEstado;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
+import com.calero.lili.core.enums.Liquidar;
+import com.calero.lili.core.enums.OrigenEnum;
 import com.calero.lili.core.enums.OrigenImpuestos;
 import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.enums.TipoIngreso;
@@ -650,6 +652,9 @@ public class AutorizacionBuilder {
                 .seguroInternacional(BigDecimal.ZERO)
                 .gastosAduaneros(BigDecimal.ZERO)
                 .gastosTransporteOtros(BigDecimal.ZERO)
+                .origen(OrigenEnum.VTS)
+                .existeComprobante(Boolean.TRUE)
+                .liquidar(Liquidar.S.name())
                 .build();
 
 

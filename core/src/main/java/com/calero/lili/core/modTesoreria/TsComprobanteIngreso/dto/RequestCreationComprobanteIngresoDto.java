@@ -1,7 +1,7 @@
 package com.calero.lili.core.modTesoreria.TsComprobanteIngreso.dto;
 
 import com.calero.lili.core.enums.TipoAsiento;
-import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.dto.BcBancoMovimientoCreationRequestDto;
+import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.dto.TsComprobanteCreationRequestDto;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -47,6 +47,6 @@ public class RequestCreationComprobanteIngresoDto {
     private TipoAsiento tipoAsiento;
 
     // relacion con asientos.
-    private List<BcBancoMovimientoCreationRequestDto> movimientosBancos;
+    private List<TsComprobanteCreationRequestDto> movimientosBancos;
 
 }

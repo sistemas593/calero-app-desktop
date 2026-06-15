@@ -2,8 +2,8 @@ package com.calero.lili.api.controllers;
 
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.TsBancosMovimientosServiceImpl;
-import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.dto.BcBancoMovimientoCreationRequestDto;
-import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.dto.BcBancoMovimientoCreationResponseDto;
+import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.dto.TsComprobanteCreationRequestDto;
+import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.dto.TsComprobanteResponseDto;
 import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.dto.BcBancoMovimientoListFilterDto;
 import com.calero.lili.api.utils.IdDataServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -37,16 +37,16 @@ public class BcBancosMovimientosController {
 
     @PostMapping("{idEmpresa}")
     @ResponseStatus(HttpStatus.CREATED)
-    public BcBancoMovimientoCreationResponseDto create(@PathVariable("idEmpresa") Long idEmpresa,
-                                                       @RequestBody BcBancoMovimientoCreationRequestDto request) {
+    public TsComprobanteResponseDto create(@PathVariable("idEmpresa") Long idEmpresa,
+                                           @RequestBody TsComprobanteCreationRequestDto request) {
         return bcBancosMovimientosService.create(idDataService.getIdData(), idEmpresa, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idEmpresa}/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public BcBancoMovimientoCreationResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
-                                                       @PathVariable("id") UUID id,
-                                                       @RequestBody BcBancoMovimientoCreationRequestDto request) {
+    public TsComprobanteResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
+                                           @PathVariable("id") UUID id,
+                                           @RequestBody TsComprobanteCreationRequestDto request) {
         return bcBancosMovimientosService.update(idDataService.getIdData(), idEmpresa, id, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
@@ -59,16 +59,16 @@ public class BcBancosMovimientosController {
 
     @GetMapping("{idEmpresa}/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public BcBancoMovimientoCreationResponseDto findById(@PathVariable("idEmpresa") Long idEmpresa,
-                                                         @PathVariable("id") UUID id) {
+    public TsComprobanteResponseDto findById(@PathVariable("idEmpresa") Long idEmpresa,
+                                             @PathVariable("id") UUID id) {
         return bcBancosMovimientosService.findById(idDataService.getIdData(), idEmpresa, id);
     }
 
     @GetMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
-    public PaginatedDto<BcBancoMovimientoCreationResponseDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
-                                                                              BcBancoMovimientoListFilterDto filters,
-                                                                              Pageable pageable) {
+    public PaginatedDto<TsComprobanteResponseDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
+                                                                  BcBancoMovimientoListFilterDto filters,
+                                                                  Pageable pageable) {
         //log.info("Filters = {}", filters);
         return bcBancosMovimientosService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable);
     }

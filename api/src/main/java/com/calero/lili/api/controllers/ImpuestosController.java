@@ -5,6 +5,7 @@ import com.calero.lili.core.modCompras.dto.FilterDto;
 import com.calero.lili.core.modCompras.service.AtsService;
 import com.calero.lili.core.modImpuestosAnexos.GenerarDeclaracionImpuestoService;
 import com.calero.lili.core.modImpuestosAnexos.ImpuestosServicesImpl;
+import com.calero.lili.core.modImpuestosAnexos.formulario104.GenerarPdf104ServiceImpl;
 import com.calero.lili.core.modImpuestosProcesos.dto.impuestos.ImpuestosF103Dto;
 import com.calero.lili.core.modImpuestosProcesos.dto.impuestos.ImpuestosF104Dto;
 import com.calero.lili.core.modImpuestosProcesos.dto.impuestos.ImpuestosF107Dto;
@@ -37,6 +38,7 @@ public class ImpuestosController {
 
 
     private final AtsService atsService;
+    private final GenerarPdf104ServiceImpl generarPdf104Service;
     private final GenerarDeclaracionImpuestoService generarDeclaracionImpuestoService;
     private final IdDataServiceImpl idDataService;
     private final ImpuestosServicesImpl impuestosServices;
@@ -75,7 +77,7 @@ public class ImpuestosController {
     public void generarFormularioPdfF104(HttpServletResponse response,
                                          @PathVariable("idEmpresa") Long idEmpresa,
                                          FilterImpuestoDto request) {
-        generarDeclaracionImpuestoService.generarPdfDeclaracionImpuestos(impuestosServices
+        generarPdf104Service.generarPdfFormulario104DeclaracionImpuestos(impuestosServices
                 .setearImpuestosF104(request, idDataService.getIdData(), idEmpresa), response);
     }
 
