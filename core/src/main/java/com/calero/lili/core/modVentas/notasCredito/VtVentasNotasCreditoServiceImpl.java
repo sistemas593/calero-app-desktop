@@ -804,6 +804,7 @@ public class VtVentasNotasCreditoServiceImpl {
         request.setTotalDescuento(totalDescuento);
         request.setSubtotal(subtotal);
         request.setTotal(subtotal.add(totalImpuesto));
+        request.setTotalImpuesto(totalImpuesto);
 
     }
 

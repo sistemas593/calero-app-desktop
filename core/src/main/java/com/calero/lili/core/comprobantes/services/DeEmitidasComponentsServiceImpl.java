@@ -125,7 +125,7 @@ public class DeEmitidasComponentsServiceImpl {
         }
 
         if (Objects.nonNull(documento)) {
-            String message = ""; //validarEmpresa(documento.getInfoTributaria().getRuc(), idEmpresa, idData);
+            String message = validarEmpresa(documento.getInfoTributaria().getRuc(), idEmpresa, idData);
 
             if (message.isEmpty()) {
                 VtVentaEntity notaCredito = validarNotaCredito(idData, idEmpresa, documento, sucursal, autorizacionDto.getComprobante(), usuario);
@@ -152,7 +152,7 @@ public class DeEmitidasComponentsServiceImpl {
 
         if (Objects.nonNull(documento)) {
 
-            String message = "";//validarEmpresa(documento.getInfoTributaria().getRuc(), idEmpresa, idData);
+            String message = validarEmpresa(documento.getInfoTributaria().getRuc(), idEmpresa, idData);
             if (message.isEmpty()) {
                 VtVentaEntity factura = validarFactura(idData, idEmpresa, documento, sucursal,
                         autorizacionDto.getComprobante(), usuario, autorizacionDto.getFechaAutorizacion());
@@ -210,7 +210,7 @@ public class DeEmitidasComponentsServiceImpl {
 
         if (Objects.nonNull(documento)) {
 
-            String message = "";//validarEmpresa(documento.getInfoTributaria().getRuc(), idEmpresa, idData);
+            String message = validarEmpresa(documento.getInfoTributaria().getRuc(), idEmpresa, idData);
             if (message.isEmpty()) {
                 CpRetencionesEntity entidad = validarRetencionDos(idData, idEmpresa, documento, autorizacionDto, usuario);
                 if (Objects.nonNull(entidad)) {
@@ -238,7 +238,7 @@ public class DeEmitidasComponentsServiceImpl {
 
         if (Objects.nonNull(documento)) {
 
-            String message = "";//validarEmpresa(documento.getInfoTributaria().getRuc(), idEmpresa, idData);
+            String message = validarEmpresa(documento.getInfoTributaria().getRuc(), idEmpresa, idData);
             if (message.isEmpty()) {
                 CpRetencionesEntity entidad = validarRetencionUno(idData, idEmpresa, documento, autorizacionDto, usuario);
                 if (Objects.nonNull(entidad)) {

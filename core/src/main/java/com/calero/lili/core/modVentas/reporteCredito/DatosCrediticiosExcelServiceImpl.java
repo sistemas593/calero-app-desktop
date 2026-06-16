@@ -125,7 +125,7 @@ public class DatosCrediticiosExcelServiceImpl {
                 detalle.setTercero(tercero);
             } else {
                 DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DOCUMENTO_ERROR);
-                detalleError.setDetalle("El codigo " + celda0 + " no se encuentra registrado");
+                detalleError.setDetalle("El codigo del cliente " + celda0 + " no se encuentra registrado");
                 detalleErrores.add(detalleError);
             }
         } else {

@@ -56,6 +56,7 @@ public class CreationNotaCreditoRequestDto {
     private BigDecimal subtotal;
     private BigDecimal totalDescuento;
     private BigDecimal total;
+    private BigDecimal totalImpuesto;
 
     private Integer numeroItems;
     private String fechaVencimiento;

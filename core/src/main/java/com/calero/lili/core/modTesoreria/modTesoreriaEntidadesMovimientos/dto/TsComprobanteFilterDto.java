@@ -5,18 +5,13 @@ import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.UUID;
 
 @Data
 @ToString
-public class BcBancoMovimientoListFilterDto {
+public class TsComprobanteFilterDto {
 
-    //private Long idData;
-    //private int idEmpresa;
-    private int idSucursal;
-    private int idRegistro;
-    private int idMovimiento;
-    private int idBalance;
-    private int idTercero;
+    private UUID idTercero;
     private String numeroIdentificacion;
     private String tipoDocumento;
     private String numeroDocumento;

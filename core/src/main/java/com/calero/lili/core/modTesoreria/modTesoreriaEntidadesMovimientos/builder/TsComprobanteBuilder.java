@@ -1,7 +1,5 @@
 package com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.builder;
 
-import com.calero.lili.core.modTerceros.GeTerceroEntity;
-import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesFinancieras.TsEntidadEntity;
 import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.TsComprobantesEntity;
 import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.dto.TsComprobanteCreationRequestDto;
 import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.dto.TsComprobanteResponseDto;
@@ -68,26 +66,10 @@ public class TsComprobanteBuilder {
                 .concepto(model.getConcepto())
                 .observaciones(model.getObservaciones())
                 .tipoComprobante(model.getTipoComprobante())
+                .detalles(tsComprobanteDetalleBuilder.builderResponseList(model.getDetalle()))
+                .idTercero(Objects.nonNull(model.getTercero()) ? model.getTercero().getIdTercero() : null)
+                .numeroIdentifiacion(Objects.nonNull(model.getTercero()) ? model.getTercero().getNumeroIdentificacion() : null)
+                .tercero(Objects.nonNull(model.getTercero()) ? model.getTercero().getTercero() : null)
                 .build();
     }
-
-
-    private GeTerceroEntity builderProveedor(UUID idTercero) {
-        return GeTerceroEntity.builder()
-                .idTercero(idTercero)
-                .build();
-    }
-
-    private GeTerceroEntity builderCliente(UUID idTercero) {
-        return GeTerceroEntity.builder()
-                .idTercero(idTercero)
-                .build();
-    }
-
-    private TsEntidadEntity builderEntidad(UUID idEntidad) {
-        return TsEntidadEntity.builder()
-                .idEntidad(idEntidad)
-                .build();
-    }
-
 }

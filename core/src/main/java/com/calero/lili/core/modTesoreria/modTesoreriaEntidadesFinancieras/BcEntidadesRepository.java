@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.UUID;
 
 
@@ -29,24 +30,24 @@ public interface BcEntidadesRepository extends JpaRepository<TsEntidadEntity, Lo
                     "entity.telefono2 as telefono2," +
                     "entity.secuencialCheque as secuencialCheque," +
                     "entity.archivoCheque as archivoCheque," +
-                    "entity.saldo as saldo "+
-                    "FROM TsEntidadEntity entity "+
+                    "entity.saldo as saldo " +
+                    "FROM TsEntidadEntity entity " +
                     "WHERE ( entity.idData = :idData) AND " +
                     "(entity.idEmpresa = :idEmpresa) AND " +
-                    ":tipoEntidad IS NULL OR entity.tipoEntidad = :tipoEntidad AND "+
+                    ":tipoEntidad IS NULL OR entity.tipoEntidad = :tipoEntidad AND " +
                     "(" +
-                    ":filter IS NULL OR LOWER(entity.entidad) LIKE LOWER(CONCAT('%', :filterContent, '%')) OR "+
-                    ":filter IS NULL OR LOWER(entity.numeroCuenta) LIKE LOWER(CONCAT('%', :filterContent, '%'))  "+
+                    ":filter IS NULL OR LOWER(entity.entidad) LIKE LOWER(CONCAT('%', :filterContent, '%')) OR " +
+                    ":filter IS NULL OR LOWER(entity.numeroCuenta) LIKE LOWER(CONCAT('%', :filterContent, '%'))  " +
                     ")"
             ,
-            countQuery = "SELECT COUNT(1) "+
-                    "FROM TsEntidadEntity entity "+
+            countQuery = "SELECT COUNT(1) " +
+                    "FROM TsEntidadEntity entity " +
                     "WHERE ( entity.idData = :idData)  AND " +
                     "(entity.idEmpresa = :idEmpresa) AND " +
-                    ":tipoEntidad IS NULL OR entity.tipoEntidad = :tipoEntidad AND "+
+                    ":tipoEntidad IS NULL OR entity.tipoEntidad = :tipoEntidad AND " +
                     "(" +
-                    ":filter IS NULL OR LOWER(entity.entidad) LIKE LOWER(CONCAT('%', :filterContent, '%')) OR "+
-                    ":filter IS NULL OR LOWER(entity.numeroCuenta) LIKE LOWER(CONCAT('%', :filterContent, '%'))  "+
+                    ":filter IS NULL OR LOWER(entity.entidad) LIKE LOWER(CONCAT('%', :filterContent, '%')) OR " +
+                    ":filter IS NULL OR LOWER(entity.numeroCuenta) LIKE LOWER(CONCAT('%', :filterContent, '%'))  " +
                     ")"
 
     )
@@ -54,5 +55,14 @@ public interface BcEntidadesRepository extends JpaRepository<TsEntidadEntity, Lo
                                                 @Param("filter") String filter, @Param("filterContent") String filterContent,
                                                 @Param("tipoEntidad") String tipoEntidad,
                                                 Pageable pageable);
+
+
+    @Query(
+            value = "SELECT entity " +
+                    "FROM TsEntidadEntity entity " +
+                    "WHERE entity.idData = :idData AND entity.idEmpresa =:idEmpresa AND entity.idEntidad in :idsEntidad")
+    List<TsEntidadEntity> findAllIdsEntidad(@Param("idData") Long idData,
+                                            @Param("idEmpresa") Long idEmpresa,
+                                            @Param("idsEntidad") List<UUID> idsEntidad);
 
 }

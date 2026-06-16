@@ -119,7 +119,7 @@ public class DeRecibidasComponentsServiceImpl {
 
         if (Objects.nonNull(documento)) {
 
-            String message = ""; //validarEmpresaNotaDebito(documento, idEmpresa, idData);
+            String message = validarEmpresaNotaDebito(documento, idEmpresa, idData);
 
             if (message.isEmpty()) {
                 CpImpuestosEntity notaDebito = validarNotaDebito(idData, idEmpresa, documento, autorizacionDto, usuario);
@@ -149,7 +149,7 @@ public class DeRecibidasComponentsServiceImpl {
 
         if (Objects.nonNull(documento)) {
 
-            String message = ""; //validarEmpresaNotaCredito(documento, idEmpresa, idData);
+            String message = validarEmpresaNotaCredito(documento, idEmpresa, idData);
             if (message.isEmpty()) {
                 CpImpuestosEntity notaCredito = validarNotaCredito(idData, idEmpresa, documento, autorizacionDto, usuario);
                 if (Objects.nonNull(notaCredito)) {
@@ -179,7 +179,7 @@ public class DeRecibidasComponentsServiceImpl {
 
         if (Objects.nonNull(documento)) {
 
-            String message = ""; //validacionEmpresaFactura(documento, idEmpresa, idData);
+            String message = validacionEmpresaFactura(documento, idEmpresa, idData);
             if (message.isEmpty()) {
                 CpImpuestosEntity factura = validarFactura(idData, idEmpresa, documento, autorizacionDto, usuario);
                 if (Objects.nonNull(factura)) {
@@ -249,7 +249,7 @@ public class DeRecibidasComponentsServiceImpl {
         ComprobanteRetencion documento = getComprobanteRetencionDos(autorizacionDto);
 
         if (Objects.nonNull(documento)) {
-            String message = ""; //validarEmpresaRetencion(documento.getInfoCompRetencion().getIdentificacionSujetoRetenido(), idEmpresa, idData);
+            String message = validarEmpresaRetencion(documento.getInfoCompRetencion().getIdentificacionSujetoRetenido(), idEmpresa, idData);
 
             if (message.isEmpty()) {
                 VtRetencionesEntity entidad = validarRetencionDos(idData, idEmpresa, documento, autorizacionDto);
@@ -272,7 +272,7 @@ public class DeRecibidasComponentsServiceImpl {
         com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencionV1.ComprobanteRetencion documento = getComprobanteRetencionUno(autorizacionDto);
 
         if (Objects.nonNull(documento)) {
-            String message = ""; //validarEmpresaRetencion(documento.getInfoCompRetencion().getIdentificacionSujetoRetenido(), idEmpresa, idData);
+            String message = validarEmpresaRetencion(documento.getInfoCompRetencion().getIdentificacionSujetoRetenido(), idEmpresa, idData);
 
             if (message.isEmpty()) {
                 VtRetencionesEntity entidad = validarRetencionUno(idData, idEmpresa, documento, autorizacionDto);

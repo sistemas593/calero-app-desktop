@@ -7,9 +7,8 @@ import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
 import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.builder.TsComprobanteBuilder;
 import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.dto.TsComprobanteCreationRequestDto;
+import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.dto.TsComprobanteFilterDto;
 import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.dto.TsComprobanteResponseDto;
-import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.dto.BcBancoMovimientoListFilterDto;
-import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.dto.BcBancoMovimientoReportDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,9 +21,9 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class TsBancosMovimientosServiceImpl {
+public class TsComprobanteServiceImpl {
 
-    private final TsComprobanteRepository bcBancosMovimientosRepository;
+    private final TsComprobanteRepository tsComprobanteRepository;
     private final TsComprobanteBuilder tsComprobanteBuilder;
     private final GeTercerosRepository geTercerosRepository;
 
@@ -32,64 +31,65 @@ public class TsBancosMovimientosServiceImpl {
     public TsComprobanteResponseDto create(Long idData, Long idEmpresa, TsComprobanteCreationRequestDto request, String usuario) {
 
         GeTerceroEntity tercero = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
-                .orElseThrow(() -> new GeneralException("No existe tercero"));
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("El tercero con id {0} no existe ", request.getIdTercero())));
 
         TsComprobantesEntity bancosMovimentos = tsComprobanteBuilder.builderEntity(request, idData, idEmpresa);
         bancosMovimentos.setTercero(tercero);
         bancosMovimentos.setCreatedBy(usuario);
         bancosMovimentos.setCreatedDate(LocalDateTime.now());
 
-        return tsComprobanteBuilder.builderResponse(bcBancosMovimientosRepository
+
+        return tsComprobanteBuilder.builderResponse(tsComprobanteRepository
                 .save(bancosMovimentos));
     }
 
-    public TsComprobanteResponseDto update(Long idData, Long idEmpresa, UUID id, TsComprobanteCreationRequestDto request, String usuario) {
+    public TsComprobanteResponseDto update(Long idData, Long idEmpresa, UUID id,
+                                           TsComprobanteCreationRequestDto request, String usuario) {
 
-        TsComprobantesEntity entidad = bcBancosMovimientosRepository.findByIdEntity(idData, idEmpresa, id)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no existe", id)));
+        TsComprobantesEntity entidad = tsComprobanteRepository.findByIdEntity(idData, idEmpresa, id)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Comprobante con id {0} no existe", id)));
 
         GeTerceroEntity tercero = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
-                .orElseThrow(() -> new GeneralException("No existe tercero"));
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("El tercero con id {0} no existe ", request.getIdTercero())));
 
         TsComprobantesEntity bancosMovimentos = tsComprobanteBuilder.builderUpdateEntity(request, entidad);
         bancosMovimentos.setModifiedBy(usuario);
         bancosMovimentos.setModifiedDate(LocalDateTime.now());
-
         bancosMovimentos.setTercero(tercero);
 
 
-        return tsComprobanteBuilder.builderResponse(bcBancosMovimientosRepository
+        return tsComprobanteBuilder.builderResponse(tsComprobanteRepository
                 .save(bancosMovimentos));
     }
 
     public void delete(Long idData, Long idEmpresa, UUID id, String usuario) {
 
-        TsComprobantesEntity entidad = bcBancosMovimientosRepository.findByIdEntity(idData, idEmpresa, id)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no existe", id)));
+        TsComprobantesEntity entidad = tsComprobanteRepository.findByIdEntity(idData, idEmpresa, id)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Comprobante con id {0} no existe", id)));
 
         entidad.setDeletedBy(usuario);
         entidad.setDeletedDate(LocalDateTime.now());
         entidad.setDelete(Boolean.TRUE);
 
-        bcBancosMovimientosRepository.save(entidad);
+        tsComprobanteRepository.save(entidad);
 
     }
 
     public TsComprobanteResponseDto findById(Long idData, Long idEmpresa, UUID id) {
 
-        return tsComprobanteBuilder.builderResponse(bcBancosMovimientosRepository.findByIdEntity(idData, idEmpresa, id)
+        return tsComprobanteBuilder.builderResponse(tsComprobanteRepository.findByIdEntity(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no existe", id))));
     }
 
 
     public PaginatedDto<TsComprobanteResponseDto> findAllPaginate(Long idData, Long idEmpresa,
-                                                                  BcBancoMovimientoListFilterDto filters,
+                                                                  TsComprobanteFilterDto filters,
                                                                   Pageable pageable) {
 
-        Page<TsComprobantesEntity> page = bcBancosMovimientosRepository
+        Page<TsComprobantesEntity> page = tsComprobanteRepository
                 .findAllByIdDataAndIdEmpresa(idData, idEmpresa, pageable);
 
-        PaginatedDto paginatedDto = new PaginatedDto<BcBancoMovimientoReportDto>();
+        PaginatedDto paginatedDto = new PaginatedDto<TsComprobanteResponseDto>();
         paginatedDto.setContent(page.getContent()
                 .stream()
                 .map(tsComprobanteBuilder::builderResponse)

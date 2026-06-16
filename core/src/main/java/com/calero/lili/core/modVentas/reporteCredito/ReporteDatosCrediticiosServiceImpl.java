@@ -1,8 +1,12 @@
 package com.calero.lili.core.modVentas.reporteCredito;
 
+import com.calero.lili.core.builder.DetalleErrorBuilder;
 import com.calero.lili.core.comprobantes.builder.documentos.FormatoValores;
+import com.calero.lili.core.dtos.errors.DetalleError;
+import com.calero.lili.core.dtos.errors.EnumError;
 import com.calero.lili.core.enums.TipoPersoneria;
 import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.core.errors.exceptions.ListErrorException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.modVentas.reporteCredito.dto.FilterDatosCrediticiosDto;
@@ -17,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.text.Normalizer;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -29,6 +34,7 @@ public class ReporteDatosCrediticiosServiceImpl {
     private final AdEmpresasRepository adEmpresasRepository;
     private final FormatoValores formatoValores;
     private final DatosCrediticiosValorBusquedaService valorBusquedaService;
+    private final DetalleErrorBuilder detalleErrorBuilder;
 
     public byte[] generarTxt(Long idData, Long idEmpresa, FilterDatosCrediticiosDto filter) {
 
@@ -38,22 +44,35 @@ public class ReporteDatosCrediticiosServiceImpl {
         AdEmpresaEntity empresa = adEmpresasRepository.findById(idData, idEmpresa)
                 .orElseThrow(() -> new GeneralException("No se encontró la empresa con idData: " + idData + " e idEmpresa: " + idEmpresa));
 
+        if (Objects.isNull(empresa.getCodigoDinardap()) || empresa.getCodigoDinardap().isEmpty()) {
+            throw new GeneralException("No existe codigo de dinardap para generar el reporte en la empresa: " + idEmpresa);
+        }
+
         if (lista.isEmpty()) {
             throw new GeneralException("No existe información para generar el reporte");
         }
 
         StringBuilder sb = new StringBuilder();
 
+        List<DetalleError> detalleErrores = new ArrayList<>();
+
         for (DatosCrediticiosProjection cabecera : lista) {
-            sb.append(construirLinea(cabecera, empresa)).append("\n");
+            sb.append(construirLinea(cabecera, empresa, detalleErrores)).append("\n");
 
         }
 
+        if (detalleErrores.isEmpty()) {
+            return sb.toString().getBytes(StandardCharsets.UTF_8);
+        } else {
+            List<String> list = detalleErrores.stream()
+                    .map(detalleError -> detalleError.getLinea() + "   " + detalleError.getType().getDescription() + " " + detalleError.getDetalle())
+                    .toList();
+            throw new ListErrorException(list);
+        }
 
-        return sb.toString().getBytes(StandardCharsets.UTF_8);
     }
 
-    private String construirLinea(DatosCrediticiosProjection f, AdEmpresaEntity empresa) {
+    private String construirLinea(DatosCrediticiosProjection f, AdEmpresaEntity empresa, List<DetalleError> detalleErrores) {
 
         String parroquia = "";
         String canton = "";
@@ -77,8 +96,10 @@ public class ReporteDatosCrediticiosServiceImpl {
             }
 
         } else {
-            throw new GeneralException("El tercero con identificación "
+            DetalleError detalleError = detalleErrorBuilder.builderDetalleError(0, EnumError.DOCUMENTO_ERROR);
+            detalleError.setDetalle("El tercero con identificación "
                     + f.getIdentificacionSujeto() + " no tiene asignada una parroquia, lo cual es obligatorio para generar el reporte.");
+            detalleErrores.add(detalleError);
         }
 
 
@@ -95,14 +116,16 @@ public class ReporteDatosCrediticiosServiceImpl {
                     origenIngreso = origenIngreso.replace("", f.getOrigenIngresos());
 
                 } else {
-                    throw new GeneralException("El tercero con identificación "
+
+                    DetalleError detalleError = detalleErrorBuilder.builderDetalleError(0, EnumError.DOCUMENTO_ERROR);
+                    detalleError.setDetalle("El tercero con identificación "
                             + f.getIdentificacionSujeto() + " es un cliente natural, por lo tanto debe tener asignados los campos sexo, estado civil y origen de ingresos para generar el reporte.");
+                    detalleErrores.add(detalleError);
                 }
             }
         }
 
         LocalDate fechaDatos = DateUtils.toPeriodoDate(f.getPeriodo());
-
 
         return String.join("|",
                 Objects.nonNull(empresa.getCodigoDinardap()) ? empresa.getCodigoDinardap() : "",
@@ -172,5 +195,4 @@ public class ReporteDatosCrediticiosServiceImpl {
         datosCrediticiosRepository.delete(entidad);
 
     }
-
 }

@@ -1,11 +1,11 @@
 package com.calero.lili.api.controllers;
 
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.TsBancosMovimientosServiceImpl;
-import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.dto.TsComprobanteCreationRequestDto;
-import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.dto.TsComprobanteResponseDto;
-import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.dto.BcBancoMovimientoListFilterDto;
 import com.calero.lili.api.utils.IdDataServiceImpl;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.TsComprobanteServiceImpl;
+import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.dto.TsComprobanteCreationRequestDto;
+import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.dto.TsComprobanteFilterDto;
+import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.dto.TsComprobanteResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
@@ -26,12 +26,12 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1.0/bancos/movimientos")
+@RequestMapping("api/v1.0/comprobantes")
 @CrossOrigin(originPatterns = "*")
 
-public class BcBancosMovimientosController {
+public class TsComprobanteController {
 
-    private final TsBancosMovimientosServiceImpl bcBancosMovimientosService;
+    private final TsComprobanteServiceImpl bcBancosMovimientosService;
     private final IdDataServiceImpl idDataService;
     private final AuditorAware<String> auditorAware;
 
@@ -67,7 +67,7 @@ public class BcBancosMovimientosController {
     @GetMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     public PaginatedDto<TsComprobanteResponseDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
-                                                                  BcBancoMovimientoListFilterDto filters,
+                                                                  TsComprobanteFilterDto filters,
                                                                   Pageable pageable) {
         //log.info("Filters = {}", filters);
         return bcBancosMovimientosService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable);

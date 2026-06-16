@@ -29,13 +29,17 @@ public class TsComprobanteResponseDto {
     private TipoComprobante tipoComprobante;
     private EstadoComprobante estadoComprobante;
     private UUID idTercero;
-    private List<TsComprobanteCreationRequestDto.Detalle> detalles;
+    private String tercero;
+    private String numeroIdentifiacion;
+    private List<Detalle> detalles;
 
 
     @Data
+    @Builder
     @AllArgsConstructor
     @NoArgsConstructor
     public static class Detalle {
+        private UUID idComprobanteDetalle;
         private String tipoDocumento;
         private String numeroDocumento;
         private String movimiento;
@@ -44,5 +48,6 @@ public class TsComprobanteResponseDto {
         private String descripcion;
         private BigDecimal valor;
         private UUID idEntidad;
+        private String entidad;
     }
 }
