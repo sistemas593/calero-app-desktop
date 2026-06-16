@@ -280,7 +280,7 @@ class FacturaFormViewModel(
                     diasCredito         = dto.diasCredito ?: 0,
                     formasPagoSri       = dto.formasPagoSri?.map {
                         val desc = formasPagoDisp.find { fp -> fp.codigoFormaPagoSri == it.formaPago }?.formaPagoSri ?: it.formaPago ?: ""
-                        FormaPagoSriUi(formaPago = it.formaPago ?: "01", descripcion = desc, total = it.total ?: BigDecimal.ZERO, plazo = it.plazo ?: "", unidadTiempo = it.unidadTiempo ?: "")
+                        FormaPagoSriUi(formaPago = it.formaPago ?: "01", descripcion = desc, total = it.total ?: BigDecimal.ZERO, plazo = it.plazo ?: "", unidadTiempo = it.unidadTiempo.nombre ?: "")
                     }?.takeIf { it.isNotEmpty() } ?: emptyList(),
                     camposAdicionales   = dto.informacionAdicional?.map {
                         CampoAdicionalUi(nombre = it.nombre ?: "", valor = it.valor ?: "")

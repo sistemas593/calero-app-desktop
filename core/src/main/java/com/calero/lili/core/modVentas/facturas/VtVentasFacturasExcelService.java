@@ -7,6 +7,7 @@ import com.calero.lili.core.dtos.InformacionAdicional;
 import com.calero.lili.core.dtos.errors.DetalleError;
 import com.calero.lili.core.dtos.errors.EnumError;
 import com.calero.lili.core.enums.EstadoDocumento;
+import com.calero.lili.core.enums.FormaPagoSriEnum;
 import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.OrigenEnum;
 import com.calero.lili.core.enums.TipoIdentificacion;
@@ -858,7 +859,7 @@ public class VtVentasFacturasExcelService {
         if (Objects.nonNull(row.getCell(celda))) {
             FormasPagoSri formaPago = FormasPagoSri.builder()
                     .plazo("")
-                    .formaPago(row.getCell(celda).getStringCellValue())
+                    .formaPago(FormaPagoSriEnum.getFormaPagoSri(row.getCell(celda).getStringCellValue()))
                     .total(factura.getTotal())
                     .unidadTiempo("")
                     .build();
@@ -890,7 +891,7 @@ public class VtVentasFacturasExcelService {
         if (Objects.nonNull(row.getCell(42)) && Objects.nonNull(row.getCell(26))) {
             FormasPagoSri formaPago = FormasPagoSri.builder()
                     .plazo(row.getCell(26).getStringCellValue())
-                    .formaPago(row.getCell(42).getStringCellValue())
+                    .formaPago(FormaPagoSriEnum.getFormaPagoSri(row.getCell(42).getStringCellValue()))
                     .total(factura.getTotal())
                     .unidadTiempo("")
                     .build();

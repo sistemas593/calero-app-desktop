@@ -153,7 +153,7 @@ public class AtsBuilder {
     public Pago builderFormaDePago(List<FormasPagoSri> formasPagoSri) {
         return Pago.builder()
                 .formaPago(formasPagoSri.stream()
-                        .map(FormasPagoSri::getFormaPago)
+                        .map(fp -> fp.getFormaPago().getCodigo())
                         .toList())
                 .build();
     }

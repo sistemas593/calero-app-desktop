@@ -1,5 +1,6 @@
 package com.calero.lili.core.dtos;
 
+import com.calero.lili.core.enums.FormaPagoSriEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +13,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @Builder
 public class FormasPagoDto {
-    private String formaPago;
+    private FormaPagoSriEnum formaPago;
     private BigDecimal total;
     private String plazo;
     private String unidadTiempo;

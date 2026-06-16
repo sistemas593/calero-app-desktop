@@ -1,6 +1,7 @@
 package com.calero.lili.core.modCompras.modComprasImpuestos.dto;
 
 import com.calero.lili.core.dtos.InformacionAdicionalDto;
+import com.calero.lili.core.enums.FormaPagoSriEnum;
 import com.calero.lili.core.enums.SustentoCodigos;
 import com.calero.lili.core.modCompras.dto.ImpuestoCodigoDto;
 import jakarta.persistence.Column;
@@ -53,7 +54,7 @@ public class GetDto {
     @NoArgsConstructor
     @Builder
     public static class FormasPagoSri {
-        private String formaPago;
+        private FormaPagoSriEnum formaPago;
         private BigDecimal total;
         private String plazo;
         private String unidadTiempo;

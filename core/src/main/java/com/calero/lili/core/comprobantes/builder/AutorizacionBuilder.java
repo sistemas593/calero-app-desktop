@@ -23,6 +23,7 @@ import com.calero.lili.core.enums.CodigoDocumento;
 import com.calero.lili.core.enums.CodigoRetencion;
 import com.calero.lili.core.enums.EmailEstado;
 import com.calero.lili.core.enums.EstadoDocumento;
+import com.calero.lili.core.enums.FormaPagoSriEnum;
 import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.Liquidar;
 import com.calero.lili.core.enums.OrigenEnum;
@@ -96,7 +97,7 @@ public class AutorizacionBuilder {
 
         String x = pago.getTotal().replace(" ", "");
         return FormasPagoSri.builder()
-                .formaPago(pago.getFormaPago())
+                .formaPago(FormaPagoSriEnum.getFormaPagoSri(pago.getFormaPago()))
                 .plazo(pago.getPlazo())
                 .total(new BigDecimal(x))
                 .unidadTiempo(pago.getUnidadTiempo())
@@ -778,7 +779,7 @@ public class AutorizacionBuilder {
     private FormasPagoSri builderFacturaPago(Pago pago) {
         return FormasPagoSri.builder()
                 .unidadTiempo(pago.getUnidadTiempo())
-                .formaPago(pago.getFormaPago())
+                .formaPago(FormaPagoSriEnum.getFormaPagoSri(pago.getFormaPago()))
                 .total(new BigDecimal(pago.getTotal()))
                 .plazo(pago.getPlazo())
                 .build();

@@ -3,19 +3,21 @@ package com.calero.lili.core.enums;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Objects;
+
 @RequiredArgsConstructor
 @Getter
 public enum FormaPagoSriEnum {
 
 
-    SIN_UTILIZACION_DEL_SISTEMA_FINANCIERO("01", "SIN UTILIZACION DEL SISTEMA FINANCIERO"),
-    COMPENSACION_DEUDAS("15", "COMPENSACIÓN DE DEUDAS"),
-    TARJETA_DE_DEBITO("16", "TARJETA DE DÉBITO"),
-    DINERO_ELECTRONICO("17", "DINERO ELECTRÓNICO"),
-    TARJETA_PREPAGO("18", "TARJETA PREPAGO"),
-    TARJETA_DE_CREDITO("19", "TARJETA DE CRÉDITO"),
-    OTROS_CON_UTILIZACION_DEL_SISTEMA_FINANCIERO("20", "OTROS CON UTILIZACIÓN DEL SISTEMA FINANCIERO"),
-    ENDOSO_DE_TITULOS("21", "ENDOSO DE TÍTULOS");
+    F01("01", "SIN UTILIZACION DEL SISTEMA FINANCIERO"),
+    F15("15", "COMPENSACIÓN DE DEUDAS"),
+    F16("16", "TARJETA DE DÉBITO"),
+    F17("17", "DINERO ELECTRÓNICO"),
+    F18("18", "TARJETA PREPAGO"),
+    F19("19", "TARJETA DE CRÉDITO"),
+    F20("20", "OTROS CON UTILIZACIÓN DEL SISTEMA FINANCIERO"),
+    F21("21", "ENDOSO DE TÍTULOS");
 
 
     private final String codigo;
@@ -27,6 +29,20 @@ public enum FormaPagoSriEnum {
         for (FormaPagoSriEnum formaPago : FormaPagoSriEnum.values()) {
             if (formaPago.getCodigo().equals(codigoPago)) {
                 return formaPago.getNombre();
+            }
+        }
+        throw new IllegalArgumentException("El codigo de la forma de pago del SRI, no existe " + codigoPago);
+    }
+
+    public static FormaPagoSriEnum getFormaPagoSri(String codigoPago) {
+
+        if (Objects.isNull(codigoPago) || codigoPago.isEmpty()) {
+            return FormaPagoSriEnum.F01;
+        }
+        
+        for (FormaPagoSriEnum formaPago : FormaPagoSriEnum.values()) {
+            if (formaPago.getCodigo().equals(codigoPago)) {
+                return formaPago;
             }
         }
         throw new IllegalArgumentException("El codigo de la forma de pago del SRI, no existe " + codigoPago);

@@ -1,8 +1,6 @@
 package com.calero.lili.core.comprobantesPdf;
 
 import com.calero.lili.core.comprobantes.objetosXml.factura.CampoAdicional;
-import com.calero.lili.core.comprobantes.objetosXml.factura.Pago;
-import com.calero.lili.core.enums.FormaPagoSriEnum;
 import com.calero.lili.core.comprobantes.objetosXml.notaDebito.Impuesto;
 import com.calero.lili.core.comprobantes.objetosXml.notaDebito.InfoNotaDebito;
 import com.calero.lili.core.comprobantes.objetosXml.notaDebito.Motivo;

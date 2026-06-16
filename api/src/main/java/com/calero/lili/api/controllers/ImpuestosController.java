@@ -1,16 +1,21 @@
 package com.calero.lili.api.controllers;
 
+import com.calero.lili.api.utils.IdDataServiceImpl;
 import com.calero.lili.core.dtos.FilterImpuestoDto;
 import com.calero.lili.core.modCompras.dto.FilterDto;
 import com.calero.lili.core.modCompras.service.AtsService;
-import com.calero.lili.core.modImpuestosAnexos.GenerarDeclaracionImpuestoService;
-import com.calero.lili.core.modImpuestosAnexos.ImpuestosServicesImpl;
+import com.calero.lili.core.modImpuestosAnexos.formulario103.Formulario103ServiceImpl;
+import com.calero.lili.core.modImpuestosAnexos.formulario103.GeneralFormulario103PdfServiceImpl;
+import com.calero.lili.core.modImpuestosAnexos.formulario104.Formulario104ServiceImpl;
 import com.calero.lili.core.modImpuestosAnexos.formulario104.GenerarPdf104ServiceImpl;
+import com.calero.lili.core.modImpuestosAnexos.formulario107.Formulario107ServiceImpl;
+import com.calero.lili.core.modImpuestosAnexos.formulario107.GenerarFormulario107PdfServiceImpl;
+import com.calero.lili.core.modImpuestosAnexos.retencionFuente.GenerarTalonResumenPdfServiceImpl;
+import com.calero.lili.core.modImpuestosAnexos.retencionFuente.TalonResumenRetencionFuenteServiceImpl;
 import com.calero.lili.core.modImpuestosProcesos.dto.impuestos.ImpuestosF103Dto;
 import com.calero.lili.core.modImpuestosProcesos.dto.impuestos.ImpuestosF104Dto;
 import com.calero.lili.core.modImpuestosProcesos.dto.impuestos.ImpuestosF107Dto;
 import com.calero.lili.core.modImpuestosProcesos.dto.impuestos.ValoresTalonResumenDto;
-import com.calero.lili.api.utils.IdDataServiceImpl;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -37,11 +42,20 @@ import java.util.UUID;
 public class ImpuestosController {
 
 
-    private final AtsService atsService;
-    private final GenerarPdf104ServiceImpl generarPdf104Service;
-    private final GenerarDeclaracionImpuestoService generarDeclaracionImpuestoService;
+
     private final IdDataServiceImpl idDataService;
-    private final ImpuestosServicesImpl impuestosServices;
+
+    private final AtsService atsService;
+
+    private final GenerarPdf104ServiceImpl generarPdf104Service;
+    private final GeneralFormulario103PdfServiceImpl generalFormulario103PdfService;
+    private final GenerarFormulario107PdfServiceImpl generarFormulario107;
+    private final GenerarTalonResumenPdfServiceImpl generarReporteTalonResumenRetencionFuentePDF;
+
+    private final Formulario104ServiceImpl formulario104Service;
+    private final Formulario103ServiceImpl formulario103Service;
+    private final Formulario107ServiceImpl formulario107Service;
+    private final TalonResumenRetencionFuenteServiceImpl talonResumenRetencionFuenteService;
 
 
     @GetMapping("formulario103/{idEmpresa}")
@@ -49,7 +63,7 @@ public class ImpuestosController {
     @PreAuthorize("hasAuthority('IM_F103_VR')")
     public ImpuestosF103Dto generarF103(@PathVariable("idEmpresa") Long idEmpresa,
                                         FilterImpuestoDto request) {
-        return impuestosServices.setearFImpuestosF103();
+        return formulario103Service.setearFImpuestosF103();
     }
 
 
@@ -59,7 +73,7 @@ public class ImpuestosController {
     public void generarFormularioPdfF103(HttpServletResponse response,
                                          @PathVariable("idEmpresa") Long idEmpresa,
                                          FilterImpuestoDto request) {
-        generarDeclaracionImpuestoService.generarPdfDeclaracionRetenciones(impuestosServices.setearFImpuestosF103(),
+        generalFormulario103PdfService.generarPdfDeclaracionRetenciones(formulario103Service.setearFImpuestosF103(),
                 response, idEmpresa, request);
     }
 
@@ -68,7 +82,7 @@ public class ImpuestosController {
     @PreAuthorize("hasAuthority('IM_F104_VR')")
     public ImpuestosF104Dto generarF104(@PathVariable("idEmpresa") Long idEmpresa,
                                         FilterImpuestoDto request) {
-        return impuestosServices.setearImpuestosF104(request, idDataService.getIdData(), idEmpresa);
+        return formulario104Service.setearImpuestosF104(request, idDataService.getIdData(), idEmpresa);
     }
 
     @GetMapping("formulario104/pdf/{idEmpresa}")
@@ -77,7 +91,7 @@ public class ImpuestosController {
     public void generarFormularioPdfF104(HttpServletResponse response,
                                          @PathVariable("idEmpresa") Long idEmpresa,
                                          FilterImpuestoDto request) {
-        generarPdf104Service.generarPdfFormulario104DeclaracionImpuestos(impuestosServices
+        generarPdf104Service.generarPdfFormulario104DeclaracionImpuestos(formulario104Service
                 .setearImpuestosF104(request, idDataService.getIdData(), idEmpresa), response);
     }
 
@@ -87,7 +101,7 @@ public class ImpuestosController {
     public ImpuestosF107Dto generarF107(@PathVariable("idEmpresa") Long idEmpresa,
                                         @PathVariable("idTrabajador") UUID idTrabajador,
                                         FilterImpuestoDto request) {
-        return impuestosServices.setearImpuestosF107(idDataService.getIdData(), idEmpresa, idTrabajador);
+        return formulario107Service.setearImpuestosF107(idDataService.getIdData(), idEmpresa, idTrabajador);
     }
 
     @GetMapping("formulario107/pdf/{idEmpresa}/{idTrabajador}")
@@ -97,8 +111,8 @@ public class ImpuestosController {
                                         @PathVariable("idEmpresa") Long idEmpresa,
                                         @PathVariable("idTrabajador") UUID idTrabajador,
                                         FilterImpuestoDto request) {
-        generarDeclaracionImpuestoService.generarFormulario107(impuestosServices.setearImpuestosF107(idDataService.getIdData(), idEmpresa, idTrabajador),
-                response);
+        generarFormulario107.generarFormulario107(formulario107Service
+                .setearImpuestosF107(idDataService.getIdData(), idEmpresa, idTrabajador), response);
     }
 
 
@@ -111,9 +125,9 @@ public class ImpuestosController {
 
         Long idData = idDataService.getIdData();
 
-        ValoresTalonResumenDto dto = impuestosServices.setearRetencionAlaFuente(request, idData, idEmpresa);
+        ValoresTalonResumenDto dto = talonResumenRetencionFuenteService.setearRetencionAlaFuente(request, idData, idEmpresa);
 
-        byte[] pdf = generarDeclaracionImpuestoService.generarReporteTalonResumenRetencionFuentePDF(idData, idEmpresa, dto);
+        byte[] pdf = generarReporteTalonResumenRetencionFuentePDF.generarReporteTalonResumenRetencionFuentePDF(idData, idEmpresa, dto);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
@@ -132,9 +146,9 @@ public class ImpuestosController {
     public void generarRetencionFuenteXml(HttpServletResponse response,
                                           @PathVariable("idEmpresa") Long idEmpresa,
                                           FilterImpuestoDto request) {
-        generarDeclaracionImpuestoService
+        generarReporteTalonResumenRetencionFuentePDF
                 .generarReporteTalonResumenRetencionFuenteXml(
-                        impuestosServices.setearRetencionFuenteXml(idDataService.getIdData(), idEmpresa, request), response);
+                        talonResumenRetencionFuenteService.setearRetencionFuenteXml(idDataService.getIdData(), idEmpresa, request), response);
     }
 
 

@@ -22,7 +22,7 @@ public class FormaDePagoBuilder {
 
     private Pago builderFormaPago(FormasPagoSri formasPagoSri) {
         return Pago.builder()
-                .formaPago(formasPagoSri.getFormaPago())
+                .formaPago(formasPagoSri.getFormaPago().getCodigo())
                 .total(formatoValores.convertirBigDecimalToString(formasPagoSri.getTotal()))
                 .plazo(Objects.isNull(formasPagoSri.getPlazo()) || formasPagoSri.getPlazo().isEmpty() ? null : formasPagoSri.getPlazo())
                 .unidadTiempo(Objects.isNull(formasPagoSri.getUnidadTiempo()) || formasPagoSri.getUnidadTiempo().isEmpty() ? null : formasPagoSri.getUnidadTiempo())

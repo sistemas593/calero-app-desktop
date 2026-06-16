@@ -2,7 +2,6 @@ package com.calero.lili.core.comprobantesPdf;
 
 import com.calero.lili.core.comprobantes.objetosXml.TotalImpuesto;
 import com.calero.lili.core.comprobantes.objetosXml.notaCredito.Detalle;
-import com.calero.lili.core.enums.FormaPagoSriEnum;
 import com.calero.lili.core.comprobantes.objetosXml.notaCredito.InfoNotaCredito;
 import com.calero.lili.core.comprobantes.objetosXml.notaCredito.NotaCredito;
 import com.itextpdf.text.BaseColor;
