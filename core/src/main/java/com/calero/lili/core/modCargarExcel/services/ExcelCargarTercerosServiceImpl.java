@@ -10,10 +10,8 @@ import com.calero.lili.core.enums.TipoPersoneria;
 import com.calero.lili.core.enums.TipoTercero;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.errors.exceptions.ListErrorException;
-import com.calero.lili.core.modLocalidades.modCantones.CantonRepository;
 import com.calero.lili.core.modLocalidades.modParroquias.ParroquiaEntity;
 import com.calero.lili.core.modLocalidades.modParroquias.ParroquiaRepository;
-import com.calero.lili.core.modLocalidades.modProvincias.ProvinciaRepository;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
 import com.calero.lili.core.modTerceros.GeTercerosTipoEntity;
@@ -53,8 +51,6 @@ public class ExcelCargarTercerosServiceImpl {
     private final ValidarIdentificacion validarIdentificacion;
     private final GeTercerosTipoRepository geTercerosTipoRepository;
     private final DetalleErrorBuilder detalleErrorBuilder;
-    private final ProvinciaRepository provinciaRepository;
-    private final CantonRepository cantonRepository;
     private final ParroquiaRepository parroquiaRepository;
     private final TbPaisesRepository tbPaisesRepository;
 
@@ -184,7 +180,9 @@ public class ExcelCargarTercerosServiceImpl {
                     }
 
                     if (identificacionesExistentes.contains(numId)) {
-                        listaErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.NUMERO_IDENTIFICACION_YA_EXISTE));
+                        DetalleError detalle = detalleErrorBuilder.builderDetalleError(linea, EnumError.NUMERO_IDENTIFICACION_YA_EXISTE);
+                        detalle.setDetalle("Identificación: " + numId);
+                        listaErrores.add(detalle);
                     }
                 }
             }

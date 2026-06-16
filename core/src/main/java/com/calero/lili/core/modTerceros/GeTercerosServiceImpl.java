@@ -2,8 +2,8 @@ package com.calero.lili.core.modTerceros;
 
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
-import com.calero.lili.core.enums.TipoPersoneria;
 import com.calero.lili.core.enums.TipoIdentificacion;
+import com.calero.lili.core.enums.TipoPersoneria;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modLocalidades.modCantones.CantonEntity;
 import com.calero.lili.core.modLocalidades.modCantones.CantonRepository;
@@ -52,7 +52,9 @@ public class GeTercerosServiceImpl {
         ValidarCampoAscii.validarStrings(request);
 
         //validarInformacionAdicional(request);
-        Optional<GeTerceroProjection> vtClientesEntityExist = vtClientesRepository.findExistByNumeroIdentificacion(idData, request.getNumeroIdentificacion());
+        Optional<GeTerceroProjection> vtClientesEntityExist = vtClientesRepository
+                .findExistByNumeroIdentificacion(idData, request.getNumeroIdentificacion());
+
         if (vtClientesEntityExist.isPresent()) {
             System.out.println(request.getNumeroIdentificacion());
             throw new GeneralException(MessageFormat.format("El tercero con número de identificación {0} ya existe", request.getNumeroIdentificacion()));
@@ -93,6 +95,7 @@ public class GeTercerosServiceImpl {
 
         GeTerceroEntity actualizar = vtClientesRepository.findByIdCliente(idData, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Cliente con id {0} no existe", id)));
+
 
         validarTransportista(request);
         // validarTrabajador(request);
