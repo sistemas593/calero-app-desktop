@@ -80,4 +80,10 @@ public interface DatosCrediticiosRepository extends JpaRepository<DatosCreditici
                                                    @Param("idEmpresa") Long idEmpresa,
                                                    @Param("periodo") String periodo);
 
+    @Query(value = "SELECT entity " +
+            "FROM DatosCrediticiosEntity entity " +
+            "where entity.idData = :idData and entity.idEmpresa = :idEmpresa")
+    List<DatosCrediticiosEntity> findAllByIdDataAndIdEmpresa(@Param("idData") Long idData,
+                                                             @Param("idEmpresa") Long idEmpresa);
+
 }

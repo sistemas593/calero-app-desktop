@@ -9,6 +9,8 @@ import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.errors.exceptions.ListErrorException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
+import com.calero.lili.core.modVentas.reporteCredito.builder.DatosCrediticiosBuilder;
+import com.calero.lili.core.modVentas.reporteCredito.dto.DatosCrediticiosResponseDto;
 import com.calero.lili.core.modVentas.reporteCredito.dto.FilterDatosCrediticiosDto;
 import com.calero.lili.core.modVentas.reporteCredito.projection.DatosCrediticiosProjection;
 import com.calero.lili.core.utils.DateUtils;
@@ -36,6 +38,8 @@ public class ReporteDatosCrediticiosServiceImpl {
     private final FormatoValores formatoValores;
     private final DatosCrediticiosValorBusquedaService valorBusquedaService;
     private final DetalleErrorBuilder detalleErrorBuilder;
+    private final DatosCrediticiosBuilder datosCrediticiosBuilder;
+
 
     public byte[] generarTxt(Long idData, Long idEmpresa, FilterDatosCrediticiosDto filter) {
 
@@ -146,7 +150,7 @@ public class ReporteDatosCrediticiosServiceImpl {
                 f.getTipoIdentificacion(),
                 f.getIdentificacionSujeto(),
                 formatearTextoNombreSujeto(f.getNombreSujeto()),
-                f.getClaseSujeto(),
+                validarPersoneria(f.getIdentificacionSujeto(), f.getTipoIdentificacion(), f.getClaseSujeto()),
                 provincia,
                 canton,
                 parroquia,
@@ -181,6 +185,30 @@ public class ReporteDatosCrediticiosServiceImpl {
                 Objects.nonNull(f.getFormaCancelacion()) ? f.getFormaCancelacion() : ""); // TODO Tipos Efectivo (E), Cheque(C), Tarjeta de Crédito (T)
     }
 
+
+    public void delete(Long idData, Long idEmpresa, String periodo) {
+        DatosCrediticiosEntity entidad = datosCrediticiosRepository.findByPeriodo(idData, idEmpresa, periodo)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("El periodo {0} no existe", periodo)));
+        datosCrediticiosRepository.delete(entidad);
+
+    }
+
+
+    public List<DatosCrediticiosResponseDto> getAll(Long idData, Long idEmpresa) {
+        return datosCrediticiosRepository.findAllByIdDataAndIdEmpresa(idData, idEmpresa)
+                .stream()
+                .map(datosCrediticiosBuilder::builderResponseList)
+                .toList();
+    }
+
+    private static void throwErrors(List<DetalleError> detalleErrores) {
+        List<String> list = detalleErrores.stream()
+                .map(detalleError -> detalleError.getLinea() + "   " + detalleError.getType().getDescription() + " " + detalleError.getDetalle())
+                .toList();
+        throw new ListErrorException(list);
+    }
+
+
     private String formatearTextoNombreSujeto(String nombreSujeto) {
         if (Objects.nonNull(nombreSujeto)) {
 
@@ -202,19 +230,25 @@ public class ReporteDatosCrediticiosServiceImpl {
         }
     }
 
-    public void delete(Long idData, Long idEmpresa, String periodo) {
-        DatosCrediticiosEntity entidad = datosCrediticiosRepository.findByPeriodo(idData, idEmpresa, periodo)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("El periodo {0} no existe", periodo)));
-        datosCrediticiosRepository.delete(entidad);
+    private String validarPersoneria(String numeroIdentifiacion, String tipoIdentificacion, String tipoPersoneria) {
 
+        if (tipoIdentificacion.equals("R")) {
+            int validador = Integer.parseInt(numeroIdentifiacion.substring(2, 3));
+            if (validador <= 5) {
+                return "N";
+            }
+        }
+
+        if (tipoIdentificacion.equals("C")) {
+            if (tipoPersoneria.equals("N")) {
+                return tipoPersoneria;
+            } else {
+                return "N";
+            }
+        }
+
+        return tipoPersoneria;
     }
 
-
-    private static void throwErrors(List<DetalleError> detalleErrores) {
-        List<String> list = detalleErrores.stream()
-                .map(detalleError -> detalleError.getLinea() + "   " + detalleError.getType().getDescription() + " " + detalleError.getDetalle())
-                .toList();
-        throw new ListErrorException(list);
-    }
 
 }
