@@ -3,8 +3,8 @@ package com.calero.lili.core.modCompras.modCompras.builder;
 
 import com.calero.lili.core.modCompras.modCompras.CpComprasEntity;
 import com.calero.lili.core.modCompras.modCompras.dto.CompraRequestDto;
-import com.calero.lili.core.modCompras.modCompras.dto.GetDto;
-import com.calero.lili.core.modCompras.modCompras.dto.GetListDto;
+import com.calero.lili.core.modCompras.modCompras.dto.GetCompraDto;
+import com.calero.lili.core.modCompras.modCompras.dto.GetCompraListDto;
 import com.calero.lili.core.utils.DateUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -90,8 +90,8 @@ public class CpComprasBuilder {
     }
 
 
-    public GetDto builderGetDto(CpComprasEntity model) {
-        return GetDto.builder()
+    public GetCompraDto builderGetDto(CpComprasEntity model) {
+        return GetCompraDto.builder()
                 .idCompra(model.getIdCompra())
                 .fechaEmision(DateUtils.toString(model.getFechaEmision()))
                 .sucursal(model.getSucursal())
@@ -123,8 +123,8 @@ public class CpComprasBuilder {
                 .build();
     }
 
-    public GetListDto builderListDto(CpComprasEntity model) {
-        return GetListDto.builder()
+    public GetCompraListDto builderListDto(CpComprasEntity model) {
+        return GetCompraListDto.builder()
                 .sucursal(model.getSucursal())
                 .idCompra(model.getIdCompra())
                 .serie(model.getSerie())
@@ -146,8 +146,8 @@ public class CpComprasBuilder {
     }
 
 
-    public GetListDto builderGetListDto(CpComprasEntity model) {
-        return GetListDto.builder()
+    public GetCompraListDto builderGetListDto(CpComprasEntity model) {
+        return GetCompraListDto.builder()
                 .sucursal(model.getSucursal())
                 .idCompra(model.getIdCompra())
                 .serie(model.getSerie())

@@ -21,7 +21,7 @@ import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetListDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetListDtoTotalizado;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.PagoExterior;
-import com.calero.lili.core.modCompras.modComprasImpuestos.dto.ValoresDto;
+import com.calero.lili.core.modCompras.modComprasImpuestos.dto.ValoresCompraImpuestoDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.projection.ComprasImpuestoProjection;
 import com.calero.lili.core.modCompras.modComprasImpuestos.projection.OneProjection;
 import com.calero.lili.core.modCompras.modComprasImpuestos.projection.TotalesProjection;
@@ -869,9 +869,9 @@ public class CpImpuestosServiceImpl {
 
     }
 
-    private List<Integer> getIntegerTarifaIva(List<ValoresDto> valores) {
+    private List<Integer> getIntegerTarifaIva(List<ValoresCompraImpuestoDto> valores) {
         return valores.stream()
-                .map(ValoresDto::getTarifa)
+                .map(ValoresCompraImpuestoDto::getTarifa)
                 .filter(Objects::nonNull)
                 .map(BigDecimal::intValue)
                 .toList();

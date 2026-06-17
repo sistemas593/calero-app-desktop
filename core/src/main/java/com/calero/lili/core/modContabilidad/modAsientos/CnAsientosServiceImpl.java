@@ -13,7 +13,7 @@ import com.calero.lili.core.modContabilidad.modAsientos.builder.CnAsientosBuilde
 import com.calero.lili.core.modContabilidad.modAsientos.builder.CnAsientosDetallesBuilder;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.CreationAsientosRequestDto;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.FilterAsientoListDto;
-import com.calero.lili.core.modContabilidad.modAsientos.dto.GetDto;
+import com.calero.lili.core.modContabilidad.modAsientos.dto.GetAsientoDto;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.GetListDto;
 import com.calero.lili.core.modContabilidad.modCentroCostos.CnCentroCostosEntity;
 import com.calero.lili.core.modContabilidad.modCentroCostos.CnCentroCostosRepository;
@@ -111,8 +111,8 @@ public class CnAsientosServiceImpl {
     }
 
 
-    public GetDto findById(Long idData, Long idEmpresa, UUID idVenta,
-                           FilterAsientoListDto filters, TipoPermiso tipoBusqueda, String usuario) {
+    public GetAsientoDto findById(Long idData, Long idEmpresa, UUID idVenta,
+                                  FilterAsientoListDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         CnAsientosEntity cnAsientosEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
         return cnAsientosBuilder.builderResponse(cnAsientosEntity);
@@ -148,7 +148,7 @@ public class CnAsientosServiceImpl {
 
     public void validarPlanCuenta(Long idData, Long idEmpresa, CreationAsientosRequestDto request) {
 
-        for (CreationAsientosRequestDto.DetailDto item : request.getDetalle()) {
+        for (CreationAsientosRequestDto.DetalleAsientoDto item : request.getDetalle()) {
             CnPlanCuentaEntity planCuenta = cnPlanCuentasRepository.findByIdCuenta(idData, idEmpresa, item.getIdCuenta())
                     .orElseThrow(() -> new GeneralException(MessageFormat.format("La cuenta con id {0} no existe",
                             item.getIdCuenta())));
@@ -258,7 +258,7 @@ public class CnAsientosServiceImpl {
     private void setearDetalles(Long idData, Long idEmpresa, CreationAsientosRequestDto request, CnAsientosEntity entity) {
 
         List<CnAsientosDetalleEntity> detalles = new ArrayList<>();
-        for (CreationAsientosRequestDto.DetailDto model : request.getDetalle()) {
+        for (CreationAsientosRequestDto.DetalleAsientoDto model : request.getDetalle()) {
             CnAsientosDetalleEntity detalle = cnAsientosDetallesBuilder.builderAsientoDetalle(model, idData, idEmpresa);
             setearTerceroDetalle(idData, model, detalle);
             setearItemDetalles(idData, idEmpresa, model, detalle);
@@ -272,7 +272,7 @@ public class CnAsientosServiceImpl {
     private void updateSetearDetalles(Long idData, Long idEmpresa, CreationAsientosRequestDto request, CnAsientosEntity entity) {
 
         List<CnAsientosDetalleEntity> detalles = new ArrayList<>();
-        for (CreationAsientosRequestDto.DetailDto model : request.getDetalle()) {
+        for (CreationAsientosRequestDto.DetalleAsientoDto model : request.getDetalle()) {
             CnAsientosDetalleEntity detalle = cnAsientosDetallesBuilder.builderAsientoDetalle(model, idData, idEmpresa);
             setearTerceroDetalle(idData, model, detalle);
             setearItemDetalles(idData, idEmpresa, model, detalle);
@@ -284,7 +284,7 @@ public class CnAsientosServiceImpl {
     }
 
 
-    private void setearTerceroDetalle(Long idData, CreationAsientosRequestDto.DetailDto model, CnAsientosDetalleEntity detalle) {
+    private void setearTerceroDetalle(Long idData, CreationAsientosRequestDto.DetalleAsientoDto model, CnAsientosDetalleEntity detalle) {
         if (Objects.nonNull(model.getIdTercero())) {
             GeTerceroEntity tercero = geTercerosRepository.findByIdCliente(idData, model.getIdTercero())
                     .orElseThrow(() -> new GeneralException(MessageFormat.format
@@ -295,7 +295,7 @@ public class CnAsientosServiceImpl {
         }
     }
 
-    private void setearItemDetalles(Long idData, Long idEmpresa, CreationAsientosRequestDto.DetailDto model,
+    private void setearItemDetalles(Long idData, Long idEmpresa, CreationAsientosRequestDto.DetalleAsientoDto model,
                                     CnAsientosDetalleEntity detalle) {
 
         if (Objects.nonNull(model.getIdItem())) {
@@ -309,7 +309,7 @@ public class CnAsientosServiceImpl {
     }
 
     private void setearCentroCostos(Long idData, Long idEmpresa,
-                                    CreationAsientosRequestDto.DetailDto model, CnAsientosDetalleEntity detalle) {
+                                    CreationAsientosRequestDto.DetalleAsientoDto model, CnAsientosDetalleEntity detalle) {
 
         if (Objects.nonNull(model.getIdCentroCostos())) {
             CnCentroCostosEntity centroCostos = cnCentroCostosRepository.findByIdCentroCostos(idData, idEmpresa, model.getIdCentroCostos())

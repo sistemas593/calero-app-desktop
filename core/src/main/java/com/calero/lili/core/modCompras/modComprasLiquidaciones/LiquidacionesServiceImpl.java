@@ -22,9 +22,9 @@ import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosServiceImp
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.builder.CpLiquidacionesBuilder;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.CreationRequestLiquidacionCompraDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.FilterListComprasLiquidacionesDto;
-import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.GetDto;
-import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.GetListDto;
-import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.GetListDtoTotalizado;
+import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.GetLiquidacionCompraDto;
+import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.GetLiquidacionCompraListDto;
+import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.GetLiquidacionCompraListDtoTotalizado;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.projection.OneProjection;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.projection.TotalesProjection;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.CpLiquidacionesReembolsosEntity;
@@ -270,12 +270,12 @@ public class LiquidacionesServiceImpl {
     }
 
 
-    public GetDto findById(Long idData, Long idEmpresa, UUID idVenta,
-                           FilterListComprasLiquidacionesDto filters, TipoPermiso tipoBusqueda, String usuario) {
+    public GetLiquidacionCompraDto findById(Long idData, Long idEmpresa, UUID idVenta,
+                                            FilterListComprasLiquidacionesDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         CpLiquidacionesEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
-        GetDto response = cpLiquidacionesBuilder.builderGetDto(vtVentaEntity);
+        GetLiquidacionCompraDto response = cpLiquidacionesBuilder.builderGetDto(vtVentaEntity);
         response.setListCompraImpuesto(cpImpuestosService.getListCompraImpuestoForIdParent(idVenta, idEmpresa, idData));
         return response;
     }
@@ -289,14 +289,14 @@ public class LiquidacionesServiceImpl {
         return vtVentaEntity.getMensajes();
     }
 
-    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListComprasLiquidacionesDto filters, Pageable pageable,
-                                                    TipoPermiso tipoBusqueda, String usuario) {
+    public PaginatedDto<GetLiquidacionCompraListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListComprasLiquidacionesDto filters, Pageable pageable,
+                                                                     TipoPermiso tipoBusqueda, String usuario) {
 
         Page<CpLiquidacionesEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
 
-        List<GetListDto> dtoList = page.stream().map(entidad -> {
+        List<GetLiquidacionCompraListDto> dtoList = page.stream().map(entidad -> {
 
-            GetListDto response = null;
+            GetLiquidacionCompraListDto response = null;
 
             if (entidad.getAnulada()) {
                 response = cpLiquidacionesBuilder.builderAnuladaGetListDto(entidad);
@@ -329,14 +329,14 @@ public class LiquidacionesServiceImpl {
         return paginatedDto;
     }
 
-    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListComprasLiquidacionesDto filters, Pageable pageable) {
+    public GetLiquidacionCompraListDtoTotalizado<GetLiquidacionCompraListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListComprasLiquidacionesDto filters, Pageable pageable) {
 
 
         Page<CpLiquidacionesEntity> page = liquidacionesRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getSerie(), filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
 
-        List<GetListDto> dtoList = page.stream().map(entidad -> {
+        List<GetLiquidacionCompraListDto> dtoList = page.stream().map(entidad -> {
 
-            GetListDto response = null;
+            GetLiquidacionCompraListDto response = null;
 
             if (entidad.getAnulada()) {
                 response = cpLiquidacionesBuilder.builderAnuladaGetListDto(entidad);
@@ -350,7 +350,7 @@ public class LiquidacionesServiceImpl {
 
         List<TotalesProjection> totalValoresProjection = liquidacionesRepository.totalValores(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getSerie(), filters.getSecuencial());
 
-        GetListDtoTotalizado totalesDto = new GetListDtoTotalizado<>();
+        GetLiquidacionCompraListDtoTotalizado totalesDto = new GetLiquidacionCompraListDtoTotalizado<>();
         totalesDto.setContent(dtoList);
 
         Paginator paginated = new Paginator();
@@ -366,7 +366,7 @@ public class LiquidacionesServiceImpl {
         paginated.setNumber(page.getNumber());
         totalesDto.setPaginated(paginated);
 
-        GetListDtoTotalizado.Totales tot = new GetListDtoTotalizado.Totales();
+        GetLiquidacionCompraListDtoTotalizado.Totales tot = new GetLiquidacionCompraListDtoTotalizado.Totales();
         tot.setValoresTotales(totalValoresProjection);
 
         totalesDto.setTotales(tot);
@@ -750,7 +750,7 @@ public class LiquidacionesServiceImpl {
             }
         }
 
-        for (CreationRequestLiquidacionCompraDto.DetailDto item : request.getDetalle()) {
+        for (CreationRequestLiquidacionCompraDto.DetalleLiquidacionCompraDto item : request.getDetalle()) {
             if (Objects.nonNull(item.getDetAdicional())) {
                 if (item.getDetAdicional().isEmpty()) {
                     item.setDetAdicional(null);
@@ -761,7 +761,7 @@ public class LiquidacionesServiceImpl {
 
 
     private void validarItem(CreationRequestLiquidacionCompraDto request, Long idData, Long idEmpresa) {
-        for (CreationRequestLiquidacionCompraDto.DetailDto model : request.getDetalle()) {
+        for (CreationRequestLiquidacionCompraDto.DetalleLiquidacionCompraDto model : request.getDetalle()) {
             geItemsRepository.findByIdItem(idData, idEmpresa, model.getIdItem())
                     .orElseThrow(() -> new GeneralException("El item con id  " + model.getIdItem() + " no existe "));
         }

@@ -8,7 +8,7 @@ import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirListCreationResponseDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.comprobantes.DocumentoRecibidosServiceImpl;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.FilterListComprasLiquidacionesDto;
-import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.GetListDtoTotalizado;
+import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.GetLiquidacionCompraListDtoTotalizado;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.LiquidacionesReembolsoPdfXmlServiceImpl;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.LiquidacionesReembolsosServiceImpl;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.dto.GetReembolsoDto;
@@ -111,9 +111,9 @@ public class LiquidacionReembolsosController {
     @GetMapping("reportes/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('LQ_LQR_VR_PR','LQ_LQR_VR_SC','LQ_LQR_VR_TD')")
-    public GetListDtoTotalizado<GetReembolsoDto> findAllPaginateTotalizado(@PathVariable("idEmpresa") Long idEmpresa,
-                                                                           FilterListComprasLiquidacionesDto filters,
-                                                                           Pageable pageable) {
+    public GetLiquidacionCompraListDtoTotalizado<GetReembolsoDto> findAllPaginateTotalizado(@PathVariable("idEmpresa") Long idEmpresa,
+                                                                                            FilterListComprasLiquidacionesDto filters,
+                                                                                            Pageable pageable) {
         return reembolsosService.findAllPaginateTotalizado(idDataService.getIdData(), idEmpresa, filters, pageable);
     }
 

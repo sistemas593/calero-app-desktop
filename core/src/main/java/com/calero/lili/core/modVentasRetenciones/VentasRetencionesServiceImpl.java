@@ -11,9 +11,9 @@ import com.calero.lili.core.modTerceros.GeTercerosRepository;
 import com.calero.lili.core.modVentasRetenciones.builder.VtRetencionesBuilder;
 import com.calero.lili.core.modVentasRetenciones.dto.CreationVentasRetencionesRequestDto;
 import com.calero.lili.core.modVentasRetenciones.dto.FilterListVentasRetencionesDto;
-import com.calero.lili.core.modVentasRetenciones.dto.GetDto;
-import com.calero.lili.core.modVentasRetenciones.dto.GetListDto;
-import com.calero.lili.core.modVentasRetenciones.dto.GetListDtoTotalizado;
+import com.calero.lili.core.modVentasRetenciones.dto.GetVentaRetencionesDto;
+import com.calero.lili.core.modVentasRetenciones.dto.GetVentaRetencionesListDto;
+import com.calero.lili.core.modVentasRetenciones.dto.GetVentaRetencionesListDtoTotalizado;
 import com.calero.lili.core.modVentasRetenciones.projection.TotalesProjection;
 import com.calero.lili.core.utils.DateUtils;
 import com.lowagie.text.Document;
@@ -112,20 +112,20 @@ public class VentasRetencionesServiceImpl {
     }
 
 
-    public GetDto findById(Long idData, Long idEmpresa, UUID idVenta,
-                           FilterListVentasRetencionesDto filters, TipoPermiso tipoBusqueda, String usuario) {
+    public GetVentaRetencionesDto findById(Long idData, Long idEmpresa, UUID idVenta,
+                                           FilterListVentasRetencionesDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         VtRetencionesEntity vtRetencionesEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         return vtRetencionesBuilder.builderResponse(vtRetencionesEntity);
     }
 
-    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListVentasRetencionesDto filters, Pageable pageable,
-                                                    TipoPermiso tipoBusqueda, String usuario) {
+    public PaginatedDto<GetVentaRetencionesListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListVentasRetencionesDto filters, Pageable pageable,
+                                                                    TipoPermiso tipoBusqueda, String usuario) {
 
         Page<VtRetencionesEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
 
-        List<GetListDto> dtoList = page.stream().map(vtRetencionesBuilder::builderListResponse).toList();
+        List<GetVentaRetencionesListDto> dtoList = page.stream().map(vtRetencionesBuilder::builderListResponse).toList();
 
         PaginatedDto paginatedDto = new PaginatedDto();
         paginatedDto.setContent(dtoList);
@@ -176,15 +176,15 @@ public class VentasRetencionesServiceImpl {
         throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
     }
 
-    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListVentasRetencionesDto filters, Pageable pageable) {
+    public GetVentaRetencionesListDtoTotalizado<GetVentaRetencionesListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListVentasRetencionesDto filters, Pageable pageable) {
 
         Page<VtRetencionesEntity> page = vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getSerie(), filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
 
-        List<GetListDto> dtoList = page.stream().map(vtRetencionesBuilder::builderListResponse).toList();
+        List<GetVentaRetencionesListDto> dtoList = page.stream().map(vtRetencionesBuilder::builderListResponse).toList();
 
         List<TotalesProjection> totalValoresProjection = vtVentaRepository.totalValores(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getSerie(), filters.getSecuencial());
 
-        GetListDtoTotalizado totalesDto = new GetListDtoTotalizado<>();
+        GetVentaRetencionesListDtoTotalizado totalesDto = new GetVentaRetencionesListDtoTotalizado<>();
         totalesDto.setContent(dtoList);
 
         Paginator paginated = new Paginator();
@@ -200,7 +200,7 @@ public class VentasRetencionesServiceImpl {
         paginated.setNumber(page.getNumber());
         totalesDto.setPaginated(paginated);
 
-        GetListDtoTotalizado.Totales tot = new GetListDtoTotalizado.Totales();
+        GetVentaRetencionesListDtoTotalizado.Totales tot = new GetVentaRetencionesListDtoTotalizado.Totales();
         tot.setValoresTotales(totalValoresProjection);
 
         totalesDto.setTotales(tot);

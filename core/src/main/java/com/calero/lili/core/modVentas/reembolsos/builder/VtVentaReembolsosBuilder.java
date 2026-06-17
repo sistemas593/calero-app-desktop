@@ -3,7 +3,7 @@ package com.calero.lili.core.modVentas.reembolsos.builder;
 import com.calero.lili.core.modVentas.reembolsos.VtVentaReembolsosEntity;
 import com.calero.lili.core.modVentas.reembolsos.VtVentaReembolsosValoresEntity;
 import com.calero.lili.core.modVentas.reembolsos.dto.CreationRequestReembolsoDto;
-import com.calero.lili.core.modVentas.reembolsos.dto.ResponseReembolsoDto;
+import com.calero.lili.core.modVentas.reembolsos.dto.ResponseVentaReembolsoDto;
 import com.calero.lili.core.tablas.tbPaises.TbPaisEntity;
 import com.calero.lili.core.utils.DateUtils;
 import org.springframework.stereotype.Component;
@@ -61,13 +61,13 @@ public class VtVentaReembolsosBuilder {
                 .build();
     }
 
-    private List<VtVentaReembolsosValoresEntity> builderListReembolsoValores(List<CreationRequestReembolsoDto.ValoresDto> list, Long iData, Long idEmpresa) {
+    private List<VtVentaReembolsosValoresEntity> builderListReembolsoValores(List<CreationRequestReembolsoDto.ValoresVentaReembolsoDto> list, Long iData, Long idEmpresa) {
         return list.stream()
                 .map(item -> builderReembolsoValores(item, iData, idEmpresa))
                 .toList();
     }
 
-    private VtVentaReembolsosValoresEntity builderReembolsoValores(CreationRequestReembolsoDto.ValoresDto model, Long idData, Long idEmpresa) {
+    private VtVentaReembolsosValoresEntity builderReembolsoValores(CreationRequestReembolsoDto.ValoresVentaReembolsoDto model, Long idData, Long idEmpresa) {
         return VtVentaReembolsosValoresEntity.builder()
                 .idVentaValores(UUID.randomUUID())
                 .idData(idData)
@@ -81,8 +81,8 @@ public class VtVentaReembolsosBuilder {
     }
 
 
-    public ResponseReembolsoDto builderReembolso(VtVentaReembolsosEntity model) {
-        return ResponseReembolsoDto.builder()
+    public ResponseVentaReembolsoDto builderReembolso(VtVentaReembolsosEntity model) {
+        return ResponseVentaReembolsoDto.builder()
                 .idVentaReembolsos(model.getIdVentaReembolsos())
                 .tipoIdentificacionReemb(model.getTipoIdentificacionReemb())
                 .numeroIdentificacionReemb(model.getNumeroIdentificacionReemb())
@@ -103,14 +103,14 @@ public class VtVentaReembolsosBuilder {
 
 
 
-    private List<ResponseReembolsoDto.ValoresDto> builderResponseValoresList(List<VtVentaReembolsosValoresEntity> list) {
+    private List<ResponseVentaReembolsoDto.ValoresDto> builderResponseValoresList(List<VtVentaReembolsosValoresEntity> list) {
         return list.stream()
                 .map(this::builderValoresResponse)
                 .toList();
     }
 
-    private ResponseReembolsoDto.ValoresDto builderValoresResponse(VtVentaReembolsosValoresEntity model) {
-        return ResponseReembolsoDto.ValoresDto.builder()
+    private ResponseVentaReembolsoDto.ValoresDto builderValoresResponse(VtVentaReembolsosValoresEntity model) {
+        return ResponseVentaReembolsoDto.ValoresDto.builder()
                 .codigo(model.getCodigo())
                 .codigoPorcentaje(model.getCodigoPorcentaje())
                 .tarifa(model.getTarifa())

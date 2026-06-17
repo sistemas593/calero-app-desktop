@@ -7,9 +7,9 @@ import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.modVentasRetenciones.VentasRetencionesServiceImpl;
 import com.calero.lili.core.modVentasRetenciones.dto.CreationVentasRetencionesRequestDto;
 import com.calero.lili.core.modVentasRetenciones.dto.FilterListVentasRetencionesDto;
-import com.calero.lili.core.modVentasRetenciones.dto.GetDto;
-import com.calero.lili.core.modVentasRetenciones.dto.GetListDto;
-import com.calero.lili.core.modVentasRetenciones.dto.GetListDtoTotalizado;
+import com.calero.lili.core.modVentasRetenciones.dto.GetVentaRetencionesDto;
+import com.calero.lili.core.modVentasRetenciones.dto.GetVentaRetencionesListDto;
+import com.calero.lili.core.modVentasRetenciones.dto.GetVentaRetencionesListDtoTotalizado;
 import com.lowagie.text.DocumentException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -80,9 +80,9 @@ public class VentasRetencionesController {
     @GetMapping("{idEmpresa}/{idVenta}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('VT_RT_VR_PR','VT_RT_VR_SC','VT_RT_VR_TD')")
-    public GetDto findById(@PathVariable("idEmpresa") Long idEmpresa,
-                           @PathVariable("idVenta") UUID idVenta,
-                           FilterListVentasRetencionesDto filters) {
+    public GetVentaRetencionesDto findById(@PathVariable("idEmpresa") Long idEmpresa,
+                                           @PathVariable("idVenta") UUID idVenta,
+                                           FilterListVentasRetencionesDto filters) {
         return vtVentasService.findById(idDataService.getIdData(), idEmpresa, idVenta,
                 filters,
                 auditorAware.getTipoPermisoVerRetencion(),
@@ -92,9 +92,9 @@ public class VentasRetencionesController {
     @GetMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('VT_RT_VR_PR','VT_RT_VR_SC','VT_RT_VR_TD')")
-    public PaginatedDto<GetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
-                                                    FilterListVentasRetencionesDto filters,
-                                                    Pageable pageable) {
+    public PaginatedDto<GetVentaRetencionesListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
+                                                                    FilterListVentasRetencionesDto filters,
+                                                                    Pageable pageable) {
         return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable,
                 auditorAware.getTipoPermisoVerRetencion(),
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"));
@@ -103,9 +103,9 @@ public class VentasRetencionesController {
     @GetMapping("reportes/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('VT_RT_VR_PR','VT_RT_VR_SC','VT_RT_VR_TD')")
-    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(@PathVariable("idEmpresa") Long idEmpresa,
-                                                                      FilterListVentasRetencionesDto filters,
-                                                                      Pageable pageable) {
+    public GetVentaRetencionesListDtoTotalizado<GetVentaRetencionesListDto> findAllPaginateTotalizado(@PathVariable("idEmpresa") Long idEmpresa,
+                                                                                                      FilterListVentasRetencionesDto filters,
+                                                                                                      Pageable pageable) {
         log.info("Filters = {}", filters);
         return vtVentasService.findAllPaginateTotalizado(idDataService.getIdData(), idEmpresa, filters, pageable);
     }

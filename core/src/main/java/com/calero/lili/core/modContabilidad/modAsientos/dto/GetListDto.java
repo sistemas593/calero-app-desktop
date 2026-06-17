@@ -25,6 +25,6 @@ public class GetListDto {
     private String concepto;
     private Boolean mayorizado;
     private Boolean anulada;
-    private List<ResponseValoresDto> valores;
+    private List<ResponseAsientoValoresDto> valores;
 
 }

@@ -3,8 +3,8 @@ package com.calero.lili.api.controllers;
 
 import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.api.utils.IdDataServiceImpl;
-import com.calero.lili.core.modVentas.dto.GetListDto;
-import com.calero.lili.core.modVentas.dto.GetListDtoTotalizado;
+import com.calero.lili.core.modVentas.dto.GetVentasListDto;
+import com.calero.lili.core.modVentas.dto.GetVentasListDtoTotalizado;
 import com.calero.lili.core.modVentas.facturas.VtVentasFacturasExcelService;
 import com.calero.lili.core.modVentas.facturas.VtVentasFacturasServiceImpl;
 import com.calero.lili.core.modVentas.facturas.dto.FilterListVentasDto;
@@ -35,9 +35,9 @@ public class VtVentasReporteController {
     @GetMapping("reportes/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('VT_FC_VR_PR','VT_FC_VR_SC','VT_FC_VR_TD')")
-    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(@PathVariable("idEmpresa") Long idEmpresa,
-                                                                      FilterListVentasDto filters,
-                                                                      Pageable pageable) {
+    public GetVentasListDtoTotalizado<GetVentasListDto> findAllPaginateTotalizado(@PathVariable("idEmpresa") Long idEmpresa,
+                                                                                  FilterListVentasDto filters,
+                                                                                  Pageable pageable) {
         log.info("Filters = {}", filters);
         return vtVentasService.findAllPaginateTotalizado(idDataService.getIdData(), idEmpresa, filters,
                 auditorAware.getTipoPermisoFacturaVer(), auditorAware.getCurrentAuditor().orElse("SYSTEM"), pageable);

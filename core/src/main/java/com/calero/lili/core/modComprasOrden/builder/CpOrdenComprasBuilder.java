@@ -2,8 +2,8 @@ package com.calero.lili.core.modComprasOrden.builder;
 
 
 import com.calero.lili.core.modComprasOrden.CpOrdenComprasEntity;
-import com.calero.lili.core.modComprasOrden.dto.GetDto;
-import com.calero.lili.core.modComprasOrden.dto.GetListDto;
+import com.calero.lili.core.modComprasOrden.dto.GetComprasOrdenDto;
+import com.calero.lili.core.modComprasOrden.dto.GetComprasOrdenListDto;
 import com.calero.lili.core.modComprasOrden.dto.OrdenCompraRequestDto;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.utils.DateUtils;
@@ -75,8 +75,8 @@ public class CpOrdenComprasBuilder {
     }
 
 
-    public GetDto builderGetDto(CpOrdenComprasEntity model) {
-        return GetDto.builder()
+    public GetComprasOrdenDto builderGetDto(CpOrdenComprasEntity model) {
+        return GetComprasOrdenDto.builder()
                 .idCompra(model.getIdCompra())
                 .sucursal(model.getSucursal())
                 .secuencial(model.getSecuencial())
@@ -104,17 +104,17 @@ public class CpOrdenComprasBuilder {
                 .build();
     }
 
-    private GetDto.TercerosDatos builderResponseTerceroOne(GeTerceroEntity tercero) {
+    private GetComprasOrdenDto.TercerosDatos builderResponseTerceroOne(GeTerceroEntity tercero) {
         if (Objects.isNull(tercero)) return null;
-        return GetDto.TercerosDatos.builder()
+        return GetComprasOrdenDto.TercerosDatos.builder()
                 .idTercero(tercero.getIdTercero())
                 .tercero(tercero.getTercero())
                 .build();
     }
 
 
-    public GetListDto builderListDto(CpOrdenComprasEntity model) {
-        return GetListDto.builder()
+    public GetComprasOrdenListDto builderListDto(CpOrdenComprasEntity model) {
+        return GetComprasOrdenListDto.builder()
                 .idCompra(model.getIdCompra())
                 .sucursal(model.getSucursal())
                 .secuencial(model.getSecuencial())
@@ -142,17 +142,17 @@ public class CpOrdenComprasBuilder {
                 .build();
     }
 
-    private GetListDto.TercerosDatos builderResponseTerceroList(GeTerceroEntity tercero) {
+    private GetComprasOrdenListDto.TercerosDatos builderResponseTerceroList(GeTerceroEntity tercero) {
         if (Objects.isNull(tercero)) return null;
-        return GetListDto.TercerosDatos.builder()
+        return GetComprasOrdenListDto.TercerosDatos.builder()
                 .idTercero(tercero.getIdTercero())
                 .tercero(tercero.getTercero())
                 .build();
     }
 
 
-    public GetListDto builderGetListDto(CpOrdenComprasEntity model) {
-        return GetListDto.builder()
+    public GetComprasOrdenListDto builderGetListDto(CpOrdenComprasEntity model) {
+        return GetComprasOrdenListDto.builder()
                 .idCompra(model.getIdCompra())
                 .sucursal(model.getSucursal())
                 .secuencial(model.getSecuencial())
@@ -181,8 +181,8 @@ public class CpOrdenComprasBuilder {
     }
 
 
-    public GetListDto builderAnuladoGetListDto(CpOrdenComprasEntity model) {
-        return GetListDto.builder()
+    public GetComprasOrdenListDto builderAnuladoGetListDto(CpOrdenComprasEntity model) {
+        return GetComprasOrdenListDto.builder()
                 .idCompra(model.getIdCompra())
                 .sucursal(model.getSucursal())
                 .secuencial(model.getSecuencial())

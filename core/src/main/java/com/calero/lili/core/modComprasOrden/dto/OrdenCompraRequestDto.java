@@ -32,11 +32,11 @@ public class OrdenCompraRequestDto {
 
     @Valid
     @NotEmpty(message = "No existen detalle de items")
-    private List<ValoresDto> valores;
+    private List<ValoresComprasOrdenDto> valores;
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class ValoresDto {
+    public static class ValoresComprasOrdenDto {
         private String codigo;
         private String codigoPorcentaje;
         private BigDecimal tarifa;
@@ -62,12 +62,12 @@ public class OrdenCompraRequestDto {
 
     @Valid
     @NotEmpty(message = "No existen detalle de items")
-    private List<DetailDto> detalle;
+    private List<DetalleComprasOrdenDto> detalle;
 
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class DetailDto {
+    public static class DetalleComprasOrdenDto {
         private UUID idItem;
         private int itemOrden;
         @NotEmpty(message = "No existe el codigo principal")

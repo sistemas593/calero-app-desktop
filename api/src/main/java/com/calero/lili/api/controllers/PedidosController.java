@@ -7,9 +7,9 @@ import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.modVentasPedidos.PedidosServiceImpl;
 import com.calero.lili.core.modVentasPedidos.dto.CreationComprasPedidosRequestDto;
 import com.calero.lili.core.modVentasPedidos.dto.FilterListVentasPedidosDto;
-import com.calero.lili.core.modVentasPedidos.dto.GetDto;
-import com.calero.lili.core.modVentasPedidos.dto.GetListDto;
-import com.calero.lili.core.modVentasPedidos.dto.GetListDtoTotalizado;
+import com.calero.lili.core.modVentasPedidos.dto.GetVentaPedidosDto;
+import com.calero.lili.core.modVentasPedidos.dto.GetVentaPedidosListDto;
+import com.calero.lili.core.modVentasPedidos.dto.GetVentaPedidosListDtoTotalizado;
 import com.lowagie.text.DocumentException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -80,9 +80,9 @@ public class PedidosController {
     @GetMapping("{idEmpresa}/{idVenta}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('VT_PD_VR_PR','VT_PD_VR_SC','VT_PD_VR_TD')")
-    public GetDto findById(@PathVariable("idEmpresa") Long idEmpresa,
-                           @PathVariable("idVenta") UUID idVenta,
-                           FilterListVentasPedidosDto filters) {
+    public GetVentaPedidosDto findById(@PathVariable("idEmpresa") Long idEmpresa,
+                                       @PathVariable("idVenta") UUID idVenta,
+                                       FilterListVentasPedidosDto filters) {
         return vtVentasService.findById(idDataService.getIdData(), idEmpresa, idVenta,
                 filters,
                 auditorAware.getTipoPermisoVerPedido(),
@@ -92,9 +92,9 @@ public class PedidosController {
     @GetMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('VT_PD_VR_PR','VT_PD_VR_SC','VT_PD_VR_TD')")
-    public PaginatedDto<GetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
-                                                    FilterListVentasPedidosDto filters,
-                                                    Pageable pageable) {
+    public PaginatedDto<GetVentaPedidosListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
+                                                                FilterListVentasPedidosDto filters,
+                                                                Pageable pageable) {
         return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable,
                 auditorAware.getTipoPermisoVerPedido(),
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"));
@@ -103,7 +103,7 @@ public class PedidosController {
     @GetMapping("reportes/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('VT_PD_VR_PR','VT_PD_VR_SC','VT_PD_VR_TD')")
-    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(
+    public GetVentaPedidosListDtoTotalizado<GetVentaPedidosListDto> findAllPaginateTotalizado(
             @PathVariable("idEmpresa") Long idEmpresa,
             FilterListVentasPedidosDto filters,
             Pageable pageable) {

@@ -9,9 +9,9 @@ import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.LiquidacionesServiceImpl;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.CreationRequestLiquidacionCompraDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.FilterListComprasLiquidacionesDto;
-import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.GetDto;
-import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.GetListDto;
-import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.GetListDtoTotalizado;
+import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.GetLiquidacionCompraDto;
+import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.GetLiquidacionCompraListDto;
+import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.GetLiquidacionCompraListDtoTotalizado;
 import com.lowagie.text.DocumentException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -83,9 +83,9 @@ public class LiquidacionesController {
     @GetMapping("{idEmpresa}/{idLiquidacion}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('LQ_LQ_VR_PR','LQ_LQ_VR_SC','LQ_LQ_VR_TD')")
-    public GetDto findById(@PathVariable("idEmpresa") Long idEmpresa,
-                           @PathVariable("idLiquidacion") UUID idLiquidacion,
-                           FilterListComprasLiquidacionesDto filters) {
+    public GetLiquidacionCompraDto findById(@PathVariable("idEmpresa") Long idEmpresa,
+                                            @PathVariable("idLiquidacion") UUID idLiquidacion,
+                                            FilterListComprasLiquidacionesDto filters) {
         return vtVentasService.findById(idDataService.getIdData(), idEmpresa, idLiquidacion,
                 filters,
                 auditorAware.getTipoPermisoVerLiquidacion(),
@@ -107,9 +107,9 @@ public class LiquidacionesController {
     @GetMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('LQ_LQ_VR_PR','LQ_LQ_VR_SC','LQ_LQ_VR_TD')")
-    public PaginatedDto<GetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
-                                                    FilterListComprasLiquidacionesDto filters,
-                                                    Pageable pageable) {
+    public PaginatedDto<GetLiquidacionCompraListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
+                                                                     FilterListComprasLiquidacionesDto filters,
+                                                                     Pageable pageable) {
         return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable,
                 auditorAware.getTipoPermisoVerLiquidacion(),
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"));
@@ -118,9 +118,9 @@ public class LiquidacionesController {
     @GetMapping("reportes/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('LQ_LQ_VR_PR','LQ_LQ_VR_SC','LQ_LQ_VR_TD')")
-    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(@PathVariable("idEmpresa") Long idEmpresa,
-                                                                      FilterListComprasLiquidacionesDto filters,
-                                                                      Pageable pageable) {
+    public GetLiquidacionCompraListDtoTotalizado<GetLiquidacionCompraListDto> findAllPaginateTotalizado(@PathVariable("idEmpresa") Long idEmpresa,
+                                                                                                        FilterListComprasLiquidacionesDto filters,
+                                                                                                        Pageable pageable) {
         log.info("Filters = {}", filters);
         return vtVentasService.findAllPaginateTotalizado(idDataService.getIdData(), idEmpresa, filters, pageable);
     }

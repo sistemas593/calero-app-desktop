@@ -1,11 +1,11 @@
 package com.calero.lili.core.modCompras.modComprasLiquidaciones.dto;
 
-import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CreationCompraImpuestoRequestDto;
-import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.detalles.ValoresDto;
 import com.calero.lili.core.dtos.FormasPagoDto;
 import com.calero.lili.core.dtos.InformacionAdicionalDto;
 import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.TipoIdentificacion;
+import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CreationCompraImpuestoRequestDto;
+import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.detalles.ValoresLiquidacionesCompraDto;
 import jakarta.persistence.Column;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -50,7 +50,7 @@ public class CreationRequestLiquidacionCompraDto {
 
     @Valid
     @NotEmpty(message = "No existen detalle de items")
-    private List<ValoresDto> valores;
+    private List<ValoresLiquidacionesCompraDto> valores;
 
     @NotNull(message = "No existe el subtotal")
     private BigDecimal subtotal;
@@ -71,18 +71,19 @@ public class CreationRequestLiquidacionCompraDto {
     private Boolean impresa;
 
     private List<InformacionAdicionalDto> informacionAdicional;
+    @Valid
     private List<FormasPagoDto> formasPagoSri;
 
     private String motivo;
 
     @Valid
     @NotEmpty(message = "No existen detalle de items")
-    private List<DetailDto> detalle;
+    private List<DetalleLiquidacionCompraDto> detalle;
 
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class DetailDto {
+    public static class DetalleLiquidacionCompraDto {
         private UUID idItem;
         private int itemOrden;
         @NotEmpty(message = "No existe el codigo principal")

@@ -34,12 +34,12 @@ public class CreationAsientosRequestDto {
 
     @Valid
     @NotEmpty(message = "No existen detalle de items")
-    private List<@Valid DetailDto> detalle;
+    private List<@Valid DetalleAsientoDto> detalle;
 
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class DetailDto {
+    public static class DetalleAsientoDto {
 
         private UUID idCuenta;
 

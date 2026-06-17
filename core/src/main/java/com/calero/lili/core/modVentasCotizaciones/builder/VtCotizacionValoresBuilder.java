@@ -3,7 +3,7 @@ package com.calero.lili.core.modVentasCotizaciones.builder;
 
 import com.calero.lili.core.dtos.ValoresDto;
 import com.calero.lili.core.modVentasCotizaciones.VtCotizacionValoresEntity;
-import com.calero.lili.core.modVentasCotizaciones.dto.ResponseValoresDto;
+import com.calero.lili.core.modVentasCotizaciones.dto.ResponseVentasCotizacionesValoresDto;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -31,14 +31,14 @@ public class VtCotizacionValoresBuilder {
                 .build();
     }
 
-    public List<ResponseValoresDto> builderListValoresDto(List<VtCotizacionValoresEntity> list) {
+    public List<ResponseVentasCotizacionesValoresDto> builderListValoresDto(List<VtCotizacionValoresEntity> list) {
         return list.stream()
                 .map(this::builderValoresDto)
                 .toList();
     }
 
-    private ResponseValoresDto builderValoresDto(VtCotizacionValoresEntity model) {
-        return ResponseValoresDto.builder()
+    private ResponseVentasCotizacionesValoresDto builderValoresDto(VtCotizacionValoresEntity model) {
+        return ResponseVentasCotizacionesValoresDto.builder()
                 .valor(model.getValor())
                 .codigoPorcentaje(model.getCodigoPorcentaje())
                 .baseImponible(model.getBaseImponible())

@@ -3,8 +3,8 @@ package com.calero.lili.core.modVentasPedidos.builder;
 import com.calero.lili.core.builder.InformacionAdicionalBuilder;
 import com.calero.lili.core.modVentasPedidos.VtPedidoEntity;
 import com.calero.lili.core.modVentasPedidos.dto.CreationComprasPedidosRequestDto;
-import com.calero.lili.core.modVentasPedidos.dto.GetDto;
-import com.calero.lili.core.modVentasPedidos.dto.GetListDto;
+import com.calero.lili.core.modVentasPedidos.dto.GetVentaPedidosDto;
+import com.calero.lili.core.modVentasPedidos.dto.GetVentaPedidosListDto;
 import com.calero.lili.core.utils.DateUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -91,8 +91,8 @@ public class VtPedidoBuilder {
 
     }
 
-    public GetDto builderResponse(VtPedidoEntity model) {
-        return GetDto.builder()
+    public GetVentaPedidosDto builderResponse(VtPedidoEntity model) {
+        return GetVentaPedidosDto.builder()
                 .idPedido(model.getIdPedido())
                 .sucursal(model.getSucursal())
                 .secuencial(model.getSecuencial())
@@ -120,8 +120,8 @@ public class VtPedidoBuilder {
                 .build();
     }
 
-    public GetListDto builderPaginateResponse(VtPedidoEntity model) {
-        return GetListDto.builder()
+    public GetVentaPedidosListDto builderPaginateResponse(VtPedidoEntity model) {
+        return GetVentaPedidosListDto.builder()
                 .sucursal(model.getSucursal())
                 .idPedido(model.getIdPedido())
                 .secuencial(model.getSecuencial())

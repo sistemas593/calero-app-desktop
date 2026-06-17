@@ -100,14 +100,14 @@ public class GetItemBuilder {
     }
 
 
-    private List<GeImpuestosEntity> builderListImpuestos(List<GeItemRequestDto.Impuesto> list) {
+    private List<GeImpuestosEntity> builderListImpuestos(List<GeItemRequestDto.ImpuestoItemDto> list) {
         if (Objects.isNull(list)) return null;
         return list.stream()
                 .map(this::builderImpuesto)
                 .toList();
     }
 
-    private GeImpuestosEntity builderImpuesto(GeItemRequestDto.Impuesto model) {
+    private GeImpuestosEntity builderImpuesto(GeItemRequestDto.ImpuestoItemDto model) {
         return GeImpuestosEntity.builder()
                 .idImpuesto(model.getIdImpuesto())
                 .build();

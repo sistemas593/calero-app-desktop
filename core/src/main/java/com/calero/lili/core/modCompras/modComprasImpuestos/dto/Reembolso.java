@@ -28,7 +28,7 @@ public class Reembolso {
 
     @Valid
     @NotEmpty(message = "No existen valores en el reembolso")
-    private List<ValoresDto> reembolsosValores;
+    private List<ValoresCompraImpuestoDto> reembolsosValores;
 
     private PaisDto pais;
 

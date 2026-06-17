@@ -30,13 +30,13 @@ public class GeItemRequestDto {
     private String medida;
     private UUID idGrupo;
 
-    private List<Impuesto> impuestos;
+    private List<ImpuestoItemDto> impuestos;
 
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    public static class Impuesto {
+    public static class ImpuestoItemDto {
         private Long idImpuesto;
     }
 

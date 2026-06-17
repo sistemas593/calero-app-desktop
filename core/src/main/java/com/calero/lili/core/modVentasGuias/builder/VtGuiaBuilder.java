@@ -7,8 +7,8 @@ import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modVentasGuias.VtGuiaEntity;
 import com.calero.lili.core.modVentasGuias.dto.CreationRequestGuiaRemisionDto;
-import com.calero.lili.core.modVentasGuias.dto.GetDto;
-import com.calero.lili.core.modVentasGuias.dto.GetListDto;
+import com.calero.lili.core.modVentasGuias.dto.GetVentasGuiasDto;
+import com.calero.lili.core.modVentasGuias.dto.GetVentasGuiasListDto;
 import com.calero.lili.core.utils.DateUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -113,8 +113,8 @@ public class VtGuiaBuilder {
     }
 
 
-    public GetDto.Transportista builderDtoTransportista(GeTerceroEntity model) {
-        return GetDto.Transportista.builder()
+    public GetVentasGuiasDto.Transportista builderDtoTransportista(GeTerceroEntity model) {
+        return GetVentasGuiasDto.Transportista.builder()
                 .idTransportista(model.getIdTercero())
                 .razonSocialTransportista(model.getTercero())
                 .tipoIdentificacionTransportista(model.getTipoIdentificacion())
@@ -125,8 +125,8 @@ public class VtGuiaBuilder {
     }
 
 
-    public GetDto builderResponse(VtGuiaEntity model) {
-        return GetDto.builder()
+    public GetVentasGuiasDto builderResponse(VtGuiaEntity model) {
+        return GetVentasGuiasDto.builder()
                 .idGuia(model.getIdGuia())
                 .sucursal(model.getSucursal())
                 .serie(model.getSerie())
@@ -165,9 +165,9 @@ public class VtGuiaBuilder {
     }
 
     // Revisar el retorno del dto 
-    private GetDto.DocumentoSustentoDto builderDocumentoSustentoResponse(VtGuiaEntity model) {
+    private GetVentasGuiasDto.DocumentoSustentoDto builderDocumentoSustentoResponse(VtGuiaEntity model) {
         if (Objects.isNull(model.getSerieDocSustento())) return null;
-        return GetDto.DocumentoSustentoDto.builder()
+        return GetVentasGuiasDto.DocumentoSustentoDto.builder()
                 .serieDocSustento(model.getSerieDocSustento())
                 .secuencialDocSustento(model.getSecuencialDocSustento())
                 .numAutDocSustento(model.getNumAutDocSustento())
@@ -176,8 +176,8 @@ public class VtGuiaBuilder {
                 .build();
     }
 
-    public GetListDto builderListResponse(VtGuiaEntity model) {
-        return GetListDto.builder()
+    public GetVentasGuiasListDto builderListResponse(VtGuiaEntity model) {
+        return GetVentasGuiasListDto.builder()
                 .idGuia(model.getIdGuia())
                 .numeroAutorizacion(model.getNumeroAutorizacion())
                 .sucursal(model.getSucursal())

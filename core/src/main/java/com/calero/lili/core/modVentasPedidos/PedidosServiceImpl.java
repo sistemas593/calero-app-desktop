@@ -9,15 +9,14 @@ import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
-import com.calero.lili.core.modVentas.dto.DetailDto;
+import com.calero.lili.core.modVentas.dto.DetalleVentasDto;
 import com.calero.lili.core.modVentas.service.ValidarServiceImpl;
-import com.calero.lili.core.modVentasCotizaciones.dto.CreationVentasCotizacionesRequestDto;
 import com.calero.lili.core.modVentasPedidos.builder.VtPedidoBuilder;
 import com.calero.lili.core.modVentasPedidos.dto.CreationComprasPedidosRequestDto;
 import com.calero.lili.core.modVentasPedidos.dto.FilterListVentasPedidosDto;
-import com.calero.lili.core.modVentasPedidos.dto.GetDto;
-import com.calero.lili.core.modVentasPedidos.dto.GetListDto;
-import com.calero.lili.core.modVentasPedidos.dto.GetListDtoTotalizado;
+import com.calero.lili.core.modVentasPedidos.dto.GetVentaPedidosDto;
+import com.calero.lili.core.modVentasPedidos.dto.GetVentaPedidosListDto;
+import com.calero.lili.core.modVentasPedidos.dto.GetVentaPedidosListDtoTotalizado;
 import com.calero.lili.core.modVentasPedidos.projection.OneProjection;
 import com.calero.lili.core.modVentasPedidos.projection.TotalesProjection;
 import com.calero.lili.core.utils.DateUtils;
@@ -146,19 +145,19 @@ public class PedidosServiceImpl {
     }
 
 
-    public GetDto findById(Long idData, Long idEmpresa, UUID idVenta, FilterListVentasPedidosDto filters,
-                           TipoPermiso tipoBusqueda, String usuario) {
+    public GetVentaPedidosDto findById(Long idData, Long idEmpresa, UUID idVenta, FilterListVentasPedidosDto filters,
+                                       TipoPermiso tipoBusqueda, String usuario) {
 
         VtPedidoEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
         return vtPedidoBuilder.builderResponse(vtVentaEntity);
     }
 
-    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListVentasPedidosDto filters, Pageable pageable,
-                                                    TipoPermiso tipoBusqueda, String usuario) {
+    public PaginatedDto<GetVentaPedidosListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListVentasPedidosDto filters, Pageable pageable,
+                                                                TipoPermiso tipoBusqueda, String usuario) {
 
         Page<VtPedidoEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
 
-        List<GetListDto> dtoList = page.stream().map(vtPedidoBuilder::builderPaginateResponse).toList();
+        List<GetVentaPedidosListDto> dtoList = page.stream().map(vtPedidoBuilder::builderPaginateResponse).toList();
 
         PaginatedDto paginatedDto = new PaginatedDto();
         paginatedDto.setContent(dtoList);
@@ -209,15 +208,15 @@ public class PedidosServiceImpl {
         throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
     }
 
-    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListVentasPedidosDto filters, Pageable pageable) {
+    public GetVentaPedidosListDtoTotalizado<GetVentaPedidosListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListVentasPedidosDto filters, Pageable pageable) {
 
         Page<VtPedidoEntity> page = vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getSerie(), filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
 
-        List<GetListDto> dtoList = page.stream().map(vtPedidoBuilder::builderPaginateResponse).toList();
+        List<GetVentaPedidosListDto> dtoList = page.stream().map(vtPedidoBuilder::builderPaginateResponse).toList();
 
         List<TotalesProjection> totalValoresProjection = vtVentaRepository.totalValores(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getSerie(), filters.getSecuencial());
 
-        GetListDtoTotalizado totalesDto = new GetListDtoTotalizado<>();
+        GetVentaPedidosListDtoTotalizado totalesDto = new GetVentaPedidosListDtoTotalizado<>();
         totalesDto.setContent(dtoList);
 
         Paginator paginated = new Paginator();
@@ -233,7 +232,7 @@ public class PedidosServiceImpl {
         paginated.setNumber(page.getNumber());
         totalesDto.setPaginated(paginated);
 
-        GetListDtoTotalizado.Totales tot = new GetListDtoTotalizado.Totales();
+        GetVentaPedidosListDtoTotalizado.Totales tot = new GetVentaPedidosListDtoTotalizado.Totales();
         tot.setValoresTotales(totalValoresProjection);
 
         totalesDto.setTotales(tot);
@@ -524,7 +523,7 @@ public class PedidosServiceImpl {
     private void setearValoresCabecera(List<ValoresDto> valores, CreationComprasPedidosRequestDto request) {
 
         BigDecimal totalDescuento = request.getDetalle().stream()
-                .map(DetailDto::getDescuento)
+                .map(DetalleVentasDto::getDescuento)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         BigDecimal subtotal = valores.stream()

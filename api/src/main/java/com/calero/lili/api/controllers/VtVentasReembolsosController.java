@@ -10,8 +10,8 @@ import com.calero.lili.core.modVentas.reembolsos.VtVentasReembolsoPdfXmlServiceI
 import com.calero.lili.core.modVentas.reembolsos.VtVentasReembolsoServiceImpl;
 import com.calero.lili.core.modVentas.reembolsos.dto.CreationRequestReembolsoDto;
 import com.calero.lili.core.modVentas.reembolsos.dto.FilterReembolsoDto;
-import com.calero.lili.core.modVentas.reembolsos.dto.GetListDtoTotalizado;
-import com.calero.lili.core.modVentas.reembolsos.dto.ResponseReembolsoDto;
+import com.calero.lili.core.modVentas.reembolsos.dto.GetVentaReembosloListDtoTotalizado;
+import com.calero.lili.core.modVentas.reembolsos.dto.ResponseVentaReembolsoDto;
 import com.lowagie.text.DocumentException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -85,26 +85,26 @@ public class VtVentasReembolsosController {
     @GetMapping("{idEmpresa}/{idReembolso}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAuthority('VT_RB_VR')")
-    public ResponseReembolsoDto findById(@PathVariable("idEmpresa") Long idEmpresa,
-                                         @PathVariable("idReembolso") UUID idReembolso) {
+    public ResponseVentaReembolsoDto findById(@PathVariable("idEmpresa") Long idEmpresa,
+                                              @PathVariable("idReembolso") UUID idReembolso) {
         return vtVentasReembolsoService.findById(idDataService.getIdData(), idEmpresa, idReembolso);
     }
 
     @GetMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAuthority('VT_RB_VR')")
-    public PaginatedDto<ResponseReembolsoDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
-                                                              FilterReembolsoDto filters,
-                                                              Pageable pageable) {
+    public PaginatedDto<ResponseVentaReembolsoDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
+                                                                   FilterReembolsoDto filters,
+                                                                   Pageable pageable) {
         return vtVentasReembolsoService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable);
     }
 
     @GetMapping("reportes/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAuthority('VT_RB_VR')")
-    public GetListDtoTotalizado<ResponseReembolsoDto> findAllTotalesPaginate(@PathVariable("idEmpresa") Long idEmpresa,
-                                                                             FilterReembolsoDto filters,
-                                                                             Pageable pageable) {
+    public GetVentaReembosloListDtoTotalizado<ResponseVentaReembolsoDto> findAllTotalesPaginate(@PathVariable("idEmpresa") Long idEmpresa,
+                                                                                                FilterReembolsoDto filters,
+                                                                                                Pageable pageable) {
         return vtVentasReembolsoService.findAllPaginateTotalizado(idDataService.getIdData(), idEmpresa, filters, pageable);
     }
 

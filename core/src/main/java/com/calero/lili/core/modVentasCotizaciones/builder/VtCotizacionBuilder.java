@@ -3,7 +3,7 @@ package com.calero.lili.core.modVentasCotizaciones.builder;
 import com.calero.lili.core.builder.InformacionAdicionalBuilder;
 import com.calero.lili.core.modVentasCotizaciones.VtCotizacionEntity;
 import com.calero.lili.core.modVentasCotizaciones.dto.CreationVentasCotizacionesRequestDto;
-import com.calero.lili.core.modVentasCotizaciones.dto.GetDto;
+import com.calero.lili.core.modVentasCotizaciones.dto.GetVentasCotizacionesDto;
 import com.calero.lili.core.modVentasCotizaciones.dto.GetListDto;
 import com.calero.lili.core.utils.DateUtils;
 import lombok.AllArgsConstructor;
@@ -94,8 +94,8 @@ public class VtCotizacionBuilder {
     }
 
 
-    public GetDto builderResponse(VtCotizacionEntity model) {
-        return GetDto.builder()
+    public GetVentasCotizacionesDto builderResponse(VtCotizacionEntity model) {
+        return GetVentasCotizacionesDto.builder()
                 .idCotizacion(model.getIdCotizacion())
                 .sucursal(model.getSucursal())
                 .secuencial(model.getSecuencial())

@@ -6,7 +6,7 @@ import com.calero.lili.core.comprobantesWs.RespuestaProcesoGetDto;
 import com.calero.lili.core.dtos.Mensajes;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.ResponseDto;
-import com.calero.lili.core.modVentas.dto.GetListDto;
+import com.calero.lili.core.modVentas.dto.GetVentasListDto;
 import com.calero.lili.core.modVentas.facturas.dto.FilterListVentasDto;
 import com.calero.lili.core.modVentas.notasCredito.VtVentasNotasCreditoServiceImpl;
 import com.calero.lili.core.modVentas.notasCredito.dto.CreationNotaCreditoRequestDto;
@@ -121,8 +121,8 @@ public class VtVentasNotasCreditoController {
     @GetMapping("notas-credito/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('VT_NC_VR_PR','VT_NC_VR_SC','VT_NC_VR_TD')")
-    public PaginatedDto<GetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
-                                                    FilterListVentasDto filters, Pageable pageable) {
+    public PaginatedDto<GetVentasListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
+                                                          FilterListVentasDto filters, Pageable pageable) {
         return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable,
                 auditorAware.getTipoPermisoVerNotaCredito(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }

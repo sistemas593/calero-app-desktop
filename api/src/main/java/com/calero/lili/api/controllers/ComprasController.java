@@ -7,9 +7,9 @@ import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.modCompras.modCompras.ComprasServiceImpl;
 import com.calero.lili.core.modCompras.modCompras.dto.CompraRequestDto;
 import com.calero.lili.core.modCompras.modCompras.dto.FilterListComprasDto;
-import com.calero.lili.core.modCompras.modCompras.dto.GetDto;
-import com.calero.lili.core.modCompras.modCompras.dto.GetListDto;
-import com.calero.lili.core.modCompras.modCompras.dto.GetListDtoTotalizado;
+import com.calero.lili.core.modCompras.modCompras.dto.GetCompraDto;
+import com.calero.lili.core.modCompras.modCompras.dto.GetCompraListDto;
+import com.calero.lili.core.modCompras.modCompras.dto.GetCompraListDtoTotalizado;
 import com.lowagie.text.DocumentException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -80,9 +80,9 @@ public class ComprasController {
     @GetMapping("{idEmpresa}/{idCompra}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('CP_CP_VR_PR','CP_CP_VR_SC','CP_CP_VR_TD')")
-    public GetDto findById(@PathVariable("idEmpresa") Long idEmpresa,
-                           @PathVariable("idCompra") UUID idCompra,
-                           FilterListComprasDto filters) {
+    public GetCompraDto findById(@PathVariable("idEmpresa") Long idEmpresa,
+                                 @PathVariable("idCompra") UUID idCompra,
+                                 FilterListComprasDto filters) {
         return vtVentasService.findById(idDataService.getIdData(), idEmpresa, idCompra,
                 filters,
                 auditorAware.getTipoPermisoVerCompra(),
@@ -92,9 +92,9 @@ public class ComprasController {
     @GetMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('CP_CP_VR_PR','CP_CP_VR_SC','CP_CP_VR_TD')")
-    public PaginatedDto<GetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
-                                                    FilterListComprasDto filters,
-                                                    Pageable pageable) {
+    public PaginatedDto<GetCompraListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
+                                                          FilterListComprasDto filters,
+                                                          Pageable pageable) {
         return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable,
                 auditorAware.getTipoPermisoVerCompra(),
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"));
@@ -103,7 +103,7 @@ public class ComprasController {
     @GetMapping("reportes/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('CP_CP_VR_PR','CP_CP_VR_SC','CP_CP_VR_TD')")
-    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(
+    public GetCompraListDtoTotalizado<GetCompraListDto> findAllPaginateTotalizado(
             @PathVariable("idEmpresa") Long idEmpresa,
             FilterListComprasDto filters,
             Pageable pageable) {

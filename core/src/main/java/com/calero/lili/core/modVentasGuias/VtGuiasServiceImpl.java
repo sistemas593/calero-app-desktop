@@ -25,8 +25,8 @@ import com.calero.lili.core.modTerceros.GeTercerosRepository;
 import com.calero.lili.core.modVentasGuias.builder.VtGuiaBuilder;
 import com.calero.lili.core.modVentasGuias.dto.CreationRequestGuiaRemisionDto;
 import com.calero.lili.core.modVentasGuias.dto.FilterListVentasGuiasDto;
-import com.calero.lili.core.modVentasGuias.dto.GetDto;
-import com.calero.lili.core.modVentasGuias.dto.GetListDto;
+import com.calero.lili.core.modVentasGuias.dto.GetVentasGuiasDto;
+import com.calero.lili.core.modVentasGuias.dto.GetVentasGuiasListDto;
 import com.calero.lili.core.modVentasGuias.projection.OneProjection;
 import com.calero.lili.core.utils.DateUtils;
 import com.calero.lili.core.utils.ValidacionDocumentosGeneral;
@@ -224,8 +224,8 @@ public class VtGuiasServiceImpl {
     }
 
 
-    public GetDto findById(Long idData, Long idEmpresa, UUID idVenta,
-                           FilterListVentasGuiasDto filters, TipoPermiso tipoBusqueda, String usuario) {
+    public GetVentasGuiasDto findById(Long idData, Long idEmpresa, UUID idVenta,
+                                      FilterListVentasGuiasDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         VtGuiaEntity vtGuiaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
         return vtGuiaBuilder.builderResponse(vtGuiaEntity);
@@ -240,12 +240,12 @@ public class VtGuiasServiceImpl {
         return vtGuiaEntity.getMensajes();
     }
 
-    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListVentasGuiasDto filters, Pageable pageable,
-                                                    TipoPermiso tipoBusqueda, String usuario) {
+    public PaginatedDto<GetVentasGuiasListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListVentasGuiasDto filters, Pageable pageable,
+                                                               TipoPermiso tipoBusqueda, String usuario) {
 
         Page<VtGuiaEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
 
-        List<GetListDto> dtoList = page.stream().map(vtGuiaBuilder::builderListResponse).toList();
+        List<GetVentasGuiasListDto> dtoList = page.stream().map(vtGuiaBuilder::builderListResponse).toList();
 
         PaginatedDto paginatedDto = new PaginatedDto();
         paginatedDto.setContent(dtoList);

@@ -8,8 +8,8 @@ import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.FilterListComprasLiquidacionesDto;
-import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.GetListDtoTotalizado;
-import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.detalles.ValoresDto;
+import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.GetLiquidacionCompraListDtoTotalizado;
+import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.detalles.ValoresLiquidacionesCompraDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.projection.TotalesProjection;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.builder.CpLiquidacionesReembolsosBuilder;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.dto.GetReembolsoDto;
@@ -167,8 +167,8 @@ public class LiquidacionesReembolsosServiceImpl {
     }
 
 
-    public GetListDtoTotalizado<GetReembolsoDto> findAllPaginateTotalizado(Long idData, Long idEmpresa,
-                                                                           FilterListComprasLiquidacionesDto filtro, Pageable pageable) {
+    public GetLiquidacionCompraListDtoTotalizado<GetReembolsoDto> findAllPaginateTotalizado(Long idData, Long idEmpresa,
+                                                                                            FilterListComprasLiquidacionesDto filtro, Pageable pageable) {
 
 
         validarFiltroUtilizado(filtro);
@@ -184,7 +184,7 @@ public class LiquidacionesReembolsosServiceImpl {
                 .totalValores(idData, idEmpresa, filtro.getFechaEmisionDesde(), filtro.getFechaEmisionHasta(),
                         filtro.getSecuencial(), filtro.getNumeroIdentificacion(), filtro.getSerie(), filtro.getUtilizado());
 
-        GetListDtoTotalizado totalesDto = new GetListDtoTotalizado<>();
+        GetLiquidacionCompraListDtoTotalizado totalesDto = new GetLiquidacionCompraListDtoTotalizado<>();
         totalesDto.setContent(dtoList);
 
         Paginator paginated = new Paginator();
@@ -200,7 +200,7 @@ public class LiquidacionesReembolsosServiceImpl {
         paginated.setNumber(page.getNumber());
         totalesDto.setPaginated(paginated);
 
-        GetListDtoTotalizado.Totales tot = new GetListDtoTotalizado.Totales();
+        GetLiquidacionCompraListDtoTotalizado.Totales tot = new GetLiquidacionCompraListDtoTotalizado.Totales();
         tot.setValoresTotales(totalValoresProjection);
 
         totalesDto.setTotales(tot);
@@ -455,9 +455,9 @@ public class LiquidacionesReembolsosServiceImpl {
         }
     }
 
-    private List<Integer> getIntegerTarifaIva(List<ValoresDto> valores) {
+    private List<Integer> getIntegerTarifaIva(List<ValoresLiquidacionesCompraDto> valores) {
         return valores.stream()
-                .map(ValoresDto::getTarifa)
+                .map(ValoresLiquidacionesCompraDto::getTarifa)
                 .filter(Objects::nonNull)
                 .map(BigDecimal::intValue)
                 .toList();
@@ -535,7 +535,7 @@ public class LiquidacionesReembolsosServiceImpl {
 
         BigDecimal tolerancia = new BigDecimal("0.10");
 
-        for (ValoresDto valor : request.getReembolsosValores()) {
+        for (ValoresLiquidacionesCompraDto valor : request.getReembolsosValores()) {
 
             if (!valor.getTarifa().equals(new BigDecimal("0.00"))) {
                 BigDecimal valorEsperado = valor.getBaseImponible()

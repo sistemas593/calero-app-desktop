@@ -8,9 +8,9 @@ import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modComprasOrden.builder.CpOrdenComprasBuilder;
 import com.calero.lili.core.modComprasOrden.dto.FilterListComprasOrdenDto;
-import com.calero.lili.core.modComprasOrden.dto.GetDto;
-import com.calero.lili.core.modComprasOrden.dto.GetListDto;
-import com.calero.lili.core.modComprasOrden.dto.GetListDtoTotalizado;
+import com.calero.lili.core.modComprasOrden.dto.GetComprasOrdenDto;
+import com.calero.lili.core.modComprasOrden.dto.GetComprasOrdenListDto;
+import com.calero.lili.core.modComprasOrden.dto.GetListComprasOrdenDtoTotalizado;
 import com.calero.lili.core.modComprasOrden.dto.OrdenCompraRequestDto;
 import com.calero.lili.core.modComprasOrden.projection.TotalesProjection;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
@@ -110,19 +110,19 @@ public class OrdenComprasServiceImpl {
     }
 
 
-    public GetDto findById(Long idData, Long idEmpresa, UUID idVenta,
-                           FilterListComprasOrdenDto filters, TipoPermiso tipoBusqueda, String usuario) {
+    public GetComprasOrdenDto findById(Long idData, Long idEmpresa, UUID idVenta,
+                                       FilterListComprasOrdenDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         CpOrdenComprasEntity cpOrdenComprasEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
         return cpOrdenComprasBuilder.builderGetDto(cpOrdenComprasEntity);
     }
 
-    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListComprasOrdenDto filters, Pageable pageable,
-                                                    TipoPermiso tipoBusqueda, String usuario) {
+    public PaginatedDto<GetComprasOrdenListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListComprasOrdenDto filters, Pageable pageable,
+                                                                TipoPermiso tipoBusqueda, String usuario) {
 
         Page<CpOrdenComprasEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
 
-        List<GetListDto> dtoList = page.stream().map(item -> {
+        List<GetComprasOrdenListDto> dtoList = page.stream().map(item -> {
             if (item.getAnulada()) {
                 return cpOrdenComprasBuilder.builderAnuladoGetListDto(item);
             }
@@ -149,12 +149,12 @@ public class OrdenComprasServiceImpl {
         return paginatedDto;
     }
 
-    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListComprasOrdenDto filters, Pageable pageable) {
+    public GetListComprasOrdenDtoTotalizado<GetComprasOrdenListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListComprasOrdenDto filters, Pageable pageable) {
 
         Page<CpOrdenComprasEntity> page = ordenComprasRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(),
                 filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getSecuencial(), null, pageable);
 
-        List<GetListDto> dtoList = page.stream().map(item -> {
+        List<GetComprasOrdenListDto> dtoList = page.stream().map(item -> {
             if (item.getAnulada()) {
                 return cpOrdenComprasBuilder.builderAnuladoGetListDto(item);
             }
@@ -163,7 +163,7 @@ public class OrdenComprasServiceImpl {
 
         List<TotalesProjection> totalValoresProjection = ordenComprasRepository.totalValores(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getSecuencial());
 
-        GetListDtoTotalizado totalesDto = new GetListDtoTotalizado<>();
+        GetListComprasOrdenDtoTotalizado totalesDto = new GetListComprasOrdenDtoTotalizado<>();
         totalesDto.setContent(dtoList);
 
         Paginator paginated = new Paginator();
@@ -179,7 +179,7 @@ public class OrdenComprasServiceImpl {
         paginated.setNumber(page.getNumber());
         totalesDto.setPaginated(paginated);
 
-        GetListDtoTotalizado.Totales tot = new GetListDtoTotalizado.Totales();
+        GetListComprasOrdenDtoTotalizado.Totales tot = new GetListComprasOrdenDtoTotalizado.Totales();
         tot.setValoresTotales(totalValoresProjection);
 
         totalesDto.setTotales(tot);

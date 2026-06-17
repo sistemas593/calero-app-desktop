@@ -2,7 +2,7 @@ package com.calero.lili.core.modCompras.modComprasImpuestos.builder;
 
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosValoresEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.ResponseValoresDto;
-import com.calero.lili.core.modCompras.modComprasImpuestos.dto.ValoresDto;
+import com.calero.lili.core.modCompras.modComprasImpuestos.dto.ValoresCompraImpuestoDto;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -11,13 +11,13 @@ import java.util.UUID;
 @Component
 public class ValoresBuilder {
 
-    public List<CpImpuestosValoresEntity> builderList(List<ValoresDto> list, Long idData, Long idEmpresa) {
+    public List<CpImpuestosValoresEntity> builderList(List<ValoresCompraImpuestoDto> list, Long idData, Long idEmpresa) {
         return list.stream()
                 .map(x -> builder(x, idData, idEmpresa))
                 .toList();
     }
 
-    private CpImpuestosValoresEntity builder(ValoresDto model, Long idData, Long idEmpresa) {
+    private CpImpuestosValoresEntity builder(ValoresCompraImpuestoDto model, Long idData, Long idEmpresa) {
         return CpImpuestosValoresEntity.builder()
                 .idImpuestosValores(UUID.randomUUID())
                 .idData(idData)

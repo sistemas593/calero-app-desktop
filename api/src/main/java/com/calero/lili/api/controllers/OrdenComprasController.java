@@ -6,9 +6,9 @@ import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.modComprasOrden.OrdenComprasServiceImpl;
 import com.calero.lili.core.modComprasOrden.dto.FilterListComprasOrdenDto;
-import com.calero.lili.core.modComprasOrden.dto.GetDto;
-import com.calero.lili.core.modComprasOrden.dto.GetListDto;
-import com.calero.lili.core.modComprasOrden.dto.GetListDtoTotalizado;
+import com.calero.lili.core.modComprasOrden.dto.GetComprasOrdenDto;
+import com.calero.lili.core.modComprasOrden.dto.GetComprasOrdenListDto;
+import com.calero.lili.core.modComprasOrden.dto.GetListComprasOrdenDtoTotalizado;
 import com.calero.lili.core.modComprasOrden.dto.OrdenCompraRequestDto;
 import com.lowagie.text.DocumentException;
 import jakarta.servlet.http.HttpServletResponse;
@@ -80,9 +80,9 @@ public class OrdenComprasController {
     @GetMapping("{idEmpresa}/{idOrdenCompra}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('CP_OC_VR_PR','CP_OC_VR_SC','CP_OC_VR_TD')")
-    public GetDto findById(@PathVariable("idEmpresa") Long idEmpresa,
-                           @PathVariable("idOrdenCompra") UUID idOrdenCompra,
-                           FilterListComprasOrdenDto filters) {
+    public GetComprasOrdenDto findById(@PathVariable("idEmpresa") Long idEmpresa,
+                                       @PathVariable("idOrdenCompra") UUID idOrdenCompra,
+                                       FilterListComprasOrdenDto filters) {
         return vtVentasService.findById(idDataService.getIdData(), idEmpresa, idOrdenCompra,
                 filters,
                 auditorAware.getTipoPermisoVerOrdenCompra(),
@@ -92,9 +92,9 @@ public class OrdenComprasController {
     @GetMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('CP_OC_VR_PR','CP_OC_VR_SC','CP_OC_VR_TD')")
-    public PaginatedDto<GetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
-                                                    FilterListComprasOrdenDto filters,
-                                                    Pageable pageable) {
+    public PaginatedDto<GetComprasOrdenListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
+                                                                FilterListComprasOrdenDto filters,
+                                                                Pageable pageable) {
         return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable,
                 auditorAware.getTipoPermisoVerOrdenCompra(),
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"));
@@ -103,9 +103,9 @@ public class OrdenComprasController {
     @GetMapping("reportes/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('CP_OC_VR_PR','CP_OC_VR_SC','CP_OC_VR_TD')")
-    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(@PathVariable("idEmpresa") Long idEmpresa,
-                                                                      FilterListComprasOrdenDto filters,
-                                                                      Pageable pageable) {
+    public GetListComprasOrdenDtoTotalizado<GetComprasOrdenListDto> findAllPaginateTotalizado(@PathVariable("idEmpresa") Long idEmpresa,
+                                                                                              FilterListComprasOrdenDto filters,
+                                                                                              Pageable pageable) {
         log.info("Filters = {}", filters);
         return vtVentasService.findAllPaginateTotalizado(idDataService.getIdData(), idEmpresa, filters, pageable);
     }

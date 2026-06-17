@@ -7,8 +7,8 @@ import com.calero.lili.core.enums.Ambiente;
 import com.calero.lili.core.enums.EmailEstado;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.CpLiquidacionesEntity;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.CreationRequestLiquidacionCompraDto;
-import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.GetDto;
-import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.GetListDto;
+import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.GetLiquidacionCompraDto;
+import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.GetLiquidacionCompraListDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.builder.CpLiquidacionesReembolsosBuilder;
 import com.calero.lili.core.utils.DateUtils;
 import lombok.AllArgsConstructor;
@@ -121,8 +121,8 @@ public class CpLiquidacionesBuilder {
     }
 
 
-    public GetDto builderGetDto(CpLiquidacionesEntity model) {
-        return GetDto.builder()
+    public GetLiquidacionCompraDto builderGetDto(CpLiquidacionesEntity model) {
+        return GetLiquidacionCompraDto.builder()
                 .idLiquidacion(model.getIdLiquidacion())
                 .sucursal(model.getSucursal())
                 .fechaEmision(DateUtils.toString(model.getFechaEmision()))
@@ -172,8 +172,8 @@ public class CpLiquidacionesBuilder {
                 .build();
     }
 
-    public GetListDto builderListDto(CpLiquidacionesEntity model) {
-        return GetListDto.builder()
+    public GetLiquidacionCompraListDto builderListDto(CpLiquidacionesEntity model) {
+        return GetLiquidacionCompraListDto.builder()
                 .sucursal(model.getSucursal())
                 .idLiquidacion(model.getIdLiquidacion())
                 .serie(model.getSerie())
@@ -214,8 +214,8 @@ public class CpLiquidacionesBuilder {
                 .build();
     }
 
-    public GetListDto builderGetListDto(CpLiquidacionesEntity model) {
-        return GetListDto.builder()
+    public GetLiquidacionCompraListDto builderGetListDto(CpLiquidacionesEntity model) {
+        return GetLiquidacionCompraListDto.builder()
                 .sucursal(model.getSucursal())
                 .idLiquidacion(model.getIdLiquidacion())
                 .serie(model.getSerie())
@@ -257,8 +257,8 @@ public class CpLiquidacionesBuilder {
     }
 
 
-    public GetListDto builderAnuladaGetListDto(CpLiquidacionesEntity model) {
-        return GetListDto.builder()
+    public GetLiquidacionCompraListDto builderAnuladaGetListDto(CpLiquidacionesEntity model) {
+        return GetLiquidacionCompraListDto.builder()
                 .sucursal(model.getSucursal())
                 .idLiquidacion(model.getIdLiquidacion())
                 .serie(model.getSerie())

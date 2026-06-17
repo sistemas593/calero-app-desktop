@@ -58,13 +58,14 @@ public class CreationCompraImpuestoRequestDto {
 
     @Valid
     @NotEmpty(message = "No existen valores")
-    private List<ValoresDto> valores; // Se realizo una clase unica, valoresEntity
+    private List<ValoresCompraImpuestoDto> valores; // Se realizo una clase unica, valoresEntity
 
 
     private String documentoElectronico;
     private String destino;
 
     private List<InformacionAdicionalDto> informacionAdicional;
+    @Valid
     private List<FormasPagoDto> formasPagoSri;
 
     private String modTipoVenta;

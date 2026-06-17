@@ -6,7 +6,7 @@ import com.calero.lili.core.comprobantesWs.RespuestaProcesoGetDto;
 import com.calero.lili.core.dtos.Mensajes;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.ResponseDto;
-import com.calero.lili.core.modVentas.dto.GetListDto;
+import com.calero.lili.core.modVentas.dto.GetVentasListDto;
 import com.calero.lili.core.modVentas.facturas.VtVentasFacturasExcelService;
 import com.calero.lili.core.modVentas.facturas.VtVentasFacturasServiceImpl;
 import com.calero.lili.core.modVentas.facturas.dto.CreationFacturaRequestDto;
@@ -109,9 +109,9 @@ public class VtVentasFacturasController {
     @GetMapping("facturas/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('VT_FC_VR_PR','VT_FC_VR_SC','VT_FC_VR_TD')")
-    public PaginatedDto<GetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
-                                                    FilterListVentasDto filters,
-                                                    Pageable pageable) {
+    public PaginatedDto<GetVentasListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
+                                                          FilterListVentasDto filters,
+                                                          Pageable pageable) {
         return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable,
                 auditorAware.getTipoPermisoFacturaVer(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }

@@ -13,14 +13,14 @@ import java.util.UUID;
 @Component
 public class VtRetencionesValoresBuilder {
 
-    public List<VtRetencionesValoresEntity> builderList(List<CreationVentasRetencionesRequestDto.ValoresDto> list, Long idData, Long idEmpresa) {
+    public List<VtRetencionesValoresEntity> builderList(List<CreationVentasRetencionesRequestDto.ValoresVentasRetencionesDto> list, Long idData, Long idEmpresa) {
         return list
                 .stream()
                 .map(x -> builderValores(x, idData, idEmpresa))
                 .toList();
     }
 
-    private VtRetencionesValoresEntity builderValores(CreationVentasRetencionesRequestDto.ValoresDto model, Long idData, Long idEmpresa) {
+    private VtRetencionesValoresEntity builderValores(CreationVentasRetencionesRequestDto.ValoresVentasRetencionesDto model, Long idData, Long idEmpresa) {
         return VtRetencionesValoresEntity.builder()
                 .idRetencionValores(UUID.randomUUID())
                 .idData(idData)

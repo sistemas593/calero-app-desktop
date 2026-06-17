@@ -15,7 +15,7 @@ import java.util.UUID;
 public class CnAsientosDetallesBuilder {
 
 
-    public CnAsientosDetalleEntity builderAsientoDetalle(CreationAsientosRequestDto.DetailDto model, Long idData, Long idEmpresa) {
+    public CnAsientosDetalleEntity builderAsientoDetalle(CreationAsientosRequestDto.DetalleAsientoDto model, Long idData, Long idEmpresa) {
         return CnAsientosDetalleEntity.builder()
                 .idAsientoDetalle(UUID.randomUUID())
                 .idData(idData)

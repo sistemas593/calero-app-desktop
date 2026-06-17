@@ -6,9 +6,9 @@ import com.calero.lili.core.modCompras.modCompras.builder.CpComprasBuilder;
 import com.calero.lili.core.modCompras.modCompras.dto.CompraImpuestosDto;
 import com.calero.lili.core.modCompras.modCompras.dto.CompraRequestDto;
 import com.calero.lili.core.modCompras.modCompras.dto.FilterListComprasDto;
-import com.calero.lili.core.modCompras.modCompras.dto.GetDto;
-import com.calero.lili.core.modCompras.modCompras.dto.GetListDto;
-import com.calero.lili.core.modCompras.modCompras.dto.GetListDtoTotalizado;
+import com.calero.lili.core.modCompras.modCompras.dto.GetCompraDto;
+import com.calero.lili.core.modCompras.modCompras.dto.GetCompraListDto;
+import com.calero.lili.core.modCompras.modCompras.dto.GetCompraListDtoTotalizado;
 import com.calero.lili.core.modCompras.modCompras.projection.TotalesProjection;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosServiceImpl;
 import com.calero.lili.core.modComprasItems.GeItemsRepository;
@@ -163,22 +163,22 @@ public class ComprasServiceImpl {
     }
 
 
-    public GetDto findById(Long idData, Long idEmpresa, UUID idVenta,
-                           FilterListComprasDto filters, TipoPermiso tipoBusqueda, String usuario) {
+    public GetCompraDto findById(Long idData, Long idEmpresa, UUID idVenta,
+                                 FilterListComprasDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         CpComprasEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
-        GetDto response = cpComprasBuilder.builderGetDto(vtVentaEntity);
+        GetCompraDto response = cpComprasBuilder.builderGetDto(vtVentaEntity);
         response.setListCompraImpuesto(cpImpuestosService.getListCompraImpuestoForIdParent(idVenta, idEmpresa, idData));
         return response;
     }
 
-    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListComprasDto filters, Pageable pageable,
-                                                    TipoPermiso tipoBusqueda, String usuario) {
+    public PaginatedDto<GetCompraListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListComprasDto filters, Pageable pageable,
+                                                          TipoPermiso tipoBusqueda, String usuario) {
 
         Page<CpComprasEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
-        List<GetListDto> dtoList = page.stream().map(entidad -> {
-            GetListDto response = cpComprasBuilder.builderGetListDto(entidad);
+        List<GetCompraListDto> dtoList = page.stream().map(entidad -> {
+            GetCompraListDto response = cpComprasBuilder.builderGetListDto(entidad);
             response.setListCompraImpuesto(cpImpuestosService.getListCompraImpuestoForIdParent
                     (response.getIdCompra(), idEmpresa, idData));
             return response;
@@ -230,14 +230,14 @@ public class ComprasServiceImpl {
         throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
     }
 
-    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListComprasDto filters, Pageable pageable) {
+    public GetCompraListDtoTotalizado<GetCompraListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListComprasDto filters, Pageable pageable) {
 
         Page<CpComprasEntity> page = comprasRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(),
                 filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(),
                 filters.getSerie(), filters.getSecuencial(), null, pageable);
 
-        List<GetListDto> dtoList = page.stream().map(entidad -> {
-            GetListDto response = cpComprasBuilder.builderGetListDto(entidad);
+        List<GetCompraListDto> dtoList = page.stream().map(entidad -> {
+            GetCompraListDto response = cpComprasBuilder.builderGetListDto(entidad);
             response.setListCompraImpuesto(cpImpuestosService.getListCompraImpuestoForIdParent
                     (response.getIdCompra(), idEmpresa, idData));
             return response;
@@ -245,7 +245,7 @@ public class ComprasServiceImpl {
 
         List<TotalesProjection> totalValoresProjection = comprasRepository.totalValores(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getSerie(), filters.getSecuencial());
 
-        GetListDtoTotalizado totalesDto = new GetListDtoTotalizado<>();
+        GetCompraListDtoTotalizado totalesDto = new GetCompraListDtoTotalizado<>();
         totalesDto.setContent(dtoList);
 
         Paginator paginated = new Paginator();
@@ -261,7 +261,7 @@ public class ComprasServiceImpl {
         paginated.setNumber(page.getNumber());
         totalesDto.setPaginated(paginated);
 
-        GetListDtoTotalizado.Totales tot = new GetListDtoTotalizado.Totales();
+        GetCompraListDtoTotalizado.Totales tot = new GetCompraListDtoTotalizado.Totales();
         tot.setValoresTotales(totalValoresProjection);
 
         totalesDto.setTotales(tot);
@@ -514,15 +514,15 @@ public class ComprasServiceImpl {
     }
 
     private void validarItem(CompraRequestDto request, Long idData, Long idEmpresa) {
-        for (CompraRequestDto.DetailDto model : request.getDetalle()) {
+        for (CompraRequestDto.DetalleCompraDto model : request.getDetalle()) {
             geItemsRepository.findByIdItem(idData, idEmpresa, model.getIdItem())
                     .orElseThrow(() -> new GeneralException("El item con id  " + model.getIdItem() + " no existe "));
         }
     }
 
-    private List<Integer> getIntegerTarifaIva(List<CompraRequestDto.ValoresDto> valores) {
+    private List<Integer> getIntegerTarifaIva(List<CompraRequestDto.ValoresCompraDto> valores) {
         return valores.stream()
-                .map(CompraRequestDto.ValoresDto::getTarifa)
+                .map(CompraRequestDto.ValoresCompraDto::getTarifa)
                 .filter(Objects::nonNull)
                 .map(BigDecimal::intValue)
                 .toList();

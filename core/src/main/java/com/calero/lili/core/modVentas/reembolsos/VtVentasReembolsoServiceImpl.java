@@ -9,8 +9,8 @@ import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
 import com.calero.lili.core.modVentas.reembolsos.builder.VtVentaReembolsosBuilder;
 import com.calero.lili.core.modVentas.reembolsos.dto.CreationRequestReembolsoDto;
 import com.calero.lili.core.modVentas.reembolsos.dto.FilterReembolsoDto;
-import com.calero.lili.core.modVentas.reembolsos.dto.GetListDtoTotalizado;
-import com.calero.lili.core.modVentas.reembolsos.dto.ResponseReembolsoDto;
+import com.calero.lili.core.modVentas.reembolsos.dto.GetVentaReembosloListDtoTotalizado;
+import com.calero.lili.core.modVentas.reembolsos.dto.ResponseVentaReembolsoDto;
 import com.calero.lili.core.modVentas.reembolsos.projection.TotalesProjection;
 import com.calero.lili.core.utils.DateUtils;
 import com.calero.lili.core.utils.ValidacionDocumentosGeneral;
@@ -120,14 +120,14 @@ public class VtVentasReembolsoServiceImpl {
 
     }
 
-    public ResponseReembolsoDto findById(Long idData, Long idEmpresa, UUID id) {
+    public ResponseVentaReembolsoDto findById(Long idData, Long idEmpresa, UUID id) {
         return vtVentaReembolsosBuilder.builderReembolso(vtVentasReembolsoRepository.findByIdEntity(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat
                         .format("El reembolso con el id:  {0},  no existe", id))));
     }
 
 
-    public PaginatedDto<ResponseReembolsoDto> findAllPaginate(Long idData, Long idEmpresa, FilterReembolsoDto filters, Pageable pageable) {
+    public PaginatedDto<ResponseVentaReembolsoDto> findAllPaginate(Long idData, Long idEmpresa, FilterReembolsoDto filters, Pageable pageable) {
 
 
         validarFiltroUtilizado(filters);
@@ -136,7 +136,7 @@ public class VtVentasReembolsoServiceImpl {
                 filters.getFechaEmisionHasta(), filters.getSecuencial(),
                 filters.getNumeroIdentificacion(), filters.getSerie(), filters.getUtilizado(), pageable);
 
-        List<ResponseReembolsoDto> dtoList = page.stream().map(vtVentaReembolsosBuilder::builderReembolso).toList();
+        List<ResponseVentaReembolsoDto> dtoList = page.stream().map(vtVentaReembolsosBuilder::builderReembolso).toList();
 
         PaginatedDto paginatedDto = new PaginatedDto();
         paginatedDto.setContent(dtoList);
@@ -158,8 +158,8 @@ public class VtVentasReembolsoServiceImpl {
         return paginatedDto;
     }
 
-    public GetListDtoTotalizado<ResponseReembolsoDto> findAllPaginateTotalizado(Long idData, Long idEmpresa,
-                                                                                FilterReembolsoDto filters, Pageable pageable) {
+    public GetVentaReembosloListDtoTotalizado<ResponseVentaReembolsoDto> findAllPaginateTotalizado(Long idData, Long idEmpresa,
+                                                                                                   FilterReembolsoDto filters, Pageable pageable) {
 
 
         validarFiltroUtilizado(filters);
@@ -167,13 +167,13 @@ public class VtVentasReembolsoServiceImpl {
                 filters.getFechaEmisionHasta(), filters.getSecuencial(),
                 filters.getNumeroIdentificacion(), filters.getSerie(), filters.getUtilizado(), pageable);
 
-        List<ResponseReembolsoDto> dtoList = page.stream().map(vtVentaReembolsosBuilder::builderReembolso).toList();
+        List<ResponseVentaReembolsoDto> dtoList = page.stream().map(vtVentaReembolsosBuilder::builderReembolso).toList();
 
         List<TotalesProjection> totalValoresProjection = vtVentasReembolsoRepository
                 .totalValores(idData, idEmpresa, filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(),
                         filters.getSecuencial(), filters.getNumeroIdentificacion(), filters.getSerie(), filters.getUtilizado());
 
-        GetListDtoTotalizado totalesDto = new GetListDtoTotalizado<>();
+        GetVentaReembosloListDtoTotalizado totalesDto = new GetVentaReembosloListDtoTotalizado<>();
         totalesDto.setContent(dtoList);
 
         Paginator paginated = new Paginator();
@@ -189,7 +189,7 @@ public class VtVentasReembolsoServiceImpl {
         paginated.setNumber(page.getNumber());
         totalesDto.setPaginated(paginated);
 
-        GetListDtoTotalizado.Totales tot = new GetListDtoTotalizado.Totales();
+        GetVentaReembosloListDtoTotalizado.Totales tot = new GetVentaReembosloListDtoTotalizado.Totales();
         tot.setValoresTotales(totalValoresProjection);
 
         totalesDto.setTotales(tot);
@@ -449,9 +449,9 @@ public class VtVentasReembolsoServiceImpl {
         }
     }
 
-    private List<Integer> getIntegerTarifaIva(List<CreationRequestReembolsoDto.ValoresDto> valores) {
+    private List<Integer> getIntegerTarifaIva(List<CreationRequestReembolsoDto.ValoresVentaReembolsoDto> valores) {
         return valores.stream()
-                .map(CreationRequestReembolsoDto.ValoresDto::getTarifa)
+                .map(CreationRequestReembolsoDto.ValoresVentaReembolsoDto::getTarifa)
                 .filter(Objects::nonNull)
                 .map(BigDecimal::intValue)
                 .toList();
@@ -461,7 +461,7 @@ public class VtVentasReembolsoServiceImpl {
 
         BigDecimal tolerancia = new BigDecimal("0.10");
 
-        for (CreationRequestReembolsoDto.ValoresDto valor : request.getReembolsosValores()) {
+        for (CreationRequestReembolsoDto.ValoresVentaReembolsoDto valor : request.getReembolsosValores()) {
 
             if (!valor.getTarifa().equals(new BigDecimal("0.00"))) {
                 BigDecimal valorEsperado = valor.getBaseImponible()

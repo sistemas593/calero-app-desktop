@@ -30,8 +30,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.calero.lili.core.modVentas.dto.GetListDto
-import com.calero.lili.core.modVentas.dto.ResponseValoresDto
+import com.calero.lili.core.modVentas.dto.GetVentasListDto
+import com.calero.lili.core.modVentas.dto.ResponseVentasValoresDto
 import java.math.BigDecimal
 
 
@@ -299,7 +299,7 @@ fun FacturasScreen(
 @Composable
 private fun FilaFactura(
     idx        : Int,
-    f          : GetListDto,
+    f          : GetVentasListDto,
     cargando   : Boolean,
     onEditar   : () -> Unit,
     onFirmar   : () -> Unit,
@@ -722,14 +722,14 @@ private fun fmtDecimal(valor: BigDecimal?): String =
  *  "7" → Exento de IVA
  *  "8" → IVA Diferenciado (Base Gravada 8%)
  */
-private fun baseIvaBD(valores: List<ResponseValoresDto>?, codigoPorcentaje: String): BigDecimal =
+private fun baseIvaBD(valores: List<ResponseVentasValoresDto>?, codigoPorcentaje: String): BigDecimal =
     valores
         ?.filter { it.codigo == "2" && it.codigoPorcentaje == codigoPorcentaje }
         ?.mapNotNull { it.baseImponible }
         ?.fold(BigDecimal.ZERO, BigDecimal::add)
         ?: BigDecimal.ZERO
 
-private fun baseIva(valores: List<ResponseValoresDto>?, codigoPorcentaje: String): String =
+private fun baseIva(valores: List<ResponseVentasValoresDto>?, codigoPorcentaje: String): String =
     fmtDecimal(baseIvaBD(valores, codigoPorcentaje))
 
 private fun tipoVentaLabel(tipoVenta: Any?): String = when (tipoVenta?.toString()) {

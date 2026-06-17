@@ -8,7 +8,7 @@ import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosEntity;
 import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosItemsRepository;
 import com.calero.lili.core.modVentas.VtVentaEntity;
-import com.calero.lili.core.modVentas.dto.DetailDto;
+import com.calero.lili.core.modVentas.dto.DetalleVentasDto;
 import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
@@ -31,11 +31,11 @@ public class ValidarServiceImpl {
     private final GeImpuestosItemsRepository geImpuestosItemsRepository;
 
 
-    public List<ValoresDto> validarValores(List<DetailDto> detalles) {
+    public List<ValoresDto> validarValores(List<DetalleVentasDto> detalles) {
 
         Map<String, GeImpuestosEntity> impuestosMap = getImpuestosItems(detalles);
 
-        for (DetailDto item : detalles) {
+        for (DetalleVentasDto item : detalles) {
 
             BigDecimal subTotalItem = item.getPrecioUnitario().multiply(item.getCantidad());
             BigDecimal subTotalConDescuento = subTotalItem.subtract(item.getDescuento());
@@ -59,12 +59,12 @@ public class ValidarServiceImpl {
         return calcularValores(detalles);
     }
 
-    private List<ValoresDto> calcularValores(List<DetailDto> detalles) {
+    private List<ValoresDto> calcularValores(List<DetalleVentasDto> detalles) {
 
         Map<String, BigDecimal> subtotalesPorImpuesto = new HashMap<>();
         Map<String, ImpuestoItemsDto> impuestosMap = new HashMap<>();
 
-        for (DetailDto detail : detalles) {
+        for (DetalleVentasDto detail : detalles) {
             for (ImpuestoItemsDto impuesto : detail.getImpuesto()) {
                 String key = impuesto.getCodigo() + "-" + impuesto.getCodigoPorcentaje();
                 impuestosMap.putIfAbsent(key, impuesto);
@@ -100,7 +100,7 @@ public class ValidarServiceImpl {
 
 
     @NotNull
-    private Map<String, GeImpuestosEntity> getImpuestosItems(List<DetailDto> detalles) {
+    private Map<String, GeImpuestosEntity> getImpuestosItems(List<DetalleVentasDto> detalles) {
 
         List<String> claves = detalles.stream()
                 .flatMap(detalle -> detalle.getImpuesto().stream())

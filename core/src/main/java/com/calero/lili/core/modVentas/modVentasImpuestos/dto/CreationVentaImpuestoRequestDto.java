@@ -7,6 +7,7 @@ import com.calero.lili.core.enums.Liquidar;
 import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.enums.TipoIngreso;
 import com.calero.lili.core.enums.TipoVenta;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -81,6 +82,7 @@ public class CreationVentaImpuestoRequestDto {
 
     private BigDecimal totalImpuesto;
 
+    @Valid
     private List<FormasPagoDto> formasPagoSri;
 
 }

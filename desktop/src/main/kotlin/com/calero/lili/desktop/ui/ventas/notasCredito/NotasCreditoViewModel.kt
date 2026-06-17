@@ -6,7 +6,7 @@ import com.calero.lili.core.enums.TipoPermiso
 import com.calero.lili.core.modTerceros.GeTercerosServiceImpl
 import com.calero.lili.core.modTerceros.dto.GeTerceroFilterDto
 import com.calero.lili.core.modTerceros.dto.GeTerceroGetListDto
-import com.calero.lili.core.modVentas.dto.GetListDto
+import com.calero.lili.core.modVentas.dto.GetVentasListDto
 import com.calero.lili.core.modVentas.notasCredito.VtVentasNotasCreditoServiceImpl
 import com.calero.lili.core.comprobantesWs.services.GetXmlVtVentasNotasCreditoServiceImpl
 import com.calero.lili.core.modVentas.facturas.dto.FilterListVentasDto
@@ -46,7 +46,7 @@ enum class EstadoFiltroNotaCredito(val label: String, val anulada: Boolean?) {
 
 data class NotasCreditoUiState(
     val isLoading: Boolean = false,
-    val notasCredito: List<GetListDto> = emptyList(),
+    val notasCredito: List<GetVentasListDto> = emptyList(),
     val paginator: Paginator? = null,
     val currentPage: Int = 0,
     val pageSize: Int = 15,
@@ -65,7 +65,7 @@ data class NotasCreditoUiState(
     val terceroDropdownVisible: Boolean = false,
     val buscandoTercero: Boolean = false,
     // firma electrónica
-    val firmaDialogNota: GetListDto? = null,
+    val firmaDialogNota: GetVentasListDto? = null,
     val firmando: Boolean = false,
     val firmaResultado: String? = null,
     val firmaError: String? = null,
@@ -159,7 +159,7 @@ class NotasCreditoViewModel(
     }
 
     // ── Firma electrónica ─────────────────────────────────────────────────────
-    fun abrirDialogoFirma(nota: GetListDto) =
+    fun abrirDialogoFirma(nota: GetVentasListDto) =
         _state.update { it.copy(firmaDialogNota = nota, firmaError = null, firmaResultado = null) }
 
     fun cerrarDialogoFirma() =
@@ -258,7 +258,7 @@ class NotasCreditoViewModel(
     fun abrirFormulario(id: UUID? = null) = _state.update { it.copy(showForm = true, editingId = id) }
     fun cerrarFormulario() { _state.update { it.copy(showForm = false, editingId = null) }; cargar() }
 
-    fun descargarXml(nota: GetListDto) {
+    fun descargarXml(nota: GetVentasListDto) {
         val id = nota.idVenta ?: return
         if (_state.value.xmlPdfCargando != null) return
         scope.launch {
@@ -289,7 +289,7 @@ class NotasCreditoViewModel(
         }
     }
 
-    fun descargarPdf(nota: GetListDto) {
+    fun descargarPdf(nota: GetVentasListDto) {
         val id = nota.idVenta ?: return
         if (_state.value.xmlPdfCargando != null) return
         scope.launch {
@@ -320,7 +320,7 @@ class NotasCreditoViewModel(
         }
     }
 
-    fun imprimirPdf(nota: GetListDto) {
+    fun imprimirPdf(nota: GetVentasListDto) {
         val id = nota.idVenta ?: return
         if (_state.value.xmlPdfCargando != null) return
         scope.launch {

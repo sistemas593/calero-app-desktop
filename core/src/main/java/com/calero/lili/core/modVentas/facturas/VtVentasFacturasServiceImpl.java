@@ -42,9 +42,9 @@ import com.calero.lili.core.modVentas.VtVentaValoresEntity;
 import com.calero.lili.core.modVentas.VtVentasPersistenceService;
 import com.calero.lili.core.modVentas.VtVentasRepository;
 import com.calero.lili.core.modVentas.builder.GetListResponseBuilder;
-import com.calero.lili.core.modVentas.dto.DetailDto;
-import com.calero.lili.core.modVentas.dto.GetListDto;
-import com.calero.lili.core.modVentas.dto.GetListDtoTotalizado;
+import com.calero.lili.core.modVentas.dto.DetalleVentasDto;
+import com.calero.lili.core.modVentas.dto.GetVentasListDto;
+import com.calero.lili.core.modVentas.dto.GetVentasListDtoTotalizado;
 import com.calero.lili.core.modVentas.facturas.builder.VtFacturasBuilder;
 import com.calero.lili.core.modVentas.facturas.dto.CreationFacturaRequestDto;
 import com.calero.lili.core.modVentas.facturas.dto.FilterListVentasDto;
@@ -319,7 +319,7 @@ public class VtVentasFacturasServiceImpl {
     }
 
     private void validarItem(CreationFacturaRequestDto request, Long idData, Long idEmpresa) {
-        for (DetailDto model : request.getDetalle()) {
+        for (DetalleVentasDto model : request.getDetalle()) {
             geItemsRepository.findByIdItem(idData, idEmpresa, model.getIdItem())
                     .orElseThrow(() -> new GeneralException("El item con id  " + model.getIdItem() + " no existe "));
         }
@@ -414,14 +414,14 @@ public class VtVentasFacturasServiceImpl {
 
 
     @Transactional(readOnly = true)
-    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa,
-                                                    FilterListVentasDto filters, Pageable pageable,
-                                                    TipoPermiso tipoBusqueda, String usuario) {
+    public PaginatedDto<GetVentasListDto> findAllPaginate(Long idData, Long idEmpresa,
+                                                          FilterListVentasDto filters, Pageable pageable,
+                                                          TipoPermiso tipoBusqueda, String usuario) {
 
         filters.setTipoVenta("FAC");
         Page<VtVentaEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
 
-        List<GetListDto> dtoList = page.stream().map(item -> {
+        List<GetVentasListDto> dtoList = page.stream().map(item -> {
             if (item.getAnulada()) {
                 return getListResponseBuilder.builderAnuladoResponse(item);
             }
@@ -450,13 +450,13 @@ public class VtVentasFacturasServiceImpl {
 
 
     @Transactional(readOnly = true)
-    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa,
-                                                                      FilterListVentasDto filters, TipoPermiso tipoBusqueda, String usuario,
-                                                                      Pageable pageable) {
+    public GetVentasListDtoTotalizado<GetVentasListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa,
+                                                                                  FilterListVentasDto filters, TipoPermiso tipoBusqueda, String usuario,
+                                                                                  Pageable pageable) {
 
         Page<VtVentaEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
 
-        List<GetListDto> dtoList = page.stream().map(item -> {
+        List<GetVentasListDto> dtoList = page.stream().map(item -> {
             if (item.getAnulada()) {
                 return getListResponseBuilder.builderAnuladoResponse(item);
             }
@@ -465,7 +465,7 @@ public class VtVentasFacturasServiceImpl {
 
         List<TotalesProjection> totalValoresProjection = vtVentaRepository.totalValores(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getTipoVenta(), filters.getSerie(), filters.getSecuencial());
 
-        GetListDtoTotalizado totalesDto = new GetListDtoTotalizado<>();
+        GetVentasListDtoTotalizado totalesDto = new GetVentasListDtoTotalizado<>();
         totalesDto.setContent(dtoList);
 
         Paginator paginated = new Paginator();
@@ -481,7 +481,7 @@ public class VtVentasFacturasServiceImpl {
         paginated.setNumber(page.getNumber());
         totalesDto.setPaginated(paginated);
 
-        GetListDtoTotalizado.Totales tot = new GetListDtoTotalizado.Totales();
+        GetVentasListDtoTotalizado.Totales tot = new GetVentasListDtoTotalizado.Totales();
         tot.setValoresTotales(totalValoresProjection);
 
         totalesDto.setTotales(tot);
@@ -886,7 +886,7 @@ public class VtVentasFacturasServiceImpl {
             }
         }
 
-        for (DetailDto item : request.getDetalle()) {
+        for (DetalleVentasDto item : request.getDetalle()) {
             if (Objects.nonNull(item.getDetAdicional())) {
                 if (item.getDetAdicional().isEmpty()) {
                     item.setDetAdicional(null);
@@ -898,7 +898,7 @@ public class VtVentasFacturasServiceImpl {
 
     private void validarCentroCostos(CreationFacturaRequestDto request, Long idData, Long idEmpresa) {
 
-        for (DetailDto detalle : request.getDetalle()) {
+        for (DetalleVentasDto detalle : request.getDetalle()) {
 
             if (Objects.nonNull(detalle.getIdCentroCostos())) {
                 Optional<CnCentroCostosEntity> item = cnCentroCostosRepository
@@ -1017,7 +1017,7 @@ public class VtVentasFacturasServiceImpl {
     private void setearValoresCabecera(List<ValoresDto> valores, CreationFacturaRequestDto request) {
 
         BigDecimal totalDescuento = request.getDetalle().stream()
-                .map(DetailDto::getDescuento)
+                .map(DetalleVentasDto::getDescuento)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         BigDecimal subtotal = valores.stream()

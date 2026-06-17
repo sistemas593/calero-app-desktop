@@ -44,7 +44,7 @@ public class GetListDto {
     private BigDecimal totalDescuento;
     private BigDecimal total;
 
-    private List<ResponseValoresDto> valores;
+    private List<ResponseVentasCotizacionesValoresDto> valores;
     private List<DetalleGetDto> detalle;
 
 }

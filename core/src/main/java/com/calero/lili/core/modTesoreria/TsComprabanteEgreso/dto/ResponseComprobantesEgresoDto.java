@@ -34,13 +34,13 @@ public class ResponseComprobantesEgresoDto {
 
     private String observaciones;
 
-    private TerceroDto tercero;
+    private TerceroComprobanteEgresoDto tercero;
 
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    public static class TerceroDto {
+    public static class TerceroComprobanteEgresoDto {
         private UUID idTercero;
         private String cliente;
     }

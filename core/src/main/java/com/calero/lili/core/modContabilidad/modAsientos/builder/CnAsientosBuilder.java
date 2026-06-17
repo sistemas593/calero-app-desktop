@@ -2,7 +2,7 @@ package com.calero.lili.core.modContabilidad.modAsientos.builder;
 
 import com.calero.lili.core.modContabilidad.modAsientos.CnAsientosEntity;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.CreationAsientosRequestDto;
-import com.calero.lili.core.modContabilidad.modAsientos.dto.GetDto;
+import com.calero.lili.core.modContabilidad.modAsientos.dto.GetAsientoDto;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.GetListDto;
 import com.calero.lili.core.utils.DateUtils;
 import lombok.AllArgsConstructor;
@@ -63,8 +63,8 @@ public class CnAsientosBuilder {
                 .build();*/
     }
 
-    public GetDto builderResponse(CnAsientosEntity model) {
-        return GetDto.builder()
+    public GetAsientoDto builderResponse(CnAsientosEntity model) {
+        return GetAsientoDto.builder()
                 .idAsiento(model.getIdAsiento())
                 .sucursal(model.getSucursal())
                 .idPeriodo(model.getIdPeriodo())

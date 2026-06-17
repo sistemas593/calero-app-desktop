@@ -7,9 +7,9 @@ import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.modVentasCotizaciones.CotizacionesServiceImpl;
 import com.calero.lili.core.modVentasCotizaciones.dto.CreationVentasCotizacionesRequestDto;
 import com.calero.lili.core.modVentasCotizaciones.dto.FilterListVentasCotizacionesDto;
-import com.calero.lili.core.modVentasCotizaciones.dto.GetDto;
+import com.calero.lili.core.modVentasCotizaciones.dto.GetVentasCotizacionesDto;
 import com.calero.lili.core.modVentasCotizaciones.dto.GetListDto;
-import com.calero.lili.core.modVentasCotizaciones.dto.GetListDtoTotalizado;
+import com.calero.lili.core.modVentasCotizaciones.dto.GetListVentasCotizacionesDtoTotalizado;
 import com.lowagie.text.DocumentException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -80,9 +80,9 @@ public class CotizacionesController {
     @GetMapping("{idEmpresa}/{idVenta}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('VT_CO_VR_PR','VT_CO_VR_SC','VT_CO_VR_TD')")
-    public GetDto findById(@PathVariable("idEmpresa") Long idEmpresa,
-                           @PathVariable("idVenta") UUID idVenta,
-                           FilterListVentasCotizacionesDto filters) {
+    public GetVentasCotizacionesDto findById(@PathVariable("idEmpresa") Long idEmpresa,
+                                             @PathVariable("idVenta") UUID idVenta,
+                                             FilterListVentasCotizacionesDto filters) {
         return vtVentasService.findById(idDataService.getIdData(), idEmpresa, idVenta,
                 filters,
                 auditorAware.getTipoPermisoVerCotizacion(),
@@ -103,9 +103,9 @@ public class CotizacionesController {
     @GetMapping("reportes/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('VT_CO_VR_PR','VT_CO_VR_SC','VT_CO_VR_TD')")
-    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(@PathVariable("idEmpresa") Long idEmpresa,
-                                                                      FilterListVentasCotizacionesDto filters,
-                                                                      Pageable pageable) {
+    public GetListVentasCotizacionesDtoTotalizado<GetListDto> findAllPaginateTotalizado(@PathVariable("idEmpresa") Long idEmpresa,
+                                                                                        FilterListVentasCotizacionesDto filters,
+                                                                                        Pageable pageable) {
         log.info("Filters = {}", filters);
         return vtVentasService.findAllPaginateTotalizado(idDataService.getIdData(), idEmpresa, filters, pageable);
     }

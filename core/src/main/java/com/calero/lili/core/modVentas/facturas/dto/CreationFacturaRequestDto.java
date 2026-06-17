@@ -9,7 +9,7 @@ import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.Liquidar;
 import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.enums.TipoIngreso;
-import com.calero.lili.core.modVentas.dto.DetailDto;
+import com.calero.lili.core.modVentas.dto.DetalleVentasDto;
 import jakarta.persistence.Column;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -94,13 +94,14 @@ public class CreationFacturaRequestDto {
     private Boolean impresa;
 
     private List<InformacionAdicionalDto> informacionAdicional;
+    @Valid
     private List<FormasPagoDto> formasPagoSri;
 
     private String motivo;
 
     @Valid
     @NotEmpty(message = "No existen detalle de items")
-    private List<DetailDto> detalle;
+    private List<DetalleVentasDto> detalle;
 
 
     private Exportacion exportacion;

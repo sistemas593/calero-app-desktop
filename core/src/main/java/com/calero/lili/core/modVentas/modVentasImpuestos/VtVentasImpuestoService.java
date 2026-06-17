@@ -13,7 +13,7 @@ import com.calero.lili.core.modTerceros.GeTercerosRepository;
 import com.calero.lili.core.modVentas.VtVentaEntity;
 import com.calero.lili.core.modVentas.VtVentasRepository;
 import com.calero.lili.core.modVentas.builder.GetListResponseBuilder;
-import com.calero.lili.core.modVentas.dto.GetListDto;
+import com.calero.lili.core.modVentas.dto.GetVentasListDto;
 import com.calero.lili.core.modVentas.facturas.dto.FilterListVentasDto;
 import com.calero.lili.core.modVentas.modVentasImpuestos.builder.VtVentasImpuestoBuilder;
 import com.calero.lili.core.modVentas.modVentasImpuestos.dto.CreationVentaImpuestoRequestDto;
@@ -136,20 +136,20 @@ public class VtVentasImpuestoService {
     }
 
     @Transactional(readOnly = true)
-    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa,
-                                                    FilterListVentasDto filters, Pageable pageable,
-                                                    TipoPermiso tipoBusqueda, String usuario) {
+    public PaginatedDto<GetVentasListDto> findAllPaginate(Long idData, Long idEmpresa,
+                                                          FilterListVentasDto filters, Pageable pageable,
+                                                          TipoPermiso tipoBusqueda, String usuario) {
 
         Page<VtVentaEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
 
-        List<GetListDto> dtoList = page.stream().map(item -> {
+        List<GetVentasListDto> dtoList = page.stream().map(item -> {
             if (item.getAnulada()) {
                 return getListResponseBuilder.builderAnuladoResponse(item);
             }
             return getListResponseBuilder.builderListResponse(item);
         }).toList();
 
-        PaginatedDto<GetListDto> paginatedDto = new PaginatedDto<>();
+        PaginatedDto<GetVentasListDto> paginatedDto = new PaginatedDto<>();
         paginatedDto.setContent(dtoList);
 
         Paginator paginator = new Paginator();

@@ -7,7 +7,7 @@ import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.modContabilidad.modAsientos.CnAsientosServiceImpl;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.CreationAsientosRequestDto;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.FilterAsientoListDto;
-import com.calero.lili.core.modContabilidad.modAsientos.dto.GetDto;
+import com.calero.lili.core.modContabilidad.modAsientos.dto.GetAsientoDto;
 import com.calero.lili.core.modContabilidad.modAsientos.dto.GetListDto;
 import com.lowagie.text.DocumentException;
 import jakarta.servlet.http.HttpServletResponse;
@@ -82,9 +82,9 @@ public class CnAsientosController {
     @GetMapping("{idEmpresa}/{idAsiento}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('CN_AS_VR_PR','CN_AS_VR_SC','CN_AS_VR_TD')")
-    public GetDto findById(@PathVariable("idEmpresa") Long idEmpresa,
-                           @PathVariable("idAsiento") UUID idAsiento,
-                           FilterAsientoListDto filters) {
+    public GetAsientoDto findById(@PathVariable("idEmpresa") Long idEmpresa,
+                                  @PathVariable("idAsiento") UUID idAsiento,
+                                  FilterAsientoListDto filters) {
         return cnAsientosService.findById(idDataService.getIdData(), idEmpresa, idAsiento,
                 filters,
                 auditorAware.getTipoPermisoVerAsiento(),

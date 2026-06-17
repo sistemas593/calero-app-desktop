@@ -2,7 +2,7 @@ package com.calero.lili.core.modVentasPedidos.builder;
 
 import com.calero.lili.core.dtos.ImpuestoItemsDto;
 import com.calero.lili.core.modComprasItems.GeItemEntity;
-import com.calero.lili.core.modVentas.dto.DetailDto;
+import com.calero.lili.core.modVentas.dto.DetalleVentasDto;
 import com.calero.lili.core.modVentasPedidos.VtPedidoDetalleEntity;
 import com.calero.lili.core.modVentasPedidos.dto.detalles.DetalleGetDto;
 import org.springframework.stereotype.Component;
@@ -13,13 +13,13 @@ import java.util.UUID;
 @Component
 public class VtPedidoDetalleBuilder {
 
-    public List<VtPedidoDetalleEntity> builderList(List<DetailDto> list) {
+    public List<VtPedidoDetalleEntity> builderList(List<DetalleVentasDto> list) {
         return list.stream()
                 .map(this::builderPedidoDetalle)
                 .toList();
     }
 
-    private VtPedidoDetalleEntity builderPedidoDetalle(DetailDto model) {
+    private VtPedidoDetalleEntity builderPedidoDetalle(DetalleVentasDto model) {
         return VtPedidoDetalleEntity.builder()
                 .idPedidoDetalle(UUID.randomUUID())
                 .codigoPrincipal(model.getCodigoPrincipal())
@@ -61,13 +61,13 @@ public class VtPedidoDetalleBuilder {
     }
 
 
-    private List<VtPedidoDetalleEntity.DetalleAdicional> builderListDetalleAddicional(List<DetailDto.DetalleAdicional> list) {
+    private List<VtPedidoDetalleEntity.DetalleAdicional> builderListDetalleAddicional(List<DetalleVentasDto.DetalleAdicional> list) {
         return list.stream()
                 .map(this::builderDetalle)
                 .toList();
     }
 
-    private VtPedidoDetalleEntity.DetalleAdicional builderDetalle(DetailDto.DetalleAdicional model) {
+    private VtPedidoDetalleEntity.DetalleAdicional builderDetalle(DetalleVentasDto.DetalleAdicional model) {
         return VtPedidoDetalleEntity.DetalleAdicional.builder()
                 .nombre(model.getNombre())
                 .valor(model.getValor())

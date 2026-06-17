@@ -59,11 +59,11 @@ public class CompraRequestDto {
 
     @Valid
     @NotEmpty(message = "No existen detalle de items")
-    private List<ValoresDto> valores;
+    private List<ValoresCompraDto> valores;
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class ValoresDto {
+    public static class ValoresCompraDto {
         private String codigo;
         private String codigoPorcentaje;
         private BigDecimal tarifa;
@@ -90,6 +90,7 @@ public class CompraRequestDto {
     private Boolean impresa;
 
     private List<InformacionAdicionalDto> informacionAdicional;
+    @Valid
     private List<FormasPagoDto> formasPagoSri;
 
     private String motivo;
@@ -99,12 +100,12 @@ public class CompraRequestDto {
 
     @Valid
     @NotEmpty(message = "No existen detalle de items")
-    private List<DetailDto> detalle;
+    private List<DetalleCompraDto> detalle;
 
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class DetailDto {
+    public static class DetalleCompraDto {
         private UUID idItem;
         private int itemOrden;
         @NotEmpty(message = "No existe el codigo principal")
@@ -165,7 +166,7 @@ public class CompraRequestDto {
 
         @Valid
         @NotEmpty(message = "No existen valores en el reembolso")
-        private List<ValoresDto> reembolsosValores;
+        private List<ValoresCompraDto> reembolsosValores;
     }
 
     private List<CompraImpuestosDto> compraImpuestos;

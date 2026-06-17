@@ -9,8 +9,8 @@ import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.modVentasGuias.VtGuiasServiceImpl;
 import com.calero.lili.core.modVentasGuias.dto.CreationRequestGuiaRemisionDto;
 import com.calero.lili.core.modVentasGuias.dto.FilterListVentasGuiasDto;
-import com.calero.lili.core.modVentasGuias.dto.GetDto;
-import com.calero.lili.core.modVentasGuias.dto.GetListDto;
+import com.calero.lili.core.modVentasGuias.dto.GetVentasGuiasDto;
+import com.calero.lili.core.modVentasGuias.dto.GetVentasGuiasListDto;
 import com.lowagie.text.DocumentException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -82,9 +82,9 @@ public class VtGuiaController {
     @GetMapping("{idEmpresa}/{idGuia}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('VT_GR_VR_PR','VT_GR_VR_SC','VT_GR_VR_TD')")
-    public GetDto findById(@PathVariable("idEmpresa") Long idEmpresa,
-                           @PathVariable("idGuia") UUID idGuia,
-                           FilterListVentasGuiasDto filters) {
+    public GetVentasGuiasDto findById(@PathVariable("idEmpresa") Long idEmpresa,
+                                      @PathVariable("idGuia") UUID idGuia,
+                                      FilterListVentasGuiasDto filters) {
         return vtVentasService.findById(idDataService.getIdData(), idEmpresa, idGuia,
                 filters,
                 auditorAware.getTipoPermisoVerGuia(),
@@ -106,9 +106,9 @@ public class VtGuiaController {
     @GetMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('VT_GR_VR_PR','VT_GR_VR_SC','VT_GR_VR_TD')")
-    public PaginatedDto<GetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
-                                                    FilterListVentasGuiasDto filters,
-                                                    Pageable pageable) {
+    public PaginatedDto<GetVentasGuiasListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
+                                                               FilterListVentasGuiasDto filters,
+                                                               Pageable pageable) {
         return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable,
                 auditorAware.getTipoPermisoVerGuia(),
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"));

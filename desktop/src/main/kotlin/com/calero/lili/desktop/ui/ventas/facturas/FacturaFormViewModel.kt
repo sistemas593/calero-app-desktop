@@ -28,7 +28,7 @@ import com.calero.lili.core.modTerceros.dto.GeTerceroFilterDto
 import com.calero.lili.core.modTerceros.dto.GeTerceroGetListDto
 import com.calero.lili.core.dtos.ImpuestoItemsDto
 import com.calero.lili.core.dtos.ValoresDto
-import com.calero.lili.core.modVentas.dto.DetailDto
+import com.calero.lili.core.modVentas.dto.DetalleVentasDto
 import com.calero.lili.core.modVentas.facturas.VtVentasFacturasServiceImpl
 import com.calero.lili.core.modVentas.facturas.dto.CreationFacturaRequestDto
 import com.calero.lili.core.modVentas.facturas.dto.FilterListVentasDto
@@ -405,7 +405,7 @@ class FacturaFormViewModel(
                 ))
             } else emptyList()
 
-            DetailDto().apply {
+            DetalleVentasDto().apply {
                 idItem          = d.idItem
                 itemOrden       = idx + 1
                 codigoPrincipal = d.codigoPrincipal

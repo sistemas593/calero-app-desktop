@@ -4,7 +4,7 @@ import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.api.utils.IdDataServiceImpl;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.ResponseDto;
-import com.calero.lili.core.modVentas.dto.GetListDto;
+import com.calero.lili.core.modVentas.dto.GetVentasListDto;
 import com.calero.lili.core.modVentas.facturas.dto.FilterListVentasDto;
 import com.calero.lili.core.modVentas.modVentasImpuestos.VtVentasImpuestoService;
 import com.calero.lili.core.modVentas.modVentasImpuestos.dto.CreationVentaImpuestoRequestDto;
@@ -82,9 +82,9 @@ public class VtVentaImpuestoController {
     @GetMapping("{idEmpresa}")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('VT_FC_VR_PR', 'VT_FC_VR_SC', 'VT_FC_VR_TD')")
-    public PaginatedDto<GetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
-                                                    FilterListVentasDto filters,
-                                                    Pageable pageable) {
+    public PaginatedDto<GetVentasListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
+                                                          FilterListVentasDto filters,
+                                                          Pageable pageable) {
         return vtVentasImpuestoService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable,
                 auditorAware.getTipoPermisoFacturaVer(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }

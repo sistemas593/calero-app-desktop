@@ -28,7 +28,7 @@ import com.calero.lili.core.modVentas.VtVentaEntity;
 import com.calero.lili.core.modVentas.VtVentasPersistenceService;
 import com.calero.lili.core.modVentas.VtVentasRepository;
 import com.calero.lili.core.modVentas.builder.GetListResponseBuilder;
-import com.calero.lili.core.modVentas.dto.GetListDto;
+import com.calero.lili.core.modVentas.dto.GetVentasListDto;
 import com.calero.lili.core.modVentas.notasDebito.builder.VtNotasDebitoBuilder;
 import com.calero.lili.core.modVentas.notasDebito.dto.CreationNotaDebitoRequestDto;
 import com.calero.lili.core.modVentas.notasDebito.dto.FilterListNotasDebitoDto;
@@ -232,8 +232,8 @@ public class VtVentasNotasDebitoServiceImpl {
     }
 
 
-    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListNotasDebitoDto filters, Pageable pageable,
-                                                    TipoPermiso tipoBusqueda, String usuario) {
+    public PaginatedDto<GetVentasListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListNotasDebitoDto filters, Pageable pageable,
+                                                          TipoPermiso tipoBusqueda, String usuario) {
 
         filters.setTipoVenta("NDB");
         Page<VtVentaEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
@@ -242,7 +242,7 @@ public class VtVentasNotasDebitoServiceImpl {
             throw new GeneralException("No existen datos a mostrar");
         }
 
-        List<GetListDto> dtoList = page.stream().map(item -> {
+        List<GetVentasListDto> dtoList = page.stream().map(item -> {
             if (item.getAnulada()) {
                 return getListResponseBuilder.builderAnuladoResponse(item);
             }

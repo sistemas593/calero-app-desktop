@@ -9,14 +9,14 @@ import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
-import com.calero.lili.core.modVentas.dto.DetailDto;
+import com.calero.lili.core.modVentas.dto.DetalleVentasDto;
 import com.calero.lili.core.modVentas.service.ValidarServiceImpl;
 import com.calero.lili.core.modVentasCotizaciones.builder.VtCotizacionBuilder;
 import com.calero.lili.core.modVentasCotizaciones.dto.CreationVentasCotizacionesRequestDto;
 import com.calero.lili.core.modVentasCotizaciones.dto.FilterListVentasCotizacionesDto;
-import com.calero.lili.core.modVentasCotizaciones.dto.GetDto;
+import com.calero.lili.core.modVentasCotizaciones.dto.GetVentasCotizacionesDto;
 import com.calero.lili.core.modVentasCotizaciones.dto.GetListDto;
-import com.calero.lili.core.modVentasCotizaciones.dto.GetListDtoTotalizado;
+import com.calero.lili.core.modVentasCotizaciones.dto.GetListVentasCotizacionesDtoTotalizado;
 import com.calero.lili.core.modVentasCotizaciones.projection.OneProjection;
 import com.calero.lili.core.modVentasCotizaciones.projection.TotalesProjection;
 import com.calero.lili.core.utils.DateUtils;
@@ -142,8 +142,8 @@ public class CotizacionesServiceImpl {
     }
 
 
-    public GetDto findById(Long idData, Long idEmpresa, UUID idVenta,
-                           FilterListVentasCotizacionesDto filters, TipoPermiso tipoBusqueda, String usuario) {
+    public GetVentasCotizacionesDto findById(Long idData, Long idEmpresa, UUID idVenta,
+                                             FilterListVentasCotizacionesDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         VtCotizacionEntity vtCotizacionEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
@@ -203,7 +203,7 @@ public class CotizacionesServiceImpl {
         throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
     }
 
-    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListVentasCotizacionesDto filters, Pageable pageable) {
+    public GetListVentasCotizacionesDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListVentasCotizacionesDto filters, Pageable pageable) {
 
 
         Page<VtCotizacionEntity> page = cotizacionesRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getSecuencial(), null, pageable);
@@ -212,7 +212,7 @@ public class CotizacionesServiceImpl {
 
         List<TotalesProjection> totalValoresProjection = cotizacionesRepository.totalValores(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getSecuencial());
 
-        GetListDtoTotalizado totalesDto = new GetListDtoTotalizado<>();
+        GetListVentasCotizacionesDtoTotalizado totalesDto = new GetListVentasCotizacionesDtoTotalizado<>();
         totalesDto.setContent(dtoList);
 
         Paginator paginated = new Paginator();
@@ -228,7 +228,7 @@ public class CotizacionesServiceImpl {
         paginated.setNumber(page.getNumber());
         totalesDto.setPaginated(paginated);
 
-        GetListDtoTotalizado.Totales tot = new GetListDtoTotalizado.Totales();
+        GetListVentasCotizacionesDtoTotalizado.Totales tot = new GetListVentasCotizacionesDtoTotalizado.Totales();
         tot.setValoresTotales(totalValoresProjection);
 
         totalesDto.setTotales(tot);
@@ -515,7 +515,7 @@ public class CotizacionesServiceImpl {
     private void setearValoresCabecera(List<ValoresDto> valores, CreationVentasCotizacionesRequestDto request) {
 
         BigDecimal totalDescuento = request.getDetalle().stream()
-                .map(DetailDto::getDescuento)
+                .map(DetalleVentasDto::getDescuento)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         BigDecimal subtotal = valores.stream()

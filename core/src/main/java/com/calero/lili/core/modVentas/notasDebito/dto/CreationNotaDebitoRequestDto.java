@@ -103,6 +103,7 @@ public class CreationNotaDebitoRequestDto {
     private Boolean impresa;
 
     private List<InformacionAdicionalDto> informacionAdicional;
+    @Valid
     private List<FormasPagoDto> formasPagoSri;
 
     @NotEmpty(message = "No existe el codigo documento a la que aplica la nota de debito")

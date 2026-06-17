@@ -3,7 +3,7 @@ package com.calero.lili.core.modVentasCotizaciones.builder;
 
 import com.calero.lili.core.dtos.ImpuestoItemsDto;
 import com.calero.lili.core.modComprasItems.GeItemEntity;
-import com.calero.lili.core.modVentas.dto.DetailDto;
+import com.calero.lili.core.modVentas.dto.DetalleVentasDto;
 import com.calero.lili.core.modVentasCotizaciones.VtCotizacionDetalleEntity;
 import com.calero.lili.core.modVentasCotizaciones.dto.detalles.DetalleGetDto;
 import org.springframework.stereotype.Component;
@@ -15,13 +15,13 @@ import java.util.UUID;
 public class VtCotizacionDetalleBuilder {
 
 
-    public List<VtCotizacionDetalleEntity> builderList(List<DetailDto> list, Long idData, Long idEmpresa) {
+    public List<VtCotizacionDetalleEntity> builderList(List<DetalleVentasDto> list, Long idData, Long idEmpresa) {
         return list.stream()
                 .map(x -> builderDetalle(x, idData, idEmpresa))
                 .toList();
     }
 
-    private VtCotizacionDetalleEntity builderDetalle(DetailDto model, Long idData, Long idEmpresa) {
+    private VtCotizacionDetalleEntity builderDetalle(DetalleVentasDto model, Long idData, Long idEmpresa) {
         return VtCotizacionDetalleEntity.builder()
                 .idCotizacionDetalle(UUID.randomUUID())
                 .idData(idData)
@@ -59,13 +59,13 @@ public class VtCotizacionDetalleBuilder {
                 .build();
     }
 
-    private List<VtCotizacionDetalleEntity.DetalleAdicional> builderListDetalleAddicional(List<DetailDto.DetalleAdicional> list) {
+    private List<VtCotizacionDetalleEntity.DetalleAdicional> builderListDetalleAddicional(List<DetalleVentasDto.DetalleAdicional> list) {
         return list.stream()
                 .map(this::builderDetalle)
                 .toList();
     }
 
-    private VtCotizacionDetalleEntity.DetalleAdicional builderDetalle(DetailDto.DetalleAdicional model) {
+    private VtCotizacionDetalleEntity.DetalleAdicional builderDetalle(DetalleVentasDto.DetalleAdicional model) {
         return VtCotizacionDetalleEntity.DetalleAdicional.builder()
                 .nombre(model.getNombre())
                 .valor(model.getValor())

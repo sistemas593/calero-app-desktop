@@ -1,7 +1,7 @@
 package com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.dto;
 
 import com.calero.lili.core.enums.TipoTerceroPerSoc;
-import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.detalles.ValoresDto;
+import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.detalles.ValoresLiquidacionesCompraDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,7 +27,7 @@ public class GetReembolsoDto {
     private String fechaEmisionReemb;
     private String numeroAutorizacionReemb;
     private String fechaAutorizacionReemb;
-    private List<ValoresDto> reembolsosValores;
+    private List<ValoresLiquidacionesCompraDto> reembolsosValores;
     private String codigoPais;
     private String pais;
     private UUID idLiquidacion;

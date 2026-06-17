@@ -13,13 +13,13 @@ import java.util.UUID;
 public class CpOrdenComprasDetalleBuilder {
 
 
-    public List<CpOrdenComprasDetalleEntity> builderList(List<OrdenCompraRequestDto.DetailDto> list, Long idData, Long idEmpresa) {
+    public List<CpOrdenComprasDetalleEntity> builderList(List<OrdenCompraRequestDto.DetalleComprasOrdenDto> list, Long idData, Long idEmpresa) {
         return list.stream()
                 .map(x -> builderEntity(x, idData, idEmpresa))
                 .toList();
     }
 
-    private CpOrdenComprasDetalleEntity builderEntity(OrdenCompraRequestDto.DetailDto model, Long idData, Long idEmpresa) {
+    private CpOrdenComprasDetalleEntity builderEntity(OrdenCompraRequestDto.DetalleComprasOrdenDto model, Long idData, Long idEmpresa) {
         return CpOrdenComprasDetalleEntity.builder()
                 .idLiquidacionDetalle(UUID.randomUUID())
                 .idData(idData)
@@ -41,13 +41,13 @@ public class CpOrdenComprasDetalleBuilder {
                 .build();
     }
 
-    private List<CpOrdenComprasDetalleEntity.Impuestos> builderListImpuesto(List<OrdenCompraRequestDto.DetailDto.Impuestos> list) {
+    private List<CpOrdenComprasDetalleEntity.Impuestos> builderListImpuesto(List<OrdenCompraRequestDto.DetalleComprasOrdenDto.Impuestos> list) {
         return list.stream()
                 .map(this::builderImpuesto)
                 .toList();
     }
 
-    private CpOrdenComprasDetalleEntity.Impuestos builderImpuesto(OrdenCompraRequestDto.DetailDto.Impuestos model) {
+    private CpOrdenComprasDetalleEntity.Impuestos builderImpuesto(OrdenCompraRequestDto.DetalleComprasOrdenDto.Impuestos model) {
         return CpOrdenComprasDetalleEntity.Impuestos.builder()
                 .codigo(model.getCodigo())
                 .codigoPorcentaje(model.getCodigoPorcentaje())
@@ -58,13 +58,13 @@ public class CpOrdenComprasDetalleBuilder {
     }
 
 
-    private List<CpOrdenComprasDetalleEntity.DetalleAdicional> builderListDetalleAdicional(List<OrdenCompraRequestDto.DetailDto.DetalleAdicional> list) {
+    private List<CpOrdenComprasDetalleEntity.DetalleAdicional> builderListDetalleAdicional(List<OrdenCompraRequestDto.DetalleComprasOrdenDto.DetalleAdicional> list) {
         return list.stream()
                 .map(this::builderDetalleAdicional)
                 .toList();
     }
 
-    private CpOrdenComprasDetalleEntity.DetalleAdicional builderDetalleAdicional(OrdenCompraRequestDto.DetailDto.DetalleAdicional model) {
+    private CpOrdenComprasDetalleEntity.DetalleAdicional builderDetalleAdicional(OrdenCompraRequestDto.DetalleComprasOrdenDto.DetalleAdicional model) {
         return CpOrdenComprasDetalleEntity.DetalleAdicional.builder()
                 .nombre(model.getNombre())
                 .valor(model.getValor())

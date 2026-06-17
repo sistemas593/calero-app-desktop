@@ -24,13 +24,13 @@ public class ResponseComprobanteIngresoDto {
     private String observaciones;
     private Boolean fisico;
 
-    private TerceroDto tercero;
+    private TerceroComprobanteIngresoDto tercero;
 
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    public static class TerceroDto {
+    public static class TerceroComprobanteIngresoDto {
         private UUID idTercero;
         private String cliente;
     }

@@ -29,12 +29,12 @@ public class CreationRequestReembolsoDto {
 
     @Valid
     @NotEmpty(message = "No existen valores en el reembolso")
-    private List<ValoresDto> reembolsosValores;
+    private List<ValoresVentaReembolsoDto> reembolsosValores;
 
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class ValoresDto {
+    public static class ValoresVentaReembolsoDto {
         private String codigo;
         private String codigoPorcentaje;
         private BigDecimal tarifa;

@@ -1,6 +1,6 @@
 package com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.builder;
 
-import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.detalles.ValoresDto;
+import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.detalles.ValoresLiquidacionesCompraDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.CpLiquidacionesReembolsosEntity;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.CpLiquidacionesReembolsosValoresEntity;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.dto.GetReembolsoDto;
@@ -55,14 +55,14 @@ public class CpLiquidacionesReembolsosBuilder {
                 .build();
     }
 
-    private List<CpLiquidacionesReembolsosValoresEntity> builderListValores(List<ValoresDto> list, Long idData, Long idEmpresa) {
+    private List<CpLiquidacionesReembolsosValoresEntity> builderListValores(List<ValoresLiquidacionesCompraDto> list, Long idData, Long idEmpresa) {
         return list.stream()
                 .map(item -> builderValores(item, idData, idEmpresa))
                 .toList();
     }
 
 
-    private CpLiquidacionesReembolsosValoresEntity builderValores(ValoresDto model, Long idData, Long idEmpresa) {
+    private CpLiquidacionesReembolsosValoresEntity builderValores(ValoresLiquidacionesCompraDto model, Long idData, Long idEmpresa) {
         return CpLiquidacionesReembolsosValoresEntity.builder()
                 .idLiquidacionValores(UUID.randomUUID())
                 .idData(idData)
@@ -103,14 +103,14 @@ public class CpLiquidacionesReembolsosBuilder {
                 .build();
     }
 
-    private List<ValoresDto> builderListValoresResponse(List<CpLiquidacionesReembolsosValoresEntity> list) {
+    private List<ValoresLiquidacionesCompraDto> builderListValoresResponse(List<CpLiquidacionesReembolsosValoresEntity> list) {
         return list.stream()
                 .map(this::builderValoresResponse)
                 .toList();
     }
 
-    private ValoresDto builderValoresResponse(CpLiquidacionesReembolsosValoresEntity model) {
-        return ValoresDto.builder()
+    private ValoresLiquidacionesCompraDto builderValoresResponse(CpLiquidacionesReembolsosValoresEntity model) {
+        return ValoresLiquidacionesCompraDto.builder()
                 .codigo(model.getCodigo())
                 .codigoPorcentaje(model.getCodigoPorcentaje())
                 .tarifa(model.getTarifa())

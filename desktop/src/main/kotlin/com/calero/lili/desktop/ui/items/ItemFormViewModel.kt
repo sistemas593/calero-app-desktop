@@ -141,7 +141,7 @@ class ItemFormViewModel(
             listOf(GeMedidasItemsDto.builder().idMedida(m.idUnidadMedida).factor(1).build())
         }
         val impuestos = current.impuestoSeleccionado?.let { imp ->
-            listOf(GeItemRequestDto.Impuesto.builder().idImpuesto(imp.idImpuesto).build())
+            listOf(GeItemRequestDto.ImpuestoItemDto.builder().idImpuesto(imp.idImpuesto).build())
         }
         val precios = if (current.precio.isNotBlank()) {
             listOf(

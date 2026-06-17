@@ -31,14 +31,14 @@ public class TsComprobanteResponseDto {
     private UUID idTercero;
     private String tercero;
     private String numeroIdentifiacion;
-    private List<Detalle> detalles;
+    private List<DetalleComprobanteResponseDto> detalles;
 
 
     @Data
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class Detalle {
+    public static class DetalleComprobanteResponseDto {
         private UUID idComprobanteDetalle;
         private String tipoDocumento;
         private String numeroDocumento;

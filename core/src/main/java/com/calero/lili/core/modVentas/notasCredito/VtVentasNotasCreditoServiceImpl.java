@@ -34,8 +34,8 @@ import com.calero.lili.core.modVentas.VtVentaValoresEntity;
 import com.calero.lili.core.modVentas.VtVentasPersistenceService;
 import com.calero.lili.core.modVentas.VtVentasRepository;
 import com.calero.lili.core.modVentas.builder.GetListResponseBuilder;
-import com.calero.lili.core.modVentas.dto.DetailDto;
-import com.calero.lili.core.modVentas.dto.GetListDto;
+import com.calero.lili.core.modVentas.dto.DetalleVentasDto;
+import com.calero.lili.core.modVentas.dto.GetVentasListDto;
 import com.calero.lili.core.modVentas.facturas.dto.FilterListVentasDto;
 import com.calero.lili.core.modVentas.notasCredito.builder.VtNotasCreditoBuilder;
 import com.calero.lili.core.modVentas.notasCredito.dto.CreationNotaCreditoRequestDto;
@@ -271,13 +271,13 @@ public class VtVentasNotasCreditoServiceImpl {
 
 
     @Transactional(readOnly = true)
-    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListVentasDto filters, Pageable pageable,
-                                                    TipoPermiso tipoBusqueda, String usuario) {
+    public PaginatedDto<GetVentasListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListVentasDto filters, Pageable pageable,
+                                                          TipoPermiso tipoBusqueda, String usuario) {
 
         filters.setTipoVenta("NCR");
         Page<VtVentaEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
 
-        List<GetListDto> dtoList = page.stream().map(item -> {
+        List<GetVentasListDto> dtoList = page.stream().map(item -> {
             if (item.getAnulada()) {
                 return getListResponseBuilder.builderAnuladoResponse(item);
             }
@@ -672,7 +672,7 @@ public class VtVentasNotasCreditoServiceImpl {
             }
         }
 
-        for (DetailDto item : request.getDetalle()) {
+        for (DetalleVentasDto item : request.getDetalle()) {
             if (Objects.nonNull(item.getDetAdicional())) {
                 if (item.getDetAdicional().isEmpty()) {
                     item.setDetAdicional(null);
@@ -683,7 +683,7 @@ public class VtVentasNotasCreditoServiceImpl {
 
 
     private void validarItem(CreationNotaCreditoRequestDto request, Long idData, Long idEmpresa) {
-        for (DetailDto model : request.getDetalle()) {
+        for (DetalleVentasDto model : request.getDetalle()) {
             geItemsRepository.findByIdItem(idData, idEmpresa, model.getIdItem())
                     .orElseThrow(() -> new GeneralException("El item con id  " + model.getIdItem() + " no existe "));
         }
@@ -790,7 +790,7 @@ public class VtVentasNotasCreditoServiceImpl {
     private void setearValoresCabecera(List<ValoresDto> valores, CreationNotaCreditoRequestDto request) {
 
         BigDecimal totalDescuento = request.getDetalle().stream()
-                .map(DetailDto::getDescuento)
+                .map(DetalleVentasDto::getDescuento)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         BigDecimal subtotal = valores.stream()

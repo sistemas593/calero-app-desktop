@@ -28,14 +28,14 @@ public class TsComprobanteCreationRequestDto {
     private TipoComprobante tipoComprobante;
     private EstadoComprobante estadoComprobante;
     private UUID idTercero;
-    private List<Detalle> detalles;
+    private List<DetalleComprobanteDto> detalles;
 
 
     @Data
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class Detalle {
+    public static class DetalleComprobanteDto {
         private String tipoDocumento;
         private String numeroDocumento;
         private String movimiento;

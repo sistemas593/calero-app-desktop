@@ -2,8 +2,8 @@ package com.calero.lili.core.modVentas.builder;
 
 import com.calero.lili.core.modVentas.VtVentaEntity;
 import com.calero.lili.core.modVentas.VtVentaValoresEntity;
-import com.calero.lili.core.modVentas.dto.GetListDto;
-import com.calero.lili.core.modVentas.dto.ResponseValoresDto;
+import com.calero.lili.core.modVentas.dto.GetVentasListDto;
+import com.calero.lili.core.modVentas.dto.ResponseVentasValoresDto;
 import com.calero.lili.core.utils.DateUtils;
 import org.springframework.stereotype.Component;
 
@@ -14,8 +14,8 @@ import java.util.Objects;
 @Component
 public class GetListResponseBuilder {
 
-    public GetListDto builderListResponse(VtVentaEntity model) {
-        return GetListDto.builder()
+    public GetVentasListDto builderListResponse(VtVentaEntity model) {
+        return GetVentasListDto.builder()
                 .sucursal(model.getSucursal())
                 .idVenta(model.getIdVenta())
                 .tipoVenta(model.getTipoVenta())
@@ -49,14 +49,14 @@ public class GetListResponseBuilder {
     }
 
 
-    public List<ResponseValoresDto> builderListValoresDto(List<VtVentaValoresEntity> list) {
+    public List<ResponseVentasValoresDto> builderListValoresDto(List<VtVentaValoresEntity> list) {
         return list.stream()
                 .map(this::builderValoresDto)
                 .toList();
     }
 
-    private ResponseValoresDto builderValoresDto(VtVentaValoresEntity model) {
-        return ResponseValoresDto.builder()
+    private ResponseVentasValoresDto builderValoresDto(VtVentaValoresEntity model) {
+        return ResponseVentasValoresDto.builder()
                 .valor(model.getValor())
                 .codigoPorcentaje(model.getCodigoPorcentaje())
                 .baseImponible(model.getBaseImponible())
@@ -65,8 +65,8 @@ public class GetListResponseBuilder {
     }
 
 
-    public GetListDto builderAnuladoResponse(VtVentaEntity model) {
-        return GetListDto.builder()
+    public GetVentasListDto builderAnuladoResponse(VtVentaEntity model) {
+        return GetVentasListDto.builder()
                 .sucursal(model.getSucursal())
                 .idVenta(model.getIdVenta())
                 .tipoVenta(model.getTipoVenta())
@@ -100,14 +100,14 @@ public class GetListResponseBuilder {
     }
 
 
-    public List<ResponseValoresDto> builderAnuladoListValoresDto(List<VtVentaValoresEntity> list) {
+    public List<ResponseVentasValoresDto> builderAnuladoListValoresDto(List<VtVentaValoresEntity> list) {
         return list.stream()
                 .map(this::builderAnuladoValoresDto)
                 .toList();
     }
 
-    private ResponseValoresDto builderAnuladoValoresDto(VtVentaValoresEntity model) {
-        return ResponseValoresDto.builder()
+    private ResponseVentasValoresDto builderAnuladoValoresDto(VtVentaValoresEntity model) {
+        return ResponseVentasValoresDto.builder()
                 .valor(new BigDecimal("0.00"))
                 .codigoPorcentaje(model.getCodigoPorcentaje())
                 .baseImponible(new BigDecimal("0.00"))

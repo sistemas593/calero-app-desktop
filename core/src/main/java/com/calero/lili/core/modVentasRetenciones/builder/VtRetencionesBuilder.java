@@ -3,8 +3,8 @@ package com.calero.lili.core.modVentasRetenciones.builder;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modVentasRetenciones.VtRetencionesEntity;
 import com.calero.lili.core.modVentasRetenciones.dto.CreationVentasRetencionesRequestDto;
-import com.calero.lili.core.modVentasRetenciones.dto.GetDto;
-import com.calero.lili.core.modVentasRetenciones.dto.GetListDto;
+import com.calero.lili.core.modVentasRetenciones.dto.GetVentaRetencionesDto;
+import com.calero.lili.core.modVentasRetenciones.dto.GetVentaRetencionesListDto;
 import com.calero.lili.core.utils.DateUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -53,8 +53,8 @@ public class VtRetencionesBuilder {
     }
 
 
-    public GetDto builderResponse(VtRetencionesEntity model) {
-        return GetDto.builder()
+    public GetVentaRetencionesDto builderResponse(VtRetencionesEntity model) {
+        return GetVentaRetencionesDto.builder()
                 .idRetencion(model.getIdRetencion())
                 .numeroAutorizacionRetencion(model.getNumeroAutorizacionRetencion())
                 .valores(vtRetencionesValoresBuilder.builderListValoresDto(model.getValoresEntity()))
@@ -70,9 +70,9 @@ public class VtRetencionesBuilder {
                 .build();
     }
 
-    private GetDto.TerceroDto builderResponseTercero(GeTerceroEntity cliente) {
+    private GetVentaRetencionesDto.TerceroDto builderResponseTercero(GeTerceroEntity cliente) {
         if (Objects.isNull(cliente)) return null;
-        return GetDto.TerceroDto.builder()
+        return GetVentaRetencionesDto.TerceroDto.builder()
                 .idTercero(cliente.getIdTercero())
                 .tercero(cliente.getTercero())
                 .tipoIdentificacion(cliente.getTipoIdentificacion())
@@ -80,8 +80,8 @@ public class VtRetencionesBuilder {
                 .build();
     }
 
-    public GetListDto builderListResponse(VtRetencionesEntity model) {
-        return GetListDto.builder()
+    public GetVentaRetencionesListDto builderListResponse(VtRetencionesEntity model) {
+        return GetVentaRetencionesListDto.builder()
                 .idRetencion(model.getIdRetencion())
                 .numeroAutorizacionRetencion(model.getNumeroAutorizacionRetencion())
                 .valores(vtRetencionesValoresBuilder.builderListValoresDto(model.getValoresEntity()))
@@ -95,9 +95,9 @@ public class VtRetencionesBuilder {
 
     }
 
-    private GetListDto.TerceroDto builderTerceroResponseList(GeTerceroEntity cliente) {
+    private GetVentaRetencionesListDto.TerceroDto builderTerceroResponseList(GeTerceroEntity cliente) {
         if (Objects.isNull(cliente)) return null;
-        return GetListDto.TerceroDto.builder()
+        return GetVentaRetencionesListDto.TerceroDto.builder()
                 .idTercero(cliente.getIdTercero())
                 .tercero(cliente.getTercero())
                 .tipoIdentificacion(cliente.getTipoIdentificacion())

@@ -39,12 +39,12 @@ public class CreationVentasRetencionesRequestDto {
 
     @Valid
     @NotEmpty(message = "No existen detalle de items")
-    private List<ValoresDto> valores;
+    private List<ValoresVentasRetencionesDto> valores;
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    public static class ValoresDto {
+    public static class ValoresVentasRetencionesDto {
         private String codigo;
         private String codigoPorcentaje;
         private int tarifa;

@@ -25,11 +25,11 @@ public class TsComprobanteDetalleBuilder {
 
     private final BcEntidadesRepository bcEntidadesRepository;
 
-    public List<TsComprobanteDetallesEntity> builderList(List<TsComprobanteCreationRequestDto.Detalle> detalles,
+    public List<TsComprobanteDetallesEntity> builderList(List<TsComprobanteCreationRequestDto.DetalleComprobanteDto> detalles,
                                                          Long idData, Long idEmpresa) {
 
         List<UUID> listUUIDsEntidades = detalles.stream()
-                .map(TsComprobanteCreationRequestDto.Detalle::getIdEntidad)
+                .map(TsComprobanteCreationRequestDto.DetalleComprobanteDto::getIdEntidad)
                 .distinct()
                 .toList();
 
@@ -42,7 +42,7 @@ public class TsComprobanteDetalleBuilder {
         return detalles.stream().map(x -> builderDetalle(x, idData, idEmpresa, mapEntidades)).toList();
     }
 
-    private TsComprobanteDetallesEntity builderDetalle(TsComprobanteCreationRequestDto.Detalle model,
+    private TsComprobanteDetallesEntity builderDetalle(TsComprobanteCreationRequestDto.DetalleComprobanteDto model,
                                                        Long idData, Long idEmpresa, Map<UUID, TsEntidadEntity> mapEntidades) {
 
         TsEntidadEntity entidad = mapEntidades.get(model.getIdEntidad());
@@ -66,15 +66,15 @@ public class TsComprobanteDetalleBuilder {
     }
 
 
-    public List<TsComprobanteResponseDto.Detalle> builderResponseList(List<TsComprobanteDetallesEntity> list) {
+    public List<TsComprobanteResponseDto.DetalleComprobanteResponseDto> builderResponseList(List<TsComprobanteDetallesEntity> list) {
         return list
                 .stream()
                 .map(this::builderResponseDetalle)
                 .toList();
     }
 
-    private TsComprobanteResponseDto.Detalle builderResponseDetalle(TsComprobanteDetallesEntity model) {
-        return TsComprobanteResponseDto.Detalle.builder()
+    private TsComprobanteResponseDto.DetalleComprobanteResponseDto builderResponseDetalle(TsComprobanteDetallesEntity model) {
+        return TsComprobanteResponseDto.DetalleComprobanteResponseDto.builder()
                 .idComprobanteDetalle(model.getIdComprobanteDetalle())
                 .tipoComprobante(model.getTipoComprobante())
                 .numeroDocumento(model.getNumeroDocumento())

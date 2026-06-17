@@ -57,9 +57,9 @@ public class TsComprobanteIngresoBuilder {
                 .build();
     }
 
-    private ResponseComprobanteIngresoDto.TerceroDto builderResponseTercero(GeTerceroEntity cliente) {
+    private ResponseComprobanteIngresoDto.TerceroComprobanteIngresoDto builderResponseTercero(GeTerceroEntity cliente) {
         if (Objects.isNull(cliente)) return null;
-        return ResponseComprobanteIngresoDto.TerceroDto.builder()
+        return ResponseComprobanteIngresoDto.TerceroComprobanteIngresoDto.builder()
                 .idTercero(cliente.getIdTercero())
                 .cliente(cliente.getTercero())
                 .build();
