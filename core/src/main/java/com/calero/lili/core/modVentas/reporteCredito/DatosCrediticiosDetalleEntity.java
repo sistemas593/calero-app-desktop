@@ -23,7 +23,7 @@ import java.util.UUID;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "datos_crediticios_detalle")
+@Table(name = "vt_datos_crediticios_detalle")
 @Builder
 public class DatosCrediticiosDetalleEntity {
 
@@ -92,5 +92,9 @@ public class DatosCrediticiosDetalleEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_tercero")
     private GeTerceroEntity tercero;
+
+    @ManyToOne
+    @JoinColumn(name = "id_datos_crediticios")
+    private DatosCrediticiosEntity datosCrediticios;
 
 }

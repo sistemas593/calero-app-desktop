@@ -152,6 +152,13 @@ public class DateUtils {
         return yearMonth.atEndOfMonth();
     }
 
+
+    public static LocalDate toPeriodoDateDinarap(String periodoFiscal) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM");
+        YearMonth yearMonth = YearMonth.parse(periodoFiscal, formatter);
+        return yearMonth.atEndOfMonth();
+    }
+
     public static String toLocalDatePeriodoFiscal(LocalDate periodoFiscal) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yyyy");
         return periodoFiscal.format(formatter);
@@ -161,5 +168,10 @@ public class DateUtils {
     public static LocalDate toLocalDateExcelFiles(String fecha) {
         DateTimeFormatter formatterEntrada = DateTimeFormatter.ofPattern("d/M/yyyy");
         return LocalDate.parse(fecha, formatterEntrada);
+    }
+
+    public static String getPeriodo(String periodo) {
+        String[] partes = periodo.split("/");
+        return partes[1] + "/" + partes[0];
     }
 }

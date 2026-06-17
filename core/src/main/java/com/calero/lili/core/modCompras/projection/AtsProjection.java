@@ -1,10 +1,12 @@
 package com.calero.lili.core.modCompras.projection;
 
 
+import com.calero.lili.core.enums.DocumentoEnum;
+
 import java.math.BigDecimal;
 
 public interface AtsProjection {
-    String getCodigoDocumento();
+    DocumentoEnum getDocumento();
     BigDecimal getBiTarifaCero();
     BigDecimal getBiBaseDiferenteCero();
     BigDecimal getBiBaseNoObjectoIva();

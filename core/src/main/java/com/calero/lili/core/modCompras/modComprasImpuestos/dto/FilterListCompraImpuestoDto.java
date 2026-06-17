@@ -1,5 +1,6 @@
 package com.calero.lili.core.modCompras.modComprasImpuestos.dto;
 
+import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.utils.DateUtils;
 import lombok.Data;
 import lombok.ToString;
@@ -10,7 +11,7 @@ import java.time.LocalDate;
 @ToString
 public class FilterListCompraImpuestoDto {
     private String numeroAutorizacion;
-    private String tipoDocumento;
+    private DocumentoEnum tipoDocumento;
     private String serie;
     private String secuencial;
     private String sucursal;

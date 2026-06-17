@@ -16,9 +16,11 @@ public interface DatosCrediticiosDetalleRepository extends JpaRepository<DatosCr
             "FROM DatosCrediticiosDetalleEntity entity " +
             "where entity.idData = :idData and " +
             "entity.idEmpresa = :idEmpresa and " +
+            "entity.datosCrediticios.idDatosCrediticios = :idDatosCrediticios and " +
             "entity.numeroOperacion in :numerosOperacion")
     List<DatosCrediticiosDetalleEntity> findAllNumeroOperacion(@Param("idData") Long idData,
                                                                @Param("idEmpresa") Long idEmpresa,
+                                                               @Param("idDatosCrediticios") UUID idDatosCrediticios,
                                                                @Param("numerosOperacion") List<String> numerosOperacion);
 
 

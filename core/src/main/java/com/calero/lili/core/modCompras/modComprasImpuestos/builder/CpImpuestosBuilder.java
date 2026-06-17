@@ -11,7 +11,6 @@ import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetListDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.PagoExterior;
 import com.calero.lili.core.modCompras.modComprasRetenciones.dto.CodigoImpuestoResponseDto;
 import com.calero.lili.core.modCompras.modComprasRetenciones.dto.CompraImpuestoResponseDto;
-import com.calero.lili.core.tablas.tbDocumentos.TbDocumentoEntity;
 import com.calero.lili.core.utils.DateUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -39,7 +38,7 @@ public class CpImpuestosBuilder {
                 .idData(idData)
                 .idEmpresa(idEmpresa)
                 .sucursal(model.getSucursal())
-                .documento(builderDocumento(model.getCodigoDocumento()))
+                .documento(model.getDocumento())
                 .secuencial(model.getSecuencial())
                 .fechaEmision(DateUtils.toLocalDate(model.getFechaEmision()))
                 .serie(model.getSerie())
@@ -83,7 +82,7 @@ public class CpImpuestosBuilder {
                 .idData(item.getIdData())
                 .idEmpresa(item.getIdEmpresa())
                 .sucursal(model.getSucursal())
-                .documento(builderDocumento(model.getCodigoDocumento()))
+                .documento(model.getDocumento())
                 .secuencial(model.getSecuencial())
                 .fechaEmision(DateUtils.toLocalDate(model.getFechaEmision()))
                 .serie(model.getSerie())
@@ -135,12 +134,8 @@ public class CpImpuestosBuilder {
                         : null)
                 .idImpuestos(model.getIdImpuestos())
                 .sucursal(model.getSucursal())
-                .codigoDocumento(Objects.nonNull(model.getDocumento())
-                        ? model.getDocumento().getCodigoDocumento()
-                        : null)
-                .documento(Objects.nonNull(model.getDocumento())
-                        ? model.getDocumento().getDocumento()
-                        : null)
+                .codigoDocumento(Objects.nonNull(model.getDocumento()) ? model.getDocumento().getCodigo() : null)
+                .documento(Objects.nonNull(model.getDocumento()) ? model.getDocumento().getNombre() : null)
                 .serie(model.getSerie())
                 .secuencial(model.getSecuencial())
                 .concepto(model.getConcepto())
@@ -187,12 +182,8 @@ public class CpImpuestosBuilder {
         return GetListDto.builder()
                 .sucursal(model.getSucursal())
                 .idImpuestos(model.getIdImpuestos())
-                .codigoDocumento(Objects.nonNull(model.getDocumento())
-                        ? model.getDocumento().getCodigoDocumento()
-                        : null)
-                .documento(Objects.nonNull(model.getDocumento())
-                        ? model.getDocumento().getDocumento()
-                        : null)
+                .codigoDocumento(Objects.nonNull(model.getDocumento()) ? model.getDocumento().getCodigo() : null)
+                .documento(Objects.nonNull(model.getDocumento()) ? model.getDocumento().getNombre() : null)
                 .serie(model.getSerie())
                 .secuencial(model.getSecuencial())
                 .numeroAutorizacion(model.getNumeroAutorizacion())
@@ -226,13 +217,6 @@ public class CpImpuestosBuilder {
         return list.stream()
                 .map(this::builderGetListDto)
                 .toList();
-    }
-
-
-    private TbDocumentoEntity builderDocumento(String codigoDocumento) {
-        return TbDocumentoEntity.builder()
-                .codigoDocumento(codigoDocumento)
-                .build();
     }
 
 
@@ -276,12 +260,8 @@ public class CpImpuestosBuilder {
                 .fechaEmision(Objects.nonNull(model.getFechaEmision())
                         ? DateUtils.toString(model.getFechaEmision())
                         : null)
-                .codigoDocumento(Objects.nonNull(model.getDocumento())
-                        ? model.getDocumento().getCodigoDocumento()
-                        : null)
-                .documento(Objects.nonNull(model.getDocumento())
-                        ? model.getDocumento().getDocumento()
-                        : null)
+                .codigoDocumento(Objects.nonNull(model.getDocumento()) ? model.getDocumento().getCodigo() : null)
+                .documento(Objects.nonNull(model.getDocumento()) ? model.getDocumento().getNombre() : null)
                 .numeroAutorizacion(model.getNumeroAutorizacion())
 
                 .codigoSustento(Objects.nonNull(model.getCodigoSustento())

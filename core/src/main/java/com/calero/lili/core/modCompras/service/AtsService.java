@@ -3,6 +3,7 @@ package com.calero.lili.core.modCompras.service;
 import com.calero.lili.core.comprobantes.builder.documentos.FormatoValores;
 import com.calero.lili.core.dtos.FormasPagoSri;
 import com.calero.lili.core.enums.CodigoDocumento;
+import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
@@ -302,11 +303,11 @@ public class AtsService {
 
             for (AtsProjection factura : listPfds) {
 
-                PdfPCell cellCodigo = new PdfPCell(new Phrase(factura.getCodigoDocumento(), valoresFont));
+                PdfPCell cellCodigo = new PdfPCell(new Phrase(factura.getDocumento().getCodigo(), valoresFont));
                 cellCodigo.setHorizontalAlignment(Element.ALIGN_RIGHT);
                 comprasTable.addCell(cellCodigo);
 
-                PdfPCell cellNombreDocumento = new PdfPCell(new Phrase(CodigoDocumento.fromCodigo(factura.getCodigoDocumento()).getNombreDocumento(), valoresFont));
+                PdfPCell cellNombreDocumento = new PdfPCell(new Phrase(CodigoDocumento.fromCodigo(factura.getDocumento().getCodigo()).getNombreDocumento(), valoresFont));
                 cellNombreDocumento.setHorizontalAlignment(Element.ALIGN_RIGHT);
                 comprasTable.addCell(cellNombreDocumento);
 
@@ -523,8 +524,8 @@ public class AtsService {
 
         AtsProjection atsProjection = new AtsProjection() {
             @Override
-            public String getCodigoDocumento() {
-                return "01";
+            public DocumentoEnum getDocumento() {
+                return DocumentoEnum.D01;
             }
 
             @Override

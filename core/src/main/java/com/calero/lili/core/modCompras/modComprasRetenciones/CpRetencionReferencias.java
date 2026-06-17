@@ -1,10 +1,12 @@
 package com.calero.lili.core.modCompras.modComprasRetenciones;
 
 import com.calero.lili.core.enums.CodigoRetencion;
+import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosEntity;
-import com.calero.lili.core.tablas.tbDocumentos.TbDocumentoEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -40,9 +42,8 @@ public class CpRetencionReferencias {
     @JoinColumn(name = "idImpuestos", referencedColumnName = "idImpuestos")
     private CpImpuestosEntity impuestos;
 
-    @ManyToOne()
-    @JoinColumn(name = "codigoDocumento", referencedColumnName = "codigoDocumento")
-    private TbDocumentoEntity documento;
+    @Enumerated(EnumType.STRING)
+    private DocumentoEnum documento;
 
 
     @JdbcTypeCode(SqlTypes.JSON)

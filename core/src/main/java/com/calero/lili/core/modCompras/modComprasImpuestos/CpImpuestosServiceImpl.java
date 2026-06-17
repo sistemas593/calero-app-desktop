@@ -225,8 +225,8 @@ public class CpImpuestosServiceImpl {
 
     private void validarReembolso(CreationCompraImpuestoRequestDto request) {
 
-        if (Objects.nonNull(request.getCodigoDocumento())) {
-            if (request.getCodigoDocumento().equals("41")) {
+        if (Objects.nonNull(request.getDocumento())) {
+            if (request.getDocumento().getCodigo().equals("41")) {
                 if (Objects.isNull(request.getReembolsos())) {
                     throw new GeneralException("No existe lista de reembolsos");
                 }
@@ -399,7 +399,7 @@ public class CpImpuestosServiceImpl {
 
         List<GetListDto> dtoList = page.stream().map(cpImpuestosBuilder::builderGetListDto).toList();
 
-        List<TotalesProjection> totalValoresProjection = cpImpuestosRepository.totalValores(idData, idEmpresa, filters.getTipoDocumento(), filters.getNumeroIdentificacion(), filters.getSerie(), filters.getSecuencial(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getFechaRegistroDesde(), filters.getFechaRegistroHasta(), filters.getNumeroAutorizacion(), filters.getDestino());
+        List<TotalesProjection> totalValoresProjection = cpImpuestosRepository.totalValores(idData, idEmpresa, filters.getTipoDocumento().name(), filters.getNumeroIdentificacion(), filters.getSerie(), filters.getSecuencial(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getFechaRegistroDesde(), filters.getFechaRegistroHasta(), filters.getNumeroAutorizacion(), filters.getDestino());
 
         GetListDtoTotalizado totalesDto = new GetListDtoTotalizado<>();
         totalesDto.setContent(dtoList);
@@ -432,7 +432,7 @@ public class CpImpuestosServiceImpl {
                 .findByIdEntity(idData, idEmpresa, id, null, null)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("La factura con ID {0} no existe", id)));
 
-        String codigoDocumento = impuesto.getDocumento().getCodigoDocumento();
+        String codigoDocumento = impuesto.getDocumento().getCodigo();
 
         if (Objects.nonNull(request.getDestino())) {
             if (DateUtils.toLocalDate(request.getFechaRegistro()).isAfter(impuesto.getFechaEmision())
@@ -504,7 +504,7 @@ public class CpImpuestosServiceImpl {
                 row.createCell(2).setCellValue(recibido.getFecha_registro() != null ? DateUtils.toString(recibido.getFecha_registro()) : "");
                 row.createCell(3).setCellValue(recibido.getTercero());
                 row.createCell(4).setCellValue(recibido.getNumero_identificacion());
-                row.createCell(5).setCellValue(recibido.getCodigo_documento());
+                row.createCell(5).setCellValue(recibido.getDocumento().getCodigo());
                 row.createCell(6).setCellValue(recibido.getSerie());
                 row.createCell(7).setCellValue(recibido.getNumero_autorizacion());
                 row.createCell(8).setCellValue(recibido.getSecuencial());
@@ -639,7 +639,7 @@ public class CpImpuestosServiceImpl {
                 totalGeneral.acumularPorProveedor(factura);
 
                 table.addCell(validarCeldaTexto(Objects.nonNull(factura.getFecha_emision()) ? DateUtils.toString(factura.getFecha_emision()) : "", fontCell));
-                table.addCell(validarCeldaTexto(factura.getCodigo_documento(), fontCell));
+                table.addCell(validarCeldaTexto(factura.getDocumento().getCodigo(), fontCell));
                 table.addCell(validarCeldaTexto(factura.getSerie(), fontCell));
                 table.addCell(validarCeldaTexto(factura.getSecuencial(), fontCell));
 
@@ -860,9 +860,9 @@ public class CpImpuestosServiceImpl {
     private void validacionCodigoImpuesto(CreationCompraImpuestoRequestDto model) {
 
         if (Objects.nonNull(model.getCodigoSustento())) {
-            if (!comprobanteSustentoService.validacionCodigos(model.getCodigoDocumento(), model.getCodigoSustento().name().replace("S", ""))) {
+            if (!comprobanteSustentoService.validacionCodigos(model.getDocumento().getCodigo(), model.getCodigoSustento().name().replace("S", ""))) {
                 throw new GeneralException(MessageFormat.format("La combinación de código de documento: {0} y código de sustento: {1} es inválida.",
-                        model.getCodigoDocumento(), model.getCodigoSustento()));
+                        model.getDocumento().getCodigo(), model.getCodigoSustento()));
             }
         }
 

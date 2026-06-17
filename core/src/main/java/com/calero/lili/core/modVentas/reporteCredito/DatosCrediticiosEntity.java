@@ -22,22 +22,16 @@ import java.util.UUID;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "datos_crediticios_cabecera")
+@Table(name = "vt_datos_crediticios_cabecera")
 @Builder
 public class DatosCrediticiosEntity {
 
     @Id
     @Column(unique = true, updatable = false, nullable = false)
     private UUID idDatosCrediticios;
-
     private Long idData;
-
     private Long idEmpresa;
-
-    private String codigoEntidad;
-
     private String periodo;
-
 
     @Builder.Default
     @JoinColumn(name = "id_datos_crediticios", referencedColumnName = "idDatosCrediticios")

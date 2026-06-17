@@ -1,5 +1,7 @@
 package com.calero.lili.core.modCompras.impuestosXml;
 
+import com.calero.lili.core.enums.DocumentoEnum;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -46,8 +48,8 @@ public interface CpImpuestosFacturasOneProjection {
     LocalDate getFechaRegistro();
     void setFechaRegistro(LocalDate fechaRegistro);
 
-    String getCodigoDocumento();
-    void setCodigoDocumento(String codigoDocumento);
+    DocumentoEnum getDocumento();
+    void setDocumento(DocumentoEnum codigoDocumento);
 
     String getNumeroAutorizacion();
     void setNumeroAutorizacion(String numeroAutorizacion);

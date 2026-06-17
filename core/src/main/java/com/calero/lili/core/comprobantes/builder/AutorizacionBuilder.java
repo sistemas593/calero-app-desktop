@@ -19,8 +19,8 @@ import com.calero.lili.core.comprobantes.services.dto.CampoAutorizacionDto;
 import com.calero.lili.core.dtos.FormasPagoSri;
 import com.calero.lili.core.dtos.InformacionAdicional;
 import com.calero.lili.core.enums.Ambiente;
-import com.calero.lili.core.enums.CodigoDocumento;
 import com.calero.lili.core.enums.CodigoRetencion;
+import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.enums.EmailEstado;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormaPagoSriEnum;
@@ -47,7 +47,6 @@ import com.calero.lili.core.modVentas.reembolsos.VtVentaReembolsosEntity;
 import com.calero.lili.core.modVentas.reembolsos.VtVentaReembolsosValoresEntity;
 import com.calero.lili.core.modVentasRetenciones.VtRetencionesEntity;
 import com.calero.lili.core.modVentasRetenciones.VtRetencionesValoresEntity;
-import com.calero.lili.core.tablas.tbDocumentos.TbDocumentoEntity;
 import com.calero.lili.core.tablas.tbPaises.TbPaisEntity;
 import com.calero.lili.core.utils.DateUtils;
 import org.springframework.stereotype.Component;
@@ -76,7 +75,7 @@ public class AutorizacionBuilder {
                         ? DateUtils.toLocalDateTime(model.getFechaAutorizacion()) : null)
                 .serie(documento.getInfoTributaria().getEstab() + documento.getInfoTributaria().getPtoEmi())
                 .secuencial(documento.getInfoTributaria().getSecuencial())
-                .documento(builderTipoDocumento(CodigoDocumento.FACTURA))
+                .documento(DocumentoEnum.D01)
                 .fechaEmision(DateUtils.toLocalDate(documento.getInfoFactura().getFechaEmision()))
                 .tercero(proveedor)
                 .formasPagoSri(builderListFormasPagoSri(documento.getInfoFactura().getPago()))
@@ -118,7 +117,7 @@ public class AutorizacionBuilder {
                 .serie(documento.getInfoTributaria().getEstab() + documento.getInfoTributaria().getPtoEmi())
                 .secuencial(documento.getInfoTributaria().getSecuencial())
                 .fechaEmision(DateUtils.toLocalDate(documento.getInfoNotaCredito().getFechaEmision()))
-                .documento(builderTipoDocumento(CodigoDocumento.NOTA_CREDITO))
+                .documento(DocumentoEnum.D04)
                 .tercero(proveedor)
                 .existeComprobante(Boolean.TRUE)
                 .origen(OrigenImpuestos.XDF.name())
@@ -140,7 +139,7 @@ public class AutorizacionBuilder {
                 .serie(documento.getInfoTributaria().getEstab() + documento.getInfoTributaria().getPtoEmi())
                 .secuencial(documento.getInfoTributaria().getSecuencial())
                 .fechaEmision(DateUtils.toLocalDate(documento.getInfoNotaDebito().getFechaEmision()))
-                .documento(builderTipoDocumento(CodigoDocumento.NOTA_DEBITO))
+                .documento(DocumentoEnum.D05)
                 .tercero(proveedor)
                 .formasPagoSri(builderListFormasPagoSri(documento.getInfoNotaDebito().getPago()))
                 .existeComprobante(Boolean.TRUE)
@@ -354,7 +353,7 @@ public class AutorizacionBuilder {
                 .serie(model.getNumDocSustento().substring(0, 6))
                 .secuencial(model.getNumDocSustento().substring(6, 15))
                 .numeroIdentificacion(numeroSusIdentificacion)
-                .documento(builderDocumento(model.getCodDocSustento()))
+                .documento(DocumentoEnum.getCodigoDocumento(model.getCodDocSustento()))
                 .impuestosCodigos(builderListImpuestoCodigosUno(model))
                 .build();
     }
@@ -384,7 +383,7 @@ public class AutorizacionBuilder {
                 .serie(model.getNumDocSustento().substring(0, 6))
                 .secuencial(model.getNumDocSustento().substring(6, 15))
                 .numeroIdentificacion(numeroIdentificacion)
-                .documento(builderDocumento(model.getCodDocSustento()))
+                .documento(DocumentoEnum.getCodigoDocumento(model.getCodDocSustento()))
                 .impuestosCodigos(builderListImpuestoCodigos(model.getRetencion()))
                 .build();
     }
@@ -402,12 +401,6 @@ public class AutorizacionBuilder {
                 .baseImponible(new BigDecimal(model.getBaseImponible()))
                 .porcentajeRetener(new BigDecimal(model.getPorcentajeRetener()))
                 .valorRetenido(new BigDecimal(model.getValorRetenido()))
-                .build();
-    }
-
-    private TbDocumentoEntity builderDocumento(String codDocSustento) {
-        return TbDocumentoEntity.builder()
-                .codigoDocumento(codDocSustento)
                 .build();
     }
 
@@ -437,12 +430,6 @@ public class AutorizacionBuilder {
                 .tarifa(tarifa)
                 .idEmpresa(idEmpresa)
                 .idData(idData)
-                .build();
-    }
-
-    private TbDocumentoEntity builderTipoDocumento(CodigoDocumento item) {
-        return TbDocumentoEntity.builder()
-                .codigoDocumento(item.getCodigoDocumento())
                 .build();
     }
 

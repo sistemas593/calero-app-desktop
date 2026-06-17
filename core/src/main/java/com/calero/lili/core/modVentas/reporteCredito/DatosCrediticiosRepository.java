@@ -54,8 +54,8 @@ public interface DatosCrediticiosRepository extends JpaRepository<DatosCreditici
                 dcd.couta_credito as cuotaCredito,
                 dcd.fecha_cancelacion as fechaCancelacion,
                 dcd.forma_cancelacion as formaCancelacion
-            FROM datos_crediticios_cabecera dcc
-            JOIN datos_crediticios_detalle dcd
+            FROM vt_datos_crediticios_cabecera dcc
+            JOIN vt_datos_crediticios_detalle dcd
                 ON dcc.id_datos_crediticios = dcd.id_datos_crediticios
             JOIN ge_terceros gt
                 ON gt.id_tercero = dcd.id_tercero

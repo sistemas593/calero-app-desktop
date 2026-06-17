@@ -1,6 +1,8 @@
 package com.calero.lili.core.modCompras.modComprasImpuestos.projection;
 
 
+import com.calero.lili.core.enums.DocumentoEnum;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -15,7 +17,7 @@ public interface ComprasImpuestoProjection {
     String getNumero_identificacion();
 
 
-    String getCodigo_documento();
+    DocumentoEnum getDocumento();
     String getSerie();
     String getNumero_autorizacion();
     String getSecuencial();

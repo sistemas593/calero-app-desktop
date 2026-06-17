@@ -1,12 +1,12 @@
 package com.calero.lili.core.modImpuestosProcesos.builder;
 
+import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosCodigosEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosEntity;
 import com.calero.lili.core.modCompras.modComprasRetenciones.CpRetencionReferencias;
 import com.calero.lili.core.modCompras.modComprasRetenciones.CpRetencionesEntity;
 import com.calero.lili.core.modImpuestosProcesos.dto.ImpuestoProcesoResponseDto;
 import com.calero.lili.core.modImpuestosProcesos.projection.RetencionReferenciaProjection;
-import com.calero.lili.core.tablas.tbDocumentos.TbDocumentoEntity;
 import org.springframework.stereotype.Component;
 
 import java.text.MessageFormat;
@@ -44,16 +44,11 @@ public class ImpuestoProcesoBuilder {
                 .secuencial(referencia.getSecuencial())
                 .numeroIdentificacion(referencia.getNumeroIdentificacion())
                 .impuestos(impuestos)
-                .documento(builderDocumento(referencia.getCodigoDocumento()))
+                .documento(DocumentoEnum.getCodigoDocumento(referencia.getCodigoDocumento()))
                 .impuestosCodigos(impuestosCodigoList)
                 .build();
     }
 
-    private TbDocumentoEntity builderDocumento(String codigoDocumento) {
-        return TbDocumentoEntity.builder()
-                .codigoDocumento(codigoDocumento)
-                .build();
-    }
 
     public CpImpuestosEntity builderUpdateImpuesto(CpImpuestosEntity model,
                                                    UUID idRetencion,

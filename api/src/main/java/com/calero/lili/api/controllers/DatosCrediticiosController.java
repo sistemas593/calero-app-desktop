@@ -51,9 +51,10 @@ public class DatosCrediticiosController {
 
     @PostMapping("/saldos/excel/{idEmpresa}")
     public void uploadDatosCrediticiosSaldosExcel(@RequestParam("file") MultipartFile file,
-                                                  @PathVariable("idEmpresa") Long idEmpresa) {
+                                                  @PathVariable("idEmpresa") Long idEmpresa,
+                                                  @RequestParam("periodo") String periodo) {
         try {
-            datosCrediticiosSaldoExcelService.cargarSaldoDatosCrediticios(idDataService.getIdData(), idEmpresa, file);
+            datosCrediticiosSaldoExcelService.cargarSaldoDatosCrediticios(idDataService.getIdData(), idEmpresa, periodo, file);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

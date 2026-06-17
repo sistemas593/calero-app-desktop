@@ -2,6 +2,7 @@ package com.calero.lili.core.modCompras.modComprasImpuestos.dto;
 
 import com.calero.lili.core.dtos.FormasPagoDto;
 import com.calero.lili.core.dtos.InformacionAdicionalDto;
+import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.enums.SustentoCodigos;
 import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.modCompras.dto.ImpuestoCodigoDto;
@@ -73,7 +74,7 @@ public class CreationCompraImpuestoRequestDto {
     private List<Reembolso> reembolsos;
 
     private String tipoContribuyente;
-    private String codigoDocumento;
+    private DocumentoEnum documento;
     private String referencia;
     private String liquidar;
     private String devolucionIva;

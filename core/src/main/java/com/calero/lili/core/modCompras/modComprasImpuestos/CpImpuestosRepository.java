@@ -1,5 +1,6 @@
 package com.calero.lili.core.modCompras.modComprasImpuestos;
 
+import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.enums.SustentoCodigos;
 import com.calero.lili.core.modCompras.impuestosXml.CpImpuestosFacturasOneProjection;
 import com.calero.lili.core.modCompras.modComprasImpuestos.projection.ComprasImpuestoProjection;
@@ -72,7 +73,7 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
                     "(entity.idEmpresa = :idEmpresa) AND entity.deleted = false AND " +
                     "(:sucursal IS NULL OR entity.sucursal = :sucursal) AND " +
                     "(:usuario IS NULL OR entity.createdBy = :usuario) AND " +
-                    "(:codigoDocumento IS NULL OR entity.documento.codigoDocumento = :codigoDocumento) AND " +
+                    "(:documento IS NULL OR entity.documento = :documento) AND " +
                     "(:numeroIdentificacion IS NULL OR gt.numeroIdentificacion = :numeroIdentificacion ) AND " +
                     "(:serie IS NULL OR entity.serie = :serie ) AND " +
                     "(:secuencial IS NULL OR entity.secuencial = :secuencial ) AND " +
@@ -85,7 +86,7 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
     )
     Page<CpImpuestosEntity> findAllPaginate(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa,
                                             @Param("sucursal") String sucursal,
-                                            @Param("codigoDocumento") String codigoDocumento,
+                                            @Param("documento") DocumentoEnum documento,
                                             @Param("numeroIdentificacion") String numeroIdentificacion,
                                             @Param("serie") String serie,
                                             @Param("secuencial") String secuencial,
@@ -110,7 +111,7 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
                     "INNER JOIN cp_impuestos_valores valoresEntity ON entity.id_impuestos = valoresEntity.id_impuestos " +
                     "WHERE ( entity.id_data = :idData) AND " +
                     "(entity.id_empresa = :idEmpresa) AND entity.deleted = false AND " +
-                    "(:codigoDocumento IS NULL OR entity.codigo_documento = :codigoDocumento) AND " +
+                    "(:documento IS NULL OR entity.documento = :documento) AND " +
                     "(:numeroIdentificacion IS NULL OR gt.numero_identificacion = :numeroIdentificacion ) AND " +
                     "(:serie IS NULL OR entity.serie = :serie ) AND " +
                     "(:secuencial IS NULL OR entity.secuencial = :secuencial ) AND " +
@@ -123,7 +124,7 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
                     "GROUP BY valoresEntity.codigo, valoresEntity.codigo_porcentaje ", nativeQuery = true
     )
     List<TotalesProjection> totalValores(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa,
-                                         @Param("codigoDocumento") String codigoDocumento,
+                                         @Param("documento") String documento,
                                          @Param("numeroIdentificacion") String numeroIdentificacion,
                                          @Param("serie") String serie,
                                          @Param("secuencial") String secuencial,
@@ -168,7 +169,7 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
             "entity.id_impuestos as idImpuestos,  " +
             "entity.numero_autorizacion as numeroAutorizacion, " +
             "entity.fecha_autorizacion as fechaAutorizacion, " +
-            "entity.codigo_documento as codigoDocumento, " +
+            "entity.documento as documento, " +
             "entity.destino as destino, " +
             "entity.comprobante as comprobante, " +
             "entity.serie as serie, " +
@@ -199,7 +200,7 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
                     "LEFT JOIN entity.tercero gt " +
                     "WHERE ( entity.idData = :idData) AND " +
                     "(:idEmpresa IS NULL OR entity.idEmpresa = :idEmpresa) AND " +
-                    "(:codigoDocumento IS NULL OR entity.documento.codigoDocumento = :codigoDocumento) AND " +
+                    "(:documento IS NULL OR entity.documento = :documento) AND " +
                     "(:numeroIdentificacion IS NULL OR gt.numeroIdentificacion = :numeroIdentificacion ) AND " +
                     "(:serie IS NULL OR entity.serie = :serie ) AND " +
                     "(:secuencial IS NULL OR entity.secuencial = :secuencial ) AND " +
@@ -212,7 +213,7 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
 
     )
     List<CpImpuestosEntity> findAll(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa,
-                                    @Param("codigoDocumento") String codigoDocumento,
+                                    @Param("documento") DocumentoEnum documento,
                                     @Param("numeroIdentificacion") String numeroIdentificacion,
                                     @Param("serie") String serie,
                                     @Param("secuencial") String secuencial,
@@ -246,7 +247,7 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
 
     @Query(value = """
             SELECT
-                ci.codigo_documento AS codigoDocumento,
+                ci.documento AS documento,
             
                 SUM(CASE 
                     WHEN civ.codigo = '2' AND civ.codigo_porcentaje = '0' 
@@ -383,7 +384,7 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
             "ci.fecha_registro, " +
             "coalesce(gt.tercero,'') as tercero, " +
             "coalesce(gt.numero_identificacion,'') as numero_identificacion, " +
-            "coalesce(ci.codigo_documento,'') as codigo_documento, " +
+            "coalesce(ci.documento,'') as documento, " +
             "coalesce(ci.serie,'') as serie, " +
             "coalesce(ci.numero_autorizacion,'') as numero_autorizacion, " +
             "coalesce(ci.secuencial,'') as secuencial, " +
@@ -419,7 +420,7 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
             "and ci.fecha_emision between :fechaDesde and :fechaHasta and ci.deleted = false " +
             "group by ci.fecha_emision, ci.fecha_registro, " +
             "gt.tercero, gt.numero_identificacion, " +
-            "ci.codigo_documento, ci.serie, " +
+            "ci.documento, ci.serie, " +
             "ci.numero_autorizacion, " +
             "ci.secuencial,ci.fecha_vencimiento, " +
             "ci.concepto,ci.devolucion_iva, " +

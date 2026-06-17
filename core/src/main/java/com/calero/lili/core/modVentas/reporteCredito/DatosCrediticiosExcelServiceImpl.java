@@ -3,7 +3,6 @@ package com.calero.lili.core.modVentas.reporteCredito;
 import com.calero.lili.core.builder.DetalleErrorBuilder;
 import com.calero.lili.core.dtos.errors.DetalleError;
 import com.calero.lili.core.dtos.errors.EnumError;
-import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.errors.exceptions.ListErrorException;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
@@ -42,9 +41,15 @@ public class DatosCrediticiosExcelServiceImpl {
 
     public void cargarDatosCrediticios(Long idData, Long idEmpresa, MultipartFile file, String periodo) throws IOException {
 
-        Optional<DatosCrediticiosEntity> datosCrediticiosExistente = datosCrediticiosRepository.findByPeriodo(idData, idEmpresa, periodo);
+        List<DetalleError> detalleErrores = new ArrayList<>();
+
+        Optional<DatosCrediticiosEntity> datosCrediticiosExistente = datosCrediticiosRepository.findByPeriodo(idData, idEmpresa, DateUtils.getPeriodo(periodo));
         if (datosCrediticiosExistente.isPresent()) {
-            throw new GeneralException(MessageFormat.format("El periodo {0} ya existe ", periodo));
+            DetalleError detalleError = detalleErrorBuilder.builderDetalleError(0, EnumError.DOCUMENTO_ERROR);
+            detalleError.setDetalle(MessageFormat.format("El periodo {0} ya existe", periodo));
+            detalleErrores.add(detalleError);
+            throwErrors(detalleErrores);
+
         }
 
         // Paso único: leer todas las filas en memoria una sola vez
@@ -90,10 +95,9 @@ public class DatosCrediticiosExcelServiceImpl {
         entidad.setIdDatosCrediticios(UUID.randomUUID());
         entidad.setIdData(idData);
         entidad.setIdEmpresa(idEmpresa);
-        entidad.setCodigoEntidad("");
-        entidad.setPeriodo(periodo);
+        entidad.setPeriodo(DateUtils.getPeriodo(periodo));
 
-        List<DetalleError> detalleErrores = new ArrayList<>();
+
         List<DatosCrediticiosDetalleEntity> listaDetalles = new ArrayList<>();
 
         for (FilaExcel fila : filas) {

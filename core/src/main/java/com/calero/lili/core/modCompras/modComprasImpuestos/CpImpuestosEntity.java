@@ -4,15 +4,17 @@ import com.calero.lili.core.Auditable;
 import com.calero.lili.core.dtos.FormasPagoSri;
 import com.calero.lili.core.dtos.InformacionAdicional;
 import com.calero.lili.core.dtos.Mensajes;
+import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.enums.SustentoCodigos;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.PagoExterior;
 import com.calero.lili.core.modCompras.modComprasRetenciones.CpRetencionesEntity;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
-import com.calero.lili.core.tablas.tbDocumentos.TbDocumentoEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -56,9 +58,8 @@ public class CpImpuestosEntity extends Auditable {
     @Column(unique = true, updatable = false, nullable = false)
     private UUID idImpuestos;
 
-    @ManyToOne()
-    @JoinColumn(name = "codigoDocumento", referencedColumnName = "codigoDocumento")
-    private TbDocumentoEntity documento;
+    @Enumerated(EnumType.STRING)
+    private DocumentoEnum documento;
 
     @Column(name = "serie")
     private String serie;

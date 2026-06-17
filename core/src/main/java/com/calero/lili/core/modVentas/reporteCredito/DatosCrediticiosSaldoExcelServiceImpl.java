@@ -5,6 +5,7 @@ import com.calero.lili.core.dtos.errors.DetalleError;
 import com.calero.lili.core.dtos.errors.EnumError;
 import com.calero.lili.core.errors.exceptions.ListErrorException;
 import com.calero.lili.core.modTerceros.tercerosLegal.TerceroLegaRepository;
+import com.calero.lili.core.utils.DateUtils;
 import com.monitorjbl.xlsx.StreamingReader;
 import lombok.AllArgsConstructor;
 import org.apache.poi.ss.usermodel.Row;
@@ -16,13 +17,14 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -30,11 +32,25 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class DatosCrediticiosSaldoExcelServiceImpl {
 
+
     private final DatosCrediticiosDetalleRepository datosCrediticiosRepository;
+    private final DatosCrediticiosRepository datosCabeceraRepository;
     private final DetalleErrorBuilder detalleErrorBuilder;
     private final TerceroLegaRepository terceroLegaRepository;
 
-    public void cargarSaldoDatosCrediticios(Long idData, Long idEmpresa, MultipartFile file) throws IOException {
+    public void cargarSaldoDatosCrediticios(Long idData, Long idEmpresa, String periodo, MultipartFile file) throws IOException {
+
+
+        List<DetalleError> detalleErrores = new ArrayList<>();
+
+        Optional<DatosCrediticiosEntity> datosCrediticiosExistente = datosCabeceraRepository.findByPeriodo(idData, idEmpresa, DateUtils.getPeriodo(periodo));
+        if (datosCrediticiosExistente.isEmpty()) {
+            DetalleError detalleError = detalleErrorBuilder.builderDetalleError(0, EnumError.DOCUMENTO_ERROR);
+            detalleError.setDetalle(MessageFormat.format("No existe información previa de detalles en el periodo {0}, para llenar los saldos", periodo));
+            detalleErrores.add(detalleError);
+            throwErrors(detalleErrores);
+        }
+
 
         // Paso único: leer todas las filas en memoria una sola vez
         record FilaExcel(int linea, String celda0, String celda1) {
@@ -66,13 +82,13 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
         }
 
         Map<String, DatosCrediticiosDetalleEntity> mapDatos =
-                datosCrediticiosRepository.findAllNumeroOperacion(idData, idEmpresa, new ArrayList<>(numerosOperacion))
+                datosCrediticiosRepository.findAllNumeroOperacion(idData, idEmpresa,
+                                datosCrediticiosExistente.get().getIdDatosCrediticios(),
+                                new ArrayList<>(numerosOperacion))
                         .stream()
                         .collect(Collectors.toMap(DatosCrediticiosDetalleEntity::getNumeroOperacion, Function.identity()));
 
-        List<UUID> listaIdTerceroLegal = terceroLegaRepository.findByAll(idData, idEmpresa);
 
-        List<DetalleError> detalleErrores = new ArrayList<>();
         List<DatosCrediticiosDetalleEntity> entidadesActualizar = new ArrayList<>();
 
         for (FilaExcel fila : filas) {

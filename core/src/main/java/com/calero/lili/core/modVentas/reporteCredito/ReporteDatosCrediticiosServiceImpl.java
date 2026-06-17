@@ -24,6 +24,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -38,26 +39,38 @@ public class ReporteDatosCrediticiosServiceImpl {
 
     public byte[] generarTxt(Long idData, Long idEmpresa, FilterDatosCrediticiosDto filter) {
 
+
+        List<DetalleError> detalleErrores = new ArrayList<>();
         List<DatosCrediticiosProjection> lista = datosCrediticiosRepository.obtenerDatosCrediticios(idData, idEmpresa,
-                valorBusquedaService.obtenerValorAnual(filter.getPeriodo()), filter.getPeriodo());
+                valorBusquedaService.obtenerValorAnual(filter.getPeriodo()), DateUtils.getPeriodo(filter.getPeriodo()));
 
-        AdEmpresaEntity empresa = adEmpresasRepository.findById(idData, idEmpresa)
-                .orElseThrow(() -> new GeneralException("No se encontró la empresa con idData: " + idData + " e idEmpresa: " + idEmpresa));
+        Optional<AdEmpresaEntity> empresa = adEmpresasRepository.findById(idData, idEmpresa);
 
-        if (Objects.isNull(empresa.getCodigoDinardap()) || empresa.getCodigoDinardap().isEmpty()) {
-            throw new GeneralException("No existe codigo de dinardap para generar el reporte en la empresa: " + idEmpresa);
+        if (empresa.isEmpty()) {
+            DetalleError detalleError = detalleErrorBuilder.builderDetalleError(0, EnumError.DOCUMENTO_ERROR);
+            detalleError.setDetalle("No se encontró la empresa con idData: " + idData + " e idEmpresa: " + idEmpresa);
+            detalleErrores.add(detalleError);
+            throwErrors(detalleErrores);
+        }
+
+        if (Objects.isNull(empresa.get().getCodigoDinardap()) || empresa.get().getCodigoDinardap().isEmpty()) {
+            DetalleError detalleError = detalleErrorBuilder.builderDetalleError(0, EnumError.DOCUMENTO_ERROR);
+            detalleError.setDetalle("No existe codigo de dinardap para generar el reporte en la empresa: " + idEmpresa);
+            detalleErrores.add(detalleError);
+            throwErrors(detalleErrores);
         }
 
         if (lista.isEmpty()) {
-            throw new GeneralException("No existe información para generar el reporte");
+            DetalleError detalleError = detalleErrorBuilder.builderDetalleError(0, EnumError.DOCUMENTO_ERROR);
+            detalleError.setDetalle("No existe información para generar el reporte");
+            detalleErrores.add(detalleError);
+            throwErrors(detalleErrores);
         }
 
         StringBuilder sb = new StringBuilder();
 
-        List<DetalleError> detalleErrores = new ArrayList<>();
-
         for (DatosCrediticiosProjection cabecera : lista) {
-            sb.append(construirLinea(cabecera, empresa, detalleErrores)).append("\n");
+            sb.append(construirLinea(cabecera, empresa.get(), detalleErrores)).append("\n");
 
         }
 
@@ -125,7 +138,7 @@ public class ReporteDatosCrediticiosServiceImpl {
             }
         }
 
-        LocalDate fechaDatos = DateUtils.toPeriodoDate(f.getPeriodo());
+        LocalDate fechaDatos = DateUtils.toPeriodoDateDinarap(f.getPeriodo());
 
         return String.join("|",
                 Objects.nonNull(empresa.getCodigoDinardap()) ? empresa.getCodigoDinardap() : "",
@@ -195,4 +208,13 @@ public class ReporteDatosCrediticiosServiceImpl {
         datosCrediticiosRepository.delete(entidad);
 
     }
+
+
+    private static void throwErrors(List<DetalleError> detalleErrores) {
+        List<String> list = detalleErrores.stream()
+                .map(detalleError -> detalleError.getLinea() + "   " + detalleError.getType().getDescription() + " " + detalleError.getDetalle())
+                .toList();
+        throw new ListErrorException(list);
+    }
+
 }
