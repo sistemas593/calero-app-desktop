@@ -25,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 
 @RestController
@@ -85,10 +86,11 @@ public class DatosCrediticiosController {
         return reporteDatosCrediticiosService.getAll(idDataService.getIdData(), idEmpresa);
     }
 
-    @DeleteMapping("eliminar/{idEmpresa}")
+    @DeleteMapping("eliminar/{idEmpresa}/{idDatosCrediticios}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("idEmpresa") Long idEmpresa,
-                       @RequestParam("periodo") String periodo) {
-        reporteDatosCrediticiosService.delete(idDataService.getIdData(), idEmpresa, periodo);
+                       @PathVariable("idDatosCrediticios") UUID idDatosCrediticios) {
+        reporteDatosCrediticiosService.delete(idDataService.getIdData(), idEmpresa, idDatosCrediticios);
 
     }
 

@@ -18,8 +18,6 @@ import java.util.UUID;
 public class AdInfoAdicionalResponseDto {
 
     private UUID idInfoAdicional;
-    private Long idData;
-    private Long idEmpresa;
     private TipoDocumentoSerie documento;
     private List<AdInformacionAdicional> informacionAdicional;
 }

@@ -75,6 +75,14 @@ public interface DatosCrediticiosRepository extends JpaRepository<DatosCreditici
 
     @Query(value = "SELECT entity " +
             "FROM DatosCrediticiosEntity entity " +
+            "where entity.idData = :idData and entity.idEmpresa = :idEmpresa and entity.idDatosCrediticios = :idDatosCrediticios")
+    Optional<DatosCrediticiosEntity> findById(@Param("idData") Long idData,
+                                              @Param("idEmpresa") Long idEmpresa,
+                                              @Param("idDatosCrediticios") UUID idDatosCrediticios);
+
+
+    @Query(value = "SELECT entity " +
+            "FROM DatosCrediticiosEntity entity " +
             "where entity.idData = :idData and entity.idEmpresa = :idEmpresa and entity.periodo = :periodo")
     Optional<DatosCrediticiosEntity> findByPeriodo(@Param("idData") Long idData,
                                                    @Param("idEmpresa") Long idEmpresa,

@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -88,6 +89,24 @@ public class ReporteDatosCrediticiosServiceImpl {
         }
 
     }
+
+
+    public void delete(Long idData, Long idEmpresa, UUID idDatosCrediticios) {
+        DatosCrediticiosEntity entidad = datosCrediticiosRepository.findById(idData, idEmpresa, idDatosCrediticios)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("La cabecera de los datos" +
+                        " crediticios con id {0}, no existe", idDatosCrediticios)));
+        datosCrediticiosRepository.delete(entidad);
+
+    }
+
+
+    public List<DatosCrediticiosResponseDto> getAll(Long idData, Long idEmpresa) {
+        return datosCrediticiosRepository.findAllByIdDataAndIdEmpresa(idData, idEmpresa)
+                .stream()
+                .map(datosCrediticiosBuilder::builderResponseList)
+                .toList();
+    }
+
 
     private String construirLinea(DatosCrediticiosProjection f, AdEmpresaEntity empresa, List<DetalleError> detalleErrores) {
 
@@ -185,21 +204,6 @@ public class ReporteDatosCrediticiosServiceImpl {
                 Objects.nonNull(f.getFormaCancelacion()) ? f.getFormaCancelacion() : ""); // TODO Tipos Efectivo (E), Cheque(C), Tarjeta de Crédito (T)
     }
 
-
-    public void delete(Long idData, Long idEmpresa, String periodo) {
-        DatosCrediticiosEntity entidad = datosCrediticiosRepository.findByPeriodo(idData, idEmpresa, periodo)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("El periodo {0} no existe", periodo)));
-        datosCrediticiosRepository.delete(entidad);
-
-    }
-
-
-    public List<DatosCrediticiosResponseDto> getAll(Long idData, Long idEmpresa) {
-        return datosCrediticiosRepository.findAllByIdDataAndIdEmpresa(idData, idEmpresa)
-                .stream()
-                .map(datosCrediticiosBuilder::builderResponseList)
-                .toList();
-    }
 
     private static void throwErrors(List<DetalleError> detalleErrores) {
         List<String> list = detalleErrores.stream()

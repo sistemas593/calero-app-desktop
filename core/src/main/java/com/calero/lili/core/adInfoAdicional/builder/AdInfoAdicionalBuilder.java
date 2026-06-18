@@ -34,8 +34,6 @@ public class AdInfoAdicionalBuilder {
     public AdInfoAdicionalResponseDto builderResponse(AdInfoAdicionalEntity model){
         return AdInfoAdicionalResponseDto.builder()
                 .idInfoAdicional(model.getIdInfoAdicional())
-                .idData(model.getIdData())
-                .idEmpresa(model.getIdEmpresa())
                 .documento(model.getDocumento())
                 .informacionAdicional(model.getInformacionAdicional())
                 .build();
