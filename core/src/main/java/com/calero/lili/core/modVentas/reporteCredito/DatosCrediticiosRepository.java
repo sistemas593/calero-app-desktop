@@ -1,6 +1,7 @@
 package com.calero.lili.core.modVentas.reporteCredito;
 
 import com.calero.lili.core.modVentas.reporteCredito.projection.DatosCrediticiosProjection;
+import com.calero.lili.core.modVentas.reporteCredito.projection.PeriodoProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -64,13 +65,13 @@ public interface DatosCrediticiosRepository extends JpaRepository<DatosCreditici
             AND dcc.id_empresa =:idEmpresa 
                 AND dcd.valor_operacion >= :saldoMinimo
                 AND dcd.saldo_operacion > 0 
-              AND dcc.periodo = :periodo
+              AND dcc.id_datos_crediticios = :idDatosCrediticios
               ORDER BY gt.tercero ASC
             """, nativeQuery = true)
     List<DatosCrediticiosProjection> obtenerDatosCrediticios(@Param("idData") Long idData,
                                                              @Param("idEmpresa") Long idEmpresa,
                                                              @Param("saldoMinimo") BigDecimal saldoMinimo,
-                                                             @Param("periodo") String periodo);
+                                                             @Param("idDatosCrediticios") UUID idDatosCrediticios);
 
 
     @Query(value = "SELECT entity " +
@@ -79,6 +80,14 @@ public interface DatosCrediticiosRepository extends JpaRepository<DatosCreditici
     Optional<DatosCrediticiosEntity> findById(@Param("idData") Long idData,
                                               @Param("idEmpresa") Long idEmpresa,
                                               @Param("idDatosCrediticios") UUID idDatosCrediticios);
+
+
+    @Query(value = "select vdcc.periodo  from vt_datos_crediticios_cabecera vdcc\n" +
+            "where vdcc.id_data = :idData and vdcc.id_empresa = :idEmpresa and vdcc.id_datos_crediticios  = :idDatosCrediticios;"
+            , nativeQuery = true)
+    Optional<PeriodoProjection> findPeridoById(@Param("idData") Long idData,
+                                               @Param("idEmpresa") Long idEmpresa,
+                                               @Param("idDatosCrediticios") UUID idDatosCrediticios);
 
 
     @Query(value = "SELECT entity " +

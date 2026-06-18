@@ -13,7 +13,7 @@ public class DatosCrediticiosValorBusquedaService {
     private final BigDecimal valor2026 = new BigDecimal("482");
 
     public BigDecimal obtenerValorAnual(String periodo) {
-        LocalDate fecha = DateUtils.toPeriodoDate(periodo);
+        LocalDate fecha = DateUtils.toPeriodoDateDinarap(periodo);
         int year = fecha.getYear();
 
         if (year == 2026) {

@@ -65,12 +65,12 @@ public class DatosCrediticiosController {
     }
 
 
-    @GetMapping("reporte/{idEmpresa}")
+    @GetMapping("reporte/{idEmpresa}/{idDatosCrediticios}")
     public ResponseEntity<byte[]> reporteDatosCrediticios(@PathVariable("idEmpresa") Long idEmpresa,
-                                                          FilterDatosCrediticiosDto filter) {
+                                                          @PathVariable("idDatosCrediticios") UUID idDatosCrediticios) {
 
 
-        byte[] txt = reporteDatosCrediticiosService.generarTxt(idDataService.getIdData(), idEmpresa, filter); // tu byte[]
+        byte[] txt = reporteDatosCrediticiosService.generarTxt(idDataService.getIdData(), idEmpresa, idDatosCrediticios); // tu byte[]
         String nombre = "reporte-datos-crediticios" + ".txt";
 
         return ResponseEntity.ok()

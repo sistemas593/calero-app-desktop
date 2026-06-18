@@ -101,7 +101,6 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
 
                 if (esPositivo(entidad.getDiasMorosidad())) {
 
-
                     entidad.setMontoMorosidad(saldo);
                     if (rango <= 30) {
                         entidad.setValorVencido1a30Dias(saldo);
@@ -110,30 +109,20 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
                     } else if (rango <= 180) {
                         entidad.setValorVencido91a180Dias(saldo);
                     } else if (rango <= 360) {
-                        // EN EL CASO DE QUE EL NUMERO DE DIAS MOROSIDAD SUPERE LOS de 181  SE DEBE SETEAR EL MISMO VALOR
-                        // EN VALOR DE DEMANDA JUDICIAL.
-
                         entidad.setValorVencido181a360Dias(saldo);
-                        if (Objects.isNull(entidad.getPeriodicidadPago()) && Objects.isNull(entidad.getPlazoOperacion())) {
-                            entidad.setPeriodicidadPago(45);
-                            entidad.setPlazoOperacion(45);
-                            entidad.setValorDemandaJudicial(saldo);
-                        }
-
-
                     } else {
-                        // EN EL CASO DE QUE EL NUMERO DE DIAS MOROSIDAD SUPERE LOS de 180 a 360 DIAS, SE DEBE SETEAR EL MISMO VALOR
-                        // EN VALOR DE DEMANDA JUDICIAL.
-                        /*if (listaIdTerceroLegal.contains(entidad.getTercero().getIdTercero())) {
-                            entidad.setValorDemandaJudicial(saldo);
-                        }*/
                         entidad.setValorVencidoMas360Dias(saldo);
-                        if (Objects.isNull(entidad.getPeriodicidadPago()) && Objects.isNull(entidad.getPlazoOperacion())) {
-                            entidad.setPeriodicidadPago(45);
-                            entidad.setPlazoOperacion(45);
-                            entidad.setValorDemandaJudicial(saldo);
-                        }
                     }
+
+
+                    // EN EL CASO DE SER NULL LOS DATOS DE PERIOCIDAD DE PAGO Y PLAZO DE OPERACION SE DEBEN SETEAR
+                    // VALOR DE DEMANDA JUDICIAL Y SETEAR CON 45 CADA UNO
+                    if (Objects.isNull(entidad.getPeriodicidadPago()) && Objects.isNull(entidad.getPlazoOperacion())) {
+                        entidad.setPeriodicidadPago(45);
+                        entidad.setPlazoOperacion(45);
+                        entidad.setValorDemandaJudicial(saldo);
+                    }
+
                 } else {
                     if (rango <= 30) {
                         entidad.setValorXVencer1a30Dias(saldo);

@@ -147,7 +147,7 @@ public class DatosCrediticiosExcelServiceImpl {
             detalleErrores.add(detalleError);
         }
 
-        String celda3 = celda(celdas, 3);
+        String celda3 = celda(celdas, 6);
         if (celda3 != null) {
             detalle.setFechaConcesion(DateUtils.toLocalDate(celda3));
         } else {
@@ -156,7 +156,7 @@ public class DatosCrediticiosExcelServiceImpl {
             detalleErrores.add(detalleError);
         }
 
-        String celda4 = celda(celdas, 4);
+        String celda4 = celda(celdas, 7);
         if (celda4 != null) {
             detalle.setFechaVencimiento(DateUtils.toLocalDate(celda4));
             detalle.setFechaExigible(DateUtils.toLocalDate(celda4));
@@ -169,8 +169,8 @@ public class DatosCrediticiosExcelServiceImpl {
         // LOS VALORES VAN RELACIONADO CON LOS DIAS DE MORA
         // SI EL DIA DE MORA ES NEGATIVO EL VALOR DEBE IR EN LOS DIAS POR VENCER, Y SI ES POSITIVO DEBE IR EN LOS DIAS VENCIDOS
         // EN CASO DE SER NEGATIVOS LOS DIAS DE MORA LOS DIAS DE MOROSIDAD SON CERO Y SI SON POSITIVOS LOS DIAS SE SETEA LOS DIAS QUE ESTE EN EL EXCEL.
-        String celda6 = celda(celdas, 6);
-        String celda7 = celda(celdas, 7);
+        String celda6 = celda(celdas, 9);
+        String celda7 = celda(celdas, 10);
         if (celda6 != null && celda7 != null) {
             BigDecimal valor = convetirValor(celda7);
             int diasMora = convertirEntero(celda6);
@@ -194,7 +194,7 @@ public class DatosCrediticiosExcelServiceImpl {
             detalle.setCarteraCastigada(BigDecimal.ZERO);
             detalle.setValorDemandaJudicial(BigDecimal.ZERO);
 
-            String celda8 = celda(celdas, 8);
+            String celda8 = celda(celdas, 11);
             if (celda8 != null) {
                 try {
                     Integer dias = DinarapPlazoOperacionEnum.getDiasCredito(celda8);

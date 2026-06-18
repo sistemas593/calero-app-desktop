@@ -11,8 +11,8 @@ import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.modVentas.reporteCredito.builder.DatosCrediticiosBuilder;
 import com.calero.lili.core.modVentas.reporteCredito.dto.DatosCrediticiosResponseDto;
-import com.calero.lili.core.modVentas.reporteCredito.dto.FilterDatosCrediticiosDto;
 import com.calero.lili.core.modVentas.reporteCredito.projection.DatosCrediticiosProjection;
+import com.calero.lili.core.modVentas.reporteCredito.projection.PeriodoProjection;
 import com.calero.lili.core.utils.DateUtils;
 import com.calero.lili.core.utils.DatosCrediticiosValorBusquedaService;
 import lombok.AllArgsConstructor;
@@ -42,12 +42,23 @@ public class ReporteDatosCrediticiosServiceImpl {
     private final DatosCrediticiosBuilder datosCrediticiosBuilder;
 
 
-    public byte[] generarTxt(Long idData, Long idEmpresa, FilterDatosCrediticiosDto filter) {
+    public byte[] generarTxt(Long idData, Long idEmpresa, UUID idDatosCrediticios) {
 
 
         List<DetalleError> detalleErrores = new ArrayList<>();
+
+
+        Optional<PeriodoProjection> entidad = datosCrediticiosRepository.findPeridoById(idData, idEmpresa, idDatosCrediticios);
+
+        if (entidad.isEmpty()) {
+            DetalleError detalleError = detalleErrorBuilder.builderDetalleError(0, EnumError.DOCUMENTO_ERROR);
+            detalleError.setDetalle("No se encontró cabecera con el id : " + idDatosCrediticios);
+            detalleErrores.add(detalleError);
+            throwErrors(detalleErrores);
+        }
+
         List<DatosCrediticiosProjection> lista = datosCrediticiosRepository.obtenerDatosCrediticios(idData, idEmpresa,
-                valorBusquedaService.obtenerValorAnual(filter.getPeriodo()), DateUtils.getPeriodo(filter.getPeriodo()));
+                valorBusquedaService.obtenerValorAnual(entidad.get().getPeriodo()), idDatosCrediticios);
 
         Optional<AdEmpresaEntity> empresa = adEmpresasRepository.findById(idData, idEmpresa);
 
@@ -163,13 +174,15 @@ public class ReporteDatosCrediticiosServiceImpl {
 
         LocalDate fechaDatos = DateUtils.toPeriodoDateDinarap(f.getPeriodo());
 
+        validarPersoneria(f.getIdentificacionSujeto(), f.getTipoIdentificacion(), f.getClaseSujeto(), detalleErrores);
+
         return String.join("|",
                 Objects.nonNull(empresa.getCodigoDinardap()) ? empresa.getCodigoDinardap() : "",
                 DateUtils.toString(fechaDatos),
                 f.getTipoIdentificacion(),
                 f.getIdentificacionSujeto(),
                 formatearTextoNombreSujeto(f.getNombreSujeto()),
-                validarPersoneria(f.getIdentificacionSujeto(), f.getTipoIdentificacion(), f.getClaseSujeto()),
+                f.getClaseSujeto(),
                 provincia,
                 canton,
                 parroquia,
@@ -234,24 +247,30 @@ public class ReporteDatosCrediticiosServiceImpl {
         }
     }
 
-    private String validarPersoneria(String numeroIdentifiacion, String tipoIdentificacion, String tipoPersoneria) {
+    private void validarPersoneria(String numeroIdentifiacion, String tipoIdentificacion,
+                                   String tipoPersoneria, List<DetalleError> detalleErrores) {
 
         if (tipoIdentificacion.equals("R")) {
             int validador = Integer.parseInt(numeroIdentifiacion.substring(2, 3));
             if (validador <= 5) {
-                return "N";
+                if (tipoPersoneria.equals("J")) {
+                    DetalleError detalleError = detalleErrorBuilder.builderDetalleError(0, EnumError.DOCUMENTO_ERROR);
+                    detalleError.setDetalle("El tercero con identificación "
+                            + numeroIdentifiacion + " corresponde a un RUC de persona natural, por lo que el tipo de personería debe ser Natural (N) y no Jurídica (J).");
+                    detalleErrores.add(detalleError);
+                }
             }
         }
 
         if (tipoIdentificacion.equals("C")) {
-            if (tipoPersoneria.equals("N")) {
-                return tipoPersoneria;
-            } else {
-                return "N";
+            if (!tipoPersoneria.equals("N")) {
+                DetalleError detalleError = detalleErrorBuilder.builderDetalleError(0, EnumError.DOCUMENTO_ERROR);
+                detalleError.setDetalle("El tercero con identificación "
+                        + numeroIdentifiacion
+                        + " corresponde a una Cédula, por lo que el tipo de personería debe ser Natural (N)");
+                detalleErrores.add(detalleError);
             }
         }
-
-        return tipoPersoneria;
     }
 
 
