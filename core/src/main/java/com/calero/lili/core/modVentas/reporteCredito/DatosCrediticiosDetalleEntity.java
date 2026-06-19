@@ -89,6 +89,8 @@ public class DatosCrediticiosDetalleEntity {
     @Column(length = 1)
     private String formaCancelacion;
 
+    private Boolean estaLegal;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_tercero")
     private GeTerceroEntity tercero;

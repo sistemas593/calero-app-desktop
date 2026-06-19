@@ -115,13 +115,16 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
                     }
 
 
-                    // EN EL CASO DE SER NULL LOS DATOS DE PERIOCIDAD DE PAGO Y PLAZO DE OPERACION SE DEBEN SETEAR
-                    // VALOR DE DEMANDA JUDICIAL Y SETEAR CON 45 CADA UNO
+                    // EN EL CASO DE QUE ESTA EN LEGAL SE TRUE SE DEBE COLOCAR LOS DATOS DE PERIODICIDAD Y PLAZO OPERACION EN 45
+                    // Y SETER EL VALOR DEL SALDO EN LEGAL
                     if (Objects.isNull(entidad.getPeriodicidadPago()) && Objects.isNull(entidad.getPlazoOperacion())) {
-                        entidad.setPeriodicidadPago(45);
-                        entidad.setPlazoOperacion(45);
-                        entidad.setValorDemandaJudicial(saldo);
+                        if (entidad.getEstaLegal()) {
+                            entidad.setPeriodicidadPago(45);
+                            entidad.setPlazoOperacion(45);
+                            entidad.setValorDemandaJudicial(saldo);
+                        }
                     }
+
 
                 } else {
                     if (rango <= 30) {

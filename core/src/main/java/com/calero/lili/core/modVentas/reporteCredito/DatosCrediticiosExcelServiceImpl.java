@@ -166,6 +166,28 @@ public class DatosCrediticiosExcelServiceImpl {
             detalleErrores.add(detalleError);
         }
 
+
+        // EN EL ARCHIVO SI EL TIPO DE RV O DZ, NO SE ENCUENTRA EN LEGAL, PERO SI ES DA SI SE ENCUENTRA Y SE DEBE SETEAR COMO TRUE PARA
+        // POSTERIORMENTE VALIDAR ESTE DATO AL SUBIR LOS SALDOS.
+        String celda5 = celda(celdas, 5);
+        if (celda5 != null) {
+
+            switch (celda5) {
+                case "RV":
+                case "DZ":
+                    detalle.setEstaLegal(Boolean.FALSE);
+                    break;
+                case "DA":
+                    detalle.setEstaLegal(Boolean.TRUE);
+                    break;
+            }
+        } else {
+            DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DOCUMENTO_ERROR);
+            detalleError.setDetalle("El tipo del documento no se encuentra");
+            detalleErrores.add(detalleError);
+        }
+
+
         // LOS VALORES VAN RELACIONADO CON LOS DIAS DE MORA
         // SI EL DIA DE MORA ES NEGATIVO EL VALOR DEBE IR EN LOS DIAS POR VENCER, Y SI ES POSITIVO DEBE IR EN LOS DIAS VENCIDOS
         // EN CASO DE SER NEGATIVOS LOS DIAS DE MORA LOS DIAS DE MOROSIDAD SON CERO Y SI SON POSITIVOS LOS DIAS SE SETEA LOS DIAS QUE ESTE EN EL EXCEL.
