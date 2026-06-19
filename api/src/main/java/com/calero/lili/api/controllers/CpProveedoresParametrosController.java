@@ -5,7 +5,6 @@ import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.modTercerosProvedoresParametros.CpProveedoresParametrosServiceImpl;
 import com.calero.lili.core.modTercerosProvedoresParametros.dto.CpProveedorParametroCreationRequestDto;
 import com.calero.lili.core.modTercerosProvedoresParametros.dto.CpProveedorParametroCreationResponseDto;
-import com.calero.lili.core.modTercerosProvedoresParametros.dto.CpProveedorParametroListFilterDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -70,10 +69,9 @@ public class CpProveedoresParametrosController {
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAuthority('CP_PP_VR')")
     public PaginatedDto<CpProveedorParametroCreationResponseDto> findAllPaginate(@PathVariable("idEmp") Long idEmpresa,
-                                                                                 CpProveedorParametroListFilterDto filters,
                                                                                  Pageable pageable) {
 
-        return cpProveedoresParametrosService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable);
+        return cpProveedoresParametrosService.findAllPaginate(idDataService.getIdData(), idEmpresa, pageable);
     }
 
 }

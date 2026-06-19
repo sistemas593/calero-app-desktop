@@ -29,8 +29,7 @@ public class GetAsientoDto {
 
     private String numeroAsiento;
 
-    @NotEmpty(message = "No existe la fecha")
-    private LocalDate fechaAsiento;
+    private String fechaAsiento;
 
     private String concepto;
 

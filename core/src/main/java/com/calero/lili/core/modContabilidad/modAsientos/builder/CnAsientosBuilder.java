@@ -70,7 +70,7 @@ public class CnAsientosBuilder {
                 .idPeriodo(model.getIdPeriodo())
                 .tipoAsiento(model.getTipoAsiento())
                 .numeroAsiento(model.getNumeroAsiento())
-                .fechaAsiento(model.getFechaAsiento())
+                .fechaAsiento(Objects.nonNull(model.getFechaAsiento()) ? DateUtils.toString(model.getFechaAsiento()) : null)
                 .concepto(model.getConcepto())
                 .mayorizado(model.getMayorizado())
                 .anulada(model.getAnulada())

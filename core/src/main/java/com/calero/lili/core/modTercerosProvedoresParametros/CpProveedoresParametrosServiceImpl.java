@@ -8,7 +8,6 @@ import com.calero.lili.core.modTerceros.GeTercerosRepository;
 import com.calero.lili.core.modTercerosProvedoresParametros.builder.CpProveedoresParametroBuilder;
 import com.calero.lili.core.modTercerosProvedoresParametros.dto.CpProveedorParametroCreationRequestDto;
 import com.calero.lili.core.modTercerosProvedoresParametros.dto.CpProveedorParametroCreationResponseDto;
-import com.calero.lili.core.modTercerosProvedoresParametros.dto.CpProveedorParametroListFilterDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -71,7 +70,7 @@ public class CpProveedoresParametrosServiceImpl {
     }
 
 
-    public PaginatedDto<CpProveedorParametroCreationResponseDto> findAllPaginate(Long idData, Long idEmpresa, CpProveedorParametroListFilterDto filters, Pageable pageable) {
+    public PaginatedDto<CpProveedorParametroCreationResponseDto> findAllPaginate(Long idData, Long idEmpresa, Pageable pageable) {
         Page<CpProveedoresParametrosEntity> page = cpProveedoresParametrosRepository.findAllPaginate(idData, idEmpresa, pageable);
         PaginatedDto paginatedDto = new PaginatedDto<CpProveedorParametroCreationResponseDto>();
         paginatedDto.setContent(page.getContent()

@@ -3,7 +3,6 @@ package com.calero.lili.core.adEmpresasPeriodo;
 import com.calero.lili.core.adEmpresasPeriodo.builder.AdEmpresasPeriodoBuilder;
 import com.calero.lili.core.adEmpresasPeriodo.dto.AdEmpresaPeriodoCreationRequestDto;
 import com.calero.lili.core.adEmpresasPeriodo.dto.AdEmpresaPeriodoCreationResponseDto;
-import com.calero.lili.core.adEmpresasPeriodo.dto.AdEmpresaPeriodoListFilterDto;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.errors.exceptions.GeneralException;
@@ -66,7 +65,6 @@ public class AdEmpresasPeriodosServiceImpl {
     }
 
     public PaginatedDto<AdEmpresaPeriodoCreationResponseDto> findAllPaginate(Long idData, Long idEmpresa,
-                                                                             AdEmpresaPeriodoListFilterDto filters,
                                                                              Pageable pageable) {
 
 

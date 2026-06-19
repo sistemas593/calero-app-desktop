@@ -6,7 +6,6 @@ import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modTercerosClientesParametros.builder.ClienteParametrosBuilder;
 import com.calero.lili.core.modTercerosClientesParametros.dto.VtClienteParametroCreationRequestDto;
 import com.calero.lili.core.modTercerosClientesParametros.dto.VtClienteParametroCreationResponseDto;
-import com.calero.lili.core.modTercerosClientesParametros.dto.VtClienteParametroListFilterDto;
 import com.calero.lili.core.modTercerosClientesParametros.dto.VtClienteParametroReportDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -58,8 +57,7 @@ public class VtClientesParametrosServiceImpl {
     }
 
 
-    public PaginatedDto<VtClienteParametroReportDto> findAllPaginate(Long idData, Long idEmpresa,
-                                                                     VtClienteParametroListFilterDto filters, Pageable pageable) {
+    public PaginatedDto<VtClienteParametroReportDto> findAllPaginate(Long idData, Long idEmpresa, Pageable pageable) {
 
         Page<VtClienteParametroEntity> page = vtClientesParametrosRepository.findAllPaginate(idData, idEmpresa, pageable);
         PaginatedDto paginatedDto = new PaginatedDto<VtClienteParametroReportDto>();

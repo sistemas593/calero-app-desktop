@@ -8,7 +8,5 @@ import lombok.ToString;
 public class CpProveedorGrupoListFilterDto {
 
     private String filter;
-    private Integer idCuentaCredito;
-    private Integer idCuentaAnticipos;
 
 }

@@ -24,6 +24,7 @@ public class DetalleGetDto {
 
     private UUID idItem;
     private String item;
+    private String codigoItem;
 
     private int itemOrden;
 

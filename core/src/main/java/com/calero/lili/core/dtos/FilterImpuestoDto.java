@@ -11,7 +11,6 @@ public class FilterImpuestoDto {
 
     public String fechaDesde;
     public String fechaHasta;
-    public String periodo;
 
 
     public LocalDate getFechaDesde() {

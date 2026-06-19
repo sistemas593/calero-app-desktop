@@ -49,6 +49,7 @@ public class CpRetencionesBuilder {
                 .relacionado(model.getRelacionado())
                 .emailEstado(EmailEstado.NO_ENTREGADO.getTipo())
                 .existeComprobante(Boolean.TRUE)
+                .retencionAsumida(model.getRetencionAsumida())
                 .build();
     }
 
@@ -78,6 +79,7 @@ public class CpRetencionesBuilder {
                 .emailEstado(EmailEstado.NO_ENTREGADO.getTipo())
                 .existeComprobante(item.getExisteComprobante())
                 .formatoDocumento(model.getFormatoDocumento())
+                .retencionAsumida(model.getRetencionAsumida())
                 .build();
     }
 
@@ -105,6 +107,7 @@ public class CpRetencionesBuilder {
                 .periodoFiscal(Objects.nonNull(model.getPeriodoFiscal()) ? DateUtils.toString(model.getPeriodoFiscal()) : null)
                 .existeComprobante(model.getExisteComprobante())
                 .informacionAdicional(informacionAdicionalBuilder.builderListDto(model.getInformacionAdicional()))
+                .retencionAsumida(model.getRetencionAsumida())
                 .build();
 
     }

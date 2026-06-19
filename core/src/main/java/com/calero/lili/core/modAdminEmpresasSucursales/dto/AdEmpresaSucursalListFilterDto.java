@@ -7,10 +7,6 @@ import lombok.ToString;
 @ToString
 public class AdEmpresaSucursalListFilterDto {
 
-    private int idSucursal;
     private String filter;
-
-    private Boolean bloqueado;
-    private String sucursal;
 
 }

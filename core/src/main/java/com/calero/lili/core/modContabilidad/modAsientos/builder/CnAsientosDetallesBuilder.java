@@ -67,6 +67,7 @@ public class CnAsientosDetallesBuilder {
                 .idCentroCosto(Objects.nonNull(model.getCentroCostos()) ? model.getCentroCostos().getIdCentroCostos() : null)
                 .centroCosto(Objects.nonNull(model.getCentroCostos()) ? model.getCentroCostos().getCentroCostos() : null)
                 .codigoCentroCosto(Objects.nonNull(model.getCentroCostos()) ? model.getCentroCostos().getCodigoCentroCostos() : null)
+                .codigoItem(Objects.nonNull(model.getGeItem()) ? model.getGeItem().getCodigoPrincipal() : null)
                 .build();
     }
 }

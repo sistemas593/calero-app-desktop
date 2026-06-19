@@ -1,12 +1,11 @@
 package com.calero.lili.api.controllers;
 
+import com.calero.lili.api.utils.IdDataServiceImpl;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.modTercerosClientesParametros.VtClientesParametrosServiceImpl;
 import com.calero.lili.core.modTercerosClientesParametros.dto.VtClienteParametroCreationRequestDto;
 import com.calero.lili.core.modTercerosClientesParametros.dto.VtClienteParametroCreationResponseDto;
-import com.calero.lili.core.modTercerosClientesParametros.dto.VtClienteParametroListFilterDto;
 import com.calero.lili.core.modTercerosClientesParametros.dto.VtClienteParametroReportDto;
-import com.calero.lili.api.utils.IdDataServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -73,10 +72,9 @@ public class VtClientesParametrosController {
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAuthority('VT_CP_VR')")
     public PaginatedDto<VtClienteParametroReportDto> findAllPaginate(@PathVariable("idEmp") Long idEmpresa,
-                                                                     VtClienteParametroListFilterDto filters,
                                                                      Pageable pageable) {
 
-        return vtClientesParametrosService.findAllPaginate(idDataService.getIdData(),idEmpresa, filters, pageable);
+        return vtClientesParametrosService.findAllPaginate(idDataService.getIdData(),idEmpresa, pageable);
     }
 
 }

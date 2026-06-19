@@ -6,7 +6,6 @@ import com.calero.lili.core.modVentas.reporteCredito.DatosCrediticiosExcelServic
 import com.calero.lili.core.modVentas.reporteCredito.DatosCrediticiosSaldoExcelServiceImpl;
 import com.calero.lili.core.modVentas.reporteCredito.ReporteDatosCrediticiosServiceImpl;
 import com.calero.lili.core.modVentas.reporteCredito.dto.DatosCrediticiosResponseDto;
-import com.calero.lili.core.modVentas.reporteCredito.dto.FilterDatosCrediticiosDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

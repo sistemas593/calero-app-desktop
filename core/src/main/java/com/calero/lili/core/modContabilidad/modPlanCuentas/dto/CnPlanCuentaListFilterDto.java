@@ -12,12 +12,7 @@ import java.util.Objects;
 public class CnPlanCuentaListFilterDto {
 
     private String filter;
-    private String codigoCuenta;
-    private String codigoCuentaOriginal;
-    private String cuenta;
     private Boolean mayor;
-    private Integer nivel;
-
     private String fechaEmisionDesde;
     private String fechaEmisionHasta;
     private String cuentaInicial;

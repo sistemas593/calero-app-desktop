@@ -7,7 +7,6 @@ import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
 import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.builder.TsComprobanteBuilder;
 import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.dto.TsComprobanteCreationRequestDto;
-import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.dto.TsComprobanteFilterDto;
 import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.dto.TsComprobanteResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -83,7 +82,6 @@ public class TsComprobanteServiceImpl {
 
 
     public PaginatedDto<TsComprobanteResponseDto> findAllPaginate(Long idData, Long idEmpresa,
-                                                                  TsComprobanteFilterDto filters,
                                                                   Pageable pageable) {
 
         Page<TsComprobantesEntity> page = tsComprobanteRepository

@@ -121,6 +121,8 @@ public class CpRetencionesEntity extends Auditable {
 
     private Boolean existeComprobante;
 
+    private Boolean retencionAsumida;
+
     @Builder.Default
     @JoinColumn(name = "idRetencion", referencedColumnName = "idRetencion")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)

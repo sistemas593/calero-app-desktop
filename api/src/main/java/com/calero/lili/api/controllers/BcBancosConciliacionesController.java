@@ -1,11 +1,10 @@
 package com.calero.lili.api.controllers;
 
+import com.calero.lili.api.utils.IdDataServiceImpl;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.modTesoreria.modTesoreriaBancosConcilaciones.TsBancosConciliacionesServiceImpl;
 import com.calero.lili.core.modTesoreria.modTesoreriaBancosConcilaciones.dto.BcBancoConciliacionCreationRequestDto;
 import com.calero.lili.core.modTesoreria.modTesoreriaBancosConcilaciones.dto.BcBancoConciliacionCreationResponseDto;
-import com.calero.lili.core.modTesoreria.modTesoreriaBancosConcilaciones.dto.BcBancoConciliacionListFilterDto;
-import com.calero.lili.api.utils.IdDataServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Pageable;
@@ -70,11 +69,10 @@ public class BcBancosConciliacionesController {
     @GetMapping("{idEmp}")
     @ResponseStatus(code = HttpStatus.OK)
     public PaginatedDto<BcBancoConciliacionCreationResponseDto> findAllPaginate(@PathVariable("idEmp") Long idEmpresa,
-                                                                                BcBancoConciliacionListFilterDto filters,
                                                                                 Pageable pageable) {
 
         //log.info("Filters = {}", filters);
-        return bcBancosConciliacionesService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable);
+        return bcBancosConciliacionesService.findAllPaginate(idDataService.getIdData(), idEmpresa, pageable);
     }
 
 }

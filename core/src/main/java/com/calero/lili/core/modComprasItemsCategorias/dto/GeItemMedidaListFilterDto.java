@@ -8,7 +8,4 @@ import lombok.ToString;
 public class GeItemMedidaListFilterDto {
 
     private String filter;
-    private String unidadMedida;
-
-
 }

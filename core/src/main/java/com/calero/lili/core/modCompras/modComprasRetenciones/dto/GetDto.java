@@ -51,6 +51,7 @@ public class GetDto {
     private Integer emailEstado;
     private String periodoFiscal;
     private Boolean existeComprobante;
+    private Boolean retencionAsumida;
 
     private List<InformacionAdicionalDto> informacionAdicional;
 

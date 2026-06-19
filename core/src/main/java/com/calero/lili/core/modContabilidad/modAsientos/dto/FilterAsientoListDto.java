@@ -17,8 +17,6 @@ public class FilterAsientoListDto {
     private String codigoDocumento;
     private String fechaEmisionDesde;
     private String fechaEmisionHasta;
-    private String numeroIdentificacion;
-    private String numeroAutorizacion;
     private String codigoCuenta;
     private String codigoCentroCostos;
     private TipoAsiento tipoAsiento;

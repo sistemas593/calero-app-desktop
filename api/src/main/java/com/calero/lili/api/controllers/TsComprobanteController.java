@@ -4,7 +4,6 @@ import com.calero.lili.api.utils.IdDataServiceImpl;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.TsComprobanteServiceImpl;
 import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.dto.TsComprobanteCreationRequestDto;
-import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.dto.TsComprobanteFilterDto;
 import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.dto.TsComprobanteResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
@@ -67,10 +66,9 @@ public class TsComprobanteController {
     @GetMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     public PaginatedDto<TsComprobanteResponseDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
-                                                                  TsComprobanteFilterDto filters,
                                                                   Pageable pageable) {
         //log.info("Filters = {}", filters);
-        return bcBancosMovimientosService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable);
+        return bcBancosMovimientosService.findAllPaginate(idDataService.getIdData(), idEmpresa, pageable);
     }
 
 }

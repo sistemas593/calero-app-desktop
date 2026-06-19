@@ -1,11 +1,10 @@
 package com.calero.lili.api.controllers;
 
+import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.api.utils.IdDataServiceImpl;
 import com.calero.lili.core.adEmpresasPeriodo.AdEmpresasPeriodosServiceImpl;
 import com.calero.lili.core.adEmpresasPeriodo.dto.AdEmpresaPeriodoCreationRequestDto;
 import com.calero.lili.core.adEmpresasPeriodo.dto.AdEmpresaPeriodoCreationResponseDto;
-import com.calero.lili.core.adEmpresasPeriodo.dto.AdEmpresaPeriodoListFilterDto;
-import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.core.dtos.PaginatedDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -73,11 +72,10 @@ public class AdEmpresasPeriodosController {
     @GetMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     public PaginatedDto<AdEmpresaPeriodoCreationResponseDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
-                                                                             AdEmpresaPeriodoListFilterDto filters,
                                                                              Pageable pageable) {
 
 
-        return adEmpresasPeriodosService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable);
+        return adEmpresasPeriodosService.findAllPaginate(idDataService.getIdData(), idEmpresa, pageable);
     }
 
 }

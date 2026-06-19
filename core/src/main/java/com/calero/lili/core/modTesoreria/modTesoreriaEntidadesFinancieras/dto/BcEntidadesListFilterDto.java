@@ -7,8 +7,6 @@ import lombok.ToString;
 @ToString
 public class BcEntidadesListFilterDto {
 
-    private String entidad;
-    private String numeroCuenta;
     private String filter;
     private String tipoEntidad;
 

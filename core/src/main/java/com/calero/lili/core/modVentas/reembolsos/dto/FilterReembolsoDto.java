@@ -11,18 +11,11 @@ import java.util.UUID;
 @ToString
 public class FilterReembolsoDto {
 
-    private Long idFactura;
-    private String sucursal;
-    private String tipoVenta;
-    private String codigoDocumento;
     private String serie;
     private String secuencial;
     private String fechaEmisionDesde;
     private String fechaEmisionHasta;
-    private UUID idTercero;
     private String numeroIdentificacion;
-    private String terceroNombre;
-    private String numeroAutorizacion;
     private Integer utilizado;
 
     public LocalDate getFechaEmisionDesde() {

@@ -30,6 +30,7 @@ public class CreationRetencionRequestDto {
     private List<CompraImpuestosDto> compraImpuestos;
     private List<InformacionAdicionalDto> informacionAdicional;
     private Integer ambiente;
+    private Boolean retencionAsumida;
 
     @NotNull(message = "No existe periodo fiscal")
     private FormatoDocumento formatoDocumento;

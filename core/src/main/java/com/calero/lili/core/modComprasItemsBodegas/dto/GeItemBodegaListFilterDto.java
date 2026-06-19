@@ -8,7 +8,6 @@ import lombok.ToString;
 public class GeItemBodegaListFilterDto {
 
     private String filter;
-    private String bodega;
 
 
 }

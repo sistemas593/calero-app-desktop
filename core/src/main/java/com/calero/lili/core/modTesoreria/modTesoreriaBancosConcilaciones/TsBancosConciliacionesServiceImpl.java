@@ -6,7 +6,6 @@ import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modTesoreria.modTesoreriaBancosConcilaciones.builder.TsBancosConciliacionesBuilder;
 import com.calero.lili.core.modTesoreria.modTesoreriaBancosConcilaciones.dto.BcBancoConciliacionCreationRequestDto;
 import com.calero.lili.core.modTesoreria.modTesoreriaBancosConcilaciones.dto.BcBancoConciliacionCreationResponseDto;
-import com.calero.lili.core.modTesoreria.modTesoreriaBancosConcilaciones.dto.BcBancoConciliacionListFilterDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -68,7 +67,6 @@ public class TsBancosConciliacionesServiceImpl {
 
 
     public PaginatedDto<BcBancoConciliacionCreationResponseDto> findAllPaginate(Long idData, Long idEmpresa,
-                                                                                BcBancoConciliacionListFilterDto filters,
                                                                                 Pageable pageable) {
 
 

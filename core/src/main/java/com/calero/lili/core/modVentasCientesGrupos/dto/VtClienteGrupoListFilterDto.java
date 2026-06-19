@@ -8,6 +8,5 @@ import lombok.ToString;
 public class VtClienteGrupoListFilterDto {
 
     private String filter;
-    private String grupo;
 
 }

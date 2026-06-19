@@ -11,11 +11,6 @@ import java.util.UUID;
 public class GeTerceroFilterDto {
 
     private String filter;
-
-    private String tipoIdentificacion;
-
-    private UUID idGrupo;
-
     private Integer tipoTercero;
 
 }
