@@ -38,11 +38,24 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
     private final DetalleErrorBuilder detalleErrorBuilder;
     private final TerceroLegaRepository terceroLegaRepository;
 
+
+    /**
+     * Metodo para cargar el archivo de excel que contiene la información de saldos (archivos de facturas)
+     *
+     * @param idData
+     * @param idEmpresa
+     * @param periodo
+     * @param file
+     * @throws IOException
+     */
     public void cargarSaldoDatosCrediticios(Long idData, Long idEmpresa, String periodo, MultipartFile file) throws IOException {
 
 
         List<DetalleError> detalleErrores = new ArrayList<>();
 
+        /**
+         * Se busca la cabecera por periodo, idData, idEmpresa, si no existe se lanza una excepción en forma de lista
+         */
         Optional<DatosCrediticiosEntity> datosCrediticiosExistente = datosCabeceraRepository.findByPeriodo(idData, idEmpresa, DateUtils.getPeriodo(periodo));
         if (datosCrediticiosExistente.isEmpty()) {
             DetalleError detalleError = detalleErrorBuilder.builderDetalleError(0, EnumError.DOCUMENTO_ERROR);
@@ -52,7 +65,10 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
         }
 
 
-        // Paso único: leer todas las filas en memoria una sola vez
+        /**
+         * Paso único: leer todas las filas en memoria una sola vez para poder obtener el número de operación
+         * de la totalidad de registros del excel.
+         */
         record FilaExcel(int linea, String celda0, String celda1) {
         }
         List<FilaExcel> filas = new ArrayList<>();
@@ -81,6 +97,10 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
             }
         }
 
+        /**
+         * Con los números de operacion se busca en la base de datos, y se genera un map que contiene el número de operacion
+         * y el detalle correspondiente.
+         */
         Map<String, DatosCrediticiosDetalleEntity> mapDatos =
                 datosCrediticiosRepository.findAllNumeroOperacion(idData, idEmpresa,
                                 datosCrediticiosExistente.get().getIdDatosCrediticios(),
@@ -91,15 +111,43 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
 
         List<DatosCrediticiosDetalleEntity> entidadesActualizar = new ArrayList<>();
 
+
         for (FilaExcel fila : filas) {
             if (fila.celda0() != null && fila.celda1() != null) {
+
+                /**
+                 * Aquí se realiza la busqueda en el map por medio del número de operacion presente en el excel y se lo setea
+                 * en este caso, si no lo encuentra lo que se está realizando es continuar con el proceso no se llena
+                 * la lista de errores.
+                 */
                 DatosCrediticiosDetalleEntity entidad = mapDatos.get(fila.celda0());
                 if (entidad == null) continue;
+
+
+                /**
+                 * Aquí es donde entra la logica de seteo de los valores
+                 * Primero convertimos el valor que viene el excel como BigDecimal
+                 * Tomamos el campo de valor de días de morosidad que está en la entidad  y le asignamos a la variable rango,
+                 * esto validando que sea un positivo
+                 *
+                 */
 
                 BigDecimal saldo = convetirValor(fila.celda1());
                 int rango = Math.abs(entidad.getDiasMorosidad());
 
+                /**
+                 * Aquí se valida si días de morosidad son positivos o no, en este caso, corresponde a como se debe setear los valores.
+                 * Si en caso de ser positivos, este valor del saldo debe ir en los valores correspondientes a monto morosidad y
+                 * los campos llamados valor vencido, si fueran negativos los valores que se deben llenar son los llamados
+                 * valor por vencer (valorXVencer), el valor a setear siempre es el valor del saldo
+                 */
+
                 if (esPositivo(entidad.getDiasMorosidad())) {
+
+                    /**
+                     * Aquí se setea basandose en el valor del rango que corresponde a los días de mora,
+                     * el valor a setear siempre es el valor del saldo independiente del número de días de la deuda
+                     */
 
                     entidad.setMontoMorosidad(saldo);
                     if (rango <= 30) {
@@ -114,6 +162,12 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
                         entidad.setValorVencidoMas360Dias(saldo);
                     }
 
+                    /**
+                     * Aquí se valida la información ingresa anteriormente, correspondiente a la periodicidad del pago,
+                     * plazo operacional y si se encuentra en legal o no, si en caso de que la periodicidad del pago,
+                     * plazo operacional se encuentren como null y estado legal sea verdadero, se guardara el valor en deuda judicial
+                     * además se setearan los valores de periodicidad del pago y plazo operacional como 45
+                     */
 
                     // EN EL CASO DE QUE ESTA EN LEGAL SE TRUE SE DEBE COLOCAR LOS DATOS DE PERIODICIDAD Y PLAZO OPERACION EN 45
                     // Y SETER EL VALOR DEL SALDO EN LEGAL
@@ -127,6 +181,12 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
 
 
                 } else {
+
+                    /**
+                     * Aquí se setea basandose en el valor del rango que corresponde a los días de mora,
+                     * el valor a setear siempre es el valor del saldo independiente del número de días de la deuda
+                     */
+
                     if (rango <= 30) {
                         entidad.setValorXVencer1a30Dias(saldo);
                     } else if (rango <= 90) {
