@@ -51,7 +51,6 @@ public class VtVentasImpuestoService {
                               CreationVentaImpuestoRequestDto request, String usuario) {
 
         ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencial());
-        validarNumeroAutorizacion(request);
 
         Optional<OneProjection> existente = vtVentaRepository
                 .findExistBySecuencial(idData, idEmpresa, request.getTipoVenta().name(),
@@ -82,7 +81,6 @@ public class VtVentasImpuestoService {
                               FilterListVentasDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencial());
-        validarNumeroAutorizacion(request);
 
         VtVentaEntity entity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
         validacionModulo(entity);
@@ -225,7 +223,7 @@ public class VtVentasImpuestoService {
         }
     }
 
-    private void validarNumeroAutorizacion(CreationVentaImpuestoRequestDto request) {
+    /*private void validarNumeroAutorizacion(CreationVentaImpuestoRequestDto request) {
 
         if (request.getFormatoDocumento().equals(FormatoDocumento.F)) {
             if (Objects.isNull(request.getNumeroAutorizacion()) || request.getNumeroAutorizacion().isEmpty()) {
@@ -245,7 +243,7 @@ public class VtVentasImpuestoService {
                 request.setNumeroAutorizacion(null);
             }
         }
-    }
+    }*/
 
     private VtVentaEntity validacionTipoBusqueda(Long idData, Long idEmpresa, UUID idVenta,
                                                  FilterListVentasDto filters, TipoPermiso tipoBusqueda, String usuario) {
