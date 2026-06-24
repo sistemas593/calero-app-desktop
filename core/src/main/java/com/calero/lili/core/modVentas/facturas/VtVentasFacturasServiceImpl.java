@@ -24,8 +24,8 @@ import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.errors.exceptions.NotFoundException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
-import com.calero.lili.core.modAdminEmpresas.projection.MomentoEnvioProjection;
 import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesEntity;
+import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesRepository;
 import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
 import com.calero.lili.core.modComprasItems.GeItemsRepository;
 import com.calero.lili.core.modContabilidad.modAsientos.CnAsientosEntity;
@@ -113,8 +113,9 @@ public class VtVentasFacturasServiceImpl {
     private final ProcesarDocumentosServiceImpl procesarDocumentosService;
     private final AdLogsBuilder adLogsBuilder;
     private final BuscarDatosEmpresa buscarDatosEmpresa;
-    private final AdEmpresasRepository adEmpresasRepository;
     private final ValidarServiceImpl validarService;
+    private final AdEmpresasRepository adEmpresasRepository;
+    private final AdEmpresasSeriesRepository adEmpresasSeriesRepository;
 
 
     // TODO VALIDAR EMPRESA Y EMPRESA SERIE QUE EXISTAN PARA LUEGO PASARLE AL GENERAR EL XML ( EN TODOS LOS DOCUMENTOS)
@@ -122,8 +123,12 @@ public class VtVentasFacturasServiceImpl {
                                          CreationFacturaRequestDto request, String usuario, String origenCertificado) {
 
 
-        AdEmpresaEntity empresa = vtComprobanteService.obtenerEmpresa(idData, idEmpresa);
-        AdEmpresasSeriesEntity serie = vtComprobanteService.obtenerEmpresaSerie(idData, idEmpresa, request.getSerie());
+        AdEmpresaEntity empresa = adEmpresasRepository
+                .findById(idData, idEmpresa)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Data {0} Empresa {1} no existe", idData, idEmpresa)));
+        AdEmpresasSeriesEntity serie = adEmpresasSeriesRepository
+                .findBySerie(idData, idEmpresa, request.getSerie())
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Empresa {0}, serie {1} no existe", idEmpresa, request.getSerie())));
 
         ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencial());
         validarNumeroAutorizacion(request);
@@ -170,12 +175,9 @@ public class VtVentasFacturasServiceImpl {
 
         VtVentaEntity saved = facturasPersistenceService.guardarFactura(vtVentaEntity, request, idData, idEmpresa, tercero);
 
-        MomentoEnvioProjection momentoEnvio = adEmpresasRepository.obtenerMomentosEnvio(idEmpresa)
-                .orElseThrow(() -> new GeneralException("No se encontraron los momentos de envío para la empresa con id: " + idEmpresa));
-
         RespuestaProcesoGetDto respuestaProcesoGetDto = new RespuestaProcesoGetDto();
 
-        if (momentoEnvio.getMomentoEnvioFactura() == 2) {
+        if (empresa.getMomentoEnvioFactura() == 2) {
 
             DatosEmpresaDto datosEmpresaDto = null;
 
@@ -215,8 +217,12 @@ public class VtVentasFacturasServiceImpl {
                               FilterListVentasDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
 
-        AdEmpresaEntity empresa = vtComprobanteService.obtenerEmpresa(idData, idEmpresa);
-        AdEmpresasSeriesEntity serie = vtComprobanteService.obtenerEmpresaSerie(idData, idEmpresa, request.getSerie());
+        AdEmpresaEntity empresa = adEmpresasRepository
+                .findById(idData, idEmpresa)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Data {0} Empresa {1} no existe", idData, idEmpresa)));
+        AdEmpresasSeriesEntity serie = adEmpresasSeriesRepository
+                .findBySerie(idData, idEmpresa, request.getSerie())
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Empresa {0}, serie {1} no existe", idEmpresa, request.getSerie())));
 
         ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencial());
 
@@ -1140,11 +1146,15 @@ public class VtVentasFacturasServiceImpl {
         LocalDateTime fechaActual = LocalDateTime.now();
         LocalDateTime fechaDesde = LocalDate.now()
                 .minusDays(5).atStartOfDay();
-        AdEmpresaEntity empresa = vtComprobanteService.obtenerEmpresa(idData, idEmpresa);
+        AdEmpresaEntity empresa = adEmpresasRepository
+                .findById(idData, idEmpresa)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Data {0} Empresa {1} no existe", idData, idEmpresa)));
         List<VtVentaEntity> facturas = vtVentaRepository.findAllFacturasSinComprobante(idData, idEmpresa, fechaDesde, fechaActual);
         for (VtVentaEntity factura : facturas) {
+            AdEmpresasSeriesEntity serie = adEmpresasSeriesRepository
+                    .findBySerie(idData, idEmpresa, factura.getSerie())
+                    .orElseThrow(() -> new GeneralException(MessageFormat.format("Empresa {0}, serie {1} no existe", idEmpresa, factura.getSerie())));
 
-            AdEmpresasSeriesEntity serie = vtComprobanteService.obtenerEmpresaSerie(idData, idEmpresa, factura.getSerie());
             vtComprobanteService.getComprobanteXmlFactura(idData, factura, empresa, serie);
             factura.setExisteComprobante(Boolean.TRUE);
             factura.setModifiedBy(usuario);

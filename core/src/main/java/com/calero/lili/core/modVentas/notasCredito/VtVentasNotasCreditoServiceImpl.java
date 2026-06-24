@@ -20,8 +20,10 @@ import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.enums.TipoVenta;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.errors.exceptions.NotFoundException;
+import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
-import com.calero.lili.core.modAdminEmpresas.projection.MomentoEnvioProjection;
+import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesEntity;
+import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesRepository;
 import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
 import com.calero.lili.core.modComprasItems.GeItemsRepository;
 import com.calero.lili.core.modContabilidad.modAsientos.CnAsientosEntity;
@@ -99,6 +101,8 @@ public class VtVentasNotasCreditoServiceImpl {
     private final AdLogsBuilder adLogsBuilder;
     private final AdEmpresasRepository adEmpresasRepository;
     private final ValidarServiceImpl validarService;
+    private final AdEmpresasSeriesRepository adEmpresasSeriesRepository;
+
 
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa, CreationNotaCreditoRequestDto request,
                                          String usuario, String origenCertificado) {
@@ -108,6 +112,14 @@ public class VtVentasNotasCreditoServiceImpl {
         validarNumeroAutorizacion(request);
         DateUtils.validarFechaEmision(request.getFechaEmision());
         ValidarCampoAscii.validarStrings(request);
+
+        AdEmpresaEntity empresa = adEmpresasRepository
+                .findById(idData, idEmpresa)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Data {0} Empresa {1} no existe", idData, idEmpresa)));
+        AdEmpresasSeriesEntity serie = adEmpresasSeriesRepository
+                .findBySerie(idData, idEmpresa, request.getSerie())
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Empresa {0}, serie {1} no existe", idEmpresa, request.getSerie())));
+
 
         List<ValoresDto> valores = validarService.validarValores(request.getDetalle());
         request.setValores(valores);
@@ -137,17 +149,13 @@ public class VtVentasNotasCreditoServiceImpl {
         vtVentaEntity.setCreatedDate(LocalDateTime.now());
 
         vtVentaEntity.setTipoEmision(getTipoEmision(request));
-        vtComprobanteService.getComprobanteXmlNotaCredito(idData, idEmpresa, vtVentaEntity);
+        vtComprobanteService.getComprobanteXmlNotaCredito(idData, vtVentaEntity, empresa, serie);
 
         VtVentaEntity saved = vtVentasPersistenceService.guardarNotaCredito(vtVentaEntity, request, idData, idEmpresa);
 
-
-        MomentoEnvioProjection momentoEnvio = adEmpresasRepository.obtenerMomentosEnvio(idEmpresa)
-                .orElseThrow(() -> new GeneralException("No se encontraron los momentos de envío para la empresa con id: " + idEmpresa));
-
         RespuestaProcesoGetDto respuestaProcesoGetDto = new RespuestaProcesoGetDto();
 
-        if (momentoEnvio.getMomentoEnvioNotaCredito() == 2) {
+        if (empresa.getMomentoEnvioNotaCredito() == 2) {
 
             DatosEmpresaDto datosEmpresaDto = null;
 
@@ -190,6 +198,14 @@ public class VtVentasNotasCreditoServiceImpl {
         validarNumeroAutorizacion(request);
         VtVentaEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
+        AdEmpresaEntity empresa = adEmpresasRepository
+                .findById(idData, idEmpresa)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Data {0} Empresa {1} no existe", idData, idEmpresa)));
+        AdEmpresasSeriesEntity serie = adEmpresasSeriesRepository
+                .findBySerie(idData, idEmpresa, request.getSerie())
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Empresa {0}, serie {1} no existe", idEmpresa, request.getSerie())));
+
+
         validarService.validarNoModificacion(vtVentaEntity);
 
         DateUtils.validarFechaEmision(request.getFechaEmision());
@@ -228,7 +244,7 @@ public class VtVentasNotasCreditoServiceImpl {
         update.setEmail(tercero.getEmail());
 
         update.setTipoEmision(getTipoEmision(request));
-        vtComprobanteService.getComprobanteXmlNotaCredito(idData, idEmpresa, update);
+        vtComprobanteService.getComprobanteXmlNotaCredito(idData, update, empresa, serie);
         VtVentaEntity response = vtVentaRepository.save(update);
 
         return responseApiBuilder.builderResponse(response.getIdVenta().toString());

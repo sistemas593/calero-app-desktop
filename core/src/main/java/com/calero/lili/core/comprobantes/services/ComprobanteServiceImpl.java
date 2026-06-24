@@ -11,9 +11,7 @@ import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
-import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesEntity;
-import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesRepository;
 import com.calero.lili.core.modCompras.modCompras.dto.CompraImpuestosDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosRepository;
@@ -36,14 +34,14 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ComprobanteServiceImpl {
 
-    private final AdEmpresasRepository adEmpresasRepository;
-    private final AdEmpresasSeriesRepository adEmpresasSeriesRepository;
+
     private final GeTercerosRepository geTercerosRepository;
     private final GenerarDocumentoXml generarDocumentoXml;
     private final CpImpuestosRepository cpImpuestosRepository;
 
 
-    public void getComprobanteXmlFactura(Long idData, VtVentaEntity vtVentaEntity, AdEmpresaEntity adEmpresa, AdEmpresasSeriesEntity serie) {
+    public void getComprobanteXmlFactura(Long idData, VtVentaEntity vtVentaEntity,
+                                         AdEmpresaEntity adEmpresa, AdEmpresasSeriesEntity serie) {
 
         if (vtVentaEntity.getFormatoDocumento().equals(FormatoDocumento.E)) {
 
@@ -57,13 +55,13 @@ public class ComprobanteServiceImpl {
     }
 
 
-    public void getComprobanteXmlNotaCredito(Long idData, Long idEmpresa, VtVentaEntity vtVentaEntity) {
+    public void getComprobanteXmlNotaCredito(Long idData, VtVentaEntity vtVentaEntity,
+                                             AdEmpresaEntity adEmpresa, AdEmpresasSeriesEntity serie) {
         if (vtVentaEntity.getFormatoDocumento().equals(FormatoDocumento.E)) {
 
             validarCliente(idData, vtVentaEntity.getTercero().getIdTercero());
 
-            NotaCredito notaCredito = generarDocumentoXml.generarNotaCredito(vtVentaEntity,
-                    obtenerEmpresa(idData, idEmpresa), obtenerEmpresaSerie(idData, idEmpresa, vtVentaEntity.getSerie()));
+            NotaCredito notaCredito = generarDocumentoXml.generarNotaCredito(vtVentaEntity, adEmpresa, serie);
 
             vtVentaEntity.setComprobante(XmlUtils.convertToXmlString(NotaCredito.class, notaCredito));
             vtVentaEntity.setEstadoDocumento(EstadoDocumento.ENV);
@@ -71,48 +69,52 @@ public class ComprobanteServiceImpl {
     }
 
 
-    public void getComprobanteXmlNotaDebito(Long idData, Long idEmpresa, VtVentaEntity vtVentaEntity) {
+    public void getComprobanteXmlNotaDebito(Long idData, VtVentaEntity vtVentaEntity,
+                                            AdEmpresaEntity adEmpresa, AdEmpresasSeriesEntity serie) {
         if (vtVentaEntity.getFormatoDocumento().equals(FormatoDocumento.E)) {
 
             validarCliente(idData, vtVentaEntity.getTercero().getIdTercero());
 
-            NotaDebito notaDebito = generarDocumentoXml.generarNotaDebito(vtVentaEntity,
-                    obtenerEmpresa(idData, idEmpresa), obtenerEmpresaSerie(idData, idEmpresa, vtVentaEntity.getSerie()));
+            NotaDebito notaDebito = generarDocumentoXml.generarNotaDebito(vtVentaEntity, adEmpresa, serie);
 
             vtVentaEntity.setComprobante(XmlUtils.convertToXmlString(NotaDebito.class, notaDebito));
             vtVentaEntity.setEstadoDocumento(EstadoDocumento.ENV);
         }
     }
 
-    public void getComprobanteXmlLiquidacion(Long idData, Long idEmpresa, CpLiquidacionesEntity cpLiquidacionesEntity) {
+    public void getComprobanteXmlLiquidacion(Long idData, CpLiquidacionesEntity cpLiquidacionesEntity,
+                                             AdEmpresaEntity adEmpresa, AdEmpresasSeriesEntity serie) {
+
         if (cpLiquidacionesEntity.getFormatoDocumento().equals(FormatoDocumento.E)) {
 
             LiquidacionCompra liquidacionCompra = generarDocumentoXml.generarLiquidacion(cpLiquidacionesEntity,
-                    obtenerEmpresa(idData, idEmpresa), obtenerEmpresaSerie(idData, idEmpresa, cpLiquidacionesEntity.getSerie()));
+                    adEmpresa, serie);
 
             cpLiquidacionesEntity.setComprobante(XmlUtils.convertToXmlString(LiquidacionCompra.class, liquidacionCompra));
             cpLiquidacionesEntity.setEstadoDocumento(EstadoDocumento.ENV);
         }
     }
 
-    public void getComprobanteXmlGuiaRemision(Long idData, Long idEmpresa, VtGuiaEntity vtGuiaEntity) {
+    public void getComprobanteXmlGuiaRemision(Long idData, VtGuiaEntity vtGuiaEntity,
+                                              AdEmpresaEntity adEmpresa, AdEmpresasSeriesEntity serie) {
         if (vtGuiaEntity.getFormatoDocumento().equals(FormatoDocumento.E)) {
 
             GuiaRemision guiaRemision = generarDocumentoXml.generarGuiaRemision(vtGuiaEntity,
-                    obtenerEmpresa(idData, idEmpresa), obtenerEmpresaSerie(idData, idEmpresa, vtGuiaEntity.getSerie()));
+                    adEmpresa, serie);
 
             vtGuiaEntity.setComprobante(XmlUtils.convertToXmlString(GuiaRemision.class, guiaRemision));
             vtGuiaEntity.setEstadoDocumento(EstadoDocumento.ENV);
         }
     }
 
-    public void getComprobanteXmlRetencion(Long idData, Long idEmpresa, CpRetencionesEntity retencion,
+    public void getComprobanteXmlRetencion(Long idData, AdEmpresaEntity adEmpresa,
+                                           AdEmpresasSeriesEntity serie, CpRetencionesEntity retencion,
                                            CreationRetencionRequestDto request) {
         if (retencion.getFormatoDocumento().equals(FormatoDocumento.E)) {
 
             ComprobanteRetencion comprobanteRetencion = generarDocumentoXml.generarComprobanteRetencion(retencion,
-                    obtenerEmpresa(idData, idEmpresa), obtenerEmpresaSerie(idData, idEmpresa, retencion.getSerieRetencion()),
-                    obtenerListaImpuestos(idData, idEmpresa, request), request, obtenerProveedor(idData, retencion.getProveedor().getIdTercero()));
+                    adEmpresa, serie, obtenerListaImpuestos(idData, adEmpresa.getIdEmpresa(), request),
+                    request, obtenerProveedor(idData, retencion.getProveedor().getIdTercero()));
 
             retencion.setComprobante(XmlUtils.convertToXmlString(ComprobanteRetencion.class, comprobanteRetencion));
             retencion.setEstadoDocumento(EstadoDocumento.ENV);
@@ -122,20 +124,6 @@ public class ComprobanteServiceImpl {
     private GeTerceroEntity obtenerProveedor(Long idData, UUID idTercero) {
         return geTercerosRepository.findByIdCliente(idData, idTercero)
                 .orElseThrow(() -> new GeneralException("Proveedor no existe"));
-    }
-
-
-    public AdEmpresaEntity obtenerEmpresa(Long idData, Long idEmpresa) {
-        return adEmpresasRepository
-                .findById(idData, idEmpresa)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("Data {0} Empresa {1} no existe", idData, idEmpresa)));
-    }
-
-    public AdEmpresasSeriesEntity obtenerEmpresaSerie(Long idData, Long idEmpresa, String serie) {
-        return adEmpresasSeriesRepository
-                .findBySerie(idData, idEmpresa, serie)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("Empresa {0}, serie {1} no existe", idEmpresa, serie)));
-
     }
 
     private void validarCliente(Long idData, UUID idTercero) {

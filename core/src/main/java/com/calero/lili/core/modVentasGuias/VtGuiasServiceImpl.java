@@ -17,8 +17,10 @@ import com.calero.lili.core.enums.TipoEmision;
 import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.enums.TipoTercero;
 import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
-import com.calero.lili.core.modAdminEmpresas.projection.MomentoEnvioProjection;
+import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesEntity;
+import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesRepository;
 import com.calero.lili.core.modComprasItems.GeItemsRepository;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
@@ -80,6 +82,8 @@ public class VtGuiasServiceImpl {
     private final AdLogsBuilder adLogsBuilder;
     private final ProcesarDocumentosServiceImpl procesarDocumentosService;
     private final AdEmpresasRepository adEmpresasRepository;
+    private final AdEmpresasSeriesRepository adEmpresasSeriesRepository;
+
 
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa, CreationRequestGuiaRemisionDto request,
                                          String usuario, String origenCertificado) {
@@ -88,6 +92,15 @@ public class VtGuiasServiceImpl {
         ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencial());
         validarNumeroAutorizacion(request);
         DateUtils.validarFechaEmisionGuia(request.getFechaEmision(), request.getFechaIniTransporte());
+
+        AdEmpresaEntity empresa = adEmpresasRepository
+                .findById(idData, idEmpresa)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Data {0} Empresa {1} no existe", idData, idEmpresa)));
+        AdEmpresasSeriesEntity serie = adEmpresasSeriesRepository
+                .findBySerie(idData, idEmpresa, request.getSerie())
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Empresa {0}, serie {1} no existe", idEmpresa, request.getSerie())));
+
+
         Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData, idEmpresa, request.getSerie(), request.getSecuencial());
 
         if (existingFactura.isPresent()) {
@@ -115,16 +128,13 @@ public class VtGuiasServiceImpl {
         vtGuiaEntity.setCreatedBy(usuario);
         vtGuiaEntity.setCreatedDate(LocalDateTime.now());
 
-        comprobanteService.getComprobanteXmlGuiaRemision(idData, idEmpresa, vtGuiaEntity);
+        comprobanteService.getComprobanteXmlGuiaRemision(idData, vtGuiaEntity, empresa, serie);
 
         VtGuiaEntity saved = vtGuiasPersistenceService.guardarGuiaRemision(vtGuiaEntity, request, idData, idEmpresa);
 
-        MomentoEnvioProjection momentoEnvio = adEmpresasRepository.obtenerMomentosEnvio(idEmpresa)
-                .orElseThrow(() -> new GeneralException("No se encontraron los momentos de envío para la empresa con id: " + idEmpresa));
-
         RespuestaProcesoGetDto respuestaProcesoGetDto = new RespuestaProcesoGetDto();
 
-        if (momentoEnvio.getMomentoEnvioGuiaRemision() == 2) {
+        if (empresa.getMomentoEnvioGuiaRemision() == 2) {
 
             DatosEmpresaDto datosEmpresaDto = null;
 
@@ -169,6 +179,13 @@ public class VtGuiasServiceImpl {
         validarAutorizacion(vtGuiaEntity);
         DateUtils.validarFechaEmision(request.getFechaEmision());
 
+        AdEmpresaEntity empresa = adEmpresasRepository
+                .findById(idData, idEmpresa)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Data {0} Empresa {1} no existe", idData, idEmpresa)));
+        AdEmpresasSeriesEntity serie = adEmpresasSeriesRepository
+                .findBySerie(idData, idEmpresa, request.getSerie())
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Empresa {0}, serie {1} no existe", idEmpresa, request.getSerie())));
+
 
         if (!vtGuiaEntity.getSerie().equals(request.getSerie()) || !vtGuiaEntity.getSecuencial().equals(request.getSecuencial())) {
             Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData, idEmpresa, request.getSerie(), request.getSecuencial());
@@ -199,7 +216,7 @@ public class VtGuiasServiceImpl {
         update.setTransportista(transportista);
         update.setDestinatario(destinatario);
         update.setEmail(destinatario.getEmail());
-        comprobanteService.getComprobanteXmlGuiaRemision(idData, idEmpresa, update);
+        comprobanteService.getComprobanteXmlGuiaRemision(idData, update, empresa, serie);
         VtGuiaEntity actualizado = vtVentaRepository.save(update);
         return responseApiBuilder.builderResponse((actualizado.getIdGuia().toString()));
 

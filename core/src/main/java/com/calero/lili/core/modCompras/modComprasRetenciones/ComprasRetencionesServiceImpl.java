@@ -16,8 +16,10 @@ import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.TipoEmision;
 import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
-import com.calero.lili.core.modAdminEmpresas.projection.MomentoEnvioProjection;
+import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesEntity;
+import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesRepository;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosServiceImpl;
 import com.calero.lili.core.modCompras.modComprasRetenciones.builder.CpRetencionesBuilder;
@@ -82,6 +84,7 @@ public class ComprasRetencionesServiceImpl {
     private final AdLogsBuilder adLogsBuilder;
     private final ProcesarDocumentosServiceImpl procesarDocumentosService;
     private final AdEmpresasRepository adEmpresasRepository;
+    private final AdEmpresasSeriesRepository adEmpresasSeriesRepository;
 
 
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa, CreationRetencionRequestDto request,
@@ -92,6 +95,14 @@ public class ComprasRetencionesServiceImpl {
         validarNumeroAutorizacion(request);
         Optional<DeEmitidasRetencionesProjection> existingRetencion = comprasRetencionesRepository
                 .findExistBySecuencial(idData, idEmpresa, request.getSerieRetencion(), request.getSecuencialRetencion());
+
+        AdEmpresaEntity empresa = adEmpresasRepository
+                .findById(idData, idEmpresa)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Data {0} Empresa {1} no existe", idData, idEmpresa)));
+        AdEmpresasSeriesEntity serie = adEmpresasSeriesRepository
+                .findBySerie(idData, idEmpresa, request.getSerieRetencion())
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Empresa {0}, serie {1} no existe", idEmpresa, request.getSerieRetencion())));
+
 
         if (existingRetencion.isPresent()) {
             throw new GeneralException(MessageFormat.format("El documento ya existe : " +
@@ -113,15 +124,12 @@ public class ComprasRetencionesServiceImpl {
         retencionesEntity.setCreatedBy(usuario);
         retencionesEntity.setCreatedDate(LocalDateTime.now());
 
-        comprobanteService.getComprobanteXmlRetencion(idData, idEmpresa, retencionesEntity, request);
+        comprobanteService.getComprobanteXmlRetencion(idData, empresa, serie, retencionesEntity, request);
         CpRetencionesEntity saved = cpRetencionPersistenceService.guardarRetencion(retencionesEntity, request);
-
-        MomentoEnvioProjection momentoEnvio = adEmpresasRepository.obtenerMomentosEnvio(idEmpresa)
-                .orElseThrow(() -> new GeneralException("No se encontraron los momentos de envío para la empresa con id: " + idEmpresa));
 
         RespuestaProcesoGetDto respuestaProcesoGetDto = new RespuestaProcesoGetDto();
 
-        if (momentoEnvio.getMomentoEnvioFactura() == 2) {
+        if (empresa.getMomentoEnvioFactura() == 2) {
 
             DatosEmpresaDto datosEmpresaDto = null;
 
@@ -162,7 +170,17 @@ public class ComprasRetencionesServiceImpl {
                               String usuario, FilterListCompraRetencionesDto filters, TipoPermiso tipoBusqueda) {
 
         validarNumeroAutorizacion(request);
+
+        AdEmpresaEntity empresa = adEmpresasRepository
+                .findById(idData, idEmpresa)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Data {0} Empresa {1} no existe", idData, idEmpresa)));
+        AdEmpresasSeriesEntity serie = adEmpresasSeriesRepository
+                .findBySerie(idData, idEmpresa, request.getSerieRetencion())
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Empresa {0}, serie {1} no existe", idEmpresa, request.getSerieRetencion())));
+
+
         CpRetencionesEntity retencionesEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
+
 
         validarAutorizacion(retencionesEntity);
 
@@ -185,7 +203,7 @@ public class ComprasRetencionesServiceImpl {
         update.setProveedor(proveedor);
         update.setEmail(proveedor.getEmail());
 
-        comprobanteService.getComprobanteXmlRetencion(idData, idEmpresa, update, request);
+        comprobanteService.getComprobanteXmlRetencion(idData, empresa, serie, update, request);
         CpRetencionesEntity saved = cpRetencionPersistenceService.actualizarRetencion(update, request);
         return responseApiBuilder.builderResponse(saved.getIdRetencion().toString());
 
