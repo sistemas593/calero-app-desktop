@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 
@@ -64,5 +65,14 @@ public interface BcEntidadesRepository extends JpaRepository<TsEntidadEntity, Lo
     List<TsEntidadEntity> findAllIdsEntidad(@Param("idData") Long idData,
                                             @Param("idEmpresa") Long idEmpresa,
                                             @Param("idsEntidad") List<UUID> idsEntidad);
+
+
+    @Query(
+            value = "SELECT entity " +
+                    "FROM TsEntidadEntity entity " +
+                    "WHERE entity.idData = :idData AND entity.idEmpresa =:idEmpresa AND entity.idEntidad  =:idEntidad")
+    Optional<TsEntidadEntity> findById(@Param("idData") Long idData,
+                                       @Param("idEmpresa") Long idEmpresa,
+                                       @Param("idEntidad") UUID idEntidad);
 
 }
