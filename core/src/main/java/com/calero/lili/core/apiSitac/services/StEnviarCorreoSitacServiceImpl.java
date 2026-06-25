@@ -1,8 +1,8 @@
 package com.calero.lili.core.apiSitac.services;
 
 import com.calero.lili.core.apiSitac.repositories.AdMailsConfigRepository;
-import com.calero.lili.core.apiSitac.repositories.AdMailsEnviadosRepository;
-import com.calero.lili.core.apiSitac.repositories.AdMailsEnviadosTotalRepository;
+import com.calero.lili.core.adConfiguracion.AdMailsEnviadosRepository;
+import com.calero.lili.core.adConfiguracion.AdMailsEnviadosTotalRepository;
 import com.calero.lili.core.apiSitac.repositories.entities.AdMailConfigEntity;
 import com.calero.lili.core.apiSitac.repositories.entities.AdMailEnviadosEntity;
 import com.calero.lili.core.apiSitac.repositories.entities.AdMailEnviadosTotalEntity;

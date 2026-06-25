@@ -1,0 +1,42 @@
+package com.calero.lili.api.controllers;
+
+import com.calero.lili.core.adConfiguracion.AdMailEnviadosServiceImpl;
+import com.calero.lili.core.adConfiguracion.AdMailEnviadosTotalServiceImpl;
+import com.calero.lili.core.adConfiguracion.dto.AdMailEnviadosResponseDto;
+import com.calero.lili.core.adConfiguracion.dto.AdMailEnviadosTotalResponseDto;
+import com.calero.lili.core.adConfiguracion.dto.FilterMailEnviadosDto;
+import com.calero.lili.core.adConfiguracion.dto.FilterMailEnviadosTotalesDto;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("api/v1.0/correos-enviados")
+@CrossOrigin(originPatterns = "*")
+public class AdMailEnviadosController {
+
+
+    private final AdMailEnviadosServiceImpl adMailEnviadosService;
+    private final AdMailEnviadosTotalServiceImpl adMailEnviadosTotalService;
+
+
+    @GetMapping("")
+    @ResponseStatus(HttpStatus.OK)
+    public List<AdMailEnviadosResponseDto> findAllEnviados(FilterMailEnviadosDto model) {
+        return adMailEnviadosService.findAll(model);
+    }
+
+    @GetMapping("totales")
+    @ResponseStatus(HttpStatus.OK)
+    public List<AdMailEnviadosTotalResponseDto> findAllTotales(FilterMailEnviadosTotalesDto model) {
+        return adMailEnviadosTotalService.findAll(model);
+    }
+
+}

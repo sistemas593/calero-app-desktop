@@ -1,0 +1,33 @@
+package com.calero.lili.core.adConfiguracion;
+
+import com.calero.lili.core.apiSitac.repositories.entities.AdMailEnviadosTotalEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
+
+
+@Repository
+public interface AdMailsEnviadosTotalRepository extends JpaRepository<AdMailEnviadosTotalEntity, Long> {
+
+    @Query(value = "SELECT e " +
+            "FROM AdMailEnviadosTotalEntity e " +
+            "where e.clave1 = :clave1 and " +
+            "e.periodo = :periodo")
+    Optional<AdMailEnviadosTotalEntity> findByClaveAndPeriodo(@Param("clave1") String clave1, @Param("periodo") String periodo);
+
+
+    @Query(value = """
+            SELECT e
+            FROM AdMailEnviadosTotalEntity e
+            WHERE (:clave1 IS NULL OR e.clave1 = :clave1)
+              AND (:periodo IS NULL OR e.periodo = :periodo)
+            """)
+    List<AdMailEnviadosTotalEntity> findAll(@Param("clave1") String clave1,
+                                            @Param("periodo") String periodo);
+
+
+}

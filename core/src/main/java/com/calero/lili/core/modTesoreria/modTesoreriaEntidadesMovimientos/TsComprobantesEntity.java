@@ -54,7 +54,7 @@ public class TsComprobantesEntity extends Auditable {
     @Column(name = "tiene_comprobante")
     private String tieneComprobante; // S o N
 
-    @Column(name = "numero_comprobante")
+    @Column(name = "numero_comprobante", unique = true)
     private String numeroComprobante;
 
     private Integer anio;

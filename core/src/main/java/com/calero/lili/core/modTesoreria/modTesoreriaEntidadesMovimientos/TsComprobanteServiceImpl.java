@@ -52,7 +52,7 @@ public class TsComprobanteServiceImpl {
             throw new GeneralException("El secuencial para el número de comprobante no existe");
         }
 
-        bancosMovimentos.setNumeroComprobante(String.format("%08d", ultimoNumero));
+        bancosMovimentos.setNumeroComprobante("00000001");
         bancosMovimentos.setTercero(tercero);
         bancosMovimentos.setCaja(caja);
         bancosMovimentos.setCreatedBy(usuario);
