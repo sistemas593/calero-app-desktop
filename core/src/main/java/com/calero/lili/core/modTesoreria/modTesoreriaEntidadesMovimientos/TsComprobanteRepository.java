@@ -15,7 +15,6 @@ import java.util.UUID;
 public interface TsComprobanteRepository extends JpaRepository<TsComprobantesEntity, UUID> {
 
 
-
     @Query(value = "SELECT entity " +
             "FROM TsComprobantesEntity entity " +
             "WHERE entity.idData = :idData  AND " +
@@ -35,5 +34,9 @@ public interface TsComprobanteRepository extends JpaRepository<TsComprobantesEnt
                                                            @Param("idEmpresa") Long idEmpresa,
                                                            Pageable pageable);
 
+
+    @Query(value = "select tc.numero_comprobante from ts_comprobantes tc " +
+            "where tc.numero_comprobante = :numeroComprobante;", nativeQuery = true)
+    String findNumeroComprobante(@Param("numeroComprobante") String numeroComprobante);
 
 }

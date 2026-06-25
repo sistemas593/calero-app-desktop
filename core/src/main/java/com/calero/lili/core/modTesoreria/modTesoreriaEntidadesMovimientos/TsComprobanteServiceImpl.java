@@ -12,6 +12,7 @@ import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.builde
 import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.dto.TsComprobanteCreationRequestDto;
 import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesMovimientos.dto.TsComprobanteResponseDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -46,13 +47,25 @@ public class TsComprobanteServiceImpl {
         Integer ultimoNumero = tsComprobanteSecuenciasRepository.actualizarUltimoNumeroSecuencia(idData, idEmpresa,
                 request.getIdCaja(), request.getTipoComprobante().name(), request.getAnio());
 
-        TsComprobantesEntity bancosMovimentos = tsComprobanteBuilder.builderEntity(request, idData, idEmpresa);
-
         if (Objects.isNull(ultimoNumero)) {
             throw new GeneralException("El secuencial para el número de comprobante no existe");
         }
 
-        bancosMovimentos.setNumeroComprobante("00000001");
+        String numeroComprobante = String.format("%08d", ultimoNumero);
+
+        String numeroComprobanteBase = tsComprobanteRepository.findNumeroComprobante(numeroComprobante);
+        if (Objects.nonNull(numeroComprobanteBase)) {
+
+            numeroComprobante = "00000014";
+            if (numeroComprobanteBase.equals(numeroComprobante)) {
+                throw new GeneralException("El número del comprobante esta duplicado");
+            }
+        }
+
+        TsComprobantesEntity bancosMovimentos = tsComprobanteBuilder.builderEntity(request, idData, idEmpresa);
+
+
+        bancosMovimentos.setNumeroComprobante(numeroComprobante);
         bancosMovimentos.setTercero(tercero);
         bancosMovimentos.setCaja(caja);
         bancosMovimentos.setCreatedBy(usuario);
