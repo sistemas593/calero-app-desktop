@@ -27,7 +27,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1.0/entidades")
+@RequestMapping("api/v1.0/tesoreria/entidades-financieras")
 @CrossOrigin(originPatterns = "*")
 
 public class BcEntidadesController {

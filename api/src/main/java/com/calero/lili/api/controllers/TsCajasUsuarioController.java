@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping(value = "api/v1.0/cajas-usuarios")
+@RequestMapping(value = "api/v1.0/tesoreria/cajas-usuarios")
 @RequiredArgsConstructor
 @CrossOrigin(originPatterns = "*")
 public class TsCajasUsuarioController {

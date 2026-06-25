@@ -1,7 +1,7 @@
 package com.calero.lili.core.modTesoreria.modTesoreriaComprobantesSecuencias;
 
 import com.calero.lili.core.Auditable;
-import com.calero.lili.core.enums.TipoComprobanteSecuencia;
+import com.calero.lili.core.enums.TipoComprobante;
 import com.calero.lili.core.modTesoreria.modTesoreriaCajas.TsCajasEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -43,14 +43,14 @@ public class TsComprobantesSecuenciasEntity extends Auditable {
     private Long idEmpresa;
 
     @Enumerated(EnumType.STRING)
-    private TipoComprobanteSecuencia tipo;
+    private TipoComprobante tipo;
 
     private Integer anio;
 
     private Integer ultimoNumero;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_entidad")
+    @JoinColumn(name = "id_cajas")
     private TsCajasEntity cajas;
 
 }

@@ -42,7 +42,7 @@ public class TsCajasUsuariosEntity extends Auditable {
     private Long idUsuario;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_entidad")
+    @JoinColumn(name = "id_cajas")
     private TsCajasEntity cajas;
 
 

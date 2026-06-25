@@ -4,6 +4,7 @@ import com.calero.lili.core.Auditable;
 import com.calero.lili.core.enums.EstadoComprobante;
 import com.calero.lili.core.enums.TipoComprobante;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
+import com.calero.lili.core.modTesoreria.modTesoreriaCajas.TsCajasEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -56,6 +57,8 @@ public class TsComprobantesEntity extends Auditable {
     @Column(name = "numero_comprobante")
     private String numeroComprobante;
 
+    private Integer anio;
+
     private LocalDate fecha;
 
     @Column(name = "total")
@@ -82,5 +85,10 @@ public class TsComprobantesEntity extends Auditable {
     @ManyToOne()
     @JoinColumn(name = "idTercero", referencedColumnName = "idTercero")
     private GeTerceroEntity tercero;
+
+    @ManyToOne()
+    @JoinColumn(name = "idCaja", referencedColumnName = "idCaja")
+    private TsCajasEntity caja;
+
 
 }

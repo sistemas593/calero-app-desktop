@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping(value = "api/v1.0/comprobantes-secuencias")
+@RequestMapping(value = "api/v1.0/tesoreria/comprobantes-secuencias")
 @RequiredArgsConstructor
 @CrossOrigin(originPatterns = "*")
 public class TsComprobantesSecuenciasController {

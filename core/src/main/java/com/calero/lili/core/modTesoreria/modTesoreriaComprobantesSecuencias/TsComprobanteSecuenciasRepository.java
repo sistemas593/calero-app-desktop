@@ -1,6 +1,6 @@
 package com.calero.lili.core.modTesoreria.modTesoreriaComprobantesSecuencias;
 
-import com.calero.lili.core.enums.TipoComprobanteSecuencia;
+import com.calero.lili.core.enums.TipoComprobante;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -23,7 +23,7 @@ public interface TsComprobanteSecuenciasRepository extends JpaRepository<TsCompr
     Optional<TsComprobantesSecuenciasEntity> findByIdCajaAndTipoAndAnio(@Param("idData") Long idData,
                                                                         @Param("idEmpresa") Long idEmpresa,
                                                                         @Param("idCaja") UUID idCaja,
-                                                                        @Param("tipo") TipoComprobanteSecuencia tipo,
+                                                                        @Param("tipo") TipoComprobante tipo,
                                                                         @Param("anio") Integer anio);
 
 
@@ -43,6 +43,17 @@ public interface TsComprobanteSecuenciasRepository extends JpaRepository<TsCompr
             "entity.idEmpresa = :idEmpresa")
     List<TsComprobantesSecuenciasEntity> findAll(@Param("idData") Long idData,
                                                  @Param("idEmpresa") Long idEmpresa);
+
+
+    @Query(value = "UPDATE ts_comprobantes_secuencias " +
+            "SET ultimo_numero = ultimo_numero + 1 " +
+            "WHERE id_data = :idData and id_empresa = :idEmpresa and id_cajas = :idCaja AND tipo = :tipo AND anio = :anio " +
+            "RETURNING ultimo_numero; ", nativeQuery = true)
+    Integer actualizarUltimoNumeroSecuencia(@Param("idData") Long idData,
+                                            @Param("idEmpresa") Long idEmpresa,
+                                            @Param("idCaja") UUID idCaja,
+                                            @Param("tipo") String tipo,
+                                            @Param("anio") Integer anio);
 
 
 }

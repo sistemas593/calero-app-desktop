@@ -8,8 +8,8 @@ import lombok.RequiredArgsConstructor;
 public enum TipoComprobante {
 
 
-    I("INGRESO"),
-    E("EGRESO");
+    CI("INGRESO"),
+    CE("EGRESO");
 
     private final String descripcion;
 }

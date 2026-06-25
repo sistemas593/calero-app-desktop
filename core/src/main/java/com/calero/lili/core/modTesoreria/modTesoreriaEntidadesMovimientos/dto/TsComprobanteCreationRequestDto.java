@@ -20,7 +20,7 @@ public class TsComprobanteCreationRequestDto {
 
     private String sucursal;
     private String tieneComprobante;
-    private String numeroComprobante;
+    private Integer anio;
     private String fecha;
     private BigDecimal total;
     private String concepto;
@@ -28,6 +28,7 @@ public class TsComprobanteCreationRequestDto {
     private TipoComprobante tipoComprobante;
     private EstadoComprobante estadoComprobante;
     private UUID idTercero;
+    private UUID idCaja;
     private List<DetalleComprobanteDto> detalles;
 
 
