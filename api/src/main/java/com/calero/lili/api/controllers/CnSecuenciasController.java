@@ -1,12 +1,14 @@
 package com.calero.lili.api.controllers;
 
 import com.calero.lili.api.utils.IdDataServiceImpl;
+import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.modContabilidad.modSecuenciales.CnSecuenciasServiceImpl;
 import com.calero.lili.core.modContabilidad.modSecuenciales.dto.CnSecuenciasRequestDto;
 import com.calero.lili.core.modContabilidad.modSecuenciales.dto.CnSecuenciasResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -64,11 +65,12 @@ public class CnSecuenciasController {
         return service.findById(idDataService.getIdData(), idEmpresa, idSecuencia);
     }
 
-    @GetMapping("listar")
+    @GetMapping("{idEmpresa}")
     @ResponseStatus(HttpStatus.OK)
-    public List<CnSecuenciasResponseDto> findAll() {
-       //return service.findAll();
-        return null;
+    public PaginatedDto<CnSecuenciasResponseDto> findAll(@PathVariable("idEmpresa") Long idEmpresa,
+                                                         Pageable pageable) {
+        return service.findAllPaginate(idDataService.getIdData(), idEmpresa, pageable);
+
     }
 
 }

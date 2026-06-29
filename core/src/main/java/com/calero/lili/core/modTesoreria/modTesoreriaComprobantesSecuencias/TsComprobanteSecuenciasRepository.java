@@ -1,12 +1,13 @@
 package com.calero.lili.core.modTesoreria.modTesoreriaComprobantesSecuencias;
 
 import com.calero.lili.core.enums.TipoComprobante;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -37,12 +38,23 @@ public interface TsComprobanteSecuenciasRepository extends JpaRepository<TsCompr
                                                       @Param("idComprobanteSecuencia") UUID idComprobanteSecuencia);
 
 
-    @Query(value = "SELECT entity " +
-            "FROM TsComprobantesSecuenciasEntity entity " +
-            "where entity.idData = :idData and " +
-            "entity.idEmpresa = :idEmpresa")
-    List<TsComprobantesSecuenciasEntity> findAll(@Param("idData") Long idData,
-                                                 @Param("idEmpresa") Long idEmpresa);
+    @Query(
+            value = """
+                    SELECT entity
+                    FROM TsComprobantesSecuenciasEntity entity
+                    WHERE entity.idData = :idData
+                    AND entity.idEmpresa = :idEmpresa
+                    """,
+            countQuery = """
+                    SELECT COUNT(entity)
+                    FROM TsComprobantesSecuenciasEntity entity
+                    WHERE entity.idData = :idData
+                    AND entity.idEmpresa = :idEmpresa
+                    """
+    )
+    Page<TsComprobantesSecuenciasEntity> findAllPaginate(@Param("idData") Long idData,
+                                                         @Param("idEmpresa") Long idEmpresa,
+                                                         Pageable pageable);
 
 
     @Query(value = "UPDATE ts_comprobantes_secuencias " +

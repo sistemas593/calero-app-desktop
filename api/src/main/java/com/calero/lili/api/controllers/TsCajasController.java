@@ -1,12 +1,14 @@
 package com.calero.lili.api.controllers;
 
 import com.calero.lili.api.utils.IdDataServiceImpl;
+import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.modTesoreria.modTesoreriaCajas.TsCajasServiceImpl;
 import com.calero.lili.core.modTesoreria.modTesoreriaCajas.dto.TsCajasRequestDto;
 import com.calero.lili.core.modTesoreria.modTesoreriaCajas.dto.TsCajasResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -68,8 +70,9 @@ public class TsCajasController {
 
     @GetMapping("{idEmpresa}")
     @ResponseStatus(HttpStatus.OK)
-    public List<TsCajasResponseDto> findAll(@PathVariable("idEmpresa") Long idEmpresa) {
-        return service.findAll(idDataService.getIdData(), idEmpresa);
+    public PaginatedDto<TsCajasResponseDto> findAll(@PathVariable("idEmpresa") Long idEmpresa,
+                                                    Pageable pageable) {
+        return service.findAll(idDataService.getIdData(), idEmpresa, pageable);
     }
 
 }

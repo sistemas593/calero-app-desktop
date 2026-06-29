@@ -1,12 +1,14 @@
 package com.calero.lili.api.controllers;
 
 import com.calero.lili.api.utils.IdDataServiceImpl;
+import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.modTesoreria.modTesoreriaComprobantesSecuencias.TsComprobanteSecuenciaServiceImpl;
 import com.calero.lili.core.modTesoreria.modTesoreriaComprobantesSecuencias.dto.TsComprobanteSecuenciaRequestDto;
 import com.calero.lili.core.modTesoreria.modTesoreriaComprobantesSecuencias.dto.TsComprobanteSecuenciaResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -66,8 +68,9 @@ public class TsComprobantesSecuenciasController {
 
     @GetMapping("{idEmpresa}")
     @ResponseStatus(HttpStatus.OK)
-    public List<TsComprobanteSecuenciaResponseDto> findAll(@PathVariable("idEmpresa") Long idEmpresa) {
-        return service.findAll(idDataService.getIdData(), idEmpresa);
+    public PaginatedDto<TsComprobanteSecuenciaResponseDto> findAll(@PathVariable("idEmpresa") Long idEmpresa,
+                                                                   Pageable pageable) {
+        return service.findAllPaginate(idDataService.getIdData(), idEmpresa, pageable);
     }
 
 }

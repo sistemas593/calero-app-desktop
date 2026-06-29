@@ -35,7 +35,7 @@ public class TsComprobanteSecuenciaBuilder {
                 .build();
     }
 
-    public TsComprobanteSecuenciaResponseDto builderUpdateEntity(TsComprobantesSecuenciasEntity model) {
+    public TsComprobanteSecuenciaResponseDto builderResponse(TsComprobantesSecuenciasEntity model) {
         return TsComprobanteSecuenciaResponseDto.builder()
                 .idComprobanteSecuencia(model.getIdComprobanteSecuencia())
                 .anio(model.getAnio())

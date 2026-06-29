@@ -25,8 +25,8 @@ public interface AdMailsEnviadosRepository extends JpaRepository<AdMailEnviadosE
                       AND (:serie IS NULL OR e.serie = :serie)
                       AND (:secuencial IS NULL OR e.secuencial = :secuencial)
                       AND (:correo IS NULL OR e.mailTo LIKE :correo)
-                      AND (:fechaInicial IS NULL OR e.fecha >= :fechaInicial)
-                      AND (:fechaFinal IS NULL OR e.fecha <= :fechaFinal)
+                      AND (cast(:fechaInicial AS timestamp) IS NULL OR e.fecha >= :fechaInicial)
+                      AND (cast(:fechaFinal AS timestamp) IS NULL OR e.fecha <= :fechaFinal)
                     """,
             countQuery = """
                     SELECT COUNT(e)
@@ -36,8 +36,8 @@ public interface AdMailsEnviadosRepository extends JpaRepository<AdMailEnviadosE
                       AND (:serie IS NULL OR e.serie = :serie)
                       AND (:secuencial IS NULL OR e.secuencial = :secuencial)
                       AND (:correo IS NULL OR e.mailTo LIKE :correo)
-                      AND (:fechaInicial IS NULL OR e.fecha >= :fechaInicial)
-                      AND (:fechaFinal IS NULL OR e.fecha <= :fechaFinal)
+                      AND (cast(:fechaInicial AS timestamp) IS NULL OR e.fecha >= :fechaInicial)
+                      AND (cast(:fechaFinal AS timestamp) IS NULL OR e.fecha <= :fechaFinal)
                     """
     )
     Page<AdMailEnviadosEntity> findAllPaginate(@Param("clave1") String clave1,

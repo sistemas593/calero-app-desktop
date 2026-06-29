@@ -27,7 +27,7 @@ public class AdMailEnviadosController {
     private final AdMailEnviadosTotalServiceImpl adMailEnviadosTotalService;
 
 
-    /*@GetMapping("")
+    @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
     public PaginatedDto<AdMailEnviadosResponseDto> findAllEnviados(FilterMailEnviadosDto model,
                                                                    Pageable pageable) {
@@ -39,6 +39,6 @@ public class AdMailEnviadosController {
     public PaginatedDto<AdMailEnviadosTotalResponseDto> findAllTotales(FilterMailEnviadosTotalesDto model,
                                                                        Pageable pageable) {
         return adMailEnviadosTotalService.findAllPaginate(model, pageable);
-    }*/
+    }
 
 }

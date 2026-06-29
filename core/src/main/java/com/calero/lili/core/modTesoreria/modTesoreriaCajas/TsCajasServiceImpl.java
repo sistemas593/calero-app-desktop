@@ -1,5 +1,7 @@
 package com.calero.lili.core.modTesoreria.modTesoreriaCajas;
 
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modTesoreria.modTesoreriaCajas.builder.TsCajasBuilder;
 import com.calero.lili.core.modTesoreria.modTesoreriaCajas.dto.TsCajasRequestDto;
@@ -7,6 +9,8 @@ import com.calero.lili.core.modTesoreria.modTesoreriaCajas.dto.TsCajasResponseDt
 import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesFinancieras.BcEntidadesRepository;
 import com.calero.lili.core.modTesoreria.modTesoreriaEntidadesFinancieras.TsEntidadEntity;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
@@ -92,11 +96,31 @@ public class TsCajasServiceImpl {
     }
 
 
-    public List<TsCajasResponseDto> findAll(Long idData, Long idEmpresa) {
-        return tsCajasRepository.findAllPaginate(idData, idEmpresa)
-                .stream()
+    public PaginatedDto<TsCajasResponseDto> findAll(Long idData, Long idEmpresa, Pageable pageable) {
+        Page<TsCajasEntity> page = tsCajasRepository.findAllPaginate(idData, idEmpresa, pageable);
+
+        List<TsCajasResponseDto> dtoList = page.stream()
                 .map(tsCajasBuilder::builderResponse)
                 .toList();
+
+        PaginatedDto paginatedDto = new PaginatedDto();
+        paginatedDto.setContent(dtoList);
+
+        Paginator paginated = new Paginator();
+        paginated.setTotalElements(page.getTotalElements());
+        paginated.setTotalPages(page.getTotalPages());
+        paginated.setNumberOfElements(page.getNumberOfElements());
+        paginated.setSize(page.getSize());
+        paginated.setFirst(page.isFirst());
+        paginated.setLast(page.isLast());
+        paginated.setPageNumber(page.getPageable().getPageNumber());
+        paginated.setPageSize(page.getPageable().getPageSize());
+        paginated.setEmpty(page.isEmpty());
+        paginated.setNumber(page.getNumber());
+
+        paginatedDto.setPaginator(paginated);
+
+        return paginatedDto;
     }
 
 

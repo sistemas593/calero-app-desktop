@@ -1,11 +1,12 @@
 package com.calero.lili.core.modTesoreria.modTesoriaCajasUsuarios;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,11 +35,21 @@ public interface TsCajasUsuariosRepository extends JpaRepository<TsCajasUsuarios
                                              @Param("idCajaUsuario") UUID idCajaUsuario);
 
 
-    @Query(value = "SELECT entity " +
-            "FROM TsCajasUsuariosEntity entity " +
-            "where entity.idData = :idData and " +
-            "entity.idEmpresa = :idEmpresa")
-    List<TsCajasUsuariosEntity> findAll(@Param("idData") Long idData,
-                                        @Param("idEmpresa") Long idEmpresa);
+    @Query(
+            value = """
+                    SELECT entity
+                    FROM TsCajasUsuariosEntity entity
+                    WHERE entity.idData = :idData
+                    AND entity.idEmpresa = :idEmpresa
+                    """,
+            countQuery = """
+                    SELECT COUNT(entity)
+                    FROM TsCajasUsuariosEntity entity
+                    WHERE entity.idData = :idData
+                    AND entity.idEmpresa = :idEmpresa
+                    """)
+    Page<TsCajasUsuariosEntity> findAllPaginate(@Param("idData") Long idData,
+                                                @Param("idEmpresa") Long idEmpresa,
+                                                Pageable pageable);
 
 }

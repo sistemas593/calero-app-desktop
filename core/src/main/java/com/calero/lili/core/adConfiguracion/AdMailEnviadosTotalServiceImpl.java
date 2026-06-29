@@ -21,7 +21,7 @@ public class AdMailEnviadosTotalServiceImpl {
     private final AdMailsEnviadosTotalRepository adMailsEnviadosTotalRepository;
     private final AdMailBuilderTotalBuilder adMailBuilderTotalBuilder;
 
-    /*public PaginatedDto<AdMailEnviadosTotalResponseDto> findAllPaginate(FilterMailEnviadosTotalesDto filter, Pageable pageable) {
+    public PaginatedDto<AdMailEnviadosTotalResponseDto> findAllPaginate(FilterMailEnviadosTotalesDto filter, Pageable pageable) {
 
         Page<AdMailEnviadosTotalEntity> page = adMailsEnviadosTotalRepository.findAllPaginate(filter.getClave1(),
                 filter.getPeriodo(), pageable);
@@ -49,7 +49,7 @@ public class AdMailEnviadosTotalServiceImpl {
 
         return paginatedDto;
 
-    }*/
+    }
 
 
 }

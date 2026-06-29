@@ -22,7 +22,7 @@ public class AdMailEnviadosServiceImpl {
     private final AdMailEnviadosBuilder adMailEnviadosBuilder;
 
 
-    /*public PaginatedDto<AdMailEnviadosResponseDto> findAllPaginate(FilterMailEnviadosDto filter, Pageable pageable) {
+    public PaginatedDto<AdMailEnviadosResponseDto> findAllPaginate(FilterMailEnviadosDto filter, Pageable pageable) {
 
         Page<AdMailEnviadosEntity> page = adMailsEnviadosRepository.findAllPaginate(filter.getClave1(), filter.getCodigoDocumento(),
                 filter.getSerie(), filter.getSecuencial(), filter.getCorreo(),
@@ -50,7 +50,7 @@ public class AdMailEnviadosServiceImpl {
 
         return paginatedDto;
 
-    }*/
+    }
 
 
 }

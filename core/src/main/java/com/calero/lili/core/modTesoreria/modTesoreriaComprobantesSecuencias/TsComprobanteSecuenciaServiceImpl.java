@@ -1,5 +1,7 @@
 package com.calero.lili.core.modTesoreria.modTesoreriaComprobantesSecuencias;
 
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modTesoreria.modTesoreriaCajas.TsCajasEntity;
 import com.calero.lili.core.modTesoreria.modTesoreriaCajas.TsCajasRepository;
@@ -7,6 +9,8 @@ import com.calero.lili.core.modTesoreria.modTesoreriaComprobantesSecuencias.buil
 import com.calero.lili.core.modTesoreria.modTesoreriaComprobantesSecuencias.dto.TsComprobanteSecuenciaRequestDto;
 import com.calero.lili.core.modTesoreria.modTesoreriaComprobantesSecuencias.dto.TsComprobanteSecuenciaResponseDto;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
@@ -43,7 +47,7 @@ public class TsComprobanteSecuenciaServiceImpl {
         comprobanteSecuencia.setCreatedBy(usuario);
         comprobanteSecuencia.setCreatedDate(LocalDateTime.now());
 
-        return tsComprobanteSecuenciaBuilder.builderUpdateEntity(tsComprobanteSecuenciasRepository.save(comprobanteSecuencia));
+        return tsComprobanteSecuenciaBuilder.builderResponse(tsComprobanteSecuenciasRepository.save(comprobanteSecuencia));
     }
 
     public TsComprobanteSecuenciaResponseDto update(Long idData, Long idEmpresa, UUID idComprobanteSecuencia,
@@ -63,7 +67,7 @@ public class TsComprobanteSecuenciaServiceImpl {
         comprobanteSecuencia.setModifiedBy(usuario);
         comprobanteSecuencia.setModifiedDate(LocalDateTime.now());
 
-        return tsComprobanteSecuenciaBuilder.builderUpdateEntity(tsComprobanteSecuenciasRepository.save(comprobanteSecuencia));
+        return tsComprobanteSecuenciaBuilder.builderResponse(tsComprobanteSecuenciasRepository.save(comprobanteSecuencia));
     }
 
     public void delete(Long idData, Long idEmpresa, UUID idComprobanteSecuencia, String usuario) {
@@ -82,19 +86,38 @@ public class TsComprobanteSecuenciaServiceImpl {
 
     public TsComprobanteSecuenciaResponseDto findById(Long idData, Long idEmpresa, UUID idComprobanteSecuencia) {
 
-        return tsComprobanteSecuenciaBuilder.builderUpdateEntity(tsComprobanteSecuenciasRepository
+        return tsComprobanteSecuenciaBuilder.builderResponse(tsComprobanteSecuenciasRepository
                 .findById(idData, idEmpresa, idComprobanteSecuencia)
                 .orElseThrow(() -> new GeneralException(MessageFormat
                         .format("La secuencia de comprobante con id {0}, no existe", idComprobanteSecuencia))));
     }
 
-    public List<TsComprobanteSecuenciaResponseDto> findAll(Long idData, Long idEmpresa) {
+    public PaginatedDto<TsComprobanteSecuenciaResponseDto> findAllPaginate(Long idData, Long idEmpresa, Pageable pageable) {
 
-        return tsComprobanteSecuenciasRepository
-                .findAll(idData, idEmpresa)
-                .stream()
-                .map(tsComprobanteSecuenciaBuilder::builderUpdateEntity)
+        Page<TsComprobantesSecuenciasEntity> page = tsComprobanteSecuenciasRepository
+                .findAllPaginate(idData, idEmpresa, pageable);
+
+        List<TsComprobanteSecuenciaResponseDto> dtoList = page.stream().map(tsComprobanteSecuenciaBuilder::builderResponse)
                 .toList();
+
+        PaginatedDto paginatedDto = new PaginatedDto();
+        paginatedDto.setContent(dtoList);
+
+        Paginator paginated = new Paginator();
+        paginated.setTotalElements(page.getTotalElements());
+        paginated.setTotalPages(page.getTotalPages());
+        paginated.setNumberOfElements(page.getNumberOfElements());
+        paginated.setSize(page.getSize());
+        paginated.setFirst(page.isFirst());
+        paginated.setLast(page.isLast());
+        paginated.setPageNumber(page.getPageable().getPageNumber());
+        paginated.setPageSize(page.getPageable().getPageSize());
+        paginated.setEmpty(page.isEmpty());
+        paginated.setNumber(page.getNumber());
+
+        paginatedDto.setPaginator(paginated);
+
+        return paginatedDto;
     }
 
 }
