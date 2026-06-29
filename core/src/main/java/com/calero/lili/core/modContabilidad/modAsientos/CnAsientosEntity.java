@@ -95,6 +95,10 @@ public class CnAsientosEntity extends Auditable implements Persistable<UUID> {
     @JoinColumn(name = "idTercero")
     private GeTerceroEntity tercero;
 
+    private Integer anio;
+    private Integer mes;
+
+
     @Transient
     @Builder.Default
     private boolean isNewEntity = true;

@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -55,6 +54,17 @@ public interface CnSecuenciasRepository extends JpaRepository<CnSecuenciasEntity
                                                            @Param("sucursal") String sucursal,
                                                            @Param("anio") Integer anio,
                                                            @Param("mes") Integer mes);
+
+
+    @Query(value = "UPDATE cn_secuencias " +
+            "SET ultimo_numero = ultimo_numero + 1 " +
+            "WHERE id_data = :idData and id_empresa = :idEmpresa and sucursal = :sucursal AND anio = :anio AND mes = :mes " +
+            "RETURNING ultimo_numero; ", nativeQuery = true)
+    Integer actualizarUltimoNumeroSecuencia(@Param("idData") Long idData,
+                                            @Param("idEmpresa") Long idEmpresa,
+                                            @Param("sucursal") String sucursal,
+                                            @Param("anio") Integer anio,
+                                            @Param("mes") Integer mes);
 
 
 }

@@ -6,6 +6,7 @@ import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modTesoreria.modTesoreriaCajas.TsCajasEntity;
 import com.calero.lili.core.modTesoreria.modTesoreriaCajas.TsCajasRepository;
 import com.calero.lili.core.modTesoreria.modTesoriaCajasUsuarios.builder.TsCajasUsuarioBuilder;
+import com.calero.lili.core.modTesoreria.modTesoriaCajasUsuarios.dto.TsCajasUsuarioListResponseDto;
 import com.calero.lili.core.modTesoreria.modTesoriaCajasUsuarios.dto.TsCajasUsuarioRequestDto;
 import com.calero.lili.core.modTesoreria.modTesoriaCajasUsuarios.dto.TsCajasUsuarioResponseDto;
 import lombok.AllArgsConstructor;
@@ -26,6 +27,7 @@ public class TsCajasUsuarioServiceImpl {
     private final TsCajasUsuariosRepository tsCajasUsuariosRepository;
     private final TsCajasUsuarioBuilder tsCajasUsuarioBuilder;
     private final TsCajasRepository tsCajasRepository;
+
 
     public TsCajasUsuarioResponseDto create(Long idData, Long idEmpresa,
                                             TsCajasUsuarioRequestDto request, String usuario) {
@@ -95,15 +97,14 @@ public class TsCajasUsuarioServiceImpl {
                 .orElseThrow(() -> new GeneralException(MessageFormat
                         .format("La caja usuario con id {0}, no existe", idCajaUsuario))));
 
-
     }
 
-    public PaginatedDto<TsCajasUsuarioResponseDto> findAllPagable(Long idData, Long idEmpresa, Pageable pageable) {
+    public PaginatedDto<TsCajasUsuarioListResponseDto> findAllPagable(Long idData, Long idEmpresa, Pageable pageable) {
 
         Page<TsCajasUsuariosEntity> page = tsCajasUsuariosRepository.findAllPaginate(idData, idEmpresa, pageable);
 
-        List<TsCajasUsuarioResponseDto> dtoList = page.stream()
-                .map(tsCajasUsuarioBuilder::builderResponse)
+        List<TsCajasUsuarioListResponseDto> dtoList = page.stream()
+                .map(tsCajasUsuarioBuilder::builderListResponse)
                 .toList();
 
 

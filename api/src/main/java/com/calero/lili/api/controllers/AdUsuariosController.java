@@ -7,6 +7,7 @@ import com.calero.lili.api.modAdminUsuarios.dto.AdUsuarioPermisosDtoResponse;
 import com.calero.lili.api.modAdminUsuarios.dto.AdUsuarioReportDto;
 import com.calero.lili.api.modAdminUsuarios.dto.AdUsuarioRequestDto;
 import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
+import com.calero.lili.api.utils.IdDataServiceImpl;
 import com.calero.lili.core.dtos.PaginatedDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AdUsuariosController {
 
     private final AdUsuarioServiceImpl adUsuarioService;
+    private final IdDataServiceImpl idDataService;
     private final AuditorAwareImpl auditorAware;
 
     @PostMapping()
@@ -63,6 +65,13 @@ public class AdUsuariosController {
         return adUsuarioService.findAllPaginate(filters, pageable);
     }
 
+    @GetMapping("listar/data")
+    @ResponseStatus(code = HttpStatus.OK)
+    //@PreAuthorize("hasAuthority('US_US_VR')")
+    public PaginatedDto<AdUsuarioReportDto> findAllPaginateIdData(AdUsuarioListFilterDto filters,
+                                                                  Pageable pageable) {
+        return adUsuarioService.getAllForIdData(idDataService.getIdData(), filters, pageable);
+    }
 
     @GetMapping("permisos/{username}")
     @ResponseStatus(HttpStatus.OK)

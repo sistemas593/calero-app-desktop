@@ -1,8 +1,10 @@
 package com.calero.lili.api.controllers;
 
+import com.calero.lili.api.modAdminUsuarios.AdUsuarioServiceImpl;
 import com.calero.lili.api.utils.IdDataServiceImpl;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.modTesoreria.modTesoriaCajasUsuarios.TsCajasUsuarioServiceImpl;
+import com.calero.lili.core.modTesoreria.modTesoriaCajasUsuarios.dto.TsCajasUsuarioListResponseDto;
 import com.calero.lili.core.modTesoreria.modTesoriaCajasUsuarios.dto.TsCajasUsuarioRequestDto;
 import com.calero.lili.core.modTesoreria.modTesoriaCajasUsuarios.dto.TsCajasUsuarioResponseDto;
 import jakarta.validation.Valid;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @RestController
@@ -32,12 +35,17 @@ public class TsCajasUsuarioController {
     private final TsCajasUsuarioServiceImpl service;
     private final IdDataServiceImpl idDataService;
     private final AuditorAware<String> auditorAware;
+    private final AdUsuarioServiceImpl adUsuarioService;
 
     @PostMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.CREATED)
     public TsCajasUsuarioResponseDto create(@PathVariable("idEmpresa") Long idEmpresa,
                                             @Valid @RequestBody TsCajasUsuarioRequestDto request) {
-        return service.create(idDataService.getIdData(), idEmpresa, request,
+
+        Long idData = idDataService.getIdData();
+
+        adUsuarioService.existeUsuario(idData, request.getIdUsuario());
+        return service.create(idData, idEmpresa, request,
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
@@ -46,7 +54,10 @@ public class TsCajasUsuarioController {
     public TsCajasUsuarioResponseDto update(@PathVariable("idEmpresa") Long idEmpresa,
                                             @PathVariable("idCajaUsuario") UUID idCajaUsuario,
                                             @Valid @RequestBody TsCajasUsuarioRequestDto request) {
-        return service.update(idDataService.getIdData(), idEmpresa, idCajaUsuario,
+
+        Long idData = idDataService.getIdData();
+        adUsuarioService.existeUsuario(idData, request.getIdUsuario());
+        return service.update(idData, idEmpresa, idCajaUsuario,
                 request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
@@ -62,13 +73,19 @@ public class TsCajasUsuarioController {
     @ResponseStatus(HttpStatus.OK)
     public TsCajasUsuarioResponseDto findById(@PathVariable("idEmpresa") Long idEmpresa,
                                               @PathVariable("idCajaUsuario") UUID idCajaUsuario) {
-        return service.findById(idDataService.getIdData(), idEmpresa, idCajaUsuario);
+
+        Long idData = idDataService.getIdData();
+        TsCajasUsuarioResponseDto response = service.findById(idData, idEmpresa, idCajaUsuario);
+        if (Objects.nonNull(response.getIdUsuario())) {
+            response.setNombreUsuario(adUsuarioService.getNombreUsuario(idData, response.getIdUsuario()));
+        }
+        return response;
     }
 
     @GetMapping("{idEmpresa}")
     @ResponseStatus(HttpStatus.OK)
-    public PaginatedDto<TsCajasUsuarioResponseDto> findAll(@PathVariable("idEmpresa") Long idEmpresa,
-                                                           Pageable pageable) {
+    public PaginatedDto<TsCajasUsuarioListResponseDto> findAll(@PathVariable("idEmpresa") Long idEmpresa,
+                                                               Pageable pageable) {
         return service.findAllPagable(idDataService.getIdData(), idEmpresa, pageable);
     }
 

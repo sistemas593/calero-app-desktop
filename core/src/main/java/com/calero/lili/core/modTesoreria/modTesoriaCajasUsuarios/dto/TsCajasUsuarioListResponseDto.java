@@ -11,11 +11,10 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class TsCajasUsuarioResponseDto {
+public class TsCajasUsuarioListResponseDto {
 
     private UUID idCajaUsuario;
     private Long idUsuario;
-    private String nombreUsuario;
     private UUID idCajas;
     private String nombreCaja;
     private String codigoCaja;

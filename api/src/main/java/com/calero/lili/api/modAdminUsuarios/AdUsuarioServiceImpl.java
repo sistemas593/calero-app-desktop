@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -181,6 +182,35 @@ public class AdUsuarioServiceImpl {
         return paginatedDto;
     }
 
+    public PaginatedDto<AdUsuarioReportDto> getAllForIdData(Long idData, AdUsuarioListFilterDto filters, Pageable pageable) {
+
+        Page<AdUsuarioEntity> page = adUsuarioRepository.findAllPaginateIdData(idData, filters.getFilter(),
+                (filters.getFilter() != null) ? filters.getFilter() : "", pageable);
+
+        PaginatedDto paginatedDto = new PaginatedDto<AdUsuarioReportDto>();
+        paginatedDto.setContent(page.getContent()
+                .stream()
+                .map(this::toDto)
+                .collect(Collectors.toList()));
+
+        Paginator paginated = new Paginator();
+        paginated.setTotalElements(page.getTotalElements());
+        paginated.setTotalPages(page.getTotalPages());
+        paginated.setNumberOfElements(page.getNumberOfElements());
+        paginated.setSize(page.getSize());
+        paginated.setFirst(page.isFirst());
+        paginated.setLast(page.isLast());
+        paginated.setPageNumber(page.getPageable().getPageNumber());
+        paginated.setPageSize(page.getPageable().getPageSize());
+        paginated.setEmpty(page.isEmpty());
+        paginated.setNumber(page.getNumber());
+
+        paginatedDto.setPaginator(paginated);
+
+        return paginatedDto;
+    }
+
+
     private AdUsuarioEntity toEntity(AdUsuarioRequestDto request, AdUsuarioEntity entidad) {
         entidad.setIdData(request.getIdData());
 
@@ -308,6 +338,23 @@ public class AdUsuarioServiceImpl {
         if (username.length() < 4 || username.length() > 30) {
             throw new GeneralException("El username debe tener entre 4 y 30 caracteres");
         }
+    }
+
+    public void existeUsuario(Long idData, Long idUsuario) {
+
+        Optional<AdUsuarioEntity> usuario = adUsuarioRepository.findByIdDataAndIdUsuario(idData, idUsuario);
+        if (usuario.isEmpty()) {
+            throw new GeneralException(MessageFormat.format("El usuario con id {0}, no existe ", idUsuario));
+        }
+    }
+
+    public String getNombreUsuario(Long idData, Long idUsuario) {
+
+        Optional<AdUsuarioEntity> usuario = adUsuarioRepository.findByIdDataAndIdUsuario(idData, idUsuario);
+        if (usuario.isPresent()) {
+            return usuario.get().getUsername();
+        }
+        return "";
     }
 
 }

@@ -26,7 +26,6 @@ public class CnAsientosBuilder {
                 .sucursal(model.getSucursal())
                 .idPeriodo(model.getIdPeriodo())
                 .tipoAsiento(model.getTipoAsiento())
-                .numeroAsiento(model.getNumeroAsiento())
                 .fechaAsiento(DateUtils.toLocalDate(model.getFechaAsiento()))
                 .concepto(model.getConcepto())
                 .mayorizado(model.getMayorizado())
@@ -40,7 +39,7 @@ public class CnAsientosBuilder {
         item.setSucursal(model.getSucursal());
         item.setIdPeriodo(model.getIdPeriodo());
         item.setTipoAsiento(model.getTipoAsiento());
-        item.setNumeroAsiento(model.getNumeroAsiento());
+        item.setNumeroAsiento(item.getNumeroAsiento());
         item.setFechaAsiento(DateUtils.toLocalDate(model.getFechaAsiento()));
         item.setConcepto(model.getConcepto());
         item.setMayorizado(model.getMayorizado());

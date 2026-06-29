@@ -19,6 +19,7 @@ import com.calero.lili.core.modContabilidad.modCentroCostos.CnCentroCostosEntity
 import com.calero.lili.core.modContabilidad.modCentroCostos.CnCentroCostosRepository;
 import com.calero.lili.core.modContabilidad.modPlanCuentas.CnPlanCuentaEntity;
 import com.calero.lili.core.modContabilidad.modPlanCuentas.CnPlanCuentasRepository;
+import com.calero.lili.core.modContabilidad.modSecuenciales.CnSecuenciasRepository;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
 import com.calero.lili.core.utils.DateUtils;
@@ -42,6 +43,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.MessageFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +66,7 @@ public class CnAsientosServiceImpl {
     private final CnAsientosDetallesBuilder cnAsientosDetallesBuilder;
     private final GeItemsRepository geItemsRepository;
     private final CnCentroCostosRepository cnCentroCostosRepository;
+    private final CnSecuenciasRepository cnSecuenciasRepository;
 
     public ResponseDto create(Long idData, Long idEmpresa, CreationAsientosRequestDto request, String usuario) {
 
@@ -72,9 +75,21 @@ public class CnAsientosServiceImpl {
         validarPlanCuenta(idData, idEmpresa, request);
 
         CnAsientosEntity entity = cnAsientosBuilder.builderEntity(request, idData, idEmpresa);
+        setearAnioYMes(entity, request.getFechaAsiento());
+
         setearDetallesYTercero(idData, idEmpresa, request, entity);
         entity.setCreatedBy(usuario);
         entity.setCreatedDate(LocalDateTime.now());
+
+        Integer ultimoNumero = cnSecuenciasRepository.actualizarUltimoNumeroSecuencia(idData, idEmpresa, entity.getSucursal(),
+                entity.getAnio(), entity.getMes());
+
+        if (Objects.isNull(ultimoNumero)) {
+            throw new GeneralException("El secuencial para el número de asiento no existe");
+        }
+
+        String numeroAsiento = String.format("%08d", ultimoNumero);
+        entity.setNumeroAsiento(numeroAsiento);
         CnAsientosEntity cnAsientosEntity = cnAsientosRepository.save(entity);
         return responseApiBuilder.builderResponse(cnAsientosEntity.getIdAsiento().toString());
     }
@@ -88,6 +103,7 @@ public class CnAsientosServiceImpl {
         validarSucursal(request, idData, idEmpresa);
         validarPlanCuenta(idData, idEmpresa, request);
         exists = cnAsientosBuilder.builderUpdateEntity(request, exists);
+        setearAnioYMes(exists, request.getFechaAsiento());
         updateSetearDetallesYTercero(idData, idEmpresa, request, exists);
         exists.setModifiedBy(usuario);
         exists.setModifiedDate(LocalDateTime.now());
@@ -449,6 +465,15 @@ public class CnAsientosServiceImpl {
             }
 
         }
+    }
+
+
+    private void setearAnioYMes(CnAsientosEntity entity, String fechaAsiento) {
+        LocalDate fecha = DateUtils.toLocalDate(fechaAsiento);
+        Integer anio = fecha.getYear();
+        Integer mes = fecha.getMonthValue();
+        entity.setAnio(anio);
+        entity.setMes(mes);
     }
 
 

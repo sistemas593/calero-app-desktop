@@ -21,8 +21,6 @@ public class CreationAsientosRequestDto {
 
     private TipoAsiento tipoAsiento;
 
-    private String numeroAsiento;
-
     @NotEmpty(message = "No existe la fecha de asiento")
     private String fechaAsiento;
 
