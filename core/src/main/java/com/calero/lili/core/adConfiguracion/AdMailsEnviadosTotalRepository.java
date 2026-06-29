@@ -1,12 +1,13 @@
 package com.calero.lili.core.adConfiguracion;
 
 import com.calero.lili.core.apiSitac.repositories.entities.AdMailEnviadosTotalEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 
@@ -20,14 +21,22 @@ public interface AdMailsEnviadosTotalRepository extends JpaRepository<AdMailEnvi
     Optional<AdMailEnviadosTotalEntity> findByClaveAndPeriodo(@Param("clave1") String clave1, @Param("periodo") String periodo);
 
 
-    @Query(value = """
-            SELECT e
-            FROM AdMailEnviadosTotalEntity e
-            WHERE (:clave1 IS NULL OR e.clave1 = :clave1)
-              AND (:periodo IS NULL OR e.periodo = :periodo)
-            """)
-    List<AdMailEnviadosTotalEntity> findAll(@Param("clave1") String clave1,
-                                            @Param("periodo") String periodo);
+    @Query(
+            value = """
+                    SELECT e
+                    FROM AdMailEnviadosTotalEntity e
+                    WHERE (:clave1 IS NULL OR e.clave1 = :clave1)
+                      AND (:periodo IS NULL OR e.periodo = :periodo)
+                    """,
+            countQuery = """
+                    SELECT COUNT(e)
+                    FROM AdMailEnviadosTotalEntity e
+                    WHERE (:clave1 IS NULL OR e.clave1 = :clave1)
+                      AND (:periodo IS NULL OR e.periodo = :periodo)
+                    """)
+    Page<AdMailEnviadosTotalEntity> findAllPaginate(@Param("clave1") String clave1,
+                                                    @Param("periodo") String periodo,
+                                                    Pageable pageable);
 
 
 }
