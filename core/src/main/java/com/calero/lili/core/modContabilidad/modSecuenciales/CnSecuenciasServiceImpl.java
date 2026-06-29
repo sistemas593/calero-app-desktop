@@ -47,8 +47,8 @@ public class CnSecuenciasServiceImpl {
                                           CnSecuenciasRequestDto request, String usuario) {
 
         CnSecuenciasEntity secuencias = cnSecuenciasRepository.findById(idData, idEmpresa, idSecuencia)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("No existe secuencia con id {0}, con idData {1}, con idEmpresa {2} "
-                        , idSecuencia, idData, idEmpresa)));
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("No existe secuencia con id {0} "
+                        , idSecuencia)));
 
         Optional<CnSecuenciasProjection> exits = cnSecuenciasRepository.findByAnioMesSucursal(idData, idEmpresa,
                 request.getSucursal(), request.getAnio(), request.getMes());
@@ -71,8 +71,8 @@ public class CnSecuenciasServiceImpl {
     public void delete(Long idData, Long idEmpresa, UUID idSecuencia, String usuario) {
 
         CnSecuenciasEntity secuencias = cnSecuenciasRepository.findById(idData, idEmpresa, idSecuencia)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("No existe secuencia con id {0}, con idData {1}, con idEmpresa {2} "
-                        , idSecuencia, idData, idEmpresa)));
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("No existe secuencia con id {0}"
+                        , idSecuencia)));
 
         secuencias.setDelete(Boolean.TRUE);
         secuencias.setDeletedBy(usuario);
@@ -83,8 +83,8 @@ public class CnSecuenciasServiceImpl {
 
     public CnSecuenciasResponseDto findById(Long idData, Long idEmpresa, UUID idSecuencia) {
         return cnSecuenciasBuilder.builderResponse(cnSecuenciasRepository.findById(idData, idEmpresa, idSecuencia)
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("No existe secuencia con id {0}, con idData {1}, con idEmpresa {2} "
-                        , idSecuencia, idData, idEmpresa))));
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("No existe secuencia con id {0}"
+                        , idSecuencia))));
     }
 
 
