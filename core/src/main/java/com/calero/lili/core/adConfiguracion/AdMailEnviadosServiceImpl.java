@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @AllArgsConstructor
@@ -25,7 +26,7 @@ public class AdMailEnviadosServiceImpl {
     public PaginatedDto<AdMailEnviadosResponseDto> findAllPaginate(FilterMailEnviadosDto filter, Pageable pageable) {
 
         Page<AdMailEnviadosEntity> page = adMailsEnviadosRepository.findAllPaginate(filter.getClave1(), filter.getCodigoDocumento(),
-                filter.getSerie(), filter.getSecuencial(), filter.getCorreo(),
+                filter.getSerie(), filter.getSecuencial(), Objects.nonNull(filter.getCorreo()) ? filter.getCorreo() : "",
                 filter.getFechaInicial(), filter.getFechaFinal(), pageable);
 
 

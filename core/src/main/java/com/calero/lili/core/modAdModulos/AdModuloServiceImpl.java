@@ -5,6 +5,7 @@ import com.calero.lili.core.modAdModulos.builder.AdModuloBuilder;
 import com.calero.lili.core.modAdModulos.dto.AdModuloRequestDto;
 import com.calero.lili.core.modAdModulos.dto.AdModuloResponseDto;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
@@ -53,8 +54,8 @@ public class AdModuloServiceImpl {
         adModuloRepository.save(modulo);
     }
 
-    public List<AdModuloResponseDto> findAll() {
-        return adModuloRepository.findAll()
+    public List<AdModuloResponseDto> findAll(Pageable pageable) {
+        return adModuloRepository.findAll(pageable)
                 .stream()
                 .map(adModuloBuilder::builderResponse)
                 .toList();

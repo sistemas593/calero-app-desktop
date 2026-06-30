@@ -2,6 +2,8 @@ package com.calero.lili.core.adInfoAdicional;
 
 import com.calero.lili.core.adInfoAdicional.projection.OneAdInfoProjection;
 import com.calero.lili.core.enums.TipoDocumentoSerie;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,18 +26,28 @@ public interface AdInfoAdicionalRepository extends JpaRepository<AdInfoAdicional
                                                           @Param("idInfoAdicional") UUID idInfoAdicional);
 
 
-    @Query(value = "SELECT entity " +
-            "FROM AdInfoAdicionalEntity entity " +
-            "where entity.idData = :idData and " +
-            "entity.idEmpresa = :idEmpresa")
-    List<AdInfoAdicionalEntity> findAll(@Param("idData") Long idData,
-                                        @Param("idEmpresa") Long idEmpresa);
+    @Query(
+            value = """
+                    SELECT entity
+                    FROM AdInfoAdicionalEntity entity
+                    WHERE entity.idData = :idData
+                      AND entity.idEmpresa = :idEmpresa
+                    """,
+            countQuery = """
+                    SELECT COUNT(entity)
+                    FROM AdInfoAdicionalEntity entity
+                    WHERE entity.idData = :idData
+                      AND entity.idEmpresa = :idEmpresa
+                    """)
+    Page<AdInfoAdicionalEntity> findAll(@Param("idData") Long idData,
+                                        @Param("idEmpresa") Long idEmpresa,
+                                        Pageable pageable);
 
 
     @Query(value = "SELECT entity.id_info_adicional " +
             "FROM ad_info_adicional entity " +
             "where entity.id_data = :idData and " +
-            "entity.id_empresa = :idEmpresa and entity.documento = :documento" , nativeQuery = true)
+            "entity.id_empresa = :idEmpresa and entity.documento = :documento", nativeQuery = true)
     Optional<OneAdInfoProjection> findByTipoDocumento(@Param("idData") Long idData,
                                                       @Param("idEmpresa") Long idEmpresa,
                                                       @Param("documento") String documento);

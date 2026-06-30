@@ -24,7 +24,7 @@ public interface AdMailsEnviadosRepository extends JpaRepository<AdMailEnviadosE
                       AND (:codigoDocumento IS NULL OR e.codigoDocumento = :codigoDocumento)
                       AND (:serie IS NULL OR e.serie = :serie)
                       AND (:secuencial IS NULL OR e.secuencial = :secuencial)
-                      AND (:correo IS NULL OR e.mailTo LIKE :correo)
+                      AND (:correo IS NULL OR e.mailTo LIKE CONCAT('%', :correo, '%'))
                       AND (cast(:fechaInicial AS timestamp) IS NULL OR e.fecha >= :fechaInicial)
                       AND (cast(:fechaFinal AS timestamp) IS NULL OR e.fecha <= :fechaFinal)
                     """,
@@ -35,7 +35,7 @@ public interface AdMailsEnviadosRepository extends JpaRepository<AdMailEnviadosE
                       AND (:codigoDocumento IS NULL OR e.codigoDocumento = :codigoDocumento)
                       AND (:serie IS NULL OR e.serie = :serie)
                       AND (:secuencial IS NULL OR e.secuencial = :secuencial)
-                      AND (:correo IS NULL OR e.mailTo LIKE :correo)
+                      AND (:correo IS NULL OR e.mailTo LIKE CONCAT('%', :correo, '%'))
                       AND (cast(:fechaInicial AS timestamp) IS NULL OR e.fecha >= :fechaInicial)
                       AND (cast(:fechaFinal AS timestamp) IS NULL OR e.fecha <= :fechaFinal)
                     """
@@ -47,7 +47,6 @@ public interface AdMailsEnviadosRepository extends JpaRepository<AdMailEnviadosE
                                                @Param("correo") String correo,
                                                @Param("fechaInicial") LocalDateTime fechaInicial,
                                                @Param("fechaFinal") LocalDateTime fechaFinal,
-                                               Pageable pageable
-    );
+                                               Pageable pageable);
 
 }

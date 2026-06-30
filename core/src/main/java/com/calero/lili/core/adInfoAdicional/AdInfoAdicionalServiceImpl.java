@@ -4,8 +4,12 @@ import com.calero.lili.core.adInfoAdicional.builder.AdInfoAdicionalBuilder;
 import com.calero.lili.core.adInfoAdicional.dto.AdInfoAdicionalRequestDto;
 import com.calero.lili.core.adInfoAdicional.dto.AdInfoAdicionalResponseDto;
 import com.calero.lili.core.adInfoAdicional.projection.OneAdInfoProjection;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
@@ -68,11 +72,32 @@ public class AdInfoAdicionalServiceImpl {
     }
 
 
-    public List<AdInfoAdicionalResponseDto> findAll(Long idData, Long idEmpresa) {
-        return adInfoAdicionalRepository.findAll(idData, idEmpresa)
-                .stream()
+    public PaginatedDto<AdInfoAdicionalResponseDto> findAll(Long idData, Long idEmpresa, Pageable pageable) {
+        Page<AdInfoAdicionalEntity> page = adInfoAdicionalRepository.findAll(idData, idEmpresa, pageable);
+
+        List<AdInfoAdicionalResponseDto> dtoList = page.stream()
                 .map(adInfoAdicionalBuilder::builderResponse)
                 .toList();
+
+        PaginatedDto paginatedDto = new PaginatedDto();
+        paginatedDto.setContent(dtoList);
+
+        Paginator paginated = new Paginator();
+        paginated.setTotalElements(page.getTotalElements());
+        paginated.setTotalPages(page.getTotalPages());
+        paginated.setNumberOfElements(page.getNumberOfElements());
+        paginated.setSize(page.getSize());
+        paginated.setFirst(page.isFirst());
+        paginated.setLast(page.isLast());
+        paginated.setPageNumber(page.getPageable().getPageNumber());
+        paginated.setPageSize(page.getPageable().getPageSize());
+        paginated.setEmpty(page.isEmpty());
+        paginated.setNumber(page.getNumber());
+
+        paginatedDto.setPaginator(paginated);
+
+        return paginatedDto;
+
     }
 
     public void delete(Long idData, Long idEmpresa, UUID idInfoAdicional, String usuario) {
