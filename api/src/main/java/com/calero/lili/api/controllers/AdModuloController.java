@@ -7,6 +7,7 @@ import com.calero.lili.core.modAdModulos.dto.AdModuloResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -59,8 +60,8 @@ public class AdModuloController {
 
     @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
-    public List<AdModuloResponseDto> findAll() {
-        return adModuloService.findAll();
+    public List<AdModuloResponseDto> findAll(Pageable pageable) {
+        return adModuloService.findAll(pageable);
     }
 
 }

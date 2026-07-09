@@ -8,7 +8,6 @@ import com.calero.lili.core.enums.TipoPersoneria;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.errors.exceptions.ListErrorException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
-import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.modVentas.reporteCredito.builder.DatosCrediticiosBuilder;
 import com.calero.lili.core.modVentas.reporteCredito.dto.DatosCrediticiosResponseDto;
 import com.calero.lili.core.modVentas.reporteCredito.projection.DatosCrediticiosProjection;
@@ -19,14 +18,12 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.text.MessageFormat;
-import java.text.Normalizer;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -35,43 +32,26 @@ public class ReporteDatosCrediticiosServiceImpl {
 
 
     private final DatosCrediticiosRepository datosCrediticiosRepository;
-    private final AdEmpresasRepository adEmpresasRepository;
+
     private final FormatoValores formatoValores;
     private final DatosCrediticiosValorBusquedaService valorBusquedaService;
     private final DetalleErrorBuilder detalleErrorBuilder;
     private final DatosCrediticiosBuilder datosCrediticiosBuilder;
 
 
-    public byte[] generarTxt(Long idData, Long idEmpresa, UUID idDatosCrediticios) {
+    public byte[] generarTxt(Long idData, AdEmpresaEntity empresa, PeriodoProjection entidad, UUID idDatosCrediticios) {
 
 
         List<DetalleError> detalleErrores = new ArrayList<>();
 
 
-        Optional<PeriodoProjection> entidad = datosCrediticiosRepository.findPeridoById(idData, idEmpresa, idDatosCrediticios);
+        List<DatosCrediticiosProjection> lista = datosCrediticiosRepository.obtenerDatosCrediticios(idData, empresa.getIdEmpresa(),
+                valorBusquedaService.obtenerValorAnual(entidad.getPeriodo()), idDatosCrediticios);
 
-        if (entidad.isEmpty()) {
+
+        if (Objects.isNull(empresa.getCodigoDinardap()) || empresa.getCodigoDinardap().isEmpty()) {
             DetalleError detalleError = detalleErrorBuilder.builderDetalleError(0, EnumError.DOCUMENTO_ERROR);
-            detalleError.setDetalle("No se encontró cabecera con el id : " + idDatosCrediticios);
-            detalleErrores.add(detalleError);
-            throwErrors(detalleErrores);
-        }
-
-        List<DatosCrediticiosProjection> lista = datosCrediticiosRepository.obtenerDatosCrediticios(idData, idEmpresa,
-                valorBusquedaService.obtenerValorAnual(entidad.get().getPeriodo()), idDatosCrediticios);
-
-        Optional<AdEmpresaEntity> empresa = adEmpresasRepository.findById(idData, idEmpresa);
-
-        if (empresa.isEmpty()) {
-            DetalleError detalleError = detalleErrorBuilder.builderDetalleError(0, EnumError.DOCUMENTO_ERROR);
-            detalleError.setDetalle("No se encontró la empresa con idData: " + idData + " e idEmpresa: " + idEmpresa);
-            detalleErrores.add(detalleError);
-            throwErrors(detalleErrores);
-        }
-
-        if (Objects.isNull(empresa.get().getCodigoDinardap()) || empresa.get().getCodigoDinardap().isEmpty()) {
-            DetalleError detalleError = detalleErrorBuilder.builderDetalleError(0, EnumError.DOCUMENTO_ERROR);
-            detalleError.setDetalle("No existe codigo de dinardap para generar el reporte en la empresa: " + idEmpresa);
+            detalleError.setDetalle("No existe codigo de dinardap para generar el reporte en la empresa: " + empresa.getIdEmpresa());
             detalleErrores.add(detalleError);
             throwErrors(detalleErrores);
         }
@@ -86,12 +66,17 @@ public class ReporteDatosCrediticiosServiceImpl {
         StringBuilder sb = new StringBuilder();
 
         for (DatosCrediticiosProjection cabecera : lista) {
-            sb.append(construirLinea(cabecera, empresa.get(), detalleErrores)).append("\n");
+            sb.append(construirLinea(cabecera, empresa, detalleErrores)).append("\r\n");
 
         }
 
         if (detalleErrores.isEmpty()) {
-            return sb.toString().getBytes(StandardCharsets.UTF_8);
+
+            Charset charset = Charset.forName("windows-1252");
+            byte[] bytes = sb.toString().getBytes(charset);
+            return bytes;
+
+            //return sb.toString().getBytes(StandardCharsets.UTF_8);
         } else {
             List<String> list = detalleErrores.stream()
                     .map(detalleError -> detalleError.getLinea() + "   " + detalleError.getType().getDescription() + " " + detalleError.getDetalle())
@@ -170,17 +155,40 @@ public class ReporteDatosCrediticiosServiceImpl {
                     detalleErrores.add(detalleError);
                 }
             }
+        } else {
+            DetalleError detalleError = detalleErrorBuilder.builderDetalleError(0, EnumError.DOCUMENTO_ERROR);
+            detalleError.setDetalle("El tercero con identificación "
+                    + f.getIdentificacionSujeto() + " no tiene asignado un tipo de personería, lo cual es obligatorio para generar el reporte.");
+            detalleErrores.add(detalleError);
         }
 
         LocalDate fechaDatos = DateUtils.toPeriodoDateDinarap(f.getPeriodo());
 
         validarPersoneria(f.getIdentificacionSujeto(), f.getTipoIdentificacion(), f.getClaseSujeto(), detalleErrores);
 
+        String tipoSujeto = Objects.nonNull(f.getClaseSujeto()) ? f.getClaseSujeto() : "";
+        String tipoIdentificacion = Objects.nonNull(f.getTipoIdentificacion()) ? f.getTipoIdentificacion() : "";
+        String numeroIdentificacion = f.getIdentificacionSujeto();
+
+
+        if (tipoIdentificacion.equals("R") && tipoSujeto.equals("N")) {
+            tipoIdentificacion = "C";
+            numeroIdentificacion = numeroIdentificacion.substring(0, 10);
+        }
+
+        if (f.getFechaConcesion().isAfter(f.getFechaVencimiento())) {
+            DetalleError detalleError = detalleErrorBuilder.builderDetalleError(0, EnumError.DOCUMENTO_ERROR);
+            detalleError.setDetalle("La fecha de concesion: " + f.getFechaConcesion() +
+                    " no puede ser menor a la fecha de vencimiento: " + f.getFechaVencimiento());
+            detalleErrores.add(detalleError);
+        }
+
+
         return String.join("|",
                 Objects.nonNull(empresa.getCodigoDinardap()) ? empresa.getCodigoDinardap() : "",
                 DateUtils.toString(fechaDatos),
-                f.getTipoIdentificacion(),
-                f.getIdentificacionSujeto(),
+                tipoIdentificacion,
+                numeroIdentificacion,
                 formatearTextoNombreSujeto(f.getNombreSujeto()),
                 f.getClaseSujeto(),
                 provincia,
@@ -229,11 +237,17 @@ public class ReporteDatosCrediticiosServiceImpl {
     private String formatearTextoNombreSujeto(String nombreSujeto) {
         if (Objects.nonNull(nombreSujeto)) {
 
-            nombreSujeto = nombreSujeto.toUpperCase()
-                    .replace("Ñ", "N");
+            nombreSujeto = nombreSujeto.strip();
 
-            return Normalizer.normalize(nombreSujeto, Normalizer.Form.NFD)
-                    .replaceAll("\\p{M}", "");
+            /*nombreSujeto = nombreSujeto.toUpperCase()
+                    .replace("Ñ", "N");*/
+
+            nombreSujeto = nombreSujeto.length() <= 100 ? nombreSujeto : nombreSujeto.substring(0, 100);
+
+            /*return Normalizer.normalize(nombreSujeto, Normalizer.Form.NFD)
+                    .replaceAll("\\p{M}", "");*/
+
+            return nombreSujeto;
         }
 
         return "";

@@ -201,6 +201,8 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
                 }
 
                 entidad.setSaldoOperacion(saldo);
+                entidad.setFechaVencimiento(entidad.getFechaConcesion().plusDays(entidad.getPlazoOperacion()));
+                entidad.setFechaExigible(entidad.getFechaConcesion().plusDays(entidad.getPlazoOperacion()));
                 entidadesActualizar.add(entidad);
 
             } else {

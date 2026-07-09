@@ -2,10 +2,16 @@ package com.calero.lili.api.controllers;
 
 
 import com.calero.lili.api.utils.IdDataServiceImpl;
+import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
+import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.modVentas.reporteCredito.DatosCrediticiosExcelServiceImpl;
+import com.calero.lili.core.modVentas.reporteCredito.DatosCrediticiosRepository;
 import com.calero.lili.core.modVentas.reporteCredito.DatosCrediticiosSaldoExcelServiceImpl;
 import com.calero.lili.core.modVentas.reporteCredito.ReporteDatosCrediticiosServiceImpl;
 import com.calero.lili.core.modVentas.reporteCredito.dto.DatosCrediticiosResponseDto;
+import com.calero.lili.core.modVentas.reporteCredito.projection.PeriodoProjection;
+import com.calero.lili.core.utils.DateUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -23,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,6 +45,8 @@ public class DatosCrediticiosController {
     private final DatosCrediticiosExcelServiceImpl datosCrediticiosExcelService;
     private final DatosCrediticiosSaldoExcelServiceImpl datosCrediticiosSaldoExcelService;
     private final IdDataServiceImpl idDataService;
+    private final AdEmpresasRepository adEmpresasRepository;
+    private final DatosCrediticiosRepository datosCrediticiosRepository;
 
 
     @PostMapping("/excel/{idEmpresa}")
@@ -69,12 +78,24 @@ public class DatosCrediticiosController {
                                                           @PathVariable("idDatosCrediticios") UUID idDatosCrediticios) {
 
 
-        byte[] txt = reporteDatosCrediticiosService.generarTxt(idDataService.getIdData(), idEmpresa, idDatosCrediticios); // tu byte[]
-        String nombre = "reporte-datos-crediticios" + ".txt";
+        Long idData = idDataService.getIdData();
+
+        AdEmpresaEntity empresa = adEmpresasRepository.findById(idData, idEmpresa)
+                .orElseThrow(() -> new GeneralException("No se encontró la empresa con id: " + idEmpresa));
+
+
+        PeriodoProjection entidad = datosCrediticiosRepository
+                .findPeridoById(idData, empresa.getIdEmpresa(), idDatosCrediticios)
+                .orElseThrow(() -> new GeneralException("No se encontró cabecera con el id : " + idDatosCrediticios));
+
+        String periodo = DateUtils.toStringPeriodoFiscal(entidad.getPeriodo());
+
+        byte[] txt = reporteDatosCrediticiosService.generarTxt(idData, empresa, entidad, idDatosCrediticios);
+        String nombre = empresa.getRuc() + periodo + ".txt";
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + nombre)
-                .contentType(MediaType.TEXT_PLAIN)
+                .contentType(new MediaType(MediaType.TEXT_PLAIN, Charset.forName("windows-1252")))
                 .contentLength(txt.length)
                 .body(txt);
     }

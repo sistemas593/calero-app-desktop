@@ -165,9 +165,10 @@ public class DateUtils {
     }
 
 
-    public static LocalDate toLocalDateExcelFiles(String fecha) {
-        DateTimeFormatter formatterEntrada = DateTimeFormatter.ofPattern("d/M/yyyy");
-        return LocalDate.parse(fecha, formatterEntrada);
+    public static String toStringPeriodoFiscal(String periodoFiscal) {
+        LocalDate fecha = toPeriodoDateDinarap(periodoFiscal);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+        return fecha.format(formatter);
     }
 
     public static String getPeriodo(String periodo) {
