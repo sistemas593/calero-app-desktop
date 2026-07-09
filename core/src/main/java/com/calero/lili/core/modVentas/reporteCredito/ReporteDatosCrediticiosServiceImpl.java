@@ -229,7 +229,7 @@ public class ReporteDatosCrediticiosServiceImpl {
                 Objects.nonNull(f.getFechaExigible()) ? DateUtils.toString(f.getFechaExigible()) : "",
                 Objects.nonNull(f.getPlazoOperacion()) ? f.getPlazoOperacion().toString() : "",
                 Objects.nonNull(f.getPeriosidadPago()) ? f.getPeriosidadPago() : "",
-                Objects.nonNull(f.getDiasMorosidad()) ? f.getDiasMorosidad().toString() : "",
+                Objects.nonNull(f.getDiasMorosidad()) ? retornarDiasCorrectos(f.getDiasMorosidad()) : "",
                 formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getMontoMorisidad()) ? f.getMontoMorisidad() : BigDecimal.ZERO),
                 formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getMontoInteresMora()) ? f.getMontoInteresMora() : BigDecimal.ZERO),
                 formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getValorPorVencer1a30Dias()) ? f.getValorPorVencer1a30Dias() : BigDecimal.ZERO),
