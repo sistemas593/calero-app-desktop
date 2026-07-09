@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.text.MessageFormat;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -39,7 +40,8 @@ public class ReporteDatosCrediticiosServiceImpl {
     private final DatosCrediticiosBuilder datosCrediticiosBuilder;
 
 
-    public byte[] generarTxt(Long idData, AdEmpresaEntity empresa, PeriodoProjection entidad, UUID idDatosCrediticios) {
+    public byte[] generarTxt(Long idData, AdEmpresaEntity empresa, PeriodoProjection entidad,
+                             UUID idDatosCrediticios, LocalDate fechaPeriodo) {
 
 
         List<DetalleError> detalleErrores = new ArrayList<>();
@@ -66,7 +68,7 @@ public class ReporteDatosCrediticiosServiceImpl {
         StringBuilder sb = new StringBuilder();
 
         for (DatosCrediticiosProjection cabecera : lista) {
-            sb.append(construirLinea(cabecera, empresa, detalleErrores)).append("\r\n");
+            sb.append(construirLinea(cabecera, empresa, detalleErrores, fechaPeriodo)).append("\r\n");
 
         }
 
@@ -104,7 +106,8 @@ public class ReporteDatosCrediticiosServiceImpl {
     }
 
 
-    private String construirLinea(DatosCrediticiosProjection f, AdEmpresaEntity empresa, List<DetalleError> detalleErrores) {
+    private String construirLinea(DatosCrediticiosProjection f,
+                                  AdEmpresaEntity empresa, List<DetalleError> detalleErrores, LocalDate fechaPeriodo) {
 
         String parroquia = "";
         String canton = "";
@@ -176,13 +179,34 @@ public class ReporteDatosCrediticiosServiceImpl {
             numeroIdentificacion = numeroIdentificacion.substring(0, 10);
         }
 
-        if (f.getFechaConcesion().isAfter(f.getFechaVencimiento())) {
+        /*if (f.getFechaConcesion().isAfter(f.getFechaVencimiento())) {
             DetalleError detalleError = detalleErrorBuilder.builderDetalleError(0, EnumError.DOCUMENTO_ERROR);
             detalleError.setDetalle("La fecha de concesion: " + f.getFechaConcesion() +
                     " no puede ser menor a la fecha de vencimiento: " + f.getFechaVencimiento());
             detalleErrores.add(detalleError);
         }
 
+        if (f.getFechaConcesion().isAfter(f.getFechaExigible())) {
+            DetalleError detalleError = detalleErrorBuilder.builderDetalleError(0, EnumError.DOCUMENTO_ERROR);
+            detalleError.setDetalle("La fecha de concesion: " + f.getFechaConcesion() +
+                    " no puede ser menor a la fecha de exigible: " + f.getFechaExigible());
+            detalleErrores.add(detalleError);
+        }*/
+
+
+        /*long diferenciaDias = ChronoUnit.DAYS.between(f.getFechaVencimiento(), fechaPeriodo);
+
+
+        diferenciaDias = Math.abs(diferenciaDias);
+        int diasMorosidad = Math.abs(f.getDiasMorosidad());
+
+        if (diferenciaDias != diasMorosidad) {
+            DetalleError detalleError = detalleErrorBuilder.builderDetalleError(0, EnumError.DOCUMENTO_ERROR);
+            detalleError.setDetalle(f.getNumeroOperacion() + " los días de morosidad " +
+                    " no puede ser diferentes de la diferencia entre la fecha de vencimiento y el periodo. "
+                    + " Diferencia de días:" + diferenciaDias + "Días de morosidad:" + f.getDiasMorosidad());
+            detalleErrores.add(detalleError);
+        }*/
 
         return String.join("|",
                 Objects.nonNull(empresa.getCodigoDinardap()) ? empresa.getCodigoDinardap() : "",
@@ -205,7 +229,7 @@ public class ReporteDatosCrediticiosServiceImpl {
                 Objects.nonNull(f.getFechaExigible()) ? DateUtils.toString(f.getFechaExigible()) : "",
                 Objects.nonNull(f.getPlazoOperacion()) ? f.getPlazoOperacion().toString() : "",
                 Objects.nonNull(f.getPeriosidadPago()) ? f.getPeriosidadPago() : "",
-                Objects.nonNull(f.getDiasMorosidad()) ? retornarDiasCorrectos(f.getDiasMorosidad()) : "",
+                Objects.nonNull(f.getDiasMorosidad()) ? f.getDiasMorosidad().toString() : "",
                 formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getMontoMorisidad()) ? f.getMontoMorisidad() : BigDecimal.ZERO),
                 formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getMontoInteresMora()) ? f.getMontoInteresMora() : BigDecimal.ZERO),
                 formatoValores.convertirBigDecimalToString(Objects.nonNull(f.getValorPorVencer1a30Dias()) ? f.getValorPorVencer1a30Dias() : BigDecimal.ZERO),

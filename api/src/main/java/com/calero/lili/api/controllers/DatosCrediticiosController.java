@@ -30,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -88,9 +89,11 @@ public class DatosCrediticiosController {
                 .findPeridoById(idData, empresa.getIdEmpresa(), idDatosCrediticios)
                 .orElseThrow(() -> new GeneralException("No se encontró cabecera con el id : " + idDatosCrediticios));
 
-        String periodo = DateUtils.toStringPeriodoFiscal(entidad.getPeriodo());
+        LocalDate fechaPeriodo = DateUtils.toPeriodoDateDinarap(entidad.getPeriodo());
+        String periodo = DateUtils.toStringPeriodoFiscal(fechaPeriodo);
 
-        byte[] txt = reporteDatosCrediticiosService.generarTxt(idData, empresa, entidad, idDatosCrediticios);
+
+        byte[] txt = reporteDatosCrediticiosService.generarTxt(idData, empresa, entidad, idDatosCrediticios, fechaPeriodo);
         String nombre = empresa.getRuc() + periodo + ".txt";
 
         return ResponseEntity.ok()

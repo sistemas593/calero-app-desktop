@@ -159,14 +159,19 @@ public class DateUtils {
         return yearMonth.atEndOfMonth();
     }
 
+    public static LocalDate toPeriodoSaldo(String periodoFiscal) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yyyy");
+        YearMonth yearMonth = YearMonth.parse(periodoFiscal, formatter);
+        return yearMonth.atEndOfMonth();
+    }
+
     public static String toLocalDatePeriodoFiscal(LocalDate periodoFiscal) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yyyy");
         return periodoFiscal.format(formatter);
     }
 
 
-    public static String toStringPeriodoFiscal(String periodoFiscal) {
-        LocalDate fecha = toPeriodoDateDinarap(periodoFiscal);
+    public static String toStringPeriodoFiscal(LocalDate fecha) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
         return fecha.format(formatter);
     }

@@ -179,6 +179,8 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
                         }
                     }
 
+                    entidad.setFechaVencimiento(DateUtils.toPeriodoSaldo(periodo).minusDays(rango));
+                    entidad.setFechaExigible(DateUtils.toPeriodoSaldo(periodo).minusDays(rango));
 
                 } else {
 
@@ -198,11 +200,12 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
                     } else {
                         entidad.setValorXVencerMas360Dias(saldo);
                     }
+
+                    entidad.setFechaVencimiento(DateUtils.toPeriodoSaldo(periodo).plusDays(rango));
+                    entidad.setFechaExigible(DateUtils.toPeriodoSaldo(periodo).plusDays(rango));
                 }
 
                 entidad.setSaldoOperacion(saldo);
-                entidad.setFechaVencimiento(entidad.getFechaConcesion().plusDays(entidad.getPlazoOperacion()));
-                entidad.setFechaExigible(entidad.getFechaConcesion().plusDays(entidad.getPlazoOperacion()));
                 entidadesActualizar.add(entidad);
 
             } else {
