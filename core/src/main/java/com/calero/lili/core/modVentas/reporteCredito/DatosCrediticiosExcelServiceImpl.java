@@ -428,7 +428,7 @@ public class DatosCrediticiosExcelServiceImpl {
         detalle.setEstaLegal(Boolean.FALSE);
         if (Objects.nonNull(diasMorosidad)) {
             if (diasMorosidad == 0) {
-                detalle.setDiasMorosidad(diasMorosidad);
+                detalle.setDiasMorosidad(-1);
             } else {
                 detalle.setDiasMorosidad(diasMorosidad - 1);
             }

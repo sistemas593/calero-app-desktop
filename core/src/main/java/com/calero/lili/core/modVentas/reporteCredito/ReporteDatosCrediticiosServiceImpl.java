@@ -179,7 +179,11 @@ public class ReporteDatosCrediticiosServiceImpl {
             numeroIdentificacion = numeroIdentificacion.substring(0, 10);
         }
 
-        /*if (f.getFechaConcesion().isAfter(f.getFechaVencimiento())) {
+        // TODO VALIDAR TAMBIEN POR EL DIA DE MOROSIDAD, SI ES NEGATIVO VALIDAR QUE getFechaConcesion SEA MENOR A
+        // FECHA DE VENCIMIENTO Y FECHA EXIGIBLE.
+
+
+        if (f.getFechaConcesion().isAfter(f.getFechaVencimiento())) {
             DetalleError detalleError = detalleErrorBuilder.builderDetalleError(0, EnumError.DOCUMENTO_ERROR);
             detalleError.setDetalle("La fecha de concesion: " + f.getFechaConcesion() +
                     " no puede ser menor a la fecha de vencimiento: " + f.getFechaVencimiento());
@@ -191,10 +195,10 @@ public class ReporteDatosCrediticiosServiceImpl {
             detalleError.setDetalle("La fecha de concesion: " + f.getFechaConcesion() +
                     " no puede ser menor a la fecha de exigible: " + f.getFechaExigible());
             detalleErrores.add(detalleError);
-        }*/
+        }
 
 
-        /*long diferenciaDias = ChronoUnit.DAYS.between(f.getFechaVencimiento(), fechaPeriodo);
+        long diferenciaDias = ChronoUnit.DAYS.between(f.getFechaVencimiento(), fechaPeriodo);
 
 
         diferenciaDias = Math.abs(diferenciaDias);
@@ -203,10 +207,11 @@ public class ReporteDatosCrediticiosServiceImpl {
         if (diferenciaDias != diasMorosidad) {
             DetalleError detalleError = detalleErrorBuilder.builderDetalleError(0, EnumError.DOCUMENTO_ERROR);
             detalleError.setDetalle(f.getNumeroOperacion() + " los días de morosidad " +
-                    " no puede ser diferentes de la diferencia entre la fecha de vencimiento y el periodo. "
-                    + " Diferencia de días:" + diferenciaDias + "Días de morosidad:" + f.getDiasMorosidad());
+                    " no son iguales a la diferencia entre la fecha de vencimiento y el periodo. "
+                    + " Diferencia de días:" + diferenciaDias + " Días de morosidad:" + f.getDiasMorosidad()
+                    + " Fecha de vencimiento:" + f.getFechaVencimiento() + " Periodo:" + fechaPeriodo);
             detalleErrores.add(detalleError);
-        }*/
+        }
 
         return String.join("|",
                 Objects.nonNull(empresa.getCodigoDinardap()) ? empresa.getCodigoDinardap() : "",
