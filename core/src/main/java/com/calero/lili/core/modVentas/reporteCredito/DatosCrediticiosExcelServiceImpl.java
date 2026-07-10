@@ -40,6 +40,7 @@ public class DatosCrediticiosExcelServiceImpl {
     private final GeTercerosRepository geTercerosRepository;
     private final DetalleErrorBuilder detalleErrorBuilder;
 
+    // TODO VALIDAR FECHAS PERIODO AÑO/MES Y NO MES/AÑO
 
     /**
      * Metodo para cargar el archivo de excel que contiene la información principal (archivos de facturas) para el reporte
@@ -210,7 +211,6 @@ public class DatosCrediticiosExcelServiceImpl {
           de errores con su correspondiente mensaje de error
          */
         String celda1 = celda(celdas, 1);
-        System.out.println(celda1);
         if (celda1 != null) {
             detalle.setNumeroOperacion(celda1.replaceAll("\\s+", ""));
         } else {
