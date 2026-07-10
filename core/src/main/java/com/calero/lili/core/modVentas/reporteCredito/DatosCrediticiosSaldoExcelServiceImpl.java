@@ -92,7 +92,7 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
                     String c1 = row.getCell(1) != null ? row.getCell(1).getStringCellValue() : null;
                     filas.add(new FilaExcel(row.getRowNum() + 1, c0, c1));
 
-                    if (c0 != null && !c0.isBlank()) numerosOperacion.add(c0);
+                    if (c0 != null && !c0.isBlank()) numerosOperacion.add(c0.replaceAll("\\s+", ""));
                 }
             }
         }

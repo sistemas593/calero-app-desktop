@@ -210,8 +210,9 @@ public class DatosCrediticiosExcelServiceImpl {
           de errores con su correspondiente mensaje de error
          */
         String celda1 = celda(celdas, 1);
+        System.out.println(celda1);
         if (celda1 != null) {
-            detalle.setNumeroOperacion(celda1);
+            detalle.setNumeroOperacion(celda1.replaceAll("\\s+", ""));
         } else {
             DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DOCUMENTO_ERROR);
             detalleError.setDetalle("El número de la operación no se encuentra");
