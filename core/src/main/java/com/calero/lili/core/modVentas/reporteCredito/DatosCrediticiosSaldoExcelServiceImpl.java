@@ -56,7 +56,7 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
         /**
          * Se busca la cabecera por periodo, idData, idEmpresa, si no existe se lanza una excepción en forma de lista
          */
-        Optional<DatosCrediticiosEntity> datosCrediticiosExistente = datosCabeceraRepository.findByPeriodo(idData, idEmpresa, DateUtils.getPeriodo(periodo));
+        Optional<DatosCrediticiosEntity> datosCrediticiosExistente = datosCabeceraRepository.findByPeriodo(idData, idEmpresa, periodo);
         if (datosCrediticiosExistente.isEmpty()) {
             DetalleError detalleError = detalleErrorBuilder.builderDetalleError(0, EnumError.DOCUMENTO_ERROR);
             detalleError.setDetalle(MessageFormat.format("No existe información previa de detalles en el periodo {0}, para llenar los saldos", periodo));

@@ -2,6 +2,7 @@ package com.calero.lili.api.controllers;
 
 
 import com.calero.lili.api.utils.IdDataServiceImpl;
+import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
@@ -13,6 +14,7 @@ import com.calero.lili.core.modVentas.reporteCredito.dto.DatosCrediticiosRespons
 import com.calero.lili.core.modVentas.reporteCredito.projection.PeriodoProjection;
 import com.calero.lili.core.utils.DateUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -31,7 +33,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.UUID;
 
 
@@ -105,8 +106,8 @@ public class DatosCrediticiosController {
 
     @GetMapping("listar/{idEmpresa}")
     @ResponseStatus(HttpStatus.OK)
-    public List<DatosCrediticiosResponseDto> getAll(@PathVariable("idEmpresa") Long idEmpresa) {
-        return reporteDatosCrediticiosService.getAll(idDataService.getIdData(), idEmpresa);
+    public PaginatedDto<DatosCrediticiosResponseDto> getAll(@PathVariable("idEmpresa") Long idEmpresa, Pageable pageable) {
+        return reporteDatosCrediticiosService.getAll(idDataService.getIdData(), idEmpresa, pageable);
     }
 
     @DeleteMapping("eliminar/{idEmpresa}/{idDatosCrediticios}")

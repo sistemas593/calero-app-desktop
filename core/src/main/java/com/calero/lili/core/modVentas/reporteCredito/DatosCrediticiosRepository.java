@@ -2,6 +2,8 @@ package com.calero.lili.core.modVentas.reporteCredito;
 
 import com.calero.lili.core.modVentas.reporteCredito.projection.DatosCrediticiosProjection;
 import com.calero.lili.core.modVentas.reporteCredito.projection.PeriodoProjection;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -97,10 +99,22 @@ public interface DatosCrediticiosRepository extends JpaRepository<DatosCreditici
                                                    @Param("idEmpresa") Long idEmpresa,
                                                    @Param("periodo") String periodo);
 
-    @Query(value = "SELECT entity " +
-            "FROM DatosCrediticiosEntity entity " +
-            "where entity.idData = :idData and entity.idEmpresa = :idEmpresa")
-    List<DatosCrediticiosEntity> findAllByIdDataAndIdEmpresa(@Param("idData") Long idData,
-                                                             @Param("idEmpresa") Long idEmpresa);
+    @Query(
+            value = """
+                    SELECT e
+                    FROM DatosCrediticiosEntity e
+                    WHERE (:idData IS NULL OR e.idData = :idData)
+                      AND (:idEmpresa IS NULL OR e.idEmpresa = :idEmpresa)
+                    """,
+            countQuery = """
+                    SELECT COUNT(e)
+                    FROM DatosCrediticiosEntity e
+                    WHERE (:idData IS NULL OR e.idData = :idData)
+                      AND (:idEmpresa IS NULL OR e.idEmpresa = :idEmpresa)
+                    """
+    )
+    Page<DatosCrediticiosEntity> findAllPaginate(@Param("idData") Long idData,
+                                                 @Param("idEmpresa") Long idEmpresa,
+                                                 Pageable pageable);
 
 }

@@ -40,8 +40,6 @@ public class DatosCrediticiosExcelServiceImpl {
     private final GeTercerosRepository geTercerosRepository;
     private final DetalleErrorBuilder detalleErrorBuilder;
 
-    // TODO VALIDAR FECHAS PERIODO AÑO/MES Y NO MES/AÑO
-
     /**
      * Metodo para cargar el archivo de excel que contiene la información principal (archivos de facturas) para el reporte
      *
@@ -59,7 +57,7 @@ public class DatosCrediticiosExcelServiceImpl {
           Se busca si el periodo ya existe, en caso de existir, se llena la lista de detalles de errores y se lanza la excepción
           para evitar que continue con el proceso.
          */
-        Optional<DatosCrediticiosEntity> datosCrediticiosExistente = datosCrediticiosRepository.findByPeriodo(idData, idEmpresa, DateUtils.getPeriodo(periodo));
+        Optional<DatosCrediticiosEntity> datosCrediticiosExistente = datosCrediticiosRepository.findByPeriodo(idData, idEmpresa, periodo);
         if (datosCrediticiosExistente.isPresent()) {
             DetalleError detalleError = detalleErrorBuilder.builderDetalleError(0, EnumError.DOCUMENTO_ERROR);
             detalleError.setDetalle(MessageFormat.format("El periodo {0} ya existe", periodo));
@@ -125,7 +123,7 @@ public class DatosCrediticiosExcelServiceImpl {
         entidad.setIdDatosCrediticios(UUID.randomUUID());
         entidad.setIdData(idData);
         entidad.setIdEmpresa(idEmpresa);
-        entidad.setPeriodo(DateUtils.getPeriodo(periodo));
+        entidad.setPeriodo(periodo);
 
 
         List<DatosCrediticiosDetalleEntity> listaDetalles = new ArrayList<>();

@@ -176,8 +176,8 @@ public class DateUtils {
         return fecha.format(formatter);
     }
 
-    public static String getPeriodo(String periodo) {
-        String[] partes = periodo.split("/");
-        return partes[1] + "/" + partes[0];
+    public static String obtenerFechaHoraSegundos(LocalDateTime fechaActual) {
+        DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yy HH:mm:ss");
+        return fechaActual.format(formato);
     }
 }
