@@ -37,7 +37,9 @@ public class ValidarServiceImpl {
 
         for (DetalleVentasDto item : detalles) {
 
-            BigDecimal subTotalItem = item.getPrecioUnitario().multiply(item.getCantidad());
+            BigDecimal subTotalItem = item.getPrecioUnitario().multiply(item.getCantidad())
+                    .setScale(2, RoundingMode.HALF_UP);
+
             BigDecimal subTotalConDescuento = subTotalItem.subtract(item.getDescuento());
             item.setSubtotalItem(subTotalConDescuento);
 
