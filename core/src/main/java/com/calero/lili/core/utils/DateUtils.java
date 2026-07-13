@@ -160,7 +160,7 @@ public class DateUtils {
     }
 
     public static LocalDate toPeriodoSaldo(String periodoFiscal) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yyyy");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM");
         YearMonth yearMonth = YearMonth.parse(periodoFiscal, formatter);
         return yearMonth.atEndOfMonth();
     }
