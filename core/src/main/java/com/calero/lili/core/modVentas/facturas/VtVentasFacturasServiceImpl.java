@@ -1040,7 +1040,7 @@ public class VtVentasFacturasServiceImpl {
 
         BigDecimal total = subtotal.add(totalImpuesto);
 
-        if(!total.equals(request.getTotal())){
+        if(request.getTotal().compareTo(total) != 0){
            throw  new GeneralException(MessageFormat
                    .format("El total calculado no coincide con el total enviado " +
                            " TOTAL ENVIADO: {0} | TOTAL CALCULADO: {1}", request.getTotal(), total));

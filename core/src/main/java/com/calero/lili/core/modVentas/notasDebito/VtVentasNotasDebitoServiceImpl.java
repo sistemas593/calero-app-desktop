@@ -30,6 +30,7 @@ import com.calero.lili.core.modVentas.VtVentaEntity;
 import com.calero.lili.core.modVentas.VtVentasPersistenceService;
 import com.calero.lili.core.modVentas.VtVentasRepository;
 import com.calero.lili.core.modVentas.builder.GetListResponseBuilder;
+import com.calero.lili.core.modVentas.dto.DetalleVentasDto;
 import com.calero.lili.core.modVentas.dto.GetVentasListDto;
 import com.calero.lili.core.modVentas.notasDebito.builder.VtNotasDebitoBuilder;
 import com.calero.lili.core.modVentas.notasDebito.dto.CreationNotaDebitoRequestDto;
@@ -369,7 +370,7 @@ public class VtVentasNotasDebitoServiceImpl {
             }
         }
 
-        for (CreationNotaDebitoRequestDto.DetailDto item : request.getDetalle()) {
+        for (DetalleVentasDto item : request.getDetalle()) {
             if (Objects.nonNull(item.getDetAdicional())) {
                 if (item.getDetAdicional().isEmpty()) {
                     item.setDetAdicional(null);
@@ -379,7 +380,7 @@ public class VtVentasNotasDebitoServiceImpl {
     }
 
     private void validarItem(CreationNotaDebitoRequestDto request, Long idData, Long idEmpresa) {
-        for (CreationNotaDebitoRequestDto.DetailDto model : request.getDetalle()) {
+        for (DetalleVentasDto model : request.getDetalle()) {
             geItemsRepository.findByIdItem(idData, idEmpresa, model.getIdItem())
                     .orElseThrow(() -> new GeneralException("El item con id  " + model.getIdItem() + " no existe "));
         }

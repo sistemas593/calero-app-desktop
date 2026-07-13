@@ -1,8 +1,10 @@
 package com.calero.lili.core.modVentas.notasDebito.builder;
 
 
+import com.calero.lili.core.dtos.ImpuestoItemsDto;
 import com.calero.lili.core.modComprasItems.GeItemEntity;
 import com.calero.lili.core.modVentas.VtVentaDetalleEntity;
+import com.calero.lili.core.modVentas.dto.DetalleVentasDto;
 import com.calero.lili.core.modVentas.notasDebito.dto.CreationNotaDebitoRequestDto;
 import com.calero.lili.core.modVentas.notasDebito.dto.detalles.DetalleGetDto;
 import org.springframework.stereotype.Component;
@@ -15,13 +17,13 @@ import java.util.UUID;
 public class VtNotaDebitoDetalleBuilder {
 
 
-    public List<VtVentaDetalleEntity> builderList(List<CreationNotaDebitoRequestDto.DetailDto> list, Long idData, Long idEmpresa) {
+    public List<VtVentaDetalleEntity> builderList(List<DetalleVentasDto> list, Long idData, Long idEmpresa) {
         return list.stream()
                 .map(x -> builderDetalle(x, idData, idEmpresa))
                 .toList();
     }
 
-    private VtVentaDetalleEntity builderDetalle(CreationNotaDebitoRequestDto.DetailDto model, Long idData, Long idEmpresa) {
+    private VtVentaDetalleEntity builderDetalle(DetalleVentasDto model, Long idData, Long idEmpresa) {
         return VtVentaDetalleEntity.builder()
                 .idVentaDetalle(UUID.randomUUID())
                 .idData(idData)
@@ -44,7 +46,7 @@ public class VtNotaDebitoDetalleBuilder {
     }
 
 
-    private static String getCodigoAuxiliar(CreationNotaDebitoRequestDto.DetailDto model) {
+    private static String getCodigoAuxiliar(DetalleVentasDto model) {
         if (Objects.nonNull(model.getCodigoAuxiliar())) {
             if (model.getCodigoAuxiliar().isEmpty()) {
                 return null;
@@ -55,13 +57,13 @@ public class VtNotaDebitoDetalleBuilder {
     }
 
 
-    private List<VtVentaDetalleEntity.Impuestos> builderListImpuestos(List<CreationNotaDebitoRequestDto.DetailDto.Impuestos> list) {
+    private List<VtVentaDetalleEntity.Impuestos> builderListImpuestos(List<ImpuestoItemsDto> list) {
         return list.stream()
                 .map(this::builderImpuestos)
                 .toList();
     }
 
-    private VtVentaDetalleEntity.Impuestos builderImpuestos(CreationNotaDebitoRequestDto.DetailDto.Impuestos model) {
+    private VtVentaDetalleEntity.Impuestos builderImpuestos(ImpuestoItemsDto model) {
         return VtVentaDetalleEntity.Impuestos.builder()
                 .codigo(model.getCodigo())
                 .codigoPorcentaje(model.getCodigoPorcentaje())
@@ -71,14 +73,14 @@ public class VtNotaDebitoDetalleBuilder {
                 .build();
     }
 
-    private List<VtVentaDetalleEntity.DetalleAdicional> builderListDetalleAddicional(List<CreationNotaDebitoRequestDto.DetailDto.DetalleAdicional> list) {
+    private List<VtVentaDetalleEntity.DetalleAdicional> builderListDetalleAddicional(List<DetalleVentasDto.DetalleAdicional> list) {
         if (Objects.isNull(list)) return null;
         return list.stream()
                 .map(this::builderDetalle)
                 .toList();
     }
 
-    private VtVentaDetalleEntity.DetalleAdicional builderDetalle(CreationNotaDebitoRequestDto.DetailDto.DetalleAdicional model) {
+    private VtVentaDetalleEntity.DetalleAdicional builderDetalle(DetalleVentasDto.DetalleAdicional model) {
         return VtVentaDetalleEntity.DetalleAdicional.builder()
                 .nombre(model.getNombre())
                 .valor(model.getValor())

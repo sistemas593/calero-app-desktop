@@ -8,6 +8,7 @@ import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.Liquidar;
 import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.enums.TipoIngreso;
+import com.calero.lili.core.modVentas.dto.DetalleVentasDto;
 import jakarta.persistence.Column;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -120,50 +121,8 @@ public class CreationNotaDebitoRequestDto {
 
     @Valid
     @NotEmpty(message = "No existen detalle de items")
-    private List<DetailDto> detalle;
+    private List<DetalleVentasDto> detalle;
 
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class DetailDto {
-        private UUID idItem;
-        private int itemOrden;
-        @NotEmpty(message = "No existe el codigo principal")
-        private String codigoPrincipal;
-        private String codigoAuxiliar;
-        private String codigoBarras;
-        private String descripcion;
-        private String unidadMedida;
-        private BigDecimal precioUnitario;
-        private BigDecimal cantidad;
-        private BigDecimal dsctoItem;
-        private BigDecimal descuento;
-        private BigDecimal subtotalItem;
-
-        private List<Impuestos> impuesto;
-
-        @Data
-        @AllArgsConstructor
-        @NoArgsConstructor
-        public static class Impuestos {
-            private String codigo;
-            private String codigoPorcentaje;
-            private BigDecimal tarifa;
-            private BigDecimal baseImponible;
-            private BigDecimal valor;
-        }
-
-        private List<DetalleAdicional> detAdicional;
-
-        @Data
-        @AllArgsConstructor
-        @NoArgsConstructor
-        public static class DetalleAdicional {
-            private String nombre;
-            @Column(length = 300)
-            private String valor;
-        }
-    }
 
     private Exportacion exportacion;
 
