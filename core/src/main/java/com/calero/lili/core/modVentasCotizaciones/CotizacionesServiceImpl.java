@@ -41,6 +41,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
@@ -516,18 +517,29 @@ public class CotizacionesServiceImpl {
 
         BigDecimal totalDescuento = request.getDetalle().stream()
                 .map(DetalleVentasDto::getDescuento)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
 
         BigDecimal subtotal = valores.stream()
                 .map(ValoresDto::getBaseImponible)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
 
         BigDecimal totalImpuesto = valores.stream()
                 .map(ValoresDto::getValor)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
+
+        BigDecimal total = subtotal.add(totalImpuesto);
+
+        if (!total.equals(request.getTotal())) {
+            throw new GeneralException(MessageFormat
+                    .format("El total calculado no coincide con el total enviado " +
+                            " TOTAL ENVIADO: {0} | TOTAL CALCULADO: {1}", request.getTotal(), total));
+        }
 
         request.setTotalDescuento(totalDescuento);
         request.setSubtotal(subtotal);
-        request.setTotal(subtotal.add(totalImpuesto));
+        request.setTotal(total);
     }
 }
