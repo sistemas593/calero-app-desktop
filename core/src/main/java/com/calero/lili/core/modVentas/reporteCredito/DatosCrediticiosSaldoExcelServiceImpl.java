@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -50,6 +51,8 @@ public class DatosCrediticiosSaldoExcelServiceImpl {
      */
     public void cargarSaldoDatosCrediticios(Long idData, Long idEmpresa, String periodo, MultipartFile file) throws IOException {
 
+        DateUtils.validarPeriodoAnioMes(periodo);
+        DateUtils.validarPeriodo(periodo);
 
         List<DetalleError> detalleErrores = new ArrayList<>();
 

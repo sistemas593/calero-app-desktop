@@ -9,6 +9,7 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.format.TextStyle;
 import java.util.Locale;
 import java.util.Objects;
@@ -179,5 +180,23 @@ public class DateUtils {
     public static String obtenerFechaHoraSegundos(LocalDateTime fechaActual) {
         DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yy HH:mm:ss");
         return fechaActual.format(formato);
+    }
+
+    public static void validarPeriodo(String periodoFiscal) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM");
+
+        try {
+            YearMonth.parse(periodoFiscal, formatter);
+        } catch (DateTimeParseException e) {
+            throw new GeneralException("Existe un error en el formato del periodo fiscal. Debe ser 'año/mes'");
+        }
+    }
+
+    public static void validarPeriodoAnioMes(String periodoFiscal) {
+        int anio = Integer.parseInt(periodoFiscal.split("/")[0]);
+        if (anio < 2020 || anio > 2100) {
+            throw new IllegalArgumentException("El año del período debe estar entre 2020 y 2100.");
+        }
+
     }
 }
