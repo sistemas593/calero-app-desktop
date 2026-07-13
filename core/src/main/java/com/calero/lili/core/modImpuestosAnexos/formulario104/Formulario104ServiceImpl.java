@@ -224,6 +224,13 @@ public class Formulario104ServiceImpl {
             // las que no esten anuladas
 
 
+            Optional<ImpuestosF104Projection> projection = formulario104Repository.valorCompraImpuestoBrutoBaseCero(idData, idEmpresa,
+                    filter.getFechaDesde(), filter.getFechaHasta());
+
+            if (projection.isPresent()){
+                System.out.println("Valor Compra Impuesto Bruto Base Cero: " + projection.get().getBaseImponible());
+            }
+
             f104.setC540(BigDecimal.valueOf(0));
             f104.setC550(BigDecimal.valueOf(0));
             f104.setC560(BigDecimal.valueOf(0));

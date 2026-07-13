@@ -228,10 +228,9 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
 
 
     // ESTE REQUEST ES PARA COMPRA IMPUESTO BASE CERO
-   /* @Query(value = "SELECT  \n" +
+    @Query(value = "SELECT  \n" +
             "    COALESCE(SUM(vvv.valor), 0) AS valor,  \n" +
             "    COALESCE(SUM(vvv.base_imponible), 0) AS base_imponible,  \n" +
-            "    vv.codigo_sustento AS codigo_sustento  \n" +
             "FROM cp_impuestos vv  \n" +
             "JOIN cp_impuestos_valores vvv \n" +
             "    ON vv.id_impuestos = vvv.id_impuestos  \n" +
@@ -241,12 +240,11 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
             "  AND vvv.codigo = '2' \n" +
             "  AND vvv.codigo_porcentaje = '0' \n" +
             "  AND vv.deleted = false  \n" +
-            "GROUP BY vv.codigo_sustento;", nativeQuery = true)
+            " AND  vv.codigo_sustento NOT IN ('S08', 'S09', 'S14') ", nativeQuery = true)
     Optional<ImpuestosF104Projection> valorCompraImpuestoBrutoBaseCero(@Param("idData") Long idData,
                                                                        @Param("idEmpresa") Long idEmpresa,
-                                                                       @Param("tipoIngreso") String tipoIngreso,
                                                                        @Param("fechaDesde") LocalDate fechaDesde,
-                                                                       @Param("fechaHasta") LocalDate fechaHasta);*/
+                                                                       @Param("fechaHasta") LocalDate fechaHasta);
 
 
 }

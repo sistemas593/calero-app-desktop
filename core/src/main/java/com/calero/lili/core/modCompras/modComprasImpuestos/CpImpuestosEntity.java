@@ -92,6 +92,7 @@ public class CpImpuestosEntity extends Auditable {
     @Column(name = "fecha_registro")
     private LocalDate fechaRegistro;
 
+    @Enumerated(EnumType.STRING)
     private SustentoCodigos codigoSustento;
 
     @Column(name = "tipo_contribuyente")
