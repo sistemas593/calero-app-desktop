@@ -36,7 +36,7 @@ import com.calero.lili.core.modVentas.VtVentaValoresEntity;
 import com.calero.lili.core.modVentas.VtVentasPersistenceService;
 import com.calero.lili.core.modVentas.VtVentasRepository;
 import com.calero.lili.core.modVentas.builder.GetListResponseBuilder;
-import com.calero.lili.core.modVentas.dto.DetalleVentasDto;
+import com.calero.lili.core.dtos.DetallesDto;
 import com.calero.lili.core.modVentas.dto.GetVentasListDto;
 import com.calero.lili.core.modVentas.facturas.dto.FilterListVentasDto;
 import com.calero.lili.core.modVentas.notasCredito.builder.VtNotasCreditoBuilder;
@@ -46,6 +46,7 @@ import com.calero.lili.core.modVentas.projection.OneProjection;
 import com.calero.lili.core.modVentas.service.ValidarServiceImpl;
 import com.calero.lili.core.utils.DateUtils;
 import com.calero.lili.core.utils.ValidacionDocumentosGeneral;
+import com.calero.lili.core.utils.calcularValores.CalcularValoresDocumentos;
 import com.calero.lili.core.utils.validaciones.ValidarCampoAscii;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -103,6 +104,7 @@ public class VtVentasNotasCreditoServiceImpl {
     private final AdEmpresasRepository adEmpresasRepository;
     private final ValidarServiceImpl validarService;
     private final AdEmpresasSeriesRepository adEmpresasSeriesRepository;
+    private final CalcularValoresDocumentos calcularValoresDocumentos;
 
 
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa, CreationNotaCreditoRequestDto request,
@@ -122,7 +124,7 @@ public class VtVentasNotasCreditoServiceImpl {
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Empresa {0}, serie {1} no existe", idEmpresa, request.getSerie())));
 
 
-        List<ValoresDto> valores = validarService.validarValores(request.getDetalle());
+        List<ValoresDto> valores = calcularValoresDocumentos.validarValores(request.getDetalle());
         request.setValores(valores);
         setearValoresCabecera(valores, request);
 
@@ -212,7 +214,7 @@ public class VtVentasNotasCreditoServiceImpl {
         DateUtils.validarFechaEmision(request.getFechaEmision());
         ValidarCampoAscii.validarStrings(request);
 
-        List<ValoresDto> valores = validarService.validarValores(request.getDetalle());
+        List<ValoresDto> valores = calcularValoresDocumentos.validarValores(request.getDetalle());
         request.setValores(valores);
         setearValoresCabecera(valores, request);
 
@@ -689,7 +691,7 @@ public class VtVentasNotasCreditoServiceImpl {
             }
         }
 
-        for (DetalleVentasDto item : request.getDetalle()) {
+        for (DetallesDto item : request.getDetalle()) {
             if (Objects.nonNull(item.getDetAdicional())) {
                 if (item.getDetAdicional().isEmpty()) {
                     item.setDetAdicional(null);
@@ -700,7 +702,7 @@ public class VtVentasNotasCreditoServiceImpl {
 
 
     private void validarItem(CreationNotaCreditoRequestDto request, Long idData, Long idEmpresa) {
-        for (DetalleVentasDto model : request.getDetalle()) {
+        for (DetallesDto model : request.getDetalle()) {
             geItemsRepository.findByIdItem(idData, idEmpresa, model.getIdItem())
                     .orElseThrow(() -> new GeneralException("El item con id  " + model.getIdItem() + " no existe "));
         }
@@ -807,7 +809,7 @@ public class VtVentasNotasCreditoServiceImpl {
     private void setearValoresCabecera(List<ValoresDto> valores, CreationNotaCreditoRequestDto request) {
 
         BigDecimal totalDescuento = request.getDetalle().stream()
-                .map(DetalleVentasDto::getDescuento)
+                .map(DetallesDto::getDescuento)
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .setScale(2, RoundingMode.HALF_UP);
 
@@ -823,7 +825,7 @@ public class VtVentasNotasCreditoServiceImpl {
 
         BigDecimal total = subtotal.add(totalImpuesto);
 
-        if(!total.equals(request.getTotal())){
+        if(request.getTotal().compareTo(total) != 0){
             throw  new GeneralException(MessageFormat
                     .format("El total calculado no coincide con el total enviado " +
                             " TOTAL ENVIADO: {0} | TOTAL CALCULADO: {1}", request.getTotal(), total));
@@ -831,7 +833,7 @@ public class VtVentasNotasCreditoServiceImpl {
 
         request.setTotalDescuento(totalDescuento);
         request.setSubtotal(subtotal);
-        request.setTotal(subtotal.add(totalImpuesto));
+        request.setTotal(total);
         request.setTotalImpuesto(totalImpuesto);
 
     }

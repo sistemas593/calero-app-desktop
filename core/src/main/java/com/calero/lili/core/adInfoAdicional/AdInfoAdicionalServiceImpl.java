@@ -72,31 +72,12 @@ public class AdInfoAdicionalServiceImpl {
     }
 
 
-    public PaginatedDto<AdInfoAdicionalResponseDto> findAll(Long idData, Long idEmpresa, Pageable pageable) {
-        Page<AdInfoAdicionalEntity> page = adInfoAdicionalRepository.findAll(idData, idEmpresa, pageable);
-
-        List<AdInfoAdicionalResponseDto> dtoList = page.stream()
+    public List<AdInfoAdicionalResponseDto> findAll(Long idData, Long idEmpresa) {
+        return adInfoAdicionalRepository.findAll(idData, idEmpresa)
+                .stream()
                 .map(adInfoAdicionalBuilder::builderResponse)
                 .toList();
 
-        PaginatedDto paginatedDto = new PaginatedDto();
-        paginatedDto.setContent(dtoList);
-
-        Paginator paginated = new Paginator();
-        paginated.setTotalElements(page.getTotalElements());
-        paginated.setTotalPages(page.getTotalPages());
-        paginated.setNumberOfElements(page.getNumberOfElements());
-        paginated.setSize(page.getSize());
-        paginated.setFirst(page.isFirst());
-        paginated.setLast(page.isLast());
-        paginated.setPageNumber(page.getPageable().getPageNumber());
-        paginated.setPageSize(page.getPageable().getPageSize());
-        paginated.setEmpty(page.isEmpty());
-        paginated.setNumber(page.getNumber());
-
-        paginatedDto.setPaginator(paginated);
-
-        return paginatedDto;
 
     }
 

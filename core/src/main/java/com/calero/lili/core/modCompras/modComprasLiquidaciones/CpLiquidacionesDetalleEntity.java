@@ -46,7 +46,7 @@ public class CpLiquidacionesDetalleEntity {
     @Column
     private BigDecimal cantidad;
 
-    @Column
+    @Column(name = "precio_unitario", precision = 38, scale = 6)
     private BigDecimal precioUnitario;
 
     private BigDecimal descuento;

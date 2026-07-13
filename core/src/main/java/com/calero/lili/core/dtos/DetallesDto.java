@@ -1,6 +1,5 @@
-package com.calero.lili.core.modVentas.dto;
+package com.calero.lili.core.dtos;
 
-import com.calero.lili.core.dtos.ImpuestoItemsDto;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
@@ -14,7 +13,7 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DetalleVentasDto {
+public class DetallesDto {
 
     private UUID idItem;
     private int itemOrden;

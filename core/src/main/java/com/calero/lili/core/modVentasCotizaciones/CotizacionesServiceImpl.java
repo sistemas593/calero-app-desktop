@@ -1,6 +1,7 @@
 package com.calero.lili.core.modVentasCotizaciones;
 
 import com.calero.lili.core.builder.ResponseApiBuilder;
+import com.calero.lili.core.dtos.DetallesDto;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.dtos.ResponseDto;
@@ -9,17 +10,16 @@ import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
-import com.calero.lili.core.modVentas.dto.DetalleVentasDto;
-import com.calero.lili.core.modVentas.service.ValidarServiceImpl;
 import com.calero.lili.core.modVentasCotizaciones.builder.VtCotizacionBuilder;
 import com.calero.lili.core.modVentasCotizaciones.dto.CreationVentasCotizacionesRequestDto;
 import com.calero.lili.core.modVentasCotizaciones.dto.FilterListVentasCotizacionesDto;
-import com.calero.lili.core.modVentasCotizaciones.dto.GetVentasCotizacionesDto;
 import com.calero.lili.core.modVentasCotizaciones.dto.GetListDto;
 import com.calero.lili.core.modVentasCotizaciones.dto.GetListVentasCotizacionesDtoTotalizado;
+import com.calero.lili.core.modVentasCotizaciones.dto.GetVentasCotizacionesDto;
 import com.calero.lili.core.modVentasCotizaciones.projection.OneProjection;
 import com.calero.lili.core.modVentasCotizaciones.projection.TotalesProjection;
 import com.calero.lili.core.utils.DateUtils;
+import com.calero.lili.core.utils.calcularValores.CalcularValoresDocumentos;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Phrase;
@@ -64,7 +64,7 @@ public class CotizacionesServiceImpl {
     private final VtCotizacionBuilder vtCotizacionBuilder;
     private final ResponseApiBuilder responseApiBuilder;
     private final GeTercerosRepository geTercerosRepository;
-    private final ValidarServiceImpl validarService;
+    private final CalcularValoresDocumentos calcularValoresDocumentos;
 
     public ResponseDto create(Long idData, Long idEmpresa, CreationVentasCotizacionesRequestDto request, String usuario) {
 
@@ -75,7 +75,7 @@ public class CotizacionesServiceImpl {
         }
 
 
-        List<ValoresDto> valores = validarService.validarValores(request.getDetalle());
+        List<ValoresDto> valores = calcularValoresDocumentos.validarValores(request.getDetalle());
         request.setValores(valores);
         setearValoresCabecera(valores, request);
 
@@ -110,7 +110,7 @@ public class CotizacionesServiceImpl {
         }
 
 
-        List<ValoresDto> valores = validarService.validarValores(request.getDetalle());
+        List<ValoresDto> valores = calcularValoresDocumentos.validarValores(request.getDetalle());
         request.setValores(valores);
         setearValoresCabecera(valores, request);
 
@@ -516,7 +516,7 @@ public class CotizacionesServiceImpl {
     private void setearValoresCabecera(List<ValoresDto> valores, CreationVentasCotizacionesRequestDto request) {
 
         BigDecimal totalDescuento = request.getDetalle().stream()
-                .map(DetalleVentasDto::getDescuento)
+                .map(DetallesDto::getDescuento)
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .setScale(2, RoundingMode.HALF_UP);
 

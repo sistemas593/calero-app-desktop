@@ -2,7 +2,7 @@ package com.calero.lili.core.modVentasPedidos.dto;
 
 import com.calero.lili.core.dtos.InformacionAdicionalDto;
 import com.calero.lili.core.dtos.ValoresDto;
-import com.calero.lili.core.modVentas.dto.DetalleVentasDto;
+import com.calero.lili.core.dtos.DetallesDto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -61,7 +61,7 @@ public class CreationComprasPedidosRequestDto {
 
     @Valid
     @NotEmpty(message = "No existen detalle de items")
-    private List<DetalleVentasDto> detalle;
+    private List<DetallesDto> detalle;
 
 
 }

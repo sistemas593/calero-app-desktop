@@ -7,10 +7,13 @@ import com.calero.lili.core.comprobantesWs.RespuestaProcesoGetDto;
 import com.calero.lili.core.comprobantesWs.dto.DatosEmpresaDto;
 import com.calero.lili.core.comprobantesWs.services.BuscarDatosEmpresa;
 import com.calero.lili.core.comprobantesWs.services.ProcesarDocumentosServiceImpl;
+import com.calero.lili.core.dtos.DetallesDto;
+import com.calero.lili.core.dtos.FormasPagoDto;
 import com.calero.lili.core.dtos.Mensajes;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.dtos.ResponseDto;
+import com.calero.lili.core.dtos.ValoresDto;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.OrigenEnum;
@@ -30,7 +33,6 @@ import com.calero.lili.core.modVentas.VtVentaEntity;
 import com.calero.lili.core.modVentas.VtVentasPersistenceService;
 import com.calero.lili.core.modVentas.VtVentasRepository;
 import com.calero.lili.core.modVentas.builder.GetListResponseBuilder;
-import com.calero.lili.core.modVentas.dto.DetalleVentasDto;
 import com.calero.lili.core.modVentas.dto.GetVentasListDto;
 import com.calero.lili.core.modVentas.notasDebito.builder.VtNotasDebitoBuilder;
 import com.calero.lili.core.modVentas.notasDebito.dto.CreationNotaDebitoRequestDto;
@@ -40,6 +42,7 @@ import com.calero.lili.core.modVentas.projection.OneProjection;
 import com.calero.lili.core.modVentas.service.ValidarServiceImpl;
 import com.calero.lili.core.utils.DateUtils;
 import com.calero.lili.core.utils.ValidacionDocumentosGeneral;
+import com.calero.lili.core.utils.calcularValores.CalcularValoresDocumentos;
 import com.calero.lili.core.utils.validaciones.ValidarCampoAscii;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,6 +52,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -77,6 +81,7 @@ public class VtVentasNotasDebitoServiceImpl {
     private final AdEmpresasRepository adEmpresasRepository;
     private final ValidarServiceImpl validarService;
     private final AdEmpresasSeriesRepository adEmpresasSeriesRepository;
+    private final CalcularValoresDocumentos calcularValoresDocumentos;
 
 
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa,
@@ -105,6 +110,11 @@ public class VtVentasNotasDebitoServiceImpl {
             throw new GeneralException(MessageFormat.format("El documento ya existe Tipo: {0} Serie: {1} Secuencial: {2}",
                     TipoVenta.NDB.name(), request.getSerie(), request.getSecuencial()));
         }
+
+
+        List<ValoresDto> valores = calcularValoresDocumentos.validarValores(request.getDetalle());
+        request.setValores(valores);
+        setearValoresCabecera(valores, request);
 
         validarItem(request, idData, idEmpresa);
         validarInfoAddicional(request);
@@ -161,12 +171,18 @@ public class VtVentasNotasDebitoServiceImpl {
 
     }
 
+
     @Transactional
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationNotaDebitoRequestDto request, String usuario,
                               FilterListNotasDebitoDto filters, TipoPermiso tipoBusqueda) {
 
         ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencial());
         VtVentaEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
+
+        List<ValoresDto> valores = calcularValoresDocumentos.validarValores(request.getDetalle());
+        request.setValores(valores);
+        setearValoresCabecera(valores, request);
+
         validarNumeroAutorizacion(request);
 
         AdEmpresaEntity empresa = adEmpresasRepository
@@ -370,7 +386,7 @@ public class VtVentasNotasDebitoServiceImpl {
             }
         }
 
-        for (DetalleVentasDto item : request.getDetalle()) {
+        for (DetallesDto item : request.getDetalle()) {
             if (Objects.nonNull(item.getDetAdicional())) {
                 if (item.getDetAdicional().isEmpty()) {
                     item.setDetAdicional(null);
@@ -380,16 +396,16 @@ public class VtVentasNotasDebitoServiceImpl {
     }
 
     private void validarItem(CreationNotaDebitoRequestDto request, Long idData, Long idEmpresa) {
-        for (DetalleVentasDto model : request.getDetalle()) {
+        for (DetallesDto model : request.getDetalle()) {
             geItemsRepository.findByIdItem(idData, idEmpresa, model.getIdItem())
                     .orElseThrow(() -> new GeneralException("El item con id  " + model.getIdItem() + " no existe "));
         }
 
     }
 
-    private List<Integer> getIntegerTarifaIva(List<CreationNotaDebitoRequestDto.ValoresDto> valores) {
+    private List<Integer> getIntegerTarifaIva(List<ValoresDto> valores) {
         return valores.stream()
-                .map(CreationNotaDebitoRequestDto.ValoresDto::getTarifa)
+                .map(ValoresDto::getTarifa)
                 .filter(Objects::nonNull)
                 .map(BigDecimal::intValue)
                 .toList();
@@ -487,6 +503,50 @@ public class VtVentasNotasDebitoServiceImpl {
                 }
             }
         }
+    }
+
+    private void setearValoresCabecera(List<ValoresDto> valores, CreationNotaDebitoRequestDto request) {
+
+        BigDecimal totalDescuento = request.getDetalle().stream()
+                .map(DetallesDto::getDescuento)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
+
+        BigDecimal subtotal = valores.stream()
+                .map(ValoresDto::getBaseImponible)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
+
+        BigDecimal totalImpuesto = valores.stream()
+                .map(ValoresDto::getValor)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
+
+        BigDecimal total = subtotal.add(totalImpuesto);
+
+        if (request.getTotal().compareTo(total) != 0) {
+            throw new GeneralException(MessageFormat
+                    .format("El total calculado no coincide con el total enviado " +
+                            " TOTAL ENVIADO: {0} | TOTAL CALCULADO: {1}", request.getTotal(), total));
+        }
+
+        request.setTotalDescuento(totalDescuento);
+        request.setSubtotal(subtotal);
+        request.setTotal(total);
+        validarTotalPagoSri(request);
+    }
+
+    private void validarTotalPagoSri(CreationNotaDebitoRequestDto request) {
+
+        BigDecimal totalPagoSri = request.getFormasPagoSri().stream()
+                .map(FormasPagoDto::getTotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        if (totalPagoSri.compareTo(request.getTotal()) != 0) {
+            throw new GeneralException(MessageFormat.format("El valor total del documento y el el valor de total de las formas de pago SRI no coinciden:" +
+                    " TOTAL DOCUMENTO: {0}  | TOTAL FORMA DE PAGO SRI: {1}", request.getTotal(), totalPagoSri));
+        }
+
     }
 
 }

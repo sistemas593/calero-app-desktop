@@ -32,16 +32,9 @@ public interface AdInfoAdicionalRepository extends JpaRepository<AdInfoAdicional
                     FROM AdInfoAdicionalEntity entity
                     WHERE entity.idData = :idData
                       AND entity.idEmpresa = :idEmpresa
-                    """,
-            countQuery = """
-                    SELECT COUNT(entity)
-                    FROM AdInfoAdicionalEntity entity
-                    WHERE entity.idData = :idData
-                      AND entity.idEmpresa = :idEmpresa
                     """)
-    Page<AdInfoAdicionalEntity> findAll(@Param("idData") Long idData,
-                                        @Param("idEmpresa") Long idEmpresa,
-                                        Pageable pageable);
+    List<AdInfoAdicionalEntity> findAll(@Param("idData") Long idData,
+                                        @Param("idEmpresa") Long idEmpresa);
 
 
     @Query(value = "SELECT entity.id_info_adicional " +

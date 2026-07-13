@@ -1,5 +1,7 @@
 package com.calero.lili.core.modCompras.modComprasLiquidaciones.builder;
 
+import com.calero.lili.core.dtos.DetallesDto;
+import com.calero.lili.core.dtos.ImpuestoItemsDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.CpLiquidacionesDetalleEntity;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.CreationRequestLiquidacionCompraDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.detalles.DetalleLiquidacionCompraGetDto;
@@ -14,13 +16,13 @@ import java.util.UUID;
 public class CpLiquidacionesDetalleBuilder {
 
 
-    public List<CpLiquidacionesDetalleEntity> builderList(List<CreationRequestLiquidacionCompraDto.DetalleLiquidacionCompraDto> list, Long idData, Long idEmpresa) {
+    public List<CpLiquidacionesDetalleEntity> builderList(List<DetallesDto> list, Long idData, Long idEmpresa) {
         return list.stream()
                 .map(x -> builderEntity(x, idData, idEmpresa))
                 .toList();
     }
 
-    private CpLiquidacionesDetalleEntity builderEntity(CreationRequestLiquidacionCompraDto.DetalleLiquidacionCompraDto model, Long idData, Long idEmpresa) {
+    private CpLiquidacionesDetalleEntity builderEntity(DetallesDto model, Long idData, Long idEmpresa) {
         return CpLiquidacionesDetalleEntity.builder()
                 .idLiquidacionDetalle(UUID.randomUUID())
                 .idData(idData)
@@ -42,7 +44,7 @@ public class CpLiquidacionesDetalleBuilder {
     }
 
 
-    private static String getCodigoAuxiliar(CreationRequestLiquidacionCompraDto.DetalleLiquidacionCompraDto model) {
+    private static String getCodigoAuxiliar(DetallesDto model) {
         if (Objects.nonNull(model.getCodigoAuxiliar())) {
             if (model.getCodigoAuxiliar().isEmpty()) {
                 return null;
@@ -52,13 +54,13 @@ public class CpLiquidacionesDetalleBuilder {
         return null;
     }
 
-    private List<CpLiquidacionesDetalleEntity.Impuestos> builderListImpuesto(List<CreationRequestLiquidacionCompraDto.DetalleLiquidacionCompraDto.Impuestos> list) {
+    private List<CpLiquidacionesDetalleEntity.Impuestos> builderListImpuesto(List<ImpuestoItemsDto> list) {
         return list.stream()
                 .map(this::builderImpuesto)
                 .toList();
     }
 
-    private CpLiquidacionesDetalleEntity.Impuestos builderImpuesto(CreationRequestLiquidacionCompraDto.DetalleLiquidacionCompraDto.Impuestos model) {
+    private CpLiquidacionesDetalleEntity.Impuestos builderImpuesto(ImpuestoItemsDto model) {
         return CpLiquidacionesDetalleEntity.Impuestos.builder()
                 .codigo(model.getCodigo())
                 .codigoPorcentaje(model.getCodigoPorcentaje())
@@ -69,14 +71,14 @@ public class CpLiquidacionesDetalleBuilder {
     }
 
 
-    private List<CpLiquidacionesDetalleEntity.DetalleAdicional> builderListDetalleAdicional(List<CreationRequestLiquidacionCompraDto.DetalleLiquidacionCompraDto.DetalleAdicional> list) {
+    private List<CpLiquidacionesDetalleEntity.DetalleAdicional> builderListDetalleAdicional(List<DetallesDto.DetalleAdicional> list) {
         if (Objects.isNull(list)) return null;
         return list.stream()
                 .map(this::builderDetalleAdicional)
                 .toList();
     }
 
-    private CpLiquidacionesDetalleEntity.DetalleAdicional builderDetalleAdicional(CreationRequestLiquidacionCompraDto.DetalleLiquidacionCompraDto.DetalleAdicional model) {
+    private CpLiquidacionesDetalleEntity.DetalleAdicional builderDetalleAdicional(DetallesDto.DetalleAdicional model) {
         return CpLiquidacionesDetalleEntity.DetalleAdicional.builder()
                 .nombre(model.getNombre())
                 .valor(model.getValor())

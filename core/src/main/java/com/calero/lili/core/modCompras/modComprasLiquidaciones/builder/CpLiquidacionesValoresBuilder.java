@@ -1,8 +1,8 @@
 package com.calero.lili.core.modCompras.modComprasLiquidaciones.builder;
 
+import com.calero.lili.core.dtos.ValoresDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.CpLiquidacionesValoresEntity;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.ResponseLiquidacionCompraValoresDto;
-import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.detalles.ValoresLiquidacionesCompraDto;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -12,13 +12,13 @@ import java.util.UUID;
 @Component
 public class CpLiquidacionesValoresBuilder {
 
-    public List<CpLiquidacionesValoresEntity> builderListValores(List<ValoresLiquidacionesCompraDto> list, Long idData, Long idEmpresa) {
+    public List<CpLiquidacionesValoresEntity> builderListValores(List<ValoresDto> list, Long idData, Long idEmpresa) {
         return list.stream()
                 .map(x -> builderEntity(x, idData, idEmpresa))
                 .toList();
     }
 
-    private CpLiquidacionesValoresEntity builderEntity(ValoresLiquidacionesCompraDto model, Long idData, Long idEmpresa) {
+    private CpLiquidacionesValoresEntity builderEntity(ValoresDto model, Long idData, Long idEmpresa) {
         return CpLiquidacionesValoresEntity.builder()
                 .idLiquidacionValores(UUID.randomUUID())
                 .idData(idData)

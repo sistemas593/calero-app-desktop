@@ -1,6 +1,7 @@
 package com.calero.lili.core.modVentasPedidos;
 
 import com.calero.lili.core.builder.ResponseApiBuilder;
+import com.calero.lili.core.dtos.DetallesDto;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.dtos.ResponseDto;
@@ -9,8 +10,6 @@ import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
-import com.calero.lili.core.modVentas.dto.DetalleVentasDto;
-import com.calero.lili.core.modVentas.service.ValidarServiceImpl;
 import com.calero.lili.core.modVentasPedidos.builder.VtPedidoBuilder;
 import com.calero.lili.core.modVentasPedidos.dto.CreationComprasPedidosRequestDto;
 import com.calero.lili.core.modVentasPedidos.dto.FilterListVentasPedidosDto;
@@ -20,6 +19,7 @@ import com.calero.lili.core.modVentasPedidos.dto.GetVentaPedidosListDtoTotalizad
 import com.calero.lili.core.modVentasPedidos.projection.OneProjection;
 import com.calero.lili.core.modVentasPedidos.projection.TotalesProjection;
 import com.calero.lili.core.utils.DateUtils;
+import com.calero.lili.core.utils.calcularValores.CalcularValoresDocumentos;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Phrase;
@@ -64,7 +64,7 @@ public class PedidosServiceImpl {
     private final ResponseApiBuilder responseApiBuilder;
     private final VtPedidoBuilder vtPedidoBuilder;
     private final GeTercerosRepository geTercerosRepository;
-    private final ValidarServiceImpl validarService;
+    private final CalcularValoresDocumentos calcularValoresDocumentos;
 
 
     public ResponseDto create(Long idData, Long idEmpresa, CreationComprasPedidosRequestDto request, String usuario) {
@@ -77,7 +77,7 @@ public class PedidosServiceImpl {
         }
 
 
-        List<ValoresDto> valores = validarService.validarValores(request.getDetalle());
+        List<ValoresDto> valores = calcularValoresDocumentos.validarValores(request.getDetalle());
         request.setValores(valores);
         setearValoresCabecera(valores, request);
 
@@ -111,7 +111,7 @@ public class PedidosServiceImpl {
         }
 
 
-        List<ValoresDto> valores = validarService.validarValores(request.getDetalle());
+        List<ValoresDto> valores = calcularValoresDocumentos.validarValores(request.getDetalle());
         request.setValores(valores);
         setearValoresCabecera(valores, request);
 
@@ -524,7 +524,7 @@ public class PedidosServiceImpl {
     private void setearValoresCabecera(List<ValoresDto> valores, CreationComprasPedidosRequestDto request) {
 
         BigDecimal totalDescuento = request.getDetalle().stream()
-                .map(DetalleVentasDto::getDescuento)
+                .map(DetallesDto::getDescuento)
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .setScale(2, RoundingMode.HALF_UP);
 

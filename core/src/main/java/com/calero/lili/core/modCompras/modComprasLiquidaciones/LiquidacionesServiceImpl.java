@@ -7,10 +7,13 @@ import com.calero.lili.core.comprobantesWs.RespuestaProcesoGetDto;
 import com.calero.lili.core.comprobantesWs.dto.DatosEmpresaDto;
 import com.calero.lili.core.comprobantesWs.services.BuscarDatosEmpresa;
 import com.calero.lili.core.comprobantesWs.services.ProcesarDocumentosServiceImpl;
+import com.calero.lili.core.dtos.DetallesDto;
+import com.calero.lili.core.dtos.FormasPagoDto;
 import com.calero.lili.core.dtos.Mensajes;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.dtos.ResponseDto;
+import com.calero.lili.core.dtos.ValoresDto;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.TipoEmision;
@@ -36,6 +39,7 @@ import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
 import com.calero.lili.core.utils.DateUtils;
 import com.calero.lili.core.utils.ValidacionDocumentosGeneral;
+import com.calero.lili.core.utils.calcularValores.CalcularValoresDocumentos;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Phrase;
@@ -57,6 +61,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
@@ -90,6 +95,7 @@ public class LiquidacionesServiceImpl {
     private final ProcesarDocumentosServiceImpl procesarDocumentosService;
     private final AdEmpresasRepository adEmpresasRepository;
     private final AdEmpresasSeriesRepository adEmpresasSeriesRepository;
+    private final CalcularValoresDocumentos calcularValoresDocumentos;
 
 
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa, CreationRequestLiquidacionCompraDto request,
@@ -106,6 +112,10 @@ public class LiquidacionesServiceImpl {
                 .findBySerie(idData, idEmpresa, request.getSerie())
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Empresa {0}, serie {1} no existe", idEmpresa, request.getSerie())));
 
+
+        List<ValoresDto> valores = calcularValoresDocumentos.validarValores(request.getDetalle());
+        request.setValores(valores);
+        setearValoresCabecera(valores, request);
 
         Optional<OneProjection> existingFactura = liquidacionesRepository
                 .findExistBySecuencial(idData, idEmpresa, request.getSerie(), request.getSecuencial());
@@ -174,6 +184,7 @@ public class LiquidacionesServiceImpl {
 
 
     }
+
 
     private List<CpLiquidacionesReembolsosEntity> validarReembolso(CreationRequestLiquidacionCompraDto request) {
 
@@ -766,7 +777,7 @@ public class LiquidacionesServiceImpl {
             }
         }
 
-        for (CreationRequestLiquidacionCompraDto.DetalleLiquidacionCompraDto item : request.getDetalle()) {
+        for (DetallesDto item : request.getDetalle()) {
             if (Objects.nonNull(item.getDetAdicional())) {
                 if (item.getDetAdicional().isEmpty()) {
                     item.setDetAdicional(null);
@@ -777,7 +788,7 @@ public class LiquidacionesServiceImpl {
 
 
     private void validarItem(CreationRequestLiquidacionCompraDto request, Long idData, Long idEmpresa) {
-        for (CreationRequestLiquidacionCompraDto.DetalleLiquidacionCompraDto model : request.getDetalle()) {
+        for (DetallesDto model : request.getDetalle()) {
             geItemsRepository.findByIdItem(idData, idEmpresa, model.getIdItem())
                     .orElseThrow(() -> new GeneralException("El item con id  " + model.getIdItem() + " no existe "));
         }
@@ -881,6 +892,52 @@ public class LiquidacionesServiceImpl {
                 }
             }
         }
+    }
+
+
+    private void setearValoresCabecera(List<ValoresDto> valores, CreationRequestLiquidacionCompraDto request) {
+
+        BigDecimal totalDescuento = request.getDetalle().stream()
+                .map(DetallesDto::getDescuento)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
+
+        BigDecimal subtotal = valores.stream()
+                .map(ValoresDto::getBaseImponible)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
+
+        BigDecimal totalImpuesto = valores.stream()
+                .map(ValoresDto::getValor)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
+
+        BigDecimal total = subtotal.add(totalImpuesto);
+
+        if (request.getTotal().compareTo(total) != 0) {
+            throw new GeneralException(MessageFormat
+                    .format("El total calculado no coincide con el total enviado " +
+                            " TOTAL ENVIADO: {0} | TOTAL CALCULADO: {1}", request.getTotal(), total));
+        }
+
+        request.setTotalDescuento(totalDescuento);
+        request.setSubtotal(subtotal);
+        request.setTotal(total);
+        validarTotalPagoSri(request);
+
+    }
+
+    private void validarTotalPagoSri(CreationRequestLiquidacionCompraDto request) {
+
+        BigDecimal totalPagoSri = request.getFormasPagoSri().stream()
+                .map(FormasPagoDto::getTotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        if (totalPagoSri.compareTo(request.getTotal()) != 0) {
+            throw new GeneralException(MessageFormat.format("El valor total del documento y el el valor de total de las formas de pago SRI no coinciden:" +
+                    " TOTAL DOCUMENTO: {0}  | TOTAL FORMA DE PAGO SRI: {1}", request.getTotal(), totalPagoSri));
+        }
+
     }
 
 }

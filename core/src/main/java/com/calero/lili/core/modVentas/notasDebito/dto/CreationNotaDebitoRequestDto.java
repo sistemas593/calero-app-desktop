@@ -2,13 +2,14 @@ package com.calero.lili.core.modVentas.notasDebito.dto;
 
 import com.calero.lili.core.dtos.FormasPagoDto;
 import com.calero.lili.core.dtos.InformacionAdicionalDto;
+import com.calero.lili.core.dtos.ValoresDto;
 import com.calero.lili.core.enums.ComercioExterior;
 import com.calero.lili.core.enums.FormaPago;
 import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.Liquidar;
 import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.enums.TipoIngreso;
-import com.calero.lili.core.modVentas.dto.DetalleVentasDto;
+import com.calero.lili.core.dtos.DetallesDto;
 import jakarta.persistence.Column;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -70,20 +71,7 @@ public class CreationNotaDebitoRequestDto {
     private String relacionado;
     private String concepto;
 
-    @Valid
-    @NotEmpty(message = "No existen detalle de items")
     private List<ValoresDto> valores;
-
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class ValoresDto {
-        private String codigo;
-        private String codigoPorcentaje;
-        private BigDecimal tarifa;
-        private BigDecimal baseImponible;
-        private BigDecimal valor;
-    }
 
     @NotNull(message = "No existe el subtotal")
     private BigDecimal subtotal;
@@ -121,7 +109,7 @@ public class CreationNotaDebitoRequestDto {
 
     @Valid
     @NotEmpty(message = "No existen detalle de items")
-    private List<DetalleVentasDto> detalle;
+    private List<DetallesDto> detalle;
 
 
     private Exportacion exportacion;

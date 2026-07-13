@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -60,9 +61,8 @@ public class AdInfoAdicionalController {
 
     @GetMapping("listar/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
-    public PaginatedDto<AdInfoAdicionalResponseDto> findAll(@PathVariable("idEmpresa") Long idEmpresa,
-                                                            Pageable pageable) {
-        return adInfoAdicionalService.findAll(idDataService.getIdData(), idEmpresa, pageable);
+    public List<AdInfoAdicionalResponseDto> findAll(@PathVariable("idEmpresa") Long idEmpresa) {
+        return adInfoAdicionalService.findAll(idDataService.getIdData(), idEmpresa);
     }
 
 

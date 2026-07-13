@@ -42,7 +42,7 @@ import com.calero.lili.core.modVentas.VtVentaValoresEntity;
 import com.calero.lili.core.modVentas.VtVentasPersistenceService;
 import com.calero.lili.core.modVentas.VtVentasRepository;
 import com.calero.lili.core.modVentas.builder.GetListResponseBuilder;
-import com.calero.lili.core.modVentas.dto.DetalleVentasDto;
+import com.calero.lili.core.dtos.DetallesDto;
 import com.calero.lili.core.modVentas.dto.GetVentasListDto;
 import com.calero.lili.core.modVentas.dto.GetVentasListDtoTotalizado;
 import com.calero.lili.core.modVentas.facturas.builder.VtFacturasBuilder;
@@ -59,6 +59,7 @@ import com.calero.lili.core.tablas.tbPaises.TbPaisEntity;
 import com.calero.lili.core.tablas.tbPaises.TbPaisesRepository;
 import com.calero.lili.core.utils.DateUtils;
 import com.calero.lili.core.utils.ValidacionDocumentosGeneral;
+import com.calero.lili.core.utils.calcularValores.CalcularValoresDocumentos;
 import com.calero.lili.core.utils.validaciones.ValidarCampoAscii;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -115,6 +116,7 @@ public class VtVentasFacturasServiceImpl {
     private final AdLogsBuilder adLogsBuilder;
     private final BuscarDatosEmpresa buscarDatosEmpresa;
     private final ValidarServiceImpl validarService;
+    private final CalcularValoresDocumentos calcularValoresDocumentos;
     private final AdEmpresasRepository adEmpresasRepository;
     private final AdEmpresasSeriesRepository adEmpresasSeriesRepository;
 
@@ -136,9 +138,8 @@ public class VtVentasFacturasServiceImpl {
         DateUtils.validarFechaEmision(request.getFechaEmision());
         ValidarCampoAscii.validarStrings(request);
 
-        List<ValoresDto> valores = validarService.validarValores(request.getDetalle());
+        List<ValoresDto> valores = calcularValoresDocumentos.validarValores(request.getDetalle());
         request.setValores(valores);
-
         setearValoresCabecera(valores, request);
         validarInformacion(request);
 
@@ -235,7 +236,7 @@ public class VtVentasFacturasServiceImpl {
         DateUtils.validarFechaEmision(request.getFechaEmision());
         ValidarCampoAscii.validarStrings(request);
 
-        List<ValoresDto> valores = validarService.validarValores(request.getDetalle());
+        List<ValoresDto> valores = calcularValoresDocumentos.validarValores(request.getDetalle());
         request.setValores(valores);
         setearValoresCabecera(valores, request);
 
@@ -326,7 +327,7 @@ public class VtVentasFacturasServiceImpl {
     }
 
     private void validarItem(CreationFacturaRequestDto request, Long idData, Long idEmpresa) {
-        for (DetalleVentasDto model : request.getDetalle()) {
+        for (DetallesDto model : request.getDetalle()) {
             geItemsRepository.findByIdItem(idData, idEmpresa, model.getIdItem())
                     .orElseThrow(() -> new GeneralException("El item con id  " + model.getIdItem() + " no existe "));
         }
@@ -893,7 +894,7 @@ public class VtVentasFacturasServiceImpl {
             }
         }
 
-        for (DetalleVentasDto item : request.getDetalle()) {
+        for (DetallesDto item : request.getDetalle()) {
             if (Objects.nonNull(item.getDetAdicional())) {
                 if (item.getDetAdicional().isEmpty()) {
                     item.setDetAdicional(null);
@@ -905,7 +906,7 @@ public class VtVentasFacturasServiceImpl {
 
     private void validarCentroCostos(CreationFacturaRequestDto request, Long idData, Long idEmpresa) {
 
-        for (DetalleVentasDto detalle : request.getDetalle()) {
+        for (DetallesDto detalle : request.getDetalle()) {
 
             if (Objects.nonNull(detalle.getIdCentroCostos())) {
                 Optional<CnCentroCostosEntity> item = cnCentroCostosRepository
@@ -1024,7 +1025,7 @@ public class VtVentasFacturasServiceImpl {
     private void setearValoresCabecera(List<ValoresDto> valores, CreationFacturaRequestDto request) {
 
         BigDecimal totalDescuento = request.getDetalle().stream()
-                .map(DetalleVentasDto::getDescuento)
+                .map(DetallesDto::getDescuento)
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .setScale(2, RoundingMode.HALF_UP);
 

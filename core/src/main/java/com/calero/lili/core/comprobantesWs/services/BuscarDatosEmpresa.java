@@ -10,6 +10,7 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
+import com.google.storage.v2.Object;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -112,6 +114,11 @@ public class BuscarDatosEmpresa {
         AdEmpresaEntity empresa = adEmpresasRepository.findById(idData, idEmpresa)
                 .orElseThrow(() -> new GeneralException(
                         MessageFormat.format("Data {0}, Empresa {1} no existe", idData, idEmpresa)));
+
+        if(Objects.isNull(empresa.getContraseniaFirma())){
+            throw new GeneralException("La empresa no tiene configurada la contraseña del archivo de firma (.p12). " +
+                            "Configure la contraseña en la sección 'Firma y Envío' del formulario de empresa.");
+        }
 
         String pwd = AESUtils.decrypt(empresa.getContraseniaFirma());
 

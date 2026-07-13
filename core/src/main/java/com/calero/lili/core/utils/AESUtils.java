@@ -33,8 +33,9 @@ public class AESUtils {
             byte[] decrypted = cipher.doFinal(Base64.getDecoder().decode(passEncrypt));
             return new String(decrypted);
         } catch (Exception ex) {
-            throw new GeneralException("Err: " + ex.getMessage());
+            throw new GeneralException("Err: Al descifrar la contraseña en LOCAL " + ex.getMessage());
         }
+
     }
 
 }
