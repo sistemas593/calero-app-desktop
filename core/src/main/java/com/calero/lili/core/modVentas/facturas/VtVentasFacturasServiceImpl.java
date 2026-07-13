@@ -80,6 +80,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -118,7 +119,7 @@ public class VtVentasFacturasServiceImpl {
     private final AdEmpresasSeriesRepository adEmpresasSeriesRepository;
 
 
-    // TODO VALIDAR EMPRESA Y EMPRESA SERIE QUE EXISTAN PARA LUEGO PASARLE AL GENERAR EL XML ( EN TODOS LOS DOCUMENTOS)
+
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa,
                                          CreationFacturaRequestDto request, String usuario, String origenCertificado) {
 
@@ -1024,15 +1025,21 @@ public class VtVentasFacturasServiceImpl {
 
         BigDecimal totalDescuento = request.getDetalle().stream()
                 .map(DetalleVentasDto::getDescuento)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.DOWN);
 
         BigDecimal subtotal = valores.stream()
                 .map(ValoresDto::getBaseImponible)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.DOWN);
 
         BigDecimal totalImpuesto = valores.stream()
                 .map(ValoresDto::getValor)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.DOWN);
+
+        BigDecimal total = subtotal.add(totalImpuesto)
+                .setScale(2, RoundingMode.DOWN);
 
         request.setTotalDescuento(totalDescuento);
         request.setTotalImpuesto(totalImpuesto);
