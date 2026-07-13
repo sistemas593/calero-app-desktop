@@ -194,8 +194,14 @@ public class DateUtils {
 
     public static void validarPeriodoAnioMes(String periodoFiscal) {
         int anio = Integer.parseInt(periodoFiscal.split("/")[0]);
+        int mes = Integer.parseInt(periodoFiscal.split("/")[1]);
+
         if (anio < 2020 || anio > 2100) {
             throw new IllegalArgumentException("El año del período debe estar entre 2020 y 2100.");
+        }
+
+        if (mes < 1 || mes > 12) {
+            throw new IllegalArgumentException("El mes del período debe estar entre 1 y 12.");
         }
 
     }
