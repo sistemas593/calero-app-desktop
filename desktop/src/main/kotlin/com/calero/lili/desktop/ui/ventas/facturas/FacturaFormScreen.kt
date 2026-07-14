@@ -658,9 +658,9 @@ private fun DialogoFormaPago(state: FacturaFormUiState, vm: FacturaFormViewModel
                     ) {
                         state.formasPagoSriDisponibles.forEach { fp ->
                             DropdownMenuItem(
-                                text    = { Text(fp.formaPagoSri ?: fp.codigoFormaPagoSri ?: "—", fontSize = 13.sp) },
+                                text    = { Text(fp.nombre, fontSize = 13.sp) },
                                 onClick = {
-                                    vm.setDialogFpSeleccion(fp.codigoFormaPagoSri ?: "", fp.formaPagoSri ?: "")
+                                    vm.setDialogFpSeleccion(fp.codigo, fp.nombre)
                                     expandedFp = false
                                 }
                             )

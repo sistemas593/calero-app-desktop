@@ -812,6 +812,7 @@ public class ProcesarDocumentosServiceImpl {
                 }
             }
         } else {
+            System.out.println("la respuesta del WS es nula");
             respuestaEnvio.setEstadoEnvio(EstadoDocumento.ENV);
         }
 

@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter
 import com.calero.lili.core.dtos.FormasPagoDto
 import com.calero.lili.core.dtos.InformacionAdicionalDto
 import com.calero.lili.core.enums.FormaPago
+import com.calero.lili.core.enums.FormaPagoSriEnum
 import com.calero.lili.core.enums.FormatoDocumento
 import com.calero.lili.core.enums.Liquidar
 import com.calero.lili.core.enums.TipoIdentificacion
@@ -20,9 +21,6 @@ import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestoItemsServiceImpl
 import com.calero.lili.core.modComprasItemsImpuesto.dto.GeImpuestoResponseDto
 import com.calero.lili.core.modContabilidad.modCentroCostos.CnCentroCostosServiceImpl
 import com.calero.lili.core.modContabilidad.modCentroCostos.dto.CentroCostosDtoResponse
-import com.calero.lili.core.tablas.tbFormasPagoSri.TbFormaPagoSriGetOneDto
-import com.calero.lili.core.tablas.tbFormasPagoSri.TbFormasPagoSriServiceImpl
-import com.calero.lili.core.dtos.FilterDto
 import com.calero.lili.core.modTerceros.GeTercerosServiceImpl
 import com.calero.lili.core.modTerceros.dto.GeTerceroFilterDto
 import com.calero.lili.core.modTerceros.dto.GeTerceroGetListDto
@@ -153,7 +151,7 @@ data class FacturaFormUiState(
     val itemDialogResultados: List<GeItemGetListDto> = emptyList(),
     val itemDialogBuscando: Boolean = false,
     // Diálogo formas de pago SRI
-    val formasPagoSriDisponibles: List<TbFormaPagoSriGetOneDto> = emptyList(),
+    val formasPagoSriDisponibles: List<FormaPagoSriEnum> = emptyList(),
     val showFormaPagoDialog: Boolean = false,
     val dialogFpCodigo: String = "",
     val dialogFpDescripcion: String = "",
@@ -181,7 +179,6 @@ class FacturaFormViewModel(
     private val itemsService: GeItemsServiceImpl,
     private val impuestosService: GeImpuestoItemsServiceImpl,
     private val centroCostosService: CnCentroCostosServiceImpl,
-    private val formasPagoSriService: TbFormasPagoSriServiceImpl,
     private val seriesService: AdEmpresasSeriesServiceImpl,
     private val xmlPdfService: GetXmlVtVentasFacturasServiceImpl,
     private val idFactura: UUID? = null,
@@ -212,10 +209,7 @@ class FacturaFormViewModel(
             try {
                 val impuestos        = runCatching { impuestosService.findAll() }.getOrElse { emptyList() }
                 val centrosCostos   = runCatching { centroCostosService.findAll(idData, idEmpresa) }.getOrElse { emptyList() }
-                @Suppress("UNCHECKED_CAST")
-                val formasPagoSri: List<TbFormaPagoSriGetOneDto> = runCatching {
-                    (formasPagoSriService.findAllPaginate(FilterDto(), org.springframework.data.domain.PageRequest.of(0, 100, Sort.unsorted())).content as? List<TbFormaPagoSriGetOneDto>) ?: emptyList()
-                }.getOrElse { emptyList() }
+                val formasPagoSri: List<FormaPagoSriEnum> = FormaPagoSriEnum.values().toList()
                 val series = runCatching { seriesService.findSeriesParaFacturas(idData, idEmpresa) }.getOrElse { emptyList() }
                 _state.update { it.copy(impuestosDisponibles = impuestos, centrosCostosDisponibles = centrosCostos, formasPagoSriDisponibles = formasPagoSri, seriesDisponibles = series) }
                 if (idFactura != null) cargarFactura(idFactura, impuestos, formasPagoSri)
@@ -226,7 +220,7 @@ class FacturaFormViewModel(
         }
     }
 
-    private fun cargarFactura(id: UUID, impuestos: List<GeImpuestoResponseDto>, formasPagoDisp: List<TbFormaPagoSriGetOneDto> = emptyList()) {
+    private fun cargarFactura(id: UUID, impuestos: List<GeImpuestoResponseDto>, formasPagoDisp: List<FormaPagoSriEnum> = emptyList()) {
         scope.launch {
             try {
                 val dto     = service.findById(idData, idEmpresa, id, FilterListVentasDto(), TipoPermiso.TODAS, USUARIO)
@@ -279,8 +273,7 @@ class FacturaFormViewModel(
                     formaPago           = dto.formaPago ?: FormaPago.CO,
                     diasCredito         = dto.diasCredito ?: 0,
                     formasPagoSri       = dto.formasPagoSri?.map {
-                        val desc = formasPagoDisp.find { fp -> fp.codigoFormaPagoSri == it.formaPago }?.formaPagoSri ?: it.formaPago ?: ""
-                        FormaPagoSriUi(formaPago = it.formaPago ?: "01", descripcion = desc, total = it.total ?: BigDecimal.ZERO, plazo = it.plazo ?: "", unidadTiempo = it.unidadTiempo.nombre ?: "")
+                        FormaPagoSriUi(formaPago = it.formaPago?.codigo ?: "01", descripcion = it.formaPago?.nombre ?: "", total = it.total ?: BigDecimal.ZERO, plazo = it.plazo ?: "", unidadTiempo = it.unidadTiempo ?: "")
                     }?.takeIf { it.isNotEmpty() } ?: emptyList(),
                     camposAdicionales   = dto.informacionAdicional?.map {
                         CampoAdicionalUi(nombre = it.nombre ?: "", valor = it.valor ?: "")
@@ -441,7 +434,7 @@ class FacturaFormViewModel(
 
         val formasPagoRequest = s.formasPagoSri.map { fp ->
             FormasPagoDto().apply {
-                formaPago   = fp.formaPago
+                formaPago   = FormaPagoSriEnum.getFormaPagoSri(fp.formaPago)
                 total       = fp.total
                 plazo       = fp.plazo
                 unidadTiempo = fp.unidadTiempo
@@ -569,7 +562,8 @@ class FacturaFormViewModel(
                     terceroDropdownVisible = lista.isNotEmpty()
                 )}
             } catch (e: Exception) {
-                _state.update { it.copy(buscandoTercero = false, terceroSugerencias = emptyList(), terceroDropdownVisible = false) }
+                e.printStackTrace()
+                _state.update { it.copy(buscandoTercero = false, terceroSugerencias = emptyList(), terceroDropdownVisible = false, errorMessage = "Error al buscar tercero: ${e.message}") }
             }
         }
     }
@@ -642,7 +636,8 @@ class FacturaFormViewModel(
                 val result    = itemsService.findAllPaginate(idData, idEmpresa, filterDto, PageRequest.of(0, 30, Sort.unsorted()))
                 _state.update { it.copy(itemDialogBuscando = false, itemDialogResultados = result.content ?: emptyList()) }
             } catch (e: Exception) {
-                _state.update { it.copy(itemDialogBuscando = false, itemDialogResultados = emptyList()) }
+                e.printStackTrace()
+                _state.update { it.copy(itemDialogBuscando = false, itemDialogResultados = emptyList(), errorMessage = "Error al buscar item: ${e.message}") }
             }
         }
     }

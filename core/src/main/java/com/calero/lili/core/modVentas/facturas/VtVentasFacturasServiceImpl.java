@@ -7,6 +7,7 @@ import com.calero.lili.core.comprobantesWs.RespuestaProcesoGetDto;
 import com.calero.lili.core.comprobantesWs.dto.DatosEmpresaDto;
 import com.calero.lili.core.comprobantesWs.services.BuscarDatosEmpresa;
 import com.calero.lili.core.comprobantesWs.services.ProcesarDocumentosServiceImpl;
+import com.calero.lili.core.dtos.DetallesDto;
 import com.calero.lili.core.dtos.FormasPagoDto;
 import com.calero.lili.core.dtos.Mensajes;
 import com.calero.lili.core.dtos.PaginatedDto;
@@ -42,7 +43,6 @@ import com.calero.lili.core.modVentas.VtVentaValoresEntity;
 import com.calero.lili.core.modVentas.VtVentasPersistenceService;
 import com.calero.lili.core.modVentas.VtVentasRepository;
 import com.calero.lili.core.modVentas.builder.GetListResponseBuilder;
-import com.calero.lili.core.dtos.DetallesDto;
 import com.calero.lili.core.modVentas.dto.GetVentasListDto;
 import com.calero.lili.core.modVentas.dto.GetVentasListDtoTotalizado;
 import com.calero.lili.core.modVentas.facturas.builder.VtFacturasBuilder;
@@ -51,6 +51,7 @@ import com.calero.lili.core.modVentas.facturas.dto.FilterListVentasDto;
 import com.calero.lili.core.modVentas.facturas.dto.GetFacturaDto;
 import com.calero.lili.core.modVentas.facturas.dto.PaisesResponseDto;
 import com.calero.lili.core.modVentas.projection.OneProjection;
+import com.calero.lili.core.modVentas.projection.TotalCabeceraProjection;
 import com.calero.lili.core.modVentas.projection.TotalesProjection;
 import com.calero.lili.core.modVentas.reembolsos.VtVentaReembolsosEntity;
 import com.calero.lili.core.modVentas.reembolsos.VtVentasReembolsoRepository;
@@ -119,7 +120,6 @@ public class VtVentasFacturasServiceImpl {
     private final CalcularValoresDocumentos calcularValoresDocumentos;
     private final AdEmpresasRepository adEmpresasRepository;
     private final AdEmpresasSeriesRepository adEmpresasSeriesRepository;
-
 
 
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa,
@@ -471,7 +471,14 @@ public class VtVentasFacturasServiceImpl {
             return getListResponseBuilder.builderListResponse(item);
         }).toList();
 
-        List<TotalesProjection> totalValoresProjection = vtVentaRepository.totalValores(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getTipoVenta(), filters.getSerie(), filters.getSecuencial());
+        List<TotalesProjection> totalValoresProjection = vtVentaRepository.totalValores(idData, idEmpresa,
+                filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(),
+                filters.getTipoVenta(), filters.getSerie(), filters.getSecuencial());
+
+        TotalCabeceraProjection totalCabeceraProjections = vtVentaRepository.totalCabecera(idData, idEmpresa,
+                filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(),
+                filters.getTipoVenta(), filters.getSerie(), filters.getSecuencial());
+
 
         GetVentasListDtoTotalizado totalesDto = new GetVentasListDtoTotalizado<>();
         totalesDto.setContent(dtoList);
@@ -491,6 +498,9 @@ public class VtVentasFacturasServiceImpl {
 
         GetVentasListDtoTotalizado.Totales tot = new GetVentasListDtoTotalizado.Totales();
         tot.setValoresTotales(totalValoresProjection);
+        tot.setSubtotal(totalCabeceraProjections.getSubtotal());
+        tot.setTotal(totalCabeceraProjections.getTotal());
+        tot.setTotalDescuento(totalCabeceraProjections.getTotalDescuento());
 
         totalesDto.setTotales(tot);
         return totalesDto;
@@ -1041,10 +1051,10 @@ public class VtVentasFacturasServiceImpl {
 
         BigDecimal total = subtotal.add(totalImpuesto);
 
-        if(request.getTotal().compareTo(total) != 0){
-           throw  new GeneralException(MessageFormat
-                   .format("El total calculado no coincide con el total enviado " +
-                           " TOTAL ENVIADO: {0} | TOTAL CALCULADO: {1}", request.getTotal(), total));
+        if (request.getTotal().compareTo(total) != 0) {
+            throw new GeneralException(MessageFormat
+                    .format("El total calculado no coincide con el total enviado " +
+                            " TOTAL ENVIADO: {0} | TOTAL CALCULADO: {1}", request.getTotal(), total));
         }
 
         request.setTotalDescuento(totalDescuento);

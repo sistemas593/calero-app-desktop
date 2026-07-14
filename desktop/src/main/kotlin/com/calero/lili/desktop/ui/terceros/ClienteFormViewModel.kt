@@ -79,7 +79,7 @@ class ClienteFormViewModel(
                         email                = dto.email ?: "",
                         web                  = dto.web ?: "",
                         observaciones        = dto.observaciones ?: "",
-                        tipoClienteProveedor = dto.tipoClienteProveedor?.name ?: "",
+                        tipoClienteProveedor = dto.tipoPersoneria?.name ?: "",
                         esCliente            = dto.cliente?.esCliente ?: true,
                         esProveedor          = dto.proveedor?.esProveedor ?: false,
                         esTransportista      = dto.transportista?.esTransportista ?: false,

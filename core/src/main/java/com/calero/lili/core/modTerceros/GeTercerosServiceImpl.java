@@ -134,6 +134,7 @@ public class GeTercerosServiceImpl {
         return response;
     }
 
+    @Transactional
     public PaginatedDto<GeTerceroGetListDto> findAllPaginate(Long idData, GeTerceroFilterDto filters, Pageable pageable) {
         Page<GeTerceroEntity> page = vtClientesRepository.findAllPaginate(idData, filters.getFilter(), (filters.getFilter() != null) ? filters.getFilter() : "", filters.getTipoTercero(), pageable);
 

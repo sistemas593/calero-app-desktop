@@ -24,7 +24,6 @@ import com.calero.lili.core.modComprasItemsMedidas.GeItemsMedidasServiceImpl
 import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestoItemsServiceImpl
 import com.calero.lili.core.comprobantesWs.services.GetXmlVtVentasFacturasServiceImpl
 import com.calero.lili.core.modContabilidad.modCentroCostos.CnCentroCostosServiceImpl
-import com.calero.lili.core.tablas.tbFormasPagoSri.TbFormasPagoSriServiceImpl
 import com.calero.lili.core.modTerceros.GeTercerosServiceImpl
 import com.calero.lili.core.adLogs.AdLogsServiceImpl
 import com.calero.lili.desktop.ui.ventas.adlogs.AdLogsScreen
@@ -147,7 +146,6 @@ private sealed class AppState {
         val impuestosService     : GeImpuestoItemsServiceImpl,
         val xmlPdfService           : GetXmlVtVentasFacturasServiceImpl,
         val centroCostosService     : CnCentroCostosServiceImpl,
-        val formasPagoSriService    : TbFormasPagoSriServiceImpl,
         val adLogsService           : AdLogsServiceImpl,
         val notasCreditoService     : VtVentasNotasCreditoServiceImpl,
         val xmlPdfNotasCreditoService: GetXmlVtVentasNotasCreditoServiceImpl,
@@ -201,7 +199,6 @@ fun main() {
                             ctx.getBean(GeImpuestoItemsServiceImpl::class.java),
                             ctx.getBean(GetXmlVtVentasFacturasServiceImpl::class.java),
                             ctx.getBean(CnCentroCostosServiceImpl::class.java),
-                            ctx.getBean(TbFormasPagoSriServiceImpl::class.java),
                             ctx.getBean(AdLogsServiceImpl::class.java),
                             ctx.getBean(VtVentasNotasCreditoServiceImpl::class.java),
                             ctx.getBean(GetXmlVtVentasNotasCreditoServiceImpl::class.java),
@@ -235,7 +232,6 @@ fun main() {
                         val impuestosService    = state.impuestosService
                         val xmlPdfService        = state.xmlPdfService
                         val centroCostosService  = state.centroCostosService
-                        val formasPagoSriService = state.formasPagoSriService
 
                         val selectorViewModel      = remember { SelectorEmpresaViewModel(empresasService, ID_DATA) }
                         val actualizacionViewModel = remember { ActualizacionViewModel() }
@@ -632,7 +628,6 @@ fun main() {
                                             itemsService         = itemsService,
                                             impuestosService     = impuestosService,
                                             centroCostosService  = centroCostosService,
-                                            formasPagoSriService = formasPagoSriService,
                                             seriesService        = seriesService,
                                             xmlPdfService        = xmlPdfService,
                                             idFactura            = facturasState.editingId,

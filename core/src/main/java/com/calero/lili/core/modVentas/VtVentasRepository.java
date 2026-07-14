@@ -118,28 +118,6 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
 
 
     @Query(
-            value = "SELECT " +
-                    "sum(vtVentaEntity.totalDescuento) as totalDescuento, " +
-                    "sum(vtVentaEntity.total) as total " +
-                    "FROM VtVentaEntity vtVentaEntity " +
-                    "INNER JOIN GeTerceroEntity clienteEntity ON vtVentaEntity.tercero.idTercero = clienteEntity.idTercero " +
-                    "WHERE ( vtVentaEntity.idData = :idData)  AND " +
-                    "(vtVentaEntity.idEmpresa = :idEmpresa) AND " +
-                    "(:tipoVenta IS NULL OR vtVentaEntity.tipoVenta = :tipoVenta) AND " +
-                    "(:serie IS NULL OR vtVentaEntity.serie = :serie ) AND " +
-                    "(:secuencial IS NULL OR vtVentaEntity.secuencial = :secuencial ) AND " +
-                    "( cast(:fechaEmisionDesde as date) is null OR vtVentaEntity.fechaEmision >= :fechaEmisionDesde ) AND " +
-                    "( cast(:fechaEmisionHasta as date) is null OR vtVentaEntity.fechaEmision <= :fechaEmisionHasta )"
-    )
-    TotalCabeceraProjection totalCabecera(@Param("idData") Long idData,
-                                          @Param("idEmpresa") Long idEmpresa,
-                                          @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
-                                          @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
-                                          @Param("tipoVenta") String tipoVenta,
-                                          @Param("serie") String serie,
-                                          @Param("secuencial") String secuencial);
-
-    @Query(
             value = "SELECT valoresEntity.codigo as codigo," +
                     "valoresEntity.codigo_porcentaje as codigoPorcentaje, " +
                     "sum(valoresEntity.base_imponible) as totalBaseImponible, " +
@@ -164,6 +142,7 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
                                          @Param("tipoVenta") String tipoVenta,
                                          @Param("serie") String serie,
                                          @Param("secuencial") String secuencial);
+
 
     @Query(value = "SELECT vtVentasEntity " +
             "FROM VtVentaEntity vtVentasEntity " +
@@ -267,5 +246,30 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             @Param("idEmpresa") Long idEmpresa,
             @Param("fechaEmisionDesde") LocalDateTime fechaEmisionDesde,
             @Param("fechaEmisionHasta") LocalDateTime fechaEmisionHasta);
+
+
+    @Query(
+            value = "SELECT " +
+                    "sum(vtVentaEntity.subtotal) as subtotal, " +
+                    "sum(vtVentaEntity.total) as total, " +
+                    "sum(vtVentaEntity.total_descuento) as totalDescuento " +
+                    "FROM vt_ventas vtVentaEntity " +
+                    "WHERE ( vtVentaEntity.id_data = :idData)  AND  vtVentaEntity.anulada = false AND " +
+                    "(vtVentaEntity.id_empresa = :idEmpresa) AND vtVentaEntity.deleted = false AND " +
+                    "(:sucursal IS NULL OR vtVentaEntity.sucursal = :sucursal) AND " +
+                    "(:tipoVenta IS NULL OR vtVentaEntity.tipo_venta = :tipoVenta) AND " +
+                    "(:serie IS NULL OR vtVentaEntity.serie = :serie ) AND " +
+                    "(:secuencial IS NULL OR vtVentaEntity.secuencial = :secuencial ) AND " +
+                    "( cast(:fechaEmisionDesde as date) is null OR vtVentaEntity.fecha_emision >= :fechaEmisionDesde ) AND " +
+                    "( cast(:fechaEmisionHasta as date) is null OR vtVentaEntity.fecha_emision <= :fechaEmisionHasta ) ", nativeQuery = true)
+    TotalCabeceraProjection totalCabecera(@Param("idData") Long idData,
+                                          @Param("idEmpresa") Long idEmpresa,
+                                          @Param("sucursal") String sucursal,
+                                          @Param("fechaEmisionDesde") LocalDateTime fechaEmisionDesde,
+                                          @Param("fechaEmisionHasta") LocalDateTime fechaEmisionHasta,
+                                          @Param("tipoVenta") String tipoVenta,
+                                          @Param("serie") String serie,
+                                          @Param("secuencial") String secuencial);
+
 
 }

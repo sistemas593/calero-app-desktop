@@ -1,6 +1,7 @@
 package com.calero.lili.desktop.ui.empresas.series
 
 import com.calero.lili.core.enums.FormatoDocumento
+import com.calero.lili.core.enums.TipoDocumentoSerie
 import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesServiceImpl
 import com.calero.lili.core.modAdminEmpresasSeries.dto.AdEmpresaSerieCreationRequestDto
 import kotlinx.coroutines.CoroutineScope
@@ -15,7 +16,7 @@ import kotlinx.coroutines.launch
 import java.util.UUID
 
 data class DocumentoFormState(
-    val documento: String = "",
+    val documento: TipoDocumentoSerie? = null,
     val numeroAutorizacion: String = "",
     val secuencial: String = "",
     val formatoDocumento: FormatoDocumento? = null,
@@ -68,7 +69,7 @@ class SerieFormViewModel(
                 val dto = service.findById(idData, idEmpresa, id)
                 val documentosCargados = dto.documentos?.map { doc ->
                     DocumentoFormState(
-                        documento          = doc.documento ?: "",
+                        documento          = doc.documento,
                         numeroAutorizacion = doc.numeroAutorizacion ?: "",
                         secuencial         = doc.secuencial ?: "",
                         formatoDocumento   = doc.formatoDocumento,
@@ -107,7 +108,12 @@ class SerieFormViewModel(
             _state.update { it.copy(errorMessage = "El nombre comercial es requerido") }
             return
         }
-        // Validar que cada documento tenga formatoDocumento
+        // Validar que cada documento tenga tipo y formatoDocumento
+        val docSinTipo = current.documentos.indexOfFirst { it.documento == null }
+        if (docSinTipo >= 0) {
+            _state.update { it.copy(errorMessage = "El documento #${docSinTipo + 1} debe tener un tipo seleccionado") }
+            return
+        }
         val docInvalido = current.documentos.indexOfFirst { it.formatoDocumento == null }
         if (docInvalido >= 0) {
             _state.update { it.copy(errorMessage = "El documento #${docInvalido + 1} debe tener un formato seleccionado") }
@@ -116,7 +122,7 @@ class SerieFormViewModel(
 
         val docList = current.documentos.map { doc ->
             AdEmpresaSerieCreationRequestDto.Documentos.builder()
-                .documento(doc.documento.trim())
+                .documento(doc.documento)
                 .numeroAutorizacion(doc.numeroAutorizacion.trim())
                 .secuencial(doc.secuencial.trim().padStart(9, '0'))
                 .formatoDocumento(doc.formatoDocumento)

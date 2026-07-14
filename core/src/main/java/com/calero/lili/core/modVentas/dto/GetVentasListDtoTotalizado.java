@@ -24,8 +24,10 @@ public class GetVentasListDtoTotalizado<T> {
     @NoArgsConstructor
     @Builder
     public static class Totales {
+
+        private BigDecimal subtotal;
+        private BigDecimal total;
         private BigDecimal totalDescuento;
-//        private BigDecimal total;
         private List<TotalesProjection> valoresTotales;
     }
 

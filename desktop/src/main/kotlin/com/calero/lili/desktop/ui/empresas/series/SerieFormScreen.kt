@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.calero.lili.core.enums.FormatoDocumento
+import com.calero.lili.core.enums.TipoDocumentoSerie
 import kotlinx.coroutines.delay
 
 private val FColorHeader  = Color(0xFF1565C0)
@@ -242,7 +243,7 @@ private fun DocumentoCard(
                     modifier         = Modifier.weight(1f)
                 ) {
                     OutlinedTextField(
-                        value         = doc.documento.ifBlank { "— Seleccione —" },
+                        value         = doc.documento?.name ?: "— Seleccione —",
                         onValueChange = {},
                         readOnly      = true,
                         label         = { Text("Tipo Documento *", fontSize = 13.sp) },
@@ -261,7 +262,7 @@ private fun DocumentoCard(
                         DropdownMenuItem(
                             text    = { Text("FAC") },
                             onClick = {
-                                onUpdate(doc.copy(documento = "FAC"))
+                                onUpdate(doc.copy(documento = TipoDocumentoSerie.FAC))
                                 expandedTipo = false
                             }
                         )
