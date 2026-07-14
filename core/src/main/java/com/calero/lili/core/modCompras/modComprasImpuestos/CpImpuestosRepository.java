@@ -63,7 +63,7 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
                                                   @Param("serie") String serie,
                                                   @Param("secuencial") String secuencial,
                                                   @Param("numeroAutorizacion") String numeroAutorizacion,
-                                                  @Param("codigoSustento") SustentoCodigos codigoSustento);
+                                                  @Param("codigoSustento") String codigoSustento);
 
     @Query(
             value = "SELECT entity " +

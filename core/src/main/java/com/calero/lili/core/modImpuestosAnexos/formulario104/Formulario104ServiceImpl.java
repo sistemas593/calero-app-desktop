@@ -5,6 +5,7 @@ import com.calero.lili.core.enums.TipoIngreso;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
+import com.calero.lili.core.modImpuestosAnexos.formulario104.projection.RetencionIvaComprasProjection;
 import com.calero.lili.core.modImpuestosProcesos.dto.impuestos.ImpuestosF104Dto;
 import com.calero.lili.core.modVentas.projection.ImpuestosF104Projection;
 import com.calero.lili.core.utils.DateUtils;
@@ -12,6 +13,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -224,16 +226,283 @@ public class Formulario104ServiceImpl {
             // las que no esten anuladas
 
 
-            Optional<ImpuestosF104Projection> projection = formulario104Repository.valorCompraImpuestoBrutoBaseCero(idData, idEmpresa,
+            BigDecimal valorCompraBrutoBaseCero = BigDecimal.ZERO;
+            BigDecimal valorNotaCreditoBrutoBaseCero = BigDecimal.ZERO;
+
+
+            Optional<ImpuestosF104Projection> compraBaseCero = formulario104Repository.valorCompraBrutoBaseCero(idData, idEmpresa,
                     filter.getFechaDesde(), filter.getFechaHasta());
 
-            if (projection.isPresent()){
-                System.out.println("Valor Compra Impuesto Bruto Base Cero: " + projection.get().getBaseImponible());
+            Optional<ImpuestosF104Projection> notaCreditoBaseCero = formulario104Repository.valorCompraNotaCreditoBaseCero(idData, idEmpresa,
+                    filter.getFechaDesde(), filter.getFechaHasta());
+
+
+            if (compraBaseCero.isPresent()) {
+                valorCompraBrutoBaseCero = valorCompraBrutoBaseCero.add(compraBaseCero.get().getBaseImponible());
             }
 
-            f104.setC540(BigDecimal.valueOf(0));
-            f104.setC550(BigDecimal.valueOf(0));
-            f104.setC560(BigDecimal.valueOf(0));
+            if (notaCreditoBaseCero.isPresent()) {
+                valorNotaCreditoBrutoBaseCero = valorNotaCreditoBrutoBaseCero.add(notaCreditoBaseCero.get().getBaseImponible());
+
+            }
+
+
+            f104.setC507(valorCompraBrutoBaseCero);
+            f104.setC517(valorCompraBrutoBaseCero.subtract(valorNotaCreditoBrutoBaseCero));
+
+
+            BigDecimal valorCompraNoObjecto = BigDecimal.ZERO;
+            BigDecimal valorNotaCreditoNoObjecto = BigDecimal.ZERO;
+
+            Optional<ImpuestosF104Projection> compraNoObjecto = formulario104Repository.valorCompraBrutoNoObjecto(idData, idEmpresa,
+                    filter.getFechaDesde(), filter.getFechaHasta());
+
+            Optional<ImpuestosF104Projection> notaCreditoNoObjecto = formulario104Repository.valorCompraNotaCreditoNoObjecto(idData, idEmpresa,
+                    filter.getFechaDesde(), filter.getFechaHasta());
+
+
+            if (compraNoObjecto.isPresent()) {
+                valorCompraNoObjecto = valorCompraNoObjecto.add(compraNoObjecto.get().getBaseImponible());
+            }
+
+            if (notaCreditoNoObjecto.isPresent()) {
+                valorNotaCreditoNoObjecto = valorNotaCreditoNoObjecto.add(notaCreditoNoObjecto.get().getBaseImponible());
+
+            }
+
+            f104.setC531(valorCompraNoObjecto);
+            f104.setC541(valorCompraNoObjecto.subtract(valorNotaCreditoNoObjecto));
+
+
+            BigDecimal valorCompraExenta = BigDecimal.ZERO;
+            BigDecimal valorNotaCreditoExcenta = BigDecimal.ZERO;
+
+
+            Optional<ImpuestosF104Projection> compraExenta = formulario104Repository.valorCompraBrutoExento(idData, idEmpresa,
+                    filter.getFechaDesde(), filter.getFechaHasta());
+
+            Optional<ImpuestosF104Projection> notaCreditoExenta = formulario104Repository.valorCompraNotaCreditoExento(idData, idEmpresa,
+                    filter.getFechaDesde(), filter.getFechaHasta());
+
+
+            if (compraExenta.isPresent()) {
+                valorCompraExenta = valorCompraExenta.add(compraExenta.get().getBaseImponible());
+            }
+
+            if (notaCreditoExenta.isPresent()) {
+                valorNotaCreditoExcenta = valorNotaCreditoExcenta.add(notaCreditoExenta.get().getBaseImponible());
+            }
+
+            f104.setC532(valorCompraExenta);
+            f104.setC542(valorCompraExenta.subtract(valorNotaCreditoExcenta));
+
+
+            BigDecimal notaCreditoCeroPorLiquidarValor = BigDecimal.ZERO;
+            Optional<ImpuestosF104Projection> notaCreditoCeroPorLiquidar = formulario104Repository.valorCompraNotaCreditoCeroPorLiquidar(idData, idEmpresa,
+                    filter.getFechaDesde(), filter.getFechaHasta());
+
+            if (notaCreditoCeroPorLiquidar.isPresent()) {
+                notaCreditoCeroPorLiquidarValor = notaCreditoCeroPorLiquidarValor.add(notaCreditoCeroPorLiquidar.get().getBaseImponible());
+            }
+
+            f104.setC543(notaCreditoCeroPorLiquidarValor.abs());
+
+
+            BigDecimal baseImponibleCompraNotaCreditoGravadaPorLiquidar = BigDecimal.ZERO;
+            BigDecimal valorCompraNotaCreditoGravadaPorLiquidar = BigDecimal.ZERO;
+
+
+            Optional<ImpuestosF104Projection> compraNotaCreditoGravadaPorLiquidar = formulario104Repository
+                    .valorCompraNotaCreditoGravadaPorLiquidar(idData, idEmpresa,
+                            filter.getFechaDesde(), filter.getFechaHasta());
+
+            if (compraNotaCreditoGravadaPorLiquidar.isPresent()) {
+                baseImponibleCompraNotaCreditoGravadaPorLiquidar = baseImponibleCompraNotaCreditoGravadaPorLiquidar.add(compraNotaCreditoGravadaPorLiquidar.get().getBaseImponible());
+                valorCompraNotaCreditoGravadaPorLiquidar = valorCompraNotaCreditoGravadaPorLiquidar.add(compraNotaCreditoGravadaPorLiquidar.get().getValor());
+            }
+
+
+            f104.setC544(baseImponibleCompraNotaCreditoGravadaPorLiquidar.abs());
+            f104.setC554(valorCompraNotaCreditoGravadaPorLiquidar.abs());
+
+
+            BigDecimal compraValorBrutoGravado = BigDecimal.ZERO;
+            BigDecimal compraValorImpuestoGravado = BigDecimal.ZERO;
+
+            BigDecimal compraNotaCreditoGravado = BigDecimal.ZERO;
+            BigDecimal compraNotaCreditoImpuestoGravado = BigDecimal.ZERO;
+
+            Optional<ImpuestosF104Projection> compraBrutoBaseGravada = formulario104Repository
+                    .valorCompraBrutoBaseGravadaCreditoTributarioExcluyeActivosFijos(idData, idEmpresa,
+                            filter.getFechaDesde(), filter.getFechaHasta());
+
+
+            Optional<ImpuestosF104Projection> compraNotaCreditoBaseGravada = formulario104Repository
+                    .valorCompraNotaCreditoBaseGravadaCreditoTributarioExcluyeActivosFijos(idData, idEmpresa,
+                            filter.getFechaDesde(), filter.getFechaHasta());
+
+            if (compraBrutoBaseGravada.isPresent()) {
+                compraValorBrutoGravado = compraValorBrutoGravado.add(compraBrutoBaseGravada.get().getBaseImponible());
+                compraValorImpuestoGravado = compraValorImpuestoGravado.add(compraBrutoBaseGravada.get().getValor());
+            }
+
+            if (compraNotaCreditoBaseGravada.isPresent()) {
+                compraNotaCreditoGravado = compraNotaCreditoGravado.add(compraNotaCreditoBaseGravada.get().getBaseImponible());
+                compraNotaCreditoImpuestoGravado = compraNotaCreditoImpuestoGravado.add(compraNotaCreditoBaseGravada.get().getValor());
+            }
+
+
+            f104.setC500(compraValorBrutoGravado);
+            f104.setC510(compraValorBrutoGravado.subtract(compraNotaCreditoGravado));
+            f104.setC520(compraValorImpuestoGravado.subtract(compraNotaCreditoImpuestoGravado));
+
+
+            BigDecimal compraValorBrutoGravadoActivoFijo = BigDecimal.ZERO;
+            BigDecimal compraValorImpuestoGravadoActivoFijo = BigDecimal.ZERO;
+            BigDecimal compraNotaCreditoGravadoActivoFijo = BigDecimal.ZERO;
+            BigDecimal compraNotaCreditoImpuestoGravadoActivoFijo = BigDecimal.ZERO;
+
+            Optional<ImpuestosF104Projection> compraBaseGravadaActivosFijos = formulario104Repository
+                    .valorCompraBrutoBaseGravadaCreditoTributarioActivosFijos(idData, idEmpresa,
+                            filter.getFechaDesde(), filter.getFechaHasta());
+
+
+            Optional<ImpuestosF104Projection> notaCreditoBaseGravadaActivosFijos = formulario104Repository
+                    .valorCompraNotaCreditoBaseGravadaCreditoTributarioActivosFijos(idData, idEmpresa,
+                            filter.getFechaDesde(), filter.getFechaHasta());
+
+
+            if (compraBaseGravadaActivosFijos.isPresent()) {
+                compraValorBrutoGravadoActivoFijo = compraValorBrutoGravadoActivoFijo.add(compraBaseGravadaActivosFijos.get().getBaseImponible());
+                compraValorImpuestoGravadoActivoFijo = compraValorImpuestoGravadoActivoFijo.add(compraBaseGravadaActivosFijos.get().getValor());
+            }
+
+            if (notaCreditoBaseGravadaActivosFijos.isPresent()) {
+                compraNotaCreditoGravadoActivoFijo = compraNotaCreditoGravadoActivoFijo.add(notaCreditoBaseGravadaActivosFijos.get().getBaseImponible());
+                compraNotaCreditoImpuestoGravadoActivoFijo = compraNotaCreditoImpuestoGravadoActivoFijo.add(notaCreditoBaseGravadaActivosFijos.get().getValor());
+            }
+
+
+            f104.setC501(compraValorBrutoGravadoActivoFijo);
+            f104.setC511(compraValorBrutoGravadoActivoFijo.subtract(compraNotaCreditoGravadoActivoFijo));
+            f104.setC521(compraValorImpuestoGravadoActivoFijo.subtract(compraNotaCreditoImpuestoGravadoActivoFijo));
+
+
+
+
+            BigDecimal compraValorBase5ActivoFijo = BigDecimal.ZERO;
+            BigDecimal compraValorImpuestoBase5ActivoFijo = BigDecimal.ZERO;
+            BigDecimal compraNotaCreditoBase5ActivoFijo = BigDecimal.ZERO;
+            BigDecimal compraNotaCreditoImpuestoBase5ActivoFijo = BigDecimal.ZERO;
+
+
+
+            Optional<ImpuestosF104Projection> compraBase5ActivosFijos = formulario104Repository
+                    .valorCompraBrutoBase5CreditoTributarioExcluyeActivosFijos(idData, idEmpresa,
+                            filter.getFechaDesde(), filter.getFechaHasta());
+
+
+            Optional<ImpuestosF104Projection> notaCredito5ActivosFijos = formulario104Repository
+                    .valorCompraNotaCreditoBase5CreditoTributarioExcluyeActivosFijos(idData, idEmpresa,
+                            filter.getFechaDesde(), filter.getFechaHasta());
+
+
+
+            if (compraBase5ActivosFijos.isPresent()) {
+                compraValorBase5ActivoFijo = compraValorBase5ActivoFijo.add(compraBase5ActivosFijos.get().getBaseImponible());
+                compraValorImpuestoBase5ActivoFijo = compraValorImpuestoBase5ActivoFijo.add(compraBase5ActivosFijos.get().getValor());
+            }
+
+            if (notaCredito5ActivosFijos.isPresent()) {
+                compraNotaCreditoBase5ActivoFijo = compraNotaCreditoBase5ActivoFijo.add(notaCredito5ActivosFijos.get().getBaseImponible());
+                compraNotaCreditoImpuestoBase5ActivoFijo = compraNotaCreditoImpuestoBase5ActivoFijo.add(notaCredito5ActivosFijos.get().getValor());
+            }
+
+
+            f104.setC540(compraValorBase5ActivoFijo);
+            f104.setC550(compraValorBase5ActivoFijo.subtract(compraNotaCreditoBase5ActivoFijo));
+            f104.setC560(compraValorImpuestoBase5ActivoFijo.subtract(compraNotaCreditoImpuestoBase5ActivoFijo));
+
+
+            BigDecimal compraValorBaseGravadaSinCreditoTributario = BigDecimal.ZERO;
+            BigDecimal compraValorImpuestoBaseGravadaSinCreditoTributario = BigDecimal.ZERO;
+            BigDecimal compraNotaCreditoBaseGravadaSinCreditoTributario = BigDecimal.ZERO;
+            BigDecimal compraNotaCreditoImpuestoBaseGravadaSinCreditoTributario = BigDecimal.ZERO;
+
+
+            Optional<ImpuestosF104Projection> compraBaseSinCreditoTributario = formulario104Repository
+                    .valorCompraBrutoBaseGravadaSinCreditoTributario(idData, idEmpresa,
+                            filter.getFechaDesde(), filter.getFechaHasta());
+
+
+            Optional<ImpuestosF104Projection> notaCreditoSinCreditoTributario = formulario104Repository
+                    .valorCompraNotaCreditoBaseGravadaSinCreditoTributario(idData, idEmpresa,
+                            filter.getFechaDesde(), filter.getFechaHasta());
+
+
+
+            if (compraBaseSinCreditoTributario.isPresent()) {
+                compraValorBaseGravadaSinCreditoTributario = compraValorBaseGravadaSinCreditoTributario.add(compraBaseSinCreditoTributario.get().getBaseImponible());
+                compraValorImpuestoBaseGravadaSinCreditoTributario = compraValorImpuestoBaseGravadaSinCreditoTributario.add(compraBaseSinCreditoTributario.get().getValor());
+            }
+
+            if (notaCreditoSinCreditoTributario.isPresent()) {
+                compraNotaCreditoBaseGravadaSinCreditoTributario = compraNotaCreditoBaseGravadaSinCreditoTributario.add(notaCreditoSinCreditoTributario.get().getBaseImponible());
+                compraNotaCreditoImpuestoBaseGravadaSinCreditoTributario = compraNotaCreditoImpuestoBaseGravadaSinCreditoTributario.add(notaCreditoSinCreditoTributario.get().getValor());
+            }
+
+
+            f104.setC502(compraValorBaseGravadaSinCreditoTributario);
+            f104.setC512(compraValorBaseGravadaSinCreditoTributario.subtract(compraNotaCreditoBaseGravadaSinCreditoTributario));
+            f104.setC522(compraValorImpuestoBaseGravadaSinCreditoTributario.subtract(compraNotaCreditoImpuestoBaseGravadaSinCreditoTributario));
+
+
+
+            BigDecimal retencion30 = BigDecimal.ZERO;
+            BigDecimal retencion70 = BigDecimal.ZERO;
+            BigDecimal retencion100 = BigDecimal.ZERO;
+            BigDecimal retencion10 = BigDecimal.ZERO;
+            BigDecimal retencion20 = BigDecimal.ZERO;
+            BigDecimal retencion50 = BigDecimal.ZERO;
+
+            List<RetencionIvaComprasProjection>  retencionesIvaCompra = formulario104Repository.valoresRetencionesIVACompra(idData,
+                    idEmpresa, filter.getFechaDesde(), filter.getFechaHasta());
+
+            if(retencionesIvaCompra != null && !retencionesIvaCompra.isEmpty()){
+                for(RetencionIvaComprasProjection retencion : retencionesIvaCompra){
+                    switch (retencion.getCodigoRetencion()){
+                        case "1":
+                            retencion30 = retencion30.add(retencion.getValor());
+                            break;
+                        case "2":
+                            retencion70 = retencion70.add(retencion.getValor());
+                            break;
+                        case "3":
+                            retencion100 = retencion100.add(retencion.getValor());
+                            break;
+                        case "9":
+                            retencion10 = retencion10.add(retencion.getValor());
+                            break;
+                        case "10":
+                            retencion20 = retencion20.add(retencion.getValor());
+                            break;
+                        case "11":
+                            retencion50 = retencion50.add(retencion.getValor());
+                            break;
+                    }
+                }
+            }
+
+
+            f104.setC725(retencion30);
+            f104.setC729(retencion70);
+            f104.setC731(retencion100);
+            f104.setC721(retencion10);
+            f104.setC723(retencion20);
+            f104.setC727(retencion50);
+
+            // CODIGOS POSIBLES DE RETENCION : 1 = 30% : 725  , 2 = 70% : 729, 3 = 100% : 731,
+            // 9 = 10% : 721, 10 = 20% : 723, 11 = 50% : 727
 
             f104.setC111(BigDecimal.valueOf(0));
             f104.setC113(BigDecimal.valueOf(0));
@@ -269,51 +538,26 @@ public class Formulario104ServiceImpl {
             f104.setC485(BigDecimal.valueOf(0));
             f104.setC486(BigDecimal.valueOf(0));
             f104.setC499(BigDecimal.valueOf(0));
-
-            f104.setC500(BigDecimal.valueOf(0));
-            f104.setC501(BigDecimal.valueOf(0));
-            f104.setC502(BigDecimal.valueOf(0));
             f104.setC503(BigDecimal.valueOf(0));
             f104.setC504(BigDecimal.valueOf(0));
             f104.setC505(BigDecimal.valueOf(0));
             f104.setC506(BigDecimal.valueOf(0));
-            f104.setC507(BigDecimal.valueOf(0));
             f104.setC508(BigDecimal.valueOf(0));
             f104.setC509(BigDecimal.valueOf(0));
-            f104.setC510(BigDecimal.valueOf(0));
-            f104.setC511(BigDecimal.valueOf(0));
-
-
-            f104.setC512(BigDecimal.valueOf(0));
             f104.setC513(BigDecimal.valueOf(0));
             f104.setC514(BigDecimal.valueOf(0));
             f104.setC515(BigDecimal.valueOf(0));
             f104.setC516(BigDecimal.valueOf(0));
-            f104.setC517(BigDecimal.valueOf(0));
             f104.setC518(BigDecimal.valueOf(0));
             f104.setC519(BigDecimal.valueOf(0));
-            f104.setC520(BigDecimal.valueOf(0));
-            f104.setC521(BigDecimal.valueOf(0));
-
-            f104.setC522(BigDecimal.valueOf(0));
             f104.setC523(BigDecimal.valueOf(0));
             f104.setC524(BigDecimal.valueOf(0));
             f104.setC525(BigDecimal.valueOf(0));
             f104.setC526(BigDecimal.valueOf(0));
             f104.setC527(BigDecimal.valueOf(0));
             f104.setC529(BigDecimal.valueOf(0));
-            f104.setC531(BigDecimal.valueOf(0));
-            f104.setC532(BigDecimal.valueOf(0));
             f104.setC535(BigDecimal.valueOf(0));
-            f104.setC541(BigDecimal.valueOf(0));
-            f104.setC542(BigDecimal.valueOf(0));
-            f104.setC543(BigDecimal.valueOf(0));
-            f104.setC544(BigDecimal.valueOf(0));
             f104.setC545(BigDecimal.valueOf(0));
-
-            f104.setC550(BigDecimal.valueOf(0));
-
-            f104.setC554(BigDecimal.valueOf(0));
             f104.setC555(BigDecimal.valueOf(0));
             f104.setC563(BigDecimal.valueOf(0));
             f104.setC564(BigDecimal.valueOf(0));
@@ -345,12 +589,6 @@ public class Formulario104ServiceImpl {
             f104.setC700(BigDecimal.valueOf(0));
             f104.setC701(BigDecimal.valueOf(0));
             f104.setC702(BigDecimal.valueOf(0));
-            f104.setC721(BigDecimal.valueOf(0));
-            f104.setC723(BigDecimal.valueOf(0));
-            f104.setC725(BigDecimal.valueOf(0));
-            f104.setC727(BigDecimal.valueOf(0));
-            f104.setC729(BigDecimal.valueOf(0));
-            f104.setC731(BigDecimal.valueOf(0));
             f104.setC799(BigDecimal.valueOf(0));
             f104.setC800(BigDecimal.valueOf(0));
             f104.setC801(BigDecimal.valueOf(0));

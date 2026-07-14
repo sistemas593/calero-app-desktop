@@ -110,7 +110,7 @@ public class CpImpuestosServiceImpl {
 
         Optional<OneProjection> existingFactura = cpImpuestosRepository
                 .findExistBySecuencial(idData, idEmpresa, request.getNumeroIdentificacion(),
-                        request.getSerie(), request.getSecuencial(), request.getNumeroAutorizacion(), request.getCodigoSustento());
+                        request.getSerie(), request.getSecuencial(), request.getNumeroAutorizacion(), request.getCodigoSustento().name());
 
         if (existingFactura.isPresent()) {
             throw new GeneralException(MessageFormat.format("El registro ya existe - numeroIdentificacion: {0} Serie: {1} Secuencia: {2} numeroAutorizacion: {3}, codigoSustento: {4}", request.getNumeroIdentificacion(), request.getSerie(), request.getSecuencial(), request.getNumeroAutorizacion(), request.getCodigoSustento()));
@@ -258,7 +258,7 @@ public class CpImpuestosServiceImpl {
                 || !vtVentaEntity.getNumeroAutorizacion().equals(request.getNumeroAutorizacion())
                 || !vtVentaEntity.getCodigoSustento().equals(request.getCodigoSustento())) {
 
-            Optional<OneProjection> existingFactura = cpImpuestosRepository.findExistBySecuencial(idData, idEmpresa, request.getNumeroIdentificacion(), request.getSerie(), request.getSecuencial(), request.getNumeroAutorizacion(), request.getCodigoSustento());
+            Optional<OneProjection> existingFactura = cpImpuestosRepository.findExistBySecuencial(idData, idEmpresa, request.getNumeroIdentificacion(), request.getSerie(), request.getSecuencial(), request.getNumeroAutorizacion(), request.getCodigoSustento().name());
             if (existingFactura.isPresent()) {
                 throw new GeneralException(MessageFormat.format("El registro ya existe - numeroIdentificacion{0} Serie: {1} Secuencial: {2} numeroAutorizacion {3} codigoSustento {4}", request.getNumeroIdentificacion(), request.getSerie(), request.getSecuencial(), request.getNumeroAutorizacion(), request.getCodigoSustento()));
             }
@@ -310,7 +310,7 @@ public class CpImpuestosServiceImpl {
                 || !vtVentaEntity.getNumeroAutorizacion().equals(request.getNumeroAutorizacion())
                 || !vtVentaEntity.getCodigoSustento().equals(request.getCodigoSustento())) {
 
-            Optional<OneProjection> existingFactura = cpImpuestosRepository.findExistBySecuencial(idData, idEmpresa, request.getNumeroIdentificacion(), request.getSerie(), request.getSecuencial(), request.getNumeroAutorizacion(), request.getCodigoSustento());
+            Optional<OneProjection> existingFactura = cpImpuestosRepository.findExistBySecuencial(idData, idEmpresa, request.getNumeroIdentificacion(), request.getSerie(), request.getSecuencial(), request.getNumeroAutorizacion(), request.getCodigoSustento().name());
             if (existingFactura.isPresent()) {
                 throw new GeneralException(MessageFormat.format("El registro ya existe - numeroIdentificacion{0} Serie: {1} Secuencial: {2} numeroAutorizacion {3} codigoSustento {4}", request.getNumeroIdentificacion(), request.getSerie(), request.getSecuencial(), request.getNumeroAutorizacion(), request.getCodigoSustento()));
             }

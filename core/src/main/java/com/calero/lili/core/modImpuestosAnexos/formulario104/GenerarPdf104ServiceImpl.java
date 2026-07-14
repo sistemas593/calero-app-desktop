@@ -334,7 +334,7 @@ public class GenerarPdf104ServiceImpl {
         tabla.addCell(celdaService.crearCelda("Adquisiciones y pagos (excluye activos fijos) gravados tarifa diferente de cero (con derecho a crédito\n" +
                 "tributario)\n", normal));
         tabla.addCell(celdaService.crearCeldaConCodigo("500", validarValoresComprobantesPdf.getValor(model.getC500()), bold, bold));
-        tabla.addCell(celdaService.crearCeldaConCodigo("510", validarValoresComprobantesPdf.getValor(model.getC501()), bold, bold));
+        tabla.addCell(celdaService.crearCeldaConCodigo("510", validarValoresComprobantesPdf.getValor(model.getC510()), bold, bold));
         tabla.addCell(celdaService.crearCeldaConCodigo("520", validarValoresComprobantesPdf.getValor(model.getC520()), bold, bold));
 
         tabla.addCell(celdaService.crearCelda("Adquisiciones locales de activos fijos gravados tarifa diferente de cero (con derecho a crédito tributario)", normal));

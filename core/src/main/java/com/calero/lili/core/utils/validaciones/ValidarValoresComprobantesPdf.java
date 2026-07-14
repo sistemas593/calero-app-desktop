@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.Objects;
 
 @Service
 public class ValidarValoresComprobantesPdf {
@@ -64,6 +65,10 @@ public class ValidarValoresComprobantesPdf {
 
 
     public String getValor(BigDecimal valor) {
+
+        if(Objects.isNull(valor)){
+            valor = BigDecimal.ZERO;
+        }
 
         DecimalFormatSymbols simbolos = new DecimalFormatSymbols();
         simbolos.setGroupingSeparator(',');  // separador de miles
