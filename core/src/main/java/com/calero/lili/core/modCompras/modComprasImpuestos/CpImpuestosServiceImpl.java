@@ -399,7 +399,11 @@ public class CpImpuestosServiceImpl {
 
         List<GetListDto> dtoList = page.stream().map(cpImpuestosBuilder::builderGetListDto).toList();
 
-        List<TotalesProjection> totalValoresProjection = cpImpuestosRepository.totalValores(idData, idEmpresa, filters.getTipoDocumento().name(), filters.getNumeroIdentificacion(), filters.getSerie(), filters.getSecuencial(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getFechaRegistroDesde(), filters.getFechaRegistroHasta(), filters.getNumeroAutorizacion(), filters.getDestino());
+        List<TotalesProjection> totalValoresProjection = cpImpuestosRepository.totalValores(idData, idEmpresa,
+                Objects.nonNull(filters.getTipoDocumento()) ? filters.getTipoDocumento().name() : null,
+                filters.getNumeroIdentificacion(), filters.getSerie(), filters.getSecuencial(),
+                filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getFechaRegistroDesde(),
+                filters.getFechaRegistroHasta(), filters.getNumeroAutorizacion(), filters.getDestino());
 
         GetListDtoTotalizado totalesDto = new GetListDtoTotalizado<>();
         totalesDto.setContent(dtoList);
