@@ -38,7 +38,7 @@ public class CalcularValoresDocumentos {
                     .setScale(2, RoundingMode.HALF_UP);
 
             BigDecimal subTotalConDescuento = subTotalItem.subtract(item.getDescuento());
-            item.setSubtotalItem(subTotalConDescuento);
+            item.setSubtotalItem(subTotalItem);
 
             for (ImpuestoItemsDto impuesto : item.getImpuesto()) {
 
