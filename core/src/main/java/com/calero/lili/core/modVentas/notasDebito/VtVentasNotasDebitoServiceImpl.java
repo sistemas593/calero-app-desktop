@@ -512,8 +512,8 @@ public class VtVentasNotasDebitoServiceImpl {
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .setScale(2, RoundingMode.HALF_UP);
 
-        BigDecimal subtotal = valores.stream()
-                .map(ValoresDto::getBaseImponible)
+        BigDecimal subtotal = request.getDetalle().stream()
+                .map(DetallesDto::getSubtotalItem)
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .setScale(2, RoundingMode.HALF_UP);
 
@@ -522,7 +522,8 @@ public class VtVentasNotasDebitoServiceImpl {
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .setScale(2, RoundingMode.HALF_UP);
 
-        BigDecimal total = subtotal.add(totalImpuesto);
+        BigDecimal subtotalConDescuento = subtotal.subtract(totalDescuento);
+        BigDecimal total = subtotalConDescuento.add(totalImpuesto);
 
         if (request.getTotal().compareTo(total) != 0) {
             throw new GeneralException(MessageFormat

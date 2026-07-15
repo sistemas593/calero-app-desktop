@@ -243,6 +243,9 @@ public class LiquidacionesServiceImpl {
                 .findBySerie(idData, idEmpresa, request.getSerie())
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Empresa {0}, serie {1} no existe", idEmpresa, request.getSerie())));
 
+        List<ValoresDto> valores = calcularValoresDocumentos.validarValores(request.getDetalle());
+        request.setValores(valores);
+        setearValoresCabecera(valores, request);
 
         if (!cpLiquidacionesEntity.getSerie().equals(request.getSerie()) || !cpLiquidacionesEntity.getSecuencial().equals(request.getSecuencial())) {
             Optional<OneProjection> existingFactura = liquidacionesRepository.findExistBySecuencial(idData, idEmpresa, request.getSerie(), request.getSecuencial());
@@ -902,8 +905,8 @@ public class LiquidacionesServiceImpl {
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .setScale(2, RoundingMode.HALF_UP);
 
-        BigDecimal subtotal = valores.stream()
-                .map(ValoresDto::getBaseImponible)
+        BigDecimal subtotal = request.getDetalle().stream()
+                .map(DetallesDto::getSubtotalItem)
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .setScale(2, RoundingMode.HALF_UP);
 
@@ -912,7 +915,8 @@ public class LiquidacionesServiceImpl {
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .setScale(2, RoundingMode.HALF_UP);
 
-        BigDecimal total = subtotal.add(totalImpuesto);
+        BigDecimal subtotalConDescuento = subtotal.subtract(totalDescuento);
+        BigDecimal total = subtotalConDescuento.add(totalImpuesto);
 
         if (request.getTotal().compareTo(total) != 0) {
             throw new GeneralException(MessageFormat
