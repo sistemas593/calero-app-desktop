@@ -289,52 +289,6 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
 
     @Query(value = """
             SELECT
-                SUM(CASE 
-                    WHEN cic.codigo = '2' AND cic.codigo_retencion = '9' 
-                    THEN cic.valor_retenido ELSE 0 
-                END) AS retencionValor10,
-            
-                SUM(CASE 
-                    WHEN cic.codigo = '2' AND cic.codigo_retencion = '10' 
-                    THEN cic.valor_retenido ELSE 0 
-                END) AS retencionValor20,
-            
-                SUM(CASE 
-                    WHEN cic.codigo = '2' AND cic.codigo_retencion = '1' 
-                    THEN cic.valor_retenido ELSE 0 
-                END) AS retencionValor30,
-            
-                SUM(CASE 
-                    WHEN cic.codigo = '2' AND cic.codigo_retencion = '11' 
-                    THEN cic.valor_retenido ELSE 0 
-                END) AS retencionValor50,
-            
-                SUM(CASE 
-                    WHEN cic.codigo = '2' AND cic.codigo_retencion = '2' 
-                    THEN cic.valor_retenido ELSE 0 
-                END) AS retencionValor70,
-            
-                SUM(CASE 
-                    WHEN cic.codigo = '2' AND cic.codigo_retencion = '3' 
-                    THEN cic.valor_retenido ELSE 0 
-                END) AS retencionValor100
-            
-            FROM cp_impuestos ci
-            JOIN cp_impuestos_codigos cic ON ci.id_impuestos = cic.id_impuestos
-            WHERE ci.fecha_registro >= :fechaInicio
-              AND ci.fecha_registro <= :fechaFin
-              AND ci.id_data = :idData
-              AND ci.deleted = false
-              AND ci.id_empresa = :idEmpresa
-            """, nativeQuery = true)
-    AtsRetencionValoresProjection obtenerResumenRetenciones(@Param("idData") Long idData,
-                                                            @Param("idEmpresa") Long idEmpresa,
-                                                            @Param("fechaInicio") LocalDate fechaInicio,
-                                                            @Param("fechaFin") LocalDate fechaFin);
-
-
-    @Query(value = """
-            SELECT
                 cic.codigo_retencion AS codigoRetencion,
                 trc.nombre_retencion AS conceptoRetencion,
                 SUM(cic.base_imponible) AS baseImponible, 

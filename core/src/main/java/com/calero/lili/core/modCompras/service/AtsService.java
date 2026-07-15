@@ -19,6 +19,8 @@ import com.calero.lili.core.modCompras.projection.AtsRetencionValoresProjection;
 import com.calero.lili.core.modImpuestosAnexos.ats.DetalleAir;
 import com.calero.lili.core.modImpuestosAnexos.ats.DetalleCompras;
 import com.calero.lili.core.modImpuestosAnexos.ats.Iva;
+import com.calero.lili.core.modImpuestosAnexos.formulario104.Formulario104Repository;
+import com.calero.lili.core.modImpuestosAnexos.formulario104.projection.RetencionIvaComprasProjection;
 import com.calero.lili.core.utils.DateUtils;
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Chunk;
@@ -59,6 +61,7 @@ public class AtsService {
     private final AtsBuilder atsBuilder;
     private final AdEmpresasRepository adEmpresasRepository;
     private final FormatoValores formatoValores;
+    private final Formulario104Repository compraRetencion;
 
 
     public void generateDocumentoAtsXml(Long idData, Long idEmpresa, FilterDto model, HttpServletResponse response) {
@@ -242,9 +245,6 @@ public class AtsService {
                     model.getFechaRegistroDesde(),
                     model.getFechaRegistroHasta());
 
-            AtsRetencionValoresProjection retencion = cpImpuestosRepository.obtenerResumenRetenciones(idData, idEmpresa,
-                    model.getFechaRegistroDesde(),
-                    model.getFechaRegistroHasta());
 
             AdEmpresaEntity adEmpresaEntity = adEmpresasRepository.findById(idData, idEmpresa)
                     .orElseThrow(() -> new GeneralException("No existe informacion de la empresa"));
@@ -253,6 +253,42 @@ public class AtsService {
             List<AtsRetencionResumenProjection> listRetencionRenta = cpImpuestosRepository.
                     obtenerRetencionesRenta(idData, idEmpresa, model.getFechaRegistroDesde(),
                             model.getFechaRegistroHasta());
+
+
+            BigDecimal retencion30 = BigDecimal.ZERO;
+            BigDecimal retencion70 = BigDecimal.ZERO;
+            BigDecimal retencion100 = BigDecimal.ZERO;
+            BigDecimal retencion10 = BigDecimal.ZERO;
+            BigDecimal retencion20 = BigDecimal.ZERO;
+            BigDecimal retencion50 = BigDecimal.ZERO;
+
+            List<RetencionIvaComprasProjection> retencionesIvaCompra = compraRetencion.valoresRetencionesIVACompra(idData,
+                    idEmpresa, model.getFechaRegistroDesde(), model.getFechaRegistroHasta());
+
+            if (retencionesIvaCompra != null && !retencionesIvaCompra.isEmpty()) {
+                for (RetencionIvaComprasProjection retencionCompra : retencionesIvaCompra) {
+                    switch (retencionCompra.getCodigoRetencion()) {
+                        case "1":
+                            retencion30 = retencion30.add(retencionCompra.getValor());
+                            break;
+                        case "2":
+                            retencion70 = retencion70.add(retencionCompra.getValor());
+                            break;
+                        case "3":
+                            retencion100 = retencion100.add(retencionCompra.getValor());
+                            break;
+                        case "9":
+                            retencion10 = retencion10.add(retencionCompra.getValor());
+                            break;
+                        case "10":
+                            retencion20 = retencion20.add(retencionCompra.getValor());
+                            break;
+                        case "11":
+                            retencion50 = retencion50.add(retencionCompra.getValor());
+                            break;
+                    }
+                }
+            }
 
 
             if (listPfds.isEmpty()) {
@@ -452,12 +488,12 @@ public class AtsService {
             };
 
             BigDecimal[] valoresRetenciones = {
-                    retencion.getRetencionValor10(),
-                    retencion.getRetencionValor20(),
-                    retencion.getRetencionValor30(),
-                    retencion.getRetencionValor50(),
-                    retencion.getRetencionValor70(),
-                    retencion.getRetencionValor100(),
+                    retencion10,
+                    retencion20,
+                    retencion30,
+                    retencion50,
+                    retencion70,
+                    retencion100,
                     BigDecimal.ZERO
             };
 
