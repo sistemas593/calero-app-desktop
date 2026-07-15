@@ -278,7 +278,7 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
               AND ci.id_data = :idData 
               AND ci.id_empresa = :idEmpresa
               AND ci.deleted = false
-            GROUP BY ci.codigo_documento
+            GROUP BY ci.documento
             """, nativeQuery = true)
     List<AtsProjection> obtenerResumenCompras(@Param("idData") Long idData,
                                               @Param("idEmpresa") Long idEmpresa,
