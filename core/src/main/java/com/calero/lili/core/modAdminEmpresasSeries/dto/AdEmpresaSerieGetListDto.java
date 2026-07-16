@@ -41,7 +41,7 @@ public class AdEmpresaSerieGetListDto {
     public static class Documentos {
         private TipoDocumentoSerie documento;
         private String numeroAutorizacion;
-        private String secuencial;
+        private Integer secuencial;
         private FormatoDocumento formatoDocumento;
         private String desde;
         private String hasta;

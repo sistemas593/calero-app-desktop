@@ -13,6 +13,7 @@ import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
+import com.calero.lili.core.enums.TipoDocumentoSerie;
 import com.calero.lili.core.enums.TipoEmision;
 import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.enums.TipoTercero;
@@ -83,13 +84,13 @@ public class VtGuiasServiceImpl {
     private final ProcesarDocumentosServiceImpl procesarDocumentosService;
     private final AdEmpresasRepository adEmpresasRepository;
     private final AdEmpresasSeriesRepository adEmpresasSeriesRepository;
+    private final ValidacionDocumentosGeneral validacionDocumentosGeneral;
 
 
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa, CreationRequestGuiaRemisionDto request,
                                          String usuario, String origenCertificado) {
 
 
-        ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencial());
         validarNumeroAutorizacion(request);
         DateUtils.validarFechaEmisionGuia(request.getFechaEmision(), request.getFechaIniTransporte());
 
@@ -101,11 +102,16 @@ public class VtGuiasServiceImpl {
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Empresa {0}, serie {1} no existe", idEmpresa, request.getSerie())));
 
 
-        Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData, idEmpresa, request.getSerie(), request.getSecuencial());
+        String secuencial = validacionDocumentosGeneral.generarSecuencial(idData, idEmpresa, serie.getIdSerie(),
+                TipoDocumentoSerie.GRM);
+
+        Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData, idEmpresa,
+                request.getSerie(), secuencial);
+
 
         if (existingFactura.isPresent()) {
             throw new GeneralException(MessageFormat.format("La Guia de remisión " +
-                    "ya existe: Serie: {0} Secuencia: {1}", request.getSerie(), request.getSecuencial()));
+                    "ya existe: Serie: {0} Secuencia: {1}", request.getSerie(), secuencial));
         }
 
         GeTerceroEntity transportista = geTercerosRepository.findByIdCliente(idData, request.getIdTransportista())
@@ -121,6 +127,7 @@ public class VtGuiasServiceImpl {
         validateCodSustento(request);
         validarAmbiente(request);
         VtGuiaEntity vtGuiaEntity = vtGuiaBuilder.builderEntity(request, idData, idEmpresa);
+        vtGuiaEntity.setSecuencial(secuencial);
         vtGuiaEntity.setTransportista(transportista);
         vtGuiaEntity.setDestinatario(destinatario);
         vtGuiaEntity.setTipoEmision(getTipoEmision(request));
@@ -130,7 +137,7 @@ public class VtGuiasServiceImpl {
 
         comprobanteService.getComprobanteXmlGuiaRemision(idData, vtGuiaEntity, empresa, serie);
 
-        VtGuiaEntity saved = vtGuiasPersistenceService.guardarGuiaRemision(vtGuiaEntity, request, idData, idEmpresa);
+        VtGuiaEntity saved = vtGuiasPersistenceService.guardarGuiaRemision(vtGuiaEntity);
 
         RespuestaProcesoGetDto respuestaProcesoGetDto = new RespuestaProcesoGetDto();
 
@@ -173,7 +180,6 @@ public class VtGuiasServiceImpl {
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationRequestGuiaRemisionDto request,
                               String usuario, FilterListVentasGuiasDto filters, TipoPermiso tipoBusqueda) {
 
-        ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencial());
         validarNumeroAutorizacion(request);
         VtGuiaEntity vtGuiaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
         validarAutorizacion(vtGuiaEntity);
@@ -187,10 +193,12 @@ public class VtGuiasServiceImpl {
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Empresa {0}, serie {1} no existe", idEmpresa, request.getSerie())));
 
 
-        if (!vtGuiaEntity.getSerie().equals(request.getSerie()) || !vtGuiaEntity.getSecuencial().equals(request.getSecuencial())) {
-            Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData, idEmpresa, request.getSerie(), request.getSecuencial());
+        if (!vtGuiaEntity.getSerie().equals(request.getSerie())) {
+            Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData, idEmpresa,
+                    request.getSerie(), vtGuiaEntity.getSecuencial());
             if (existingFactura.isPresent()) {
-                throw new GeneralException(MessageFormat.format("La factura ya existe Serie: {0} Secuencia: {1}", request.getSerie(), request.getSecuencial()));
+                throw new GeneralException(MessageFormat.format("La factura ya existe Serie: {0} Secuencia: {1}",
+                        request.getSerie(), vtGuiaEntity.getSecuencial()));
             }
         }
 

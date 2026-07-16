@@ -17,6 +17,7 @@ import com.calero.lili.core.dtos.ValoresDto;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.OrigenEnum;
+import com.calero.lili.core.enums.TipoDocumentoSerie;
 import com.calero.lili.core.enums.TipoEmision;
 import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.enums.TipoVenta;
@@ -82,12 +83,14 @@ public class VtVentasNotasDebitoServiceImpl {
     private final ValidarServiceImpl validarService;
     private final AdEmpresasSeriesRepository adEmpresasSeriesRepository;
     private final CalcularValoresDocumentos calcularValoresDocumentos;
+    private final ValidacionDocumentosGeneral validacionDocumentosGeneral;
 
 
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa,
-                                         CreationNotaDebitoRequestDto request, String usuario, String origenCertificado) {
+                                         CreationNotaDebitoRequestDto request, String usuario,
+                                         String origenCertificado) {
 
-        ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencial());
+
         DateUtils.validarFechaEmision(request.getFechaEmision());
         ValidarCampoAscii.validarStrings(request);
         validarNumeroAutorizacion(request);
@@ -100,15 +103,17 @@ public class VtVentasNotasDebitoServiceImpl {
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Empresa {0}, serie {1} no existe", idEmpresa, request.getSerie())));
 
 
+        String secuencial = validacionDocumentosGeneral.generarSecuencial(idData, idEmpresa, serie.getIdSerie(), TipoDocumentoSerie.NDB);
+
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
                 DateUtils.toLocalDate(request.getFechaEmision()));
 
         Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData, idEmpresa,
-                TipoVenta.NDB.name(), request.getSerie(), request.getSecuencial());
+                TipoVenta.NDB.name(), request.getSerie(), secuencial);
 
         if (existingFactura.isPresent()) {
             throw new GeneralException(MessageFormat.format("El documento ya existe Tipo: {0} Serie: {1} Secuencial: {2}",
-                    TipoVenta.NDB.name(), request.getSerie(), request.getSecuencial()));
+                    TipoVenta.NDB.name(), request.getSerie(), secuencial));
         }
 
 
@@ -125,6 +130,7 @@ public class VtVentasNotasDebitoServiceImpl {
 
         validarTotalConsumidorFinal(request, tercero);
         VtVentaEntity vtVentaEntity = vtNotasDebitoBuilder.builderEntity(request, idData, idEmpresa);
+        vtVentaEntity.setSecuencial(secuencial);
         vtVentaEntity.setTercero(tercero);
         vtVentaEntity.setEmail(tercero.getEmail());
         vtVentaEntity.setCreatedBy(usuario);
@@ -133,7 +139,7 @@ public class VtVentasNotasDebitoServiceImpl {
         vtVentaEntity.setTipoEmision(getTipoEmision(request));
         vtComprobanteService.getComprobanteXmlNotaDebito(idData, vtVentaEntity, empresa, serie);
 
-        VtVentaEntity saved = vtVentasPersistenceService.guardarNotaDebito(vtVentaEntity, request, idData, idEmpresa);
+        VtVentaEntity saved = vtVentasPersistenceService.guardarNotaDebito(vtVentaEntity);
 
         RespuestaProcesoGetDto respuestaProcesoGetDto = new RespuestaProcesoGetDto();
 
@@ -176,7 +182,6 @@ public class VtVentasNotasDebitoServiceImpl {
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationNotaDebitoRequestDto request, String usuario,
                               FilterListNotasDebitoDto filters, TipoPermiso tipoBusqueda) {
 
-        ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencial());
         VtVentaEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         List<ValoresDto> valores = calcularValoresDocumentos.validarValores(request.getDetalle());
@@ -202,10 +207,12 @@ public class VtVentasNotasDebitoServiceImpl {
                 DateUtils.toLocalDate(request.getFechaEmision()));
 
 
-        if (!vtVentaEntity.getSerie().equals(request.getSerie()) || !vtVentaEntity.getSecuencial().equals(request.getSecuencial())) {
-            Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData, idEmpresa, TipoVenta.NCR.name(), request.getSerie(), request.getSecuencial());
+        if (!vtVentaEntity.getSerie().equals(request.getSerie())) {
+            Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData, idEmpresa,
+                    TipoVenta.NDB.name(), request.getSerie(), vtVentaEntity.getSecuencial());
             if (existingFactura.isPresent()) {
-                throw new GeneralException(MessageFormat.format("La nota de debito ya existe TipoIngreso: {0} Serie: {1} Secuencia: {2}", TipoVenta.NCR.name(), request.getSerie(), request.getSecuencial()));
+                throw new GeneralException(MessageFormat.format("La nota de debito ya existe TipoIngreso: {0}" +
+                        " Serie: {1} Secuencia: {2}", TipoVenta.NCR.name(), request.getSerie(), vtVentaEntity.getSecuencial()));
             }
         }
 

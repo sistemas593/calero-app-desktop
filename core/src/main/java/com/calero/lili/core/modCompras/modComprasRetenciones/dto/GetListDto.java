@@ -2,6 +2,7 @@ package com.calero.lili.core.modCompras.modComprasRetenciones.dto;
 
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
+import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetReporteListDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,7 +31,7 @@ public class GetListDto {
     private Boolean anulada;
     private Boolean impresa;
     private List<ResponseValoresDto> valores;
-    private List<com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetListDto> listCompraImpuesto;
+    private List<GetReporteListDto> listCompraImpuesto;
     private Integer ambiente;
     private FormatoDocumento formatoDocumento;
     private String email;

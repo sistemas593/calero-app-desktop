@@ -40,7 +40,7 @@ public class AdEmpresaSerieGetDto {
         private UUID idDocumento;
         private TipoDocumentoSerie documento;
         private String numeroAutorizacion;
-        private String secuencial;
+        private Integer secuencial;
         private FormatoDocumento formatoDocumento;
         private String desde;
         private String hasta;

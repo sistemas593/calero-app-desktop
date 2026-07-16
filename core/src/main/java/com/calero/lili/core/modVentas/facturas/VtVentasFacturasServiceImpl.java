@@ -17,6 +17,7 @@ import com.calero.lili.core.dtos.ValoresDto;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.OrigenEnum;
+import com.calero.lili.core.enums.TipoDocumentoSerie;
 import com.calero.lili.core.enums.TipoEmision;
 import com.calero.lili.core.enums.TipoIngreso;
 import com.calero.lili.core.enums.TipoPermiso;
@@ -121,6 +122,7 @@ public class VtVentasFacturasServiceImpl {
     private final CalcularValoresDocumentos calcularValoresDocumentos;
     private final AdEmpresasRepository adEmpresasRepository;
     private final AdEmpresasSeriesRepository adEmpresasSeriesRepository;
+    private final ValidacionDocumentosGeneral validacionDocumentosGeneral;
 
 
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa,
@@ -130,11 +132,13 @@ public class VtVentasFacturasServiceImpl {
         AdEmpresaEntity empresa = adEmpresasRepository
                 .findById(idData, idEmpresa)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Data {0} Empresa {1} no existe", idData, idEmpresa)));
+
         AdEmpresasSeriesEntity serie = adEmpresasSeriesRepository
                 .findBySerie(idData, idEmpresa, request.getSerie())
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Empresa {0}, serie {1} no existe", idEmpresa, request.getSerie())));
 
-        ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencial());
+        String secuencial = validacionDocumentosGeneral.generarSecuencial(idData, idEmpresa, serie.getIdSerie(), TipoDocumentoSerie.FAC);
+
         validarNumeroAutorizacion(request);
         DateUtils.validarFechaEmision(request.getFechaEmision());
         ValidarCampoAscii.validarStrings(request);
@@ -146,11 +150,11 @@ public class VtVentasFacturasServiceImpl {
 
         adIvaPorcentajeService.validateIvaPorcentaje(getTarifaValoresInteger(request.getValores()), DateUtils.toLocalDate(request.getFechaEmision()));
         Optional<OneProjection> existingFactura = vtVentaRepository
-                .findExistBySecuencial(idData, idEmpresa, TipoVenta.FAC.name(), request.getSerie(), request.getSecuencial());
+                .findExistBySecuencial(idData, idEmpresa, TipoVenta.FAC.name(), request.getSerie(), secuencial);
 
         if (existingFactura.isPresent()) {
             throw new GeneralException(MessageFormat.format("El documento ya existe TipoIngreso:" +
-                    " {0} Serie: {1} Secuencia: {2}", TipoVenta.FAC.name(), request.getSerie(), request.getSecuencial()));
+                    " {0} Serie: {1} Secuencia: {2}", TipoVenta.FAC.name(), request.getSerie(), secuencial));
         }
 
 
@@ -164,6 +168,7 @@ public class VtVentasFacturasServiceImpl {
         validarCentroCostos(request, idData, idEmpresa);
 
         VtVentaEntity vtVentaEntity = vtFacturasBuilder.builderEntity(request, idData, idEmpresa);
+        vtVentaEntity.setSecuencial(secuencial);
         validarEstadoDocumentoFisico(vtVentaEntity);
         vtVentaEntity.setCreatedBy(usuario);
         vtVentaEntity.setCreatedDate(LocalDateTime.now());
@@ -227,7 +232,6 @@ public class VtVentasFacturasServiceImpl {
                 .findBySerie(idData, idEmpresa, request.getSerie())
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Empresa {0}, serie {1} no existe", idEmpresa, request.getSerie())));
 
-        ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencial());
 
         validarNumeroAutorizacion(request);
         VtVentaEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
@@ -244,10 +248,12 @@ public class VtVentasFacturasServiceImpl {
         adIvaPorcentajeService.validateIvaPorcentaje(getTarifaValoresInteger(request.getValores()), DateUtils.toLocalDate(request.getFechaEmision()));
 
 
-        if (!vtVentaEntity.getSerie().equals(request.getSerie()) || !vtVentaEntity.getSecuencial().equals(request.getSecuencial())) {
-            Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData, idEmpresa, TipoVenta.FAC.name(), request.getSerie(), request.getSecuencial());
+        if (!vtVentaEntity.getSerie().equals(request.getSerie())) {
+            Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData, idEmpresa,
+                    TipoVenta.FAC.name(), request.getSerie(), vtVentaEntity.getSecuencial());
             if (existingFactura.isPresent()) {
-                throw new GeneralException(MessageFormat.format("La factura ya existe TipoIngreso: {0} Serie: {1} Secuencia: {2}", TipoVenta.FAC.name(), request.getSerie(), request.getSecuencial()));
+                throw new GeneralException(MessageFormat.format("La factura ya existe TipoIngreso: {0} Serie: {1} Secuencia: {2}",
+                        TipoVenta.FAC.name(), request.getSerie(), vtVentaEntity.getSecuencial()));
             }
         }
 
@@ -281,7 +287,7 @@ public class VtVentasFacturasServiceImpl {
             // le paso primero al request y luego del request a la entidad esta mal//////////////////////////
             //RequestXcFacturasDto cxc = facturaCuentasXCobrarBuilder.builder(request);
             // Se pasa el request para evitar el nulo de idTercero
-            xcFacturasRepository.save(xcFacturasBuilder.builderEntityFac(request, idData, idEmpresa, update.getIdVenta(), tercero));
+            xcFacturasRepository.save(xcFacturasBuilder.builderEntityFac(request, idData, idEmpresa, update, tercero));
         }
 
         return responseApiBuilder.builderResponse(vtVentaEntityDto.getIdVenta().toString());
@@ -1197,6 +1203,7 @@ public class VtVentasFacturasServiceImpl {
                     .format("El documento con id: {0} no corresponde al módulo de ventas", vtVentaEntity.getIdVenta()));
         }
     }
+
 
 }
 

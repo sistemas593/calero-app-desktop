@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AdEmpresaSerieDocumentosGetOneDto {
 
-    private String secuencial;
+    private Integer secuencial;
 
 }

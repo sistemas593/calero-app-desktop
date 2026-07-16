@@ -24,4 +24,15 @@ public interface AdEmpresasSeriesDocumentosRepository extends JpaRepository<AdEm
                                                                        @Param("serie") String serie,
                                                                        @Param("documento") String documento);
 
+
+
+    @Query(value = "UPDATE ad_empresas_series_documentos " +
+            "SET secuencial = secuencial + 1 " +
+            "WHERE id_data = :idData and id_empresa = :idEmpresa and id_serie = :serie AND documento = :documento " +
+            "RETURNING secuencial; ", nativeQuery = true)
+    Integer actualizarUltimoNumeroSecuencia(@Param("idData") Long idData,
+                                            @Param("idEmpresa") Long idEmpresa,
+                                            @Param("serie") UUID serie,
+                                            @Param("documento") String documento);
+
 }

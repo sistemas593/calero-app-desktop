@@ -2,6 +2,7 @@ package com.calero.lili.core.modCompras.modComprasImpuestos;
 
 import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.core.dtos.CompraImpuestosDto;
+import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirCreationRequestDto;
@@ -20,6 +21,7 @@ import com.calero.lili.core.modCompras.modComprasImpuestos.dto.FilterListCompraI
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetListDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetListDtoTotalizado;
+import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetReporteListDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.PagoExterior;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.ValoresCompraImpuestoDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.projection.ComprasImpuestoProjection;
@@ -117,13 +119,13 @@ public class CpImpuestosServiceImpl {
         }
 
 
-
         validacionCodigoImpuesto(request);
         validarReembolso(request);
         validarPagoExterior(request);
         validarInfoAddicional(request);
         CpImpuestosEntity impuestosEntity = cpImpuestosBuilder.builderEntity(request, idData, idEmpresa);
 
+        setearTotalesCabecera(request, impuestosEntity);
         GeTerceroEntity proveedor = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id de tercero {0} no existe", request.getIdTercero())));
 
@@ -270,7 +272,7 @@ public class CpImpuestosServiceImpl {
         validacionCodigoImpuesto(request);
 
         CpImpuestosEntity impuestosEntity = cpImpuestosBuilder.builderUpdateEntity(request, vtVentaEntity);
-
+        setearTotalesCabecera(request, impuestosEntity);
         GeTerceroEntity proveedor = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id de tercero {0} no existe", request.getIdTercero())));
 
@@ -394,12 +396,42 @@ public class CpImpuestosServiceImpl {
         return dto;
     }
 
-    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListCompraImpuestoDto filters, Pageable pageable,
-                                                                      TipoPermiso tipoBusqueda, String usuario) {
+
+    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListCompraImpuestoDto filters, Pageable pageable,
+                                                    TipoPermiso tipoBusqueda, String usuario) {
 
         Page<CpImpuestosEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
 
         List<GetListDto> dtoList = page.stream().map(cpImpuestosBuilder::builderGetListDto).toList();
+        
+        PaginatedDto paginatedDto = new PaginatedDto();
+        paginatedDto.setContent(dtoList);
+
+        Paginator paginated = new Paginator();
+        paginated.setTotalElements(page.getTotalElements());
+        paginated.setTotalPages(page.getTotalPages());
+        paginated.setNumberOfElements(page.getNumberOfElements());
+        paginated.setSize(page.getSize());
+        paginated.setFirst(page.isFirst());
+        paginated.setLast(page.isLast());
+        paginated.setPageNumber(page.getPageable().getPageNumber());
+        paginated.setPageSize(page.getPageable().getPageSize());
+        paginated.setEmpty(page.isEmpty());
+        paginated.setNumber(page.getNumber());
+
+        paginatedDto.setPaginator(paginated);
+
+        return paginatedDto;
+
+    }
+
+
+    public GetListDtoTotalizado<GetReporteListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListCompraImpuestoDto filters, Pageable pageable,
+                                                                             TipoPermiso tipoBusqueda, String usuario) {
+
+        Page<CpImpuestosEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
+
+        List<GetReporteListDto> dtoList = page.stream().map(cpImpuestosBuilder::builderReporteGetListDto).toList();
 
         List<TotalesProjection> totalValoresProjection = cpImpuestosRepository.totalValores(idData, idEmpresa,
                 Objects.nonNull(filters.getTipoDocumento()) ? filters.getTipoDocumento().name() : null,
@@ -856,8 +888,8 @@ public class CpImpuestosServiceImpl {
     }
 
 
-    public List<GetListDto> getListCompraImpuestoForIdParent(UUID idParent, Long idEmpresa, Long idData) {
-        List<GetListDto> response = cpImpuestosBuilder.builderListResponse(cpImpuestosRepository
+    public List<GetReporteListDto> getListCompraImpuestoForIdParent(UUID idParent, Long idEmpresa, Long idData) {
+        List<GetReporteListDto> response = cpImpuestosBuilder.builderListResponse(cpImpuestosRepository
                 .findByIdParent(idData, idEmpresa, idParent));
         if (Objects.nonNull(response)) return response;
         return null;
@@ -1025,5 +1057,29 @@ public class CpImpuestosServiceImpl {
         return Boolean.FALSE;
     }
 
+
+    private void setearTotalesCabecera(CreationCompraImpuestoRequestDto request, CpImpuestosEntity impuesto) {
+
+        if (Objects.nonNull(request.getValores())) {
+            BigDecimal subtotal = request.getValores()
+                    .stream()
+                    .map(ValoresCompraImpuestoDto::getBaseImponible)
+                    .filter(Objects::nonNull)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            BigDecimal impuestoTotal = request.getValores()
+                    .stream()
+                    .map(ValoresCompraImpuestoDto::getValor)
+                    .filter(Objects::nonNull)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            BigDecimal total = subtotal.add(impuestoTotal);
+
+            impuesto.setSubtotal(subtotal);
+            impuesto.setTotalImpuesto(impuestoTotal);
+            impuesto.setTotal(total);
+
+        }
+    }
 }
 

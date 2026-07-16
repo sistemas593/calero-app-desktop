@@ -31,7 +31,7 @@ public class AdEmpresasSeriesDocumentosEntity {
     @Enumerated(EnumType.STRING)
     private TipoDocumentoSerie documento;
     private String numeroAutorizacion;
-    private String secuencial;
+    private Integer secuencial;
     private String desde;
     private String hasta;
     private LocalDate fechaVencimiento;

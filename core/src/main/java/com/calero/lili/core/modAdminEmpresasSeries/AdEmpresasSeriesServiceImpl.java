@@ -13,7 +13,6 @@ import com.calero.lili.core.modAdminEmpresasSeries.dto.AdEmpresaSerieFacturaDto;
 import com.calero.lili.core.modAdminEmpresasSeries.dto.AdEmpresaSerieGetDto;
 import com.calero.lili.core.modAdminEmpresasSeries.dto.AdEmpresaSerieGetListDto;
 import com.calero.lili.core.modAdminEmpresasSeries.dto.AdEmpresaSerieListFilterDto;
-import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -69,7 +68,7 @@ public class AdEmpresasSeriesServiceImpl {
 
             for (AdEmpresaSerieCreationRequestDto.Documentos model : request.getDocumentos()) {
 
-                if (Objects.isNull(model.getSecuencial()) || model.getSecuencial().isEmpty()) {
+                if (Objects.isNull(model.getSecuencial())) {
                     throw new GeneralException("El secuencial no puede ser nulo, ni vacío");
                 }
 
@@ -158,7 +157,7 @@ public class AdEmpresasSeriesServiceImpl {
                 .map(s -> {
                     String secuencial = s.getDocumentosEntity().stream()
                             .filter(d -> TipoDocumentoSerie.FAC.equals(d.getDocumento()))
-                            .map(AdEmpresasSeriesDocumentosEntity::getSecuencial)
+                            .map(x -> x.getSecuencial().toString())
                             .findFirst()
                             .orElse("");
                     return AdEmpresaSerieFacturaDto.builder()
@@ -179,7 +178,7 @@ public class AdEmpresasSeriesServiceImpl {
                 .map(s -> {
                     String secuencial = s.getDocumentosEntity().stream()
                             .filter(d -> TipoDocumentoSerie.NCR.equals(d.getDocumento()))
-                            .map(AdEmpresasSeriesDocumentosEntity::getSecuencial)
+                            .map(x -> x.getSecuencial().toString())
                             .findFirst()
                             .orElse("");
                     return AdEmpresaSerieFacturaDto.builder()

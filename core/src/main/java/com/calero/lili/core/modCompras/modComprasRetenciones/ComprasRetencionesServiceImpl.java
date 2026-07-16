@@ -13,6 +13,7 @@ import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
+import com.calero.lili.core.enums.TipoDocumentoSerie;
 import com.calero.lili.core.enums.TipoEmision;
 import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.errors.exceptions.GeneralException;
@@ -85,17 +86,13 @@ public class ComprasRetencionesServiceImpl {
     private final ProcesarDocumentosServiceImpl procesarDocumentosService;
     private final AdEmpresasRepository adEmpresasRepository;
     private final AdEmpresasSeriesRepository adEmpresasSeriesRepository;
+    private final ValidacionDocumentosGeneral validacionDocumentosGeneral;
 
 
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa, CreationRetencionRequestDto request,
                                          String usuario, String origenCertificado) {
 
-
-        ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencialRetencion());
         validarNumeroAutorizacion(request);
-        Optional<DeEmitidasRetencionesProjection> existingRetencion = comprasRetencionesRepository
-                .findExistBySecuencial(idData, idEmpresa, request.getSerieRetencion(), request.getSecuencialRetencion());
-
         AdEmpresaEntity empresa = adEmpresasRepository
                 .findById(idData, idEmpresa)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Data {0} Empresa {1} no existe", idData, idEmpresa)));
@@ -104,9 +101,16 @@ public class ComprasRetencionesServiceImpl {
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Empresa {0}, serie {1} no existe", idEmpresa, request.getSerieRetencion())));
 
 
+        String secuencial = validacionDocumentosGeneral.generarSecuencial(idData, idEmpresa, serie.getIdSerie(),
+                TipoDocumentoSerie.CRT);
+
+        Optional<DeEmitidasRetencionesProjection> existingRetencion = comprasRetencionesRepository
+                .findExistBySecuencial(idData, idEmpresa, request.getSerieRetencion(), secuencial);
+
+
         if (existingRetencion.isPresent()) {
             throw new GeneralException(MessageFormat.format("El documento ya existe : " +
-                    "Serie: {0} Secuencia: {1}", request.getSerieRetencion(), request.getSecuencialRetencion()));
+                    "Serie: {0} Secuencia: {1}", request.getSerieRetencion(), secuencial));
         }
 
         DateUtils.validarFechaEmision(request.getFechaEmisionRetencion());
@@ -117,6 +121,7 @@ public class ComprasRetencionesServiceImpl {
         validarAmbiente(request);
         CpRetencionesEntity retencionesEntity = cpRetencionesBuilder.builderEntity(request, idData, idEmpresa);
 
+        retencionesEntity.setSecuencialRetencion(secuencial);
         retencionesEntity.setTipoEmision(getTipoEmision(request));
         retencionesEntity.setProveedor(proveedor);
         retencionesEntity.setEmail(proveedor.getEmail());

@@ -37,10 +37,7 @@ public class GetVentasListDto {
     private String emailEstado;
     private Boolean anulada;
     private Boolean impresa;
-    private BigDecimal subtotal;
-    private BigDecimal totalDescuento;
     private BigDecimal total;
-    private BigDecimal totalImpuesto;
     private Integer ambiente;
     private String email;
     private Boolean existeComprobante;

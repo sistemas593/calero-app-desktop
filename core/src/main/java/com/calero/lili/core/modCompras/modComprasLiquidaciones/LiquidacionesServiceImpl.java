@@ -16,6 +16,7 @@ import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.dtos.ValoresDto;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
+import com.calero.lili.core.enums.TipoDocumentoSerie;
 import com.calero.lili.core.enums.TipoEmision;
 import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.errors.exceptions.GeneralException;
@@ -96,12 +97,12 @@ public class LiquidacionesServiceImpl {
     private final AdEmpresasRepository adEmpresasRepository;
     private final AdEmpresasSeriesRepository adEmpresasSeriesRepository;
     private final CalcularValoresDocumentos calcularValoresDocumentos;
-
+    private final ValidacionDocumentosGeneral validacionDocumentosGeneral;
 
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa, CreationRequestLiquidacionCompraDto request,
                                          String usuario, String origenCertificado) {
 
-        ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencial());
+
         validarNumeroAutorizacion(request);
         DateUtils.validarFechaEmision(request.getFechaEmision());
 
@@ -113,15 +114,18 @@ public class LiquidacionesServiceImpl {
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Empresa {0}, serie {1} no existe", idEmpresa, request.getSerie())));
 
 
+        String secuencial = validacionDocumentosGeneral.generarSecuencial(idData, idEmpresa, serie.getIdSerie(), TipoDocumentoSerie.LIQ);
+
         List<ValoresDto> valores = calcularValoresDocumentos.validarValores(request.getDetalle());
         request.setValores(valores);
         setearValoresCabecera(valores, request);
 
         Optional<OneProjection> existingFactura = liquidacionesRepository
-                .findExistBySecuencial(idData, idEmpresa, request.getSerie(), request.getSecuencial());
+                .findExistBySecuencial(idData, idEmpresa, request.getSerie(), secuencial);
 
         if (existingFactura.isPresent()) {
-            throw new GeneralException(MessageFormat.format("La liquidación ya existe  Serie: {0} Secuencia: {1}", request.getSerie(), request.getSecuencial()));
+            throw new GeneralException(MessageFormat.format("La liquidación ya existe  Serie: {0} Secuencia: {1}",
+                    request.getSerie(), secuencial));
         }
 
         GeTerceroEntity proveedor = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
@@ -133,6 +137,7 @@ public class LiquidacionesServiceImpl {
 
 
         CpLiquidacionesEntity cpLiquidacionesEntity = cpLiquidacionesBuilder.builderEntity(request, idData, idEmpresa);
+        cpLiquidacionesEntity.setSecuencial(secuencial);
         cpLiquidacionesEntity.setProveedor(proveedor);
         cpLiquidacionesEntity.setEmail(proveedor.getEmail());
 
@@ -145,7 +150,7 @@ public class LiquidacionesServiceImpl {
             cpLiquidacionesEntity.setReembolsosEntity(reembolsos);
         }
         comprobanteService.getComprobanteXmlLiquidacion(idData, cpLiquidacionesEntity, empresa, serie);
-        CpLiquidacionesEntity saved = liquidacionPersistenceService.guardarLiquidacion(cpLiquidacionesEntity, request, idData, idEmpresa);
+        CpLiquidacionesEntity saved = liquidacionPersistenceService.guardarLiquidacion(cpLiquidacionesEntity, request);
 
         RespuestaProcesoGetDto respuestaProcesoGetDto = new RespuestaProcesoGetDto();
 
@@ -229,7 +234,7 @@ public class LiquidacionesServiceImpl {
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationRequestLiquidacionCompraDto request,
                               String usuario, FilterListComprasLiquidacionesDto filters, TipoPermiso tipoBusqueda) {
 
-        ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencial());
+
         validarNumeroAutorizacion(request);
         CpLiquidacionesEntity cpLiquidacionesEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
         validarAutorizacion(cpLiquidacionesEntity);
@@ -247,10 +252,12 @@ public class LiquidacionesServiceImpl {
         request.setValores(valores);
         setearValoresCabecera(valores, request);
 
-        if (!cpLiquidacionesEntity.getSerie().equals(request.getSerie()) || !cpLiquidacionesEntity.getSecuencial().equals(request.getSecuencial())) {
-            Optional<OneProjection> existingFactura = liquidacionesRepository.findExistBySecuencial(idData, idEmpresa, request.getSerie(), request.getSecuencial());
+        if (!cpLiquidacionesEntity.getSerie().equals(request.getSerie())) {
+            Optional<OneProjection> existingFactura = liquidacionesRepository.findExistBySecuencial(idData,
+                    idEmpresa, request.getSerie(), cpLiquidacionesEntity.getSecuencial());
             if (existingFactura.isPresent()) {
-                throw new GeneralException(MessageFormat.format("La liquidación ya existe Serie: {0} Secuencia: {1}", request.getSerie(), request.getSecuencial()));
+                throw new GeneralException(MessageFormat.format("La liquidación ya existe Serie: {0} Secuencia: {1}",
+                        request.getSerie(), cpLiquidacionesEntity.getSecuencial()));
             }
         }
 

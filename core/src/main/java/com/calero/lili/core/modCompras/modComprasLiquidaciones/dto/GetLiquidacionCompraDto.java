@@ -3,7 +3,7 @@ package com.calero.lili.core.modCompras.modComprasLiquidaciones.dto;
 import com.calero.lili.core.dtos.FormasPagoDto;
 import com.calero.lili.core.dtos.InformacionAdicionalDto;
 import com.calero.lili.core.enums.FormatoDocumento;
-import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetListDto;
+import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetReporteListDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.detalles.DetalleLiquidacionCompraGetDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.dto.GetReembolsoDto;
 import lombok.AllArgsConstructor;
@@ -66,7 +66,7 @@ public class GetLiquidacionCompraDto {
 
     private List<GetReembolsoDto> reembolsos;
 
-    private List<GetListDto> listCompraImpuesto;
+    private List<GetReporteListDto> listCompraImpuesto;
 
     private Integer ambiente;
     private FormatoDocumento formatoDocumento;

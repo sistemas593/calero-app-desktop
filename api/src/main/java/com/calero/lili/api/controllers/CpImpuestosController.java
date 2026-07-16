@@ -2,6 +2,7 @@ package com.calero.lili.api.controllers;
 
 import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.api.utils.IdDataServiceImpl;
+import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirCreationRequestDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosServiceImpl;
@@ -9,6 +10,7 @@ import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CreationCompraImp
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.FilterListCompraImpuestoDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetListDto;
+import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetReporteListDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetListDtoTotalizado;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -102,17 +104,35 @@ public class CpImpuestosController {
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
+
+
     @GetMapping("facturas/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('CP_CI_VR_PR','CP_CI_VR_SC','CP_CI_VR_TD')")
-    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(@PathVariable("idEmpresa") Long idEmpresa,
-                                                                      FilterListCompraImpuestoDto filters,
-                                                                      Pageable pageable) {
-        log.info("Filters = {}", filters);
+    public PaginatedDto<GetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
+                                                    FilterListCompraImpuestoDto filters,
+                                                    Pageable pageable) {
+
+        return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable,
+                auditorAware.getTipoPermisoVerImpuesto(),
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+    }
+
+
+    @GetMapping("reporte/facturas/{idEmpresa}")
+    @ResponseStatus(code = HttpStatus.OK)
+    @PreAuthorize("hasAnyAuthority('CP_CI_VR_PR','CP_CI_VR_SC','CP_CI_VR_TD')")
+    public GetListDtoTotalizado<GetReporteListDto> findAllPaginateTotalizado(@PathVariable("idEmpresa") Long idEmpresa,
+                                                                             FilterListCompraImpuestoDto filters,
+                                                                             Pageable pageable) {
+
         return vtVentasService.findAllPaginateTotalizado(idDataService.getIdData(), idEmpresa, filters, pageable,
                 auditorAware.getTipoPermisoVerImpuesto(),
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
+
+
+
 
     @GetMapping("facturas/excel/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)

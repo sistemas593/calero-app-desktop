@@ -17,7 +17,7 @@ public class AdEmpresaSerieDocumentosGetListDto {
     private UUID idDocumento;
     private TipoDocumentoSerie documento;
     private String numeroAutorizacion;
-    private String secuencial;
+    private Integer secuencial;
     private String direccion;
 
 

@@ -4,6 +4,7 @@ import com.calero.lili.core.modCxC.XcFacturas.XcFacturasEntity;
 import com.calero.lili.core.modCxC.XcFacturas.dto.RequestXcFacturasDto;
 import com.calero.lili.core.modCxC.XcFacturas.dto.ResponseXcFacturasDto;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
+import com.calero.lili.core.modVentas.VtVentaEntity;
 import com.calero.lili.core.modVentas.facturas.dto.CreationFacturaRequestDto;
 import com.calero.lili.core.utils.DateUtils;
 import org.springframework.stereotype.Component;
@@ -46,15 +47,15 @@ public class XcFacturasBuilder {
     }
 
     public XcFacturasEntity builderEntityFac(CreationFacturaRequestDto model,
-                                             Long idData, Long idEmpresa, UUID idFactura, GeTerceroEntity tercero) {
+                                             Long idData, Long idEmpresa, VtVentaEntity venta, GeTerceroEntity tercero) {
         return XcFacturasEntity.builder()
-                .idFactura(idFactura)
+                .idFactura(venta.getIdVenta())
                 .idData(idData)
                 .idEmpresa(idEmpresa)
                 .sucursal(model.getSucursal())
                 .periodo("")
                 .serie(model.getSerie())
-                .secuencial(model.getSecuencial())
+                .secuencial(venta.getSecuencial())
                 .fechaEmision(DateUtils.toLocalDate(model.getFechaEmision()))
                 .fechaVencimiento(Objects.nonNull(model.getFechaVencimiento())
                         ? DateUtils.toLocalDate(model.getFechaVencimiento())

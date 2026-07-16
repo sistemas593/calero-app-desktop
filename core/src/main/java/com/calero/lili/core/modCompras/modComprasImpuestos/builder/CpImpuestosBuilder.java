@@ -8,6 +8,7 @@ import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CreationCompraImpuestoRequestDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetListDto;
+import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetReporteListDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.PagoExterior;
 import com.calero.lili.core.modCompras.modComprasRetenciones.dto.CodigoImpuestoResponseDto;
 import com.calero.lili.core.modCompras.modComprasRetenciones.dto.CompraImpuestoResponseDto;
@@ -178,8 +179,8 @@ public class CpImpuestosBuilder {
     }
 
 
-    public GetListDto builderGetListDto(CpImpuestosEntity model) {
-        return GetListDto.builder()
+    public GetReporteListDto builderReporteGetListDto(CpImpuestosEntity model) {
+        return GetReporteListDto.builder()
                 .sucursal(model.getSucursal())
                 .idImpuestos(model.getIdImpuestos())
                 .codigoDocumento(Objects.nonNull(model.getDocumento()) ? model.getDocumento().getCodigo() : null)
@@ -213,9 +214,45 @@ public class CpImpuestosBuilder {
                 .build();
     }
 
-    public List<GetListDto> builderListResponse(List<CpImpuestosEntity> list) {
+    public GetListDto builderGetListDto(CpImpuestosEntity model) {
+        return GetListDto.builder()
+                .sucursal(model.getSucursal())
+                .idImpuestos(model.getIdImpuestos())
+                .codigoDocumento(Objects.nonNull(model.getDocumento()) ? model.getDocumento().getCodigo() : null)
+                .documento(Objects.nonNull(model.getDocumento()) ? model.getDocumento().getNombre() : null)
+                .serie(model.getSerie())
+                .secuencial(model.getSecuencial())
+                .numeroAutorizacion(model.getNumeroAutorizacion())
+                .fechaEmision(DateUtils.toString(model.getFechaEmision()))
+                .fechaRegistro(Objects.nonNull(model.getFechaRegistro())
+                        ? DateUtils.toString(model.getFechaRegistro())
+                        : null)
+                .idTercero(Objects.nonNull(model.getTercero())
+                        ? model.getTercero().getIdTercero()
+                        : null)
+                .codigoSustento(Objects.nonNull(model.getCodigoSustento())
+                        ? model.getCodigoSustento()
+                        : null)
+                .sustento(Objects.nonNull(model.getCodigoSustento())
+                        ? model.getCodigoSustento().getNombreSustento()
+                        : null)
+                .impuestoCodigos(Objects.nonNull(model.getCodigosEntity())
+                        ? impuestoCodigoBuilder.builderListResponse(model.getCodigosEntity())
+                        : null)
+                .destino(model.getDestino())
+                .numeroItems(0)
+                .terceroNombre(Objects.nonNull(model.getTercero()) ? model.getTercero().getTercero() : null)
+                .numeroIdentificacion(Objects.nonNull(model.getTercero()) ? model.getTercero().getNumeroIdentificacion() : null)
+                .existeComprobante(model.getExisteComprobante())
+                .informacionAdicional(informacionAdicionalBuilder.builderListDto(model.getInformacionAdicional()))
+                .total(Objects.nonNull(model.getTotal()) ? model.getTotal() : BigDecimal.ZERO)
+                .build();
+    }
+
+
+    public List<GetReporteListDto> builderListResponse(List<CpImpuestosEntity> list) {
         return list.stream()
-                .map(this::builderGetListDto)
+                .map(this::builderReporteGetListDto)
                 .toList();
     }
 

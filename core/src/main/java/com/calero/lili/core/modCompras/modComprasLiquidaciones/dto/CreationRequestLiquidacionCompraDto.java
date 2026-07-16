@@ -26,8 +26,8 @@ public class CreationRequestLiquidacionCompraDto {
 
     @NotEmpty(message = "No existe la serie")
     private String serie;
-    @NotEmpty(message = "No existe el secuencial")
-    private String secuencial;
+
+
 
     private String numeroAutorizacion;
 

@@ -1,7 +1,7 @@
 package com.calero.lili.core.modCompras.modCompras.dto;
 
 import com.calero.lili.core.modCompras.modCompras.dto.detalles.DetalleGetDto;
-import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetListDto;
+import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetReporteListDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -48,6 +48,6 @@ public class GetCompraDto {
 
     private List<DetalleGetDto> detalle;
 
-    private List<GetListDto> listCompraImpuesto;
+    private List<GetReporteListDto> listCompraImpuesto;
 
 }

@@ -2,10 +2,6 @@ package com.calero.lili.core.modCompras.modComprasLiquidaciones;
 
 import com.calero.lili.core.dtos.CompraImpuestosDto;
 import com.calero.lili.core.enums.OrigenImpuestos;
-import com.calero.lili.core.enums.TipoDocumentoSerie;
-import com.calero.lili.core.errors.exceptions.GeneralException;
-import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosEntity;
-import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosRepository;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosServiceImpl;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CreationCompraImpuestoRequestDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.CreationRequestLiquidacionCompraDto;
@@ -13,8 +9,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.DecimalFormat;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -24,24 +18,13 @@ import java.util.Objects;
 public class LiquidacionPersistenceService {
 
     private final LiquidacionesRepository liquidacionesRepository;
-    private final AdEmpresasSeriesDocumentosRepository adEmpresasSeriesDocumentosRepository;
     private final CpImpuestosServiceImpl cpImpuestosService;
 
     @Transactional
-    public CpLiquidacionesEntity guardarLiquidacion(CpLiquidacionesEntity cpLiquidacionesEntity, CreationRequestLiquidacionCompraDto request, Long idData, Long idEmpresa) {
+    public CpLiquidacionesEntity guardarLiquidacion(CpLiquidacionesEntity cpLiquidacionesEntity,
+                                                    CreationRequestLiquidacionCompraDto request) {
 
         CpLiquidacionesEntity saved = liquidacionesRepository.save(cpLiquidacionesEntity);
-
-
-        AdEmpresasSeriesDocumentosEntity documentosEntity = adEmpresasSeriesDocumentosRepository
-                .findBySerieAndDocumento(idData, idEmpresa, request.getSerie(), TipoDocumentoSerie.LIQ.name())
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("Serie {0} no existe", request.getSerie())));
-
-        int nuevo = Integer.parseInt(request.getSecuencial()) + 1;
-        String sec = request.getSecuencial();
-        DecimalFormat df = new DecimalFormat(sec.replaceAll("[1-9]", "0"));
-        documentosEntity.setSecuencial(df.format(nuevo));
-
         validarImpuesto(request, saved);
 
         return saved;
