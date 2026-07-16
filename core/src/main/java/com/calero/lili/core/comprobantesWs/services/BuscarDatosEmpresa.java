@@ -39,8 +39,14 @@ public class BuscarDatosEmpresa {
 
         if (empresa.isEmpty()) {
             throw new GeneralException(MessageFormat
-                    .format("Data {1}, Empresa {1} no existe", idData, idEmpresa));
+                    .format("Data {0}, Empresa {1} no existe", idData, idEmpresa));
         }
+
+        if (Objects.isNull(empresa.get().getContraseniaFirma())) {
+            throw new GeneralException("La empresa no tiene configurada la contraseña del archivo de firma (.p12).");
+        }
+
+        String pwd = AESUtils.decrypt(empresa.get().getContraseniaFirma());
 
         Storage storage = StorageOptions.newBuilder().setProjectId(projectId).build().getService();
         BlobId blobId = BlobId.of(bucketName, "data00001/logo-fe-0001.jpg");
@@ -69,7 +75,7 @@ public class BuscarDatosEmpresa {
         InputStream is1 = Channels.newInputStream(reader1);
 
         return DatosEmpresaDto.builder()
-                .pwd(empresa.get().getContraseniaFirma())
+                .pwd(pwd)
                 .imageBytes(imageBytes)
                 .inputStreamFileSgn(is1)
                 .momentoEnvioFactura(empresa.get().getMomentoEnvioFactura())
@@ -115,10 +121,11 @@ public class BuscarDatosEmpresa {
                 .orElseThrow(() -> new GeneralException(
                         MessageFormat.format("Data {0}, Empresa {1} no existe", idData, idEmpresa)));
 
-        if(Objects.isNull(empresa.getContraseniaFirma())){
+        if (Objects.isNull(empresa.getContraseniaFirma())) {
             throw new GeneralException("La empresa no tiene configurada la contraseña del archivo de firma (.p12). " +
-                            "Configure la contraseña en la sección 'Firma y Envío' del formulario de empresa.");
+                    "Configure la contraseña en la sección 'Firma y Envío' del formulario de empresa.");
         }
+
 
         String pwd = AESUtils.decrypt(empresa.getContraseniaFirma());
 
