@@ -43,6 +43,7 @@ import com.calero.lili.core.modVentas.VtVentaValoresEntity;
 import com.calero.lili.core.modVentas.VtVentasPersistenceService;
 import com.calero.lili.core.modVentas.VtVentasRepository;
 import com.calero.lili.core.modVentas.builder.GetListResponseBuilder;
+import com.calero.lili.core.modVentas.dto.GetReporteVentasListDto;
 import com.calero.lili.core.modVentas.dto.GetVentasListDto;
 import com.calero.lili.core.modVentas.dto.GetVentasListDtoTotalizado;
 import com.calero.lili.core.modVentas.facturas.builder.VtFacturasBuilder;
@@ -458,17 +459,17 @@ public class VtVentasFacturasServiceImpl {
 
 
     @Transactional(readOnly = true)
-    public GetVentasListDtoTotalizado<GetVentasListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa,
-                                                                                  FilterListVentasDto filters, TipoPermiso tipoBusqueda, String usuario,
-                                                                                  Pageable pageable) {
+    public GetVentasListDtoTotalizado<GetReporteVentasListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa,
+                                                                                         FilterListVentasDto filters, TipoPermiso tipoBusqueda, String usuario,
+                                                                                         Pageable pageable) {
 
         Page<VtVentaEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
 
-        List<GetVentasListDto> dtoList = page.stream().map(item -> {
+        List<GetReporteVentasListDto> dtoList = page.stream().map(item -> {
             if (item.getAnulada()) {
-                return getListResponseBuilder.builderAnuladoResponse(item);
+                return getListResponseBuilder.builderReporteAnuladoResponse(item);
             }
-            return getListResponseBuilder.builderListResponse(item);
+            return getListResponseBuilder.builderReporteListResponse(item);
         }).toList();
 
         List<TotalesProjection> totalValoresProjection = vtVentaRepository.totalValores(idData, idEmpresa,

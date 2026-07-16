@@ -31,4 +31,13 @@ public class FormatoValores {
         return df.format(valor);
     }
 
+    public String convertirPuntoMiles(BigDecimal valor) {
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+        symbols.setGroupingSeparator('.');
+        symbols.setDecimalSeparator(',');
+
+        DecimalFormat df = new DecimalFormat("#,##0.00", symbols);
+        return df.format(valor);
+    }
+
 }

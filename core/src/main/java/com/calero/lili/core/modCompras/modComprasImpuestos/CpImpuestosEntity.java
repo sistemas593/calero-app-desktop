@@ -31,6 +31,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Where;
 import org.hibernate.type.SqlTypes;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -162,4 +163,9 @@ public class CpImpuestosEntity extends Auditable {
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     private List<InformacionAdicional> informacionAdicional;
+
+    private BigDecimal totalImpuesto;
+    private BigDecimal subtotal;
+    private BigDecimal total;
+
 }

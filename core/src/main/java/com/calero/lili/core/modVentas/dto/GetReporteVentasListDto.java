@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @Data
 @Builder
-public class GetVentasListDto {
+public class GetReporteVentasListDto {
 
     private String sucursal;
     private UUID idVenta;
@@ -41,6 +41,7 @@ public class GetVentasListDto {
     private BigDecimal totalDescuento;
     private BigDecimal total;
     private BigDecimal totalImpuesto;
+    private List<ResponseVentasValoresDto> valores;
     private Integer ambiente;
     private String email;
     private Boolean existeComprobante;

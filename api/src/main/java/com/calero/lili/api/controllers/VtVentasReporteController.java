@@ -3,9 +3,9 @@ package com.calero.lili.api.controllers;
 
 import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.api.utils.IdDataServiceImpl;
+import com.calero.lili.core.modVentas.dto.GetReporteVentasListDto;
 import com.calero.lili.core.modVentas.dto.GetVentasListDto;
 import com.calero.lili.core.modVentas.dto.GetVentasListDtoTotalizado;
-import com.calero.lili.core.modVentas.facturas.VtVentasFacturasExcelService;
 import com.calero.lili.core.modVentas.facturas.VtVentasFacturasServiceImpl;
 import com.calero.lili.core.modVentas.facturas.dto.FilterListVentasDto;
 import lombok.RequiredArgsConstructor;
@@ -29,15 +29,14 @@ public class VtVentasReporteController {
 
     private final VtVentasFacturasServiceImpl vtVentasService;
     private final IdDataServiceImpl idDataService;
-    private final VtVentasFacturasExcelService vtVentasFacturasExcelService;
     private final AuditorAwareImpl auditorAware;
 
     @GetMapping("reportes/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('VT_FC_VR_PR','VT_FC_VR_SC','VT_FC_VR_TD')")
-    public GetVentasListDtoTotalizado<GetVentasListDto> findAllPaginateTotalizado(@PathVariable("idEmpresa") Long idEmpresa,
-                                                                                  FilterListVentasDto filters,
-                                                                                  Pageable pageable) {
+    public GetVentasListDtoTotalizado<GetReporteVentasListDto> findAllPaginateTotalizado(@PathVariable("idEmpresa") Long idEmpresa,
+                                                                                         FilterListVentasDto filters,
+                                                                                         Pageable pageable) {
         log.info("Filters = {}", filters);
         return vtVentasService.findAllPaginateTotalizado(idDataService.getIdData(), idEmpresa, filters,
                 auditorAware.getTipoPermisoFacturaVer(), auditorAware.getCurrentAuditor().orElse("SYSTEM"), pageable);

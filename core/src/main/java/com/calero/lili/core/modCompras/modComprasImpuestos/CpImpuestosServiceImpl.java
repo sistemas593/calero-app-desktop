@@ -116,6 +116,8 @@ public class CpImpuestosServiceImpl {
             throw new GeneralException(MessageFormat.format("El registro ya existe - numeroIdentificacion: {0} Serie: {1} Secuencia: {2} numeroAutorizacion: {3}, codigoSustento: {4}", request.getNumeroIdentificacion(), request.getSerie(), request.getSecuencial(), request.getNumeroAutorizacion(), request.getCodigoSustento()));
         }
 
+
+
         validacionCodigoImpuesto(request);
         validarReembolso(request);
         validarPagoExterior(request);

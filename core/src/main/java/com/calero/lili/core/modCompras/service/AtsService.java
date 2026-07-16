@@ -15,7 +15,6 @@ import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosRepository
 import com.calero.lili.core.modCompras.modComprasRetenciones.CpRetencionesEntity;
 import com.calero.lili.core.modCompras.projection.AtsProjection;
 import com.calero.lili.core.modCompras.projection.AtsRetencionResumenProjection;
-import com.calero.lili.core.modCompras.projection.AtsRetencionValoresProjection;
 import com.calero.lili.core.modImpuestosAnexos.ats.DetalleAir;
 import com.calero.lili.core.modImpuestosAnexos.ats.DetalleCompras;
 import com.calero.lili.core.modImpuestosAnexos.ats.Iva;
@@ -351,19 +350,19 @@ public class AtsService {
                 cellTotalRegistros.setHorizontalAlignment(Element.ALIGN_RIGHT);
                 comprasTable.addCell(cellTotalRegistros);
 
-                PdfPCell cellBiTarifaCero = new PdfPCell(new Phrase(factura.getBiTarifaCero().toString(), valoresFont));
+                PdfPCell cellBiTarifaCero = new PdfPCell(new Phrase(formatoValores.convertirPuntoMiles(factura.getBiTarifaCero()), valoresFont));
                 cellBiTarifaCero.setHorizontalAlignment(Element.ALIGN_RIGHT);
                 comprasTable.addCell(cellBiTarifaCero);
 
-                PdfPCell cellBiBaseDiferenteCero = new PdfPCell(new Phrase(factura.getBiBaseDiferenteCero().toString(), valoresFont));
+                PdfPCell cellBiBaseDiferenteCero = new PdfPCell(new Phrase(formatoValores.convertirPuntoMiles(factura.getBiBaseDiferenteCero()), valoresFont));
                 cellBiBaseDiferenteCero.setHorizontalAlignment(Element.ALIGN_RIGHT);
                 comprasTable.addCell(cellBiBaseDiferenteCero);
 
-                PdfPCell cellBaseNoObjectoIva = new PdfPCell(new Phrase(factura.getBiBaseNoObjectoIva().toString(), valoresFont));
+                PdfPCell cellBaseNoObjectoIva = new PdfPCell(new Phrase(formatoValores.convertirPuntoMiles(factura.getBiBaseNoObjectoIva()), valoresFont));
                 cellBaseNoObjectoIva.setHorizontalAlignment(Element.ALIGN_RIGHT);
                 comprasTable.addCell(cellBaseNoObjectoIva);
 
-                PdfPCell cellValorIva = new PdfPCell(new Phrase(factura.getValorIva().toString(), valoresFont));
+                PdfPCell cellValorIva = new PdfPCell(new Phrase(formatoValores.convertirPuntoMiles(factura.getValorIva()), valoresFont));
                 cellValorIva.setHorizontalAlignment(Element.ALIGN_RIGHT);
                 comprasTable.addCell(cellValorIva);
 
@@ -378,19 +377,19 @@ public class AtsService {
             totalCell.setColspan(3);
             comprasTable.addCell(totalCell);
 
-            PdfPCell cellTotalCero = new PdfPCell(new Phrase(total0.toString(), valoresFont));
+            PdfPCell cellTotalCero = new PdfPCell(new Phrase(formatoValores.convertirPuntoMiles(total0), valoresFont));
             cellTotalCero.setHorizontalAlignment(Element.ALIGN_RIGHT);
             comprasTable.addCell(cellTotalCero);
 
-            PdfPCell cellTotalDif = new PdfPCell(new Phrase(totalDif.toString(), valoresFont));
+            PdfPCell cellTotalDif = new PdfPCell(new Phrase(formatoValores.convertirPuntoMiles(totalDif), valoresFont));
             cellTotalDif.setHorizontalAlignment(Element.ALIGN_RIGHT);
             comprasTable.addCell(cellTotalDif);
+            PdfPCell cellTotalNoObj = new PdfPCell(new Phrase(formatoValores.convertirPuntoMiles(totalNoObj), valoresFont));
 
-            PdfPCell cellTotalNoObj = new PdfPCell(new Phrase(totalNoObj.toString(), valoresFont));
             cellTotalNoObj.setHorizontalAlignment(Element.ALIGN_RIGHT);
             comprasTable.addCell(cellTotalNoObj);
 
-            PdfPCell cellTotalIVA = new PdfPCell(new Phrase(totalIVA.toString(), valoresFont));
+            PdfPCell cellTotalIVA = new PdfPCell(new Phrase(formatoValores.convertirPuntoMiles(totalIVA), valoresFont));
             cellTotalIVA.setHorizontalAlignment(Element.ALIGN_RIGHT);
             comprasTable.addCell(cellTotalIVA);
 
@@ -433,11 +432,11 @@ public class AtsService {
                     cellRegistros.setHorizontalAlignment(Element.ALIGN_RIGHT);
                     rentaTable.addCell(cellRegistros);
 
-                    PdfPCell cellBase = new PdfPCell(new Phrase(item.getBaseImponible().toString(), valoresFont));
+                    PdfPCell cellBase = new PdfPCell(new Phrase(formatoValores.convertirPuntoMiles(item.getBaseImponible()), valoresFont));
                     cellBase.setHorizontalAlignment(Element.ALIGN_RIGHT);
                     rentaTable.addCell(cellBase);
 
-                    PdfPCell cellRetenido = new PdfPCell(new Phrase(item.getValorRetenido().toString(), valoresFont));
+                    PdfPCell cellRetenido = new PdfPCell(new Phrase(formatoValores.convertirPuntoMiles(item.getValorRetenido()), valoresFont));
                     cellRetenido.setHorizontalAlignment(Element.ALIGN_RIGHT);
                     rentaTable.addCell(cellRetenido);
 
@@ -451,11 +450,11 @@ public class AtsService {
                 emptyTotalCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
                 rentaTable.addCell(emptyTotalCell);
 
-                PdfPCell totalBaseCell = new PdfPCell(new Phrase(totalBase.toString(), valoresFont));
+                PdfPCell totalBaseCell = new PdfPCell(new Phrase(formatoValores.convertirPuntoMiles(totalBase), valoresFont));
                 totalBaseCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
                 rentaTable.addCell(totalBaseCell);
 
-                PdfPCell totalRetenidoCell = new PdfPCell(new Phrase(totalRetenido.toString(), valoresFont));
+                PdfPCell totalRetenidoCell = new PdfPCell(new Phrase(formatoValores.convertirPuntoMiles(totalRetenido), valoresFont));
                 totalRetenidoCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
                 rentaTable.addCell(totalRetenidoCell);
 
@@ -512,7 +511,7 @@ public class AtsService {
 
                 // Columna 3: Valor
                 BigDecimal valor = valoresRetenciones[i] != null ? valoresRetenciones[i] : BigDecimal.ZERO;
-                PdfPCell valorCell = new PdfPCell(new Phrase(valor.toString(), valoresFont));
+                PdfPCell valorCell = new PdfPCell(new Phrase(formatoValores.convertirPuntoMiles(valor), valoresFont));
                 valorCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
                 retencionTable.addCell(valorCell);
 
@@ -523,7 +522,7 @@ public class AtsService {
             totalRetCell.setColspan(2);
             retencionTable.addCell(totalRetCell);
 
-            PdfPCell valorTotalCell = new PdfPCell(new Phrase(totalRetenido.toString(), valoresFont));
+            PdfPCell valorTotalCell = new PdfPCell(new Phrase(formatoValores.convertirPuntoMiles(totalRetenido), valoresFont));
             valorTotalCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
             retencionTable.addCell(valorTotalCell);
 
