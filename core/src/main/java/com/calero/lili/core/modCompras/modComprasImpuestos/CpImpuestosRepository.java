@@ -105,7 +105,7 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
                     "valoresEntity.codigo as codigo, " +
                     "valoresEntity.codigo_porcentaje as codigoPorcentaje, " +
                     "sum(valoresEntity.base_imponible) as totalBaseImponible," +
-                    "sum(valoresEntity.valor) as valor " +
+                    "sum(valoresEntity.valor) as totalValor " +
                     "FROM cp_impuestos entity " +
                     "LEFT JOIN ge_terceros gt on gt.id_tercero = entity.id_proveedor " +
                     "INNER JOIN cp_impuestos_valores valoresEntity ON entity.id_impuestos = valoresEntity.id_impuestos " +

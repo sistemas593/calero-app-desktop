@@ -12,6 +12,8 @@ import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.errors.exceptions.ListErrorException;
 import com.calero.lili.core.modLocalidades.modParroquias.ParroquiaEntity;
 import com.calero.lili.core.modLocalidades.modParroquias.ParroquiaRepository;
+import com.calero.lili.core.modRRHH.modRRHHTrabajadores.TrabajadorEntity;
+import com.calero.lili.core.modRRHH.modRRHHTrabajadores.TrabajadorRepository;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
 import com.calero.lili.core.modTerceros.GeTercerosTipoEntity;
@@ -53,6 +55,7 @@ public class ExcelCargarTercerosServiceImpl {
     private final DetalleErrorBuilder detalleErrorBuilder;
     private final ParroquiaRepository parroquiaRepository;
     private final TbPaisesRepository tbPaisesRepository;
+    private final TrabajadorRepository trabajadorRepository;
 
     public void carga(Long idData, MultipartFile file, String usuario) throws IOException {
 
@@ -122,8 +125,8 @@ public class ExcelCargarTercerosServiceImpl {
         // Procesar filas desde memoria
         List<DetalleError> listaErrores = new ArrayList<>();
         List<GeTerceroEntity> tercerosLista = new ArrayList<>();
-        List<GeTercerosTipoEntity> tercerosTipoClienteLista = new ArrayList<>();
-        List<GeTercerosTipoEntity> tercerosTipoProveedorLista = new ArrayList<>();
+        List<GeTercerosTipoEntity> geTercerosTipoEntities = new ArrayList<>();
+        List<TrabajadorEntity> trabajadorEntities = new ArrayList<>();
 
         for (FilaExcel fila : filas) {
             String[] celdas = fila.celdas();
@@ -199,8 +202,8 @@ public class ExcelCargarTercerosServiceImpl {
                 cliente.setCodigoTercero(codTercero);
             }
 
-            cliente.setWeb(celda(celdas, 4) != null ? celda(celdas, 4) : "");
-            cliente.setObservaciones(celda(celdas, 10) != null ? celda(celdas, 10) : "");
+            cliente.setWeb(celda(celdas, 9) != null ? celda(celdas, 9) : null);
+            cliente.setObservaciones(celda(celdas, 10) != null ? celda(celdas, 10) : null);
 
             cliente.setTipoPersoneria(null);
             String tipoPersoneria = celda(celdas, 11);
@@ -214,33 +217,143 @@ public class ExcelCargarTercerosServiceImpl {
                 }
             }
 
-            String direccion = celda(celdas, 5);
+            String direccion = celda(celdas, 4);
             if (direccion == null) {
                 listaErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.DIRECCION_NOT_FOUND));
             } else {
                 cliente.setDireccion(direccion);
-                cliente.setCiudad(celda(celdas, 6) != null ? celda(celdas, 6) : "");
-                cliente.setTelefonos(celda(celdas, 7) != null ? celda(celdas, 7) : "");
-                cliente.setContacto(celda(celdas, 8) != null ? celda(celdas, 8) : "");
-                cliente.setEmail(celda(celdas, 9) != null ? celda(celdas, 9) : "");
+                cliente.setCiudad(celda(celdas, 5) != null ? celda(celdas, 5) : null);
+                cliente.setTelefonos(celda(celdas, 6) != null ? celda(celdas, 6) : null);
+                cliente.setContacto(celda(celdas, 7) != null ? celda(celdas, 7) : null);
+                cliente.setEmail(celda(celdas, 8) != null ? celda(celdas, 8) : null);
             }
 
-            String esCliente = celda(celdas, 19);
-            String esProveedor = celda(celdas, 20);
-            if (esCliente != null && esProveedor != null) {
+            String esCliente = celda(celdas, 31);
+            String esProveedor = celda(celdas, 32);
+            String esTrabajador = celda(celdas, 33);
+
+            if (esCliente != null && esProveedor != null && esTrabajador != null) {
                 if (Objects.equals(esCliente, "S")) {
                     GeTercerosTipoEntity tercerosClientes = new GeTercerosTipoEntity();
                     tercerosClientes.setIdTerceroTipo(UUID.randomUUID());
                     tercerosClientes.setTipo(TipoTercero.CLIENTE.getTipo());
                     tercerosClientes.setTercero(GeTerceroEntity.builder().idTercero(tokenIdTercero).build());
-                    tercerosTipoClienteLista.add(tercerosClientes);
+                    geTercerosTipoEntities.add(tercerosClientes);
                 }
                 if (Objects.equals(esProveedor, "S")) {
                     GeTercerosTipoEntity tercerosProveedores = new GeTercerosTipoEntity();
                     tercerosProveedores.setIdTerceroTipo(UUID.randomUUID());
                     tercerosProveedores.setTipo(TipoTercero.PROVEEDOR.getTipo());
                     tercerosProveedores.setTercero(GeTerceroEntity.builder().idTercero(tokenIdTercero).build());
-                    tercerosTipoProveedorLista.add(tercerosProveedores);
+                    geTercerosTipoEntities.add(tercerosProveedores);
+                }
+
+                if (Objects.equals(esTrabajador, "S")) {
+
+                    GeTercerosTipoEntity getTrabajadores = new GeTercerosTipoEntity();
+                    getTrabajadores.setIdTerceroTipo(UUID.randomUUID());
+                    getTrabajadores.setTipo(TipoTercero.TRABAJADOR.getTipo());
+                    getTrabajadores.setTercero(GeTerceroEntity.builder().idTercero(tokenIdTercero).build());
+                    geTercerosTipoEntities.add(getTrabajadores);
+
+                    TrabajadorEntity trabajador = new TrabajadorEntity();
+
+                    trabajador.setIdTrabajador(UUID.randomUUID());
+                    trabajador.setTercero(cliente);
+
+                    String apellido = celda(celdas, 19);
+                    if (apellido != null) {
+                        trabajador.setApellidos(apellido);
+                    } else {
+                        listaErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.TRABAJADOR_NOMBRE_NOT_FOUND));
+                    }
+
+                    String nombre = celda(celdas, 20);
+                    if (nombre != null) {
+                        trabajador.setNombres(apellido);
+                    } else {
+                        listaErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.TRABAJADOR_NOMBRE_NOT_FOUND));
+                    }
+
+
+                    String codigoSalario = celda(celdas, 21);
+                    if (codigoSalario != null) {
+                        trabajador.setCodigoSalario(codigoSalario);
+                    } else {
+                        listaErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.TRABAJADOR_CODIGO_SALARIO_NOT_FOUND));
+                    }
+
+
+                    String codigoEstablecimiento = celda(celdas, 22);
+                    if (codigoEstablecimiento != null) {
+                        trabajador.setCodigoEstablecimiento(codigoEstablecimiento);
+                    } else {
+                        listaErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.TRABAJADOR_CODIGO_ESTAB_NOT_FOUND));
+                    }
+
+                    String aplicaConvenido = celda(celdas, 23);
+                    if (aplicaConvenido != null) {
+                        trabajador.setAplicaConvenio(aplicaConvenido);
+                    } else {
+                        listaErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.TRABAJADOR_APL_CONVENIO_NOT_FOUND));
+                    }
+
+                    String tipoDiscapacidad = celda(celdas, 24);
+                    if (tipoDiscapacidad != null) {
+                        trabajador.setTipoDiscapacidad(tipoDiscapacidad);
+
+                        if (!tipoDiscapacidad.equals("01") && !tipoDiscapacidad.equals("02")) {
+
+                            String porcentaje = celda(celdas, 25);
+                            if (porcentaje != null) {
+                                trabajador.setTipoDiscapacidad(tipoDiscapacidad);
+                            } else {
+                                listaErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.TRABAJADOR_PORCENTAJE_DISCAPACIDAD_NOT_FOUND));
+                            }
+
+                            String tipoIdDiscapacidad = celda(celdas, 26);
+                            if (tipoIdDiscapacidad != null) {
+                                trabajador.setTipoIdDiscapacidad(tipoIdDiscapacidad);
+                            } else {
+                                listaErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.TRABAJADOR_TIPO_ID_DISCAPACIDAD_NOT_FOUND));
+                            }
+
+                            String identificacionDiscapacidad = celda(celdas, 27);
+                            if (identificacionDiscapacidad != null) {
+                                trabajador.setIdDiscapacidad(identificacionDiscapacidad);
+                            } else {
+                                listaErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.TRABAJADOR_IDENTIFICACION_DISCAPACIDAD_NOT_FOUND));
+                            }
+
+                        }
+
+                    } else {
+                        listaErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.TRABAJADOR_TIPO_DISCAPACIDAD_NOT_FOUND));
+                    }
+
+                    String benProvGalapagos = celda(celdas, 28);
+                    if (benProvGalapagos != null) {
+                        trabajador.setBeneficioProvGalapagos(benProvGalapagos);
+                    } else {
+                        listaErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.TRABAJADOR_BENEFICIO_PROV_GALAPAGOS_NOT_FOUND));
+                    }
+
+                    String enfermedadCatastrofica = celda(celdas, 29);
+                    if (enfermedadCatastrofica != null) {
+                        trabajador.setEnfermedadCatastrofica(enfermedadCatastrofica);
+                    } else {
+                        listaErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.TRABAJADOR_ENF_CASTROFICA_NOT_FOUND));
+                    }
+
+                    String codigoResidencia = celda(celdas, 29);
+                    if (codigoResidencia != null) {
+                        trabajador.setCodigoResidencia(codigoResidencia);
+                    } else {
+                        listaErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.TRABAJADOR_CODIGO_RESIDENCIA_NOT_FOUND));
+                    }
+
+                    trabajadorEntities.add(trabajador);
+
                 }
             } else {
                 listaErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.ES_TERCERO_ERROR));
@@ -260,8 +373,12 @@ public class ExcelCargarTercerosServiceImpl {
 
         if (listaErrores.isEmpty()) {
             clientesRepository.saveAll(tercerosLista);
-            geTercerosTipoRepository.saveAll(tercerosTipoClienteLista);
-            geTercerosTipoRepository.saveAll(tercerosTipoProveedorLista);
+            geTercerosTipoRepository.saveAll(geTercerosTipoEntities);
+
+            if (!trabajadorEntities.isEmpty()) {
+                trabajadorRepository.saveAll(trabajadorEntities);
+            }
+
         } else {
             List<String> list = listaErrores.stream()
                     .map(detalleError -> detalleError.getLinea() + "   " + detalleError.getType().getDescription() + " " + detalleError.getDetalle())

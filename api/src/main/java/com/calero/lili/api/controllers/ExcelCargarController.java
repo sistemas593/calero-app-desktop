@@ -1,6 +1,7 @@
 package com.calero.lili.api.controllers;
 
 import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
+import com.calero.lili.api.utils.IdDataServiceImpl;
 import com.calero.lili.core.modCargarExcel.services.ExcelCargaGastosServiceImpl;
 import com.calero.lili.core.modCargarExcel.services.ExcelCargaItemsServiceImpl;
 import com.calero.lili.core.modCargarExcel.services.ExcelCargaMarcasServiceImpl;
@@ -8,9 +9,7 @@ import com.calero.lili.core.modCargarExcel.services.ExcelCargaMedidasServiceImpl
 import com.calero.lili.core.modCargarExcel.services.ExcelCargaServiciosServiceImpl;
 import com.calero.lili.core.modCargarExcel.services.ExcelCargarCategoriasServiceImpl;
 import com.calero.lili.core.modCargarExcel.services.ExcelCargarTercerosServiceImpl;
-import com.calero.lili.core.modCargarExcel.services.ExcelCargarTrabajadoresServiceImpl;
 import com.calero.lili.core.modTesoreria.modTesoreriaEstadosCuenta.ExcelCargarEstadoCuentaServiceImpl;
-import com.calero.lili.api.utils.IdDataServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,8 +38,6 @@ public class ExcelCargarController {
     private final ExcelCargarCategoriasServiceImpl excelCargarCategoriasService;
     private final ExcelCargaMedidasServiceImpl excelCargaMedidasService;
     private final ExcelCargarEstadoCuentaServiceImpl excelCargarEstadoCuentaService;
-    private final ExcelCargarTrabajadoresServiceImpl excelCargarTrabajadoresService;
-
     private final IdDataServiceImpl idDataService;
     private final AuditorAwareImpl auditorAware;
 
@@ -118,16 +115,4 @@ public class ExcelCargarController {
             throw new RuntimeException(e);
         }
     }
-
-    @PostMapping("/trabajadores/{idEmpresa}")
-    public void uploadFileTrabajadores(@RequestParam("file") MultipartFile file,
-                                       @PathVariable("idEmpresa") Long idEmpresa) {
-        try {
-            excelCargarTrabajadoresService.cargarTrabajadores(idDataService.getIdData(), file, idEmpresa);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
 }

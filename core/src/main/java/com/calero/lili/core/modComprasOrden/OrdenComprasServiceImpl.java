@@ -177,7 +177,7 @@ public class OrdenComprasServiceImpl {
         paginated.setPageSize(page.getPageable().getPageSize());
         paginated.setEmpty(page.isEmpty());
         paginated.setNumber(page.getNumber());
-        totalesDto.setPaginated(paginated);
+        totalesDto.setPaginator(paginated);
 
         GetListComprasOrdenDtoTotalizado.Totales tot = new GetListComprasOrdenDtoTotalizado.Totales();
         tot.setValoresTotales(totalValoresProjection);

@@ -15,7 +15,7 @@ public class GetVentaReembosloListDtoTotalizado<T> {
 
     private List<T> content;
 
-    private Paginator paginated;
+    private Paginator paginator;
 
     private Totales totales;
 

@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -24,8 +23,6 @@ public class GetListDtoTotalizado<T> {
     @NoArgsConstructor
     @Builder
     public static class Totales {
-        private BigDecimal totalDescuento;
-//        private BigDecimal total;
         private List<TotalesProjection> valoresTotales;
     }
 

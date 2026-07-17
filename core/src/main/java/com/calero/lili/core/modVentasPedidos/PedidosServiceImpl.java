@@ -231,7 +231,7 @@ public class PedidosServiceImpl {
         paginated.setPageSize(page.getPageable().getPageSize());
         paginated.setEmpty(page.isEmpty());
         paginated.setNumber(page.getNumber());
-        totalesDto.setPaginated(paginated);
+        totalesDto.setPaginator(paginated);
 
         GetVentaPedidosListDtoTotalizado.Totales tot = new GetVentaPedidosListDtoTotalizado.Totales();
         tot.setValoresTotales(totalValoresProjection);

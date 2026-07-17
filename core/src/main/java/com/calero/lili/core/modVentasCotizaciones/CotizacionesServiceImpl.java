@@ -227,7 +227,7 @@ public class CotizacionesServiceImpl {
         paginated.setPageSize(page.getPageable().getPageSize());
         paginated.setEmpty(page.isEmpty());
         paginated.setNumber(page.getNumber());
-        totalesDto.setPaginated(paginated);
+        totalesDto.setPaginator(paginated);
 
         GetListVentasCotizacionesDtoTotalizado.Totales tot = new GetListVentasCotizacionesDtoTotalizado.Totales();
         tot.setValoresTotales(totalValoresProjection);

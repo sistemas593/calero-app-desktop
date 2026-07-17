@@ -187,7 +187,7 @@ public class VtVentasReembolsoServiceImpl {
         paginated.setPageSize(page.getPageable().getPageSize());
         paginated.setEmpty(page.isEmpty());
         paginated.setNumber(page.getNumber());
-        totalesDto.setPaginated(paginated);
+        totalesDto.setPaginator(paginated);
 
         GetVentaReembosloListDtoTotalizado.Totales tot = new GetVentaReembosloListDtoTotalizado.Totales();
         tot.setValoresTotales(totalValoresProjection);

@@ -259,7 +259,7 @@ public class ComprasServiceImpl {
         paginated.setPageSize(page.getPageable().getPageSize());
         paginated.setEmpty(page.isEmpty());
         paginated.setNumber(page.getNumber());
-        totalesDto.setPaginated(paginated);
+        totalesDto.setPaginator(paginated);
 
         GetCompraListDtoTotalizado.Totales tot = new GetCompraListDtoTotalizado.Totales();
         tot.setValoresTotales(totalValoresProjection);

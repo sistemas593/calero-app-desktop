@@ -198,7 +198,7 @@ public class VentasRetencionesServiceImpl {
         paginated.setPageSize(page.getPageable().getPageSize());
         paginated.setEmpty(page.isEmpty());
         paginated.setNumber(page.getNumber());
-        totalesDto.setPaginated(paginated);
+        totalesDto.setPaginator(paginated);
 
         GetVentaRetencionesListDtoTotalizado.Totales tot = new GetVentaRetencionesListDtoTotalizado.Totales();
         tot.setValoresTotales(totalValoresProjection);

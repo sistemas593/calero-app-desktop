@@ -501,7 +501,7 @@ public class VtVentasFacturasServiceImpl {
         paginated.setPageSize(page.getPageable().getPageSize());
         paginated.setEmpty(page.isEmpty());
         paginated.setNumber(page.getNumber());
-        totalesDto.setPaginated(paginated);
+        totalesDto.setPaginator(paginated);
 
         GetVentasListDtoTotalizado.Totales tot = new GetVentasListDtoTotalizado.Totales();
         tot.setValoresTotales(totalValoresProjection);
