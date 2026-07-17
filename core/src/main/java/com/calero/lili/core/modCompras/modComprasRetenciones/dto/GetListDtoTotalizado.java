@@ -15,7 +15,7 @@ public class GetListDtoTotalizado<T> {
 
     private List<T> content;
 
-    private Paginator paginated;
+    private Paginator paginator;
 
     private Totales totales;
 

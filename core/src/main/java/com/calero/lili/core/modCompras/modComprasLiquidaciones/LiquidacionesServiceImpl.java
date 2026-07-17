@@ -401,7 +401,7 @@ public class LiquidacionesServiceImpl {
         paginated.setPageSize(page.getPageable().getPageSize());
         paginated.setEmpty(page.isEmpty());
         paginated.setNumber(page.getNumber());
-        totalesDto.setPaginated(paginated);
+        totalesDto.setPaginator(paginated);
 
         GetLiquidacionCompraListDtoTotalizado.Totales tot = new GetLiquidacionCompraListDtoTotalizado.Totales();
         tot.setValoresTotales(totalValoresProjection);
