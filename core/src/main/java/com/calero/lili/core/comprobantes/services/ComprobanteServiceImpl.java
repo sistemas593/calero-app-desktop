@@ -40,6 +40,7 @@ public class ComprobanteServiceImpl {
     private final CpImpuestosRepository cpImpuestosRepository;
 
 
+
     public void getComprobanteXmlFactura(Long idData, VtVentaEntity vtVentaEntity,
                                          AdEmpresaEntity adEmpresa, AdEmpresasSeriesEntity serie) {
 

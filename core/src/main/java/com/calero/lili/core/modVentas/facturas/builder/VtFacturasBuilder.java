@@ -46,7 +46,7 @@ public class VtFacturasBuilder {
                 .sucursal(model.getSucursal())
                 .tipoVenta(TipoVenta.FAC.name())
                 .serie(model.getSerie())
-                //.secuencial(model.getSecuencial())
+                .secuencial(model.getSecuencial())
                 .numeroAutorizacion(model.getNumeroAutorizacion())
                 .tipoIngreso(model.getTipoIngreso().name())
                 .codigoDocumento(model.getCodigoDocumento())

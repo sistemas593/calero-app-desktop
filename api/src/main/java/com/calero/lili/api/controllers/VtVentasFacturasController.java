@@ -59,7 +59,7 @@ public class VtVentasFacturasController {
     public RespuestaProcesoGetDto create(@PathVariable("idEmpresa") Long idEmpresa,
                                          @Valid @RequestBody CreationFacturaRequestDto request) {
         return vtVentasService.create(idDataService.getIdData(), idEmpresa,
-                request, auditorAware.getCurrentAuditor().orElse("SYSTEM"), "WEB");
+                request, auditorAware.getCurrentAuditor().orElse("SYSTEM"), "LOC");
     }
 
     @PutMapping("facturas/{idEmpresa}/{idVenta}")
