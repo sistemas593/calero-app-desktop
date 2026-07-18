@@ -42,6 +42,8 @@ public class CreationNotaDebitoRequestDto {
     private String serie;
 
 
+    private String secuencial;
+
     private String numeroAutorizacion;
 
     @NotEmpty(message = "No existe la fecha de emision")

@@ -114,19 +114,21 @@ public class LiquidacionesServiceImpl {
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Empresa {0}, serie {1} no existe", idEmpresa, request.getSerie())));
 
 
-        String secuencial = validacionDocumentosGeneral.generarSecuencial(idData, idEmpresa, serie.getIdSerie(), TipoDocumentoSerie.LIQ);
-
         List<ValoresDto> valores = calcularValoresDocumentos.validarValores(request.getDetalle());
         request.setValores(valores);
         setearValoresCabecera(valores, request);
 
-        Optional<OneProjection> existingFactura = liquidacionesRepository
-                .findExistBySecuencial(idData, idEmpresa, request.getSerie(), secuencial);
 
-        if (existingFactura.isPresent()) {
-            throw new GeneralException(MessageFormat.format("La liquidación ya existe  Serie: {0} Secuencia: {1}",
-                    request.getSerie(), secuencial));
+        if (Objects.nonNull(request.getSecuencial())) {
+            Optional<OneProjection> existingFactura = liquidacionesRepository
+                    .findExistBySecuencial(idData, idEmpresa, request.getSerie(), request.getSecuencial());
+
+            if (existingFactura.isPresent()) {
+                throw new GeneralException(MessageFormat.format("La liquidación ya existe  Serie: {0} Secuencia: {1}",
+                        request.getSerie(), request.getSecuencial()));
+            }
         }
+
 
         GeTerceroEntity proveedor = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
                 .orElseThrow(() -> new GeneralException("El tercero seleccionado no existe"));
@@ -137,7 +139,7 @@ public class LiquidacionesServiceImpl {
 
 
         CpLiquidacionesEntity cpLiquidacionesEntity = cpLiquidacionesBuilder.builderEntity(request, idData, idEmpresa);
-        cpLiquidacionesEntity.setSecuencial(secuencial);
+
         cpLiquidacionesEntity.setProveedor(proveedor);
         cpLiquidacionesEntity.setEmail(proveedor.getEmail());
 
@@ -149,8 +151,9 @@ public class LiquidacionesServiceImpl {
         if (Objects.nonNull(reembolsos)) {
             cpLiquidacionesEntity.setReembolsosEntity(reembolsos);
         }
-        comprobanteService.getComprobanteXmlLiquidacion(idData, cpLiquidacionesEntity, empresa, serie);
-        CpLiquidacionesEntity saved = liquidacionPersistenceService.guardarLiquidacion(cpLiquidacionesEntity, request);
+
+        CpLiquidacionesEntity saved = liquidacionPersistenceService.guardarLiquidacion(cpLiquidacionesEntity, empresa,
+                serie, idData, idEmpresa, request);
 
         RespuestaProcesoGetDto respuestaProcesoGetDto = new RespuestaProcesoGetDto();
 

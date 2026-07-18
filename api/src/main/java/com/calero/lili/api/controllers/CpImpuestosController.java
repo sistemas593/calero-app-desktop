@@ -5,6 +5,7 @@ import com.calero.lili.api.utils.IdDataServiceImpl;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirCreationRequestDto;
+import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestoCargaExcelService;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosServiceImpl;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CreationCompraImpuestoRequestDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.FilterListCompraImpuestoDto;
@@ -27,8 +28,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -43,6 +46,7 @@ public class CpImpuestosController {
     private final CpImpuestosServiceImpl vtVentasService;
     private final IdDataServiceImpl idDataService;
     private final AuditorAwareImpl auditorAware;
+    private final CpImpuestoCargaExcelService cpImpuestoCargaExcelService;
 
     @PostMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.CREATED)
@@ -105,7 +109,6 @@ public class CpImpuestosController {
     }
 
 
-
     @GetMapping("facturas/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('CP_CI_VR_PR','CP_CI_VR_SC','CP_CI_VR_TD')")
@@ -130,8 +133,6 @@ public class CpImpuestosController {
                 auditorAware.getTipoPermisoVerImpuesto(),
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
-
-
 
 
     @GetMapping("facturas/excel/{idEmpresa}")
@@ -160,6 +161,19 @@ public class CpImpuestosController {
                             @PathVariable("idRecibida") UUID idRecibida,
                             @RequestBody CpImpuestosRecibirCreationRequestDto request) {
         vtVentasService.updateDatos(idDataService.getIdData(), idEmpresa, idRecibida, request);
+    }
+
+
+    @PostMapping("/excel/{idEmpresa}")
+    public void uploadCpImpuestoExcel(@RequestParam("file") MultipartFile file,
+                                      @PathVariable("idEmpresa") Long idEmpresa,
+                                      @PathVariable("sucursal") String sucursal) {
+        try {
+            cpImpuestoCargaExcelService.cargarExcelCompraImpuestos(idDataService.getIdData(), idEmpresa,
+                    file, auditorAware.getCurrentAuditor().orElse("SYSTEM"), sucursal);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

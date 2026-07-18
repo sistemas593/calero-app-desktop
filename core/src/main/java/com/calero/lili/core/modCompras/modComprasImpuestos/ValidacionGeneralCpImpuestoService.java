@@ -1,0 +1,223 @@
+package com.calero.lili.core.modCompras.modComprasImpuestos;
+
+import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajesEntity;
+import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajesRepository;
+import com.calero.lili.core.modCompras.modComprasImpuestos.builder.CpImpuestoDetalleErrorBuilder;
+import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CompraImpuestoDto;
+import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CpImpuestoDetalleError;
+import com.calero.lili.core.modCompras.modComprasImpuestos.dto.PagoExterior;
+import com.calero.lili.core.modCompras.modComprasImpuestos.dto.ValoresCompraImpuestoDto;
+import com.calero.lili.core.tablas.tbPaises.TbPaisEntity;
+import com.calero.lili.core.tablas.tbPaises.TbPaisesRepository;
+import com.calero.lili.core.tablas.tbPaises.tbParaisosFiscales.TbParaisoFiscalEntity;
+import com.calero.lili.core.tablas.tbPaises.tbParaisosFiscales.TbParaisoFiscalRepository;
+import com.calero.lili.core.utils.ComprobanteSustentoService;
+import com.calero.lili.core.utils.DateUtils;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.text.MessageFormat;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
+@Service
+@AllArgsConstructor
+public class ValidacionGeneralCpImpuestoService {
+
+    private final CpImpuestoDetalleErrorBuilder cpImpuestoDetalleErrorBuilder;
+    private final AdIvaPorcentajesRepository adIvaPorcentajesRepository;
+    private final ComprobanteSustentoService comprobanteSustentoService;
+    private final TbPaisesRepository tbPaisesRepository;
+    private final TbParaisoFiscalRepository tbParaisoFiscalRepository;
+
+    public List<CpImpuestoDetalleError> validacionGeneral(CompraImpuestoDto model) {
+        List<CpImpuestoDetalleError> detalleErrores = new ArrayList<>();
+
+        if (model.getSecuencial().length() != 9) {
+            detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("El secuencial debe ser solo de 9 dígitos"));
+        }
+
+        if (model.getNumeroAutorizacion().length() == 49 || model.getNumeroAutorizacion().length() == 10) {
+
+            if (!model.getNumeroAutorizacion().matches("\\d+")) {
+                detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("El número de autorización no puede contener caracteres que no sean númericos"));
+            }
+
+        } else {
+            detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("El número de autorización no cumple con la cantidad de dígitos 10/49"));
+        }
+
+
+        if (Objects.nonNull(model.getCodigoSustento())) {
+            if (!comprobanteSustentoService.validacionCodigos(model.getCodigoDocumento(), model.getCodigoSustento().replace("S", ""))) {
+                detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("La combinación de código de documento: " + model.getCodigoDocumento() +
+                        " y código de sustento: " + model.getCodigoSustento() + " es inválida."));
+            }
+        }
+
+        if (model.getPagoLocExt().equals("01") && Objects.nonNull(model.getPagoExterior())) {
+            detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("No es requerido el pago exterior"));
+        }
+
+        if (model.getPagoLocExt().equals("02") && Objects.isNull(model.getPagoExterior())) {
+            detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("No existe pago exterior"));
+        }
+
+        validacionGeneralPagoExterior(model.getPagoLocExt(), model.getPagoExterior(), detalleErrores);
+
+        validateIvaPorcentaje(getIntegerTarifaIva(model.getValores()), DateUtils.toLocalDate(model.getFechaEmision()), detalleErrores);
+
+
+        if (Objects.nonNull(model.getCodigoDocumento())) {
+            if (model.getCodigoDocumento().equals("41")) {
+                if (Objects.isNull(model.getReembolsos())) {
+                    throw new GeneralException("No existe lista de reembolsos");
+                }
+            }
+        }
+
+
+        return detalleErrores;
+
+    }
+
+
+    public void validateIvaPorcentaje(List<Integer> valores, LocalDate fechaFactura,
+                                      List<CpImpuestoDetalleError> detalleErrores) {
+
+
+        Optional<AdIvaPorcentajesEntity> porcentaje = adIvaPorcentajesRepository.findVigente(fechaFactura);
+
+        if (porcentaje.isEmpty()) {
+            detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("No existe porcentajes de iva para la fecha:" + fechaFactura));
+        }
+
+
+        Set<Integer> tarifasVigentes = new HashSet<>();
+
+        if (Objects.nonNull(porcentaje.get().getIva1()))
+
+            if (porcentaje.get().getIva1() != 0) {
+                tarifasVigentes.add(porcentaje.get().getIva1());
+            }
+
+        if (Objects.nonNull(porcentaje.get().getIva2())) {
+            if (porcentaje.get().getIva2() != 0) {
+                tarifasVigentes.add(porcentaje.get().getIva2());
+            }
+        }
+
+        if (Objects.nonNull(porcentaje.get().getIva3())) {
+            if (porcentaje.get().getIva3() != 0) {
+                tarifasVigentes.add(porcentaje.get().getIva3());
+            }
+        }
+
+        Set<Integer> tarifasExentas = Set.of(0, 6, 7); // 0%=0, No Objeto=6, Exento=7
+
+        for (Integer tarifa : valores) {
+            if (tarifasExentas.contains(tarifa)) continue;
+            if (!tarifasVigentes.contains(tarifa)) {
+                detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("La tarifa de IVA: " + tarifa + " , no está vigente para la fecha: " + fechaFactura));
+            }
+        }
+
+
+    }
+
+    private void validacionGeneralPagoExterior(String pagoLocExt, PagoExterior request, List<CpImpuestoDetalleError> detalleErrores) {
+        if (pagoLocExt.equals("02")) {
+
+            switch (request.getTipoRegi()) {
+                case "01" -> {
+
+                    if (Objects.isNull(request.getPaisEfecPagoGen()) || request.getPaisEfecPagoGen().isEmpty()) {
+                        detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("No existe pais al que se realiza el pago en régimen general"));
+                    }
+
+                    if (Objects.nonNull(request.getPaisEfecPagoParFis()) ||
+                            Objects.nonNull(request.getDenopagoRegFis())) {
+
+                        detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("No debe existir pago para paraiso fiscal " +
+                                " ni para denominacion del régimen fiscal preferente, si el tipo de registro es 01"));
+                    }
+
+                    Optional<TbPaisEntity> pais = tbPaisesRepository.findById(request.getPaisEfecPago());
+                    if (pais.isEmpty()) {
+                        detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("El pais con codigo: " + request.getPaisEfecPago() + "no existe"));
+                    }
+
+
+                    if (!request.getPaisEfecPago().equals(request.getPaisEfecPagoGen())) {
+                        detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("El pais de pago debe ser igual al pais de pago régimen general"));
+                    }
+
+
+                }
+                case "02" -> {
+
+                    if (Objects.isNull(request.getPaisEfecPagoParFis()) || request.getPaisEfecPagoParFis().isEmpty()) {
+                        detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("No existe pais al que se realiza el pago en paraiso fiscal"));
+                    }
+
+                    if (Objects.nonNull(request.getPaisEfecPagoGen()) ||
+                            Objects.nonNull(request.getDenopagoRegFis())) {
+
+                        detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("No debe existir pago para régimen general " +
+                                " ni para denominacion del régimen fiscal preferente, si el tipo de registro es 02"));
+                    }
+
+                    TbParaisoFiscalEntity entidad = tbParaisoFiscalRepository.findByCodigo(request.getPaisEfecPagoParFis())
+                            .orElseThrow(() -> new GeneralException(MessageFormat.format("El paraiso fiscal con codigo {0}, no existe",
+                                    request.getPaisEfecPagoParFis())));
+
+                    if (!entidad.getPais().getCodigoPais().equals(request.getPaisEfecPago())) {
+                        detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("El pais de pago debe ser igual al pais asignado al paraiso fiscal"));
+                    }
+
+                }
+                case "03" -> {
+                    if (Objects.isNull(request.getDenopagoRegFis()) || request.getDenopagoRegFis().isEmpty()) {
+                        detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("No existe pago denominacion del régimen fiscal preferente"));
+                    }
+
+                    if (Objects.nonNull(request.getPaisEfecPagoParFis()) ||
+                            Objects.nonNull(request.getPaisEfecPagoGen())) {
+
+                        detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("No debe existir pago para paraiso fiscal " +
+                                " ni para régimen general, si el tipo de registro es 03"));
+                    }
+
+                    Optional<TbPaisEntity> pais = tbPaisesRepository.findById(request.getPaisEfecPago());
+                    if (pais.isEmpty()) {
+                        detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("El pais con codigo: " + request.getPaisEfecPago() + "no existe"));
+                    }
+
+                }
+            }
+
+
+           /* String codigoPais = request.getPagoExterior().getPaisEfecPago();
+            tbPaisesRepository.findById(codigoPais)
+                    .orElseThrow(() -> new GeneralException(MessageFormat.format("El pais con codigo {0}, no existe", codigoPais)));*/
+
+        }
+    }
+
+    private List<Integer> getIntegerTarifaIva(List<ValoresCompraImpuestoDto> valores) {
+        return valores.stream()
+                .map(ValoresCompraImpuestoDto::getTarifa)
+                .filter(Objects::nonNull)
+                .map(BigDecimal::intValue)
+                .toList();
+    }
+
+
+}

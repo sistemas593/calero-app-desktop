@@ -125,9 +125,6 @@ public class VtVentasNotasCreditoServiceImpl {
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Empresa {0}, serie {1} no existe", idEmpresa, request.getSerie())));
 
 
-        String secuencial = validacionDocumentosGeneral.generarSecuencial(idData, idEmpresa,
-                serie.getIdSerie(), TipoDocumentoSerie.NCR);
-
         List<ValoresDto> valores = calcularValoresDocumentos.validarValores(request.getDetalle());
         request.setValores(valores);
         setearValoresCabecera(valores, request);
@@ -135,13 +132,17 @@ public class VtVentasNotasCreditoServiceImpl {
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
                 DateUtils.toLocalDate(request.getModFechaEmision()));
 
-        Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData,
-                idEmpresa, TipoVenta.NCR.name(), request.getSerie(), secuencial);
 
-        if (existingFactura.isPresent()) {
-            throw new GeneralException(MessageFormat.format("El documento ya existe Tipo: {0} Serie: {1} Secuencia: {2}",
-                    TipoVenta.NCR.name(), request.getSerie(), secuencial));
+        if (Objects.nonNull(request.getSecuencial())) {
+            Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData,
+                    idEmpresa, TipoVenta.NCR.name(), request.getSerie(), request.getSecuencial());
+
+            if (existingFactura.isPresent()) {
+                throw new GeneralException(MessageFormat.format("El documento ya existe Tipo: {0} Serie: {1} Secuencia: {2}",
+                        TipoVenta.NCR.name(), request.getSerie(), request.getSecuencial()));
+            }
         }
+
 
         validarItem(request, idData, idEmpresa);
         validarInfoAddicional(request);
@@ -152,16 +153,15 @@ public class VtVentasNotasCreditoServiceImpl {
 
         validarConsumidorFinal(tercero);
         VtVentaEntity vtVentaEntity = vtNotasCreditoBuilder.builderEntity(request, idData, idEmpresa);
-        vtVentaEntity.setSecuencial(secuencial);
         vtVentaEntity.setTercero(tercero);
         vtVentaEntity.setEmail(tercero.getTercero());
         vtVentaEntity.setCreatedBy(usuario);
         vtVentaEntity.setCreatedDate(LocalDateTime.now());
 
         vtVentaEntity.setTipoEmision(getTipoEmision(request));
-        vtComprobanteService.getComprobanteXmlNotaCredito(idData, vtVentaEntity, empresa, serie);
 
-        VtVentaEntity saved = vtVentasPersistenceService.guardarNotaCredito(vtVentaEntity);
+
+        VtVentaEntity saved = vtVentasPersistenceService.guardarNotaCredito(vtVentaEntity, empresa, serie, idData, idEmpresa);
 
         RespuestaProcesoGetDto respuestaProcesoGetDto = new RespuestaProcesoGetDto();
 

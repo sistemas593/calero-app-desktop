@@ -28,6 +28,8 @@ public class CreationNotaCreditoRequestDto {
     @NotEmpty(message = "No existe la serie")
     private String serie;
 
+    private String secuencial;
+
     private String numeroAutorizacion;
 
     @NotEmpty(message = "No existe la fecha de emision")

@@ -121,7 +121,6 @@ public class VtVentasFacturasServiceImpl {
     private final CalcularValoresDocumentos calcularValoresDocumentos;
     private final AdEmpresasRepository adEmpresasRepository;
     private final AdEmpresasSeriesRepository adEmpresasSeriesRepository;
-    private final ValidacionDocumentosGeneral validacionDocumentosGeneral;
 
 
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa,
@@ -229,18 +228,28 @@ public class VtVentasFacturasServiceImpl {
                 .findBySerie(idData, idEmpresa, request.getSerie())
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Empresa {0}, serie {1} no existe", idEmpresa, request.getSerie())));
 
+        validarNumeroAutorizacion(request);
+        VtVentaEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
+
 
         if (Objects.nonNull(request.getSecuencial())) {
-            Optional<OneProjection> existingFactura = vtVentaRepository
-                    .findExistBySecuencial(idData, idEmpresa, TipoVenta.FAC.name(), request.getSerie(), request.getSecuencial());
-            if (existingFactura.isPresent()) {
-                throw new GeneralException(MessageFormat.format("El documento ya existe TipoIngreso:" +
-                        " {0} Serie: {1} Secuencia: {2}", TipoVenta.FAC.name(), request.getSerie(), request.getSecuencial()));
+
+            boolean cambioDocumento =
+                    !Objects.equals(vtVentaEntity.getSerie(), request.getSerie()) ||
+                            !Objects.equals(vtVentaEntity.getSecuencial(), request.getSecuencial());
+
+            if (cambioDocumento) {
+                Optional<OneProjection> existingFactura = vtVentaRepository
+                        .findExistBySecuencial(idData, idEmpresa, TipoVenta.FAC.name(), request.getSerie(), request.getSecuencial());
+
+                if (existingFactura.isPresent()) {
+                    throw new GeneralException(MessageFormat.format("El documento ya existe TipoIngreso:" +
+                            " {0} Serie: {1} Secuencia: {2}", TipoVenta.FAC.name(), request.getSerie(), request.getSecuencial()));
+                }
             }
         }
 
-        validarNumeroAutorizacion(request);
-        VtVentaEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
+
         validacionModulo(vtVentaEntity);
         validarService.validarNoModificacion(vtVentaEntity);
 

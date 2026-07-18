@@ -10,19 +10,20 @@ import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.OrigenImpuestos;
 import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.core.errors.exceptions.ListErrorException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
-import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajeServiceImpl;
+import com.calero.lili.core.modCompras.modComprasImpuestos.builder.CpImpuestoDetalleErrorBuilder;
 import com.calero.lili.core.modCompras.modComprasImpuestos.builder.CpImpuestosBuilder;
 import com.calero.lili.core.modCompras.modComprasImpuestos.builder.ImpuestoCodigoBuilder;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.AcumulacionProveedorTotalesDto;
+import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CpImpuestoDetalleError;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CreationCompraImpuestoRequestDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.FilterListCompraImpuestoDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetListDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetListDtoTotalizado;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetReporteListDto;
-import com.calero.lili.core.modCompras.modComprasImpuestos.dto.PagoExterior;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.ValoresCompraImpuestoDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.projection.ComprasImpuestoProjection;
 import com.calero.lili.core.modCompras.modComprasImpuestos.projection.OneProjection;
@@ -38,7 +39,6 @@ import com.calero.lili.core.tablas.tbPaises.tbParaisosFiscales.TbParaisoFiscalEn
 import com.calero.lili.core.tablas.tbPaises.tbParaisosFiscales.TbParaisoFiscalRepository;
 import com.calero.lili.core.utils.ComprobanteSustentoService;
 import com.calero.lili.core.utils.DateUtils;
-import com.calero.lili.core.utils.ValidacionDocumentosGeneral;
 import com.calero.lili.core.utils.validaciones.ValidarValoresComprobantesPdf;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -96,19 +96,25 @@ public class CpImpuestosServiceImpl {
     private final ValidarValoresComprobantesPdf validarValoresComprobantesPdf;
     private final AdEmpresasRepository adEmpresasRepository;
     private final ComprobanteSustentoService comprobanteSustentoService;
-    private final AdIvaPorcentajeServiceImpl adIvaPorcentajeService;
     private final TbPaisesRepository tbPaisesRepository;
     private final TbParaisoFiscalRepository tbParaisoFiscalRepository;
     private final GeTercerosRepository geTercerosRepository;
+    private final ValidacionGeneralCpImpuestoService validacionGeneralService;
+    private final CpImpuestoDetalleErrorBuilder cpImpuestoDetalleErrorBuilder;
 
 
     public ResponseDto create(Long idData, Long idEmpresa, CreationCompraImpuestoRequestDto request, String usuario) {
 
+        List<CpImpuestoDetalleError> detalleErrors = validacionGeneralService.validacionGeneral(cpImpuestoDetalleErrorBuilder
+                .builderValidacion(request));
 
-        ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencial());
-        validarNumeroAutorizacion(request);
-        adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
-                DateUtils.toLocalDate(request.getFechaEmision()));
+        if (!detalleErrors.isEmpty()) {
+            List<String> list = detalleErrors.stream()
+                    .map(CpImpuestoDetalleError::getDetalle)
+                    .toList();
+            throw new ListErrorException(list);
+        }
+
 
         Optional<OneProjection> existingFactura = cpImpuestosRepository
                 .findExistBySecuencial(idData, idEmpresa, request.getNumeroIdentificacion(),
@@ -119,10 +125,12 @@ public class CpImpuestosServiceImpl {
         }
 
 
-        validacionCodigoImpuesto(request);
-        validarReembolso(request);
-        validarPagoExterior(request);
-        validarInfoAddicional(request);
+        if (Objects.nonNull(request.getInformacionAdicional())) {
+            if (request.getInformacionAdicional().isEmpty()) {
+                request.setInformacionAdicional(null);
+            }
+        }
+
         CpImpuestosEntity impuestosEntity = cpImpuestosBuilder.builderEntity(request, idData, idEmpresa);
 
         setearTotalesCabecera(request, impuestosEntity);
@@ -138,116 +146,22 @@ public class CpImpuestosServiceImpl {
 
     }
 
-    private void validarPagoExterior(CreationCompraImpuestoRequestDto request) {
-
-        if (request.getPagoLocExt().equals("01") && Objects.nonNull(request.getPagoExterior())) {
-            throw new GeneralException("No es requerido el pago exterior");
-        }
-
-        if (request.getPagoLocExt().equals("02") && Objects.isNull(request.getPagoExterior())) {
-            throw new GeneralException("No existe pago exterior");
-        }
-
-        validacionGeneralPagoExterior(request.getPagoLocExt(), request.getPagoExterior());
-
-    }
-
-    private void validacionGeneralPagoExterior(String pagoLocExt, PagoExterior request) {
-        if (pagoLocExt.equals("02")) {
-
-            switch (request.getTipoRegi()) {
-                case "01" -> {
-
-                    if (Objects.isNull(request.getPaisEfecPagoGen()) || request.getPaisEfecPagoGen().isEmpty()) {
-                        throw new GeneralException("No existe pais al que se realiza el pago en régimen general");
-                    }
-
-                    if (Objects.nonNull(request.getPaisEfecPagoParFis()) ||
-                            Objects.nonNull(request.getDenopagoRegFis())) {
-
-                        throw new GeneralException("No debe existir pago para paraiso fiscal " +
-                                " ni para denominacion del régimen fiscal preferente, si el tipo de registro es 01");
-                    }
-
-                    tbPaisesRepository.findById(request.getPaisEfecPago())
-                            .orElseThrow(() -> new GeneralException(MessageFormat.format("El pais con codigo {0}, no existe", request.getPaisEfecPago())));
-
-                    if (!request.getPaisEfecPago().equals(request.getPaisEfecPagoGen())) {
-                        throw new GeneralException("El pais de pago debe ser igual al pais de pago régimen general");
-                    }
-
-
-                }
-                case "02" -> {
-
-                    if (Objects.isNull(request.getPaisEfecPagoParFis()) || request.getPaisEfecPagoParFis().isEmpty()) {
-                        throw new GeneralException("No existe pais al que se realiza el pago en paraiso fiscal");
-                    }
-
-                    if (Objects.nonNull(request.getPaisEfecPagoGen()) ||
-                            Objects.nonNull(request.getDenopagoRegFis())) {
-
-                        throw new GeneralException("No debe existir pago para régimen general " +
-                                " ni para denominacion del régimen fiscal preferente, si el tipo de registro es 02");
-                    }
-
-                    TbParaisoFiscalEntity entidad = tbParaisoFiscalRepository.findByCodigo(request.getPaisEfecPagoParFis())
-                            .orElseThrow(() -> new GeneralException(MessageFormat.format("El paraiso fiscal con codigo {0}, no existe",
-                                    request.getPaisEfecPagoParFis())));
-
-                    if (!entidad.getPais().getCodigoPais().equals(request.getPaisEfecPago())) {
-                        throw new GeneralException("El pais de pago debe ser igual al pais asignado al paraiso fiscal");
-                    }
-
-                }
-                case "03" -> {
-                    if (Objects.isNull(request.getDenopagoRegFis()) || request.getDenopagoRegFis().isEmpty()) {
-                        throw new GeneralException("No existe pago denominacion del régimen fiscal preferente");
-                    }
-
-                    if (Objects.nonNull(request.getPaisEfecPagoParFis()) ||
-                            Objects.nonNull(request.getPaisEfecPagoGen())) {
-
-                        throw new GeneralException("No debe existir pago para paraiso fiscal " +
-                                " ni para régimen general, si el tipo de registro es 03");
-                    }
-
-                    tbPaisesRepository.findById(request.getPaisEfecPago())
-                            .orElseThrow(() -> new GeneralException(MessageFormat.format("El pais con codigo {0}, no existe", request.getPaisEfecPago())));
-
-                }
-                default -> throw new GeneralException("El tipo de registro del pago exterior no es valido");
-            }
-
-
-           /* String codigoPais = request.getPagoExterior().getPaisEfecPago();
-            tbPaisesRepository.findById(codigoPais)
-                    .orElseThrow(() -> new GeneralException(MessageFormat.format("El pais con codigo {0}, no existe", codigoPais)));*/
-
-        }
-    }
-
-    private void validarReembolso(CreationCompraImpuestoRequestDto request) {
-
-        if (Objects.nonNull(request.getDocumento())) {
-            if (request.getDocumento().getCodigo().equals("41")) {
-                if (Objects.isNull(request.getReembolsos())) {
-                    throw new GeneralException("No existe lista de reembolsos");
-                }
-            }
-        }
-    }
-
 
     @Transactional
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationCompraImpuestoRequestDto request,
                               String usuario, FilterListCompraImpuestoDto filters, TipoPermiso tipoBusqueda) {
 
-        validarNumeroAutorizacion(request);
-        adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
-                DateUtils.toLocalDate(request.getFechaEmision()));
 
-        validarPagoExterior(request);
+        List<CpImpuestoDetalleError> detalleErrors = validacionGeneralService.validacionGeneral(cpImpuestoDetalleErrorBuilder
+                .builderValidacion(request));
+
+        if (!detalleErrors.isEmpty()) {
+            List<String> list = detalleErrors.stream()
+                    .map(CpImpuestoDetalleError::getDetalle)
+                    .toList();
+            throw new ListErrorException(list);
+        }
+
         CpImpuestosEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         if (!vtVentaEntity.getOrigen().equals("ISC") && !vtVentaEntity.getOrigen().equals("ICC")
@@ -268,8 +182,6 @@ public class CpImpuestosServiceImpl {
             }
         }
 
-        validarInfoAddicional(request);
-        validacionCodigoImpuesto(request);
 
         CpImpuestosEntity impuestosEntity = cpImpuestosBuilder.builderUpdateEntity(request, vtVentaEntity);
         setearTotalesCabecera(request, impuestosEntity);
@@ -290,11 +202,17 @@ public class CpImpuestosServiceImpl {
     public ResponseDto updateFacturaDesdeRetencion(Long idData, Long idEmpresa, UUID idVenta, CreationCompraImpuestoRequestDto request,
                                                    String usuario, FilterListCompraImpuestoDto filters, TipoPermiso tipoBusqueda) {
 
-        validarNumeroAutorizacion(request);
-        adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
-                DateUtils.toLocalDate(request.getFechaEmision()));
 
-        validarPagoExterior(request);
+        List<CpImpuestoDetalleError> detalleErrors = validacionGeneralService.validacionGeneral(cpImpuestoDetalleErrorBuilder
+                .builderValidacion(request));
+
+        if (!detalleErrors.isEmpty()) {
+            List<String> list = detalleErrors.stream()
+                    .map(CpImpuestoDetalleError::getDetalle)
+                    .toList();
+            throw new ListErrorException(list);
+        }
+
         CpImpuestosEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
         if (!vtVentaEntity.getOrigen().equals("RCC")) {
@@ -320,8 +238,6 @@ public class CpImpuestosServiceImpl {
             }
         }
 
-        validarInfoAddicional(request);
-        validacionCodigoImpuesto(request);
 
         CpImpuestosEntity impuestosEntity = cpImpuestosBuilder.builderUpdateEntity(request, vtVentaEntity);
 
@@ -403,7 +319,7 @@ public class CpImpuestosServiceImpl {
         Page<CpImpuestosEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
 
         List<GetListDto> dtoList = page.stream().map(cpImpuestosBuilder::builderGetListDto).toList();
-        
+
         PaginatedDto paginatedDto = new PaginatedDto();
         paginatedDto.setContent(dtoList);
 
@@ -895,26 +811,6 @@ public class CpImpuestosServiceImpl {
         return null;
     }
 
-    private void validacionCodigoImpuesto(CreationCompraImpuestoRequestDto model) {
-
-        if (Objects.nonNull(model.getCodigoSustento())) {
-            if (!comprobanteSustentoService.validacionCodigos(model.getDocumento().getCodigo(), model.getCodigoSustento().name().replace("S", ""))) {
-                throw new GeneralException(MessageFormat.format("La combinación de código de documento: {0} y código de sustento: {1} es inválida.",
-                        model.getDocumento().getCodigo(), model.getCodigoSustento()));
-            }
-        }
-
-
-    }
-
-    private List<Integer> getIntegerTarifaIva(List<ValoresCompraImpuestoDto> valores) {
-        return valores.stream()
-                .map(ValoresCompraImpuestoDto::getTarifa)
-                .filter(Objects::nonNull)
-                .map(BigDecimal::intValue)
-                .toList();
-    }
-
 
     private Page<CpImpuestosEntity> getTipoBusquedaPaginado(Long idData, Long idEmpresa,
                                                             FilterListCompraImpuestoDto filters, Pageable pageable,
@@ -981,29 +877,7 @@ public class CpImpuestosServiceImpl {
         throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
     }
 
-    private void validarNumeroAutorizacion(CreationCompraImpuestoRequestDto request) {
 
-
-        if (request.getNumeroAutorizacion().length() == 49 || request.getNumeroAutorizacion().length() == 10) {
-
-            if (!request.getNumeroAutorizacion().matches("\\d+")) {
-                throw new GeneralException("El número de autorización no puede contener caracteres que no sean númericos");
-            }
-
-        } else {
-            throw new GeneralException("El número de autorización no cumple con la cantidad de dígitos 10/49");
-        }
-    }
-
-
-    public void validarInfoAddicional(CreationCompraImpuestoRequestDto request) {
-
-        if (Objects.nonNull(request.getInformacionAdicional())) {
-            if (request.getInformacionAdicional().isEmpty()) {
-                request.setInformacionAdicional(null);
-            }
-        }
-    }
 
     public List<CompraImpuestoResponseDto> builderResponseListCompraImpuesto(List<CpImpuestosEntity> list) {
 
@@ -1081,5 +955,7 @@ public class CpImpuestosServiceImpl {
 
         }
     }
+
+
 }
 

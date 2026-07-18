@@ -30,7 +30,7 @@ public enum DocumentoEnum {
                 return documento;
             }
         }
-        throw new IllegalArgumentException("Código no válido: " + codigoDocumento);
+        throw new IllegalArgumentException("Código de documento no válido: " + codigoDocumento);
 
 
     }

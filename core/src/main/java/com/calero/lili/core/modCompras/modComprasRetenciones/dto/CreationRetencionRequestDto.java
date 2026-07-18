@@ -17,6 +17,9 @@ public class CreationRetencionRequestDto {
     private String sucursal;
     @NotEmpty(message = "No existe el serie")
     private String serieRetencion;
+
+    private String secuencialRetencion;
+
     @NotEmpty(message = "No existe la fecha de emision")
     private String fechaEmisionRetencion;
     private UUID idTercero;

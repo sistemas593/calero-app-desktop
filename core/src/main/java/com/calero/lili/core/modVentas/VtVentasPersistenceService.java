@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -49,13 +48,32 @@ public class VtVentasPersistenceService {
 
 
     @Transactional
-    public VtVentaEntity guardarNotaCredito(VtVentaEntity notaCredito) {
+    public VtVentaEntity guardarNotaCredito(VtVentaEntity notaCredito, AdEmpresaEntity empresa,
+                                            AdEmpresasSeriesEntity serie, Long idData, Long idEmpresa) {
+
+
+        if (Objects.isNull(notaCredito.getSecuencial())) {
+            String secuencial = validacionDocumentosGeneral.generarSecuencial(idData, idEmpresa,
+                    serie.getIdSerie(), TipoDocumentoSerie.NCR);
+            notaCredito.setSecuencial(secuencial);
+        }
+        vtComprobanteService.getComprobanteXmlNotaCredito(idData, notaCredito, empresa, serie);
+
         return vtVentaRepository.save(notaCredito);
     }
 
 
     @Transactional
-    public VtVentaEntity guardarNotaDebito(VtVentaEntity notaCredito) {
+    public VtVentaEntity guardarNotaDebito(VtVentaEntity notaCredito,
+                                           AdEmpresaEntity empresa,
+                                           AdEmpresasSeriesEntity serie, Long idData, Long idEmpresa) {
+
+        if (Objects.isNull(notaCredito.getSecuencial())) {
+            String secuencial = validacionDocumentosGeneral.generarSecuencial(idData, idEmpresa, serie.getIdSerie(),
+                    TipoDocumentoSerie.NDB);
+            notaCredito.setSecuencial(secuencial);
+        }
+        vtComprobanteService.getComprobanteXmlNotaDebito(idData, notaCredito, empresa, serie);
         return vtVentaRepository.save(notaCredito);
     }
 

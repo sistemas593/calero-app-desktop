@@ -29,6 +29,7 @@ public class CpRetencionesBuilder {
                 .idEmpresa(idEmpresa)
                 .sucursal(model.getSucursal())
                 .serieRetencion(model.getSerieRetencion())
+                .secuencialRetencion(model.getSecuencialRetencion())
                 .numeroAutorizacionRetencion(model.getNumeroAutorizacionRetencion())
                 .fechaEmisionRetencion(Objects.nonNull(model.getFechaEmisionRetencion())
                         ? DateUtils.toLocalDate(model.getFechaEmisionRetencion())
@@ -60,7 +61,7 @@ public class CpRetencionesBuilder {
                 .idEmpresa(item.getIdEmpresa())
                 .sucursal(model.getSucursal())
                 .serieRetencion(model.getSerieRetencion())
-                .secuencialRetencion(item.getSecuencialRetencion())
+                .secuencialRetencion(Objects.nonNull(model.getSecuencialRetencion()) ? model.getSecuencialRetencion() : item.getSecuencialRetencion())
                 .numeroAutorizacionRetencion(model.getNumeroAutorizacionRetencion())
                 .fechaEmisionRetencion(DateUtils.toLocalDate(model.getFechaEmisionRetencion()))
                 .fechaAnulacion(item.getFechaAnulacion())
@@ -134,7 +135,6 @@ public class CpRetencionesBuilder {
                 .existeComprobante(model.getExisteComprobante())
                 .build();
     }
-
 
 
 }

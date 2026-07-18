@@ -1,10 +1,15 @@
 package com.calero.lili.core.modCompras.modComprasLiquidaciones;
 
+import com.calero.lili.core.comprobantes.services.ComprobanteServiceImpl;
 import com.calero.lili.core.dtos.CompraImpuestosDto;
 import com.calero.lili.core.enums.OrigenImpuestos;
+import com.calero.lili.core.enums.TipoDocumentoSerie;
+import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
+import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosServiceImpl;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CreationCompraImpuestoRequestDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.CreationRequestLiquidacionCompraDto;
+import com.calero.lili.core.utils.ValidacionDocumentosGeneral;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,11 +24,23 @@ public class LiquidacionPersistenceService {
 
     private final LiquidacionesRepository liquidacionesRepository;
     private final CpImpuestosServiceImpl cpImpuestosService;
+    private final ComprobanteServiceImpl comprobanteService;
+    private final ValidacionDocumentosGeneral validacionDocumentosGeneral;
 
     @Transactional
     public CpLiquidacionesEntity guardarLiquidacion(CpLiquidacionesEntity cpLiquidacionesEntity,
+                                                    AdEmpresaEntity empresa,
+                                                    AdEmpresasSeriesEntity serie, Long idData, Long idEmpresa,
                                                     CreationRequestLiquidacionCompraDto request) {
 
+
+        if (Objects.isNull(cpLiquidacionesEntity.getSecuencial())) {
+            String secuencial = validacionDocumentosGeneral.generarSecuencial(idData, idEmpresa,
+                    serie.getIdSerie(), TipoDocumentoSerie.LIQ);
+            cpLiquidacionesEntity.setSecuencial(secuencial);
+        }
+
+        comprobanteService.getComprobanteXmlLiquidacion(idData, cpLiquidacionesEntity, empresa, serie);
         CpLiquidacionesEntity saved = liquidacionesRepository.save(cpLiquidacionesEntity);
         validarImpuesto(request, saved);
 

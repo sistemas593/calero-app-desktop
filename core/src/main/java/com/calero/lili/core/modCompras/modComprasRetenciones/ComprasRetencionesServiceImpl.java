@@ -86,7 +86,6 @@ public class ComprasRetencionesServiceImpl {
     private final ProcesarDocumentosServiceImpl procesarDocumentosService;
     private final AdEmpresasRepository adEmpresasRepository;
     private final AdEmpresasSeriesRepository adEmpresasSeriesRepository;
-    private final ValidacionDocumentosGeneral validacionDocumentosGeneral;
 
 
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa, CreationRetencionRequestDto request,
@@ -101,17 +100,17 @@ public class ComprasRetencionesServiceImpl {
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Empresa {0}, serie {1} no existe", idEmpresa, request.getSerieRetencion())));
 
 
-        String secuencial = validacionDocumentosGeneral.generarSecuencial(idData, idEmpresa, serie.getIdSerie(),
-                TipoDocumentoSerie.CRT);
-
-        Optional<DeEmitidasRetencionesProjection> existingRetencion = comprasRetencionesRepository
-                .findExistBySecuencial(idData, idEmpresa, request.getSerieRetencion(), secuencial);
+        if (Objects.isNull(request.getSecuencialRetencion())) {
+            Optional<DeEmitidasRetencionesProjection> existingRetencion = comprasRetencionesRepository
+                    .findExistBySecuencial(idData, idEmpresa, request.getSerieRetencion(), request.getSecuencialRetencion());
 
 
-        if (existingRetencion.isPresent()) {
-            throw new GeneralException(MessageFormat.format("El documento ya existe : " +
-                    "Serie: {0} Secuencia: {1}", request.getSerieRetencion(), secuencial));
+            if (existingRetencion.isPresent()) {
+                throw new GeneralException(MessageFormat.format("El documento ya existe : " +
+                        "Serie: {0} Secuencia: {1}", request.getSerieRetencion(), request.getSecuencialRetencion()));
+            }
         }
+
 
         DateUtils.validarFechaEmision(request.getFechaEmisionRetencion());
         GeTerceroEntity proveedor = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
@@ -121,7 +120,7 @@ public class ComprasRetencionesServiceImpl {
         validarAmbiente(request);
         CpRetencionesEntity retencionesEntity = cpRetencionesBuilder.builderEntity(request, idData, idEmpresa);
 
-        retencionesEntity.setSecuencialRetencion(secuencial);
+
         retencionesEntity.setTipoEmision(getTipoEmision(request));
         retencionesEntity.setProveedor(proveedor);
         retencionesEntity.setEmail(proveedor.getEmail());
@@ -129,8 +128,9 @@ public class ComprasRetencionesServiceImpl {
         retencionesEntity.setCreatedBy(usuario);
         retencionesEntity.setCreatedDate(LocalDateTime.now());
 
-        comprobanteService.getComprobanteXmlRetencion(idData, empresa, serie, retencionesEntity, request);
-        CpRetencionesEntity saved = cpRetencionPersistenceService.guardarRetencion(retencionesEntity, request);
+
+        CpRetencionesEntity saved = cpRetencionPersistenceService.guardarRetencion(retencionesEntity, empresa, serie,
+                idData, idEmpresa, request);
 
         RespuestaProcesoGetDto respuestaProcesoGetDto = new RespuestaProcesoGetDto();
 
