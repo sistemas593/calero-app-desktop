@@ -48,7 +48,8 @@ public interface GeTercerosRepository extends JpaRepository<GeTerceroEntity, UUI
             "FROM GeTerceroEntity entity " +
             "where entity.idData = :idData and " +
             "entity.numeroIdentificacion = :numeroIdentificacion")
-    Optional<GeTerceroEntity> getFindExistByNumeroIdentificacion(@Param("idData") Long idData, @Param("numeroIdentificacion") String numeroIdentificacion);
+    Optional<GeTerceroEntity> getFindExistByNumeroIdentificacion(@Param("idData") Long idData,
+                                                                 @Param("numeroIdentificacion") String numeroIdentificacion);
 
 
     @Query(
