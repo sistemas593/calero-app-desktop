@@ -1,8 +1,10 @@
 package com.calero.lili.core.modCompras.modComprasImpuestos;
 
+import com.calero.lili.core.enums.CodigoRetencion;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajesEntity;
 import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajesRepository;
+import com.calero.lili.core.modCompras.modCompras.dto.CompraImpuestosDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.builder.CpImpuestoDetalleErrorBuilder;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CompraImpuestoDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CpImpuestoDetalleError;
@@ -21,6 +23,7 @@ import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -38,20 +41,27 @@ public class ValidacionGeneralCpImpuestoService {
     private final TbParaisoFiscalRepository tbParaisoFiscalRepository;
 
     public List<CpImpuestoDetalleError> validacionGeneral(CompraImpuestoDto model) {
+
         List<CpImpuestoDetalleError> detalleErrores = new ArrayList<>();
+
+        LocalDate fechaEmisionDoc = null;
+        LocalDate fechaEmisionRet = null;
+        LocalDate fechaRegistro = null;
+
+
+        String mensajeSerie = validarSerie(model.getSerie());
+        if (!mensajeSerie.isEmpty()) {
+            detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("En el documento " + mensajeSerie));
+        }
 
         if (model.getSecuencial().length() != 9) {
             detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("El secuencial debe ser solo de 9 dígitos"));
         }
 
-        if (model.getNumeroAutorizacion().length() == 49 || model.getNumeroAutorizacion().length() == 10) {
 
-            if (!model.getNumeroAutorizacion().matches("\\d+")) {
-                detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("El número de autorización no puede contener caracteres que no sean númericos"));
-            }
-
-        } else {
-            detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("El número de autorización no cumple con la cantidad de dígitos 10/49"));
+        String mensajeNumeroAut = validarNumeroAutorizacion(model.getNumeroAutorizacion(), detalleErrores);
+        if (!mensajeNumeroAut.isEmpty()) {
+            detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("En el documento " + mensajeNumeroAut));
         }
 
 
@@ -72,6 +82,12 @@ public class ValidacionGeneralCpImpuestoService {
 
         validacionGeneralPagoExterior(model.getPagoLocExt(), model.getPagoExterior(), detalleErrores);
 
+        validarValoresImpuestos(model.getValores(), detalleErrores);
+
+        if (Objects.nonNull(model.getCompraImpuestos())) {
+            validarValoresRetenciones(model.getCompraImpuestos(), detalleErrores);
+        }
+
         validateIvaPorcentaje(getIntegerTarifaIva(model.getValores()), DateUtils.toLocalDate(model.getFechaEmision()), detalleErrores);
 
 
@@ -84,8 +100,82 @@ public class ValidacionGeneralCpImpuestoService {
         }
 
 
+        if (Objects.nonNull(model.getSerieRetencion())) {
+            String mensajeError = validarSerie(model.getSerieRetencion());
+            if (!mensajeError.isEmpty()) {
+                detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("En el comprobante de retención " + mensajeSerie));
+            }
+        }
+
+        if (Objects.nonNull(model.getNumeroAutorizacionRetencion())) {
+            String mensajeNumAutRt = validarNumeroAutorizacion(model.getNumeroAutorizacionRetencion(), detalleErrores);
+
+            if (!mensajeNumAutRt.isEmpty()) {
+                detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("En el comprobante de retención " + mensajeNumAutRt));
+            }
+        }
+
+
+        if (Objects.nonNull(model.getFechaEmisionRetencion())
+                && Objects.nonNull(model.getFechaEmision())) {
+
+            fechaEmisionDoc = DateUtils.toLocalDate(model.getFechaEmision());
+            fechaEmisionRet = DateUtils.toLocalDate(model.getFechaEmisionRetencion());
+
+            if (fechaEmisionDoc.isAfter(fechaEmisionRet)) {
+                detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("La fecha de emisión del documento: " + model.getFechaEmision()
+                        + " no puede ser mayor que la fecha de emisión de la retención: " + model.getFechaEmisionRetencion()));
+            }
+        }
+
+
+        if (Objects.nonNull(model.getFechaEmision()) && Objects.nonNull(model.getFechaRegistro())) {
+
+            fechaEmisionDoc = DateUtils.toLocalDate(model.getFechaEmision());
+            fechaRegistro = DateUtils.toLocalDate(model.getFechaRegistro());
+
+            if (fechaEmisionDoc.isAfter(fechaRegistro)) {
+                detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("La fecha de emisión : " + model.getFechaEmision()
+                        + " no puede ser mayor que la fecha de registro: " + model.getFechaRegistro()));
+            }
+        }
+
+
         return detalleErrores;
 
+    }
+
+
+    private String validarSerie(String serie) {
+
+        if (Objects.nonNull(serie)) {
+
+            if (serie.length() != 6) {
+                return "La serie solo debe tener 6 dígitos";
+            }
+
+            if (!serie.matches("\\d+")) {
+                return "La serie solo deben ser números";
+            }
+
+
+            String primerosTres = serie.substring(0, 3);
+            int valor = Integer.parseInt(primerosTres);
+            if (valor == 0) {
+                return "Los tres primeros dígitos de la serie no pueden ser igual a cero";
+            }
+
+            String segundoTres = serie.substring(3, 6);
+            int valor2 = Integer.parseInt(segundoTres);
+            if (valor2 == 0) {
+                return "Los últimos dígitos de la serie no pueden ser igual a cero";
+            }
+
+        } else {
+            return "El número de la serie no existe";
+        }
+
+        return "";
     }
 
 
@@ -211,6 +301,19 @@ public class ValidacionGeneralCpImpuestoService {
         }
     }
 
+    private String validarNumeroAutorizacion(String numeroAutorizacion, List<CpImpuestoDetalleError> detalleErrores) {
+        if (numeroAutorizacion.length() == 49 || numeroAutorizacion.length() == 10) {
+
+            if (!numeroAutorizacion.matches("\\d+")) {
+                return "El número de autorización no puede contener caracteres que no sean númericos";
+            }
+
+        } else {
+            return "El número de autorización no cumple con la cantidad de dígitos 10/49";
+        }
+        return "";
+    }
+
     private List<Integer> getIntegerTarifaIva(List<ValoresCompraImpuestoDto> valores) {
         return valores.stream()
                 .map(ValoresCompraImpuestoDto::getTarifa)
@@ -218,6 +321,79 @@ public class ValidacionGeneralCpImpuestoService {
                 .map(BigDecimal::intValue)
                 .toList();
     }
+
+
+    private void validarValoresRetenciones(List<CompraImpuestosDto> listCompraImpuesto, List<CpImpuestoDetalleError> detalleErrores) {
+
+
+        for (CompraImpuestosDto dto : listCompraImpuesto) {
+
+            dto.getImpuestoCodigos().forEach(item -> {
+
+
+                if (Objects.isNull(item.getCodigo()) && Objects.isNull(item.getCodigoRetencion())) {
+                    detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("El codigo y el codigo de retención siempre no existen"));
+                }
+
+
+                if (item.getCodigo().equals(CodigoRetencion.IVA)) {
+
+                    List<String> codigosValidos = Arrays.asList("1", "2", "3", "7", "9", "10", "11");
+                    if (!codigosValidos.contains(item.getCodigoRetencion())) {
+                        detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("El codigo de retención para el IVA no debe ser: " + item.getCodigoRetencion()));
+                    }
+                }
+
+
+                if (item.getBaseImponible().compareTo(BigDecimal.ZERO) < 0) {
+                    detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("La base imponible de la retención no puede ser negativa"));
+                }
+
+
+                if (item.getPorcentajeRetener().compareTo(BigDecimal.ZERO) < 0) {
+                    detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("El porcentaje de la retención no puede ser negativa"));
+                }
+
+                if (item.getPorcentajeRetener().compareTo(BigDecimal.ZERO) < 0 ||
+                        item.getPorcentajeRetener().compareTo(BigDecimal.valueOf(100)) > 0) {
+                    detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("El porcentaje a retener de la retención debe estar entre 0 y 100"));
+                }
+
+
+                if (item.getValorRetenido().compareTo(BigDecimal.ZERO) < 0) {
+                    detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("El valor de la retención no puede ser negativo"));
+                }
+
+
+            });
+
+        }
+
+
+        // VALORES DE CP IMPUESTOS TAMPOCO PUEDEN SER NEGATIVOS, TODOS LO VALORES
+
+    }
+
+    private void validarValoresImpuestos(List<ValoresCompraImpuestoDto> valores, List<CpImpuestoDetalleError> detalleErrores) {
+
+        valores.forEach(item -> {
+
+            if (item.getBaseImponible().compareTo(BigDecimal.ZERO) < 0) {
+                detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("La base imponible no puede ser negativa"));
+            }
+
+            if (item.getTarifa().compareTo(BigDecimal.ZERO) < 0) {
+                detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("La tarifa no puede ser negativa"));
+            }
+
+            if (item.getValor().compareTo(BigDecimal.ZERO) < 0) {
+                detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("La tarifa no puede ser negativa"));
+            }
+
+        });
+
+    }
+
 
 
 }

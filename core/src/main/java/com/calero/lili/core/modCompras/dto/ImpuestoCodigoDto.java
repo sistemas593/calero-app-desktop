@@ -2,6 +2,7 @@ package com.calero.lili.core.modCompras.dto;
 
 import com.calero.lili.core.enums.CodigoRetencion;
 import com.calero.lili.core.tablas.tbRetencionesCodigos.TbRetencionesCodigosGetOneDto;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

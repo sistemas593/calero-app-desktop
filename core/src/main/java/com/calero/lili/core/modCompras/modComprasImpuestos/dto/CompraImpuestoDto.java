@@ -1,5 +1,6 @@
 package com.calero.lili.core.modCompras.modComprasImpuestos.dto;
 
+import com.calero.lili.core.modCompras.modCompras.dto.CompraImpuestosDto;
 import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,4 +35,16 @@ public class CompraImpuestoDto {
     private List<ValoresCompraImpuestoDto> valores;
 
     private String fechaEmision;
+
+    private String fechaRegistro;
+
+    private String serieRetencion;
+
+    private String secuencialRetencion;
+
+    private String fechaEmisionRetencion;
+
+    private String numeroAutorizacionRetencion;
+
+    private List<CompraImpuestosDto> compraImpuestos;
 }

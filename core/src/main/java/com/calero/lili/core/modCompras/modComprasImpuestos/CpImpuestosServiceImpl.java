@@ -748,46 +748,6 @@ public class CpImpuestosServiceImpl {
     }
 
 
-    public void guardarImpuestoRetencion(CpRetencionesEntity entidad, CompraImpuestosDto model) {
-
-
-        CpImpuestosEntity impuesto = cpImpuestosRepository.findById(entidad.getIdData(), entidad.getIdEmpresa(), model.getIdCompraImpuesto())
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("El impuesto con id {0} para asignarse", model.getIdCompraImpuesto())));
-
-       /* if (Objects.nonNull(impuesto.getRetencion())) {
-            throw new GeneralException(MessageFormat.format("El documento con id {0}  ya posee una retención asignada",
-                    model.getIdCompraImpuesto()));
-        }*/
-
-        if (permiteRetencion(impuesto.getOrigen())) {
-            impuesto.setRetencion(entidad);
-            impuesto.setOrigen(model.getOrigen());
-            List<CpImpuestosCodigosEntity> listCodigos = impuestoCodigoBuilder.builderMultiList(model.getListCodigosImpuesto(),
-                    entidad.getIdData(), entidad.getIdEmpresa());
-            validateCodigosEntity(impuesto, listCodigos);
-            cpImpuestosRepository.save(impuesto);
-
-        } else {
-            throw new GeneralException(MessageFormat.format("El documento con id {0} y su origen: {1} no corresponde para guardar una retención",
-                    model.getIdCompraImpuesto(), impuesto.getOrigen()));
-        }
-
-    }
-
-
-    public void actualizarImpuestoRetencion(CpRetencionesEntity entidad, CompraImpuestosDto model) {
-
-        CpImpuestosEntity impuesto = cpImpuestosRepository.findById(entidad.getIdData(), entidad.getIdEmpresa(), model.getIdCompraImpuesto())
-                .orElseThrow(() -> new GeneralException(MessageFormat.format("El impuesto con id {0} para asignarse", model.getIdCompraImpuesto())));
-
-        impuesto.setRetencion(entidad);
-        impuesto.setOrigen(model.getOrigen());
-        List<CpImpuestosCodigosEntity> listCodigos = impuestoCodigoBuilder.builderMultiList(model.getListCodigosImpuesto(),
-                entidad.getIdData(), entidad.getIdEmpresa());
-        validateCodigosEntity(impuesto, listCodigos);
-        cpImpuestosRepository.save(impuesto);
-    }
-
     private void validateCodigosEntity(CpImpuestosEntity impuesto, List<CpImpuestosCodigosEntity> listCodigos) {
         if (Objects.isNull(impuesto.getCodigosEntity())) {
             impuesto.setCodigosEntity(new ArrayList<>());
@@ -878,7 +838,6 @@ public class CpImpuestosServiceImpl {
     }
 
 
-
     public List<CompraImpuestoResponseDto> builderResponseListCompraImpuesto(List<CpImpuestosEntity> list) {
 
         List<CompraImpuestoResponseDto> response = new ArrayList<>();
@@ -922,13 +881,6 @@ public class CpImpuestosServiceImpl {
 
     public List<CpImpuestosEntity> getListCompraImpuestoForIdRetencion(UUID idRetencion, Long idEmpresa, Long idData) {
         return cpImpuestosRepository.idRetencion(idData, idEmpresa, idRetencion);
-    }
-
-    private Boolean permiteRetencion(String origen) {
-        if (OrigenImpuestos.XDF.name().equals(origen)) return Boolean.TRUE;
-        if (OrigenImpuestos.ISC.name().equals(origen)) return Boolean.TRUE;
-        if (OrigenImpuestos.DSC.name().equals(origen)) return Boolean.TRUE;
-        return Boolean.FALSE;
     }
 
 

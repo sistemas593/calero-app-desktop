@@ -7,22 +7,30 @@ import com.calero.lili.core.comprobantesWs.RespuestaProcesoGetDto;
 import com.calero.lili.core.comprobantesWs.dto.DatosEmpresaDto;
 import com.calero.lili.core.comprobantesWs.services.BuscarDatosEmpresa;
 import com.calero.lili.core.comprobantesWs.services.ProcesarDocumentosServiceImpl;
+import com.calero.lili.core.dtos.CompraImpuestosDto;
 import com.calero.lili.core.dtos.Mensajes;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
-import com.calero.lili.core.enums.TipoDocumentoSerie;
+import com.calero.lili.core.enums.OrigenImpuestos;
 import com.calero.lili.core.enums.TipoEmision;
 import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.core.errors.exceptions.ListErrorException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesEntity;
 import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesRepository;
+import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosCodigosEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosEntity;
+import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosRepository;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosServiceImpl;
+import com.calero.lili.core.modCompras.modComprasImpuestos.ValidacionGeneralCpImpuestoService;
+import com.calero.lili.core.modCompras.modComprasImpuestos.builder.CpImpuestoDetalleErrorBuilder;
+import com.calero.lili.core.modCompras.modComprasImpuestos.builder.ImpuestoCodigoBuilder;
+import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CpImpuestoDetalleError;
 import com.calero.lili.core.modCompras.modComprasRetenciones.builder.CpRetencionesBuilder;
 import com.calero.lili.core.modCompras.modComprasRetenciones.dto.CreationRetencionRequestDto;
 import com.calero.lili.core.modCompras.modComprasRetenciones.dto.FilterListCompraRetencionesDto;
@@ -34,7 +42,6 @@ import com.calero.lili.core.modCompras.modComprasRetenciones.projection.TotalesP
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
 import com.calero.lili.core.utils.DateUtils;
-import com.calero.lili.core.utils.ValidacionDocumentosGeneral;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Phrase;
@@ -62,6 +69,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -86,12 +94,16 @@ public class ComprasRetencionesServiceImpl {
     private final ProcesarDocumentosServiceImpl procesarDocumentosService;
     private final AdEmpresasRepository adEmpresasRepository;
     private final AdEmpresasSeriesRepository adEmpresasSeriesRepository;
+    private final CpImpuestosRepository cpImpuestosRepository;
+    private final ImpuestoCodigoBuilder impuestoCodigoBuilder;
+    private final CpImpuestoDetalleErrorBuilder cpImpuestoDetalleErrorBuilder;
+    private final ValidacionGeneralCpImpuestoService validacionGeneralService;
 
 
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa, CreationRetencionRequestDto request,
                                          String usuario, String origenCertificado) {
 
-        validarNumeroAutorizacion(request);
+
         AdEmpresaEntity empresa = adEmpresasRepository
                 .findById(idData, idEmpresa)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Data {0} Empresa {1} no existe", idData, idEmpresa)));
@@ -131,6 +143,44 @@ public class ComprasRetencionesServiceImpl {
 
         CpRetencionesEntity saved = cpRetencionPersistenceService.guardarRetencion(retencionesEntity, empresa, serie,
                 idData, idEmpresa, request);
+
+
+        if (Objects.nonNull(request.getCompraImpuestos())) {
+            builderListSave(request).forEach(model -> {
+
+                CpImpuestosEntity impuesto = cpImpuestosRepository.findById(saved.getIdData(), saved.getIdEmpresa(), model.getIdCompraImpuesto())
+                        .orElseThrow(() -> new GeneralException(MessageFormat.format("El impuesto con id {0} para asignarse", model.getIdCompraImpuesto())));
+
+
+                List<CpImpuestoDetalleError> detalleErrors = validacionGeneralService.
+                        validacionGeneral(cpImpuestoDetalleErrorBuilder.builderValidacionImpuestoRetencion(impuesto,
+                                saved, request.getCompraImpuestos()));
+
+                if (!detalleErrors.isEmpty()) {
+                    List<String> list = detalleErrors.stream()
+                            .map(CpImpuestoDetalleError::getDetalle)
+                            .toList();
+                    throw new ListErrorException(list);
+                }
+
+
+                if (permiteRetencion(impuesto.getOrigen())) {
+                    impuesto.setRetencion(saved);
+                    impuesto.setOrigen(model.getOrigen());
+                    List<CpImpuestosCodigosEntity> listCodigos = impuestoCodigoBuilder.builderMultiList(model.getListCodigosImpuesto(),
+                            saved.getIdData(), saved.getIdEmpresa());
+                    validateCodigosEntity(impuesto, listCodigos);
+                    cpImpuestosRepository.save(impuesto);
+
+                } else {
+                    throw new GeneralException(MessageFormat.format("El documento con id {0} y su origen: {1} no corresponde para guardar una retención",
+                            model.getIdCompraImpuesto(), impuesto.getOrigen()));
+                }
+
+
+            });
+        }
+
 
         RespuestaProcesoGetDto respuestaProcesoGetDto = new RespuestaProcesoGetDto();
 
@@ -209,7 +259,26 @@ public class ComprasRetencionesServiceImpl {
         update.setEmail(proveedor.getEmail());
 
         comprobanteService.getComprobanteXmlRetencion(idData, empresa, serie, update, request);
+
         CpRetencionesEntity saved = cpRetencionPersistenceService.actualizarRetencion(update, request);
+
+        if (Objects.nonNull(request.getCompraImpuestos())) {
+            builderListSave(request).forEach(model -> {
+
+                CpImpuestosEntity impuesto = cpImpuestosRepository.findById(saved.getIdData(), saved.getIdEmpresa(), model.getIdCompraImpuesto())
+                        .orElseThrow(() -> new GeneralException(MessageFormat.format("El impuesto con id {0} para asignarse", model.getIdCompraImpuesto())));
+
+                impuesto.setRetencion(saved);
+                impuesto.setOrigen(model.getOrigen());
+                List<CpImpuestosCodigosEntity> listCodigos = impuestoCodigoBuilder.builderMultiList(model.getListCodigosImpuesto(),
+                        saved.getIdData(), saved.getIdEmpresa());
+                validateCodigosEntity(impuesto, listCodigos);
+                cpImpuestosRepository.save(impuesto);
+
+            });
+        }
+
+        actualizarCpImpuesto(request, saved);
         return responseApiBuilder.builderResponse(saved.getIdRetencion().toString());
 
     }
@@ -656,6 +725,55 @@ public class ComprasRetencionesServiceImpl {
             }
         }
 
+    }
+
+    private void guardarCpImpuesto(CreationRetencionRequestDto request,
+                                   CpRetencionesEntity entidad) {
+
+    }
+
+
+    private void actualizarCpImpuesto(CreationRetencionRequestDto request,
+                                      CpRetencionesEntity entidad) {
+
+    }
+
+    private List<CompraImpuestosDto> builderListSave(CreationRetencionRequestDto request) {
+        List<com.calero.lili.core.dtos.CompraImpuestosDto> listImpuesto = new ArrayList<>();
+
+        request.getCompraImpuestos().forEach(item -> {
+            listImpuesto.add(com.calero.lili.core.dtos.CompraImpuestosDto.builder()
+                    .idCompraImpuesto(item.getCompraImpuestoId())
+                    .listCodigosImpuesto(Objects.nonNull(item.getImpuestoCodigos())
+                            ? item.getImpuestoCodigos()
+                            : null)
+                    .origen(OrigenImpuestos.RCC.name())
+                    .build());
+        });
+        return listImpuesto;
+    }
+
+
+    private void validateCodigosEntity(CpImpuestosEntity impuesto, List<CpImpuestosCodigosEntity> listCodigos) {
+        if (Objects.isNull(impuesto.getCodigosEntity())) {
+            impuesto.setCodigosEntity(new ArrayList<>());
+        }
+
+        if (Objects.nonNull(listCodigos)) {
+            impuesto.getCodigosEntity().clear();
+            impuesto.getCodigosEntity().addAll(listCodigos);
+        } else {
+            impuesto.getCodigosEntity().clear();
+        }
+
+
+    }
+
+    private Boolean permiteRetencion(String origen) {
+        if (OrigenImpuestos.XDF.name().equals(origen)) return Boolean.TRUE;
+        if (OrigenImpuestos.ISC.name().equals(origen)) return Boolean.TRUE;
+        if (OrigenImpuestos.DSC.name().equals(origen)) return Boolean.TRUE;
+        return Boolean.FALSE;
     }
 
 }
