@@ -95,19 +95,19 @@ public class CargarExcelNovedadesServiceImpl {
                             validarRubros(idData, idEmpresa, row, linea, detalleErrores, rhRolNovedadesLista, tercero.get(), mapRubros);
                         }
                     } else {
-                        detalleErrores.add(builderErrorMensajeAdicional(linea, EnumError.NUMERO_IDENTIFICACION_NOT_FOUND,
-                                "El número de identificación " + row.getCell(1).getStringCellValue()));
+                        detalleErrores.add(builderErrorMensajeAdicional(linea, EnumError.NUMERO_IDENTIFICACION_NOT_FOUND, ""));
                     }
 
                 }
 
             }
 
-            if (detalleErrores.isEmpty()) {
-                rhRolNovedadesRepository.saveAll(rhRolNovedadesLista);
-            } else {
-                throwErrors(detalleErrores);
-            }
+        }
+
+        if (detalleErrores.isEmpty()) {
+            rhRolNovedadesRepository.saveAll(rhRolNovedadesLista);
+        } else {
+            throwErrors(detalleErrores);
         }
     }
 
@@ -192,7 +192,8 @@ public class CargarExcelNovedadesServiceImpl {
 
     private Map<String, RubrosEntity> getMapRubros(Long idData, Long idEmpresa, List<DetalleError> errores) {
 
-        List<String> codigosRubros = List.of("ING-001", "ING-002", "ING-015", "ING-009", "ING-010", "ING-013", "ING-016", "ING-017", "DES-001", "DES-008");
+        List<String> codigosRubros = List.of("ING-001", "ING-002", "ING-015", "ING-009",
+                "ING-010", "ING-013", "ING-016", "ING-017", "DES-001", "DES-008");
 
         Map<String, RubrosEntity> rubrosMap = codigosRubros.stream()
                 .map(codigo -> Map.entry(
@@ -241,6 +242,8 @@ public class CargarExcelNovedadesServiceImpl {
                 .toList();
         throw new ListErrorException(list);
     }
+
+
 
     private BigDecimal getValor(Row row, Integer celdaValor, List<DetalleError> errors, int linea, EnumError error) {
         if (Objects.isNull(celdaValor)) {

@@ -23,6 +23,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -68,6 +69,7 @@ public class VtVentaEntity extends Auditable {
 
     @Column(name = "secuencial", length = 9)
     private String secuencial;
+
     @Column(name = "numero_autorizacion", length = 49)
     private String numeroAutorizacion;
 

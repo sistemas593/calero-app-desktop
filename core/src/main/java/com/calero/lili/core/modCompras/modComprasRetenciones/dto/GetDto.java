@@ -56,4 +56,6 @@ public class GetDto {
     private List<InformacionAdicionalDto> informacionAdicional;
 
 
+
+
 }

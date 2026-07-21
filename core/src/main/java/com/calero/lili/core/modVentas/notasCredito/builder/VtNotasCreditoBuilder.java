@@ -200,6 +200,8 @@ public class VtNotasCreditoBuilder {
                 .formatoDocumento(model.getFormatoDocumento())
                 .ambiente(model.getAmbiente())
                 .existeComprobante(model.getExisteComprobante())
+                .estadoDocumento(model.getEstadoDocumento())
+                .emailEstado(model.getEmailEstado())
                 .build();
     }
 }

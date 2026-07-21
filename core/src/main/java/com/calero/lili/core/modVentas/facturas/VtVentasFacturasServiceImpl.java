@@ -138,15 +138,6 @@ public class VtVentasFacturasServiceImpl {
 
         GeTerceroEntity tercero = validacionTercero(idData, request);
 
-        if (Objects.nonNull(request.getSecuencial())) {
-            Optional<OneProjection> existingFactura = vtVentaRepository
-                    .findExistBySecuencial(idData, idEmpresa, TipoVenta.FAC.name(), request.getSerie(), request.getSecuencial());
-            if (existingFactura.isPresent()) {
-                throw new GeneralException(MessageFormat.format("El documento ya existe TipoIngreso:" +
-                        " {0} Serie: {1} Secuencia: {2}", TipoVenta.FAC.name(), request.getSerie(), request.getSecuencial()));
-            }
-        }
-
 
         validarNumeroAutorizacion(request);
         DateUtils.validarFechaEmision(request.getFechaEmision());

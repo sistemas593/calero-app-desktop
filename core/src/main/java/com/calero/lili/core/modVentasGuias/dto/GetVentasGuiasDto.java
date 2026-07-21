@@ -1,10 +1,13 @@
 package com.calero.lili.core.modVentasGuias.dto;
 
 import com.calero.lili.core.dtos.InformacionAdicionalDto;
+import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.modVentasGuias.dto.detalles.DetalleGetDto;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -95,5 +98,8 @@ public class GetVentasGuiasDto {
     }
 
     private Boolean existeComprobante;
+
+    private EstadoDocumento estadoDocumento;
+    private Integer emailEstado;
 
 }

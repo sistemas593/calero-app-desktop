@@ -2,6 +2,7 @@ package com.calero.lili.core.modVentas.notasDebito.dto;
 
 import com.calero.lili.core.dtos.FormasPagoDto;
 import com.calero.lili.core.dtos.InformacionAdicionalDto;
+import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormaPago;
 import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.modVentas.notasDebito.dto.detalles.DetalleGetDto;
@@ -40,6 +41,9 @@ public class GetNotaDebitoDto {
     private BigDecimal subtotal;
     private BigDecimal totalDescuento;
     private BigDecimal total;
+
+    private EstadoDocumento estadoDocumento;
+    private Integer emailEstado;
 
     private Boolean anulada;
 

@@ -169,6 +169,8 @@ public class CpLiquidacionesBuilder {
                 .concepto(model.getConcepto())
                 .existeComprobante(model.getExisteComprobante())
                 .informacionAdicional(informacionAdicionalBuilder.builderListDto(model.getInformacionAdicional()))
+                .estadoDocumento(model.getEstadoDocumento())
+                .emailEstado(model.getEmailEstado())
                 .build();
     }
 

@@ -297,6 +297,8 @@ public class VtFacturasBuilder {
                 .ambiente(model.getAmbiente())
                 .totalImpuesto(model.getTotalImpuesto())
                 .existeComprobante(model.getExisteComprobante())
+                .estadoDocumento(model.getEstadoDocumento())
+                .emailEstado(model.getEmailEstado())
                 .build();
     }
 

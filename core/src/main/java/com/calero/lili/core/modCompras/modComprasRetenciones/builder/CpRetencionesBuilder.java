@@ -108,6 +108,8 @@ public class CpRetencionesBuilder {
                 .existeComprobante(model.getExisteComprobante())
                 .informacionAdicional(informacionAdicionalBuilder.builderListDto(model.getInformacionAdicional()))
                 .retencionAsumida(model.getRetencionAsumida())
+                .estadoDocumento(model.getEstadoDocumento())
+                .emailEstado(model.getEmailEstado())
                 .build();
 
     }

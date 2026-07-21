@@ -161,6 +161,8 @@ public class VtGuiaBuilder {
                 .codDocSustento(model.getCodDocSustento())
                 .documentoSustento(builderDocumentoSustentoResponse(model))
                 .existeComprobante(model.getExisteComprobante())
+                .estadoDocumento(model.getEstadoDocumento())
+                .emailEstado(model.getEmailEstado())
                 .build();
     }
 

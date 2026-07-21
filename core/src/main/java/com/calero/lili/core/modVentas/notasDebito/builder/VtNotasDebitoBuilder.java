@@ -188,6 +188,8 @@ public class VtNotasDebitoBuilder {
                 .terceroNombre(Objects.nonNull(model.getTercero()) ? model.getTercero().getTercero() : null)
                 .numeroIdentificacion(Objects.nonNull(model.getTercero()) ? model.getTercero().getNumeroIdentificacion() : null)
                 .existeComprobante(model.getExisteComprobante())
+                .estadoDocumento(model.getEstadoDocumento())
+                .emailEstado(model.getEmailEstado())
                 .build();
     }
 }
