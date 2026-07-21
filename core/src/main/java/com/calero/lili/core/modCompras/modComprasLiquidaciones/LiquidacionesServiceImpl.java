@@ -119,17 +119,6 @@ public class LiquidacionesServiceImpl {
         setearValoresCabecera(valores, request);
 
 
-        if (Objects.nonNull(request.getSecuencial())) {
-            Optional<OneProjection> existingFactura = liquidacionesRepository
-                    .findExistBySecuencial(idData, idEmpresa, request.getSerie(), request.getSecuencial());
-
-            if (existingFactura.isPresent()) {
-                throw new GeneralException(MessageFormat.format("La liquidación ya existe  Serie: {0} Secuencia: {1}",
-                        request.getSerie(), request.getSecuencial()));
-            }
-        }
-
-
         GeTerceroEntity proveedor = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
                 .orElseThrow(() -> new GeneralException("El tercero seleccionado no existe"));
 

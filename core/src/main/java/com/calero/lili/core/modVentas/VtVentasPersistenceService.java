@@ -78,6 +78,15 @@ public class VtVentasPersistenceService {
                     serie.getIdSerie(), TipoDocumentoSerie.NCR);
             notaCredito.setSecuencial(secuencial);
         }
+
+        Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData,
+                idEmpresa, TipoVenta.NCR.name(), serie.getSerie(), notaCredito.getSecuencial());
+
+        if (existingFactura.isPresent()) {
+            throw new GeneralException(MessageFormat.format("El documento ya existe Tipo: {0} Serie: {1} Secuencia: {2}",
+                    TipoVenta.NCR.name(), serie.getSerie(), notaCredito.getSecuencial()));
+        }
+
         vtComprobanteService.getComprobanteXmlNotaCredito(idData, notaCredito, empresa, serie);
 
         return vtVentaRepository.save(notaCredito);
@@ -85,17 +94,27 @@ public class VtVentasPersistenceService {
 
 
     @Transactional
-    public VtVentaEntity guardarNotaDebito(VtVentaEntity notaCredito,
+    public VtVentaEntity guardarNotaDebito(VtVentaEntity notaDebito,
                                            AdEmpresaEntity empresa,
                                            AdEmpresasSeriesEntity serie, Long idData, Long idEmpresa) {
 
-        if (Objects.isNull(notaCredito.getSecuencial())) {
+        if (Objects.isNull(notaDebito.getSecuencial())) {
             String secuencial = validacionDocumentosGeneral.generarSecuencial(idData, idEmpresa, serie.getIdSerie(),
                     TipoDocumentoSerie.NDB);
-            notaCredito.setSecuencial(secuencial);
+            notaDebito.setSecuencial(secuencial);
         }
-        vtComprobanteService.getComprobanteXmlNotaDebito(idData, notaCredito, empresa, serie);
-        return vtVentaRepository.save(notaCredito);
+
+
+        Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData, idEmpresa,
+                TipoVenta.NDB.name(), serie.getSerie(), notaDebito.getSecuencial());
+
+        if (existingFactura.isPresent()) {
+            throw new GeneralException(MessageFormat.format("El documento ya existe Tipo: {0} Serie: {1} Secuencial: {2}",
+                    TipoVenta.NDB.name(), serie.getSerie(), notaDebito.getSecuencial()));
+        }
+
+        vtComprobanteService.getComprobanteXmlNotaDebito(idData, notaDebito, empresa, serie);
+        return vtVentaRepository.save(notaDebito);
     }
 
 }

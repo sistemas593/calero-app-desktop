@@ -112,18 +112,6 @@ public class ComprasRetencionesServiceImpl {
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Empresa {0}, serie {1} no existe", idEmpresa, request.getSerieRetencion())));
 
 
-        if (Objects.isNull(request.getSecuencialRetencion())) {
-            Optional<DeEmitidasRetencionesProjection> existingRetencion = comprasRetencionesRepository
-                    .findExistBySecuencial(idData, idEmpresa, request.getSerieRetencion(), request.getSecuencialRetencion());
-
-
-            if (existingRetencion.isPresent()) {
-                throw new GeneralException(MessageFormat.format("El documento ya existe : " +
-                        "Serie: {0} Secuencia: {1}", request.getSerieRetencion(), request.getSecuencialRetencion()));
-            }
-        }
-
-
         DateUtils.validarFechaEmision(request.getFechaEmisionRetencion());
         GeTerceroEntity proveedor = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
                 .orElseThrow(() -> new GeneralException("El tercero seleccionado no existe"));

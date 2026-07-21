@@ -244,28 +244,33 @@ public class CargarExcelNovedadesServiceImpl {
     }
 
 
-
     private BigDecimal getValor(Row row, Integer celdaValor, List<DetalleError> errors, int linea, EnumError error) {
         if (Objects.isNull(celdaValor)) {
             errors.add(builderErrorMensajeAdicional(linea, error, "La celda del valor esta vacía"));
+            return BigDecimal.ZERO;
         }
 
         String valor = row.getCell(celdaValor).getStringCellValue();
+
+        valor = valor.trim();
         if (valor.isBlank()) {
             return BigDecimal.ZERO;
         }
 
+        if (valor.contains(",") && valor.contains(".")) {
+            if (valor.lastIndexOf(",") > valor.lastIndexOf(".")) {
+                valor = valor.replace(".", "").replace(",", ".");
+            } else {
+                valor = valor.replace(",", "");
+            }
+        } else if (valor.contains(",")) {
+            valor = valor.replace(",", ".");
+        }
+
         try {
-            DecimalFormatSymbols symbols = new DecimalFormatSymbols();
-            symbols.setDecimalSeparator(',');
-            symbols.setGroupingSeparator('.');
-
-            DecimalFormat df = new DecimalFormat("#,##0.##", symbols);
-            df.setParseBigDecimal(true);
-
-            return (BigDecimal) df.parse(valor);
-
-        } catch (ParseException e) {
+            return new BigDecimal(valor);
+        } catch (NumberFormatException e) {
+            errors.add(builderErrorMensajeAdicional(linea, error, "El valor \"" + valor + "\" no es un número válido"));
             return BigDecimal.ZERO;
         }
     }

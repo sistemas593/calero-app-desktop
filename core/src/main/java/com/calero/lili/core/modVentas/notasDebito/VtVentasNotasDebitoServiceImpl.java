@@ -41,7 +41,6 @@ import com.calero.lili.core.modVentas.notasDebito.dto.GetNotaDebitoDto;
 import com.calero.lili.core.modVentas.projection.OneProjection;
 import com.calero.lili.core.modVentas.service.ValidarServiceImpl;
 import com.calero.lili.core.utils.DateUtils;
-import com.calero.lili.core.utils.ValidacionDocumentosGeneral;
 import com.calero.lili.core.utils.calcularValores.CalcularValoresDocumentos;
 import com.calero.lili.core.utils.validaciones.ValidarCampoAscii;
 import lombok.RequiredArgsConstructor;
@@ -82,7 +81,6 @@ public class VtVentasNotasDebitoServiceImpl {
     private final ValidarServiceImpl validarService;
     private final AdEmpresasSeriesRepository adEmpresasSeriesRepository;
     private final CalcularValoresDocumentos calcularValoresDocumentos;
-    private final ValidacionDocumentosGeneral validacionDocumentosGeneral;
 
 
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa,
@@ -104,19 +102,6 @@ public class VtVentasNotasDebitoServiceImpl {
 
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
                 DateUtils.toLocalDate(request.getFechaEmision()));
-
-
-        if (Objects.nonNull(request.getSecuencial())) {
-            Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData, idEmpresa,
-                    TipoVenta.NDB.name(), request.getSerie(), request.getSecuencial());
-
-            if (existingFactura.isPresent()) {
-                throw new GeneralException(MessageFormat.format("El documento ya existe Tipo: {0} Serie: {1} Secuencial: {2}",
-                        TipoVenta.NDB.name(), request.getSerie(), request.getSecuencial()));
-            }
-
-        }
-
 
         List<ValoresDto> valores = calcularValoresDocumentos.validarValores(request.getDetalle());
         request.setValores(valores);

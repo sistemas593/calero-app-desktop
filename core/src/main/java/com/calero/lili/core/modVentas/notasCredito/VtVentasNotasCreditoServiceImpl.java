@@ -16,7 +16,6 @@ import com.calero.lili.core.dtos.ValoresDto;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.OrigenEnum;
-import com.calero.lili.core.enums.TipoDocumentoSerie;
 import com.calero.lili.core.enums.TipoEmision;
 import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.enums.TipoVenta;
@@ -46,7 +45,6 @@ import com.calero.lili.core.modVentas.notasCredito.dto.GetNotaCreditoDto;
 import com.calero.lili.core.modVentas.projection.OneProjection;
 import com.calero.lili.core.modVentas.service.ValidarServiceImpl;
 import com.calero.lili.core.utils.DateUtils;
-import com.calero.lili.core.utils.ValidacionDocumentosGeneral;
 import com.calero.lili.core.utils.calcularValores.CalcularValoresDocumentos;
 import com.calero.lili.core.utils.validaciones.ValidarCampoAscii;
 import com.lowagie.text.Document;
@@ -106,7 +104,6 @@ public class VtVentasNotasCreditoServiceImpl {
     private final ValidarServiceImpl validarService;
     private final AdEmpresasSeriesRepository adEmpresasSeriesRepository;
     private final CalcularValoresDocumentos calcularValoresDocumentos;
-    private final ValidacionDocumentosGeneral validacionDocumentosGeneral;
 
 
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa, CreationNotaCreditoRequestDto request,
@@ -131,18 +128,6 @@ public class VtVentasNotasCreditoServiceImpl {
 
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
                 DateUtils.toLocalDate(request.getModFechaEmision()));
-
-
-        if (Objects.nonNull(request.getSecuencial())) {
-            Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData,
-                    idEmpresa, TipoVenta.NCR.name(), request.getSerie(), request.getSecuencial());
-
-            if (existingFactura.isPresent()) {
-                throw new GeneralException(MessageFormat.format("El documento ya existe Tipo: {0} Serie: {1} Secuencia: {2}",
-                        TipoVenta.NCR.name(), request.getSerie(), request.getSecuencial()));
-            }
-        }
-
 
         validarItem(request, idData, idEmpresa);
         validarInfoAddicional(request);
