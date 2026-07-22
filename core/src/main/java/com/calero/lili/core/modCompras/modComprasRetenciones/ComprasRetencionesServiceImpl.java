@@ -18,7 +18,6 @@ import com.calero.lili.core.enums.OrigenImpuestos;
 import com.calero.lili.core.enums.TipoEmision;
 import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.errors.exceptions.GeneralException;
-import com.calero.lili.core.errors.exceptions.ListErrorException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesEntity;
@@ -28,10 +27,7 @@ import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosCodigosEnt
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosRepository;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosServiceImpl;
-import com.calero.lili.core.modCompras.modComprasImpuestos.ValidacionGeneralCpImpuestoService;
-import com.calero.lili.core.modCompras.modComprasImpuestos.builder.CpImpuestoDetalleErrorBuilder;
 import com.calero.lili.core.modCompras.modComprasImpuestos.builder.ImpuestoCodigoBuilder;
-import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CpImpuestoDetalleError;
 import com.calero.lili.core.modCompras.modComprasRetenciones.builder.CpRetencionesBuilder;
 import com.calero.lili.core.modCompras.modComprasRetenciones.dto.CreationRetencionRequestDto;
 import com.calero.lili.core.modCompras.modComprasRetenciones.dto.FilterListCompraRetencionesDto;
@@ -72,9 +68,13 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Service
@@ -96,8 +96,6 @@ public class ComprasRetencionesServiceImpl {
     private final AdEmpresasSeriesRepository adEmpresasSeriesRepository;
     private final CpImpuestosRepository cpImpuestosRepository;
     private final ImpuestoCodigoBuilder impuestoCodigoBuilder;
-    private final CpImpuestoDetalleErrorBuilder cpImpuestoDetalleErrorBuilder;
-    private final ValidacionGeneralCpImpuestoService validacionGeneralService;
 
 
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa, CreationRetencionRequestDto request,
@@ -129,45 +127,34 @@ public class ComprasRetencionesServiceImpl {
         retencionesEntity.setCreatedDate(LocalDateTime.now());
 
 
-        CpRetencionesEntity saved = cpRetencionPersistenceService.guardarRetencion(retencionesEntity, empresa, serie,
-                idData, idEmpresa, request);
-
-
+        Map<UUID, CpImpuestosEntity> mapImpuestos = new HashMap<>();
         if (Objects.nonNull(request.getCompraImpuestos())) {
-            builderListSave(request).forEach(model -> {
 
-                CpImpuestosEntity impuesto = cpImpuestosRepository.findById(saved.getIdData(), saved.getIdEmpresa(), model.getIdCompraImpuesto())
-                        .orElseThrow(() -> new GeneralException(MessageFormat.format("El id {0} del impuesto no existe ", model.getIdCompraImpuesto())));
+            List<UUID> impuestoIds = request.getCompraImpuestos().stream()
+                    .map(com.calero.lili.core.modCompras.modCompras.dto.CompraImpuestosDto::getCompraImpuestoId)
+                    .toList();
 
+            List<CpImpuestosEntity> lista = cpImpuestosRepository.findByInId(idData, idEmpresa, impuestoIds);
 
-                List<CpImpuestoDetalleError> detalleErrors = validacionGeneralService.
-                        validacionGeneral(cpImpuestoDetalleErrorBuilder.builderValidacionImpuestoRetencion(impuesto,
-                                saved, request.getCompraImpuestos()));
+            Set<UUID> idsEncontrados = lista.stream()
+                    .map(CpImpuestosEntity::getIdImpuestos)
+                    .collect(Collectors.toSet());
 
-                if (!detalleErrors.isEmpty()) {
-                    List<String> list = detalleErrors.stream()
-                            .map(CpImpuestoDetalleError::getDetalle)
-                            .toList();
-                    throw new ListErrorException(list);
-                }
+            List<UUID> idsFaltantes = impuestoIds.stream()
+                    .filter(id -> !idsEncontrados.contains(id))
+                    .toList();
 
+            if (!idsFaltantes.isEmpty()) {
+                throw new GeneralException("Los siguientes impuestos no existen: " + idsFaltantes);
+            }
 
-                if (permiteRetencion(impuesto.getOrigen())) {
-                    impuesto.setRetencion(saved);
-                    impuesto.setOrigen(model.getOrigen());
-                    List<CpImpuestosCodigosEntity> listCodigos = impuestoCodigoBuilder.builderMultiList(model.getListCodigosImpuesto(),
-                            saved.getIdData(), saved.getIdEmpresa());
-                    validateCodigosEntity(impuesto, listCodigos);
-                    cpImpuestosRepository.save(impuesto);
-
-                } else {
-                    throw new GeneralException(MessageFormat.format("El documento con id {0} y su origen: {1} no corresponde para guardar una retención",
-                            model.getIdCompraImpuesto(), impuesto.getOrigen()));
-                }
-
-
-            });
+            lista.forEach(impuesto ->
+                    mapImpuestos.put(impuesto.getIdImpuestos(), impuesto)
+            );
         }
+
+        CpRetencionesEntity saved = cpRetencionPersistenceService.guardarRetencion(retencionesEntity, empresa, serie,
+                idData, idEmpresa, request, mapImpuestos);
 
 
         RespuestaProcesoGetDto respuestaProcesoGetDto = new RespuestaProcesoGetDto();
@@ -207,7 +194,6 @@ public class ComprasRetencionesServiceImpl {
 
     }
 
-
     @Transactional
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationRetencionRequestDto request,
                               String usuario, FilterListCompraRetencionesDto filters, TipoPermiso tipoBusqueda) {
@@ -223,7 +209,6 @@ public class ComprasRetencionesServiceImpl {
 
 
         CpRetencionesEntity retencionesEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
-
 
         validarAutorizacion(retencionesEntity);
 
@@ -246,27 +231,34 @@ public class ComprasRetencionesServiceImpl {
         update.setProveedor(proveedor);
         update.setEmail(proveedor.getEmail());
 
-        comprobanteService.getComprobanteXmlRetencion(idData, empresa, serie, update, request);
 
-        CpRetencionesEntity saved = cpRetencionPersistenceService.actualizarRetencion(update, request);
-
+        Map<UUID, CpImpuestosEntity> mapImpuestos = new HashMap<>();
         if (Objects.nonNull(request.getCompraImpuestos())) {
-            builderListSave(request).forEach(model -> {
 
-                CpImpuestosEntity impuesto = cpImpuestosRepository.findById(saved.getIdData(), saved.getIdEmpresa(), model.getIdCompraImpuesto())
-                        .orElseThrow(() -> new GeneralException(MessageFormat.format("El impuesto con id {0} para asignarse", model.getIdCompraImpuesto())));
+            List<UUID> impuestoIds = request.getCompraImpuestos().stream()
+                    .map(com.calero.lili.core.modCompras.modCompras.dto.CompraImpuestosDto::getCompraImpuestoId)
+                    .toList();
 
-                impuesto.setRetencion(saved);
-                impuesto.setOrigen(model.getOrigen());
-                List<CpImpuestosCodigosEntity> listCodigos = impuestoCodigoBuilder.builderMultiList(model.getListCodigosImpuesto(),
-                        saved.getIdData(), saved.getIdEmpresa());
-                validateCodigosEntity(impuesto, listCodigos);
-                cpImpuestosRepository.save(impuesto);
+            List<CpImpuestosEntity> lista = cpImpuestosRepository.findByInId(idData, idEmpresa, impuestoIds);
 
-            });
+            Set<UUID> idsEncontrados = lista.stream()
+                    .map(CpImpuestosEntity::getIdImpuestos)
+                    .collect(Collectors.toSet());
+
+            List<UUID> idsFaltantes = impuestoIds.stream()
+                    .filter(id -> !idsEncontrados.contains(id))
+                    .toList();
+
+            if (!idsFaltantes.isEmpty()) {
+                throw new GeneralException("Los siguientes impuestos no existen: " + idsFaltantes);
+            }
+
+            lista.forEach(impuesto ->
+                    mapImpuestos.put(impuesto.getIdImpuestos(), impuesto)
+            );
         }
 
-        actualizarCpImpuesto(request, saved);
+        CpRetencionesEntity saved = cpRetencionPersistenceService.actualizarRetencion(update,empresa,serie,idData,idEmpresa,request,mapImpuestos);
         return responseApiBuilder.builderResponse(saved.getIdRetencion().toString());
 
     }
@@ -277,7 +269,8 @@ public class ComprasRetencionesServiceImpl {
         }
     }
 
-    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario, FilterListCompraRetencionesDto filters,
+    public void delete(Long idData, Long idEmpresa, UUID idVenta, String usuario, FilterListCompraRetencionesDto
+                               filters,
                        TipoPermiso tipoBusqueda) {
 
 
@@ -312,7 +305,8 @@ public class ComprasRetencionesServiceImpl {
         return cpRetencionesEntity.getMensajes();
     }
 
-    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListCompraRetencionesDto filters, Pageable pageable,
+    public PaginatedDto<GetListDto> findAllPaginate(Long idData, Long idEmpresa, FilterListCompraRetencionesDto
+                                                            filters, Pageable pageable,
                                                     TipoPermiso tipoBusqueda, String usuario) {
 
         Page<CpRetencionesEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
@@ -344,7 +338,8 @@ public class ComprasRetencionesServiceImpl {
         return paginatedDto;
     }
 
-    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListCompraRetencionesDto filters, Pageable pageable) {
+    public GetListDtoTotalizado<GetListDto> findAllPaginateTotalizado(Long idData, Long
+            idEmpresa, FilterListCompraRetencionesDto filters, Pageable pageable) {
 
         Page<CpRetencionesEntity> page = comprasRetencionesRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(),
                 filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(),
@@ -386,7 +381,8 @@ public class ComprasRetencionesServiceImpl {
 
     }
 
-    public void exportarExcel(Long idData, Long idEmpresa, HttpServletResponse response, FilterListCompraRetencionesDto filter) throws
+    public void exportarExcel(Long idData, Long idEmpresa, HttpServletResponse
+            response, FilterListCompraRetencionesDto filter) throws
             IOException {
 
 
@@ -476,7 +472,8 @@ public class ComprasRetencionesServiceImpl {
     }
 
 
-    public void exportarPDF(Long idData, Long idEmpresa, HttpServletResponse response, FilterListCompraRetencionesDto filters) throws
+    public void exportarPDF(Long idData, Long idEmpresa, HttpServletResponse
+            response, FilterListCompraRetencionesDto filters) throws
             DocumentException, IOException {
 
         List<CpRetencionesEntity> facturas = comprasRetencionesRepository.findAll(idData, idEmpresa, filters.getSucursal(),
@@ -712,17 +709,6 @@ public class ComprasRetencionesServiceImpl {
                 }
             }
         }
-
-    }
-
-    private void guardarCpImpuesto(CreationRetencionRequestDto request,
-                                   CpRetencionesEntity entidad) {
-
-    }
-
-
-    private void actualizarCpImpuesto(CreationRetencionRequestDto request,
-                                      CpRetencionesEntity entidad) {
 
     }
 

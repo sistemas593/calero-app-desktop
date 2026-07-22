@@ -1,14 +1,12 @@
 package com.calero.lili.core.modCompras.modComprasImpuestos;
 
 import com.calero.lili.core.enums.DocumentoEnum;
-import com.calero.lili.core.enums.SustentoCodigos;
 import com.calero.lili.core.modCompras.impuestosXml.CpImpuestosFacturasOneProjection;
 import com.calero.lili.core.modCompras.modComprasImpuestos.projection.ComprasImpuestoProjection;
 import com.calero.lili.core.modCompras.modComprasImpuestos.projection.OneProjection;
 import com.calero.lili.core.modCompras.modComprasImpuestos.projection.TotalesProjection;
 import com.calero.lili.core.modCompras.projection.AtsProjection;
 import com.calero.lili.core.modCompras.projection.AtsRetencionResumenProjection;
-import com.calero.lili.core.modCompras.projection.AtsRetencionValoresProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -392,5 +390,12 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
                                         @Param("idEmpresa") Long idEmpresa,
                                         @Param("idRetencion") UUID idRetencion);
 
-
+    @Query(value = "SELECT entity " +
+            "FROM CpImpuestosEntity entity " +
+            "WHERE (entity.idData = :idData)  AND " +
+            "(entity.idEmpresa = :idEmpresa) AND " +
+            "entity.idImpuestos in :listIds ")
+    List<CpImpuestosEntity> findByInId(@Param("idData") Long idData,
+                                           @Param("idEmpresa") Long idEmpresa,
+                                           @Param("listIds") List<UUID> listIds);
 }

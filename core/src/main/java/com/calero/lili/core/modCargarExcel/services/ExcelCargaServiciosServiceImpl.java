@@ -70,11 +70,13 @@ public class ExcelCargaServiciosServiceImpl {
 
                 if (Objects.isNull(row.getCell(0))) {
                     detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.CODE_NOT_FOUND));
-                } else if (getItemRepository.findByCodigoItem(idData, idEmpresa,
-                        row.getCell(0).getStringCellValue()).isPresent()) {
-                    detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.CODE_IS_PRESENT));
+                } else {
+                    if (getItemRepository.findByCodigoItem(idData, idEmpresa,
+                            row.getCell(0).getStringCellValue()).isPresent()) {
+                        detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.CODE_IS_PRESENT));
+                    }
+                    item.setCodigoPrincipal(row.getCell(0).getStringCellValue());
                 }
-                item.setCodigoPrincipal(row.getCell(0).getStringCellValue());
                 getGrupoServicios(idEmpresa, row, idData, item, detalleErrores, linea);
                 getOtherCellsServicios(row, detalleErrores, linea, item);
                 getImpuestoServicios(row, detalleErrores, linea, item);
@@ -92,6 +94,12 @@ public class ExcelCargaServiciosServiceImpl {
     }
 
     private void getImpuestoServicios(Row row, List<DetalleError> detalleErrores, int linea, GeItemEntity item) {
+
+        if (Objects.isNull(row.getCell(3)) || Objects.isNull(row.getCell(4))) {
+            detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.NOT_FOUND_IMPUESTO));
+            return;
+        }
+
         GeImpuestosEntity geImpuestosEntity = geImpuestosItemsRepository
                 .findByCodigoAndCodigoPorcentaje(row.getCell(3).getStringCellValue(),
                         row.getCell(4).getStringCellValue());
@@ -108,20 +116,25 @@ public class ExcelCargaServiciosServiceImpl {
     }
 
     private void getGrupoServicios(Long idEmpresa, Row row, Long idData, GeItemEntity item, List<DetalleError> detalleErrores, int linea) {
-        String nombreGrupo = row.getCell(2).getStringCellValue();
-        GeItemGrupoEntity geItemGrupoEntity = geItemsGruposRepository
-                .findByNameGrupo(idData, idEmpresa, nombreGrupo);
-        if (Objects.nonNull(geItemGrupoEntity)) {
-            item.setGrupos(geItemGrupoEntity);
+
+        if (Objects.nonNull(row.getCell(2))) {
+            String nombreGrupo = row.getCell(2).getStringCellValue();
+            GeItemGrupoEntity geItemGrupoEntity = geItemsGruposRepository
+                    .findByNameGrupo(idData, idEmpresa, nombreGrupo);
+            if (Objects.nonNull(geItemGrupoEntity)) {
+                item.setGrupos(geItemGrupoEntity);
+            } else {
+                detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.GRUPO_NOT_FOUND));
+            }
         } else {
-            detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.GRUPO_NOT_FOUND));
+            detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.CELDA_GRUPO_NOT_FOUND));
         }
     }
 
     private void getOtherCellsServicios(Row row, List<DetalleError> detalleErrores, int linea, GeItemEntity item) {
 
 
-        if (Objects.isNull(row.getCell(1).getStringCellValue())) {
+        if (Objects.isNull(row.getCell(1))) {
             detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.NAME_ITEM_NOT_FOUND));
         } else {
             item.setDescripcion(row.getCell(1).getStringCellValue());
@@ -135,21 +148,21 @@ public class ExcelCargaServiciosServiceImpl {
 
         List<GeItemEntity.DetalleAdicional> listDetalleAdicional = new ArrayList<>();
 
-        if (Objects.nonNull(row.getCell(7))) {
+        if (Objects.nonNull(row.getCell(7)) && Objects.nonNull(row.getCell(8))) {
             listDetalleAdicional.add(GeItemEntity.DetalleAdicional.builder()
                     .nombre(row.getCell(7).getStringCellValue())
                     .valor(row.getCell(8).getStringCellValue())
                     .build());
         }
 
-        if (Objects.nonNull(row.getCell(9))) {
+        if (Objects.nonNull(row.getCell(9)) && Objects.nonNull(row.getCell(10))) {
             listDetalleAdicional.add(GeItemEntity.DetalleAdicional.builder()
                     .nombre(row.getCell(9).getStringCellValue())
                     .valor(row.getCell(10).getStringCellValue())
                     .build());
         }
 
-        if (Objects.nonNull(row.getCell(11))) {
+        if (Objects.nonNull(row.getCell(11)) && Objects.nonNull(row.getCell(12))) {
             listDetalleAdicional.add(GeItemEntity.DetalleAdicional.builder()
                     .nombre(row.getCell(11).getStringCellValue())
                     .valor(row.getCell(12).getStringCellValue())
