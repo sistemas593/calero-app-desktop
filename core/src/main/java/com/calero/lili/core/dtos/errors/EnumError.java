@@ -21,17 +21,25 @@ public enum EnumError {
 
     CODE_NOT_FOUND("No existe codigo para el Producto/Servicio/Gasto"),
     GRUPO_NOT_FOUND("No existe grupo para el Producto/Servicio/Gasto"),
+    CELDA_GRUPO_NOT_FOUND("La celda del grupo esta vacia"),
     CODE_IS_PRESENT("El Producto/Servicio/Gasto ya se encuentra registrado"),
     CODIGO_BARRAS_NOT_FOUND("El codigo de barras no existe"),
     NAME_ITEM_NOT_FOUND("No existe nombre para Producto/Servicio/Gasto"),
     ORDENADOR_NOT_FOUND("No existe número de ordenador"),
     NOT_FOUND_IMPUESTO("No existe impuesto para el Producto/Servicio/Gasto"),
     NOT_FOUND_MARCAS("No existe marca para el Producto"),
+    CELDA_NOT_FOUND_MARCAS("La celda de la marca esta vacia"),
+    CATEGORIA_NOT_FOUND_MEDIDA("La celda de la categoria esta vacia"),
+
     MARCAS_IS_PRESENT("La Marca ya se encuentra registrada"),
     NOT_FOUND_CATEGORIA("No existe categoria"),
     NOT_FOUND_NIVEL_CATEGORIA("No existe nivel de categoria"),
+
     CATEGORIA_IS_PRESENT("La categoria ya se encuentra registrada"),
+
     NOT_FOUND_MEDIDA("No existe medida"),
+    CELDA_NOT_FOUND_MEDIDA("La celda de la medida esta vacia"),
+
     MEDIDA_IS_PRESENT("La medida ya se encuentra registrada"),
 
     NOT_FOUND_CUENTA("No existe número de cuenta"),

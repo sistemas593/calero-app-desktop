@@ -8,7 +8,6 @@ import com.calero.lili.core.comprobantesWs.dto.DatosEmpresaDto;
 import com.calero.lili.core.comprobantesWs.services.BuscarDatosEmpresa;
 import com.calero.lili.core.comprobantesWs.services.ProcesarDocumentosServiceImpl;
 import com.calero.lili.core.dtos.CompraImpuestosDto;
-import com.calero.lili.core.dtos.DetallesDto;
 import com.calero.lili.core.dtos.Mensajes;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
@@ -39,7 +38,6 @@ import com.calero.lili.core.modCompras.modComprasRetenciones.dto.FilterListCompr
 import com.calero.lili.core.modCompras.modComprasRetenciones.dto.GetDto;
 import com.calero.lili.core.modCompras.modComprasRetenciones.dto.GetListDto;
 import com.calero.lili.core.modCompras.modComprasRetenciones.dto.GetListDtoTotalizado;
-import com.calero.lili.core.modCompras.modComprasRetenciones.projection.DeEmitidasRetencionesProjection;
 import com.calero.lili.core.modCompras.modComprasRetenciones.projection.TotalesProjection;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
@@ -76,7 +74,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.IntStream;
 
@@ -140,7 +137,7 @@ public class ComprasRetencionesServiceImpl {
             builderListSave(request).forEach(model -> {
 
                 CpImpuestosEntity impuesto = cpImpuestosRepository.findById(saved.getIdData(), saved.getIdEmpresa(), model.getIdCompraImpuesto())
-                        .orElseThrow(() -> new GeneralException(MessageFormat.format("El impuesto con id {0} para asignarse", model.getIdCompraImpuesto())));
+                        .orElseThrow(() -> new GeneralException(MessageFormat.format("El id {0} del impuesto no existe ", model.getIdCompraImpuesto())));
 
 
                 List<CpImpuestoDetalleError> detalleErrors = validacionGeneralService.

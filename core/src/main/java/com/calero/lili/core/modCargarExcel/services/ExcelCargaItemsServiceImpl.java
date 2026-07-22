@@ -67,6 +67,7 @@ public class ExcelCargaItemsServiceImpl {
         for (Sheet sheet : workbook) {
             boolean isHeader = true;
             for (Row row : sheet) {
+                if (isRowEmpty(row)) continue;
                 int linea = row.getRowNum() + 1;
 
                 if (isHeader) {
@@ -137,14 +138,20 @@ public class ExcelCargaItemsServiceImpl {
     }
 
     private void getGrupoEntityProductos(Long idEmpresa, Row row, Long idData, GeItemEntity item, List<DetalleError> detalleErrores, int linea) {
-        String nombreGrupo = row.getCell(3).getStringCellValue();
-        GeItemGrupoEntity geItemGrupoEntity = geItemsGruposRepository
-                .findByNameGrupo(idData, idEmpresa, nombreGrupo);
-        if (Objects.nonNull(geItemGrupoEntity)) {
-            item.setGrupos(geItemGrupoEntity);
+
+        if (Objects.nonNull(row.getCell(3))) {
+            String nombreGrupo = row.getCell(3).getStringCellValue();
+            GeItemGrupoEntity geItemGrupoEntity = geItemsGruposRepository
+                    .findByNameGrupo(idData, idEmpresa, nombreGrupo);
+            if (Objects.nonNull(geItemGrupoEntity)) {
+                item.setGrupos(geItemGrupoEntity);
+            } else {
+                detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.GRUPO_NOT_FOUND));
+            }
         } else {
-            detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.GRUPO_NOT_FOUND));
+            detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.CELDA_GRUPO_NOT_FOUND));
         }
+
     }
 
     private void getOtherCellsProductos(Row row, List<DetalleError> detalleErrores, int linea, GeItemEntity item) {
@@ -241,42 +248,74 @@ public class ExcelCargaItemsServiceImpl {
 
 
     private void getMarcaProductos(Row row, Long idData, GeItemEntity item, List<DetalleError> detalleErrores, int linea) {
-        String nombreMarca = row.getCell(7).getStringCellValue();
-        GeItemsMarcasEntity geItemsMarcasEntity = geItemsMarcasRepository
-                .findByName(idData, nombreMarca);
 
-        if (Objects.nonNull(geItemsMarcasEntity)) {
-            item.setMarcas(geItemsMarcasEntity);
+        if (Objects.nonNull(row.getCell(7))) {
+            String nombreMarca = row.getCell(7).getStringCellValue();
+            GeItemsMarcasEntity geItemsMarcasEntity = geItemsMarcasRepository
+                    .findByName(idData, nombreMarca);
+
+            if (Objects.nonNull(geItemsMarcasEntity)) {
+                item.setMarcas(geItemsMarcasEntity);
+            } else {
+                detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.NOT_FOUND_MARCAS));
+            }
         } else {
-            detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.NOT_FOUND_MARCAS));
+            detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.CELDA_NOT_FOUND_MARCAS));
         }
+
+
     }
 
 
     private void getCategoriaProducto(Row row, Long idData, GeItemEntity item, List<DetalleError> detalleErrores, int linea) {
-        String nombreCategoria = row.getCell(9).getStringCellValue();
-        GeItemsCategoriaEntity categoria = geItemsCategoriaRepository.findByName(idData, nombreCategoria);
-        if (Objects.nonNull(categoria)) {
-            item.setCategorias(categoria);
+
+        if (Objects.nonNull(row.getCell(9))) {
+            String nombreCategoria = row.getCell(9).getStringCellValue();
+            GeItemsCategoriaEntity categoria = geItemsCategoriaRepository.findByName(idData, nombreCategoria);
+            if (Objects.nonNull(categoria)) {
+                item.setCategorias(categoria);
+            } else {
+                detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.NOT_FOUND_CATEGORIA));
+            }
         } else {
-            detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.NOT_FOUND_MEDIDA));
+            detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.CATEGORIA_NOT_FOUND_MEDIDA));
         }
     }
 
     private void getMedidaProducto(Row row, Long idData, GeItemEntity item, List<DetalleError> detalleErrores, int linea) {
-        String nombreMedida = row.getCell(8).getStringCellValue();
-        GeItemsMedidasEntity medidas = geItemsMedidasRepository.findByName(idData, nombreMedida);
-        if (Objects.nonNull(medidas)) {
-            List<GeMedidasItemsEntity> list = new ArrayList<>();
-            list.add(GeMedidasItemsEntity.builder()
-                    .idItemMedida(UUID.randomUUID())
-                    .idUnidadMedida(medidas.getIdUnidadMedida())
-                    .build());
-            item.setMedidas(list);
+
+        if (Objects.nonNull(row.getCell(8))) {
+            String nombreMedida = row.getCell(8).getStringCellValue();
+            GeItemsMedidasEntity medidas = geItemsMedidasRepository.findByName(idData, nombreMedida);
+            if (Objects.nonNull(medidas)) {
+                List<GeMedidasItemsEntity> list = new ArrayList<>();
+                list.add(GeMedidasItemsEntity.builder()
+                        .idItemMedida(UUID.randomUUID())
+                        .idUnidadMedida(medidas.getIdUnidadMedida())
+                        .build());
+                item.setMedidas(list);
+            } else {
+                detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.NOT_FOUND_MEDIDA));
+            }
         } else {
-            detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.NOT_FOUND_MARCAS));
+            detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.CELDA_NOT_FOUND_MEDIDA));
         }
+
+
     }
+
+
+    private boolean isRowEmpty(Row row) {
+        if (row == null) return true;
+
+        for (int c = row.getFirstCellNum(); c < row.getLastCellNum(); c++) {
+            if (row.getCell(c, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL) != null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }
 
 
