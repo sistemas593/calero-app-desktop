@@ -8,6 +8,7 @@ import com.calero.lili.core.comprobantesWs.dto.DatosEmpresaDto;
 import com.calero.lili.core.comprobantesWs.services.BuscarDatosEmpresa;
 import com.calero.lili.core.comprobantesWs.services.ProcesarDocumentosServiceImpl;
 import com.calero.lili.core.dtos.CompraImpuestosDto;
+import com.calero.lili.core.dtos.DetallesDto;
 import com.calero.lili.core.dtos.Mensajes;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
@@ -23,6 +24,7 @@ import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesEntity;
 import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesRepository;
+import com.calero.lili.core.modCompras.dto.ImpuestoCodigoDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosCodigosEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosRepository;
@@ -63,6 +65,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
@@ -120,7 +123,7 @@ public class ComprasRetencionesServiceImpl {
         validarAmbiente(request);
         CpRetencionesEntity retencionesEntity = cpRetencionesBuilder.builderEntity(request, idData, idEmpresa);
 
-
+        setearCabeceraTotal(retencionesEntity, request);
         retencionesEntity.setTipoEmision(getTipoEmision(request));
         retencionesEntity.setProveedor(proveedor);
         retencionesEntity.setEmail(proveedor.getEmail());
@@ -762,6 +765,17 @@ public class ComprasRetencionesServiceImpl {
         if (OrigenImpuestos.ISC.name().equals(origen)) return Boolean.TRUE;
         if (OrigenImpuestos.DSC.name().equals(origen)) return Boolean.TRUE;
         return Boolean.FALSE;
+    }
+
+    private void setearCabeceraTotal(CpRetencionesEntity retencionesEntity, CreationRetencionRequestDto request) {
+
+        BigDecimal totalValor = request.getCompraImpuestos().stream()
+                .flatMap(compraImpuesto -> compraImpuesto.getImpuestoCodigos().stream())
+                .map(ImpuestoCodigoDto::getValorRetenido)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
+
+        retencionesEntity.setTotal(totalValor);
     }
 
 }

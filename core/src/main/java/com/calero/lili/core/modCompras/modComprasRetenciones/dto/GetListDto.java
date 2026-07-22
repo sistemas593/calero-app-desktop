@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,6 +31,7 @@ public class GetListDto {
     private UUID idTercero;
     private Boolean anulada;
     private Boolean impresa;
+    private BigDecimal total;
     private List<ResponseValoresDto> valores;
     private List<GetReporteListDto> listCompraImpuesto;
     private Integer ambiente;

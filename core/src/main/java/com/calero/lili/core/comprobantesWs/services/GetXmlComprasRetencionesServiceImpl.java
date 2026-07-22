@@ -136,9 +136,6 @@ public class GetXmlComprasRetencionesServiceImpl {
 
 
     private void validarRetencion(CpRetencionesOneProjection entidad) {
-        if (!entidad.getNumeroAutorizacion().startsWith("07", 8)) {
-            throw new GeneralException("El documento con id " + entidad.getIdRetencion() + " no es una factura");
-        }
 
         if (Objects.isNull(entidad.getComprobante()) || entidad.getComprobante().isEmpty()) {
             throw new GeneralException("El documento no contiene un comprobante");

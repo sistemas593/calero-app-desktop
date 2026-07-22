@@ -135,6 +135,7 @@ public class CpRetencionesBuilder {
                 .emailEstado(model.getEmailEstado())
                 .periodoFiscal(Objects.nonNull(model.getPeriodoFiscal()) ? DateUtils.toString(model.getPeriodoFiscal()) : null)
                 .existeComprobante(model.getExisteComprobante())
+                .total(model.getTotal())
                 .build();
     }
 
