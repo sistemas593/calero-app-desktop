@@ -122,6 +122,15 @@ public class VtVentasNotasCreditoServiceImpl {
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Empresa {0}, serie {1} no existe", idEmpresa, request.getSerie())));
 
 
+        Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData,
+                idEmpresa, TipoVenta.NCR.name(), serie.getSerie(), request.getSecuencial());
+
+        if (existingFactura.isPresent()) {
+            throw new GeneralException(MessageFormat.format("El documento ya existe Tipo: {0} Serie: {1} Secuencia: {2}",
+                    TipoVenta.NCR.name(), serie.getSerie(), request.getSecuencial()));
+        }
+
+
         List<ValoresDto> valores = calcularValoresDocumentos.validarValores(request.getDetalle());
         request.setValores(valores);
         setearValoresCabecera(valores, request);
@@ -145,8 +154,7 @@ public class VtVentasNotasCreditoServiceImpl {
 
         vtVentaEntity.setTipoEmision(getTipoEmision(request));
 
-
-        VtVentaEntity saved = vtVentasPersistenceService.guardarNotaCredito(vtVentaEntity, empresa, serie, idData, idEmpresa);
+        VtVentaEntity saved = vtVentasPersistenceService.guardarNotaCredito(vtVentaEntity, empresa, serie, idData);
 
         RespuestaProcesoGetDto respuestaProcesoGetDto = new RespuestaProcesoGetDto();
 

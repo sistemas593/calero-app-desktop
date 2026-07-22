@@ -18,6 +18,7 @@ public class CreationRetencionRequestDto {
     @NotEmpty(message = "No existe el serie")
     private String serieRetencion;
 
+    @NotEmpty(message = "No existe la secuencial")
     private String secuencialRetencion;
 
     @NotEmpty(message = "No existe la fecha de emision")

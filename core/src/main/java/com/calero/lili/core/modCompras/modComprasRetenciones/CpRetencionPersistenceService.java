@@ -37,7 +37,6 @@ public class CpRetencionPersistenceService {
 
     private final ComprasRetencionesRepository comprasRetencionesRepository;
     private final ComprobanteServiceImpl comprobanteService;
-    private final ValidacionDocumentosGeneral validacionDocumentosGeneral;
     private final ValidacionGeneralCpImpuestoService validacionGeneralService;
     private final CpImpuestoDetalleErrorBuilder cpImpuestoDetalleErrorBuilder;
     private final ImpuestoCodigoBuilder impuestoCodigoBuilder;
@@ -48,22 +47,6 @@ public class CpRetencionPersistenceService {
                                                 AdEmpresasSeriesEntity serie, Long idData, Long idEmpresa,
                                                 CreationRetencionRequestDto request, Map<UUID, CpImpuestosEntity> mapImpuestos) {
 
-
-        if (Objects.isNull(entidad.getSecuencialRetencion())) {
-            String secuencial = validacionDocumentosGeneral.generarSecuencial(idData, idEmpresa, serie.getIdSerie(),
-                    TipoDocumentoSerie.CRT);
-            request.setSecuencialRetencion(secuencial);
-            entidad.setSecuencialRetencion(secuencial);
-        }
-
-        Optional<DeEmitidasRetencionesProjection> existingRetencion = comprasRetencionesRepository
-                .findExistBySecuencial(idData, idEmpresa, request.getSerieRetencion(), request.getSecuencialRetencion());
-
-
-        if (existingRetencion.isPresent()) {
-            throw new GeneralException(MessageFormat.format("El documento ya existe : " +
-                    "Serie: {0} Secuencia: {1}", request.getSerieRetencion(), request.getSecuencialRetencion()));
-        }
 
         comprobanteService.getComprobanteXmlRetencion(idData, empresa, serie, entidad, request);
 
@@ -89,10 +72,10 @@ public class CpRetencionPersistenceService {
         Map<UUID, CompraImpuestosDto> mapImpuestosDto = builderCompraImpuestoMap(request);
         for (Map.Entry<UUID, CpImpuestosEntity> entry : mapImpuestos.entrySet()) {
 
-            UUID id = entry.getKey();
+            UUID idImpuesto = entry.getKey();
             CpImpuestosEntity impuesto = entry.getValue();
 
-            CompraImpuestosDto impuestoDto = mapImpuestosDto.get(id);
+            CompraImpuestosDto impuestoDto = mapImpuestosDto.get(idImpuesto);
 
             if (permiteRetencion(impuesto.getOrigen())) {
 
@@ -106,7 +89,11 @@ public class CpRetencionPersistenceService {
 
                 validateCodigosEntity(impuesto, listCodigos);
                 cpImpuestosRepository.save(impuesto);
+            } else {
+                throw new GeneralException(MessageFormat.format("El documento con id {0} y su origen: {1} no corresponde para guardar una retención",
+                        idImpuesto, impuesto.getOrigen()));
             }
+
         }
 
 

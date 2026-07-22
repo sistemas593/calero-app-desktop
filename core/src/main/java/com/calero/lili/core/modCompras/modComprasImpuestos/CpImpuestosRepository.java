@@ -394,8 +394,10 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
             "FROM CpImpuestosEntity entity " +
             "WHERE (entity.idData = :idData)  AND " +
             "(entity.idEmpresa = :idEmpresa) AND " +
-            "entity.idImpuestos in :listIds ")
+            "entity.idImpuestos in :listIds AND " +
+            "entity.retencion.idRetencion is NULL AND " +
+            "entity.origen <> 'RCC'")
     List<CpImpuestosEntity> findByInId(@Param("idData") Long idData,
-                                           @Param("idEmpresa") Long idEmpresa,
-                                           @Param("listIds") List<UUID> listIds);
+                                       @Param("idEmpresa") Long idEmpresa,
+                                       @Param("listIds") List<UUID> listIds);
 }

@@ -99,6 +99,14 @@ public class VtGuiasServiceImpl {
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Empresa {0}, serie {1} no existe", idEmpresa, request.getSerie())));
 
 
+        Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData, idEmpresa,
+                serie.getSerie(), request.getSecuencial());
+
+        if (existingFactura.isPresent()) {
+            throw new GeneralException(MessageFormat.format("La Guia de remisión " +
+                    "ya existe: Serie: {0} Secuencia: {1}", serie.getSerie(), request.getSecuencial()));
+        }
+
         GeTerceroEntity transportista = geTercerosRepository.findByIdCliente(idData, request.getIdTransportista())
                 .orElseThrow(() -> new GeneralException("No existe transportista"));
 
@@ -120,7 +128,7 @@ public class VtGuiasServiceImpl {
         vtGuiaEntity.setCreatedDate(LocalDateTime.now());
 
 
-        VtGuiaEntity saved = vtGuiasPersistenceService.guardarGuiaRemision(vtGuiaEntity, empresa, serie, idData, idEmpresa);
+        VtGuiaEntity saved = vtGuiasPersistenceService.guardarGuiaRemision(vtGuiaEntity, empresa, serie, idData);
 
         RespuestaProcesoGetDto respuestaProcesoGetDto = new RespuestaProcesoGetDto();
 

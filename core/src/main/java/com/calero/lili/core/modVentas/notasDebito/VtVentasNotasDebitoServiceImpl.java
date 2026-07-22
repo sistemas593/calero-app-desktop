@@ -100,6 +100,14 @@ public class VtVentasNotasDebitoServiceImpl {
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Empresa {0}, serie {1} no existe", idEmpresa, request.getSerie())));
 
 
+        Optional<OneProjection> existingFactura = vtVentaRepository.findExistBySecuencial(idData, idEmpresa,
+                TipoVenta.NDB.name(), serie.getSerie(), request.getSecuencial());
+
+        if (existingFactura.isPresent()) {
+            throw new GeneralException(MessageFormat.format("El documento ya existe Tipo: {0} Serie: {1} Secuencial: {2}",
+                    TipoVenta.NDB.name(), serie.getSerie(), request.getSecuencial()));
+        }
+
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
                 DateUtils.toLocalDate(request.getFechaEmision()));
 
@@ -122,7 +130,7 @@ public class VtVentasNotasDebitoServiceImpl {
         vtVentaEntity.setCreatedDate(LocalDateTime.now());
 
         vtVentaEntity.setTipoEmision(getTipoEmision(request));
-        VtVentaEntity saved = vtVentasPersistenceService.guardarNotaDebito(vtVentaEntity, empresa, serie, idData, idEmpresa);
+        VtVentaEntity saved = vtVentasPersistenceService.guardarNotaDebito(vtVentaEntity, empresa, serie, idData);
 
         RespuestaProcesoGetDto respuestaProcesoGetDto = new RespuestaProcesoGetDto();
 

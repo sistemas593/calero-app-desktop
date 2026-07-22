@@ -34,6 +34,7 @@ import com.calero.lili.core.modCompras.modComprasRetenciones.dto.FilterListCompr
 import com.calero.lili.core.modCompras.modComprasRetenciones.dto.GetDto;
 import com.calero.lili.core.modCompras.modComprasRetenciones.dto.GetListDto;
 import com.calero.lili.core.modCompras.modComprasRetenciones.dto.GetListDtoTotalizado;
+import com.calero.lili.core.modCompras.modComprasRetenciones.projection.DeEmitidasRetencionesProjection;
 import com.calero.lili.core.modCompras.modComprasRetenciones.projection.TotalesProjection;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
@@ -72,6 +73,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -109,6 +111,14 @@ public class ComprasRetencionesServiceImpl {
                 .findBySerie(idData, idEmpresa, request.getSerieRetencion())
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Empresa {0}, serie {1} no existe", idEmpresa, request.getSerieRetencion())));
 
+        Optional<DeEmitidasRetencionesProjection> existingRetencion = comprasRetencionesRepository
+                .findExistBySecuencial(idData, idEmpresa, request.getSerieRetencion(), request.getSecuencialRetencion());
+
+
+        if (existingRetencion.isPresent()) {
+            throw new GeneralException(MessageFormat.format("El documento ya existe : " +
+                    "Serie: {0} Secuencia: {1}", request.getSerieRetencion(), request.getSecuencialRetencion()));
+        }
 
         DateUtils.validarFechaEmision(request.getFechaEmisionRetencion());
         GeTerceroEntity proveedor = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
@@ -145,7 +155,7 @@ public class ComprasRetencionesServiceImpl {
                     .toList();
 
             if (!idsFaltantes.isEmpty()) {
-                throw new GeneralException("Los siguientes impuestos no existen: " + idsFaltantes);
+                throw new GeneralException("Los siguientes id de impuestos no existen o ya tienen una retención asociada: " + idsFaltantes);
             }
 
             lista.forEach(impuesto ->
@@ -194,6 +204,9 @@ public class ComprasRetencionesServiceImpl {
 
     }
 
+
+    // TODO AL MODIFICAR TENER EN CUENTA QUE AL MOMENTO DE LIGAR, DEPENDE DE CUALES SE ENVIAN EN EL REQUEST, Y COMPARAR CON
+    // LAS QUE ESTAN GUARDADAS Y EN BASE A ESTO VALIDAR SI SE AGREGAN, SI SE DESLIGAN O SIEMPRE TENIENDO EN CUENTA LO QUE SE ENVIA, Y EN CASO DE NO SE ENVIEN LANZAR UN ERROR
     @Transactional
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationRetencionRequestDto request,
                               String usuario, FilterListCompraRetencionesDto filters, TipoPermiso tipoBusqueda) {
@@ -258,7 +271,7 @@ public class ComprasRetencionesServiceImpl {
             );
         }
 
-        CpRetencionesEntity saved = cpRetencionPersistenceService.actualizarRetencion(update,empresa,serie,idData,idEmpresa,request,mapImpuestos);
+        CpRetencionesEntity saved = cpRetencionPersistenceService.actualizarRetencion(update, empresa, serie, idData, idEmpresa, request, mapImpuestos);
         return responseApiBuilder.builderResponse(saved.getIdRetencion().toString());
 
     }

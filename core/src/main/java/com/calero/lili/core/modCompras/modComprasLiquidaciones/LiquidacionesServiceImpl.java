@@ -113,6 +113,14 @@ public class LiquidacionesServiceImpl {
                 .findBySerie(idData, idEmpresa, request.getSerie())
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Empresa {0}, serie {1} no existe", idEmpresa, request.getSerie())));
 
+        Optional<OneProjection> existingFactura = liquidacionesRepository
+                .findExistBySecuencial(idData, idEmpresa, request.getSerie(), request.getSecuencial());
+
+        if (existingFactura.isPresent()) {
+            throw new GeneralException(MessageFormat.format("La liquidación ya existe  Serie: {0} Secuencia: {1}",
+                    request.getSerie(), request.getSecuencial()));
+        }
+
 
         List<ValoresDto> valores = calcularValoresDocumentos.validarValores(request.getDetalle());
         request.setValores(valores);

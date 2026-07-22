@@ -5,6 +5,7 @@ import com.calero.lili.core.dtos.errors.DetalleError;
 import com.calero.lili.core.dtos.errors.EnumError;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.errors.exceptions.ListErrorException;
+import com.calero.lili.core.utils.DateUtils;
 import com.calero.lili.core.utils.ValidarTipoArchivo;
 import com.monitorjbl.xlsx.StreamingReader;
 import lombok.RequiredArgsConstructor;
@@ -19,10 +20,8 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -53,8 +52,8 @@ public class ExcelCargarEstadoCuentaServiceImpl {
         for (Sheet sheet : workbook) {
             boolean isHeader = true;
             for (Row row : sheet) {
+                if (isRowEmpty(row)) continue;
                 int linea = row.getRowNum() + 1;
-
                 if (isHeader) {
                     isHeader = false;
                     continue;
@@ -71,8 +70,8 @@ public class ExcelCargarEstadoCuentaServiceImpl {
                 if (Objects.isNull(row.getCell(0))) {
                     detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.FECHA_ESTADO_CUENTA_NOT_FOUND));
                 } else {
-                    Date date = row.getCell(0).getDateCellValue();
-                    LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                    String date = row.getCell(0).getStringCellValue();
+                    LocalDate localDate = DateUtils.toLocalDate(date);
                     item.setFechaDocumento(localDate);
                 }
 
@@ -91,7 +90,8 @@ public class ExcelCargarEstadoCuentaServiceImpl {
                 if (Objects.isNull(row.getCell(4))) {
                     detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.VALOR_ESTADO_CUENTA_NOT_FOUND));
                 } else {
-                    item.setValor(validateValor(row.getCell(4).getStringCellValue()));
+                    BigDecimal valor = validateValor(row.getCell(4).getStringCellValue());
+                    item.setValor(valor);
                 }
 
                 listItems.add(item);
@@ -107,11 +107,18 @@ public class ExcelCargarEstadoCuentaServiceImpl {
         }
     }
 
-    private BigDecimal validateValor(String stringCellValue) {
-        if (stringCellValue.contains(",")) {
-            return new BigDecimal(stringCellValue.replace(",", "."));
+    private BigDecimal validateValor(String valor) {
+        valor = valor.trim();
+        if (valor.contains(",") && valor.contains(".")) {
+            if (valor.lastIndexOf(",") > valor.lastIndexOf(".")) {
+                valor = valor.replace(".", "").replace(",", ".");
+            } else {
+                valor = valor.replace(",", "");
+            }
+        } else if (valor.contains(",")) {
+            valor = valor.replace(",", ".");
         }
-        return new BigDecimal(stringCellValue);
+        return new BigDecimal(valor);
     }
 
 
@@ -146,5 +153,15 @@ public class ExcelCargarEstadoCuentaServiceImpl {
         return movimiento.toUpperCase();
     }
 
+    private boolean isRowEmpty(Row row) {
+        if (row == null) return true;
+
+        for (int c = row.getFirstCellNum(); c < row.getLastCellNum(); c++) {
+            if (row.getCell(c, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL) != null) {
+                return false;
+            }
+        }
+        return true;
+    }
 
 }

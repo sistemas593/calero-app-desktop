@@ -37,22 +37,6 @@ public class LiquidacionPersistenceService {
                                                     AdEmpresasSeriesEntity serie, Long idData, Long idEmpresa,
                                                     CreationRequestLiquidacionCompraDto request) {
 
-
-        if (Objects.isNull(cpLiquidacionesEntity.getSecuencial())) {
-            String secuencial = validacionDocumentosGeneral.generarSecuencial(idData, idEmpresa,
-                    serie.getIdSerie(), TipoDocumentoSerie.LIQ);
-            request.setSecuencial(secuencial);
-            cpLiquidacionesEntity.setSecuencial(secuencial);
-        }
-
-        Optional<OneProjection> existingFactura = liquidacionesRepository
-                .findExistBySecuencial(idData, idEmpresa, request.getSerie(), request.getSecuencial());
-
-        if (existingFactura.isPresent()) {
-            throw new GeneralException(MessageFormat.format("La liquidación ya existe  Serie: {0} Secuencia: {1}",
-                    request.getSerie(), request.getSecuencial()));
-        }
-
         comprobanteService.getComprobanteXmlLiquidacion(idData, cpLiquidacionesEntity, empresa, serie);
         CpLiquidacionesEntity saved = liquidacionesRepository.save(cpLiquidacionesEntity);
         validarImpuesto(request, saved);
