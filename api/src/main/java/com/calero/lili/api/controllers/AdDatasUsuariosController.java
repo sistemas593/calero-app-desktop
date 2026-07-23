@@ -8,7 +8,9 @@ import com.calero.lili.core.adDatasUsuarios.dto.AdDataUsuarioListFilterDto;
 import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.core.dtos.PaginatedDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -53,7 +55,14 @@ public class AdDatasUsuariosController {
     @PreAuthorize("hasAuthority('CF_DTU_VR')")
     public PaginatedDto<AdDataUsuarioCreationResponseDto> findAllPaginate(AdDataUsuarioListFilterDto filters,
                                                                           Pageable pageable) {
-        return adDatasUsuariosService.findAllPaginate(filters, pageable);
+
+        Sort sort = pageable.getSort().and(Sort.by("idRegistro").ascending());
+
+        int pageSize = pageable.getPageSize();
+        if (pageSize > 100) {
+            pageSize = 100;}
+        Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
+        return adDatasUsuariosService.findAllPaginate(filters, pageableConSort);
     }
 
 }

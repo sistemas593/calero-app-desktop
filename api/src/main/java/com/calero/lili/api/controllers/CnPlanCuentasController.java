@@ -74,6 +74,7 @@ public class CnPlanCuentasController {
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAuthority('CN_PC_VR')")
     public List<CnPlanCuentaGetListDto> findAll(@PathVariable("idEmpresa") Long idEmpresa) {
+
         return cnPlanCuentasService.findAll(idDataService.getIdData(), idEmpresa);
     }
 

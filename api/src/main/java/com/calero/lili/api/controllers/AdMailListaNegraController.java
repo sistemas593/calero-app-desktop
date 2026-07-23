@@ -5,7 +5,9 @@ import com.calero.lili.core.modAdminlistaNegra.AdMailListNegraServiceImpl;
 import com.calero.lili.core.modAdminlistaNegra.dto.FilterMailBlackDto;
 import com.calero.lili.core.modAdminlistaNegra.dto.MailBlackResponseDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,7 +33,15 @@ public class AdMailListaNegraController {
     @GetMapping("listar")
     @ResponseStatus(code = HttpStatus.OK)
     public PaginatedDto<MailBlackResponseDto> findAllPaginate(FilterMailBlackDto model, Pageable pageable) {
-        return adMailListNegraService.getAll(model, pageable);
+
+        Sort sort = pageable.getSort().and(Sort.by("idImpuestos").ascending());
+
+        int pageSize = pageable.getPageSize();
+        if (pageSize > 100) {
+            pageSize = 100;}
+        Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
+
+        return adMailListNegraService.getAll(model, pageableConSort);
     }
 
     @DeleteMapping("delete")

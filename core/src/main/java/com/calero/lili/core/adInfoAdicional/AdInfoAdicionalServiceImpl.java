@@ -4,12 +4,8 @@ import com.calero.lili.core.adInfoAdicional.builder.AdInfoAdicionalBuilder;
 import com.calero.lili.core.adInfoAdicional.dto.AdInfoAdicionalRequestDto;
 import com.calero.lili.core.adInfoAdicional.dto.AdInfoAdicionalResponseDto;
 import com.calero.lili.core.adInfoAdicional.projection.OneAdInfoProjection;
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
@@ -29,6 +25,7 @@ public class AdInfoAdicionalServiceImpl {
     public AdInfoAdicionalResponseDto create(Long idData, Long idEmpresa,
                                              AdInfoAdicionalRequestDto request, String usuario) {
 
+        validarCantidadElementosLista(request);
         Optional<OneAdInfoProjection> entidad = adInfoAdicionalRepository.findByTipoDocumento(idData, idEmpresa, request.getDocumento().name());
 
         if (entidad.isPresent()) {
@@ -46,6 +43,7 @@ public class AdInfoAdicionalServiceImpl {
     public AdInfoAdicionalResponseDto update(Long idData, Long idEmpresa, UUID idInfoAdicional,
                                              AdInfoAdicionalRequestDto request, String usuario) {
 
+        validarCantidadElementosLista(request);
         AdInfoAdicionalEntity entidad = adInfoAdicionalRepository.findByIdInfoAdicional(idData, idEmpresa, idInfoAdicional)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("La información adicional con id {0}, no existe", idInfoAdicional)));
 
@@ -90,7 +88,17 @@ public class AdInfoAdicionalServiceImpl {
         entidad.setDeletedBy(usuario);
         entidad.setDeletedDate(LocalDateTime.now());
 
-        adInfoAdicionalRepository.save(entidad);
+    }
+
+    private void validarCantidadElementosLista(AdInfoAdicionalRequestDto request) {
+
+        if ((request.getInformacionAdicional() != null) && !request.getInformacionAdicional().isEmpty()) {
+            if (request.getInformacionAdicional().size() > 15) {
+                throw new GeneralException("La lista de información adicional no pude superar los 15 elementos");
+            }
+        } else {
+            throw new GeneralException("No se envio la lista de información adicional");
+        }
     }
 
 

@@ -7,7 +7,9 @@ import com.calero.lili.core.modTesoreria.modTesoreriaBancosConcilaciones.dto.BcB
 import com.calero.lili.core.modTesoreria.modTesoreriaBancosConcilaciones.dto.BcBancoConciliacionCreationResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -71,8 +73,13 @@ public class BcBancosConciliacionesController {
     public PaginatedDto<BcBancoConciliacionCreationResponseDto> findAllPaginate(@PathVariable("idEmp") Long idEmpresa,
                                                                                 Pageable pageable) {
 
-        //log.info("Filters = {}", filters);
-        return bcBancosConciliacionesService.findAllPaginate(idDataService.getIdData(), idEmpresa, pageable);
+        Sort sort = pageable.getSort().and(Sort.by("idConciliacion").ascending());
+
+        int pageSize = pageable.getPageSize();
+        if (pageSize > 100) {
+            pageSize = 100;}
+        Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
+        return bcBancosConciliacionesService.findAllPaginate(idDataService.getIdData(), idEmpresa, pageableConSort);
     }
 
 }

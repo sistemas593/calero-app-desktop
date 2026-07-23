@@ -253,15 +253,11 @@ public class ComprasRetencionesServiceImpl {
                 .map(CpImpuestosEntity::getIdImpuestos)
                 .collect(Collectors.toSet());
 
-        // Impuestos que estaban ligados a la retencion pero ya no vienen referenciados en el request: se desligan
-        listaImpuestos.stream()
+        // Impuestos que estaban ligados a la retencion pero ya no vienen referenciados en el request: se desligaran
+        // (el guardado se realiza en la persistencia, luego de que las validaciones generales pasen)
+        List<CpImpuestosEntity> impuestosADesligar = listaImpuestos.stream()
                 .filter(impuesto -> !mapRequestImpuestos.containsKey(impuesto.getIdImpuestos()))
-                .forEach(impuesto -> {
-                    impuesto.setRetencion(null);
-                    impuesto.setOrigen(OrigenImpuestos.ISC.name());
-                    impuesto.getCodigosEntity().clear();
-                    cpImpuestosRepository.save(impuesto);
-                });
+                .toList();
 
         // Ids que vienen en el request y no estaban ligados previamente: se validan y se ligaran como nuevos
         List<UUID> idsNuevos = mapRequestImpuestos.keySet().stream()
@@ -295,7 +291,7 @@ public class ComprasRetencionesServiceImpl {
                 .filter(impuesto -> mapRequestImpuestos.containsKey(impuesto.getIdImpuestos()))
                 .forEach(impuesto -> mapImpuestos.put(impuesto.getIdImpuestos(), impuesto));
 
-        CpRetencionesEntity saved = cpRetencionPersistenceService.actualizarRetencion(update, empresa, serie, idData, idEmpresa, request, mapImpuestos);
+        CpRetencionesEntity saved = cpRetencionPersistenceService.actualizarRetencion(update, empresa, serie, idData, idEmpresa, request, mapImpuestos, impuestosADesligar);
         return responseApiBuilder.builderResponse(saved.getIdRetencion().toString());
 
     }

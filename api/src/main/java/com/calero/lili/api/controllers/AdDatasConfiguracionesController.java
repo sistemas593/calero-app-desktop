@@ -12,7 +12,9 @@ import com.calero.lili.core.modAdDatasConfiguraciones.dto.VtClientesConfiguracio
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -73,7 +75,15 @@ public class AdDatasConfiguracionesController {
     public PaginatedDto<VtClientesConfiguracionesGetListDto> findAllPaginate(
             VtClientesConfiguracionesListFilterDto filters,
             Pageable pageable) {
-        return clientesConfiguracionesService.findAllPaginate(filters, pageable);
+
+        Sort sort = pageable.getSort().and(Sort.by("idData").ascending());
+
+        int pageSize = pageable.getPageSize();
+        if (pageSize > 100) {
+            pageSize = 100;}
+        Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
+
+        return clientesConfiguracionesService.findAllPaginate(filters, pageableConSort);
     }
 
 

@@ -9,7 +9,9 @@ import com.calero.lili.core.modAdminDatas.dto.AdDatasCreationRequestDto;
 import com.calero.lili.core.modAdminDatas.dto.AdDatasDto;
 import com.calero.lili.core.modAdDatasConfiguraciones.dto.VtClientesConfiguracionesGetOneDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -52,7 +54,14 @@ public class AdDatasController {
     //@PreAuthorize("hasAuthority('CF_DT_VR')")
     public PaginatedDto<AdDatasDto> findAllPaginate(FilterDto filters,
                                                     Pageable pageable) {
-        return adDatasService.findAllPaginate(filters, pageable);
+
+        Sort sort = pageable.getSort().and(Sort.by("idImpuestos").ascending());
+
+        int pageSize = pageable.getPageSize();
+        if (pageSize > 100) {
+            pageSize = 100;}
+        Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
+        return adDatasService.findAllPaginate(filters, pageableConSort);
     }
 
 

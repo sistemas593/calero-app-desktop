@@ -10,7 +10,9 @@ import com.calero.lili.core.modAdminEmpresasSeries.dto.AdEmpresaSerieGetDto;
 import com.calero.lili.core.modAdminEmpresasSeries.dto.AdEmpresaSerieGetListDto;
 import com.calero.lili.core.modAdminEmpresasSeries.dto.AdEmpresaSerieListFilterDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -79,8 +81,15 @@ public class AdEmpresasSeriesController {
     public PaginatedDto<AdEmpresaSerieGetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
                                                                   AdEmpresaSerieListFilterDto filters,
                                                                   Pageable pageable) {
-        //log.info("Filters = {}", filters);
-        return adEmpresasSeriesService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable);
+
+        Sort sort = pageable.getSort().and(Sort.by("idSerie").ascending());
+
+        int pageSize = pageable.getPageSize();
+        if (pageSize > 100) {
+            pageSize = 100;}
+        Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
+
+        return adEmpresasSeriesService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageableConSort);
     }
 
 

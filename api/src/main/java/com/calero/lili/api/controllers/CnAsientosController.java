@@ -14,7 +14,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -97,7 +99,15 @@ public class CnAsientosController {
     public PaginatedDto<GetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
                                                     FilterAsientoListDto filters,
                                                     Pageable pageable) {
-        return cnAsientosService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable,
+
+        Sort sort = pageable.getSort().and(Sort.by("idAsiento").ascending());
+
+        int pageSize = pageable.getPageSize();
+        if (pageSize > 100) {
+            pageSize = 100;}
+        Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
+
+        return cnAsientosService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageableConSort,
                 auditorAware.getTipoPermisoVerAsiento(),
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }

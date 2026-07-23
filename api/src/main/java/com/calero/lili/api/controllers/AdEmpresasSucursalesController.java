@@ -10,7 +10,9 @@ import com.calero.lili.core.modAdminEmpresasSucursales.dto.AdEmpresaSucursalGetL
 import com.calero.lili.core.modAdminEmpresasSucursales.dto.AdEmpresaSucursalGetOneDto;
 import com.calero.lili.core.modAdminEmpresasSucursales.dto.AdEmpresaSucursalListFilterDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -78,7 +80,15 @@ public class AdEmpresasSucursalesController {
     public PaginatedDto<AdEmpresaSucursalGetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
                                                                      AdEmpresaSucursalListFilterDto filters,
                                                                      Pageable pageable) {
-        return adEmpresasSucursalesService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable);
+
+        Sort sort = pageable.getSort().and(Sort.by("idSucursal").ascending());
+
+        int pageSize = pageable.getPageSize();
+        if (pageSize > 100) {
+            pageSize = 100;}
+        Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
+
+        return adEmpresasSucursalesService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageableConSort);
     }
 
 }

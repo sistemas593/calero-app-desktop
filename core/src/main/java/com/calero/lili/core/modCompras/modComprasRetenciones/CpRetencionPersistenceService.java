@@ -103,7 +103,8 @@ public class CpRetencionPersistenceService {
     @Transactional
     public CpRetencionesEntity actualizarRetencion(CpRetencionesEntity entidad, AdEmpresaEntity empresa,
                                                    AdEmpresasSeriesEntity serie, Long idData, Long idEmpresa,
-                                                   CreationRetencionRequestDto request, Map<UUID, CpImpuestosEntity> mapImpuestos) {
+                                                   CreationRetencionRequestDto request, Map<UUID, CpImpuestosEntity> mapImpuestos,
+                                                   List<CpImpuestosEntity> impuestosADesligar) {
 
         comprobanteService.getComprobanteXmlRetencion(idData, empresa, serie, entidad, request);
 
@@ -125,6 +126,13 @@ public class CpRetencionPersistenceService {
 
 
         CpRetencionesEntity update = comprasRetencionesRepository.save(entidad);
+
+        impuestosADesligar.forEach(impuesto -> {
+            impuesto.setRetencion(null);
+            impuesto.setOrigen(OrigenImpuestos.ISC.name());
+            impuesto.getCodigosEntity().clear();
+            cpImpuestosRepository.save(impuesto);
+        });
 
         Map<UUID, CompraImpuestosDto> mapImpuestosDto = builderCompraImpuestoMap(request);
         for (Map.Entry<UUID, CpImpuestosEntity> entry : mapImpuestos.entrySet()) {

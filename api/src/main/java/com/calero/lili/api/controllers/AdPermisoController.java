@@ -8,7 +8,9 @@ import com.calero.lili.core.dtos.PaginatedDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -59,7 +61,14 @@ public class AdPermisoController {
     @PreAuthorize("hasAuthority('US_PE_VR')")
     public PaginatedDto<AdPermisosResponseDto> findAllPaginate(PermisoFilterDto filters,
                                                                Pageable pageable) {
-        return adPermisosService.findAll(filters, pageable);
+        Sort sort = pageable.getSort().and(Sort.by("idPermiso").ascending());
+
+        int pageSize = pageable.getPageSize();
+        if (pageSize > 100) {
+            pageSize = 100;
+        }
+        Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
+        return adPermisosService.findAll(filters, pageableConSort);
     }
 
 

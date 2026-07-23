@@ -10,7 +10,9 @@ import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.api.utils.IdDataServiceImpl;
 import com.calero.lili.core.dtos.PaginatedDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -70,7 +72,15 @@ public class AdUsuariosController {
     //@PreAuthorize("hasAuthority('US_US_VR')")
     public PaginatedDto<AdUsuarioReportDto> findAllPaginateIdData(AdUsuarioListFilterDto filters,
                                                                   Pageable pageable) {
-        return adUsuarioService.getAllForIdData(idDataService.getIdData(), filters, pageable);
+
+        Sort sort = pageable.getSort().and(Sort.by("idUsuario").ascending());
+
+        int pageSize = pageable.getPageSize();
+        if (pageSize > 100) {
+            pageSize = 100;}
+        Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
+
+        return adUsuarioService.getAllForIdData(idDataService.getIdData(), filters, pageableConSort);
     }
 
     @GetMapping("permisos/{username}")

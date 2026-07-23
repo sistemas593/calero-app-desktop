@@ -9,7 +9,9 @@ import com.calero.lili.core.dtos.PaginatedDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -63,7 +65,16 @@ public class AdGruposController {
     @PreAuthorize("hasAuthority('US_GR_VR')")
     public PaginatedDto<AdGruposResponseDto> findAllPaginate(GruposFilter filters,
                                                              Pageable pageable) {
-        return adGrupoPermisoService.findAll(idDataService.getIdData(), filters, pageable);
+
+
+        Sort sort = pageable.getSort().and(Sort.by("idGrupo").ascending());
+
+        int pageSize = pageable.getPageSize();
+        if (pageSize > 100) {
+            pageSize = 100;}
+        Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
+
+        return adGrupoPermisoService.findAll(idDataService.getIdData(), filters, pageableConSort);
     }
 
 

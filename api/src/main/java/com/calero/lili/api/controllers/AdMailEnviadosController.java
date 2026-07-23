@@ -8,7 +8,9 @@ import com.calero.lili.core.adConfiguracion.dto.FilterMailEnviadosDto;
 import com.calero.lili.core.adConfiguracion.dto.FilterMailEnviadosTotalesDto;
 import com.calero.lili.core.dtos.PaginatedDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,7 +33,14 @@ public class AdMailEnviadosController {
     @ResponseStatus(HttpStatus.OK)
     public PaginatedDto<AdMailEnviadosResponseDto> findAllEnviados(FilterMailEnviadosDto model,
                                                                    Pageable pageable) {
-        return adMailEnviadosService.findAllPaginate(model, pageable);
+
+        Sort sort = pageable.getSort().and(Sort.by("email").ascending());
+
+        int pageSize = pageable.getPageSize();
+        if (pageSize > 100) {
+            pageSize = 100;}
+        Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
+        return adMailEnviadosService.findAllPaginate(model, pageableConSort);
     }
 
     @GetMapping("totales")

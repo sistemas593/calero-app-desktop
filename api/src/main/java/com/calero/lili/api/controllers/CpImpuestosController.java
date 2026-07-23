@@ -13,11 +13,14 @@ import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetListDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetReporteListDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetListDtoTotalizado;
+import com.lowagie.text.PageSize;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -109,6 +112,7 @@ public class CpImpuestosController {
     }
 
 
+    // TODO HACER EL PAGINADO EN TODOS LOS PAGINADOS
     @GetMapping("facturas/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('CP_CI_VR_PR','CP_CI_VR_SC','CP_CI_VR_TD')")
@@ -116,7 +120,14 @@ public class CpImpuestosController {
                                                     FilterListCompraImpuestoDto filters,
                                                     Pageable pageable) {
 
-        return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable,
+        Sort sort = pageable.getSort().and(Sort.by("idImpuestos").ascending());
+
+        int pageSize = pageable.getPageSize();
+        if (pageSize > 100) {
+            pageSize = 100;}
+        Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
+
+        return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageableConSort,
                 auditorAware.getTipoPermisoVerImpuesto(),
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
