@@ -10,7 +10,6 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
-import com.google.storage.v2.Object;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -41,12 +40,10 @@ public class BuscarDatosEmpresa {
             throw new GeneralException(MessageFormat
                     .format("Data {0}, Empresa {1} no existe", idData, idEmpresa));
         }
+        
 
-        if (Objects.isNull(empresa.get().getContraseniaFirma())) {
-            throw new GeneralException("La empresa no tiene configurada la contraseña del archivo de firma (.p12).");
-        }
-
-        String pwd = AESUtils.decrypt(empresa.get().getContraseniaFirma());
+        String pwd = Objects.nonNull(empresa.get().getContraseniaFirma())
+                ? AESUtils.decrypt(empresa.get().getContraseniaFirma()) : "";
 
         Storage storage = StorageOptions.newBuilder().setProjectId(projectId).build().getService();
         BlobId blobId = BlobId.of(bucketName, "data00001/logo-fe-0001.jpg");
