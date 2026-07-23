@@ -135,9 +135,6 @@ public class GetXmlLiquidacionesServiceImpl {
     }
 
     private void validarLiquidacion(CpLiquidacionOneProjection entidad) {
-        if (!entidad.getNumeroAutorizacion().startsWith("03", 8)) {
-            throw new GeneralException("El documento con id " + entidad.getIdLiquidacion() + " no es una factura");
-        }
 
         if (Objects.isNull(entidad.getComprobante()) || entidad.getComprobante().isEmpty()) {
             throw new GeneralException("El documento no contiene un comprobante");
