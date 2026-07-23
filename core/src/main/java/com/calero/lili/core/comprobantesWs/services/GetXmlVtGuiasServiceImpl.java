@@ -34,13 +34,13 @@ import java.util.UUID;
 public class GetXmlVtGuiasServiceImpl {
 
 
-    private final VtGuiasRepository vtVentaRepository;
+    private final VtGuiasRepository guiasRepository;
     private final DocumentosElectronicosComprobanteBuilder documentosElectronicosComprobanteBuilder;
     private final BuscarDatosEmpresa buscarDatosEmpresa;
     private final GuiaRemisionPdf guiaRemisionPdf;
 
     public VtVentasXMLGuiaRemisionGetDto findXMLGuiaById(Long idData, Long idEmpresa, UUID id) {
-        VtGuiaRemisionOneProjection entidad = vtVentaRepository.findXMLById(idData, idEmpresa, id)
+        VtGuiaRemisionOneProjection entidad = guiasRepository.findXMLById(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
         return documentosElectronicosComprobanteBuilder.toGuiaRemision(entidad);
 
@@ -54,7 +54,7 @@ public class GetXmlVtGuiasServiceImpl {
         DatosEmpresaDto datosEmpresaDto = null;
 
 
-        VtGuiaRemisionOneProjection entidad = vtVentaRepository.findXMLById(idData, idEmpresa, id)
+        VtGuiaRemisionOneProjection entidad = guiasRepository.findXMLById(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
 
         validarGuia(entidad);
@@ -97,7 +97,7 @@ public class GetXmlVtGuiasServiceImpl {
     public ArchivoDto findFileXMLGuia(Long idData, Long idEmpresa, UUID id) {
 
 
-        VtGuiaRemisionOneProjection entidad = vtVentaRepository.findXMLById(idData, idEmpresa, id)
+        VtGuiaRemisionOneProjection entidad = guiasRepository.findXMLById(idData, idEmpresa, id)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id {0} no exists", id)));
 
 
@@ -136,10 +136,6 @@ public class GetXmlVtGuiasServiceImpl {
     }
 
     private void validarGuia(VtGuiaRemisionOneProjection entidad) {
-        if (!entidad.getNumeroAutorizacion().startsWith("06", 8)) {
-            throw new GeneralException("El documento con id " + entidad.getIdGuia() + " no es una guía de remisión");
-        }
-
         if (Objects.isNull(entidad.getComprobante()) || entidad.getComprobante().isEmpty()) {
             throw new GeneralException("El documento no contiene un comprobante");
         }
