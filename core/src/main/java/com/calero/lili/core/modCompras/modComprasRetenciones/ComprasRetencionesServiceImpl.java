@@ -205,8 +205,6 @@ public class ComprasRetencionesServiceImpl {
     }
 
 
-    // TODO AL MODIFICAR TENER EN CUENTA QUE AL MOMENTO DE LIGAR, DEPENDE DE CUALES SE ENVIAN EN EL REQUEST, Y COMPARAR CON
-    // LAS QUE ESTAN GUARDADAS Y EN BASE A ESTO VALIDAR SI SE AGREGAN, SI SE DESLIGAN O SIEMPRE TENIENDO EN CUENTA LO QUE SE ENVIA, Y EN CASO DE NO SE ENVIEN LANZAR UN ERROR
     @Transactional
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationRetencionRequestDto request,
                               String usuario, FilterListCompraRetencionesDto filters, TipoPermiso tipoBusqueda) {
@@ -222,6 +220,7 @@ public class ComprasRetencionesServiceImpl {
 
 
         CpRetencionesEntity retencionesEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
+        List<CpImpuestosEntity> listaImpuestos = cpImpuestosService.getListCompraImpuestoForIdRetencion(idVenta, idEmpresa, idData);
 
         validarAutorizacion(retencionesEntity);
 
@@ -245,20 +244,40 @@ public class ComprasRetencionesServiceImpl {
         update.setEmail(proveedor.getEmail());
 
 
+        validarCompraImpuestos(request);
+
+        Map<UUID, com.calero.lili.core.modCompras.modCompras.dto.CompraImpuestosDto> mapRequestImpuestos = request.getCompraImpuestos().stream()
+                .collect(Collectors.toMap(com.calero.lili.core.modCompras.modCompras.dto.CompraImpuestosDto::getCompraImpuestoId, dto -> dto));
+
+        Set<UUID> idsExistentes = listaImpuestos.stream()
+                .map(CpImpuestosEntity::getIdImpuestos)
+                .collect(Collectors.toSet());
+
+        // Impuestos que estaban ligados a la retencion pero ya no vienen referenciados en el request: se desligan
+        listaImpuestos.stream()
+                .filter(impuesto -> !mapRequestImpuestos.containsKey(impuesto.getIdImpuestos()))
+                .forEach(impuesto -> {
+                    impuesto.setRetencion(null);
+                    impuesto.setOrigen(OrigenImpuestos.ISC.name());
+                    impuesto.getCodigosEntity().clear();
+                    cpImpuestosRepository.save(impuesto);
+                });
+
+        // Ids que vienen en el request y no estaban ligados previamente: se validan y se ligaran como nuevos
+        List<UUID> idsNuevos = mapRequestImpuestos.keySet().stream()
+                .filter(id -> !idsExistentes.contains(id))
+                .toList();
+
         Map<UUID, CpImpuestosEntity> mapImpuestos = new HashMap<>();
-        if (Objects.nonNull(request.getCompraImpuestos())) {
 
-            List<UUID> impuestoIds = request.getCompraImpuestos().stream()
-                    .map(com.calero.lili.core.modCompras.modCompras.dto.CompraImpuestosDto::getCompraImpuestoId)
-                    .toList();
-
-            List<CpImpuestosEntity> lista = cpImpuestosRepository.findByInId(idData, idEmpresa, impuestoIds);
+        if (!idsNuevos.isEmpty()) {
+            List<CpImpuestosEntity> lista = cpImpuestosRepository.findByInId(idData, idEmpresa, idsNuevos);
 
             Set<UUID> idsEncontrados = lista.stream()
                     .map(CpImpuestosEntity::getIdImpuestos)
                     .collect(Collectors.toSet());
 
-            List<UUID> idsFaltantes = impuestoIds.stream()
+            List<UUID> idsFaltantes = idsNuevos.stream()
                     .filter(id -> !idsEncontrados.contains(id))
                     .toList();
 
@@ -271,9 +290,27 @@ public class ComprasRetencionesServiceImpl {
             );
         }
 
+        // Ids que ya estaban ligados y se mantienen en el request: se incluyen para que se les refresquen sus codigos
+        listaImpuestos.stream()
+                .filter(impuesto -> mapRequestImpuestos.containsKey(impuesto.getIdImpuestos()))
+                .forEach(impuesto -> mapImpuestos.put(impuesto.getIdImpuestos(), impuesto));
+
         CpRetencionesEntity saved = cpRetencionPersistenceService.actualizarRetencion(update, empresa, serie, idData, idEmpresa, request, mapImpuestos);
         return responseApiBuilder.builderResponse(saved.getIdRetencion().toString());
 
+    }
+
+    private void validarCompraImpuestos(CreationRetencionRequestDto request) {
+        if (Objects.isNull(request.getCompraImpuestos()) || request.getCompraImpuestos().isEmpty()) {
+            throw new GeneralException("Es requerido enviar al menos un impuesto con sus códigos de retención");
+        }
+
+        request.getCompraImpuestos().forEach(item -> {
+            if (Objects.isNull(item.getImpuestoCodigos()) || item.getImpuestoCodigos().isEmpty()) {
+                throw new GeneralException(MessageFormat.format(
+                        "Es requerido enviar los códigos de retención para el impuesto {0}", item.getCompraImpuestoId()));
+            }
+        });
     }
 
     private void validarEstadoDocumento(CpRetencionesEntity retencionesEntity) {

@@ -134,7 +134,7 @@ public class CpRetencionPersistenceService {
 
             CompraImpuestosDto impuestoDto = mapImpuestosDto.get(id);
 
-            if (permiteRetencion(impuesto.getOrigen())) {
+            if (permiteRetencion(impuesto.getOrigen()) || perteneceARetencion(impuesto, update)) {
 
                 impuesto.setRetencion(update);
                 impuesto.setOrigen(OrigenImpuestos.RCC.name());
@@ -146,10 +146,18 @@ public class CpRetencionPersistenceService {
 
                 validateCodigosEntity(impuesto, listCodigos);
                 cpImpuestosRepository.save(impuesto);
+            } else {
+                throw new GeneralException(MessageFormat.format("El documento con id {0} y su origen: {1} no corresponde para actualizar una retención",
+                        id, impuesto.getOrigen()));
             }
         }
 
         return update;
+    }
+
+    private boolean perteneceARetencion(CpImpuestosEntity impuesto, CpRetencionesEntity retencion) {
+        return Objects.nonNull(impuesto.getRetencion())
+                && impuesto.getRetencion().getIdRetencion().equals(retencion.getIdRetencion());
     }
 
     private Map<UUID, CompraImpuestosDto> builderCompraImpuestoMap(CreationRetencionRequestDto request) {
