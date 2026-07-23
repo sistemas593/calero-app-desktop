@@ -42,7 +42,7 @@ public class GetXmlPdfVtGuiaController {
     public ResponseEntity<byte[]> descargarPdfFactura(@PathVariable("idEmpresa") Long idEmpresa,
                                                       @PathVariable("idRecibida") UUID idRecibida) {
 
-        ArchivoDto datos = vtVentasService.findPDFGuiaById(idDataService.getIdData(), idEmpresa, idRecibida, "LOC");
+        ArchivoDto datos = vtVentasService.findPDFGuiaById(idDataService.getIdData(), idEmpresa, idRecibida, "WEB");
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + datos.getNombre())
