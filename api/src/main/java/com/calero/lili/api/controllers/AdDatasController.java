@@ -55,7 +55,7 @@ public class AdDatasController {
     public PaginatedDto<AdDatasDto> findAllPaginate(FilterDto filters,
                                                     Pageable pageable) {
 
-        Sort sort = pageable.getSort().and(Sort.by("idImpuestos").ascending());
+        Sort sort = pageable.getSort().and(Sort.by("idData").ascending());
 
         int pageSize = pageable.getPageSize();
         if (pageSize > 100) {

@@ -76,7 +76,7 @@ public class AdDatasConfiguracionesController {
             VtClientesConfiguracionesListFilterDto filters,
             Pageable pageable) {
 
-        Sort sort = pageable.getSort().and(Sort.by("idData").ascending());
+        Sort sort = pageable.getSort().and(Sort.by("idConfiguracion").ascending());
 
         int pageSize = pageable.getPageSize();
         if (pageSize > 100) {
