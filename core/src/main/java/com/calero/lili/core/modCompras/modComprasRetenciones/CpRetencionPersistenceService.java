@@ -57,7 +57,7 @@ public class CpRetencionPersistenceService {
                         entidad.getSerieRetencion(), entidad.getSecuencialRetencion())));
 
 
-        int nuevo = Integer.parseInt(entidad.getSecuencialRetencion()) + 1;
+        int nuevo = Integer.parseInt(entidad.getSecuencialRetencion());
         documentosEntity.setSecuencial(nuevo);
 
 

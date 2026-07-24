@@ -84,7 +84,7 @@ public class VtVentasPersistenceService {
                         notaCredito.getSerie(), notaCredito.getSecuencial())));
 
 
-        int nuevo = Integer.parseInt(notaCredito.getSecuencial()) + 1;
+        int nuevo = Integer.parseInt(notaCredito.getSecuencial());
         documentosEntity.setSecuencial(nuevo);
 
 
@@ -106,7 +106,7 @@ public class VtVentasPersistenceService {
                         notaDebito.getSerie(), notaDebito.getSecuencial())));
 
 
-        int nuevo = Integer.parseInt(notaDebito.getSecuencial()) + 1;
+        int nuevo = Integer.parseInt(notaDebito.getSecuencial());
         documentosEntity.setSecuencial(nuevo);
 
 

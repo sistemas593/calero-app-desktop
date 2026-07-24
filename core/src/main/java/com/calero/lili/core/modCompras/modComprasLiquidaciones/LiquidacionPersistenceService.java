@@ -48,7 +48,7 @@ public class LiquidacionPersistenceService {
                         cpLiquidacionesEntity.getSerie(), cpLiquidacionesEntity.getSecuencial())));
 
 
-        int nuevo = Integer.parseInt(cpLiquidacionesEntity.getSecuencial()) + 1;
+        int nuevo = Integer.parseInt(cpLiquidacionesEntity.getSecuencial());
         documentosEntity.setSecuencial(nuevo);
 
         CpLiquidacionesEntity saved = liquidacionesRepository.save(cpLiquidacionesEntity);

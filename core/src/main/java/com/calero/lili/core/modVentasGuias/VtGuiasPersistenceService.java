@@ -35,7 +35,7 @@ public class VtGuiasPersistenceService {
                         guiaEntity.getSerie(), guiaEntity.getSecuencial())));
 
 
-        int nuevo = Integer.parseInt(guiaEntity.getSecuencial()) + 1;
+        int nuevo = Integer.parseInt(guiaEntity.getSecuencial());
         documentosEntity.setSecuencial(nuevo);
 
 
