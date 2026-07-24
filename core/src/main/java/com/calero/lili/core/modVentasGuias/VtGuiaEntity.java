@@ -117,6 +117,7 @@ public class VtGuiaEntity extends Auditable {
 
 
     private String dirPartida;
+    private String dirDestinatario;
     private String email;
 
     @JdbcTypeCode(SqlTypes.JSON)

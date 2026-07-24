@@ -13,8 +13,8 @@ import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesEntity;
 import com.calero.lili.core.modVentasGuias.VtGuiaDetalleEntity;
 import com.calero.lili.core.modVentasGuias.VtGuiaEntity;
-import com.calero.lili.core.utils.validaciones.ObligadoContabilidad;
 import com.calero.lili.core.utils.DateUtils;
+import com.calero.lili.core.utils.validaciones.ObligadoContabilidad;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -51,7 +51,7 @@ public class GuiaRemisionBuilder {
         Destinatario destinatario = Destinatario.builder()
                 .identificacionDestinatario(guiaRemision.getDestinatario().getNumeroIdentificacion())
                 .razonSocialDestinatario(guiaRemision.getDestinatario().getTercero())
-                .dirDestinatario(guiaRemision.getDestinatario().getDireccion())
+                .dirDestinatario(guiaRemision.getDirDestinatario())
                 .motivoTraslado(guiaRemision.getMotivoTraslado())
                 .docAduaneroUnico(guiaRemision.getDocAduaneroUnico())
                 .codEstabDestino(guiaRemision.getCodEstabDestino())

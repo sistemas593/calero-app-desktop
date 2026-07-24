@@ -48,6 +48,9 @@ public class CreationRequestGuiaRemisionDto {
     @NotBlank(message = "No existe direccion partida")
     private String dirPartida;
 
+    @NotBlank(message = "No existe direccion del destinatario")
+    private String dirDestinatario;
+
 
     @NotBlank(message = "No existe motivo del traslado")
     private String motivoTraslado;
