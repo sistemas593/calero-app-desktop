@@ -53,6 +53,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -94,6 +95,7 @@ public class VtGuiasServiceImpl {
         AdEmpresaEntity empresa = adEmpresasRepository
                 .findById(idData, idEmpresa)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Data {0} Empresa {1} no existe", idData, idEmpresa)));
+
         AdEmpresasSeriesEntity serie = adEmpresasSeriesRepository
                 .findBySerie(idData, idEmpresa, request.getSerie())
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Empresa {0}, serie {1} no existe", idEmpresa, request.getSerie())));

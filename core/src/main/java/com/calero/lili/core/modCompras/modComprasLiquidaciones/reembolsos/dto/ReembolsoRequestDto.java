@@ -1,5 +1,6 @@
 package com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.dto;
 
+import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.enums.TipoTerceroPerSoc;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.detalles.ValoresLiquidacionesCompraDto;
 import jakarta.validation.constraints.NotEmpty;
@@ -23,7 +24,7 @@ public class ReembolsoRequestDto {
     @NotNull(message = "El tipo de proveedor no se encuentra")
     private TipoTerceroPerSoc tipoProveedorReemb;
 
-    private String codigoDocumentoReemb;
+    private DocumentoEnum codigoDocumentoReemb;
     @NotEmpty(message = "La serie esta vacía")
 
     private String serieReemb;

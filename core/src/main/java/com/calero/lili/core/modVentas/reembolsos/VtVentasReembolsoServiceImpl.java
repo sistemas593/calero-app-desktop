@@ -56,11 +56,24 @@ public class VtVentasReembolsoServiceImpl {
     private final VtVentaReembolsosBuilder vtVentaReembolsosBuilder;
     private final ResponseApiBuilder responseApiBuilder;
     private final AdIvaPorcentajeServiceImpl adIvaPorcentajeService;
+    private final ValidacionDocumentosGeneral validacionDocumentosGeneral;
 
 
     public ResponseDto create(Long idData, Long idEmpresa, CreationRequestReembolsoDto request, String usuario) {
 
         ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencialReemb());
+
+        String validacionNumeroAut = validacionDocumentosGeneral.validarNumeroAutorizacion(request.getNumeroAutorizacionReemb());
+
+        if (!validacionNumeroAut.isEmpty()) {
+            throw new GeneralException(validacionNumeroAut);
+        }
+        String validacionSerie = validacionDocumentosGeneral.validarSerie(request.getSerieReemb());
+
+        if (!validacionSerie.isEmpty()) {
+            throw new GeneralException(validacionSerie);
+        }
+
         validarToleranciaValores(request);
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getReembolsosValores()),
                 DateUtils.toLocalDate(request.getFechaEmisionReemb()));
@@ -463,7 +476,14 @@ public class VtVentasReembolsoServiceImpl {
 
         for (CreationRequestReembolsoDto.ValoresVentaReembolsoDto valor : request.getReembolsosValores()) {
 
+
+            String clave = valor.getCodigo() + "-" + valor.getCodigoPorcentaje();
+
+            validacionDocumentosGeneral.existeImpuesto(clave);
+
             if (!valor.getTarifa().equals(new BigDecimal("0.00"))) {
+
+
                 BigDecimal valorEsperado = valor.getBaseImponible()
                         .multiply(valor.getTarifa())
                         .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
@@ -471,6 +491,11 @@ public class VtVentasReembolsoServiceImpl {
                 BigDecimal diferencia = valorEsperado
                         .subtract(valor.getValor())
                         .abs();
+
+
+                if (valorEsperado.compareTo(valor.getValor()) != 0) {
+                    throw new GeneralException(MessageFormat.format("El valor esperado es de {0}, pero se envia {1}", valorEsperado, valor.getValor()));
+                }
 
                 if (diferencia.compareTo(tolerancia) > 0) {
                     throw new GeneralException(

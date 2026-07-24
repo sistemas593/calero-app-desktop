@@ -3,6 +3,7 @@ package com.calero.lili.core.modVentas.facturas.dto;
 import com.calero.lili.core.dtos.FormasPagoDto;
 import com.calero.lili.core.dtos.InformacionAdicionalDto;
 import com.calero.lili.core.enums.ComercioExterior;
+import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormaPago;
 import com.calero.lili.core.enums.FormatoDocumento;
@@ -115,7 +116,7 @@ public class GetFacturaDto {
         private String numeroIdentificacionReemb;
         private String codPaisPagoReemb;
         private TipoTerceroPerSoc tipoProveedorReemb;
-        private String codigoDocumentoReemb;
+        private DocumentoEnum codigoDocumentoReemb;
         private String serieReemb;
         private String secuencialReemb;
         private String fechaEmisionReemb;

@@ -1,5 +1,6 @@
 package com.calero.lili.core.modVentas.reembolsos.dto;
 
+import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.enums.TipoTerceroPerSoc;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -21,7 +22,7 @@ public class CreationRequestReembolsoDto {
     private String numeroIdentificacionReemb;
     private String codPaisPagoReemb;
     private TipoTerceroPerSoc tipoProveedorReemb;
-    private String codigoDocumentoReemb;
+    private DocumentoEnum codigoDocumentoReemb;
     private String serieReemb;
     private String secuencialReemb;
     private String fechaEmisionReemb;

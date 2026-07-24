@@ -1,5 +1,6 @@
 package com.calero.lili.core.modCompras.modComprasLiquidaciones;
 
+import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.CpLiquidacionesReembolsosEntity;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.dtos.FormasPagoSri;
@@ -127,7 +128,7 @@ public class CpLiquidacionesEntity extends Auditable {
     private String tipoProveedor;
     private String relacionado;
 
-    private String codDocReembolso;
+    private DocumentoEnum codDocReembolso;
     private BigDecimal totalComprobantesReembolso;
     private BigDecimal totalBaseImponibleReembolso;
     private BigDecimal totalImpuestoReembolso;

@@ -99,7 +99,7 @@ public class CpImpuestosServiceImpl {
     private final TbPaisesRepository tbPaisesRepository;
     private final TbParaisoFiscalRepository tbParaisoFiscalRepository;
     private final GeTercerosRepository geTercerosRepository;
-    private final ValidacionGeneralCpImpuestoService validacionGeneralService;
+    private final ValidacionGeneralCpImpuestosService validacionGeneralService;
     private final CpImpuestoDetalleErrorBuilder cpImpuestoDetalleErrorBuilder;
 
 

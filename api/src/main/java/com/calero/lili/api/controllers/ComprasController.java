@@ -102,7 +102,8 @@ public class ComprasController {
 
         int pageSize = pageable.getPageSize();
         if (pageSize > 100) {
-            pageSize = 100;}
+            pageSize = 100;
+        }
         Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
 
         return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageableConSort,
@@ -113,10 +114,20 @@ public class ComprasController {
     @GetMapping("reportes/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('CP_CP_VR_PR','CP_CP_VR_SC','CP_CP_VR_TD')")
-    public GetCompraListDtoTotalizado<GetCompraListDto> findAllPaginateTotalizado(
-            @PathVariable("idEmpresa") Long idEmpresa,
-            FilterListComprasDto filters,
-            Pageable pageable) {
+    public GetCompraListDtoTotalizado<GetCompraListDto> findAllPaginateTotalizado(@PathVariable("idEmpresa") Long idEmpresa,
+                                                                                  FilterListComprasDto filters,
+                                                                                  Pageable pageable) {
+
+
+        Sort sort = pageable.getSort().and(Sort.by("idCompra").ascending());
+
+        int pageSize = pageable.getPageSize();
+        if (pageSize > 100) {
+            pageSize = 100;
+        }
+        Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
+
+
         log.info("Filters = {}", filters);
         return vtVentasService.findAllPaginateTotalizado(idDataService.getIdData(), idEmpresa, filters, pageable);
     }

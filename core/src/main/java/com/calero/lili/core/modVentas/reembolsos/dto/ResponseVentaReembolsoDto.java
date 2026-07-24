@@ -1,5 +1,6 @@
 package com.calero.lili.core.modVentas.reembolsos.dto;
 
+import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.enums.TipoTerceroPerSoc;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,7 +19,7 @@ public class ResponseVentaReembolsoDto {
     private String tipoIdentificacionReemb;
     private String numeroIdentificacionReemb;
     private TipoTerceroPerSoc tipoProveedorReemb;
-    private String codigoDocumentoReemb;
+    private DocumentoEnum codigoDocumentoReemb;
     private String serieReemb;
     private String secuencialReemb;
     private String fechaEmisionReemb;

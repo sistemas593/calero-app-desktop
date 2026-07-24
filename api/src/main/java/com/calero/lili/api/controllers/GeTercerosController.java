@@ -11,7 +11,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -76,7 +78,15 @@ public class GeTercerosController {
     @PreAuthorize("hasAuthority('GE_TE_VR')")
     public PaginatedDto<GeTerceroGetListDto> findAllPaginate(GeTerceroFilterDto filters,
                                                              Pageable pageable) {
-        return vtClientesService.findAllPaginate(idDataService.getIdData(), filters, pageable);
+
+        Sort sort = pageable.getSort().and(Sort.by("idTercero").ascending());
+
+        int pageSize = pageable.getPageSize();
+        if (pageSize > 100) {
+            pageSize = 100;}
+        Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
+
+        return vtClientesService.findAllPaginate(idDataService.getIdData(), filters, pageableConSort);
     }
 
 }

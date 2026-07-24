@@ -3,22 +3,20 @@ package com.calero.lili.core.utils.calcularValores;
 import com.calero.lili.core.dtos.DetallesDto;
 import com.calero.lili.core.dtos.ImpuestoItemsDto;
 import com.calero.lili.core.dtos.ValoresDto;
-import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosEntity;
 import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosItemsRepository;
+import com.calero.lili.core.utils.ValidacionDocumentosGeneral;
 import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,6 +24,7 @@ import java.util.stream.Collectors;
 public class CalcularValoresDocumentos {
 
     private final GeImpuestosItemsRepository geImpuestosItemsRepository;
+    private final ValidacionDocumentosGeneral validacionDocumentosGeneral;
 
 
     public List<ValoresDto> validarValores(List<DetallesDto> detalles) {
@@ -109,13 +108,8 @@ public class CalcularValoresDocumentos {
 
         List<GeImpuestosEntity> impuestos = new ArrayList<>();
         for (String clave : claves) {
-
-            Optional<GeImpuestosEntity> impuesto = geImpuestosItemsRepository.findCodigoAndCodigoPorcentaje(clave);
-            if (impuesto.isPresent()) {
-                impuestos.add(impuesto.get());
-            } else {
-                throw new GeneralException(MessageFormat.format("El impuesto con codigos {0}, no existe", clave));
-            }
+            GeImpuestosEntity impuesto = validacionDocumentosGeneral.existeImpuesto(clave);
+            impuestos.add(impuesto);
         }
 
         Map<String, GeImpuestosEntity> impuestosMap = impuestos.stream()

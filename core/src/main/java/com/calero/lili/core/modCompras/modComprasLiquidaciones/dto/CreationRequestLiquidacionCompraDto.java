@@ -4,6 +4,7 @@ import com.calero.lili.core.dtos.DetallesDto;
 import com.calero.lili.core.dtos.FormasPagoDto;
 import com.calero.lili.core.dtos.InformacionAdicionalDto;
 import com.calero.lili.core.dtos.ValoresDto;
+import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CreationCompraImpuestoRequestDto;
@@ -76,7 +77,7 @@ public class CreationRequestLiquidacionCompraDto {
     @NotEmpty(message = "No existen detalle de items")
     private List<DetallesDto> detalle;
 
-    private String codDocReembolso;
+    private DocumentoEnum codDocReembolso;
     private BigDecimal totalComprobantesReembolso;
     private BigDecimal totalBaseImponibleReembolso;
     private BigDecimal totalImpuestoReembolso;

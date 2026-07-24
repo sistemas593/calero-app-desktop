@@ -1,5 +1,6 @@
 package com.calero.lili.core.modCompras.modComprasLiquidaciones.dto;
 
+import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetReporteListDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.detalles.DetalleLiquidacionCompraGetDto;
@@ -41,7 +42,7 @@ public class GetLiquidacionCompraListDto {
     private BigDecimal subtotal;
     private BigDecimal totalDescuento;
     private BigDecimal total;
-    private String codDocReembolso;
+    private DocumentoEnum codDocReembolso;
     private BigDecimal totalComprobantesReembolso;
     private BigDecimal totalBaseImponibleReembolso;
     private BigDecimal totalImpuestoReembolso;

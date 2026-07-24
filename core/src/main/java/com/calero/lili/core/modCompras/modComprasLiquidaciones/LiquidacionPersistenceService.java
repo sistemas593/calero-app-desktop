@@ -7,6 +7,8 @@ import com.calero.lili.core.enums.TipoDocumentoSerie;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesEntity;
+import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosEntity;
+import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosRepository;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosServiceImpl;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CreationCompraImpuestoRequestDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.CreationRequestLiquidacionCompraDto;
@@ -29,7 +31,7 @@ public class LiquidacionPersistenceService {
     private final LiquidacionesRepository liquidacionesRepository;
     private final CpImpuestosServiceImpl cpImpuestosService;
     private final ComprobanteServiceImpl comprobanteService;
-    private final ValidacionDocumentosGeneral validacionDocumentosGeneral;
+    private final AdEmpresasSeriesDocumentosRepository adEmpresasSeriesDocumentosRepository;
 
     @Transactional
     public CpLiquidacionesEntity guardarLiquidacion(CpLiquidacionesEntity cpLiquidacionesEntity,
@@ -38,6 +40,17 @@ public class LiquidacionPersistenceService {
                                                     CreationRequestLiquidacionCompraDto request) {
 
         comprobanteService.getComprobanteXmlLiquidacion(idData, cpLiquidacionesEntity, empresa, serie);
+
+
+        AdEmpresasSeriesDocumentosEntity documentosEntity = adEmpresasSeriesDocumentosRepository
+                .findBySerieAndDocumento(idData, cpLiquidacionesEntity.getIdEmpresa(), cpLiquidacionesEntity.getSerie(), TipoDocumentoSerie.LIQ.name())
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Serie {0}, documento {1} no existe",
+                        cpLiquidacionesEntity.getSerie(), cpLiquidacionesEntity.getSecuencial())));
+
+
+        int nuevo = Integer.parseInt(cpLiquidacionesEntity.getSecuencial()) + 1;
+        documentosEntity.setSecuencial(nuevo);
+
         CpLiquidacionesEntity saved = liquidacionesRepository.save(cpLiquidacionesEntity);
         validarImpuesto(request, saved);
 

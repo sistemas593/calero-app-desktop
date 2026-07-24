@@ -15,7 +15,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -95,7 +97,15 @@ public class CotizacionesController {
     public PaginatedDto<GetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
                                                     FilterListVentasCotizacionesDto filters,
                                                     Pageable pageable) {
-        return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable,
+
+        Sort sort = pageable.getSort().and(Sort.by("idCotizacion").ascending());
+
+        int pageSize = pageable.getPageSize();
+        if (pageSize > 100) {
+            pageSize = 100;}
+        Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
+
+        return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageableConSort,
                 auditorAware.getTipoPermisoVerCotizacion(),
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
@@ -106,8 +116,16 @@ public class CotizacionesController {
     public GetListVentasCotizacionesDtoTotalizado<GetListDto> findAllPaginateTotalizado(@PathVariable("idEmpresa") Long idEmpresa,
                                                                                         FilterListVentasCotizacionesDto filters,
                                                                                         Pageable pageable) {
+
+        Sort sort = pageable.getSort().and(Sort.by("idCotizacion").ascending());
+
+        int pageSize = pageable.getPageSize();
+        if (pageSize > 100) {
+            pageSize = 100;}
+        Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
+
         log.info("Filters = {}", filters);
-        return vtVentasService.findAllPaginateTotalizado(idDataService.getIdData(), idEmpresa, filters, pageable);
+        return vtVentasService.findAllPaginateTotalizado(idDataService.getIdData(), idEmpresa, filters, pageableConSort);
     }
 
     @GetMapping("excel/{idEmpresa}")

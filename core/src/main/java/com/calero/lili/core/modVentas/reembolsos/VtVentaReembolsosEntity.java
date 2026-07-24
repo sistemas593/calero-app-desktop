@@ -1,5 +1,6 @@
 package com.calero.lili.core.modVentas.reembolsos;
 
+import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.enums.TipoTerceroPerSoc;
 import com.calero.lili.core.Auditable;
 import com.calero.lili.core.tablas.tbPaises.TbPaisEntity;
@@ -50,7 +51,7 @@ public class VtVentaReembolsosEntity extends Auditable {
     private String numeroIdentificacionReemb;
     @Enumerated(EnumType.STRING)
     private TipoTerceroPerSoc tipoProveedorReemb;
-    private String codigoDocumentoReemb;
+    private DocumentoEnum codigoDocumentoReemb;
     private String serieReemb;
     private String secuencialReemb;
     private LocalDate fechaEmisionReemb;

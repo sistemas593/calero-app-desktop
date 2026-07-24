@@ -14,7 +14,9 @@ import com.calero.lili.core.modVentas.reporteCredito.dto.DatosCrediticiosRespons
 import com.calero.lili.core.modVentas.reporteCredito.projection.PeriodoProjection;
 import com.calero.lili.core.utils.DateUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -107,7 +109,15 @@ public class DatosCrediticiosController {
     @GetMapping("listar/{idEmpresa}")
     @ResponseStatus(HttpStatus.OK)
     public PaginatedDto<DatosCrediticiosResponseDto> getAll(@PathVariable("idEmpresa") Long idEmpresa, Pageable pageable) {
-        return reporteDatosCrediticiosService.getAll(idDataService.getIdData(), idEmpresa, pageable);
+
+        Sort sort = pageable.getSort().and(Sort.by("idDatosCrediticios").ascending());
+
+        int pageSize = pageable.getPageSize();
+        if (pageSize > 100) {
+            pageSize = 100;}
+        Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
+
+        return reporteDatosCrediticiosService.getAll(idDataService.getIdData(), idEmpresa, pageableConSort);
     }
 
     @DeleteMapping("eliminar/{idEmpresa}/{idDatosCrediticios}")

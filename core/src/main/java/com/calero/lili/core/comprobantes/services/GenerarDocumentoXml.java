@@ -16,6 +16,7 @@ import com.calero.lili.core.comprobantes.objetosXml.guiaRemision.GuiaRemision;
 import com.calero.lili.core.comprobantes.objetosXml.liquidacionCompras.LiquidacionCompra;
 import com.calero.lili.core.comprobantes.objetosXml.notaCredito.NotaCredito;
 import com.calero.lili.core.comprobantes.objetosXml.notaDebito.NotaDebito;
+import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.enums.TipoTercero;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
@@ -112,7 +113,7 @@ public class GenerarDocumentoXml {
         LiquidacionCompra liquidacionCompra = liquidacionBuilder.builderLiquidacion(cpLiquidacionesEntity, empresaEntity, serieEntity);
 
         if (Objects.nonNull(cpLiquidacionesEntity.getCodDocReembolso())) {
-            if (cpLiquidacionesEntity.getCodDocReembolso().equals("41")) {
+            if (cpLiquidacionesEntity.getCodDocReembolso().equals(DocumentoEnum.D41)) {
                 liquidacionReembolso.builderLiquidacionReembolso(cpLiquidacionesEntity, liquidacionCompra);
             }
         }

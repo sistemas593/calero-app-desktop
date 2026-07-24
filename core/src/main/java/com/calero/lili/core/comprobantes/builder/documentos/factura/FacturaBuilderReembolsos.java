@@ -47,7 +47,7 @@ public class FacturaBuilderReembolsos {
                 .identificacionProveedorReembolso(reembolso.getNumeroIdentificacionReemb())
                 .codPaisPagoProveedorReembolso(reembolso.getPais().getCodigoPais())
                 .tipoProveedorReembolso(reembolso.getTipoProveedorReemb().getTipoCliente())
-                .codDocReembolso(reembolso.getCodigoDocumentoReemb())
+                .codDocReembolso(reembolso.getCodigoDocumentoReemb().getCodigo())
                 .estabDocReembolso(reembolso.getSerieReemb().substring(0, 3))
                 .ptoEmiDocReembolso(reembolso.getSerieReemb().substring(3, 6))
                 .secuencialDocReembolso(reembolso.getSecuencialReemb())

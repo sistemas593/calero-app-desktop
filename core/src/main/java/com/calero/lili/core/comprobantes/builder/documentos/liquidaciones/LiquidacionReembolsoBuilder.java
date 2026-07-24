@@ -38,7 +38,7 @@ public class LiquidacionReembolsoBuilder {
                 .identificacionProveedorReembolso(reembolso.getNumeroIdentificacionReemb())
                 .codPaisPagoProveedorReembolso(reembolso.getPais().getCodigoPais())
                 .tipoProveedorReembolso(reembolso.getTipoProveedorReemb().getTipoCliente())
-                .codDocReembolso(reembolso.getCodigoDocumentoReemb())
+                .codDocReembolso(reembolso.getCodigoDocumentoReemb().getCodigo())
                 .estabDocReembolso(reembolso.getSerieReemb().substring(0, 3))
                 .ptoEmiDocReembolso(reembolso.getSerieReemb().substring(3, 6))
                 .secuencialDocReembolso(reembolso.getSecuencialReemb())
@@ -67,7 +67,7 @@ public class LiquidacionReembolsoBuilder {
 
     private void builderInfoLiquidacionCompra(CpLiquidacionesEntity liquidacion, LiquidacionCompra liquidacionCompra) {
 
-        liquidacionCompra.getInfoLiquidacionCompra().setCodDocReembolso(liquidacion.getCodDocReembolso());
+        liquidacionCompra.getInfoLiquidacionCompra().setCodDocReembolso(liquidacion.getCodDocReembolso().getCodigo());
         liquidacionCompra.getInfoLiquidacionCompra().setTotalComprobantesReembolso(formatoValores.convertirBigDecimalToString(liquidacion.getTotalComprobantesReembolso()));
         liquidacionCompra.getInfoLiquidacionCompra().setTotalBaseImponibleReembolso(formatoValores.convertirBigDecimalToString(liquidacion.getTotalBaseImponibleReembolso()));
         liquidacionCompra.getInfoLiquidacionCompra().setTotalImpuestoReembolso(formatoValores.convertirBigDecimalToString(liquidacion.getTotalImpuestoReembolso()));

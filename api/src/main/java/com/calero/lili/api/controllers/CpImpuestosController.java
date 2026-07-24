@@ -11,9 +11,8 @@ import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CreationCompraImp
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.FilterListCompraImpuestoDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetListDto;
-import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetReporteListDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetListDtoTotalizado;
-import com.lowagie.text.PageSize;
+import com.calero.lili.core.modCompras.modComprasImpuestos.dto.GetReporteListDto;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -140,7 +139,14 @@ public class CpImpuestosController {
                                                                              FilterListCompraImpuestoDto filters,
                                                                              Pageable pageable) {
 
-        return vtVentasService.findAllPaginateTotalizado(idDataService.getIdData(), idEmpresa, filters, pageable,
+        Sort sort = pageable.getSort().and(Sort.by("idImpuestos").ascending());
+
+        int pageSize = pageable.getPageSize();
+        if (pageSize > 100) {
+            pageSize = 100;}
+        Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
+
+        return vtVentasService.findAllPaginateTotalizado(idDataService.getIdData(), idEmpresa, filters, pageableConSort,
                 auditorAware.getTipoPermisoVerImpuesto(),
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }

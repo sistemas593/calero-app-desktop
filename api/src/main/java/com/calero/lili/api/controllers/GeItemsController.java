@@ -12,7 +12,9 @@ import com.calero.lili.core.dtos.errors.ListCreationResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -86,7 +88,14 @@ public class GeItemsController {
     public PaginatedDto<GeItemGetListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
                                                           GeItemListFilterDto filters,
                                                           Pageable pageable) {
-        return geItemsService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable);
+
+        Sort sort = pageable.getSort().and(Sort.by("idItem").ascending());
+
+        int pageSize = pageable.getPageSize();
+        if (pageSize > 100) {
+            pageSize = 100;}
+        Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
+        return geItemsService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageableConSort);
     }
 
 }

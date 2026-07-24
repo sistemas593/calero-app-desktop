@@ -8,16 +8,16 @@ import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.errors.exceptions.ListErrorException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesEntity;
+import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosEntity;
+import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosRepository;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosCodigosEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosRepository;
-import com.calero.lili.core.modCompras.modComprasImpuestos.ValidacionGeneralCpImpuestoService;
+import com.calero.lili.core.modCompras.modComprasImpuestos.ValidacionGeneralCpImpuestosService;
 import com.calero.lili.core.modCompras.modComprasImpuestos.builder.CpImpuestoDetalleErrorBuilder;
 import com.calero.lili.core.modCompras.modComprasImpuestos.builder.ImpuestoCodigoBuilder;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CpImpuestoDetalleError;
 import com.calero.lili.core.modCompras.modComprasRetenciones.dto.CreationRetencionRequestDto;
-import com.calero.lili.core.modCompras.modComprasRetenciones.projection.DeEmitidasRetencionesProjection;
-import com.calero.lili.core.utils.ValidacionDocumentosGeneral;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -37,10 +36,11 @@ public class CpRetencionPersistenceService {
 
     private final ComprasRetencionesRepository comprasRetencionesRepository;
     private final ComprobanteServiceImpl comprobanteService;
-    private final ValidacionGeneralCpImpuestoService validacionGeneralService;
+    private final ValidacionGeneralCpImpuestosService validacionGeneralService;
     private final CpImpuestoDetalleErrorBuilder cpImpuestoDetalleErrorBuilder;
     private final ImpuestoCodigoBuilder impuestoCodigoBuilder;
     private final CpImpuestosRepository cpImpuestosRepository;
+    private final AdEmpresasSeriesDocumentosRepository adEmpresasSeriesDocumentosRepository;
 
     @Transactional
     public CpRetencionesEntity guardarRetencion(CpRetencionesEntity entidad, AdEmpresaEntity empresa,
@@ -49,6 +49,17 @@ public class CpRetencionPersistenceService {
 
 
         comprobanteService.getComprobanteXmlRetencion(idData, empresa, serie, entidad, request);
+
+
+        AdEmpresasSeriesDocumentosEntity documentosEntity = adEmpresasSeriesDocumentosRepository
+                .findBySerieAndDocumento(idData, entidad.getIdEmpresa(), entidad.getSerieRetencion(), TipoDocumentoSerie.CRT.name())
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Serie {0}, documento {1} no existe",
+                        entidad.getSerieRetencion(), entidad.getSecuencialRetencion())));
+
+
+        int nuevo = Integer.parseInt(entidad.getSecuencialRetencion()) + 1;
+        documentosEntity.setSecuencial(nuevo);
+
 
         request.getCompraImpuestos().forEach(dto -> {
 

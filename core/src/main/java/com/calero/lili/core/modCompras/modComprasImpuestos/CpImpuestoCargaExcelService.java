@@ -51,7 +51,7 @@ public class CpImpuestoCargaExcelService {
     private final AdEmpresasSucursalesRepository adEmpresasSucursalesRepository;
     private final DetalleErrorBuilder detalleErrorBuilder;
     private final CpImpuestoDetalleErrorBuilder cpImpuestoDetalleError;
-    private final ValidacionGeneralCpImpuestoService service;
+    private final ValidacionGeneralCpImpuestosService service;
     private final CpImpuestosRepository cpImpuestosRepository;
 
 

@@ -6,6 +6,8 @@ import com.calero.lili.core.enums.TipoVenta;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesEntity;
+import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosEntity;
+import com.calero.lili.core.modAdminEmpresasSeriesDocumentos.AdEmpresasSeriesDocumentosRepository;
 import com.calero.lili.core.modCxC.XcFacturas.XcFacturasRepository;
 import com.calero.lili.core.modCxC.XcFacturas.builder.XcFacturasBuilder;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
@@ -30,6 +32,7 @@ public class VtVentasPersistenceService {
     private final XcFacturasBuilder xcFacturasBuilder;
     private final ValidacionDocumentosGeneral validacionDocumentosGeneral;
     private final ComprobanteServiceImpl vtComprobanteService;
+    private final AdEmpresasSeriesDocumentosRepository adEmpresasSeriesDocumentosRepository;
 
 
     @Transactional
@@ -73,6 +76,18 @@ public class VtVentasPersistenceService {
                                             AdEmpresasSeriesEntity serie, Long idData) {
 
         vtComprobanteService.getComprobanteXmlNotaCredito(idData, notaCredito, empresa, serie);
+
+
+        AdEmpresasSeriesDocumentosEntity documentosEntity = adEmpresasSeriesDocumentosRepository
+                .findBySerieAndDocumento(idData, notaCredito.getIdEmpresa(), notaCredito.getSerie(), TipoDocumentoSerie.NCR.name())
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Serie {0}, documento {1} no existe",
+                        notaCredito.getSerie(), notaCredito.getSecuencial())));
+
+
+        int nuevo = Integer.parseInt(notaCredito.getSecuencial()) + 1;
+        documentosEntity.setSecuencial(nuevo);
+
+
         return vtVentaRepository.save(notaCredito);
     }
 
@@ -83,6 +98,18 @@ public class VtVentasPersistenceService {
                                            AdEmpresasSeriesEntity serie, Long idData) {
 
         vtComprobanteService.getComprobanteXmlNotaDebito(idData, notaDebito, empresa, serie);
+
+
+        AdEmpresasSeriesDocumentosEntity documentosEntity = adEmpresasSeriesDocumentosRepository
+                .findBySerieAndDocumento(idData, notaDebito.getIdEmpresa(), notaDebito.getSerie(), TipoDocumentoSerie.NDB.name())
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Serie {0}, documento {1} no existe",
+                        notaDebito.getSerie(), notaDebito.getSecuencial())));
+
+
+        int nuevo = Integer.parseInt(notaDebito.getSecuencial()) + 1;
+        documentosEntity.setSecuencial(nuevo);
+
+
         return vtVentaRepository.save(notaDebito);
     }
 

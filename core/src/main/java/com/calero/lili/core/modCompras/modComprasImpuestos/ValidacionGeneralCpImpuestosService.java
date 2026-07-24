@@ -16,6 +16,7 @@ import com.calero.lili.core.tablas.tbPaises.tbParaisosFiscales.TbParaisoFiscalEn
 import com.calero.lili.core.tablas.tbPaises.tbParaisosFiscales.TbParaisoFiscalRepository;
 import com.calero.lili.core.utils.ComprobanteSustentoService;
 import com.calero.lili.core.utils.DateUtils;
+import com.calero.lili.core.utils.ValidacionDocumentosGeneral;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -32,13 +33,14 @@ import java.util.Set;
 
 @Service
 @AllArgsConstructor
-public class ValidacionGeneralCpImpuestoService {
+public class ValidacionGeneralCpImpuestosService {
 
     private final CpImpuestoDetalleErrorBuilder cpImpuestoDetalleErrorBuilder;
     private final AdIvaPorcentajesRepository adIvaPorcentajesRepository;
     private final ComprobanteSustentoService comprobanteSustentoService;
     private final TbPaisesRepository tbPaisesRepository;
     private final TbParaisoFiscalRepository tbParaisoFiscalRepository;
+    private final ValidacionDocumentosGeneral validacionDocumentosGeneral;
 
     public List<CpImpuestoDetalleError> validacionGeneral(CompraImpuestoDto model) {
 
@@ -49,7 +51,7 @@ public class ValidacionGeneralCpImpuestoService {
         LocalDate fechaRegistro = null;
 
 
-        String mensajeSerie = validarSerie(model.getSerie());
+        String mensajeSerie = validacionDocumentosGeneral.validarSerie(model.getSerie());
         if (!mensajeSerie.isEmpty()) {
             detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("En el documento " + mensajeSerie));
         }
@@ -59,7 +61,7 @@ public class ValidacionGeneralCpImpuestoService {
         }
 
 
-        String mensajeNumeroAut = validarNumeroAutorizacion(model.getNumeroAutorizacion(), detalleErrores);
+        String mensajeNumeroAut = validacionDocumentosGeneral.validarNumeroAutorizacion(model.getNumeroAutorizacion());
         if (!mensajeNumeroAut.isEmpty()) {
             detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("En el documento " + mensajeNumeroAut));
         }
@@ -101,14 +103,14 @@ public class ValidacionGeneralCpImpuestoService {
 
 
         if (Objects.nonNull(model.getSerieRetencion())) {
-            String mensajeError = validarSerie(model.getSerieRetencion());
+            String mensajeError = validacionDocumentosGeneral.validarSerie(model.getSerieRetencion());
             if (!mensajeError.isEmpty()) {
                 detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("En el comprobante de retención " + mensajeSerie));
             }
         }
 
         if (Objects.nonNull(model.getNumeroAutorizacionRetencion())) {
-            String mensajeNumAutRt = validarNumeroAutorizacion(model.getNumeroAutorizacionRetencion(), detalleErrores);
+            String mensajeNumAutRt = validacionDocumentosGeneral.validarNumeroAutorizacion(model.getNumeroAutorizacionRetencion());
 
             if (!mensajeNumAutRt.isEmpty()) {
                 detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("En el comprobante de retención " + mensajeNumAutRt));
@@ -143,39 +145,6 @@ public class ValidacionGeneralCpImpuestoService {
 
         return detalleErrores;
 
-    }
-
-
-    private String validarSerie(String serie) {
-
-        if (Objects.nonNull(serie)) {
-
-            if (serie.length() != 6) {
-                return "La serie solo debe tener 6 dígitos";
-            }
-
-            if (!serie.matches("\\d+")) {
-                return "La serie solo deben ser números";
-            }
-
-
-            String primerosTres = serie.substring(0, 3);
-            int valor = Integer.parseInt(primerosTres);
-            if (valor == 0) {
-                return "Los tres primeros dígitos de la serie no pueden ser igual a cero";
-            }
-
-            String segundoTres = serie.substring(3, 6);
-            int valor2 = Integer.parseInt(segundoTres);
-            if (valor2 == 0) {
-                return "Los últimos dígitos de la serie no pueden ser igual a cero";
-            }
-
-        } else {
-            return "El número de la serie no existe";
-        }
-
-        return "";
     }
 
 
@@ -301,18 +270,6 @@ public class ValidacionGeneralCpImpuestoService {
         }
     }
 
-    private String validarNumeroAutorizacion(String numeroAutorizacion, List<CpImpuestoDetalleError> detalleErrores) {
-        if (numeroAutorizacion.length() == 49 || numeroAutorizacion.length() == 10) {
-
-            if (!numeroAutorizacion.matches("\\d+")) {
-                return "El número de autorización no puede contener caracteres que no sean númericos";
-            }
-
-        } else {
-            return "El número de autorización no cumple con la cantidad de dígitos 10/49";
-        }
-        return "";
-    }
 
     private List<Integer> getIntegerTarifaIva(List<ValoresCompraImpuestoDto> valores) {
         return valores.stream()
@@ -393,7 +350,6 @@ public class ValidacionGeneralCpImpuestoService {
         });
 
     }
-
 
 
 }
