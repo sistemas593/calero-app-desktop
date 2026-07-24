@@ -34,7 +34,7 @@ public class AdMailListaNegraController {
     @ResponseStatus(code = HttpStatus.OK)
     public PaginatedDto<MailBlackResponseDto> findAllPaginate(FilterMailBlackDto model, Pageable pageable) {
 
-        Sort sort = pageable.getSort().and(Sort.by("idImpuestos").ascending());
+        Sort sort = pageable.getSort().and(Sort.by("email").ascending());
 
         int pageSize = pageable.getPageSize();
         if (pageSize > 100) {
