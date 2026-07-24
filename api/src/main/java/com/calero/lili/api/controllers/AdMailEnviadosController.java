@@ -34,7 +34,7 @@ public class AdMailEnviadosController {
     public PaginatedDto<AdMailEnviadosResponseDto> findAllEnviados(FilterMailEnviadosDto model,
                                                                    Pageable pageable) {
 
-        Sort sort = pageable.getSort().and(Sort.by("email").ascending());
+        Sort sort = pageable.getSort().and(Sort.by("id").ascending());
 
         int pageSize = pageable.getPageSize();
         if (pageSize > 100) {
@@ -47,6 +47,14 @@ public class AdMailEnviadosController {
     @ResponseStatus(HttpStatus.OK)
     public PaginatedDto<AdMailEnviadosTotalResponseDto> findAllTotales(FilterMailEnviadosTotalesDto model,
                                                                        Pageable pageable) {
+
+        Sort sort = pageable.getSort().and(Sort.by("id").ascending());
+
+        int pageSize = pageable.getPageSize();
+        if (pageSize > 100) {
+            pageSize = 100;}
+        Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
+
         return adMailEnviadosTotalService.findAllPaginate(model, pageable);
     }
 
