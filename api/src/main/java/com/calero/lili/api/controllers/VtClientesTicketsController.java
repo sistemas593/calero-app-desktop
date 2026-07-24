@@ -10,7 +10,9 @@ import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.ResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -66,7 +68,15 @@ public class VtClientesTicketsController {
     @PreAuthorize("hasAuthority('CR_CT_VR')")
     public PaginatedDto<VtClientesTicketsGetListDto> findAllPaginate(FilterDto filters,
                                                                      Pageable pageable) {
-        return vtClientesNovedadesService.findAllPaginate(idDataService.getIdData(), filters, pageable);
+
+        Sort sort = pageable.getSort().and(Sort.by("idTicket").ascending());
+
+        int pageSize = pageable.getPageSize();
+        if (pageSize > 100) {
+            pageSize = 100;}
+        Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
+
+        return vtClientesNovedadesService.findAllPaginate(idDataService.getIdData(), filters, pageableConSort);
     }
 
 }

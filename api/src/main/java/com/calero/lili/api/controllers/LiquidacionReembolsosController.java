@@ -17,7 +17,9 @@ import com.lowagie.text.DocumentException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -103,7 +105,16 @@ public class LiquidacionReembolsosController {
     public PaginatedDto<GetReembolsoDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
                                                          FilterListComprasLiquidacionesDto filters, Pageable pageable) {
 
-        return reembolsosService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable,
+
+        Sort sort = pageable.getSort().and(org.springframework.data.domain.Sort.by("idLiquidacionReembolsos").ascending());
+
+        int pageSize = pageable.getPageSize();
+        if (pageSize > 100) {
+            pageSize = 100;
+        }
+        Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
+
+        return reembolsosService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageableConSort,
                 auditorAware.getTipoPermisoVerReembolso(),
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
@@ -141,7 +152,6 @@ public class LiquidacionReembolsosController {
     }
 
 
-
     @GetMapping("descargar-pdf/{idEmpresa}/{idRecibida}")
     public ResponseEntity<byte[]> descargarPdfFactura(@PathVariable("idEmpresa") Long idEmpresa,
                                                       @PathVariable("idRecibida") UUID idRecibida) {
@@ -160,7 +170,6 @@ public class LiquidacionReembolsosController {
     @GetMapping("descargar-xml/{idEmpresa}/{idRecibida}")
     public ResponseEntity<byte[]> descargarXmlFactura(@PathVariable("idEmpresa") Long idEmpresa,
                                                       @PathVariable("idRecibida") UUID idRecibida) {
-
 
 
         ArchivoDto datos = liquidacionesReembolsoPdfXmlService.

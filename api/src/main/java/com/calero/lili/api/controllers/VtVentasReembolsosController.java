@@ -18,7 +18,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -96,7 +98,15 @@ public class VtVentasReembolsosController {
     public PaginatedDto<ResponseVentaReembolsoDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
                                                                    FilterReembolsoDto filters,
                                                                    Pageable pageable) {
-        return vtVentasReembolsoService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable);
+
+        Sort sort = pageable.getSort().and(Sort.by("idVentaReembolsos").ascending());
+
+        int pageSize = pageable.getPageSize();
+        if (pageSize > 100) {
+            pageSize = 100;}
+        Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
+
+        return vtVentasReembolsoService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageableConSort);
     }
 
     @GetMapping("reportes/{idEmpresa}")
@@ -105,7 +115,16 @@ public class VtVentasReembolsosController {
     public GetVentaReembosloListDtoTotalizado<ResponseVentaReembolsoDto> findAllTotalesPaginate(@PathVariable("idEmpresa") Long idEmpresa,
                                                                                                 FilterReembolsoDto filters,
                                                                                                 Pageable pageable) {
-        return vtVentasReembolsoService.findAllPaginateTotalizado(idDataService.getIdData(), idEmpresa, filters, pageable);
+
+        Sort sort = pageable.getSort().and(Sort.by("idVentaReembolsos").ascending());
+
+        int pageSize = pageable.getPageSize();
+        if (pageSize > 100) {
+            pageSize = 100;}
+        Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
+
+
+        return vtVentasReembolsoService.findAllPaginateTotalizado(idDataService.getIdData(), idEmpresa, filters, pageableConSort);
     }
 
     @GetMapping("excel/{idEmpresa}")

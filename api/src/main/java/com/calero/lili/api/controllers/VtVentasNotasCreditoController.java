@@ -14,7 +14,9 @@ import com.calero.lili.core.modVentas.notasCredito.dto.GetNotaCreditoDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -123,7 +125,17 @@ public class VtVentasNotasCreditoController {
     @PreAuthorize("hasAnyAuthority('VT_NC_VR_PR','VT_NC_VR_SC','VT_NC_VR_TD')")
     public PaginatedDto<GetVentasListDto> findAllPaginate(@PathVariable("idEmpresa") Long idEmpresa,
                                                           FilterListVentasDto filters, Pageable pageable) {
-        return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageable,
+
+
+        Sort sort = pageable.getSort().and(Sort.by("idVenta").ascending());
+
+        int pageSize = pageable.getPageSize();
+        if (pageSize > 100) {
+            pageSize = 100;}
+        Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
+
+
+        return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageableConSort,
                 auditorAware.getTipoPermisoVerNotaCredito(), auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 

@@ -7,7 +7,9 @@ import com.calero.lili.core.modTercerosClientesParametros.dto.VtClienteParametro
 import com.calero.lili.core.modTercerosClientesParametros.dto.VtClienteParametroCreationResponseDto;
 import com.calero.lili.core.modTercerosClientesParametros.dto.VtClienteParametroReportDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -74,7 +76,14 @@ public class VtClientesParametrosController {
     public PaginatedDto<VtClienteParametroReportDto> findAllPaginate(@PathVariable("idEmp") Long idEmpresa,
                                                                      Pageable pageable) {
 
-        return vtClientesParametrosService.findAllPaginate(idDataService.getIdData(),idEmpresa, pageable);
+        Sort sort = pageable.getSort().and(Sort.by("idParametro").ascending());
+
+        int pageSize = pageable.getPageSize();
+        if (pageSize > 100) {
+            pageSize = 100;}
+        Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
+
+        return vtClientesParametrosService.findAllPaginate(idDataService.getIdData(),idEmpresa, pageableConSort);
     }
 
 }

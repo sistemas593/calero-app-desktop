@@ -8,7 +8,9 @@ import com.calero.lili.core.modTesoreria.modTesoreriaCajas.dto.TsCajasResponseDt
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -72,7 +74,15 @@ public class TsCajasController {
     @ResponseStatus(HttpStatus.OK)
     public PaginatedDto<TsCajasResponseDto> findAll(@PathVariable("idEmpresa") Long idEmpresa,
                                                     Pageable pageable) {
-        return service.findAll(idDataService.getIdData(), idEmpresa, pageable);
+
+        Sort sort = pageable.getSort().and(Sort.by("idCaja").ascending());
+
+        int pageSize = pageable.getPageSize();
+        if (pageSize > 100) {
+            pageSize = 100;}
+        Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
+
+        return service.findAll(idDataService.getIdData(), idEmpresa, pageableConSort);
     }
 
 }

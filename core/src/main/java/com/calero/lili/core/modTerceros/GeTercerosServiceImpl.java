@@ -167,6 +167,25 @@ public class GeTercerosServiceImpl {
         if (request.getTransportista().getEsTransportista()) {
             if (Objects.isNull(request.getTransportista().getPlaca()) || request.getTransportista().getPlaca().isEmpty()) {
                 throw new GeneralException("Es requerida la placa del transportista");
+            } else {
+
+                String placa = request.getTransportista().getPlaca().toUpperCase();
+                if (placa.length() != 7) {
+                    throw new GeneralException("La placa: " + placa + " no tiene la longitud correcta de 7 carácteres");
+                }
+
+                String letras = placa.substring(0, 3);
+                String numeros = placa.substring(3);
+
+                if (!letras.matches("[A-Za-z]{3}")) {
+                    throw new GeneralException("Los primeros tres caracteres de las placas no son letras");
+                }
+
+                if (!numeros.matches("\\d{4}")) {
+                    throw new GeneralException("Los últimos dígitos de la placa no son números");
+                }
+
+                request.getTransportista().setPlaca(placa);
             }
         }
 

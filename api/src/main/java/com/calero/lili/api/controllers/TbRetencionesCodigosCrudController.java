@@ -9,7 +9,9 @@ import com.calero.lili.core.tablas.tbRetencionesCodigos.TbRetencionesCodigosGetL
 import com.calero.lili.core.tablas.tbRetencionesCodigos.TbRetencionesCodigosGetOneDto;
 import com.calero.lili.core.tablas.tbRetencionesCodigos.TbRetencionesCodigosServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -66,7 +68,17 @@ public class TbRetencionesCodigosCrudController {
     @ResponseStatus(code = HttpStatus.OK)
     public PaginatedDto<TbRetencionesCodigosGetListDto> findAllPaginate(FilterDto filters,
                                                                         Pageable pageable) {
-        return tbService.findAllPaginate(filters, pageable);
+
+
+        Sort sort = pageable.getSort().and(Sort.by("id").ascending());
+
+        int pageSize = pageable.getPageSize();
+        if (pageSize > 100) {
+            pageSize = 100;
+        }
+        Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
+
+        return tbService.findAllPaginate(filters, pageableConSort);
     }
 
 }
