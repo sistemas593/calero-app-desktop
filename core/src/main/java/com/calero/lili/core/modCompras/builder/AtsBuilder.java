@@ -173,8 +173,8 @@ public class AtsBuilder {
 
             pagoExterior.setPagoLocExt(pagoCode);
             pagoExterior.setTipoRegi(model.getTipoRegi());
-            pagoExterior.setAplicConvDobTrib(model.getAplicConvDobTrib() ? "SI" : "NO");
-            pagoExterior.setPagExtSujRetNorLeg(model.getPagExtSujRetNorLeg() ? "SI" : "NO");
+            pagoExterior.setAplicConvDobTrib(model.getAplicConvDobTrib() );
+            pagoExterior.setPagExtSujRetNorLeg(model.getPagExtSujRetNorLeg());
             // Este dato no va en el ATS, pero se usa en las retenciones electronicas.
             //pagoExterior.setPagoRegFis(model.getPagoRegFis() ? "SI" : "NO");
             pagoExterior.setPaisEfecPago(model.getPaisEfecPago());

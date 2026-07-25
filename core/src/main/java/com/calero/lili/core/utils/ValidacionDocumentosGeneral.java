@@ -93,7 +93,9 @@ public class ValidacionDocumentosGeneral {
         if (impuesto.isPresent()) {
             return impuesto.get();
         } else {
-            throw new GeneralException(MessageFormat.format("El impuesto con codigo y codigo porcentaje {0}, no existe", clave));
+            String[] partes = clave.split("-");
+            throw new GeneralException("El impuesto con codigo: " + partes[0] +
+                    " y codigo porcentaje: " + partes[1] + " , no existe");
         }
     }
 

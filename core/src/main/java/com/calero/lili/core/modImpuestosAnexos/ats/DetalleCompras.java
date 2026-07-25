@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @XmlType(propOrder = {"codSustento", "tpIdProv", "idProv",
@@ -17,7 +16,7 @@ import java.util.List;
         "baseImponible", "baseImpGrav", "baseImpExe",
         "montoIce", "montoIva", "valRetBien10", "valRetServ20",
         "valorRetBienes", "valRetServ50", "valorRetServicios",
-        "valRetServ100", "totbasesImpReemb", "pagoExterior", "formasDePago", "detalleAir",
+        "valRetServ100", "totbasesImpReemb", "pagoExterior", "formasDePago", "reembolsos", "detalleAir",
         "estabRetencion1", "ptoEmiRetencion1", "secRetencion1", "autRetencion1", "fechaEmiRet1"})
 @Builder
 @Data
@@ -55,6 +54,7 @@ public class DetalleCompras {
     private String autRetencion1;
     private String fechaEmiRet1;
     private Pago formasDePago;
+    private List<Reembolso> reembolso;
 
 
     @XmlElement(name = "pagoExterior") // envoltorio
@@ -70,6 +70,11 @@ public class DetalleCompras {
     @XmlElement(name = "formasDePago")
     public Pago getFormasDePago() {
         return formasDePago;
+    }
+
+    @XmlElement(name = "reembolsos")
+    public List<Reembolso> getReembolso() {
+        return reembolso;
     }
 
     public DetalleCompras() {

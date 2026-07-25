@@ -67,7 +67,7 @@ public class CpRetencionPersistenceService {
 
             List<CpImpuestoDetalleError> detalleErrors = validacionGeneralService.
                     validacionGeneral(cpImpuestoDetalleErrorBuilder.builderValidacionImpuestoRetencion(impuesto,
-                            entidad, request.getCompraImpuestos()));
+                            entidad));
 
             if (!detalleErrors.isEmpty()) {
                 List<String> list = detalleErrors.stream()
@@ -125,7 +125,7 @@ public class CpRetencionPersistenceService {
 
             List<CpImpuestoDetalleError> detalleErrors = validacionGeneralService.
                     validacionGeneral(cpImpuestoDetalleErrorBuilder.builderValidacionImpuestoRetencion(impuesto,
-                            entidad, request.getCompraImpuestos()));
+                            entidad));
 
             if (!detalleErrors.isEmpty()) {
                 List<String> list = detalleErrors.stream()

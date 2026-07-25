@@ -123,9 +123,9 @@ public class ComprobanteRetencionBuilder {
             case "02" -> {
                 docSustento.setTipoRegi(impuesto.getPagoExterior().getTipoRegi());
                 docSustento.setPaisEfecPago(impuesto.getPagoExterior().getPaisEfecPago());
-                docSustento.setAplicConvDobTrib(impuesto.getPagoExterior().getAplicConvDobTrib() ? "SI" : "NO");
-                docSustento.setPagExtSujRetNorLeg(impuesto.getPagoExterior().getPagExtSujRetNorLeg() ? "SI" : "NO");
-                docSustento.setPagoRegFis(impuesto.getPagoExterior().getPagoRegFis() ? "SI" : "NO");
+                docSustento.setAplicConvDobTrib(impuesto.getPagoExterior().getAplicConvDobTrib());
+                docSustento.setPagExtSujRetNorLeg(impuesto.getPagoExterior().getPagExtSujRetNorLeg());
+                docSustento.setPagoRegFis(impuesto.getPagoExterior().getPagoRegFis());
             }
         }
 

@@ -14,6 +14,7 @@ import com.calero.lili.core.modAdminEmpresasSucursales.AdEmpresasSucursalesRepos
 import com.calero.lili.core.modCompras.modComprasImpuestos.builder.CpImpuestoDetalleErrorBuilder;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CompraImpuestoDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CpImpuestoDetalleError;
+import com.calero.lili.core.modImpuestosAnexos.ats.DetalleCompras;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
 import com.calero.lili.core.utils.DateUtils;
@@ -386,9 +387,9 @@ public class CpImpuestoCargaExcelService {
         if (detalleErrores.isEmpty()) {
 
             List<CpImpuestoDetalleError> listaErroresValidacion = new ArrayList<>();
-            List<CompraImpuestoDto> listaComprobacion = cpImpuestoDetalleError.builderListValidacion(cpImpuestosEntities);
+            List<DetalleCompras> listaComprobacion = cpImpuestoDetalleError.builderListValidacion(cpImpuestosEntities);
 
-            for (CompraImpuestoDto dto : listaComprobacion) {
+            for (DetalleCompras dto : listaComprobacion) {
                 listaErroresValidacion.addAll(service.validacionGeneral(dto));
             }
 

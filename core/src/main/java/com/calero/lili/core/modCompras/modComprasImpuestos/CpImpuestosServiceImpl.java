@@ -101,6 +101,7 @@ public class CpImpuestosServiceImpl {
     private final GeTercerosRepository geTercerosRepository;
     private final ValidacionGeneralCpImpuestosService validacionGeneralService;
     private final CpImpuestoDetalleErrorBuilder cpImpuestoDetalleErrorBuilder;
+    private final ValidacionValoresCpImpuestosService validacionValoresCpImpuestosService;
 
 
     public ResponseDto create(Long idData, Long idEmpresa, CreationCompraImpuestoRequestDto request, String usuario) {
@@ -108,12 +109,7 @@ public class CpImpuestosServiceImpl {
         List<CpImpuestoDetalleError> detalleErrors = validacionGeneralService.validacionGeneral(cpImpuestoDetalleErrorBuilder
                 .builderValidacion(request));
 
-        if (!detalleErrors.isEmpty()) {
-            List<String> list = detalleErrors.stream()
-                    .map(CpImpuestoDetalleError::getDetalle)
-                    .toList();
-            throw new ListErrorException(list);
-        }
+
 
 
         Optional<OneProjection> existingFactura = cpImpuestosRepository
@@ -141,6 +137,16 @@ public class CpImpuestosServiceImpl {
         impuestosEntity.setOrigen(setearOrigen(request));
         impuestosEntity.setCreatedBy(usuario);
         impuestosEntity.setCreatedDate(LocalDateTime.now());
+
+        validacionValoresCpImpuestosService.validacionValoresGeneral(impuestosEntity, detalleErrors);
+
+        if (!detalleErrors.isEmpty()) {
+            List<String> list = detalleErrors.stream()
+                    .map(CpImpuestoDetalleError::getDetalle)
+                    .toList();
+            throw new ListErrorException(list);
+        }
+
         return responseApiBuilder.builderResponse(cpImpuestosRepository
                 .save(impuestosEntity).getIdImpuestos().toString());
 
@@ -155,12 +161,7 @@ public class CpImpuestosServiceImpl {
         List<CpImpuestoDetalleError> detalleErrors = validacionGeneralService.validacionGeneral(cpImpuestoDetalleErrorBuilder
                 .builderValidacion(request));
 
-        if (!detalleErrors.isEmpty()) {
-            List<String> list = detalleErrors.stream()
-                    .map(CpImpuestoDetalleError::getDetalle)
-                    .toList();
-            throw new ListErrorException(list);
-        }
+
 
         CpImpuestosEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 
@@ -193,6 +194,16 @@ public class CpImpuestosServiceImpl {
         impuestosEntity.setModifiedDate(LocalDateTime.now());
 
         impuestosEntity.setOrigen(setearOrigen(request));
+
+        validacionValoresCpImpuestosService.validacionValoresGeneral(impuestosEntity, detalleErrors);
+
+        if (!detalleErrors.isEmpty()) {
+            List<String> list = detalleErrors.stream()
+                    .map(CpImpuestoDetalleError::getDetalle)
+                    .toList();
+            throw new ListErrorException(list);
+        }
+
         cpImpuestosRepository.save(impuestosEntity);
         return responseApiBuilder.builderResponse(vtVentaEntity.getIdImpuestos().toString());
 
