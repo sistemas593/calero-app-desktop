@@ -56,6 +56,7 @@ public class GuiaRemisionBuilder {
                 .docAduaneroUnico(guiaRemision.getDocAduaneroUnico())
                 .codEstabDestino(guiaRemision.getCodEstabDestino())
                 .detalle(builderListDetalle(guiaRemision.getDetalle()))
+                .ruta(guiaRemision.getRuta())
                 .build();
 
         builderDocSustentoInfo(guiaRemision, destinatario);
