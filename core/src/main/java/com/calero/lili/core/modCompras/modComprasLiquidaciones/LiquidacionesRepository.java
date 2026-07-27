@@ -74,7 +74,7 @@ public interface LiquidacionesRepository extends JpaRepository<CpLiquidacionesEn
             "entity.idEmpresa = :idEmpresa AND " +
             "(:sucursal IS NULL OR entity.sucursal = :sucursal) AND " +
             "(:usuario IS NULL OR entity.createdBy = :usuario) AND " +
-            "(:numeroIdentificacion IS NULL OR entity.numeroIdentificacion = :numeroIdentificacion ) AND " +
+            "(:idTercero IS NULL OR entity.proveedor.idTercero = :idTercero ) AND " +
             "(:serie IS NULL OR entity.serie = :serie) AND " +
             "(:secuencial IS NULL OR entity.secuencial = :secuencial) AND " +
             "(:numeroAutorizacion IS NULL OR entity.numeroAutorizacion = :numeroAutorizacion ) AND " +
@@ -85,7 +85,7 @@ public interface LiquidacionesRepository extends JpaRepository<CpLiquidacionesEn
                                                 @Param("sucursal") String sucursal,
                                                 @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
                                                 @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
-                                                @Param("numeroIdentificacion") String numeroIdentificacion,
+                                                @Param("idTercero") UUID idTercero,
                                                 @Param("serie") String serie,
                                                 @Param("secuencial") String secuencial,
                                                 @Param("numeroAutorizacion") String numeroAutorizacion,
@@ -119,10 +119,11 @@ public interface LiquidacionesRepository extends JpaRepository<CpLiquidacionesEn
                     "sum(valoresEntity.valor) as totalValor " +
                     "FROM cp_liquidaciones entity " +
                     "INNER JOIN cp_liquidaciones_valores valoresEntity ON entity.id_liquidacion = valoresEntity.id_liquidacion " +
+                    "INNER JOIN ge_terceros terceros ON entity.id_proveedor = terceros.id_tercero " +
                     "WHERE ( entity.id_data = :idData)  AND entity.anulada = false AND entity.deleted = false AND " +
                     "(entity.id_empresa = :idEmpresa) AND " +
                     "(:sucursal IS NULL OR entity.sucursal = :sucursal) AND " +
-                    "(:numeroIdentificacion IS NULL OR entity.numero_identificacion = :numeroIdentificacion ) AND " +
+                    "(:idTercero IS NULL OR terceros.id_tercero = :idTercero ) AND " +
                     "(:serie IS NULL OR entity.serie = :serie ) AND " +
                     "(:secuencial IS NULL OR entity.secuencial = :secuencial ) AND " +
                     "( cast(:fechaEmisionDesde as date) is null OR entity.fecha_emision >= :fechaEmisionDesde ) AND " +
@@ -134,7 +135,7 @@ public interface LiquidacionesRepository extends JpaRepository<CpLiquidacionesEn
                                          @Param("sucursal") String sucursal,
                                          @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
                                          @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
-                                         @Param("numeroIdentificacion") String numeroIdentificacion,
+                                         @Param("idTercero") UUID idTercero,
                                          @Param("serie") String serie,
                                          @Param("secuencial") String secuencial);
 
@@ -144,7 +145,7 @@ public interface LiquidacionesRepository extends JpaRepository<CpLiquidacionesEn
             "entity.idEmpresa = :idEmpresa AND " +
             "(:sucursal IS NULL OR entity.sucursal = :sucursal) AND " +
             "(" +
-            "(:numeroIdentificacion IS NULL OR entity.numeroIdentificacion = :numeroIdentificacion) AND " +
+            "(:idTercero IS NULL OR entity.proveedor.idTercero = :idTercero ) AND " +
             "(:serie IS NULL OR entity.serie = :serie) AND " +
             "(:secuencial IS NULL OR entity.secuencial = :secuencial) AND " +
             "( cast(:fechaEmisionDesde as date) is null OR entity.fechaEmision >= :fechaEmisionDesde ) AND " +
@@ -156,7 +157,7 @@ public interface LiquidacionesRepository extends JpaRepository<CpLiquidacionesEn
                                         @Param("sucursal") String sucursal,
                                         @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
                                         @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
-                                        @Param("numeroIdentificacion") String numeroIdentificacion,
+                                        @Param("idTercero") UUID idTercero,
                                         @Param("serie") String serie,
                                         @Param("secuencial") String secuencial);
 

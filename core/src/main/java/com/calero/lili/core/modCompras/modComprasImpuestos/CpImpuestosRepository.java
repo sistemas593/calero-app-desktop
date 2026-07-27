@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @org.springframework.stereotype.Repository
@@ -400,4 +401,30 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
     List<CpImpuestosEntity> findByInId(@Param("idData") Long idData,
                                        @Param("idEmpresa") Long idEmpresa,
                                        @Param("listIds") List<UUID> listIds);
+
+
+    @Query(value = """
+            SELECT ci.*
+            FROM cp_impuestos ci
+            INNER JOIN ge_tercero t
+                ON t.id_tercero = ci.id_tercero
+            WHERE ci.id_data = :idData
+              AND ci.id_empresa = :idEmpresa
+              AND CONCAT(
+                    t.numero_identificacion,
+                    '-',
+                    TO_CHAR(ci.fecha_emision, 'YYYY-MM-DD'),
+                    '-',
+                    ci.documento,
+                    '-',
+                    ci.serie,
+                    '-',
+                    ci.secuencial
+                  ) IN (:codigos)
+            """, nativeQuery = true)
+    List<CpImpuestosEntity> findByCodigosCompuestos(@Param("idData") Long idData,
+                                                    @Param("idEmpresa") Long idEmpresa,
+                                                    @Param("codigos") Set<String> codigos);
+
+
 }

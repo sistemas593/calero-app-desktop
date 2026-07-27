@@ -14,6 +14,7 @@ import com.calero.lili.core.errors.exceptions.ListErrorException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.modCompras.modComprasImpuestos.builder.CpImpuestoDetalleErrorBuilder;
+import com.calero.lili.core.modCompras.modComprasImpuestos.builder.CpImpuestoReembolsoValidacionBuilder;
 import com.calero.lili.core.modCompras.modComprasImpuestos.builder.CpImpuestosBuilder;
 import com.calero.lili.core.modCompras.modComprasImpuestos.builder.ImpuestoCodigoBuilder;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.AcumulacionProveedorTotalesDto;
@@ -31,6 +32,7 @@ import com.calero.lili.core.modCompras.modComprasImpuestos.projection.TotalesPro
 import com.calero.lili.core.modCompras.modComprasRetenciones.CpRetencionesEntity;
 import com.calero.lili.core.modCompras.modComprasRetenciones.dto.CodigoImpuestoResponseDto;
 import com.calero.lili.core.modCompras.modComprasRetenciones.dto.CompraImpuestoResponseDto;
+import com.calero.lili.core.modImpuestosAnexos.ats.Reembolso;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
 import com.calero.lili.core.tablas.tbPaises.TbPaisEntity;
@@ -102,6 +104,8 @@ public class CpImpuestosServiceImpl {
     private final ValidacionGeneralCpImpuestosService validacionGeneralService;
     private final CpImpuestoDetalleErrorBuilder cpImpuestoDetalleErrorBuilder;
     private final ValidacionValoresCpImpuestosService validacionValoresCpImpuestosService;
+    private final CpImpuestoReembolsoValidacionBuilder cpImpuestoReembolsoValidacionBuilder;
+    private final ValidacionReembolsoService validacionReembolsoService;
 
 
     public ResponseDto create(Long idData, Long idEmpresa, CreationCompraImpuestoRequestDto request, String usuario) {
@@ -109,8 +113,16 @@ public class CpImpuestosServiceImpl {
         List<CpImpuestoDetalleError> detalleErrors = validacionGeneralService.validacionGeneral(cpImpuestoDetalleErrorBuilder
                 .builderValidacion(request));
 
+        List<Reembolso> reembolsoList = cpImpuestoReembolsoValidacionBuilder
+                .builderListReembolsos(request.getReembolsos());
 
+        LocalDate fechaCabecera = DateUtils.toLocalDate(request.getFechaEmision());
 
+        if (Objects.nonNull(reembolsoList)) {
+            for (Reembolso item : reembolsoList) {
+                validacionReembolsoService.validarReembolso(item, detalleErrors, fechaCabecera);
+            }
+        }
 
         Optional<OneProjection> existingFactura = cpImpuestosRepository
                 .findExistBySecuencial(idData, idEmpresa, request.getNumeroIdentificacion(),
@@ -152,7 +164,6 @@ public class CpImpuestosServiceImpl {
 
     }
 
-
     @Transactional
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationCompraImpuestoRequestDto request,
                               String usuario, FilterListCompraImpuestoDto filters, TipoPermiso tipoBusqueda) {
@@ -160,7 +171,6 @@ public class CpImpuestosServiceImpl {
 
         List<CpImpuestoDetalleError> detalleErrors = validacionGeneralService.validacionGeneral(cpImpuestoDetalleErrorBuilder
                 .builderValidacion(request));
-
 
 
         CpImpuestosEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);

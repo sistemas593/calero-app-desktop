@@ -25,6 +25,7 @@ public class GetVentasGuiasDto {
     private UUID idGuia;
     private String sucursal;
     private String fechaEmision;
+    private String numeroAutorizacion;
 
     private String fechaIniTransporte;
     private String fechaFinTransporte;

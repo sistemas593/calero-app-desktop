@@ -85,8 +85,6 @@ public class CpComprasEntity extends Auditable {
     @Column(name = "impresa")
     private Boolean impresa;
 
-    private TipoIdentificacion tipoIdentificacion;
-    private String numeroIdentificacion;
 
     private String tipoProveedor;
     private String relacionado;

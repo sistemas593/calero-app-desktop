@@ -210,13 +210,13 @@ public class ComprasServiceImpl {
             case TODAS -> {
                 return comprasRepository.findAllPaginate(idData, idEmpresa, null,
                         filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(),
-                        filters.getNumeroIdentificacion(), filters.getSerie(), filters.getSecuencial(), null, pageable);
+                        filters.getIdTercero(), filters.getSerie(), filters.getSecuencial(), null, pageable);
             }
             case SUCURSAL -> {
                 if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
                     return comprasRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(),
                             filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(),
-                            filters.getNumeroIdentificacion(), filters.getSerie(), filters.getSecuencial(), null, pageable);
+                            filters.getIdTercero(), filters.getSerie(), filters.getSecuencial(), null, pageable);
                 } else {
                     throw new GeneralException("Es requerido el parametro de la sucursal");
                 }
@@ -224,7 +224,7 @@ public class ComprasServiceImpl {
             case PROPIAS -> {
                 return comprasRepository.findAllPaginate(idData, idEmpresa, null,
                         filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(),
-                        filters.getNumeroIdentificacion(), filters.getSerie(), filters.getSecuencial(), usuario, pageable);
+                        filters.getIdTercero(), filters.getSerie(), filters.getSecuencial(), usuario, pageable);
             }
         }
         throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
@@ -233,7 +233,7 @@ public class ComprasServiceImpl {
     public GetCompraListDtoTotalizado<GetCompraListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListComprasDto filters, Pageable pageable) {
 
         Page<CpComprasEntity> page = comprasRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(),
-                filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(),
+                filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getIdTercero(),
                 filters.getSerie(), filters.getSecuencial(), null, pageable);
 
         List<GetCompraListDto> dtoList = page.stream().map(entidad -> {
@@ -243,7 +243,7 @@ public class ComprasServiceImpl {
             return response;
         }).toList();
 
-        List<TotalesProjection> totalValoresProjection = comprasRepository.totalValores(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getSerie(), filters.getSecuencial());
+        List<TotalesProjection> totalValoresProjection = comprasRepository.totalValores(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getIdTercero(), filters.getSerie(), filters.getSecuencial());
 
         GetCompraListDtoTotalizado totalesDto = new GetCompraListDtoTotalizado<>();
         totalesDto.setContent(dtoList);
@@ -274,7 +274,7 @@ public class ComprasServiceImpl {
 
 
         log.info("Iniciando la exportación a Excel con el filtro: {}", filter);
-        List<CpComprasEntity> facturas = comprasRepository.findAll(idData, idEmpresa, filter.getFechaEmisionDesde(), filter.getFechaEmisionHasta(), filter.getNumeroIdentificacion(), filter.getSerie(), filter.getSecuencial());
+        List<CpComprasEntity> facturas = comprasRepository.findAll(idData, idEmpresa, filter.getFechaEmisionDesde(), filter.getFechaEmisionHasta(), filter.getIdTercero(), filter.getSerie(), filter.getSecuencial());
 
         DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
         String currentDateTime = dateFormatter.format(new Date());
@@ -352,7 +352,7 @@ public class ComprasServiceImpl {
                     row.createCell(1).setCellValue(factura.getSerie());
                     row.createCell(2).setCellValue(factura.getSecuencial());
                     row.createCell(3).setCellValue(DateUtils.toString(factura.getFechaEmision()));
-                    row.createCell(5).setCellValue(factura.getNumeroIdentificacion());
+                    row.createCell(5).setCellValue(Objects.nonNull(factura.getTercero()) ? factura.getTercero().getNumeroIdentificacion() : null);
 
                     row.createCell(6).setCellValue(baseCero.doubleValue());
 
@@ -391,7 +391,7 @@ public class ComprasServiceImpl {
 
     public void exportarPDF(Long idData, Long idEmpresa, HttpServletResponse response, FilterListComprasDto filters) throws DocumentException, IOException {
 
-        List<CpComprasEntity> facturas = comprasRepository.findAll(idData, idEmpresa, filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getSerie(), filters.getSecuencial());
+        List<CpComprasEntity> facturas = comprasRepository.findAll(idData, idEmpresa, filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getIdTercero(), filters.getSerie(), filters.getSecuencial());
 
         response.setContentType("application/pdf");
         String headerKey = "Content-Disposition";
@@ -480,7 +480,7 @@ public class ComprasServiceImpl {
                 table.addCell(factura.getSerie());
                 table.addCell(factura.getSecuencial());
                 table.addCell(factura.getFechaEmision().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-                table.addCell(factura.getNumeroIdentificacion());
+                table.addCell(Objects.nonNull(factura.getTercero()) ? factura.getTercero().getNumeroIdentificacion() : null);
 
                 table.addCell(String.valueOf(baseCero));
 

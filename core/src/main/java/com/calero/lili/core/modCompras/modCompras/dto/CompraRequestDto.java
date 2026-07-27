@@ -36,25 +36,8 @@ public class CompraRequestDto {
 
     private UUID idTercero;
 
-    private String terceroNombre;
-    private TipoIdentificacion tipoIdentificacion;
-    private String numeroIdentificacion;
-    private String email;
     private String tipoProveedor;
     private String relacionado;
-
-    private TerceroDto terceroDatos; // no es una lista es un solo objeto
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Builder
-    public static class TerceroDto {
-        @NotEmpty(message = "No existe el nombre del cliente")
-        private String telefonos;
-        private String ciudad;
-        private String direccion;
-    }
-
     private String concepto;
 
     @Valid

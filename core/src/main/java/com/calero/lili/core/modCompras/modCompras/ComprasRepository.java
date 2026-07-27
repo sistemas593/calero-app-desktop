@@ -49,7 +49,7 @@ public interface ComprasRepository extends JpaRepository<CpComprasEntity, UUID>,
             "entity.idEmpresa = :idEmpresa AND " +
             "(:sucursal IS NULL OR entity.sucursal = :sucursal) AND " +
             "(:usuario IS NULL OR entity.createdBy = :usuario) AND " +
-            "(:numeroIdentificacion IS NULL OR entity.numeroIdentificacion = :numeroIdentificacion ) AND " +
+            "(:idTercero IS NULL OR entity.tercero.idTercero = :idTercero ) AND " +
             "(:serie IS NULL OR entity.serie = :serie) AND " +
             "(:secuencial IS NULL OR entity.secuencial = :secuencial) AND " +
             "( cast(:fechaEmisionDesde as date) is null OR entity.fechaEmision >= :fechaEmisionDesde ) AND " +
@@ -61,7 +61,7 @@ public interface ComprasRepository extends JpaRepository<CpComprasEntity, UUID>,
                     "(entity.idEmpresa = :idEmpresa) AND " +
                     "(:sucursal IS NULL OR entity.sucursal = :sucursal) AND " +
                     "(:usuario IS NULL OR entity.createdBy = :usuario) AND " +
-                    "(:numeroIdentificacion IS NULL OR entity.numeroIdentificacion = :numeroIdentificacion ) AND " +
+                    "(:idTercero IS NULL OR entity.tercero.idTercero = :idTercero ) AND " +
                     "(:serie IS NULL OR entity.serie = :serie ) AND " +
                     "(:secuencial IS NULL OR entity.secuencial = :secuencial ) AND " +
                     "( cast(:fechaEmisionDesde as date) is null OR entity.fechaEmision >= :fechaEmisionDesde ) AND " +
@@ -71,7 +71,7 @@ public interface ComprasRepository extends JpaRepository<CpComprasEntity, UUID>,
                                           @Param("sucursal") String sucursal,
                                           @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
                                           @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
-                                          @Param("numeroIdentificacion") String numeroIdentificacion,
+                                          @Param("idTercero") UUID idTercero,
                                           @Param("serie") String serie,
                                           @Param("secuencial") String secuencial,
                                           @Param("usuario") String usuario,
@@ -84,10 +84,11 @@ public interface ComprasRepository extends JpaRepository<CpComprasEntity, UUID>,
                     "sum(valoresEntity.valor) as totalValor " +
                     "FROM cp_compras entity " +
                     "INNER JOIN cp_compras_valores valoresEntity ON entity.id_compra = valoresEntity.id_compra " +
+                    "INNER JOIN ge_terceros terceros ON entity.id_tercero = terceros.id_tercero " +
                     "WHERE ( entity.id_data = :idData)  AND " +
                     "(entity.id_empresa = :idEmpresa) AND entity.deleted = false AND " +
                     "(:sucursal IS NULL OR entity.sucursal = :sucursal) AND " +
-                    "(:numeroIdentificacion IS NULL OR entity.numero_identificacion = :numeroIdentificacion ) AND " +
+                    "(:idTercero IS NULL OR terceros.id_tercero = :idTercero ) AND " +
                     "(:serie IS NULL OR entity.serie = :serie ) AND " +
                     "(:secuencial IS NULL OR entity.secuencial = :secuencial ) AND " +
                     "( cast(:fechaEmisionDesde as date) is null OR entity.fecha_emision >= :fechaEmisionDesde ) AND " +
@@ -99,7 +100,7 @@ public interface ComprasRepository extends JpaRepository<CpComprasEntity, UUID>,
                                          @Param("sucursal") String sucursal,
                                          @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
                                          @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
-                                         @Param("numeroIdentificacion") String numeroIdentificacion,
+                                         @Param("idTercero") UUID idTercero,
                                          @Param("serie") String serie,
                                          @Param("secuencial") String secuencial);
 
@@ -110,7 +111,7 @@ public interface ComprasRepository extends JpaRepository<CpComprasEntity, UUID>,
             "entity.idEmpresa = :idEmpresa AND " +
             "(:sucursal IS NULL OR entity.sucursal = :sucursal) AND " +
             "(" +
-            "(:numeroIdentificacion IS NULL OR entity.numeroIdentificacion = :numeroIdentificacion) AND " +
+            "(:idTercero IS NULL OR entity.tercero.idTercero = :idTercero ) AND " +
             "(:serie IS NULL OR entity.serie = :serie) AND " +
             "(:secuencial IS NULL OR entity.secuencial = :secuencial) AND " +
             "( cast(:fechaEmisionDesde as date) is null OR entity.fechaEmision >= :fechaEmisionDesde ) AND " +
@@ -120,7 +121,7 @@ public interface ComprasRepository extends JpaRepository<CpComprasEntity, UUID>,
                                   @Param("idEmpresa") Long idEmpresa,
                                   @Param("fechaEmisionDesde") LocalDate fechaEmisionDesde,
                                   @Param("fechaEmisionHasta") LocalDate fechaEmisionHasta,
-                                  @Param("numeroIdentificacion") String numeroIdentificacion,
+                                  @Param("idTercero") UUID numeroIdentificacion,
                                   @Param("serie") String serie,
                                   @Param("secuencial") String secuencial);
 

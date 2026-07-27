@@ -133,6 +133,7 @@ public class VtGuiaBuilder {
                 .sucursal(model.getSucursal())
                 .serie(model.getSerie())
                 .secuencial(model.getSecuencial())
+                .numeroAutorizacion(model.getNumeroAutorizacion())
                 .motivoTraslado(model.getMotivoTraslado())
                 .ruta(model.getRuta())
                 .docAduaneroUnico(model.getDocAduaneroUnico())

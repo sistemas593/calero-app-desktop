@@ -31,6 +31,7 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
             "  AND vv.id_data = :idData " +
             " AND vvv.codigo = '2' and vvv.codigo_porcentaje = '4'" +
             " and (vv.tipo_venta = 'FAC' or vv.tipo_venta = 'NDB') and vv.deleted = false " +
+            " and (vv.formato_documento = 'F' or (vv.formato_documento = 'E' and vv.estado_documento = 'AUT' and vv.ambiente = 2))  " +
             "GROUP BY vv.tipo_ingreso;", nativeQuery = true)
     Optional<ImpuestosF104Projection> valorBruto15(@Param("idData") Long idData,
                                                    @Param("idEmpresa") Long idEmpresa,
@@ -53,6 +54,7 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
             "  AND vv.id_data = :idData\n" +
             " AND vvv.codigo = '2' and vvv.codigo_porcentaje = '4'" +
             " and (vv.tipo_venta = 'NCR') and vv.deleted = false " +
+            " and (vv.formato_documento = 'F' or (vv.formato_documento = 'E' and vv.estado_documento = 'AUT' and vv.ambiente = 2))  " +
             "GROUP BY vv.tipo_ingreso;", nativeQuery = true)
     Optional<ImpuestosF104Projection> notasCredito15(@Param("idData") Long idData,
                                                      @Param("idEmpresa") Long idEmpresa,
@@ -74,6 +76,7 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
             "  AND vv.id_data = :idData\n" +
             " AND vvv.codigo = '2' and vvv.codigo_porcentaje = '0'" +
             " and (vv.tipo_venta = 'FAC' or vv.tipo_venta = 'NDB') and vv.deleted = false " +
+            " and (vv.formato_documento = 'F' or (vv.formato_documento = 'E' and vv.estado_documento = 'AUT' and vv.ambiente = 2))  " +
             "GROUP BY vv.tipo_ingreso;", nativeQuery = true)
     Optional<ImpuestosF104Projection> valorBrutoBaseCero(@Param("idData") Long idData,
                                                          @Param("idEmpresa") Long idEmpresa,
@@ -94,6 +97,7 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
             "  AND vv.id_data = :idData\n" +
             " AND vvv.codigo = '2' and vvv.codigo_porcentaje = '0'" +
             " and (vv.tipo_venta = 'NCR') and vv.deleted = false " +
+            " and (vv.formato_documento = 'F' or (vv.formato_documento = 'E' and vv.estado_documento = 'AUT' and vv.ambiente = 2))  " +
             "GROUP BY vv.tipo_ingreso;", nativeQuery = true)
     Optional<ImpuestosF104Projection> notasCreditoBaseCero(@Param("idData") Long idData,
                                                            @Param("idEmpresa") Long idEmpresa,
@@ -116,6 +120,7 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
             "  AND vv.id_data = :idData\n" +
             " AND vvv.codigo = '2' and (vvv.codigo_porcentaje = '7' or vvv.codigo_porcentaje = '6')" +
             " and (vv.tipo_venta = 'FAC' or vv.tipo_venta = 'NDB') and vv.deleted = false " +
+            " and (vv.formato_documento = 'F' or (vv.formato_documento = 'E' and vv.estado_documento = 'AUT' and vv.ambiente = 2))  " +
             "GROUP BY vv.tipo_ingreso;", nativeQuery = true)
     Optional<ImpuestosF104Projection> valorBrutoVentasLocalesExcentaYNoObjecto(@Param("idData") Long idData,
                                                                                @Param("idEmpresa") Long idEmpresa,
@@ -138,6 +143,7 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
             "  AND vv.id_data = :idData\n" +
             " AND vvv.codigo = '2' and (vvv.codigo_porcentaje = '7' or vvv.codigo_porcentaje = '6')" +
             " and (vv.tipo_venta = 'NCR') and vv.deleted = false " +
+            " and (vv.formato_documento = 'F' or (vv.formato_documento = 'E' and vv.estado_documento = 'AUT' and vv.ambiente = 2))  " +
             "GROUP BY vv.tipo_ingreso;", nativeQuery = true)
     Optional<ImpuestosF104Projection> notasCreditoVentasLocalesExentaYNoObjecto(@Param("idData") Long idData,
                                                                                 @Param("idEmpresa") Long idEmpresa,
@@ -159,6 +165,7 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
             "  AND vv.id_data = :idData\n" +
             " AND vvv.codigo = '2' and vvv.codigo_porcentaje = '5'" +
             " and (vv.tipo_venta = 'FAC' or vv.tipo_venta = 'NDB') and vv.deleted = false " +
+            " and (vv.formato_documento = 'F' or (vv.formato_documento = 'E' and vv.estado_documento = 'AUT' and vv.ambiente = 2))  " +
             "GROUP BY vv.tipo_ingreso;", nativeQuery = true)
     Optional<ImpuestosF104Projection> valorBrutoVentasLocales5(@Param("idData") Long idData,
                                                                @Param("idEmpresa") Long idEmpresa,
@@ -180,6 +187,7 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
             "  AND vv.id_data = :idData\n" +
             " AND vvv.codigo = '2' and vvv.codigo_porcentaje = '5'" +
             " and (vv.tipo_venta = 'NCR') and vv.deleted = false " +
+            " and (vv.formato_documento = 'F' or (vv.formato_documento = 'E' and vv.estado_documento = 'AUT' and vv.ambiente = 2))  " +
             "GROUP BY vv.tipo_ingreso;", nativeQuery = true)
     Optional<ImpuestosF104Projection> notasCreditoVentasLocalesTarifa5(@Param("idData") Long idData,
                                                                        @Param("idEmpresa") Long idEmpresa,
@@ -201,6 +209,7 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
             "  AND vv.id_data = :idData\n" +
             " AND vvv.codigo = '2' " +
             " and (vv.tipo_venta = 'FAC' or vv.tipo_venta = 'NDB') and vv.deleted = false " +
+            " and (vv.formato_documento = 'F' or (vv.formato_documento = 'E' and vv.estado_documento = 'AUT' and vv.ambiente = 2))  " +
             "GROUP BY vv.tipo_ingreso;", nativeQuery = true)
     Optional<ImpuestosF104Projection> valorBrutoReembolso(@Param("idData") Long idData,
                                                           @Param("idEmpresa") Long idEmpresa,
@@ -221,6 +230,7 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
             "  AND vv.id_data = :idData\n" +
             " AND vvv.codigo = '2' " +
             " and (vv.tipo_venta = 'NCR') and vv.deleted = false " +
+            " and (vv.formato_documento = 'F' or (vv.formato_documento = 'E' and vv.estado_documento = 'AUT' and vv.ambiente = 2))  " +
             "GROUP BY vv.tipo_ingreso;", nativeQuery = true)
     Optional<ImpuestosF104Projection> notasCreditoReembolso(@Param("idData") Long idData,
                                                             @Param("idEmpresa") Long idEmpresa,

@@ -16,7 +16,6 @@ import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.dtos.ValoresDto;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
-import com.calero.lili.core.enums.TipoDocumentoSerie;
 import com.calero.lili.core.enums.TipoEmision;
 import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.errors.exceptions.GeneralException;
@@ -144,10 +143,8 @@ public class LiquidacionesServiceImpl {
         cpLiquidacionesEntity.setCreatedDate(LocalDateTime.now());
 
         cpLiquidacionesEntity.setTipoEmision(getTipoEmision(request));
-        List<CpLiquidacionesReembolsosEntity> reembolsos = validarReembolso(request);
-        if (Objects.nonNull(reembolsos)) {
-            cpLiquidacionesEntity.setReembolsosEntity(reembolsos);
-        }
+        validarReembolso(request, cpLiquidacionesEntity);
+
 
         CpLiquidacionesEntity saved = liquidacionPersistenceService.guardarLiquidacion(cpLiquidacionesEntity, empresa,
                 serie, idData, idEmpresa, request);
@@ -191,18 +188,31 @@ public class LiquidacionesServiceImpl {
     }
 
 
-    private List<CpLiquidacionesReembolsosEntity> validarReembolso(CreationRequestLiquidacionCompraDto request) {
+    private void validarReembolso(CreationRequestLiquidacionCompraDto request,
+                                  CpLiquidacionesEntity cpLiquidacionesEntity) {
+
 
         if (Objects.nonNull(request.getCodDocReembolso())) {
-            if (request.getCodDocReembolso().equals("41")) {
+            if (request.getCodDocReembolso().getCodigo().equals("41")) {
                 if (Objects.nonNull(request.getListIdLiquidacionesReembolso()) && validacionCampoReembolso(request)) {
-                    return validateLiquidacionesReembolso(request.getListIdLiquidacionesReembolso());
+                    validateLiquidacionesReembolso(request.getListIdLiquidacionesReembolso(), cpLiquidacionesEntity);
                 } else {
                     throw new GeneralException("El codigo de reembolso es 41 pero no existe información de reembolso");
                 }
             }
+        } else {
+            if (Objects.nonNull(request.getTotalComprobantesReembolso())
+                    && Objects.nonNull(request.getTotalBaseImponibleReembolso())
+                    && Objects.nonNull(request.getTotalImpuestoReembolso())) {
+                throw new GeneralException("No es requerido los valores totales de reembolso");
+            } else {
+                cpLiquidacionesEntity.setTotalComprobantesReembolso(BigDecimal.ZERO);
+                cpLiquidacionesEntity.setTotalBaseImponibleReembolso(BigDecimal.ZERO);
+                cpLiquidacionesEntity.setTotalImpuestoReembolso(BigDecimal.ZERO);
+            }
         }
-        return null;
+
+
     }
 
     private Boolean validacionCampoReembolso(CreationRequestLiquidacionCompraDto request) {
@@ -215,7 +225,7 @@ public class LiquidacionesServiceImpl {
         throw new GeneralException("No existe información de los totales de reembolso.");
     }
 
-    private List<CpLiquidacionesReembolsosEntity> validateLiquidacionesReembolso(List<UUID> listUUIDs) {
+    private void validateLiquidacionesReembolso(List<UUID> listUUIDs, CpLiquidacionesEntity cpLiquidacionesEntity) {
         List<CpLiquidacionesReembolsosEntity> list = liquidacionReembolsosRepository.getFindAllByIds(listUUIDs);
         if (list.isEmpty()) throw new GeneralException("Los identificadores de los reembolsos no existen");
 
@@ -226,7 +236,7 @@ public class LiquidacionesServiceImpl {
             }
         }
 
-        return list;
+        cpLiquidacionesEntity.setReembolsosEntity(list);
     }
 
 
@@ -369,7 +379,9 @@ public class LiquidacionesServiceImpl {
     public GetLiquidacionCompraListDtoTotalizado<GetLiquidacionCompraListDto> findAllPaginateTotalizado(Long idData, Long idEmpresa, FilterListComprasLiquidacionesDto filters, Pageable pageable) {
 
 
-        Page<CpLiquidacionesEntity> page = liquidacionesRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getSerie(), filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
+        Page<CpLiquidacionesEntity> page = liquidacionesRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(),
+                filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getIdTercero(),
+                filters.getSerie(), filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
 
         List<GetLiquidacionCompraListDto> dtoList = page.stream().map(entidad -> {
 
@@ -385,7 +397,9 @@ public class LiquidacionesServiceImpl {
             return response;
         }).toList();
 
-        List<TotalesProjection> totalValoresProjection = liquidacionesRepository.totalValores(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(), filters.getSerie(), filters.getSecuencial());
+        List<TotalesProjection> totalValoresProjection = liquidacionesRepository.totalValores(idData, idEmpresa,
+                filters.getSucursal(), filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(),
+                filters.getIdTercero(), filters.getSerie(), filters.getSecuencial());
 
         GetLiquidacionCompraListDtoTotalizado totalesDto = new GetLiquidacionCompraListDtoTotalizado<>();
         totalesDto.setContent(dtoList);
@@ -418,7 +432,7 @@ public class LiquidacionesServiceImpl {
         log.info("Iniciando la exportación a Excel con el filtro: {}", filter);
 
         List<CpLiquidacionesEntity> facturas = liquidacionesRepository.findAll(idData, idEmpresa, filter.getSucursal(),
-                filter.getFechaEmisionDesde(), filter.getFechaEmisionHasta(), filter.getNumeroIdentificacion(),
+                filter.getFechaEmisionDesde(), filter.getFechaEmisionHasta(), filter.getIdTercero(),
                 filter.getSerie(), filter.getSecuencial());
 
         DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
@@ -579,7 +593,7 @@ public class LiquidacionesServiceImpl {
 
 
         List<CpLiquidacionesEntity> facturas = liquidacionesRepository.findAll(idData, idEmpresa, filters.getSucursal(),
-                filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getNumeroIdentificacion(),
+                filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getIdTercero(),
                 filters.getSerie(), filters.getSecuencial());
 
         response.setContentType("application/pdf");
@@ -670,7 +684,9 @@ public class LiquidacionesServiceImpl {
                 table.addCell(factura.getSecuencial());
                 table.addCell(factura.getFechaEmision().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
                 table.addCell(factura.getNumeroAutorizacion());
-                table.addCell(factura.getNumeroIdentificacion());
+
+                table.addCell(Objects.nonNull(factura.getProveedor())
+                        ? factura.getProveedor().getNumeroIdentificacion() : null);
 
                 table.addCell(String.valueOf(baseCero));
 
@@ -811,25 +827,22 @@ public class LiquidacionesServiceImpl {
         switch (tipoBusqueda) {
             case TODAS -> {
                 return liquidacionesRepository.findAllPaginate(idData, idEmpresa, null,
-                        filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(),
-                        filters.getNumeroIdentificacion(), filters.getSerie(),
-                        filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
+                        filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getIdTercero(),
+                        filters.getSerie(), filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
             }
             case SUCURSAL -> {
                 if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
                     return liquidacionesRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(),
-                            filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(),
-                            filters.getNumeroIdentificacion(), filters.getSerie(),
-                            filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
+                            filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getIdTercero(),
+                            filters.getSerie(), filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
                 } else {
                     throw new GeneralException("Es requerido el parametro de la sucursal");
                 }
             }
             case PROPIAS -> {
                 return liquidacionesRepository.findAllPaginate(idData, idEmpresa, null,
-                        filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(),
-                        filters.getNumeroIdentificacion(), filters.getSerie(),
-                        filters.getSecuencial(), filters.getNumeroAutorizacion(), usuario, pageable);
+                        filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getIdTercero(),
+                        filters.getSerie(), filters.getSecuencial(), filters.getNumeroAutorizacion(), usuario, pageable);
             }
         }
         throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));

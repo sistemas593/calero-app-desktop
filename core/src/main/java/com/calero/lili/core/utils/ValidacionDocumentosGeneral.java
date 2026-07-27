@@ -28,6 +28,13 @@ public class ValidacionDocumentosGeneral {
     }
 
 
+    public String validarSecuencial(String secuencial) {
+        if (secuencial.length() != 9) {
+            return "El secuencial debe ser solo de 9 dígitos";
+        }
+        return "";
+    }
+
     public String generarSecuencial(Long idData, Long idEmpresa, UUID serie, TipoDocumentoSerie tipoDocumento) {
 
         Integer ultimoNumero = adEmpresasSeriesDocumentosRepository.actualizarUltimoNumeroSecuencia(idData, idEmpresa,

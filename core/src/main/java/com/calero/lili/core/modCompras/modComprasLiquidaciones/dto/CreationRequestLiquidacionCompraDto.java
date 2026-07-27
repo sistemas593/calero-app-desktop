@@ -39,8 +39,6 @@ public class CreationRequestLiquidacionCompraDto {
     private UUID idTercero;
 
     private String terceroNombre;
-    private TipoIdentificacion tipoIdentificacion;
-    private String numeroIdentificacion;
     private String email;
     private String tipoProveedor;
     private String relacionado;

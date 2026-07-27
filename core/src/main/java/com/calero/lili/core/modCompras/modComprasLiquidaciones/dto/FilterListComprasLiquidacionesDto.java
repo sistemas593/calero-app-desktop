@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.ToString;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Data
 @ToString
@@ -18,6 +19,7 @@ public class FilterListComprasLiquidacionesDto {
     private String numeroIdentificacion;
     private String numeroAutorizacion;
     private Integer utilizado;
+    private UUID idTercero;
 
     public LocalDate getFechaEmisionDesde() {
         if(fechaEmisionDesde == null)
