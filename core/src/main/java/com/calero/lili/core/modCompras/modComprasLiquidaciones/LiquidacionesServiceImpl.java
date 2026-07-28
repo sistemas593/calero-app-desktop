@@ -726,7 +726,7 @@ public class LiquidacionesServiceImpl {
 
 
         if (Objects.nonNull(request.getCodDocReembolso())) {
-            if (!request.getCodDocReembolso().equals("41")) {
+            if (!request.getCodDocReembolso().getCodigo().equals("41")) {
                 throw new GeneralException("No se puede realizar la operación el codigo no corresponde con reembolsos");
             }
         }
