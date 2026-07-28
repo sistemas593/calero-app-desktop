@@ -6,6 +6,7 @@ import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirCreationRequestDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestoCargaExcelService;
+import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestoReembolsoExcel;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosServiceImpl;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CreationCompraImpuestoRequestDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.FilterListCompraImpuestoDto;
@@ -49,6 +50,7 @@ public class CpImpuestosController {
     private final IdDataServiceImpl idDataService;
     private final AuditorAwareImpl auditorAware;
     private final CpImpuestoCargaExcelService cpImpuestoCargaExcelService;
+    private final CpImpuestoReembolsoExcel cpImpuestoReembolsoExcel;
 
     @PostMapping("{idEmpresa}")
     @ResponseStatus(code = HttpStatus.CREATED)
@@ -123,7 +125,8 @@ public class CpImpuestosController {
 
         int pageSize = pageable.getPageSize();
         if (pageSize > 100) {
-            pageSize = 100;}
+            pageSize = 100;
+        }
         Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
 
         return vtVentasService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageableConSort,
@@ -143,7 +146,8 @@ public class CpImpuestosController {
 
         int pageSize = pageable.getPageSize();
         if (pageSize > 100) {
-            pageSize = 100;}
+            pageSize = 100;
+        }
         Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
 
         return vtVentasService.findAllPaginateTotalizado(idDataService.getIdData(), idEmpresa, filters, pageableConSort,
@@ -188,6 +192,17 @@ public class CpImpuestosController {
         try {
             cpImpuestoCargaExcelService.cargarExcelCompraImpuestos(idDataService.getIdData(), idEmpresa,
                     file, auditorAware.getCurrentAuditor().orElse("SYSTEM"), sucursal);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @PostMapping("/excel/reembolsos/{idEmpresa}")
+    public void uploadCpImpuestoReembolsoExcel(@RequestParam("file") MultipartFile file,
+                                               @PathVariable("idEmpresa") Long idEmpresa) {
+        try {
+            cpImpuestoReembolsoExcel.cargarReembolsos(idDataService.getIdData(), idEmpresa,
+                    file, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

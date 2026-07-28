@@ -1,5 +1,7 @@
 package com.calero.lili.core.modCompras.modComprasImpuestos.builder;
 
+import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosReembolsosEntity;
+import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosReembolsosValoresEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.ValoresCompraImpuestoDto;
 import com.calero.lili.core.modImpuestosAnexos.ats.Reembolso;
 import org.springframework.stereotype.Component;
@@ -24,6 +26,7 @@ public class CpImpuestoReembolsoValidacionBuilder {
         Reembolso reembolso = Reembolso.builder()
                 .tipoComprobanteReemb(model.getCodigoDocumentoReemb())
                 .tpIdProvReemb(model.getTipoProveedorReemb())
+                .secuencialReemb(model.getSecuencialReemb())
                 .idProvReemb(model.getNumeroIdentificacionReemb())
                 .establecimientoReemb(model.getSerieReemb().substring(0, 3))
                 .puntoEmisionReemb(model.getSerieReemb().substring(3, 6))
@@ -72,6 +75,64 @@ public class CpImpuestoReembolsoValidacionBuilder {
         reembolso.setBaseNoGraIvaReemb(baseImponibleNoGravada.toString());
         reembolso.setBaseImpGravReemb(baseImponibleGravada.toString());
         reembolso.setMontoIvaRemb(montoIva.toString());
+
+    }
+
+
+
+    public Reembolso builderValidacionExcel(CpImpuestosReembolsosEntity model) {
+        Reembolso reembolso = Reembolso.builder()
+                .tipoComprobanteReemb(model.getCodigoDocumentoReemb())
+                .tpIdProvReemb(model.getTipoProveedorReemb())
+                .secuencialReemb(model.getSecuencialReemb())
+                .idProvReemb(model.getNumeroIdentificacionReemb())
+                .establecimientoReemb(model.getSerieReemb().substring(0, 3))
+                .puntoEmisionReemb(model.getSerieReemb().substring(3, 6))
+                .fechaEmisionReemb(Objects.nonNull(model.getFechaEmisionReemb()) ? model.getFechaEmisionReemb() : null)
+                .autorizacionReemb(model.getNumeroAutorizacionReemb())
+                .build();
+        setearValoresExcel(reembolso, model);
+        return reembolso;
+    }
+
+    private void setearValoresExcel(Reembolso reembolso, CpImpuestosReembolsosEntity model) {
+
+        List<String> codigoIva = Arrays.asList("4", "5", "8");
+
+        BigDecimal baseImponibleNoGravada = model.getReembolsosValores().stream()
+                .filter(item -> item.getCodigo().equals("2") &&
+                        item.getCodigoPorcentaje().equals("0"))
+                .map(CpImpuestosReembolsosValoresEntity::getBaseImponible)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal baseImponibleGravada = model.getReembolsosValores().stream()
+                .filter(item -> item.getCodigo().equals("2") &&
+                        codigoIva.contains(item.getCodigoPorcentaje()))
+                .map(CpImpuestosReembolsosValoresEntity::getBaseImponible)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal baseImponibleExcenta = model.getReembolsosValores().stream()
+                .filter(item -> item.getCodigo().equals("2") &&
+                        item.getCodigoPorcentaje().equals("7"))
+                .map(CpImpuestosReembolsosValoresEntity::getBaseImponible)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+
+        BigDecimal montoIva = model.getReembolsosValores().stream()
+                .filter(item -> item.getCodigo().equals("2") &&
+                        codigoIva.contains(item.getCodigoPorcentaje()))
+                .map(CpImpuestosReembolsosValoresEntity::getValor)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+
+        BigDecimal totalBaseImponible = baseImponibleExcenta.add(baseImponibleGravada).add(baseImponibleNoGravada);
+
+        reembolso.setBaseImponibleReemb(totalBaseImponible.toString());
+        reembolso.setBaseImpExeReemb(baseImponibleExcenta.toString());
+        reembolso.setBaseNoGraIvaReemb(baseImponibleNoGravada.toString());
+        reembolso.setBaseImpGravReemb(baseImponibleGravada.toString());
+        reembolso.setMontoIvaRemb(montoIva.toString());
+        reembolso.setMontoIceRemb("");
 
     }
 

@@ -406,14 +406,14 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
     @Query(value = """
             SELECT ci.*
             FROM cp_impuestos ci
-            INNER JOIN ge_tercero t
-                ON t.id_tercero = ci.id_tercero
+            INNER JOIN ge_terceros t
+                ON t.id_tercero = ci.id_proveedor
             WHERE ci.id_data = :idData
               AND ci.id_empresa = :idEmpresa
               AND CONCAT(
                     t.numero_identificacion,
                     '-',
-                    TO_CHAR(ci.fecha_emision, 'YYYY-MM-DD'),
+                    TO_CHAR(ci.fecha_emision, 'DD/MM/YYYY'),
                     '-',
                     ci.documento,
                     '-',
