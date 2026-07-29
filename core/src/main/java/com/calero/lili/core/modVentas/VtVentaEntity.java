@@ -81,8 +81,8 @@ public class VtVentaEntity extends Auditable {
     @Column(name = "tipo_ingreso")
     private String tipoIngreso;
 
-    @Column(name = "codigo_documento")
-    private String codigoDocumento;
+    @Enumerated(EnumType.STRING)
+    private DocumentoEnum codigoDocumento;
     // 01 Factura 02 Nota de venta
 
 //    @Column(name = "tipo_doc")

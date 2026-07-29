@@ -2,6 +2,7 @@ package com.calero.lili.core.modVentas.modVentasImpuestos.dto;
 
 import com.calero.lili.core.dtos.FormasPagoDto;
 import com.calero.lili.core.dtos.ValoresDto;
+import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.Liquidar;
 import com.calero.lili.core.enums.TipoIdentificacion;
@@ -42,8 +43,8 @@ public class CreationVentaImpuestoRequestDto {
     @NotEmpty(message = "No existe la fecha de emision")
     private String fechaEmision;
 
-    @NotEmpty(message = "No existe el codigo documento")
-    private String codigoDocumento;
+    @NotNull(message = "No existe el codigo documento")
+    private DocumentoEnum codigoDocumento;
 
     @NotNull(message = "No existe el tipo de ingreso")
     private TipoIngreso tipoIngreso;

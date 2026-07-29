@@ -136,8 +136,7 @@ public class CpImpuestosEntity extends Auditable {
     private List<CpImpuestosCodigosEntity> codigosEntity = new ArrayList<>(); // RETENCIONES
 
     @Builder.Default
-    @JoinColumn(name = "id_impuestos", referencedColumnName = "idImpuestos")
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "impuesto", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CpImpuestosReembolsosEntity> reembolsosEntity = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)

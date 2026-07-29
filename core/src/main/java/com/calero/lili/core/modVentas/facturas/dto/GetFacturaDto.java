@@ -34,7 +34,7 @@ public class GetFacturaDto {
     private String serie;
     private String secuencial;
 
-    private String codigoDocumento;
+    private DocumentoEnum codigoDocumento;
     private String tipoIngreso;
     private String liquidar;
 

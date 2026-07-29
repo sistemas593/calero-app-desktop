@@ -1,5 +1,6 @@
 package com.calero.lili.core.modVentas.dto;
 
+import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.OrigenEnum;
@@ -23,7 +24,7 @@ public class GetVentasListDto {
     private String secuencial;
     private String numeroAutorizacion;
     private String tipoIngreso;
-    private String codigoDocumento;
+    private DocumentoEnum codigoDocumento;
     private String fechaEmision;
     private UUID idTercero;
     private String terceroNombre;

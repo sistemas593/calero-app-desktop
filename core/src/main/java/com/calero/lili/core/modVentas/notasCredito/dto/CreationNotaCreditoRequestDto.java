@@ -37,8 +37,7 @@ public class CreationNotaCreditoRequestDto {
     @NotEmpty(message = "No existe la fecha de emision")
     private String fechaEmision;
 
-    @NotEmpty(message = "No existe el codigo documento")
-    private String codigoDocumento;
+    private DocumentoEnum codigoDocumento;
 
     //@NotEmpty(message = "No existe el tipo")
     private TipoIngreso tipoIngreso;

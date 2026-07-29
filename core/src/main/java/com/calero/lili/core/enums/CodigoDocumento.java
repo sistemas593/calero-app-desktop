@@ -6,6 +6,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 public enum CodigoDocumento {
+
+    // TODO ELIMINAR ENUM
+
     FACTURA("01","FACTURA"),
     NOTA_VENTA("02","NOTA DE VENTA"),
     LIQUIDACION("03","LIQUIDACION"),

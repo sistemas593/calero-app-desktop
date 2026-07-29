@@ -607,7 +607,7 @@ public class AutorizacionBuilder {
                 .numeroAutorizacion(documento.getInfoTributaria().getClaveAcceso())
                 .claveAcceso(documento.getInfoTributaria().getClaveAcceso())
                 .secuencial(documento.getInfoTributaria().getSecuencial())
-                .codigoDocumento("18")
+                .codigoDocumento(DocumentoEnum.D18)
                 .serie(documento.getInfoTributaria().getEstab() + documento.getInfoTributaria().getPtoEmi())
                 .tipoVenta(TipoVenta.FAC.name())
                 .estadoDocumento(EstadoDocumento.AUT)
@@ -681,6 +681,9 @@ public class AutorizacionBuilder {
     public VtVentaEntity builderEmitidaNotaCredito(Long idData, Long idEmpresa, NotaCredito notaCredito, GeTerceroEntity cliente,
                                                    String sucursal, BigDecimal totalImpuesto, String comprobante) {
 
+        String modSecuencial = getModSecuencial(notaCredito.getInfoNotaCredito().getNumDocModificado());
+        String modSerie = getModSerie(notaCredito.getInfoNotaCredito().getNumDocModificado());
+
         return VtVentaEntity.builder()
                 .idVenta(UUID.randomUUID())
                 .idData(idData)
@@ -697,12 +700,14 @@ public class AutorizacionBuilder {
                         ? DateUtils.toLocalDateFechaEmision(notaCredito.getInfoNotaCredito().getFechaEmision())
                         : null)
                 .tipoIngreso(TipoIngreso.VL.name())
-                .codigoDocumento(notaCredito.getInfoTributaria().getCodDoc())
+                .codigoDocumento(DocumentoEnum.D04)
                 .ambiente(Objects.nonNull(notaCredito.getInfoTributaria().getAmbiente())
                         ? Ambiente.obtenerAmbiente(Integer.parseInt(notaCredito.getInfoTributaria().getAmbiente()))
                         : null)
                 .formatoDocumento(FormatoDocumento.E)
                 .modCodigoDocumento(DocumentoEnum.getCodigoDocumento(notaCredito.getInfoNotaCredito().getCodDocModificado()))
+                .modSecuencial(modSecuencial)
+                .modSerie(modSerie)
                 .valoresEntity(builderListValoresCredito(notaCredito.getInfoNotaCredito().getTotalImpuesto(), idData, idEmpresa))
                 .detalle(builderListDetalleNotaCredito(notaCredito.getDetalle(), idData, idEmpresa))
                 .informacionAdicional(Objects.nonNull(notaCredito.getCampoAdicional())
@@ -718,6 +723,25 @@ public class AutorizacionBuilder {
                 .origen(OrigenEnum.VTS)
                 .estadoDocumento(EstadoDocumento.AUT)
                 .build();
+
+    }
+
+    private String getModSerie(String numDocModificado) {
+
+        if (Objects.isNull(numDocModificado) || numDocModificado.isEmpty()) {
+            return null;
+        }
+        String[] partes = numDocModificado.split("-");
+        return partes[0] + partes[1];
+
+    }
+
+    private String getModSecuencial(String numDocModificado) {
+        if (Objects.isNull(numDocModificado) || numDocModificado.isEmpty()) {
+            return null;
+        }
+        String[] partes = numDocModificado.split("-");
+        return partes[2];
 
     }
 
@@ -762,8 +786,6 @@ public class AutorizacionBuilder {
                 .tarifa(tarifa)
                 .build();
     }
-
-
 
 
     private List<FormasPagoSri> builderListFormasPago(List<Pago> pago) {
@@ -892,15 +914,15 @@ public class AutorizacionBuilder {
     }
 
     private BigDecimal comprobarTarifa(TotalImpuesto totalImpuesto) {
-        if(totalImpuesto.getCodigo().equals("2") && totalImpuesto.getCodigoPorcentaje().equals("4")){
+        if (totalImpuesto.getCodigo().equals("2") && totalImpuesto.getCodigoPorcentaje().equals("4")) {
             return new BigDecimal("15.00");
         }
 
-        if(totalImpuesto.getCodigo().equals("2") && totalImpuesto.getCodigoPorcentaje().equals("8")){
+        if (totalImpuesto.getCodigo().equals("2") && totalImpuesto.getCodigoPorcentaje().equals("8")) {
             return new BigDecimal("8.00");
         }
 
-        if(totalImpuesto.getCodigo().equals("2") && totalImpuesto.getCodigoPorcentaje().equals("5")){
+        if (totalImpuesto.getCodigo().equals("2") && totalImpuesto.getCodigoPorcentaje().equals("5")) {
             return new BigDecimal("5.00");
         }
 

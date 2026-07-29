@@ -1,5 +1,6 @@
 package com.calero.lili.core.modVentas.notasDebito.dto;
 
+import com.calero.lili.core.dtos.DetallesDto;
 import com.calero.lili.core.dtos.FormasPagoDto;
 import com.calero.lili.core.dtos.InformacionAdicionalDto;
 import com.calero.lili.core.dtos.ValoresDto;
@@ -10,7 +11,6 @@ import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.Liquidar;
 import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.enums.TipoIngreso;
-import com.calero.lili.core.dtos.DetallesDto;
 import jakarta.persistence.Column;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -51,7 +51,7 @@ public class CreationNotaDebitoRequestDto {
     private String fechaEmision;
 
     @NotEmpty(message = "No existe el codigo documento")
-    private String codigoDocumento;
+    private DocumentoEnum codigoDocumento;
 
     //@NotEmpty(message = "No existe el tipo")
     private TipoIngreso tipoIngreso;

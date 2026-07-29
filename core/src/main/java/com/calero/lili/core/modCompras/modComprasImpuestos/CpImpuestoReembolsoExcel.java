@@ -53,7 +53,6 @@ public class CpImpuestoReembolsoExcel {
 
         List<CpImpuestosReembolsosEntity> reembolsos = new ArrayList<>();
         List<DetalleError> detalleErrores = new ArrayList<>();
-        List<CpImpuestosEntity> impuestoActualizar = new ArrayList<>();
 
         record FilaExcel(int linea, String[] celdas) {
         }
@@ -83,6 +82,18 @@ public class CpImpuestoReembolsoExcel {
 
                     if (Arrays.stream(celdas, 0, 5).allMatch(s -> s != null && !s.isBlank())) {
                         String codigoCompuesto = String.join("-", celdas[0], celdas[1], "D" + celdas[2], celdas[3], validacionSecuencial(celdas[4]));
+                        campoValidacion.add(codigoCompuesto);
+                    }
+
+                    // TODO AQUI ME QUEDE
+                    if (Arrays.stream(celdas, 9, 12).allMatch(s -> s != null && !s.isBlank())) {
+                        String codigoCompuesto = String.join(
+                                "-",
+                                celdas[11],                  // Número de autorización
+                                celdas[9],                   // Serie
+                                validacionSecuencial(celdas[10]) // Secuencial
+                        );
+
                         campoValidacion.add(codigoCompuesto);
                     }
                 }
@@ -296,14 +307,10 @@ public class CpImpuestoReembolsoExcel {
 
             valoresReembolso.add(valorImpuesto1);
             item.setReembolsosValores(valoresReembolso);
-            reembolsos.add(item);
 
             CpImpuestosEntity entidad = mapaImpuestos.get(key);
-
             if (Objects.nonNull(entidad)) {
-                entidad.getReembolsosEntity().clear();
-                entidad.getReembolsosEntity().addAll(reembolsos);
-                impuestoActualizar.add(entidad);
+                item.setImpuesto(entidad);
             } else {
                 DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DOCUMENTO_ERROR);
                 detalleError.setDetalle("La cabecera en impuestos a la que se hace referencia no existe," +
@@ -311,22 +318,22 @@ public class CpImpuestoReembolsoExcel {
                 detalleErrores.add(detalleError);
             }
 
+            reembolsos.add(item);
 
         }
 
 
         if (detalleErrores.isEmpty()) {
-            List<CpImpuestoDetalleError> erroresValidacion = new ArrayList<>();
-            for (CpImpuestosEntity impuesto : impuestoActualizar) {
-                impuesto.getReembolsosEntity().forEach(item -> {
-                    Reembolso reembolso = cpImpuestoReembolsoValidacionBuilder.builderValidacionExcel(item);
-                    validacionReembolsoService.validarReembolso(reembolso, erroresValidacion, impuesto.getFechaEmision());
-                });
 
+            List<CpImpuestoDetalleError> erroresValidacion = new ArrayList<>();
+
+            for (CpImpuestosReembolsosEntity item : reembolsos) {
+                Reembolso reembolso = cpImpuestoReembolsoValidacionBuilder.builderValidacionExcel(item);
+                validacionReembolsoService.validarReembolso(reembolso, erroresValidacion, item.getImpuesto().getFechaEmision());
             }
 
             if (erroresValidacion.isEmpty()) {
-                cpImpuestosRepository.saveAll(impuestoActualizar);
+                cpImpuestoReembolsoRepository.saveAll(reembolsos);
             } else {
                 List<String> list = erroresValidacion.stream()
                         .map(CpImpuestoDetalleError::getDetalle)

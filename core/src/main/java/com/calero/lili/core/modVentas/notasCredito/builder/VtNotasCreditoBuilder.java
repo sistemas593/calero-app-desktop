@@ -2,6 +2,7 @@ package com.calero.lili.core.modVentas.notasCredito.builder;
 
 import com.calero.lili.core.builder.InformacionAdicionalBuilder;
 import com.calero.lili.core.enums.Ambiente;
+import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.enums.EmailEstado;
 import com.calero.lili.core.enums.Liquidar;
 import com.calero.lili.core.enums.OrigenEnum;
@@ -71,7 +72,6 @@ public class VtNotasCreditoBuilder {
                 .ambiente(Objects.nonNull(model.getAmbiente())
                         ? Ambiente.obtenerAmbiente(model.getAmbiente())
                         : null)
-                .codigoDocumento(Objects.nonNull(model.getCodigoDocumento()) ? model.getCodigoDocumento() : "04")
                 .modCodigoDocumento(model.getModCodigoDocumento())
                 .modFechaEmision(Objects.nonNull(model.getModFechaEmision())
                         ? DateUtils.toLocalDate(model.getModFechaEmision())
@@ -133,7 +133,6 @@ public class VtNotasCreditoBuilder {
                 .ambiente(Objects.nonNull(model.getAmbiente())
                         ? Ambiente.obtenerAmbiente(model.getAmbiente())
                         : null)
-                .codigoDocumento(Objects.nonNull(model.getCodigoDocumento()) ? model.getCodigoDocumento() : "04")
                 .reembolsosEntity(new ArrayList<>()) // Validacion para evitar error del null
                 .modCodigoDocumento(model.getModCodigoDocumento())
                 .modFechaEmision(Objects.nonNull(model.getModFechaEmision())

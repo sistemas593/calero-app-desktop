@@ -6,6 +6,7 @@ import com.calero.lili.core.dtos.FormasPagoSri;
 import com.calero.lili.core.dtos.InformacionAdicional;
 import com.calero.lili.core.dtos.errors.DetalleError;
 import com.calero.lili.core.dtos.errors.EnumError;
+import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormaPagoSriEnum;
 import com.calero.lili.core.enums.FormatoDocumento;
@@ -132,7 +133,7 @@ public class VtVentasFacturasExcelService {
                 factura.setCreatedBy(usuario);
 
                 factura.setAmbiente(1);
-                factura.setCodigoDocumento("18");
+                factura.setCodigoDocumento(DocumentoEnum.D18);
                 factura.setAnulada(Boolean.FALSE);
                 factura.setFleteInternacional(new BigDecimal("0.00"));
                 factura.setFormatoDocumento(FormatoDocumento.E);
@@ -573,7 +574,7 @@ public class VtVentasFacturasExcelService {
                 factura.setCreatedBy(usuario);
 
                 factura.setAmbiente(1);
-                factura.setCodigoDocumento("18");
+                factura.setCodigoDocumento(DocumentoEnum.D18);
                 factura.setAnulada(Boolean.FALSE);
                 factura.setFleteInternacional(new BigDecimal("0.00"));
                 factura.setFormatoDocumento(FormatoDocumento.E);

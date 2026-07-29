@@ -3,6 +3,7 @@ package com.calero.lili.core.modVentas.notasDebito.builder;
 import com.calero.lili.core.builder.FormasPagoBuilder;
 import com.calero.lili.core.builder.InformacionAdicionalBuilder;
 import com.calero.lili.core.enums.Ambiente;
+import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.enums.EmailEstado;
 import com.calero.lili.core.enums.Liquidar;
 import com.calero.lili.core.enums.OrigenEnum;
@@ -71,7 +72,7 @@ public class VtNotasDebitoBuilder {
                 .ambiente(Objects.nonNull(model.getAmbiente())
                         ? Ambiente.obtenerAmbiente(model.getAmbiente())
                         : null)
-                .codigoDocumento(Objects.nonNull(model.getCodigoDocumento()) ? model.getCodigoDocumento() : "05")
+                .codigoDocumento(Objects.nonNull(model.getCodigoDocumento()) ? model.getCodigoDocumento() : DocumentoEnum.D05)
                 .modCodigoDocumento(model.getModCodigoDocumento())
                 .modFechaEmision(Objects.nonNull(model.getModFechaEmision())
                         ? DateUtils.toLocalDate(model.getModFechaEmision())
@@ -126,7 +127,7 @@ public class VtNotasDebitoBuilder {
                 .ambiente(Objects.nonNull(model.getAmbiente())
                         ? Ambiente.obtenerAmbiente(model.getAmbiente())
                         : null)
-                .codigoDocumento(Objects.nonNull(model.getCodigoDocumento()) ? model.getCodigoDocumento() : "05")
+                .codigoDocumento(Objects.nonNull(model.getCodigoDocumento()) ? model.getCodigoDocumento() : DocumentoEnum.D05)
                 .reembolsosEntity(new ArrayList<>()) // Validacion para evitar error del null
                 .modCodigoDocumento(model.getModCodigoDocumento())
                 .modFechaEmision(Objects.nonNull(model.getModFechaEmision())

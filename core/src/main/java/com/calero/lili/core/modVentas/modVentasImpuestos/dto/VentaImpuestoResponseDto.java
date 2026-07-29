@@ -1,6 +1,7 @@
 package com.calero.lili.core.modVentas.modVentasImpuestos.dto;
 
 import com.calero.lili.core.dtos.FormasPagoDto;
+import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.modVentas.facturas.dto.ResponseValoresDto;
 import lombok.AllArgsConstructor;
@@ -26,7 +27,7 @@ public class VentaImpuestoResponseDto {
     private String secuencial;
     private String numeroAutorizacion;
 
-    private String codigoDocumento;
+    private DocumentoEnum codigoDocumento;
     private String tipoIngreso;
     private String liquidar;
 
