@@ -702,17 +702,21 @@ public class AutorizacionBuilder {
                         ? Ambiente.obtenerAmbiente(Integer.parseInt(notaCredito.getInfoTributaria().getAmbiente()))
                         : null)
                 .formatoDocumento(FormatoDocumento.E)
-                .modCodigoDocumento(notaCredito.getInfoNotaCredito().getCodDocModificado())
+                .modCodigoDocumento(DocumentoEnum.getCodigoDocumento(notaCredito.getInfoNotaCredito().getCodDocModificado()))
                 .valoresEntity(builderListValoresCredito(notaCredito.getInfoNotaCredito().getTotalImpuesto(), idData, idEmpresa))
                 .detalle(builderListDetalleNotaCredito(notaCredito.getDetalle(), idData, idEmpresa))
                 .informacionAdicional(Objects.nonNull(notaCredito.getCampoAdicional())
                         ? builderFacturaInfoAddicional(notaCredito.getCampoAdicional())
                         : null)
                 .tercero(cliente)
-                .subtotal(new BigDecimal(notaCredito.getInfoNotaCredito().getTotalSinImpuestos()))
+                .subtotal(new BigDecimal(notaCredito.getInfoNotaCredito().getTotalSinImpuestos()).negate())
                 .totalDescuento(BigDecimal.ZERO)
-                .total(new BigDecimal(notaCredito.getInfoNotaCredito().getValorModificacion()))
-                .totalImpuesto(totalImpuesto)
+                .total(new BigDecimal(notaCredito.getInfoNotaCredito().getValorModificacion()).negate())
+                .totalImpuesto(totalImpuesto.negate())
+                .anulada(Boolean.FALSE)
+                .existeComprobante(Boolean.TRUE)
+                .origen(OrigenEnum.VTS)
+                .estadoDocumento(EstadoDocumento.AUT)
                 .build();
 
     }
@@ -732,8 +736,8 @@ public class AutorizacionBuilder {
                 .codigoPrincipal(detalle.getCodigoInterno())
                 .codigoAuxiliar(detalle.getCodigoAdicional())
                 .cantidad(new BigDecimal(detalle.getCantidad()))
-                .precioUnitario(new BigDecimal(detalle.getPrecioUnitario()))
-                .descuento(new BigDecimal(detalle.getDescuento()))
+                .precioUnitario(new BigDecimal(detalle.getPrecioUnitario()).negate())
+                .descuento(new BigDecimal(detalle.getDescuento()).negate())
                 .impuesto(builderListImpuestoFactura(detalle.getImpuesto()))
                 .build();
     }
@@ -745,16 +749,21 @@ public class AutorizacionBuilder {
     }
 
     private VtVentaValoresEntity builderValoresNotaCredito(TotalImpuesto totalImpuesto, Long idData, Long idEmpresa) {
+
+        BigDecimal tarifa = comprobarTarifa(totalImpuesto);
         return VtVentaValoresEntity.builder()
                 .idVentaValores(UUID.randomUUID())
                 .idData(idData)
                 .idEmpresa(idEmpresa)
-                .valor(new BigDecimal(totalImpuesto.getValor()))
+                .valor(new BigDecimal(totalImpuesto.getValor()).negate())
                 .codigoPorcentaje(totalImpuesto.getCodigoPorcentaje())
-                .baseImponible(new BigDecimal(totalImpuesto.getBaseImponible()))
+                .baseImponible(new BigDecimal(totalImpuesto.getBaseImponible()).negate())
                 .codigo(totalImpuesto.getCodigo())
+                .tarifa(tarifa)
                 .build();
     }
+
+
 
 
     private List<FormasPagoSri> builderListFormasPago(List<Pago> pago) {
@@ -817,8 +826,8 @@ public class AutorizacionBuilder {
         return VtVentaDetalleEntity.Impuestos.builder()
                 .codigo(impuesto.getCodigo())
                 .codigoPorcentaje(impuesto.getCodigoPorcentaje())
-                .baseImponible(new BigDecimal(impuesto.getBaseImponible()))
-                .valor(new BigDecimal(impuesto.getValor()))
+                .baseImponible(new BigDecimal(impuesto.getBaseImponible()).negate())
+                .valor(new BigDecimal(impuesto.getValor()).negate())
                 .tarifa(new BigDecimal(impuesto.getTarifa()))
                 .build();
     }
@@ -880,5 +889,21 @@ public class AutorizacionBuilder {
                 .codigoPrincipal(detalle.getCodigoInterno())
                 .codigoAuxiliar(detalle.getCodigoAdicional())
                 .build();
+    }
+
+    private BigDecimal comprobarTarifa(TotalImpuesto totalImpuesto) {
+        if(totalImpuesto.getCodigo().equals("2") && totalImpuesto.getCodigoPorcentaje().equals("4")){
+            return new BigDecimal("15.00");
+        }
+
+        if(totalImpuesto.getCodigo().equals("2") && totalImpuesto.getCodigoPorcentaje().equals("8")){
+            return new BigDecimal("8.00");
+        }
+
+        if(totalImpuesto.getCodigo().equals("2") && totalImpuesto.getCodigoPorcentaje().equals("5")){
+            return new BigDecimal("5.00");
+        }
+
+        return BigDecimal.ZERO;
     }
 }

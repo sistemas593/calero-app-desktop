@@ -65,7 +65,7 @@ public class NotaDebitoBuilder {
                 .contribuyenteEspecial(Objects.isNull(empresa.getContribuyenteEspecial())
                         || empresa.getContribuyenteEspecial().isEmpty() ? null : empresa.getContribuyenteEspecial())
                 .obligadoContabilidad(ObligadoContabilidad.getObligadoContabilidad(empresa.getObligadoContabilidad()))
-                .codDocModificado(venta.getModCodigoDocumento())
+                .codDocModificado(venta.getModCodigoDocumento().getCodigo())
                 .numDocModificado(venta.getModSerie().substring(0, 3) + "-" + venta.getModSerie().substring(3, 6) + "-" + venta.getModSecuencial())
                 .fechaEmisionDocSustento(Objects.nonNull(venta.getModFechaEmision())
                         ? DateUtils.toString(venta.getModFechaEmision())

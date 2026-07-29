@@ -1,6 +1,7 @@
 package com.calero.lili.core.modVentasGuias.dto;
 
 import com.calero.lili.core.dtos.InformacionAdicionalDto;
+import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.enums.FormatoDocumento;
 import jakarta.persistence.Column;
 import jakarta.validation.Valid;
@@ -64,7 +65,7 @@ public class CreationRequestGuiaRemisionDto {
 
     private DocumentoSustentoDto documentoSustento;
 
-    private String codDocSustento;
+    private DocumentoEnum codDocSustento;
 
     @Data
     @AllArgsConstructor

@@ -5,6 +5,7 @@ import com.calero.lili.core.dtos.FormasPagoSri;
 import com.calero.lili.core.dtos.InformacionAdicional;
 import com.calero.lili.core.dtos.Mensajes;
 import com.calero.lili.core.enums.ComercioExterior;
+import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormaPago;
 import com.calero.lili.core.enums.FormatoDocumento;
@@ -167,7 +168,8 @@ public class VtVentaEntity extends Auditable {
 
     private String concepto;
 
-    private String modCodigoDocumento;
+    @Enumerated(EnumType.STRING)
+    private DocumentoEnum modCodigoDocumento;
     private String modSerie;
     private String modSecuencial;
     private LocalDate modFechaEmision;

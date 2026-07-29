@@ -67,7 +67,7 @@ public class GuiaRemisionBuilder {
     private void builderDocSustentoInfo(VtGuiaEntity guiaRemision, Destinatario destinatario) {
 
         if (Objects.nonNull(guiaRemision.getCodDocSustento())) {
-            destinatario.setCodDocSustento(guiaRemision.getCodDocSustento());
+            destinatario.setCodDocSustento(guiaRemision.getCodDocSustento().getCodigo());
             destinatario.setNumDocSustento(validarNumDocSustento(guiaRemision.getSerieDocSustento(), guiaRemision.getSecuencialDocSustento()));
             destinatario.setNumAutDocSustento(guiaRemision.getNumAutDocSustento());
             destinatario.setFechaEmisionDocSustento(DateUtils.toString(guiaRemision.getFechaEmisionDocSustento()));

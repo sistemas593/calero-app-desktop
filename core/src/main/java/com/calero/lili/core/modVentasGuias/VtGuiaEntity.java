@@ -1,5 +1,6 @@
 package com.calero.lili.core.modVentasGuias;
 
+import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.dtos.InformacionAdicional;
 import com.calero.lili.core.dtos.Mensajes;
@@ -75,7 +76,8 @@ public class VtGuiaEntity extends Auditable {
     private String docAduaneroUnico;
     private String codEstabDestino;
 
-    private String codDocSustento;
+    @Enumerated(EnumType.STRING)
+    private DocumentoEnum codDocSustento;
     private String serieDocSustento;
     private String secuencialDocSustento;
     private String numAutDocSustento;

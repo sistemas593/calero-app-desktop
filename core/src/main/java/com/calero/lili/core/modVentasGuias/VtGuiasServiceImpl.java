@@ -53,7 +53,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.text.DateFormat;
-import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -489,16 +488,13 @@ public class VtGuiasServiceImpl {
     private void validateCodSustento(CreationRequestGuiaRemisionDto request) {
 
         if (Objects.nonNull(request.getCodDocSustento())) {
-            if (request.getCodDocSustento().isBlank()) {
-                throw new GeneralException("El código de documento sustento no puede estar vacío");
-            }
             if (Objects.isNull(request.getDocumentoSustento())) {
                 throw new GeneralException("Es requerida la información del documento sustento");
             }
         }
 
-        if (Objects.isNull(request.getCodDocSustento())) {
 
+        if (Objects.isNull(request.getCodDocSustento())) {
             if (Objects.nonNull(request.getDocumentoSustento())) {
                 throw new GeneralException("No es requerida la información del documento sustento");
             }

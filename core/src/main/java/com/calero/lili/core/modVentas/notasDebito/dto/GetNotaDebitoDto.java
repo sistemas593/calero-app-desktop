@@ -2,6 +2,7 @@ package com.calero.lili.core.modVentas.notasDebito.dto;
 
 import com.calero.lili.core.dtos.FormasPagoDto;
 import com.calero.lili.core.dtos.InformacionAdicionalDto;
+import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormaPago;
 import com.calero.lili.core.enums.FormatoDocumento;
@@ -65,7 +66,7 @@ public class GetNotaDebitoDto {
 
     private String fechaAutorizacion;
     private String claveAcceso;
-    private String modCodigoDocumento;
+    private DocumentoEnum modCodigoDocumento;
     private String modSerie;
     private String modSecuencial;
     private String modFechaEmision;

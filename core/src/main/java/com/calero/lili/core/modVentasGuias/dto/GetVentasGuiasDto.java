@@ -1,13 +1,12 @@
 package com.calero.lili.core.modVentasGuias.dto;
 
 import com.calero.lili.core.dtos.InformacionAdicionalDto;
+import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.modVentasGuias.dto.detalles.DetalleGetDto;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -81,7 +80,7 @@ public class GetVentasGuiasDto {
     private Integer ambiente;
     private FormatoDocumento formatoDocumento;
 
-    private String codDocSustento;
+    private DocumentoEnum codDocSustento;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private DocumentoSustentoDto documentoSustento;

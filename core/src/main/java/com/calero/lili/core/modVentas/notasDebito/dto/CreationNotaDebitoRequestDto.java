@@ -4,6 +4,7 @@ import com.calero.lili.core.dtos.FormasPagoDto;
 import com.calero.lili.core.dtos.InformacionAdicionalDto;
 import com.calero.lili.core.dtos.ValoresDto;
 import com.calero.lili.core.enums.ComercioExterior;
+import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.enums.FormaPago;
 import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.Liquidar;
@@ -96,8 +97,8 @@ public class CreationNotaDebitoRequestDto {
     @Valid
     private List<FormasPagoDto> formasPagoSri;
 
-    @NotEmpty(message = "No existe el codigo documento a la que aplica la nota de debito")
-    private String modCodigoDocumento;
+    @NotNull(message = "No existe el codigo documento a la que aplica la nota de debito")
+    private DocumentoEnum modCodigoDocumento;
 
     @NotEmpty(message = "No existe la serie a la que aplica la nota de debito")
     private String modSerie;
