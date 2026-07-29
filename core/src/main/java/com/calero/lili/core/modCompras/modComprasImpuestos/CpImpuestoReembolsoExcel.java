@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,6 +59,8 @@ public class CpImpuestoReembolsoExcel {
         }
         List<FilaExcel> filas = new ArrayList<>();
         Set<String> campoValidacion = new HashSet<>();
+        Set<String> campoBusqueda = new HashSet<>();
+
 
         try (InputStream is = file.getInputStream();
              Workbook wb = StreamingReader.builder()
@@ -94,7 +97,7 @@ public class CpImpuestoReembolsoExcel {
                                 validacionSecuencial(celdas[10]) // Secuencial
                         );
 
-                        campoValidacion.add(codigoCompuesto);
+                        campoBusqueda.add(codigoCompuesto);
                     }
                 }
 
@@ -102,6 +105,25 @@ public class CpImpuestoReembolsoExcel {
         }
 
         List<CpImpuestosEntity> impuestos = cpImpuestosRepository.findByCodigosCompuestos(idData, idEmpresa, campoValidacion);
+        List<CpImpuestosReembolsosEntity> reembolsosExistentes = cpImpuestoReembolsoRepository.findByCodigosCompuestos(idData, idEmpresa, campoBusqueda);
+
+
+        if (Objects.nonNull(reembolsosExistentes)) {
+            if (!reembolsosExistentes.isEmpty()) {
+
+                for (CpImpuestosReembolsosEntity reembolso : reembolsosExistentes) {
+                    DetalleError detalleError = detalleErrorBuilder.builderDetalleError(0, EnumError.DOCUMENTO_ERROR);
+                    detalleError.setDetalle(MessageFormat.format(
+                            "El reembolso con serie: {0}, secuencial: {1} y número de autorización: {2} ya existe.",
+                            reembolso.getSerieReemb(),
+                            reembolso.getSecuencialReemb(),
+                            reembolso.getNumeroAutorizacionReemb()));
+                    detalleErrores.add(detalleError);
+                }
+                throwErrors(detalleErrores);
+            }
+        }
+
 
         if (Objects.isNull(impuestos) || impuestos.isEmpty()) {
             throw new GeneralException("No existen cabeceras");

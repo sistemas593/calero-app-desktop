@@ -21,6 +21,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class Formulario104ServiceImpl {
 
+// TODO NO RESTAR SI NO REALIZAR UNA SUMA YA QUE EL VALOR DE NOTAS DE CREDITO ES NEGATIVO
 
     private final AdEmpresasRepository adEmpresasRepository;
     private final Formulario104Repository formulario104Repository;
@@ -65,8 +66,8 @@ public class Formulario104ServiceImpl {
 
 
             f104.setC401(valorBrutoVL15);
-            f104.setC411(valorBrutoVL15.subtract(notasCreditoVL15));
-            f104.setC421(impuestoVL15.subtract(notaCreditoImpuestoVL15));
+            f104.setC411(valorBrutoVL15.add(notasCreditoVL15));
+            f104.setC421(impuestoVL15.add(notaCreditoImpuestoVL15));
 
 
             Optional<ImpuestosF104Projection> valorBrutoVentasLocalesBaseCero = formulario104Repository.valorBrutoBaseCero
@@ -89,7 +90,7 @@ public class Formulario104ServiceImpl {
             }
 
             f104.setC403(valorBrutoVLBaseCero);
-            f104.setC413(valorBrutoVLBaseCero.subtract(notaCreditoVLBaseCero));
+            f104.setC413(valorBrutoVLBaseCero.add(notaCreditoVLBaseCero));
 
 
             Optional<ImpuestosF104Projection> valorBrutoVentasLocalesExcentaYNoObjecto = formulario104Repository
@@ -115,7 +116,7 @@ public class Formulario104ServiceImpl {
             }
 
             f104.setC431(valorBrutoVLExcentaNoObjecto);
-            f104.setC441(valorBrutoVLExcentaNoObjecto.subtract(notaCreditoVLExcentaNoObjecto));
+            f104.setC441(valorBrutoVLExcentaNoObjecto.add(notaCreditoVLExcentaNoObjecto));
 
 
             Optional<ImpuestosF104Projection> valorBrutoVentasLocales5 = formulario104Repository.valorBrutoVentasLocales5
@@ -141,8 +142,8 @@ public class Formulario104ServiceImpl {
             }
 
             f104.setC445(valorBrutoVL5);
-            f104.setC425(valorBrutoVL5.subtract(notaCreditoVL5));
-            f104.setC435(impuestoVL5.subtract(notaCreditoImpuestoVL5));
+            f104.setC425(valorBrutoVL5.add(notaCreditoVL5));
+            f104.setC435(impuestoVL5.add(notaCreditoImpuestoVL5));
 
 
             Optional<ImpuestosF104Projection> valorBrutoActivoFijo15 = formulario104Repository.valorBruto15(idData,
@@ -170,8 +171,8 @@ public class Formulario104ServiceImpl {
             }
 
             f104.setC402(valorBrutoAF15);
-            f104.setC412(valorBrutoAF15.subtract(impuestoAF15));
-            f104.setC422(notaCreditoAF15.subtract(notaCreditoImpuestoAF15));
+            f104.setC412(valorBrutoAF15.add(impuestoAF15));
+            f104.setC422(notaCreditoAF15.add(notaCreditoImpuestoAF15));
 
 
             Optional<ImpuestosF104Projection> valorBrutoActivoFijoBaseCero = formulario104Repository.valorBrutoBaseCero
@@ -195,7 +196,7 @@ public class Formulario104ServiceImpl {
             }
 
             f104.setC404(valorBrutoAFBaseCero);
-            f104.setC414(valorBrutoAFBaseCero.subtract(notaCreditoAFBaseCero));
+            f104.setC414(valorBrutoAFBaseCero.add(notaCreditoAFBaseCero));
 
 
             Optional<ImpuestosF104Projection> valorBrutoReembolso = formulario104Repository.valorBrutoReembolso
@@ -219,7 +220,7 @@ public class Formulario104ServiceImpl {
             }
 
             f104.setC434(valorBrutoRG);
-            f104.setC444(valorBrutoRG.subtract(notaCreditoRG));
+            f104.setC444(valorBrutoRG.add(notaCreditoRG));
 
             // totalizar todas las que sean facturas, notas de credito, notas de debito
             // agrupar para obtener el total por el tipo de documento (agrupar) por codigo de iva 2 y codigo 0,
@@ -248,7 +249,7 @@ public class Formulario104ServiceImpl {
 
 
             f104.setC507(valorCompraBrutoBaseCero);
-            f104.setC517(valorCompraBrutoBaseCero.subtract(valorNotaCreditoBrutoBaseCero));
+            f104.setC517(valorCompraBrutoBaseCero.add(valorNotaCreditoBrutoBaseCero));
 
 
             BigDecimal valorCompraNoObjecto = BigDecimal.ZERO;
@@ -271,7 +272,7 @@ public class Formulario104ServiceImpl {
             }
 
             f104.setC531(valorCompraNoObjecto);
-            f104.setC541(valorCompraNoObjecto.subtract(valorNotaCreditoNoObjecto));
+            f104.setC541(valorCompraNoObjecto.add(valorNotaCreditoNoObjecto));
 
 
             BigDecimal valorCompraExenta = BigDecimal.ZERO;
@@ -294,7 +295,7 @@ public class Formulario104ServiceImpl {
             }
 
             f104.setC532(valorCompraExenta);
-            f104.setC542(valorCompraExenta.subtract(valorNotaCreditoExcenta));
+            f104.setC542(valorCompraExenta.add(valorNotaCreditoExcenta));
 
 
             BigDecimal notaCreditoCeroPorLiquidarValor = BigDecimal.ZERO;
@@ -353,8 +354,8 @@ public class Formulario104ServiceImpl {
 
 
             f104.setC500(compraValorBrutoGravado);
-            f104.setC510(compraValorBrutoGravado.subtract(compraNotaCreditoGravado));
-            f104.setC520(compraValorImpuestoGravado.subtract(compraNotaCreditoImpuestoGravado));
+            f104.setC510(compraValorBrutoGravado.add(compraNotaCreditoGravado));
+            f104.setC520(compraValorImpuestoGravado.add(compraNotaCreditoImpuestoGravado));
 
 
             BigDecimal compraValorBrutoGravadoActivoFijo = BigDecimal.ZERO;
@@ -384,8 +385,8 @@ public class Formulario104ServiceImpl {
 
 
             f104.setC501(compraValorBrutoGravadoActivoFijo);
-            f104.setC511(compraValorBrutoGravadoActivoFijo.subtract(compraNotaCreditoGravadoActivoFijo));
-            f104.setC521(compraValorImpuestoGravadoActivoFijo.subtract(compraNotaCreditoImpuestoGravadoActivoFijo));
+            f104.setC511(compraValorBrutoGravadoActivoFijo.add(compraNotaCreditoGravadoActivoFijo));
+            f104.setC521(compraValorImpuestoGravadoActivoFijo.add(compraNotaCreditoImpuestoGravadoActivoFijo));
 
 
 
@@ -420,8 +421,8 @@ public class Formulario104ServiceImpl {
 
 
             f104.setC540(compraValorBase5ActivoFijo);
-            f104.setC550(compraValorBase5ActivoFijo.subtract(compraNotaCreditoBase5ActivoFijo));
-            f104.setC560(compraValorImpuestoBase5ActivoFijo.subtract(compraNotaCreditoImpuestoBase5ActivoFijo));
+            f104.setC550(compraValorBase5ActivoFijo.add(compraNotaCreditoBase5ActivoFijo));
+            f104.setC560(compraValorImpuestoBase5ActivoFijo.add(compraNotaCreditoImpuestoBase5ActivoFijo));
 
 
             BigDecimal compraValorBaseGravadaSinCreditoTributario = BigDecimal.ZERO;
@@ -453,8 +454,8 @@ public class Formulario104ServiceImpl {
 
 
             f104.setC502(compraValorBaseGravadaSinCreditoTributario);
-            f104.setC512(compraValorBaseGravadaSinCreditoTributario.subtract(compraNotaCreditoBaseGravadaSinCreditoTributario));
-            f104.setC522(compraValorImpuestoBaseGravadaSinCreditoTributario.subtract(compraNotaCreditoImpuestoBaseGravadaSinCreditoTributario));
+            f104.setC512(compraValorBaseGravadaSinCreditoTributario.add(compraNotaCreditoBaseGravadaSinCreditoTributario));
+            f104.setC522(compraValorImpuestoBaseGravadaSinCreditoTributario.add(compraNotaCreditoImpuestoBaseGravadaSinCreditoTributario));
 
 
 

@@ -91,4 +91,6 @@ public class CpLiquidacionesReembolsosEntity extends Auditable {
     @Column(name = "id_liquidacion", insertable = false, updatable = false)
     private UUID idLiquidacion;
 
+    private Boolean existeComprobante; // TODO FALSO SI HACE EL CRUD, VERDDAERO SI ES DEL XML LO MISMO EN VENTAS REEMBOLSOS
+
 }

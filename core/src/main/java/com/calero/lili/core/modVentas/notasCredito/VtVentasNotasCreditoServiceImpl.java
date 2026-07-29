@@ -744,14 +744,14 @@ public class VtVentasNotasCreditoServiceImpl {
             case TODAS -> {
                 return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
                         filters.getFechaEmisionHasta(), null, filters.getTipoVenta(), filters.getSerie(),
-                        filters.getSecuencial(), filters.getNumeroAutorizacion(), null, OrigenEnum.VTS, pageable);
+                        filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
             }
 
             case SUCURSAL -> {
                 if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
                     return vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
                             filters.getFechaEmisionHasta(), null, filters.getTipoVenta(), filters.getSerie(),
-                            filters.getSecuencial(), filters.getNumeroAutorizacion(), null, OrigenEnum.VTS, pageable);
+                            filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
                 } else {
                     throw new GeneralException("Es requerido el parametro de la sucursal");
                 }
@@ -760,7 +760,7 @@ public class VtVentasNotasCreditoServiceImpl {
             case PROPIAS -> {
                 return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
                         filters.getFechaEmisionHasta(), null, filters.getTipoVenta(), filters.getSerie(),
-                        filters.getSecuencial(), filters.getNumeroAutorizacion(), usuario, OrigenEnum.VTS, pageable);
+                        filters.getSecuencial(), filters.getNumeroAutorizacion(), usuario, pageable);
             }
         }
 

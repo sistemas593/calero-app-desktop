@@ -16,7 +16,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GetReembolsoDto {
+public class GetReembolsoTotalizadoDto {
 
     private UUID idLiquidacionReembolsos;
     private String tipoIdentificacionReemb;
@@ -29,12 +29,9 @@ public class GetReembolsoDto {
     private String fechaEmisionReemb;
     private String numeroAutorizacionReemb;
     private String fechaAutorizacionReemb;
-    //private List<ValoresLiquidacionesCompraDto> reembolsosValores;
+    private List<ValoresLiquidacionesCompraDto> reembolsosValores;
     private String codigoPais;
     private String pais;
     private UUID idLiquidacion;
     private BigDecimal total;
-
-
-    private Boolean existeComprobante;
 }

@@ -13,6 +13,7 @@ import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.detalles.Valo
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.projection.TotalesProjection;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.builder.CpLiquidacionesReembolsosBuilder;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.dto.GetReembolsoDto;
+import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.dto.GetReembolsoTotalizadoDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.dto.ReembolsoRequestDto;
 import com.calero.lili.core.utils.DateUtils;
 import com.calero.lili.core.utils.ValidacionDocumentosGeneral;
@@ -180,7 +181,7 @@ public class LiquidacionesReembolsosServiceImpl {
     }
 
 
-    public GetLiquidacionCompraListDtoTotalizado<GetReembolsoDto> findAllPaginateTotalizado(Long idData, Long idEmpresa,
+    public GetLiquidacionCompraListDtoTotalizado<GetReembolsoTotalizadoDto> findAllPaginateTotalizado(Long idData, Long idEmpresa,
                                                                                             FilterListComprasLiquidacionesDto filtro, Pageable pageable) {
 
 
@@ -191,7 +192,7 @@ public class LiquidacionesReembolsosServiceImpl {
                         filtro.getSecuencial(), filtro.getNumeroIdentificacion(), filtro.getSerie(),
                         filtro.getUtilizado(), null, null, pageable);
 
-        List<GetReembolsoDto> dtoList = page.stream().map(cpLiquidacionesReembolsosBuilder::builderResponse).toList();
+        List<GetReembolsoTotalizadoDto> dtoList = page.stream().map(cpLiquidacionesReembolsosBuilder::builderResponseTotalizado).toList();
 
         List<TotalesProjection> totalValoresProjection = reembolsosRepository
                 .totalValores(idData, idEmpresa, filtro.getFechaEmisionDesde(), filtro.getFechaEmisionHasta(),

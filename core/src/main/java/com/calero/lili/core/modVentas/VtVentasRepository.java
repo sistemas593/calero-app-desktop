@@ -85,8 +85,7 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
             "(:secuencial IS NULL OR vtVentasEntity.secuencial = :secuencial) AND " +
             "(:numeroAutorizacion IS NULL OR vtVentasEntity.numeroAutorizacion = :numeroAutorizacion ) AND " +
             "( cast(:fechaEmisionDesde as date) is null OR vtVentasEntity.fechaEmision >= :fechaEmisionDesde ) AND " +
-            "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmision <= :fechaEmisionHasta ) AND " +
-            "vtVentasEntity.origen = :origen "
+            "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmision <= :fechaEmisionHasta )"
             ,
             countQuery = "SELECT COUNT(1) " +
                     "FROM VtVentaEntity vtVentasEntity " +
@@ -100,8 +99,7 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
                     "(:secuencial IS NULL OR vtVentasEntity.secuencial = :secuencial ) AND " +
                     "(:numeroAutorizacion IS NULL OR vtVentasEntity.numeroAutorizacion = :numeroAutorizacion ) AND " +
                     "( cast(:fechaEmisionDesde as date) is null OR vtVentasEntity.fechaEmision >= :fechaEmisionDesde ) AND " +
-                    "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmision <= :fechaEmisionHasta ) AND " +
-                    "vtVentasEntity.origen = :origen ")
+                    "( cast(:fechaEmisionHasta as date) is null OR vtVentasEntity.fechaEmision <= :fechaEmisionHasta )")
     Page<VtVentaEntity> findAllPaginate(@Param("idData") Long idData,
                                         @Param("idEmpresa") Long idEmpresa,
                                         @Param("sucursal") String sucursal,
@@ -113,7 +111,6 @@ public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, 
                                         @Param("secuencial") String secuencial,
                                         @Param("numeroAutorizacion") String numeroAutorizacion,
                                         @Param("usuario") String usuario,
-                                        @Param("origen") OrigenEnum origen,
                                         Pageable pageable);
 
 

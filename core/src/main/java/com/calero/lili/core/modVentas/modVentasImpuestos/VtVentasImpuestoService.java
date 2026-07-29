@@ -4,7 +4,6 @@ import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.dtos.ResponseDto;
-import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.OrigenEnum;
 import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.errors.exceptions.GeneralException;
@@ -281,14 +280,14 @@ public class VtVentasImpuestoService {
             case TODAS -> {
                 return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
                         filters.getFechaEmisionHasta(), filters.getIdTercero(), filters.getTipoVenta(),
-                        filters.getSerie(), filters.getSecuencial(), filters.getNumeroAutorizacion(), null, OrigenEnum.IMP, pageable);
+                        filters.getSerie(), filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
             }
             case SUCURSAL -> {
                 if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
                     return vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(),
                             filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getIdTercero(),
                             filters.getTipoVenta(), filters.getSerie(), filters.getSecuencial(),
-                            filters.getNumeroAutorizacion(), null, OrigenEnum.IMP, pageable);
+                            filters.getNumeroAutorizacion(), null, pageable);
                 } else {
                     throw new GeneralException("Es requerido el parámetro de la sucursal");
                 }
@@ -296,7 +295,7 @@ public class VtVentasImpuestoService {
             case PROPIAS -> {
                 return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
                         filters.getFechaEmisionHasta(), filters.getIdTercero(), filters.getTipoVenta(),
-                        filters.getSerie(), filters.getSecuencial(), filters.getNumeroAutorizacion(), usuario, OrigenEnum.IMP, pageable);
+                        filters.getSerie(), filters.getSecuencial(), filters.getNumeroAutorizacion(), usuario, pageable);
             }
         }
 

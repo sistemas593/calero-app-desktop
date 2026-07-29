@@ -1,14 +1,18 @@
 package com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.builder;
 
+import com.calero.lili.core.dtos.DetallesDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.detalles.ValoresLiquidacionesCompraDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.CpLiquidacionesReembolsosEntity;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.CpLiquidacionesReembolsosValoresEntity;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.dto.GetReembolsoDto;
+import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.dto.GetReembolsoTotalizadoDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.dto.ReembolsoRequestDto;
 import com.calero.lili.core.tablas.tbPaises.TbPaisEntity;
 import com.calero.lili.core.utils.DateUtils;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -98,10 +102,32 @@ public class CpLiquidacionesReembolsosBuilder {
                 .fechaEmisionReemb(DateUtils.toString(model.getFechaEmisionReemb()))
                 .numeroAutorizacionReemb(model.getNumeroAutorizacionReemb())
                 .fechaAutorizacionReemb(DateUtils.toLocalDateTimeString(model.getFechaAutorizacionReemb()))
-                .reembolsosValores(builderListValoresResponse(model.getReembolsosValores()))
                 .idLiquidacion(model.getIdLiquidacion())
+                .total(setearTotal(model.getReembolsosValores()))
                 .build();
     }
+
+
+    public GetReembolsoTotalizadoDto builderResponseTotalizado(CpLiquidacionesReembolsosEntity model) {
+        return GetReembolsoTotalizadoDto.builder()
+                .idLiquidacionReembolsos(model.getIdLiquidacionReembolsos())
+                .tipoIdentificacionReemb(model.getTipoIdentificacionReemb())
+                .numeroIdentificacionReemb(model.getNumeroIdentificacionReemb())
+                .codigoDocumentoReemb(model.getCodigoDocumentoReemb())
+                .tipoProveedorReemb(model.getTipoProveedorReemb())
+                .pais(Objects.nonNull(model.getPais()) ? model.getPais().getPais() : "")
+                .codigoPais(Objects.nonNull(model.getPais()) ? model.getPais().getCodigoPais() : "")
+                .codigoDocumentoReemb(model.getCodigoDocumentoReemb())
+                .serieReemb(model.getSerieReemb())
+                .secuencialReemb(model.getSecuencialReemb())
+                .fechaEmisionReemb(DateUtils.toString(model.getFechaEmisionReemb()))
+                .numeroAutorizacionReemb(model.getNumeroAutorizacionReemb())
+                .fechaAutorizacionReemb(DateUtils.toLocalDateTimeString(model.getFechaAutorizacionReemb()))
+                .idLiquidacion(model.getIdLiquidacion())
+                .reembolsosValores(builderListValoresResponse(model.getReembolsosValores()))
+                .build();
+    }
+
 
     private List<ValoresLiquidacionesCompraDto> builderListValoresResponse(List<CpLiquidacionesReembolsosValoresEntity> list) {
         return list.stream()
@@ -124,4 +150,22 @@ public class CpLiquidacionesReembolsosBuilder {
                 .codigoPais(codPaisPagoReemb)
                 .build();
     }
+
+    private BigDecimal setearTotal(List<CpLiquidacionesReembolsosValoresEntity> reembolsosValores) {
+
+        BigDecimal totalBase = reembolsosValores.stream()
+                .map(CpLiquidacionesReembolsosValoresEntity::getBaseImponible)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+
+        BigDecimal totalValor = reembolsosValores.stream()
+                .map(CpLiquidacionesReembolsosValoresEntity::getValor)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
+
+
+        return totalBase.add(totalValor);
+    }
+
+
 }
