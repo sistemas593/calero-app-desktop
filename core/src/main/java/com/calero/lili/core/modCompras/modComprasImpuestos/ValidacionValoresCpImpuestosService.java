@@ -127,7 +127,7 @@ public class ValidacionValoresCpImpuestosService {
                     detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("La tarifa no puede ser negativa"));
                 }
 
-                if (item.getValor().compareTo(BigDecimal.ZERO) < 0) {
+                if (item.getValor().compareTo(BigDecimal.ZERO) > 0) {
                     detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("El valor no puede ser negativo"));
                 }
 
