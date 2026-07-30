@@ -11,6 +11,7 @@ import com.calero.lili.core.modVentas.reembolsos.dto.CreationRequestReembolsoDto
 import com.calero.lili.core.modVentas.reembolsos.dto.FilterReembolsoDto;
 import com.calero.lili.core.modVentas.reembolsos.dto.GetVentaReembosloListDtoTotalizado;
 import com.calero.lili.core.modVentas.reembolsos.dto.ResponseVentaReembolsoDto;
+import com.calero.lili.core.modVentas.reembolsos.dto.ResponseVentaReembolsoTotalizadoDto;
 import com.calero.lili.core.modVentas.reembolsos.projection.TotalesProjection;
 import com.calero.lili.core.utils.DateUtils;
 import com.calero.lili.core.utils.ValidacionDocumentosGeneral;
@@ -171,8 +172,8 @@ public class VtVentasReembolsoServiceImpl {
         return paginatedDto;
     }
 
-    public GetVentaReembosloListDtoTotalizado<ResponseVentaReembolsoDto> findAllPaginateTotalizado(Long idData, Long idEmpresa,
-                                                                                                   FilterReembolsoDto filters, Pageable pageable) {
+    public GetVentaReembosloListDtoTotalizado<ResponseVentaReembolsoTotalizadoDto> findAllPaginateTotalizado(Long idData, Long idEmpresa,
+                                                                                                             FilterReembolsoDto filters, Pageable pageable) {
 
 
         validarFiltroUtilizado(filters);
@@ -180,7 +181,7 @@ public class VtVentasReembolsoServiceImpl {
                 filters.getFechaEmisionHasta(), filters.getSecuencial(),
                 filters.getNumeroIdentificacion(), filters.getSerie(), filters.getUtilizado(), pageable);
 
-        List<ResponseVentaReembolsoDto> dtoList = page.stream().map(vtVentaReembolsosBuilder::builderReembolso).toList();
+        List<ResponseVentaReembolsoTotalizadoDto> dtoList = page.stream().map(vtVentaReembolsosBuilder::builderReembolsoTotalizado).toList();
 
         List<TotalesProjection> totalValoresProjection = vtVentasReembolsoRepository
                 .totalValores(idData, idEmpresa, filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(),
@@ -232,7 +233,7 @@ public class VtVentasReembolsoServiceImpl {
                 XSSFRow headerRow = sheet.createRow(0);
 
                 String[] columnNames = {"Serie", "Secuencial", "FechaEmisión", "NumeroAutorizacion",
-                         "NumeroIdentificación",
+                        "NumeroIdentificación",
                         "BaseCero", "NoObjeto", "Exenta",
                         "Base15%", "Iva15%",
                         "Base5%", "Iva5%",

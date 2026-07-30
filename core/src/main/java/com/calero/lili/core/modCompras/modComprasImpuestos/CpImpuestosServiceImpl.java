@@ -6,6 +6,7 @@ import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirCreationRequestDto;
+import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.OrigenImpuestos;
 import com.calero.lili.core.enums.TipoPermiso;
@@ -139,9 +140,11 @@ public class CpImpuestosServiceImpl {
             }
         }
 
-        CpImpuestosEntity impuestosEntity = cpImpuestosBuilder.builderEntity(request, idData, idEmpresa);
 
+        CpImpuestosEntity impuestosEntity = cpImpuestosBuilder.builderEntity(request, idData, idEmpresa);
         setearTotalesCabecera(request, impuestosEntity);
+
+
         GeTerceroEntity proveedor = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Id de tercero {0} no existe", request.getIdTercero())));
 
@@ -163,6 +166,8 @@ public class CpImpuestosServiceImpl {
                 .save(impuestosEntity).getIdImpuestos().toString());
 
     }
+
+
 
     @Transactional
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationCompraImpuestoRequestDto request,

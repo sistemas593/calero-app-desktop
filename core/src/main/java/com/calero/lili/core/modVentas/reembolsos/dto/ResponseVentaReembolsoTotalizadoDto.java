@@ -1,8 +1,7 @@
-package com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.dto;
+package com.calero.lili.core.modVentas.reembolsos.dto;
 
 import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.enums.TipoTerceroPerSoc;
-import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.detalles.ValoresLiquidacionesCompraDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,25 +13,36 @@ import java.util.UUID;
 
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class GetReembolsoDto {
+public class ResponseVentaReembolsoTotalizadoDto {
 
-    private UUID idLiquidacionReembolsos;
+    private UUID idVentaReembolsos;
     private String tipoIdentificacionReemb;
     private String numeroIdentificacionReemb;
-    private String codPaisPagoReemb;
     private TipoTerceroPerSoc tipoProveedorReemb;
     private DocumentoEnum codigoDocumentoReemb;
     private String serieReemb;
     private String secuencialReemb;
     private String fechaEmisionReemb;
     private String numeroAutorizacionReemb;
-    private String fechaAutorizacionReemb;
-    //private List<ValoresLiquidacionesCompraDto> reembolsosValores;
+     private String fechaAutorizacionReemb;
     private String codigoPais;
     private String pais;
-    private UUID idLiquidacion;
-    private BigDecimal total;
+    private UUID idVenta;
     private Boolean existeComprobante;
+
+    private List<ValoresDto> reembolsosValores;
+
+
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class ValoresDto {
+        private String codigo;
+        private String codigoPorcentaje;
+        private BigDecimal tarifa;
+        private BigDecimal baseImponible;
+        private BigDecimal valor;
+    }
 }

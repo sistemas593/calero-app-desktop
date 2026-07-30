@@ -6,6 +6,7 @@ import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.dtos.ResponseDto;
 import com.calero.lili.core.enums.OrigenEnum;
 import com.calero.lili.core.enums.TipoPermiso;
+import com.calero.lili.core.enums.TipoVenta;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
@@ -26,6 +27,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -51,6 +53,7 @@ public class VtVentasImpuestoService {
 
         ValidacionDocumentosGeneral.validarSizeSecuencial(request.getSecuencial());
 
+        validarValoresNotaCredito(request);
         Optional<OneProjection> existente = vtVentaRepository
                 .findExistBySecuencial(idData, idEmpresa, request.getTipoVenta().name(),
                         request.getSerie(), request.getSecuencial());
@@ -73,6 +76,7 @@ public class VtVentasImpuestoService {
 
         return responseApiBuilder.builderResponse(saved.getIdVenta().toString());
     }
+
 
     @Transactional
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta,
@@ -280,14 +284,14 @@ public class VtVentasImpuestoService {
             case TODAS -> {
                 return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
                         filters.getFechaEmisionHasta(), filters.getIdTercero(), filters.getTipoVenta(),
-                        filters.getSerie(), filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
+                        filters.getSerie(), filters.getSecuencial(), filters.getNumeroAutorizacion(), null, OrigenEnum.IMP, pageable);
             }
             case SUCURSAL -> {
                 if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
                     return vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(),
                             filters.getFechaEmisionDesde(), filters.getFechaEmisionHasta(), filters.getIdTercero(),
                             filters.getTipoVenta(), filters.getSerie(), filters.getSecuencial(),
-                            filters.getNumeroAutorizacion(), null, pageable);
+                            filters.getNumeroAutorizacion(), null, OrigenEnum.IMP, pageable);
                 } else {
                     throw new GeneralException("Es requerido el parámetro de la sucursal");
                 }
@@ -295,7 +299,7 @@ public class VtVentasImpuestoService {
             case PROPIAS -> {
                 return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
                         filters.getFechaEmisionHasta(), filters.getIdTercero(), filters.getTipoVenta(),
-                        filters.getSerie(), filters.getSecuencial(), filters.getNumeroAutorizacion(), usuario, pageable);
+                        filters.getSerie(), filters.getSecuencial(), filters.getNumeroAutorizacion(), usuario, OrigenEnum.IMP, pageable);
             }
         }
 
@@ -307,5 +311,37 @@ public class VtVentasImpuestoService {
             throw new GeneralException(MessageFormat
                     .format("El documento con id: {0} no corresponde al módulo de ventas impuestos", vtVentaEntity.getIdVenta()));
         }
+    }
+
+    private void validarValoresNotaCredito(CreationVentaImpuestoRequestDto request) {
+
+        if (request.getTipoVenta().equals(TipoVenta.NCR)) {
+
+            if (request.getTotal().compareTo(BigDecimal.ZERO) >= 0) {
+                throw new GeneralException("El total no pude ser positivo");
+            }
+
+            if (request.getSubtotal().compareTo(BigDecimal.ZERO) >= 0) {
+                throw new GeneralException("El subtotal no puede ser positivo");
+            }
+
+            boolean negativoValores = request.getValores().stream()
+                    .allMatch(valor -> valor.getValor().compareTo(BigDecimal.ZERO) < 0);
+
+            boolean negativoBaseImponible = request.getValores().stream()
+                    .allMatch(valor -> valor.getBaseImponible().compareTo(BigDecimal.ZERO) < 0);
+
+
+            if (!negativoValores) {
+                throw new GeneralException("Los valores deben ser negativos");
+            }
+
+            if (!negativoBaseImponible) {
+                throw new GeneralException("Las bases imponibles deben ser negativos");
+            }
+
+
+        }
+
     }
 }

@@ -475,7 +475,7 @@ public class VtVentasFacturasServiceImpl {
                                                                                          FilterListVentasDto filters, TipoPermiso tipoBusqueda, String usuario,
                                                                                          Pageable pageable) {
 
-        Page<VtVentaEntity> page = getTipoBusquedaPaginado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
+        Page<VtVentaEntity> page = getTipoBusquedaTotalizado(idData, idEmpresa, filters, pageable, tipoBusqueda, usuario);
 
         List<GetReporteVentasListDto> dtoList = page.stream().map(item -> {
             if (item.getAnulada()) {
@@ -1012,7 +1012,7 @@ public class VtVentasFacturasServiceImpl {
             case TODAS -> {
                 return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
                         filters.getFechaEmisionHasta(), filters.getIdTercero(), filters.getTipoVenta(), filters.getSerie(),
-                        filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
+                        filters.getSecuencial(), filters.getNumeroAutorizacion(), null, OrigenEnum.VTS, pageable);
             }
 
             case SUCURSAL -> {
@@ -1020,7 +1020,7 @@ public class VtVentasFacturasServiceImpl {
 
                     return vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
                             filters.getFechaEmisionHasta(), filters.getIdTercero(), filters.getTipoVenta(), filters.getSerie(),
-                            filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
+                            filters.getSecuencial(), filters.getNumeroAutorizacion(), null, OrigenEnum.VTS, pageable);
                 } else {
                     throw new GeneralException("Es requerido el parametro de la sucursal");
                 }
@@ -1029,6 +1029,38 @@ public class VtVentasFacturasServiceImpl {
             case PROPIAS -> {
                 return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
                         filters.getFechaEmisionHasta(), filters.getIdTercero(), filters.getTipoVenta(), filters.getSerie(),
+                        filters.getSecuencial(), filters.getNumeroAutorizacion(), usuario, OrigenEnum.VTS, pageable);
+            }
+        }
+
+        throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
+
+    }
+
+    private Page<VtVentaEntity> getTipoBusquedaTotalizado(Long idData, Long idEmpresa, FilterListVentasDto filters,
+                                                          Pageable pageable, TipoPermiso tipoBusqueda, String usuario) {
+
+        switch (tipoBusqueda) {
+            case TODAS -> {
+                return vtVentaRepository.findAllPaginateTotalizado(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
+                        filters.getFechaEmisionHasta(), filters.getIdTercero(), filters.getTipoVenta(), filters.getSerie(),
+                        filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
+            }
+
+            case SUCURSAL -> {
+                if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
+
+                    return vtVentaRepository.findAllPaginateTotalizado(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
+                            filters.getFechaEmisionHasta(), filters.getIdTercero(), filters.getTipoVenta(), filters.getSerie(),
+                            filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
+                } else {
+                    throw new GeneralException("Es requerido el parametro de la sucursal");
+                }
+            }
+
+            case PROPIAS -> {
+                return vtVentaRepository.findAllPaginateTotalizado(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
+                        filters.getFechaEmisionHasta(), filters.getIdTercero(), filters.getTipoVenta(), filters.getSerie(),
                         filters.getSecuencial(), filters.getNumeroAutorizacion(), usuario, pageable);
             }
         }
@@ -1036,6 +1068,7 @@ public class VtVentasFacturasServiceImpl {
         throw new GeneralException(MessageFormat.format("El tipo de busqueda: {0} no existe", tipoBusqueda));
 
     }
+
 
     private void validarTotalConsumidorFinal(CreationFacturaRequestDto request, GeTerceroEntity tercero) {
         if (tercero.getNumeroIdentificacion().equals("9999999999")) {

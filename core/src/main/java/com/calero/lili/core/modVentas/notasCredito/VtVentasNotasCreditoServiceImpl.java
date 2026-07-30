@@ -134,6 +134,7 @@ public class VtVentasNotasCreditoServiceImpl {
         List<ValoresDto> valores = calcularValoresDocumentos.validarValores(request.getDetalle());
         request.setValores(valores);
         setearValoresCabecera(valores, request);
+        comprobarValoresNegativos(request);
 
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
                 DateUtils.toLocalDate(request.getModFechaEmision()));
@@ -193,6 +194,7 @@ public class VtVentasNotasCreditoServiceImpl {
 
     }
 
+
     @Transactional
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationNotaCreditoRequestDto request,
                               String usuario, TipoPermiso tipoBusqueda, FilterListVentasDto filters) {
@@ -216,6 +218,7 @@ public class VtVentasNotasCreditoServiceImpl {
         List<ValoresDto> valores = calcularValoresDocumentos.validarValores(request.getDetalle());
         request.setValores(valores);
         setearValoresCabecera(valores, request);
+        comprobarValoresNegativos(request);
 
         adIvaPorcentajeService.validateIvaPorcentaje(getIntegerTarifaIva(request.getValores()),
                 DateUtils.toLocalDate(request.getModFechaEmision()));
@@ -744,14 +747,14 @@ public class VtVentasNotasCreditoServiceImpl {
             case TODAS -> {
                 return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
                         filters.getFechaEmisionHasta(), null, filters.getTipoVenta(), filters.getSerie(),
-                        filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
+                        filters.getSecuencial(), filters.getNumeroAutorizacion(), null, OrigenEnum.VTS, pageable);
             }
 
             case SUCURSAL -> {
                 if (Objects.nonNull(filters.getSucursal()) && !filters.getSucursal().isEmpty()) {
                     return vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
                             filters.getFechaEmisionHasta(), null, filters.getTipoVenta(), filters.getSerie(),
-                            filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
+                            filters.getSecuencial(), filters.getNumeroAutorizacion(), null, OrigenEnum.VTS, pageable);
                 } else {
                     throw new GeneralException("Es requerido el parametro de la sucursal");
                 }
@@ -760,7 +763,7 @@ public class VtVentasNotasCreditoServiceImpl {
             case PROPIAS -> {
                 return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
                         filters.getFechaEmisionHasta(), null, filters.getTipoVenta(), filters.getSerie(),
-                        filters.getSecuencial(), filters.getNumeroAutorizacion(), usuario, pageable);
+                        filters.getSecuencial(), filters.getNumeroAutorizacion(), usuario, OrigenEnum.VTS, pageable);
             }
         }
 
@@ -867,6 +870,27 @@ public class VtVentasNotasCreditoServiceImpl {
                 }
             }
         }
+    }
+
+
+    private void comprobarValoresNegativos(CreationNotaCreditoRequestDto request) {
+
+        if (request.getTotal().compareTo(BigDecimal.ZERO) >= 0) {
+            throw new GeneralException("El total no pude ser positivo");
+        }
+
+
+        if (request.getSubtotal().compareTo(BigDecimal.ZERO) >= 0) {
+            throw new GeneralException("El subtotal no puede ser positivo");
+        }
+
+        boolean todosNegativos = request.getDetalle().stream()
+                .allMatch(detalle -> detalle.getCantidad().compareTo(BigDecimal.ZERO) < 0);
+
+        if (!todosNegativos) {
+            throw new GeneralException("Los valores de precio unitario deben ser negativos");
+        }
+
     }
 
 }

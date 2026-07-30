@@ -28,20 +28,6 @@ public class ResponseVentaReembolsoDto {
     private String codigoPais;
     private String pais;
     private UUID idVenta;
-
-    private List<ValoresDto> reembolsosValores;
-
-
-
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Builder
-    public static class ValoresDto {
-        private String codigo;
-        private String codigoPorcentaje;
-        private BigDecimal tarifa;
-        private BigDecimal baseImponible;
-        private BigDecimal valor;
-    }
+    private BigDecimal total;
+    private Boolean existeComprobante;
 }

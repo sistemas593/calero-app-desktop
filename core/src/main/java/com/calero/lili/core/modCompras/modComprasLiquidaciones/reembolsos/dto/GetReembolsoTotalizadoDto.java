@@ -34,4 +34,5 @@ public class GetReembolsoTotalizadoDto {
     private String pais;
     private UUID idLiquidacion;
     private BigDecimal total;
+    private Boolean existeComprobante;
 }

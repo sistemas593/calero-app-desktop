@@ -12,6 +12,7 @@ import com.calero.lili.core.modVentas.reembolsos.dto.CreationRequestReembolsoDto
 import com.calero.lili.core.modVentas.reembolsos.dto.FilterReembolsoDto;
 import com.calero.lili.core.modVentas.reembolsos.dto.GetVentaReembosloListDtoTotalizado;
 import com.calero.lili.core.modVentas.reembolsos.dto.ResponseVentaReembolsoDto;
+import com.calero.lili.core.modVentas.reembolsos.dto.ResponseVentaReembolsoTotalizadoDto;
 import com.lowagie.text.DocumentException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -103,7 +104,8 @@ public class VtVentasReembolsosController {
 
         int pageSize = pageable.getPageSize();
         if (pageSize > 100) {
-            pageSize = 100;}
+            pageSize = 100;
+        }
         Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
 
         return vtVentasReembolsoService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageableConSort);
@@ -112,15 +114,16 @@ public class VtVentasReembolsosController {
     @GetMapping("reportes/{idEmpresa}")
     @ResponseStatus(code = HttpStatus.OK)
     @PreAuthorize("hasAuthority('VT_RB_VR')")
-    public GetVentaReembosloListDtoTotalizado<ResponseVentaReembolsoDto> findAllTotalesPaginate(@PathVariable("idEmpresa") Long idEmpresa,
-                                                                                                FilterReembolsoDto filters,
-                                                                                                Pageable pageable) {
+    public GetVentaReembosloListDtoTotalizado<ResponseVentaReembolsoTotalizadoDto> findAllTotalesPaginate(@PathVariable("idEmpresa") Long idEmpresa,
+                                                                                                          FilterReembolsoDto filters,
+                                                                                                          Pageable pageable) {
 
         Sort sort = pageable.getSort().and(Sort.by("idVentaReembolsos").ascending());
 
         int pageSize = pageable.getPageSize();
         if (pageSize > 100) {
-            pageSize = 100;}
+            pageSize = 100;
+        }
         Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
 
 

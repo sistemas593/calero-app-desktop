@@ -73,4 +73,6 @@ public class VtVentaReembolsosEntity extends Auditable {
     @Column(name = "id_venta", insertable = false, updatable = false)
     private UUID idVenta;
 
+    private Boolean existeComprobante;
+
 }

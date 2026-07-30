@@ -38,6 +38,7 @@ public class CpLiquidacionesReembolsosBuilder {
                 .fechaEmisionReemb(DateUtils.toLocalDate(model.getFechaEmisionReemb()))
                 .numeroAutorizacionReemb(model.getNumeroAutorizacionReemb())
                 .reembolsosValores(builderListValores(model.getReembolsosValores(), idData, idEmpresa))
+                .existeComprobante(Boolean.FALSE)
                 .build();
     }
 
@@ -56,6 +57,7 @@ public class CpLiquidacionesReembolsosBuilder {
                 .fechaEmisionReemb(DateUtils.toLocalDate(model.getFechaEmisionReemb()))
                 .numeroAutorizacionReemb(model.getNumeroAutorizacionReemb())
                 .reembolsosValores(builderListValores(model.getReembolsosValores(), item.getIdData(), item.getIdEmpresa()))
+                .existeComprobante(Boolean.FALSE)
                 .build();
     }
 
@@ -104,6 +106,7 @@ public class CpLiquidacionesReembolsosBuilder {
                 .fechaAutorizacionReemb(DateUtils.toLocalDateTimeString(model.getFechaAutorizacionReemb()))
                 .idLiquidacion(model.getIdLiquidacion())
                 .total(setearTotal(model.getReembolsosValores()))
+                .existeComprobante(model.getExisteComprobante())
                 .build();
     }
 
@@ -125,6 +128,7 @@ public class CpLiquidacionesReembolsosBuilder {
                 .fechaAutorizacionReemb(DateUtils.toLocalDateTimeString(model.getFechaAutorizacionReemb()))
                 .idLiquidacion(model.getIdLiquidacion())
                 .reembolsosValores(builderListValoresResponse(model.getReembolsosValores()))
+                .existeComprobante(model.getExisteComprobante())
                 .build();
     }
 

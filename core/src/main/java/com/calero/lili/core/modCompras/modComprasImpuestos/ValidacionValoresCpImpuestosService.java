@@ -1,6 +1,7 @@
 package com.calero.lili.core.modCompras.modComprasImpuestos;
 
 
+import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajesEntity;
 import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajesRepository;
 import com.calero.lili.core.modCompras.modComprasImpuestos.builder.CpImpuestoDetalleErrorBuilder;
@@ -31,7 +32,8 @@ public class ValidacionValoresCpImpuestosService {
         validateIvaPorcentaje(getIntegerTarifaIva(model.getValoresEntity()), model.getFechaEmision(),
                 detalleErrores);
 
-        validarValoresImpuestos(model.getValoresEntity(), detalleErrores);
+
+        validarValoresImpuestos(model.getValoresEntity(), detalleErrores, model.getDocumento());
 
         /*if (Objects.nonNull(model.getCompraImpuestos())) {
             validarValoresRetenciones(model.getCompraImpuestos(), detalleErrores);
@@ -87,26 +89,51 @@ public class ValidacionValoresCpImpuestosService {
     }
 
 
-    private void validarValoresImpuestos(List<CpImpuestosValoresEntity> valores, List<CpImpuestoDetalleError> detalleErrores) {
+    private void validarValoresImpuestos(List<CpImpuestosValoresEntity> valores,
+                                         List<CpImpuestoDetalleError> detalleErrores, DocumentoEnum documento) {
 
-        valores.forEach(item -> {
 
-            String impuestos = item.getCodigo() + "-" + item.getCodigoPorcentaje();
-            validacionDocumentosGeneral.existeImpuesto(impuestos);
+        if (!documento.equals(DocumentoEnum.D04)) {
+            valores.forEach(item -> {
 
-            if (item.getBaseImponible().compareTo(BigDecimal.ZERO) < 0) {
-                detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("La base imponible no puede ser negativa"));
-            }
+                String impuestos = item.getCodigo() + "-" + item.getCodigoPorcentaje();
+                validacionDocumentosGeneral.existeImpuesto(impuestos);
 
-            if (item.getTarifa().compareTo(BigDecimal.ZERO) < 0) {
-                detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("La tarifa no puede ser negativa"));
-            }
+                if (item.getBaseImponible().compareTo(BigDecimal.ZERO) < 0) {
+                    detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("La base imponible no puede ser negativa"));
+                }
 
-            if (item.getValor().compareTo(BigDecimal.ZERO) < 0) {
-                detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("La tarifa no puede ser negativa"));
-            }
+                if (item.getTarifa().compareTo(BigDecimal.ZERO) < 0) {
+                    detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("La tarifa no puede ser negativa"));
+                }
 
-        });
+                if (item.getValor().compareTo(BigDecimal.ZERO) < 0) {
+                    detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("EL valor no puede ser negativo"));
+                }
+
+            });
+        } else {
+
+            valores.forEach(item -> {
+
+                String impuestos = item.getCodigo() + "-" + item.getCodigoPorcentaje();
+                validacionDocumentosGeneral.existeImpuesto(impuestos);
+
+                if (item.getBaseImponible().compareTo(BigDecimal.ZERO) > 0) {
+                    detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("La base imponible debe ser negativa"));
+                }
+
+                if (item.getTarifa().compareTo(BigDecimal.ZERO) < 0) {
+                    detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("La tarifa no puede ser negativa"));
+                }
+
+                if (item.getValor().compareTo(BigDecimal.ZERO) < 0) {
+                    detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("El valor no puede ser negativo"));
+                }
+
+            });
+        }
+
 
     }
 

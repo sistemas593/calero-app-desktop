@@ -487,6 +487,7 @@ public class AutorizacionBuilder {
                 .pais(TbPaisEntity.builder().codigoPais("593").build())
                 .fechaAutorizacionReemb(Objects.nonNull(model.getFechaAutorizacion())
                         ? DateUtils.toLocalDateTime(model.getFechaAutorizacion()) : null)
+                .existeComprobante(Boolean.TRUE)
                 .build();
     }
 
@@ -510,6 +511,7 @@ public class AutorizacionBuilder {
                 .pais(TbPaisEntity.builder().codigoPais("593").build())
                 .fechaAutorizacionReemb(Objects.nonNull(model.getFechaAutorizacion())
                         ? DateUtils.toLocalDateTime(model.getFechaAutorizacion()) : null)
+                .existeComprobante(Boolean.TRUE)
                 .build();
     }
 
@@ -532,6 +534,7 @@ public class AutorizacionBuilder {
                 .fechaEmisionReemb(DateUtils.toLocalDate(documento.getInfoFactura().getFechaEmision()))
                 .pais(TbPaisEntity.builder().codigoPais("593").build())
                 .fechaAutorizacionReemb(DateUtils.toLocalDateTime(model.getFechaAutorizacion()))
+                .existeComprobante(Boolean.TRUE)
                 .build();
     }
 
