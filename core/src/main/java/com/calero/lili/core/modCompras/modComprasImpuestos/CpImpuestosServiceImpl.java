@@ -168,7 +168,6 @@ public class CpImpuestosServiceImpl {
     }
 
 
-
     @Transactional
     public ResponseDto update(Long idData, Long idEmpresa, UUID idVenta, CreationCompraImpuestoRequestDto request,
                               String usuario, FilterListCompraImpuestoDto filters, TipoPermiso tipoBusqueda) {
@@ -310,7 +309,17 @@ public class CpImpuestosServiceImpl {
                            FilterListCompraImpuestoDto filters, TipoPermiso tipoBusqueda, String usuario) {
 
         CpImpuestosEntity entity = validacionTipoBusqueda(idData, idEmpresa, id, filters, tipoBusqueda, usuario);
+
         GetDto dto = cpImpuestosBuilder.builderDto(entity);
+
+        if (dto.getDocumento().equals(DocumentoEnum.D04)) {
+
+            dto.getValores().forEach(item -> {
+                item.setBaseImponible(item.getBaseImponible().abs());
+                item.setValor(item.getValor().abs());
+            });
+
+        }
 
         if (Objects.nonNull(dto.getPagoExterior())) {
 

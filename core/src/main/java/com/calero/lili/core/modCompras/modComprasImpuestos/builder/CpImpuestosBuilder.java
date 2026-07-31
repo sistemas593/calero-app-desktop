@@ -136,7 +136,7 @@ public class CpImpuestosBuilder {
                 .idImpuestos(model.getIdImpuestos())
                 .sucursal(model.getSucursal())
                 .codigoDocumento(Objects.nonNull(model.getDocumento()) ? model.getDocumento().getCodigo() : null)
-                .documento(Objects.nonNull(model.getDocumento()) ? model.getDocumento().getNombre() : null)
+                .documento(model.getDocumento())
                 .serie(model.getSerie())
                 .secuencial(model.getSecuencial())
                 .concepto(model.getConcepto())
