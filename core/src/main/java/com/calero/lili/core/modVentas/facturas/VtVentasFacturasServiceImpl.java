@@ -829,7 +829,8 @@ public class VtVentasFacturasServiceImpl {
         }
     }
 
-    private void validarInfoYValoresExportacion(CreationFacturaRequestDto request) {
+    private BigDecimal validarInfoYValoresExportacion(CreationFacturaRequestDto request) {
+
         if (request.getTipoIngreso().equals(TipoIngreso.EX)) {
 
             if (Objects.isNull(request.getExportacion())) {
@@ -842,15 +843,13 @@ public class VtVentasFacturasServiceImpl {
                 throw new GeneralException("Los valores de flete, seguros y gastos internacionales deben existir");
             }
 
+            BigDecimal total = BigDecimal.ZERO;
             validacionPaises(request);
             BigDecimal totalExportacion = request.getFleteInternacional().add(request.getSeguroInternacional())
                     .add(request.getGastosAduaneros()).add(request.getGastosTransporteOtros());
-            BigDecimal total = request.getTotal().add(totalExportacion);
-            request.setTotal(total);
-        }
+            return total.add(totalExportacion);
 
-        if (!request.getTipoIngreso().equals(TipoIngreso.EX)) {
-
+        } else {
             if (Objects.nonNull(request.getExportacion())) {
                 throw new GeneralException("El tipo de ingreso no corresponde a una exportación, no es necesario enviar la información de exportación");
             }
@@ -862,7 +861,7 @@ public class VtVentasFacturasServiceImpl {
             }
         }
 
-
+        return BigDecimal.ZERO;
     }
 
     private void validacionPaises(CreationFacturaRequestDto request) {
@@ -1097,8 +1096,8 @@ public class VtVentasFacturasServiceImpl {
 
 
         BigDecimal subtotalConDescuento = subtotal.subtract(totalDescuento);
-        BigDecimal total = subtotalConDescuento.add(totalImpuesto);
-
+        BigDecimal totalExportacion = validarInfoYValoresExportacion(request);
+        BigDecimal total = subtotalConDescuento.add(totalImpuesto).add(totalExportacion);
 
         if (request.getTotal().compareTo(total) != 0) {
             throw new GeneralException(MessageFormat
@@ -1111,7 +1110,6 @@ public class VtVentasFacturasServiceImpl {
         request.setSubtotal(subtotal);
         request.setTotal(total);
 
-        validarInfoYValoresExportacion(request);
         validarTotalPagoSri(request);
 
     }

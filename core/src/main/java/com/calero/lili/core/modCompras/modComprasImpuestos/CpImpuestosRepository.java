@@ -8,6 +8,7 @@ import com.calero.lili.core.modCompras.modComprasImpuestos.projection.TotalesPro
 import com.calero.lili.core.modCompras.projection.AtsProjection;
 import com.calero.lili.core.modCompras.projection.AtsRetencionResumenProjection;
 import com.calero.lili.core.modCompras.service.CpImpuestoAtsProjection;
+import com.calero.lili.core.modCompras.service.CpImpuestosCodigosAtsProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -329,6 +330,7 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
             " ci.fecha_emision AS fechaEmision, ci.numero_autorizacion AS autorizacion," +
             " ci.pago_exterior as pagoExterior," +
             " ci.formas_pago_sri as formasPago," +
+            " ci.id_retencion as idRetencion, " +
             " COALESCE(SUM(CASE WHEN civ.codigo = '2' AND " +
             "civ.codigo_porcentaje = '6' THEN civ.base_imponible ELSE 0 END), 0) AS baseNoGraIva," +
             " COALESCE(SUM(CASE WHEN civ.codigo = '2'" +
@@ -353,6 +355,20 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
                                                  @Param("idEmpresa") Long idEmpresa,
                                                  @Param("fechaRegistroDesde") LocalDate fechaRegistroDesde,
                                                  @Param("fechaRegistroHasta") LocalDate fechaRegistroHasta);
+
+
+    @Query(value = "select " +
+            "cic.id_impuestos " +
+            "cic.codigo as codigo, " +
+            "cic.codigo_retencion as codigoRetencion, " +
+            "cic.valor_retenido as valorRetenido " +
+            "from cp_impuestos_codigos cic " +
+            "where cic.id_impuestos in (:idCpImpuestos) " +
+            "cic.cic.id_data = :idData and cic.cic.id_empresa = :idEmpresa",
+            nativeQuery = true)
+    List<CpImpuestosCodigosAtsProjection> findAllCpImpuestosCodigos(@Param("idData") Long idData,
+                                                                    @Param("idEmpresa") Long idEmpresa,
+                                                                    @Param("idCpImpuestos") List<UUID> idCpImpuestos);
 
 
     @Query(value = "SELECT ci.fecha_emision, " +

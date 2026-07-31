@@ -46,4 +46,6 @@ public interface CpImpuestoAtsProjection {
 
     String getFormasPago();
 
+    UUID getIdRetencion();
+
 }

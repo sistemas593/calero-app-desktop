@@ -1,7 +1,6 @@
 package com.calero.lili.core.modCompras.service;
 
 import com.calero.lili.core.comprobantes.builder.documentos.FormatoValores;
-import com.calero.lili.core.dtos.FormasPagoSri;
 import com.calero.lili.core.enums.CodigoDocumento;
 import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.errors.exceptions.GeneralException;
@@ -45,7 +44,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -74,17 +76,35 @@ public class AtsService {
 
 
             if (Objects.nonNull(comprasImpuesto)) {
-               /* comprasImpuesto.forEach(cpImpuestosEntity -> {
+
+                List<UUID> listaUuidsCompraImpuesto = comprasImpuesto.stream()
+                        .map(CpImpuestoAtsProjection::getIdImpuestos)
+                        .toList();
+
+                List<CpImpuestosCodigosAtsProjection> compraImpuestoCodigos = cpImpuestosRepository
+                        .findAllCpImpuestosCodigos(idData, idEmpresa, listaUuidsCompraImpuesto);
+
+
+                comprasImpuesto.forEach(cpImpuestosEntity -> {
+
 
                     DetalleCompras detalleCompra = atsBuilder.builderDetalleCompra(cpImpuestosEntity);
-                    validateValores(detalleCompra);
+                    validarFormasDePagoSri(detalleCompra, cpImpuestosEntity.getFormasPago());
 
-                    if (Objects.nonNull(cpImpuestosEntity.getCodigosEntity())) {
-                        validateRetencionesIva(detalleCompra, cpImpuestosEntity.getCodigosEntity());
-                        validateRetencionesRenta(detalleCompra, cpImpuestosEntity.getCodigosEntity(), cpImpuestosEntity.getRetencion());
+                    if (Objects.nonNull(compraImpuestoCodigos)) {
+
+                        Map<UUID, List<CpImpuestosCodigosAtsProjection>> codigosPorImpuesto =
+                                compraImpuestoCodigos.stream()
+                                        .collect(Collectors.groupingBy(CpImpuestosCodigosAtsProjection::getIdImpuestos));
+                        List<CpImpuestosCodigosAtsProjection> listCodigos = codigosPorImpuesto.get(cpImpuestosEntity.getIdImpuestos());
+                        validateRetencionesIva(detalleCompra, listCodigos);
+
+                        //validateRetencionesRenta(detalleCompra, cpImpuestosEntity.getCodigosEntity(), cpImpuestosEntity.getRetencion());
                     }
+
+
                     detalleComprasList.add(detalleCompra);
-                });*/
+                });
             }
             AdEmpresaEntity adEmpresaEntity = adEmpresasRepository.findById(idData, idEmpresa)
                     .orElseThrow(() -> new GeneralException("No existe informacion de la empresa"));
@@ -99,11 +119,7 @@ public class AtsService {
     }
 
 
-    private void validateValores(DetalleCompras detalleCompra) {
-        //  validarSeccionPago(detalleCompra, detalleCompra.getFormasDePago());
-    }
-
-    private void validarSeccionPago(DetalleCompras detalleCompra, List<FormasPagoSri> list) {
+    private void validarFormasDePagoSri(DetalleCompras detalleCompra, String jsonPago) {
 
         BigDecimal baseImponible = new BigDecimal(detalleCompra.getBaseImponible());
         BigDecimal baseNoGraIva = new BigDecimal(detalleCompra.getBaseNoGraIva());
@@ -116,17 +132,17 @@ public class AtsService {
         BigDecimal total = baseImponible.add(baseNoGraIva).add(baseImpGrav).add(baseImpExe).add(montoIva).add(montoIce);
 
         if (total.compareTo(valorPago) > 0) {
-            detalleCompra.setFormasDePago(atsBuilder.builderFormaDePago(list));
+            detalleCompra.setFormasDePago(atsBuilder.builderFormaPago(jsonPago));
         }
     }
 
 
     private void validateRetencionesIva(DetalleCompras detalleCompra,
-                                        List<CpImpuestosCodigosEntity> listCodigos) {
+                                        List<CpImpuestosCodigosAtsProjection> listCodigos) {
 
 
         if (!listCodigos.isEmpty()) {
-            for (CpImpuestosCodigosEntity impuesto : listCodigos) {
+            for (CpImpuestosCodigosAtsProjection impuesto : listCodigos) {
 
                 if (impuesto.getCodigo().getCodigo().equals("2")
                         && impuesto.getCodigoRetencion().equals("9")) {

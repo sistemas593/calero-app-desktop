@@ -102,14 +102,6 @@ public class AtsBuilder {
 
     }
 
-    public Pago builderFormaDePago(List<FormasPagoSri> formasPagoSri) {
-        return Pago.builder()
-                .formaPago(formasPagoSri.stream()
-                        .map(fp -> fp.getFormaPago().getCodigo())
-                        .toList())
-                .build();
-    }
-
     private PagoExterior builderPagoExterior(String pagoCode, String json) {
 
         com.calero.lili.core.modCompras.modComprasImpuestos.dto.PagoExterior model = getFormaPagoExterior(json,
