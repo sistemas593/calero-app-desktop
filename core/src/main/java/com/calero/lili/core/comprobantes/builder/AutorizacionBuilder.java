@@ -405,14 +405,14 @@ public class AutorizacionBuilder {
     }
 
 
-    public CpImpuestosValoresEntity builderValoresDocumento(TotalImpuesto model,
+    public CpImpuestosValoresEntity builderValoresDocumento(TotalImpuesto model, BigDecimal valor, BigDecimal baseImponible,
                                                             BigDecimal tarifa, Long idData, Long idEmpresa) {
         return CpImpuestosValoresEntity.builder()
                 .idImpuestosValores(UUID.randomUUID())
                 .codigo(model.getCodigo())
                 .codigoPorcentaje(model.getCodigoPorcentaje())
-                .baseImponible(new BigDecimal(model.getBaseImponible().replace(" ", "")))
-                .valor(new BigDecimal(model.getValor().replace(" ", "")))
+                .baseImponible(baseImponible)
+                .valor(valor)
                 .tarifa(tarifa)
                 .idEmpresa(idEmpresa)
                 .idData(idData)

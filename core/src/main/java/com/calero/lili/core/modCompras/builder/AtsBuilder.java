@@ -5,9 +5,7 @@ import com.calero.lili.core.dtos.FormasPagoSri;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosCodigosEntity;
-import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosEntity;
-import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosValoresEntity;
-import com.calero.lili.core.modCompras.modComprasRetenciones.CpRetencionesEntity;
+import com.calero.lili.core.modCompras.service.CpImpuestoAtsProjection;
 import com.calero.lili.core.modImpuestosAnexos.ats.Air;
 import com.calero.lili.core.modImpuestosAnexos.ats.DetalleAir;
 import com.calero.lili.core.modImpuestosAnexos.ats.DetalleCompras;
@@ -15,6 +13,9 @@ import com.calero.lili.core.modImpuestosAnexos.ats.Iva;
 import com.calero.lili.core.modImpuestosAnexos.ats.Pago;
 import com.calero.lili.core.modImpuestosAnexos.ats.PagoExterior;
 import com.calero.lili.core.utils.DateUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +27,7 @@ import java.util.List;
 public class AtsBuilder {
 
     private final FormatoValores formatoValores;
+    private final ObjectMapper objectMapper;
 
     public Iva builderAtsWithRetencion(List<DetalleCompras> detalleCompras, AdEmpresaEntity model, String periodo) {
 
@@ -42,86 +44,24 @@ public class AtsBuilder {
                 .build();
     }
 
-    public DetalleCompras builderDetalleRetencion(CpImpuestosEntity model, CpRetencionesEntity item) {
+    public DetalleCompras builderDetalleCompra(CpImpuestoAtsProjection model) {
         return DetalleCompras.builder()
-                .codSustento(model.getCodigoSustento().name().replace("S", ""))
-                .tpIdProv(model.getTipoProveedor())
-                .idProv(model.getTercero().getNumeroIdentificacion())
-                .tipoComprobante(model.getDocumento().getCodigo())
-                .parteRel("NO")
-                .fechaRegistro(DateUtils.toString(model.getFechaRegistro()))
-                .establecimiento(model.getSucursal())
-                .puntoEmision(model.getSucursal())
-                .secuencial(model.getSecuencial())
-                .fechaEmision(DateUtils.toString(model.getFechaEmision()))
-                .autorizacion(model.getNumeroAutorizacion())
-                .baseNoGraIva(formatoValores.convertirBigDecimalToString(BigDecimal.ZERO))
-                .baseImponible(formatoValores.convertirBigDecimalToString(BigDecimal.ZERO))
-                .baseImpGrav(formatoValores.convertirBigDecimalToString(BigDecimal.ZERO))
-                .baseImpExe(formatoValores.convertirBigDecimalToString(BigDecimal.ZERO))
-                .montoIva(formatoValores.convertirBigDecimalToString(BigDecimal.ZERO))
-                .pagoExterior(builderPagoExterior(model.getPagoLocExt(), model.getPagoExterior()))
-                .fechaEmiRet1(DateUtils.toString(item.getFechaEmisionRetencion()))
-                .montoIce(formatoValores.convertirBigDecimalToString(BigDecimal.ZERO))
-                .valRetBien10(formatoValores.convertirBigDecimalToString(BigDecimal.ZERO))
-                .valRetServ20(formatoValores.convertirBigDecimalToString(BigDecimal.ZERO))
-                .valorRetBienes(formatoValores.convertirBigDecimalToString(BigDecimal.ZERO))
-                .valorRetServicios(formatoValores.convertirBigDecimalToString(BigDecimal.ZERO))
-                .valRetServ100(formatoValores.convertirBigDecimalToString(BigDecimal.ZERO))
-                .totbasesImpReemb(formatoValores.convertirBigDecimalToString(BigDecimal.ZERO))
-                .build();
-    }
-
-    public DetalleCompras builderDetalleCompra(CpImpuestosEntity model) {
-        List<CpImpuestosValoresEntity> valores = model.getValoresEntity();
-
-        // Base no objeto de IVA — codigoPorcentaje "6"
-        BigDecimal baseNoGraIva = valores.stream()
-                .filter(v -> "2".equals(v.getCodigo()) && "6".equals(v.getCodigoPorcentaje()))
-                .map(CpImpuestosValoresEntity::getBaseImponible)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        // Base imponible tarifa 0% — codigoPorcentaje "0"
-        BigDecimal baseImponible = valores.stream()
-                .filter(v -> "2".equals(v.getCodigo()) && "0".equals(v.getCodigoPorcentaje()))
-                .map(CpImpuestosValoresEntity::getBaseImponible)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        // Base gravada acumulada (tarifas 12%, 5%, 8%, 15%) — codigoPorcentaje "2", "4", "5", "8"
-        BigDecimal baseImpGrav = valores.stream()
-                .filter(v -> "2".equals(v.getCodigo()) && List.of("2", "4", "5", "8").contains(v.getCodigoPorcentaje()))
-                .map(CpImpuestosValoresEntity::getBaseImponible)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        // Base exenta de IVA — codigoPorcentaje "7"
-        BigDecimal baseImpExe = valores.stream()
-                .filter(v -> "2".equals(v.getCodigo()) && "7".equals(v.getCodigoPorcentaje()))
-                .map(CpImpuestosValoresEntity::getBaseImponible)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        // Monto IVA: suma del valor para las tarifas gravadas — codigoPorcentaje "2", "4", "5", "8"
-        BigDecimal montoIva = valores.stream()
-                .filter(v -> "2".equals(v.getCodigo()) && List.of("4", "5", "8").contains(v.getCodigoPorcentaje()))
-                .map(CpImpuestosValoresEntity::getValor)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        return DetalleCompras.builder()
-                .codSustento(model.getCodigoSustento().name().replace("S", ""))
-                .tpIdProv(validacionTipoId(model.getTercero().getTipoIdentificacion()))
-                .idProv(model.getTercero().getNumeroIdentificacion())
-                .tipoComprobante(model.getDocumento().getCodigo())
+                .codSustento(model.getCodigoSustento().getCodigo())
+                .tpIdProv(validacionTipoId(model.getTipoIdProv()))
+                .idProv(model.getIdProv())
+                .tipoComprobante(model.getTipoComprobante().getCodigo())
                 .parteRel("NO")
                 .fechaRegistro(DateUtils.toString(model.getFechaRegistro()))
                 .establecimiento(model.getSerie().substring(0, 3))
                 .puntoEmision(model.getSerie().substring(3, 6))
-                .secuencial(new java.math.BigInteger(model.getSecuencial()).toString())
+                .secuencial(model.getSecuencial())
                 .fechaEmision(DateUtils.toString(model.getFechaEmision()))
-                .autorizacion(model.getNumeroAutorizacion())
-                .baseNoGraIva(formatoValores.convertirBigDecimalToString(baseNoGraIva))
-                .baseImponible(formatoValores.convertirBigDecimalToString(baseImponible))
-                .baseImpGrav(formatoValores.convertirBigDecimalToString(baseImpGrav))
-                .baseImpExe(formatoValores.convertirBigDecimalToString(baseImpExe))
-                .montoIva(formatoValores.convertirBigDecimalToString(montoIva))
+                .autorizacion(model.getAutorizacion())
+                .baseNoGraIva(formatoValores.convertirBigDecimalToString(model.getBaseNoGraIva()))
+                .baseImponible(formatoValores.convertirBigDecimalToString(model.getBaseImponible()))
+                .baseImpGrav(formatoValores.convertirBigDecimalToString(model.getBaseImpGrav()))
+                .baseImpExe(formatoValores.convertirBigDecimalToString(model.getBaseImpExe()))
+                .montoIva(formatoValores.convertirBigDecimalToString(model.getMontoIva()))
                 .pagoExterior(builderPagoExterior(model.getPagoLocExt(), model.getPagoExterior()))
                 .montoIce(formatoValores.convertirBigDecimalToString(new BigDecimal("0.00")))
                 .valRetBien10(formatoValores.convertirBigDecimalToString(new BigDecimal("0.00")))
@@ -131,7 +71,7 @@ public class AtsBuilder {
                 .valorRetServicios(formatoValores.convertirBigDecimalToString(new BigDecimal("0.00")))
                 .valRetServ100(formatoValores.convertirBigDecimalToString(new BigDecimal("0.00")))
                 .totbasesImpReemb(formatoValores.convertirBigDecimalToString(new BigDecimal("0.00")))
-                .formasDePago(builderFormaDePago(model.getFormasPagoSri()))
+                .formasDePago(builderFormaPago(model.getFormasPago()))
                 .build();
     }
 
@@ -150,6 +90,18 @@ public class AtsBuilder {
         }
     }
 
+
+    public Pago builderFormaPago(String jsonPagos) {
+        List<FormasPagoSri> formasPagoSri = getFormaPagoSri(jsonPagos, new TypeReference<List<FormasPagoSri>>() {
+        });
+        return Pago.builder()
+                .formaPago(formasPagoSri.stream()
+                        .map(fp -> fp.getFormaPago().getCodigo())
+                        .toList())
+                .build();
+
+    }
+
     public Pago builderFormaDePago(List<FormasPagoSri> formasPagoSri) {
         return Pago.builder()
                 .formaPago(formasPagoSri.stream()
@@ -158,9 +110,13 @@ public class AtsBuilder {
                 .build();
     }
 
-    private PagoExterior builderPagoExterior(String pagoCode, com.calero.lili.core.modCompras.modComprasImpuestos.dto.PagoExterior model) {
+    private PagoExterior builderPagoExterior(String pagoCode, String json) {
+
+        com.calero.lili.core.modCompras.modComprasImpuestos.dto.PagoExterior model = getFormaPagoExterior(json,
+                com.calero.lili.core.modCompras.modComprasImpuestos.dto.PagoExterior.class);
 
         if (pagoCode.equals("01")) {
+
             return PagoExterior.builder()
                     .pagoLocExt(pagoCode)
                     .aplicConvDobTrib("NA")
@@ -170,13 +126,10 @@ public class AtsBuilder {
         } else {
 
             PagoExterior pagoExterior = new PagoExterior();
-
             pagoExterior.setPagoLocExt(pagoCode);
             pagoExterior.setTipoRegi(model.getTipoRegi());
-            pagoExterior.setAplicConvDobTrib(model.getAplicConvDobTrib() );
+            pagoExterior.setAplicConvDobTrib(model.getAplicConvDobTrib());
             pagoExterior.setPagExtSujRetNorLeg(model.getPagExtSujRetNorLeg());
-            // Este dato no va en el ATS, pero se usa en las retenciones electronicas.
-            //pagoExterior.setPagoRegFis(model.getPagoRegFis() ? "SI" : "NO");
             pagoExterior.setPaisEfecPago(model.getPaisEfecPago());
 
             switch (model.getTipoRegi()) {
@@ -206,6 +159,30 @@ public class AtsBuilder {
                 .porcentajeAir(model.getPorcentajeRetener())
                 .valRetAir(model.getValorRetenido())
                 .build();
+    }
+
+    private <T> T getFormaPagoExterior(String json, Class<T> clazz) {
+        if (json == null || json.isBlank()) {
+            return null;
+        }
+        try {
+            return objectMapper.readValue(json, clazz);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException(
+                    "Error al convertir el JSON a " + clazz.getSimpleName(), e);
+        }
+    }
+
+    private <T> T getFormaPagoSri(String json, TypeReference<T> typeReference) {
+        if (json == null || json.isBlank()) {
+            return null;
+        }
+
+        try {
+            return objectMapper.readValue(json, typeReference);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException("Error al convertir el JSON.", e);
+        }
     }
 
 }

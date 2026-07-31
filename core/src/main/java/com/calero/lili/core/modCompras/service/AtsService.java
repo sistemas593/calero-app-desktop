@@ -10,7 +10,6 @@ import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.modCompras.builder.AtsBuilder;
 import com.calero.lili.core.modCompras.dto.FilterDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosCodigosEntity;
-import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosRepository;
 import com.calero.lili.core.modCompras.modComprasRetenciones.CpRetencionesEntity;
 import com.calero.lili.core.modCompras.projection.AtsProjection;
@@ -70,21 +69,22 @@ public class AtsService {
             List<DetalleCompras> detalleComprasList = new ArrayList<>();
 
 
-            List<CpImpuestosEntity> comprasImpuesto = cpImpuestosRepository
+            List<CpImpuestoAtsProjection> comprasImpuesto = cpImpuestosRepository
                     .findAllByDates(idData, idEmpresa, model.getFechaRegistroDesde(), model.getFechaRegistroHasta());
 
 
             if (Objects.nonNull(comprasImpuesto)) {
-                comprasImpuesto.forEach(cpImpuestosEntity -> {
+               /* comprasImpuesto.forEach(cpImpuestosEntity -> {
 
                     DetalleCompras detalleCompra = atsBuilder.builderDetalleCompra(cpImpuestosEntity);
-                    validateValores(detalleCompra, cpImpuestosEntity);
+                    validateValores(detalleCompra);
+
                     if (Objects.nonNull(cpImpuestosEntity.getCodigosEntity())) {
                         validateRetencionesIva(detalleCompra, cpImpuestosEntity.getCodigosEntity());
                         validateRetencionesRenta(detalleCompra, cpImpuestosEntity.getCodigosEntity(), cpImpuestosEntity.getRetencion());
                     }
                     detalleComprasList.add(detalleCompra);
-                });
+                });*/
             }
             AdEmpresaEntity adEmpresaEntity = adEmpresasRepository.findById(idData, idEmpresa)
                     .orElseThrow(() -> new GeneralException("No existe informacion de la empresa"));
@@ -99,9 +99,8 @@ public class AtsService {
     }
 
 
-    private void validateValores(DetalleCompras detalleCompra,
-                                 CpImpuestosEntity model) {
-        validarSeccionPago(detalleCompra, model.getFormasPagoSri());
+    private void validateValores(DetalleCompras detalleCompra) {
+        //  validarSeccionPago(detalleCompra, detalleCompra.getFormasDePago());
     }
 
     private void validarSeccionPago(DetalleCompras detalleCompra, List<FormasPagoSri> list) {

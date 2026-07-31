@@ -7,6 +7,7 @@ import com.calero.lili.core.modCompras.modComprasImpuestos.projection.OneProject
 import com.calero.lili.core.modCompras.modComprasImpuestos.projection.TotalesProjection;
 import com.calero.lili.core.modCompras.projection.AtsProjection;
 import com.calero.lili.core.modCompras.projection.AtsRetencionResumenProjection;
+import com.calero.lili.core.modCompras.service.CpImpuestoAtsProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -321,16 +322,37 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
                                                                       @Param("numeroIdentificacion") String numeroIdentificacion);
 
 
-    @Query(value = "SELECT entity " +
-            "FROM CpImpuestosEntity entity " +
-            "WHERE entity.idData = :idData  AND " +
-            "entity.idEmpresa = :idEmpresa AND " +
-            "( cast(:fechaRegistroDesde as date) is null OR entity.fechaRegistro >= :fechaRegistroDesde ) AND " +
-            "( cast(:fechaRegistroHasta as date) is null OR entity.fechaRegistro <= :fechaRegistroHasta )"
-    )
-    List<CpImpuestosEntity> findAllByDates(@Param("idData") Long idData, @Param("idEmpresa") Long idEmpresa,
-                                           @Param("fechaRegistroDesde") LocalDate fechaRegistroDesde,
-                                           @Param("fechaRegistroHasta") LocalDate fechaRegistroHasta);
+    @Query(value = "SELECT ci.id_impuestos AS idImpuestos, ci.codigo_sustento AS codigoSustento," +
+            " gt.tipo_identificacion AS tipoIdProv, gt.numero_identificacion AS idProv," +
+            " ci.documento AS tipoComprobante, ci.fecha_registro AS fechaRegistro," +
+            " ci.serie AS serie, ci.secuencial AS secuencial," +
+            " ci.fecha_emision AS fechaEmision, ci.numero_autorizacion AS autorizacion," +
+            " ci.pago_exterior as pagoExterior," +
+            " ci.formas_pago_sri as formasPago," +
+            " COALESCE(SUM(CASE WHEN civ.codigo = '2' AND " +
+            "civ.codigo_porcentaje = '6' THEN civ.base_imponible ELSE 0 END), 0) AS baseNoGraIva," +
+            " COALESCE(SUM(CASE WHEN civ.codigo = '2'" +
+            " AND civ.codigo_porcentaje = '0' THEN civ.base_imponible ELSE 0 END), 0) AS baseImponible," +
+            " COALESCE(SUM(CASE WHEN civ.codigo = '2' AND" +
+            " civ.codigo_porcentaje IN ('2','4','5','8') THEN civ.base_imponible ELSE 0 END), 0) AS baseImpGrav," +
+            " COALESCE(SUM(CASE WHEN civ.codigo = '2' " +
+            "AND civ.codigo_porcentaje = '7' THEN civ.base_imponible ELSE 0 END), 0) AS baseImpExe," +
+            " COALESCE(SUM(CASE WHEN civ.codigo = '2' " +
+            "AND civ.codigo_porcentaje IN ('4','5','8') THEN civ.valor ELSE 0 END), 0) AS montoIva " +
+            "FROM cp_impuestos ci JOIN cp_impuestos_valores civ ON civ.id_impuestos = ci.id_impuestos" +
+            " JOIN ge_terceros gt ON gt.id_tercero = ci.id_proveedor " +
+            "WHERE ci.id_data = :idData AND ci.id_empresa = :idEmpresa " +
+            "AND (:fechaRegistroDesde IS NULL OR ci.fecha_registro >= :fechaRegistroDesde) " +
+            "AND (:fechaRegistroHasta IS NULL OR ci.fecha_registro <= :fechaRegistroHasta) " +
+            "GROUP BY ci.id_impuestos, ci.codigo_sustento, gt.tipo_identificacion, " +
+            "gt.numero_identificacion, ci.documento, ci.fecha_registro, ci.serie, ci.secuencial," +
+            " ci.fecha_emision, ci.numero_autorizacion, ci.pago_exterior," +
+            " ci.formas_pago_sri",
+            nativeQuery = true)
+    List<CpImpuestoAtsProjection> findAllByDates(@Param("idData") Long idData,
+                                                 @Param("idEmpresa") Long idEmpresa,
+                                                 @Param("fechaRegistroDesde") LocalDate fechaRegistroDesde,
+                                                 @Param("fechaRegistroHasta") LocalDate fechaRegistroHasta);
 
 
     @Query(value = "SELECT ci.fecha_emision, " +

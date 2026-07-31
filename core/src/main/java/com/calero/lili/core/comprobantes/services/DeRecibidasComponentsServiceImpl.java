@@ -389,7 +389,9 @@ public class DeRecibidasComponentsServiceImpl {
         try {
             CpImpuestosEntity cpImpuestosEntity = autorizacionBuilder.builderNotaCredito(autorizacionDto, documento, idData, idEmpresa,
                     validarProveedor(documento.getInfoTributaria(), idData, usuario));
+
             validarValoresNotaCredito(documento, cpImpuestosEntity, idData, idEmpresa);
+
             return cpImpuestosEntity;
         } catch (Exception ex) {
             log.error(ex.getMessage());
@@ -523,7 +525,8 @@ public class DeRecibidasComponentsServiceImpl {
             BigDecimal valor = new BigDecimal(impuesto.getValor().replace(" ", ""));
             BigDecimal baseImponible = new BigDecimal(impuesto.getBaseImponible().replace(" ", ""));
             if (valor.compareTo(BigDecimal.ZERO) > 0 || baseImponible.compareTo(BigDecimal.ZERO) > 0) {
-                reembolsosEntities.add(autorizacionBuilder.builderValoresDocumento(impuesto, tarifa, idData, idEmpresa));
+                reembolsosEntities.add(autorizacionBuilder.builderValoresDocumento(impuesto, valor, baseImponible,
+                        tarifa, idData, idEmpresa));
             }
 
         }
@@ -538,7 +541,11 @@ public class DeRecibidasComponentsServiceImpl {
             BigDecimal valor = new BigDecimal(impuesto.getValor().replace(" ", ""));
             BigDecimal baseImponible = new BigDecimal(impuesto.getBaseImponible().replace(" ", ""));
             if (valor.compareTo(BigDecimal.ZERO) > 0 || baseImponible.compareTo(BigDecimal.ZERO) > 0) {
-                reembolsosEntities.add(autorizacionBuilder.builderValoresDocumento(impuesto, tarifa, idData, idEmpresa));
+
+                valor = valor.negate();
+                baseImponible = baseImponible.negate();
+                reembolsosEntities.add(autorizacionBuilder.builderValoresDocumento(impuesto, valor, baseImponible,
+                        tarifa, idData, idEmpresa));
             }
 
         }

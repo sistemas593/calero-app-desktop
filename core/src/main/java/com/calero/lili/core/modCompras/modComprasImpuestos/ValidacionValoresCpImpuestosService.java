@@ -33,16 +33,28 @@ public class ValidacionValoresCpImpuestosService {
                 detalleErrores);
 
 
-        validarValoresImpuestos(model.getValoresEntity(), detalleErrores, model.getDocumento());
+        validarValoresImpuestos(model.getValoresEntity(), detalleErrores);
+
+        setearValoresNegativosNotasCredito(model);
 
         /*if (Objects.nonNull(model.getCompraImpuestos())) {
             validarValoresRetenciones(model.getCompraImpuestos(), detalleErrores);
         }*/
 
-        if (!detalleErrores.isEmpty()) {
+    }
 
+    private void setearValoresNegativosNotasCredito(CpImpuestosEntity model) {
+        if (model.getDocumento().equals(DocumentoEnum.D04)) {
+
+            model.setTotal(model.getTotal().negate());
+            model.setSubtotal(model.getSubtotal().negate());
+            model.setTotalImpuesto(model.getTotalImpuesto().negate());
+
+            model.getValoresEntity().forEach(item -> {
+                item.setValor(item.getValor().negate());
+                item.setBaseImponible(item.getValor().negate());
+            });
         }
-
     }
 
     private void validateIvaPorcentaje(List<Integer> valores, LocalDate fechaFactura,
@@ -90,51 +102,27 @@ public class ValidacionValoresCpImpuestosService {
 
 
     private void validarValoresImpuestos(List<CpImpuestosValoresEntity> valores,
-                                         List<CpImpuestoDetalleError> detalleErrores, DocumentoEnum documento) {
+                                         List<CpImpuestoDetalleError> detalleErrores) {
 
 
-        if (!documento.equals(DocumentoEnum.D04)) {
-            valores.forEach(item -> {
+        valores.forEach(item -> {
 
-                String impuestos = item.getCodigo() + "-" + item.getCodigoPorcentaje();
-                validacionDocumentosGeneral.existeImpuesto(impuestos);
+            String impuestos = item.getCodigo() + "-" + item.getCodigoPorcentaje();
+            validacionDocumentosGeneral.existeImpuesto(impuestos);
 
-                if (item.getBaseImponible().compareTo(BigDecimal.ZERO) < 0) {
-                    detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("La base imponible no puede ser negativa"));
-                }
+            if (item.getBaseImponible().compareTo(BigDecimal.ZERO) < 0) {
+                detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("La base imponible no puede ser negativa"));
+            }
 
-                if (item.getTarifa().compareTo(BigDecimal.ZERO) < 0) {
-                    detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("La tarifa no puede ser negativa"));
-                }
+            if (item.getTarifa().compareTo(BigDecimal.ZERO) < 0) {
+                detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("La tarifa no puede ser negativa"));
+            }
 
-                if (item.getValor().compareTo(BigDecimal.ZERO) < 0) {
-                    detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("EL valor no puede ser negativo"));
-                }
+            if (item.getValor().compareTo(BigDecimal.ZERO) < 0) {
+                detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("EL valor no puede ser negativo"));
+            }
 
-            });
-        } else {
-
-            valores.forEach(item -> {
-
-                String impuestos = item.getCodigo() + "-" + item.getCodigoPorcentaje();
-                validacionDocumentosGeneral.existeImpuesto(impuestos);
-
-                if (item.getBaseImponible().compareTo(BigDecimal.ZERO) > 0) {
-                    detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("La base imponible debe ser negativa"));
-                }
-
-                if (item.getTarifa().compareTo(BigDecimal.ZERO) < 0) {
-                    detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("La tarifa no puede ser negativa"));
-                }
-
-                if (item.getValor().compareTo(BigDecimal.ZERO) > 0) {
-                    detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("El valor no puede ser negativo"));
-                }
-
-            });
-        }
-
-
+        });
     }
 
     private List<Integer> getIntegerTarifaIva(List<CpImpuestosValoresEntity> valores) {
