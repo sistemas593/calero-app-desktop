@@ -150,7 +150,7 @@ public class VtVentasReembolsoServiceImpl {
                 filters.getFechaEmisionHasta(), filters.getSecuencial(),
                 filters.getNumeroIdentificacion(), filters.getSerie(), filters.getUtilizado(), pageable);
 
-        List<ResponseVentaReembolsoDto> dtoList = page.stream().map(vtVentaReembolsosBuilder::builderReembolso).toList();
+        List<ResponseVentaReembolsoDto> dtoList = page.stream().map(vtVentaReembolsosBuilder::builderPaginadoReembolso).toList();
 
         PaginatedDto paginatedDto = new PaginatedDto();
         paginatedDto.setContent(dtoList);

@@ -2,10 +2,8 @@ package com.calero.lili.core.modVentas.reembolsos.dto;
 
 import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.enums.TipoTerceroPerSoc;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -24,10 +22,11 @@ public class ResponseVentaReembolsoDto {
     private String secuencialReemb;
     private String fechaEmisionReemb;
     private String numeroAutorizacionReemb;
-     private String fechaAutorizacionReemb;
+    private String fechaAutorizacionReemb;
     private String codigoPais;
     private String pais;
     private UUID idVenta;
     private BigDecimal total;
     private Boolean existeComprobante;
+    private List<ReembolsoValoresDto> reembolsosValores;
 }

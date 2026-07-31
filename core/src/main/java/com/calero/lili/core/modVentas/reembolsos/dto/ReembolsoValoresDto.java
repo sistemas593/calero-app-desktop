@@ -1,0 +1,21 @@
+package com.calero.lili.core.modVentas.reembolsos.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class ReembolsoValoresDto {
+
+    private String codigo;
+    private String codigoPorcentaje;
+    private BigDecimal tarifa;
+    private BigDecimal baseImponible;
+    private BigDecimal valor;
+}

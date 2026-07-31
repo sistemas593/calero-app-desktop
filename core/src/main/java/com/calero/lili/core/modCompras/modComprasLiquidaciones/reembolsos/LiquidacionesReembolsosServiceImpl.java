@@ -157,7 +157,7 @@ public class LiquidacionesReembolsosServiceImpl {
 
 
         List<GetReembolsoDto> dtoList = page.stream()
-                .map(cpLiquidacionesReembolsosBuilder::builderResponse)
+                .map(cpLiquidacionesReembolsosBuilder::builderPaginadoResponse)
                 .toList();
 
         PaginatedDto paginatedDto = new PaginatedDto();
@@ -182,7 +182,7 @@ public class LiquidacionesReembolsosServiceImpl {
 
 
     public GetLiquidacionCompraListDtoTotalizado<GetReembolsoTotalizadoDto> findAllPaginateTotalizado(Long idData, Long idEmpresa,
-                                                                                            FilterListComprasLiquidacionesDto filtro, Pageable pageable) {
+                                                                                                      FilterListComprasLiquidacionesDto filtro, Pageable pageable) {
 
 
         validarFiltroUtilizado(filtro);

@@ -1,6 +1,5 @@
 package com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.builder;
 
-import com.calero.lili.core.dtos.DetallesDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.dto.detalles.ValoresLiquidacionesCompraDto;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.CpLiquidacionesReembolsosEntity;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.reembolsos.CpLiquidacionesReembolsosValoresEntity;
@@ -107,6 +106,30 @@ public class CpLiquidacionesReembolsosBuilder {
                 .idLiquidacion(model.getIdLiquidacion())
                 .total(setearTotal(model.getReembolsosValores()))
                 .existeComprobante(model.getExisteComprobante())
+                .reembolsosValores(builderListValoresResponse(model.getReembolsosValores()))
+                .build();
+    }
+
+
+    public GetReembolsoDto builderPaginadoResponse(CpLiquidacionesReembolsosEntity model) {
+        return GetReembolsoDto.builder()
+                .idLiquidacionReembolsos(model.getIdLiquidacionReembolsos())
+                .tipoIdentificacionReemb(model.getTipoIdentificacionReemb())
+                .numeroIdentificacionReemb(model.getNumeroIdentificacionReemb())
+                .codigoDocumentoReemb(model.getCodigoDocumentoReemb())
+                .tipoProveedorReemb(model.getTipoProveedorReemb())
+                .pais(Objects.nonNull(model.getPais()) ? model.getPais().getPais() : "")
+                .codigoPais(Objects.nonNull(model.getPais()) ? model.getPais().getCodigoPais() : "")
+                .codigoDocumentoReemb(model.getCodigoDocumentoReemb())
+                .serieReemb(model.getSerieReemb())
+                .secuencialReemb(model.getSecuencialReemb())
+                .fechaEmisionReemb(DateUtils.toString(model.getFechaEmisionReemb()))
+                .numeroAutorizacionReemb(model.getNumeroAutorizacionReemb())
+                .fechaAutorizacionReemb(DateUtils.toLocalDateTimeString(model.getFechaAutorizacionReemb()))
+                .idLiquidacion(model.getIdLiquidacion())
+                .total(setearTotal(model.getReembolsosValores()))
+                .existeComprobante(model.getExisteComprobante())
+                .reembolsosValores(new ArrayList<>())
                 .build();
     }
 

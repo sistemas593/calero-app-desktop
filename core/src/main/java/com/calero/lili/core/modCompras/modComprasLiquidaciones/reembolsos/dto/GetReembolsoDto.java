@@ -29,7 +29,7 @@ public class GetReembolsoDto {
     private String fechaEmisionReemb;
     private String numeroAutorizacionReemb;
     private String fechaAutorizacionReemb;
-    //private List<ValoresLiquidacionesCompraDto> reembolsosValores;
+    private List<ValoresLiquidacionesCompraDto> reembolsosValores;
     private String codigoPais;
     private String pais;
     private UUID idLiquidacion;
