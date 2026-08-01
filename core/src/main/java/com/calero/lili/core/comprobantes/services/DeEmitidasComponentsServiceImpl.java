@@ -4,7 +4,6 @@ import com.calero.lili.core.comprobantes.builder.AutorizacionBuilder;
 import com.calero.lili.core.comprobantes.message.ConstantesDocumento;
 import com.calero.lili.core.comprobantes.message.MensajeComprobante;
 import com.calero.lili.core.comprobantes.objetosXml.TotalImpuesto;
-import com.calero.lili.core.comprobantes.objetosXml.autorizacionFile.Autorizacion;
 import com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencion.ComprobanteRetencion;
 import com.calero.lili.core.comprobantes.objetosXml.factura.Detalle;
 import com.calero.lili.core.comprobantes.objetosXml.factura.Factura;
@@ -40,7 +39,6 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -128,7 +126,8 @@ public class DeEmitidasComponentsServiceImpl {
             String message = validarEmpresa(documento.getInfoTributaria().getRuc(), idEmpresa, idData);
 
             if (message.isEmpty()) {
-                VtVentaEntity notaCredito = validarNotaCredito(idData, idEmpresa, documento, sucursal, autorizacionDto.getComprobante(), usuario);
+                VtVentaEntity notaCredito = validarNotaCredito(idData, idEmpresa, documento,
+                        sucursal, autorizacionDto.getComprobante(), usuario, autorizacionDto.getFechaAutorizacion());
                 if (Objects.nonNull(notaCredito)) {
                     return "";
                 } else {
@@ -447,7 +446,7 @@ public class DeEmitidasComponentsServiceImpl {
     }
 
     private VtVentaEntity validarNotaCredito(Long idData, Long idEmpresa, NotaCredito documento,
-                                             String sucursal, String comprobante, String usuario) {
+                                             String sucursal, String comprobante, String usuario, String fechaAutorizacion) {
         try {
 
             GeTerceroEntity tercero = validarCliente(idData, documento.getInfoNotaCredito().getIdentificacionComprador(),
@@ -477,6 +476,8 @@ public class DeEmitidasComponentsServiceImpl {
 
             notaCredito.setCreatedBy(usuario);
             notaCredito.setCreatedDate(LocalDateTime.now());
+            notaCredito.setFechaAutorizacion(Objects.nonNull(fechaAutorizacion)
+                    ? DateUtils.toLocalDateTime(fechaAutorizacion) : null);
             return vtVentaRepository.save(notaCredito);
 
         } catch (Exception ex) {

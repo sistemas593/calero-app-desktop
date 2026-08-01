@@ -738,6 +738,11 @@ public class AutorizacionBuilder {
                 .existeComprobante(Boolean.TRUE)
                 .origen(OrigenEnum.VTS)
                 .estadoDocumento(EstadoDocumento.AUT)
+                .fleteInternacional(BigDecimal.ZERO)
+                .seguroInternacional(BigDecimal.ZERO)
+                .gastosAduaneros(BigDecimal.ZERO)
+                .gastosTransporteOtros(BigDecimal.ZERO)
+                .emailEstado(1)
                 .build();
 
     }
