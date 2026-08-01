@@ -15,7 +15,6 @@ import com.calero.lili.core.modVentas.VtVentaEntity;
 import com.calero.lili.core.utils.DateUtils;
 import com.calero.lili.core.utils.validaciones.ObligadoContabilidad;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
@@ -65,6 +64,7 @@ public class FacturaBuilder {
                 .pago(formaDePagoBuilder.builderListFormaPagos(venta.getFormasPagoSri()))
                 .propina(ConstantesDocumento.PROPINA)
                 .guiaRemision(validarGuiaRemision(venta))
+                .placa(venta.getPlaca())
                 .build();
     }
 

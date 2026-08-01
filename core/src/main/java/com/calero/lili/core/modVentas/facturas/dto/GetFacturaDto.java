@@ -7,6 +7,7 @@ import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormaPago;
 import com.calero.lili.core.enums.FormatoDocumento;
+import com.calero.lili.core.enums.TipoIncoTerm;
 import com.calero.lili.core.enums.TipoTerceroPerSoc;
 import com.calero.lili.core.modVentas.facturas.dto.detalles.DetalleGetDto;
 import jakarta.persistence.Column;
@@ -86,7 +87,7 @@ public class GetFacturaDto {
     @Builder
     public static class Exportacion {
         private ComercioExterior comercioExterior;
-        private String incoTermFactura;
+        private TipoIncoTerm incoTermFactura;
         private String lugarIncoTerm;
         private String paisOrigen;
         private String nombrePaisOrigen;
@@ -96,7 +97,7 @@ public class GetFacturaDto {
         private String nombrePaisDestino;
         private String paisAdquisicion;
         private String nombrePaisAdquisicion;
-        private String incoTermTotalSinImpuestos;
+        private TipoIncoTerm incoTermTotalSinImpuestos;
     }
 
     private BigDecimal fleteInternacional;
@@ -178,4 +179,5 @@ public class GetFacturaDto {
     private String numeroAutorizacion;
     private BigDecimal totalImpuesto;
     private Boolean existeComprobante;
+    private String placa;
 }

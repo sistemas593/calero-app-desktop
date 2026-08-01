@@ -43,4 +43,5 @@ public class GetVentasListDto {
     private String email;
     private Boolean existeComprobante;
     private OrigenEnum origen;
+    private String placa;
 }

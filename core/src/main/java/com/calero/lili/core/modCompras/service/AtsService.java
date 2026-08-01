@@ -81,6 +81,12 @@ public class AtsService {
                         .map(CpImpuestoAtsProjection::getIdImpuestos)
                         .toList();
 
+                List<UUID> listaUuidsRetenciones = comprasImpuesto.stream()
+                        .map(CpImpuestoAtsProjection::getIdRetencion)
+                        .filter(Objects::nonNull)
+                        .toList();
+
+
                 List<CpImpuestosCodigosAtsProjection> compraImpuestoCodigos = cpImpuestosRepository
                         .findAllCpImpuestosCodigos(idData, idEmpresa, listaUuidsCompraImpuesto);
 

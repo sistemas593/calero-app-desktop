@@ -16,10 +16,10 @@ import java.util.List;
         "tipoIdentificacionComprador", "guiaRemision", "razonSocialComprador",
         "identificacionComprador", "direccionComprador", "totalSinImpuestos",
         "incoTermTotalSinImpuestos", "totalDescuento", "codDocReembolso",
-        "totalComprobantesReembolso","totalBaseImponibleReembolso", "totalImpuestoReembolso",
+        "totalComprobantesReembolso", "totalBaseImponibleReembolso", "totalImpuestoReembolso",
         "totalImpuesto", "propina", "fleteInternacional",
         "seguroInternacional", "gastosAduaneros", "gastosTransporteOtros",
-        "importeTotal", "moneda", "pago"})
+        "importeTotal", "moneda", "placa", "pago"})
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -57,7 +57,7 @@ public class InfoFactura {
     private String gastosTransporteOtros;
     private String importeTotal;
     private String moneda;
-
+    private String placa;
     private List<Pago> pago;
 
     @XmlElementWrapper(name = "pagos") // envoltorio
@@ -325,5 +325,13 @@ public class InfoFactura {
 
     public void setTotalImpuestoReembolso(String totalImpuestoReembolso) {
         this.totalImpuestoReembolso = totalImpuestoReembolso;
+    }
+
+    public String getPlaca() {
+        return placa;
+    }
+
+    public void setPlaca(String placa) {
+        this.placa = placa;
     }
 }

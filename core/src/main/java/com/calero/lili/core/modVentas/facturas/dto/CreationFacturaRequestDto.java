@@ -1,5 +1,6 @@
 package com.calero.lili.core.modVentas.facturas.dto;
 
+import com.calero.lili.core.dtos.DetallesDto;
 import com.calero.lili.core.dtos.FormasPagoDto;
 import com.calero.lili.core.dtos.InformacionAdicionalDto;
 import com.calero.lili.core.dtos.ValoresDto;
@@ -9,8 +10,8 @@ import com.calero.lili.core.enums.FormaPago;
 import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.Liquidar;
 import com.calero.lili.core.enums.TipoIdentificacion;
+import com.calero.lili.core.enums.TipoIncoTerm;
 import com.calero.lili.core.enums.TipoIngreso;
-import com.calero.lili.core.dtos.DetallesDto;
 import jakarta.persistence.Column;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -112,14 +113,14 @@ public class CreationFacturaRequestDto {
     @NoArgsConstructor
     public static class Exportacion {
         private ComercioExterior comercioExterior;
-        private String incoTermFactura;
+        private TipoIncoTerm incoTermFactura;
         private String lugarIncoTerm;
         private String paisOrigen;
         private String puertoEmbarque;
         private String puertoDestino;
         private String paisDestino;
         private String paisAdquisicion;
-        private String incoTermTotalSinImpuestos;
+        private TipoIncoTerm incoTermTotalSinImpuestos;
 
     }
 
@@ -162,6 +163,8 @@ public class CreationFacturaRequestDto {
 
     @NotNull(message = "Cuentas por cobras no existe")
     private Boolean cuentaPorCobrar;
+
+    private String placa;
 
 
 }

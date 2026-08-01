@@ -85,6 +85,7 @@ public class VtFacturasBuilder {
                 .totalImpuesto(model.getTotalImpuesto())
                 .existeComprobante(Boolean.TRUE)
                 .origen(OrigenEnum.VTS)
+                .placa(model.getPlaca())
                 .build();
     }
 
@@ -147,6 +148,7 @@ public class VtFacturasBuilder {
                 .anulada(item.getAnulada())
                 .existeComprobante(item.getExisteComprobante())
                 .origen(OrigenEnum.VTS)
+                .placa(model.getPlaca())
                 .build();
     }
 
@@ -352,6 +354,7 @@ public class VtFacturasBuilder {
                 .formatoDocumento(model.getFormatoDocumento())
                 .ambiente(model.getAmbiente())
                 .totalImpuesto(model.getTotalImpuesto())
+                .placa(model.getPlaca())
                 .build();
     }
 

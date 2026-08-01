@@ -10,6 +10,7 @@ import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormaPago;
 import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.OrigenEnum;
+import com.calero.lili.core.enums.TipoIncoTerm;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modVentas.reembolsos.VtVentaReembolsosEntity;
 import com.calero.lili.core.modVentasVendedores.VtVendedorEntity;
@@ -24,7 +25,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -186,14 +186,14 @@ public class VtVentaEntity extends Auditable {
     @Builder
     public static class Exportacion {
         private ComercioExterior comercioExterior;
-        private String incoTermFactura;
+        private TipoIncoTerm incoTermFactura;
         private String lugarIncoTerm;
         private String paisOrigen;
         private String puertoEmbarque;
         private String puertoDestino;
         private String paisDestino;
         private String paisAdquisicion;
-        private String incoTermTotalSinImpuestos;
+        private TipoIncoTerm incoTermTotalSinImpuestos;
     }
 
     private BigDecimal fleteInternacional;
@@ -261,6 +261,7 @@ public class VtVentaEntity extends Auditable {
     @Enumerated(EnumType.STRING)
     private OrigenEnum origen;
 
-    // al traer las facturas anuladas los valores deben ser cero, total, subtotal.
+    private String placa;
+
 
 }

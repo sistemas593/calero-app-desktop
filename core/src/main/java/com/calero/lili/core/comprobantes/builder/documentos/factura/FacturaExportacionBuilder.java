@@ -15,12 +15,14 @@ public class FacturaExportacionBuilder {
     public void builderFacturaExportacion(Factura model, VtVentaEntity venta) {
 
         model.getInfoFactura().setComercioExterior(venta.getExportacion().getComercioExterior().getLiquidar());
-        model.getInfoFactura().setIncoTermFactura(venta.getExportacion().getIncoTermFactura());
+        model.getInfoFactura().setIncoTermFactura(venta.getExportacion().getIncoTermFactura().name());
         model.getInfoFactura().setLugarIncoTerm(venta.getExportacion().getLugarIncoTerm());
         model.getInfoFactura().setPaisOrigen(venta.getExportacion().getPaisOrigen());
         model.getInfoFactura().setPuertoEmbarque(venta.getExportacion().getPuertoEmbarque());
         model.getInfoFactura().setPuertoDestino(venta.getExportacion().getPuertoDestino());
         model.getInfoFactura().setPaisDestino(venta.getExportacion().getPaisDestino());
+        model.getInfoFactura().setPaisAdquisicion(venta.getExportacion().getPaisAdquisicion());
+        model.getInfoFactura().setIncoTermTotalSinImpuestos(venta.getExportacion().getIncoTermTotalSinImpuestos().name());
 
         model.getInfoFactura().setFleteInternacional(formatoValores.convertirBigDecimalToString(venta.getFleteInternacional()));
         model.getInfoFactura().setSeguroInternacional(formatoValores.convertirBigDecimalToString(venta.getSeguroInternacional()));

@@ -29,6 +29,7 @@ import com.calero.lili.core.enums.Liquidar;
 import com.calero.lili.core.enums.OrigenEnum;
 import com.calero.lili.core.enums.OrigenImpuestos;
 import com.calero.lili.core.enums.TipoIdentificacion;
+import com.calero.lili.core.enums.TipoIncoTerm;
 import com.calero.lili.core.enums.TipoIngreso;
 import com.calero.lili.core.enums.TipoVenta;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosEntity;
@@ -669,14 +670,14 @@ public class AutorizacionBuilder {
         }
 
         return VtVentaEntity.Exportacion.builder()
-                .incoTermFactura(info.getIncoTermFactura())
+                .incoTermFactura(TipoIncoTerm.valueOf(info.getIncoTermFactura()))
                 .lugarIncoTerm(info.getLugarIncoTerm())
                 .paisOrigen(info.getPaisOrigen())
                 .puertoEmbarque(info.getPuertoEmbarque())
                 .puertoDestino(info.getPuertoDestino())
                 .paisDestino(info.getPaisDestino())
                 .paisAdquisicion(info.getPaisAdquisicion())
-                .incoTermTotalSinImpuestos(info.getIncoTermTotalSinImpuestos())
+                .incoTermTotalSinImpuestos(TipoIncoTerm.valueOf(info.getIncoTermTotalSinImpuestos()))
                 .build();
     }
 

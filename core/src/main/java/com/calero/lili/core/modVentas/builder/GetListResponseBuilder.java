@@ -43,6 +43,7 @@ public class GetListResponseBuilder {
                 .email(model.getEmail())
                 .existeComprobante(model.getExisteComprobante())
                 .origen(model.getOrigen())
+                .placa(model.getPlaca())
                 .build();
     }
 
@@ -79,6 +80,7 @@ public class GetListResponseBuilder {
                 .email(model.getEmail())
                 .existeComprobante(model.getExisteComprobante())
                 .origen(model.getOrigen())
+                .placa(model.getPlaca())
                 .build();
     }
 
@@ -127,6 +129,7 @@ public class GetListResponseBuilder {
                 .email(model.getEmail())
                 .existeComprobante(model.getExisteComprobante())
                 .origen(model.getOrigen())
+                .placa(model.getPlaca())
                 .build();
     }
 
@@ -163,6 +166,7 @@ public class GetListResponseBuilder {
                 .email(model.getEmail())
                 .existeComprobante(model.getExisteComprobante())
                 .origen(model.getOrigen())
+                .placa(model.getPlaca())
                 .build();
     }
 

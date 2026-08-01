@@ -9,6 +9,7 @@ import com.calero.lili.core.modCompras.projection.AtsProjection;
 import com.calero.lili.core.modCompras.projection.AtsRetencionResumenProjection;
 import com.calero.lili.core.modCompras.service.CpImpuestoAtsProjection;
 import com.calero.lili.core.modCompras.service.CpImpuestosCodigosAtsProjection;
+import com.calero.lili.core.modCompras.service.CpRetencionesProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -369,6 +370,19 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
     List<CpImpuestosCodigosAtsProjection> findAllCpImpuestosCodigos(@Param("idData") Long idData,
                                                                     @Param("idEmpresa") Long idEmpresa,
                                                                     @Param("idCpImpuestos") List<UUID> idCpImpuestos);
+
+
+    /*@Query(value = "select " +
+            "cr.serie_retencion as serie, " +
+            "cr.secuencial_retencion as secuencial, " +
+            "cr.numero_autorizacion_retencion as autorizacion, " +
+            "cr.fecha_emision_retencion  as fechaRetencion " +
+            "from cp_retenciones cr " +
+            "where cr.id_retencion in (:idRetenciones) and cr.id_data = : idData and cr.id_empresa = :idEmpresa;",
+            nativeQuery = true)
+    List<CpRetencionesProjection> findAllCpRetenciones(@Param("idData") Long idData,
+                                                       @Param("idEmpresa") Long idEmpresa,
+                                                       @Param("idRetenciones") List<UUID> idRetenciones);*/
 
 
     @Query(value = "SELECT ci.fecha_emision, " +
