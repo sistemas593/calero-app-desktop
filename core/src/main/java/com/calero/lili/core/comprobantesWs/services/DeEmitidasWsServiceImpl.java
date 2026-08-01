@@ -5,12 +5,15 @@ import com.calero.lili.core.comprobantes.objetosXml.autorizacionFile.Autorizacio
 import com.calero.lili.core.comprobantes.objetosXml.autorizacionFile.Mensaje;
 import com.calero.lili.core.comprobantes.services.DeEmitidasComponentsServiceImpl;
 import com.calero.lili.core.comprobantes.services.builder.CampoAutorizacionBuilder;
+import com.calero.lili.core.comprobantes.services.dto.FilterEmitidosDto;
 import com.calero.lili.core.comprobantesWs.ws.dtos.autorizacion.AutorizacionRequestDto;
 import com.calero.lili.core.comprobantesWs.ws.services.AutorizacionServiceImpl;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirListCreationRequestDto;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirListCreationResponseDto;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirListExistRequestResponseDto;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirResponseDto;
+import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.core.modAdminEmpresasSucursales.AdEmpresasSucursalesRepository;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +33,7 @@ public class DeEmitidasWsServiceImpl {
     private final AutorizacionServiceImpl autorizacionService;
     private final DeEmitidasComponentsServiceImpl deEmitidasComponentsService;
     private final CampoAutorizacionBuilder campoAutorizacionBuilder;
+    private final AdEmpresasSucursalesRepository adEmpresasSucursalesRepository;
 
     public CpImpuestosRecibirListExistRequestResponseDto verificarExisteListaClaves(Long idData, Long idEmpresa, CpImpuestosRecibirListExistRequestResponseDto request) {
         log.info("xxxxxx");
@@ -52,7 +56,18 @@ public class DeEmitidasWsServiceImpl {
 
 
     public CpImpuestosRecibirListCreationResponseDto createListClavesAcceso(Long idData, Long idEmpresa,
-                                                                            CpImpuestosRecibirListCreationRequestDto request, String usuario) {
+                                                                            CpImpuestosRecibirListCreationRequestDto request, String usuario,
+                                                                            FilterEmitidosDto filter) {
+
+
+        if (filter.getSucursal() == null || filter.getSucursal().isEmpty()) {
+            throw new GeneralException("La sucursal es requerida");
+        } else {
+            adEmpresasSucursalesRepository.findfirstByIdDataAndIdEmpresaAAndSucursal(idData, idEmpresa, filter.getSucursal())
+                    .orElseThrow(() -> new GeneralException("La sucursal " + filter.getSucursal() + " no existe para la empresa con id: " + idEmpresa));
+        }
+
+
         log.info("xxxxxx");
         List<CpImpuestosRecibirResponseDto> listaRespuestas = new ArrayList<>();
 
@@ -90,7 +105,7 @@ public class DeEmitidasWsServiceImpl {
                             if (autorizacionDto.getEstado() != null) {
 
                                 String message = deEmitidasComponentsService.guardarComprobante(idData, idEmpresa,
-                                        campoAutorizacionBuilder.builder(autorizacionDto), "001", usuario);
+                                        campoAutorizacionBuilder.builder(autorizacionDto), filter.getSucursal(), usuario);
 
                                 if (!message.isEmpty()) {
                                     listaRespuestas.add(CpImpuestosRecibirResponseDto.builder()

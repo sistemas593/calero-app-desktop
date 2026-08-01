@@ -359,7 +359,9 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
 
 
     @Query(value = "select " +
-            "cic.id_impuestos " +
+            "cic.id_impuestos, " +
+            "cic.base_imponible, " +
+            "cic.porcentaje_retener" +
             "cic.codigo as codigo, " +
             "cic.codigo_retencion as codigoRetencion, " +
             "cic.valor_retenido as valorRetenido " +
@@ -372,17 +374,18 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
                                                                     @Param("idCpImpuestos") List<UUID> idCpImpuestos);
 
 
-    /*@Query(value = "select " +
+    @Query(value = "select " +
+            "cr.id_retencion as idRetencion, " +
             "cr.serie_retencion as serie, " +
             "cr.secuencial_retencion as secuencial, " +
             "cr.numero_autorizacion_retencion as autorizacion, " +
             "cr.fecha_emision_retencion  as fechaRetencion " +
             "from cp_retenciones cr " +
-            "where cr.id_retencion in (:idRetenciones) and cr.id_data = : idData and cr.id_empresa = :idEmpresa ",
+            "where cr.id_retencion in (:idRetenciones) and cr.id_data = :idData and cr.id_empresa = :idEmpresa ",
             nativeQuery = true)
     List<CpRetencionesProjection> findAllCpRetenciones(@Param("idData") Long idData,
                                                        @Param("idEmpresa") Long idEmpresa,
-                                                       @Param("idRetenciones") List<UUID> idRetenciones);*/
+                                                       @Param("idRetenciones") List<UUID> idRetenciones);
 
 
     @Query(value = "SELECT ci.fecha_emision, " +

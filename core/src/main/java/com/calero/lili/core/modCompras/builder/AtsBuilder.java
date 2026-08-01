@@ -6,6 +6,7 @@ import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosCodigosEntity;
 import com.calero.lili.core.modCompras.service.CpImpuestoAtsProjection;
+import com.calero.lili.core.modCompras.service.CpImpuestosCodigosAtsProjection;
 import com.calero.lili.core.modImpuestosAnexos.ats.Air;
 import com.calero.lili.core.modImpuestosAnexos.ats.DetalleAir;
 import com.calero.lili.core.modImpuestosAnexos.ats.DetalleCompras;
@@ -144,7 +145,7 @@ public class AtsBuilder {
                 .build();
     }
 
-    public DetalleAir builderDetalleAir(CpImpuestosCodigosEntity model) {
+    public DetalleAir builderDetalleAir(CpImpuestosCodigosAtsProjection model) {
         return DetalleAir.builder()
                 .codRetAir(model.getCodigoRetencion())
                 .baseImpAir(model.getBaseImponible())

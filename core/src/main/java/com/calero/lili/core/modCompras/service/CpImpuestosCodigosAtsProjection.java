@@ -10,6 +10,10 @@ public interface CpImpuestosCodigosAtsProjection {
 
     UUID getIdImpuestos();
 
+    BigDecimal getBaseImponible();
+
+    BigDecimal getPorcentajeRetener();
+
     CodigoRetencion getCodigo();
 
     String getCodigoRetencion();

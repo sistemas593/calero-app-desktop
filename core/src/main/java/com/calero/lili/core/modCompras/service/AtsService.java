@@ -8,9 +8,7 @@ import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.modCompras.builder.AtsBuilder;
 import com.calero.lili.core.modCompras.dto.FilterDto;
-import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosCodigosEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosRepository;
-import com.calero.lili.core.modCompras.modComprasRetenciones.CpRetencionesEntity;
 import com.calero.lili.core.modCompras.projection.AtsProjection;
 import com.calero.lili.core.modCompras.projection.AtsRetencionResumenProjection;
 import com.calero.lili.core.modImpuestosAnexos.ats.DetalleAir;
@@ -47,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -90,6 +89,9 @@ public class AtsService {
                 List<CpImpuestosCodigosAtsProjection> compraImpuestoCodigos = cpImpuestosRepository
                         .findAllCpImpuestosCodigos(idData, idEmpresa, listaUuidsCompraImpuesto);
 
+                List<CpRetencionesProjection> cpRetencionesList = cpImpuestosRepository
+                        .findAllCpRetenciones(idData, idEmpresa, listaUuidsRetenciones);
+
 
                 comprasImpuesto.forEach(cpImpuestosEntity -> {
 
@@ -103,9 +105,25 @@ public class AtsService {
                                 compraImpuestoCodigos.stream()
                                         .collect(Collectors.groupingBy(CpImpuestosCodigosAtsProjection::getIdImpuestos));
                         List<CpImpuestosCodigosAtsProjection> listCodigos = codigosPorImpuesto.get(cpImpuestosEntity.getIdImpuestos());
+
+
                         validateRetencionesIva(detalleCompra, listCodigos);
 
-                        //validateRetencionesRenta(detalleCompra, cpImpuestosEntity.getCodigosEntity(), cpImpuestosEntity.getRetencion());
+                    }
+
+                    if (Objects.nonNull(cpRetencionesList)) {
+
+                        Map<UUID, CpRetencionesProjection> cpRetencionesMap =
+                                cpRetencionesList.stream()
+                                        .collect(Collectors.toMap(
+                                                CpRetencionesProjection::getIdRetencion,
+                                                Function.identity()
+                                        ));
+
+                        if (Objects.nonNull(cpImpuestosEntity.getIdRetencion())) {
+                            CpRetencionesProjection retencion = cpRetencionesMap.get(cpImpuestosEntity.getIdRetencion());
+                            validateRetencionesRenta(detalleCompra, compraImpuestoCodigos, retencion);
+                        }
                     }
 
 
@@ -198,8 +216,8 @@ public class AtsService {
     }
 
     private void validateRetencionesRenta(DetalleCompras detalleCompra,
-                                          List<CpImpuestosCodigosEntity> listCodigos,
-                                          CpRetencionesEntity retencion) {
+                                          List<CpImpuestosCodigosAtsProjection> listCodigos,
+                                          CpRetencionesProjection retencion) {
 
         List<DetalleAir> detalleAirs = new ArrayList<>();
         listCodigos.forEach(item -> {
@@ -210,11 +228,11 @@ public class AtsService {
 
         if (!detalleAirs.isEmpty() && Objects.nonNull(retencion)) {
             detalleCompra.setDetalleAir(detalleAirs);
-            detalleCompra.setEstabRetencion1(retencion.getSerieRetencion().substring(0, 3));
-            detalleCompra.setPtoEmiRetencion1(retencion.getSerieRetencion().substring(3, 6));
-            detalleCompra.setSecRetencion1(new java.math.BigInteger(retencion.getSecuencialRetencion()).toString());
-            detalleCompra.setAutRetencion1(retencion.getNumeroAutorizacionRetencion());
-            detalleCompra.setFechaEmiRet1(DateUtils.toString(retencion.getFechaEmisionRetencion()));
+            detalleCompra.setEstabRetencion1(retencion.getSerie().substring(0, 3));
+            detalleCompra.setPtoEmiRetencion1(retencion.getSerie().substring(3, 6));
+            detalleCompra.setSecRetencion1(retencion.getSecuencial());
+            detalleCompra.setAutRetencion1(retencion.getAutorizacion());
+            detalleCompra.setFechaEmiRet1(DateUtils.toString(retencion.getFechaRetencion()));
         }
 
     }
