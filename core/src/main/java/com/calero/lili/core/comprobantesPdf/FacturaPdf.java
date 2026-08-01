@@ -23,6 +23,7 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfPTableEvent;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.lowagie.text.Rectangle;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -358,63 +359,108 @@ public class FacturaPdf {
 
             document.add(table_datos);
 
-            /// // TABLA 2 SUSTITUTIVA GUIA REMISION
+            ///// OPCIONAL TABLA 2 SUSTITUTIVA GUIA REMISION
             InfoSustitutivaGuiaRemision guia = factura.getInfoSustitutivaGuiaRemision();
 
             if (guia != null) {
 
-                PdfPTable tableGuia = new PdfPTable(4);
+                PdfPTable tableGuia = new PdfPTable(1);
                 tableGuia.setWidthPercentage(100);
                 tableGuia.setTableEvent(new BorderEventWithoutRadius());
                 tableGuia.setSpacingAfter(5);
 
-                PdfPCell celdaGuia;
+                PdfPCell contenedor = new PdfPCell();
+                contenedor.setBorder(Rectangle.NO_BORDER);
+                contenedor.setPadding(0);
 
-                // Título
-                celdaGuia = new PdfPCell(new Phrase("Sustitutiva de Guía de Remisión", title));
-                celdaGuia.setColspan(4);
-                celdaGuia.setHorizontalAlignment(Element.ALIGN_CENTER);
-                tableGuia.addCell(celdaGuia);
+                // ==========================
+                // TÍTULO
+                // ==========================
+                PdfPTable titulo = new PdfPTable(1);
+                titulo.setWidthPercentage(100);
 
-                // Transportista
-                tableGuia.addCell(new PdfPCell(new Phrase("RUC / CI (Transportista):", title)));
-                tableGuia.addCell(new PdfPCell(new Phrase(guia.getRucTransportista(), fuente)));
+                PdfPCell celdaTitulo = new PdfPCell(new Phrase("Sustitutiva de Guía de Remisión", title));
+                celdaTitulo.setHorizontalAlignment(Element.ALIGN_CENTER);
+                celdaTitulo.setBorder(Rectangle.NO_BORDER);
+                celdaTitulo.setPaddingBottom(4);
+                titulo.addCell(celdaTitulo);
 
-                tableGuia.addCell(new PdfPCell(new Phrase("Razón Social / Nombres:", title)));
-                tableGuia.addCell(new PdfPCell(new Phrase(guia.getRazonSocialTransportista(), fuente)));
+                contenedor.addElement(titulo);
 
-                // Placa
-                tableGuia.addCell(new PdfPCell(new Phrase("Placa:", title)));
-                tableGuia.addCell(new PdfPCell(new Phrase(guia.getPlaca(), fuente)));
+                // ==========================
+                // FILA 1
+                // ==========================
+                PdfPTable fila = new PdfPTable(new float[]{25, 25, 25, 25});
+                fila.setWidthPercentage(100);
 
-                tableGuia.addCell(new PdfPCell(new Phrase("Punto de partida:", title)));
-                tableGuia.addCell(new PdfPCell(new Phrase(guia.getDirPartida(), fuente)));
+                fila.addCell(getCell("RUC / CI (Transportista):", title));
+                fila.addCell(getCell(guia.getRucTransportista(), fuente));
 
-                tableGuia.addCell(new PdfPCell(new Phrase("Fecha inicio transporte:", title)));
-                tableGuia.addCell(new PdfPCell(new Phrase(guia.getFechaIniTransporte(), fuente)));
+                fila.addCell(getCell("Razón Social / Nombres:", title));
+                fila.addCell(getCell(guia.getRazonSocialTransportista(), fuente));
 
-                tableGuia.addCell(new PdfPCell(new Phrase("Fecha fin transporte:", title)));
-                tableGuia.addCell(new PdfPCell(new Phrase(guia.getFechaFinTransporte(), fuente)));
+                contenedor.addElement(fila);
 
-                // Destinos
+                // ==========================
+                // FILA 2
+                // ==========================
+                fila = new PdfPTable(new float[]{25, 25, 25, 25});
+                fila.setWidthPercentage(100);
+
+                fila.addCell(getCell("Placa:", title));
+                fila.addCell(getCell(guia.getPlaca(), fuente));
+
+                fila.addCell(getCell("Punto de partida:", title));
+                fila.addCell(getCell(guia.getDirPartida(), fuente));
+
+                contenedor.addElement(fila);
+
+                // ==========================
+                // FILA 3
+                // ==========================
+                fila = new PdfPTable(new float[]{25, 25, 25, 25});
+                fila.setWidthPercentage(100);
+
+                fila.addCell(getCell("Fecha inicio transporte:", title));
+                fila.addCell(getCell(guia.getFechaIniTransporte(), fuente));
+
+                fila.addCell(getCell("Fecha fin transporte:", title));
+                fila.addCell(getCell(guia.getFechaFinTransporte(), fuente));
+
+                contenedor.addElement(fila);
+
+                // ==========================
+                // DESTINOS
+                // ==========================
                 if (guia.getDestino() != null) {
 
                     for (Destino destino : guia.getDestino()) {
 
-                        tableGuia.addCell(new PdfPCell(new Phrase("Destino:", title)));
-                        tableGuia.addCell(new PdfPCell(new Phrase(guia.getDirDestinatario(), fuente)));
+                        fila = new PdfPTable(new float[]{25, 25, 25, 25});
+                        fila.setWidthPercentage(100);
 
-                        tableGuia.addCell(new PdfPCell(new Phrase("Motivo traslado:", title)));
-                        tableGuia.addCell(new PdfPCell(new Phrase(destino.getMotivoTraslado(), fuente)));
+                        fila.addCell(getCell("Destino:", title));
+                        fila.addCell(getCell(guia.getDirDestinatario(), fuente));
 
-                        tableGuia.addCell(new PdfPCell(new Phrase("Cod. Establecimiento destino:", title)));
-                        tableGuia.addCell(new PdfPCell(new Phrase(destino.getCodEstabDestino(), fuente)));
+                        fila.addCell(getCell("Motivo traslado:", title));
+                        fila.addCell(getCell(destino.getMotivoTraslado(), fuente));
 
-                        tableGuia.addCell(new PdfPCell(new Phrase("Ruta:", title)));
-                        tableGuia.addCell(new PdfPCell(new Phrase(destino.getRuta(), fuente)));
+                        contenedor.addElement(fila);
+
+                        fila = new PdfPTable(new float[]{25, 25, 25, 25});
+                        fila.setWidthPercentage(100);
+
+                        fila.addCell(getCell("Cod. Establecimiento destino:", title));
+                        fila.addCell(getCell(destino.getCodEstabDestino(), fuente));
+
+                        fila.addCell(getCell("Ruta:", title));
+                        fila.addCell(getCell(destino.getRuta(), fuente));
+
+                        contenedor.addElement(fila);
                     }
                 }
 
+                tableGuia.addCell(contenedor);
                 document.add(tableGuia);
             }
 
@@ -857,5 +903,19 @@ public class FacturaPdf {
     private String getDate() {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         return sdf.format(new Date());
+    }
+
+    private PdfPCell getCell(String texto, Font font) {
+
+        PdfPCell cell = new PdfPCell(new Phrase(texto != null ? texto : "", font));
+
+        cell.setBorder(Rectangle.NO_BORDER);
+        cell.setPaddingTop(2);
+        cell.setPaddingBottom(2);
+        cell.setPaddingLeft(3);
+        cell.setPaddingRight(3);
+        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+
+        return cell;
     }
 }
