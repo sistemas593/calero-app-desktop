@@ -692,6 +692,14 @@ public class AutorizacionBuilder {
         String modSecuencial = getModSecuencial(notaCredito.getInfoNotaCredito().getNumDocModificado());
         String modSerie = getModSerie(notaCredito.getInfoNotaCredito().getNumDocModificado());
 
+        BigDecimal subtotal = new BigDecimal(notaCredito.getInfoNotaCredito().getTotalSinImpuestos());
+
+        BigDecimal totalDescuento = notaCredito.getDetalle()
+                .stream()
+                .map(item -> new BigDecimal(item.getDescuento()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+
         return VtVentaEntity.builder()
                 .idVenta(UUID.randomUUID())
                 .idData(idData)
@@ -722,8 +730,8 @@ public class AutorizacionBuilder {
                         ? builderFacturaInfoAddicional(notaCredito.getCampoAdicional())
                         : null)
                 .tercero(cliente)
-                .subtotal(new BigDecimal(notaCredito.getInfoNotaCredito().getTotalSinImpuestos()).negate())
-                .totalDescuento(BigDecimal.ZERO)
+                .subtotal(subtotal.add(totalDescuento).negate())
+                .totalDescuento(totalDescuento.negate())
                 .total(new BigDecimal(notaCredito.getInfoNotaCredito().getValorModificacion()).negate())
                 .totalImpuesto(totalImpuesto.negate())
                 .anulada(Boolean.FALSE)

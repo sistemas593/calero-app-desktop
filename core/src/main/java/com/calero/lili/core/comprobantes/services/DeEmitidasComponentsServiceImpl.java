@@ -462,7 +462,6 @@ public class DeEmitidasComponentsServiceImpl {
                     .map(item -> new BigDecimal(item.getValor()))
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-
             VtVentaEntity notaCredito = autorizacionBuilder.builderEmitidaNotaCredito(idData, idEmpresa,
                     documento, tercero, sucursal, totalImpuesto, comprobante);
 

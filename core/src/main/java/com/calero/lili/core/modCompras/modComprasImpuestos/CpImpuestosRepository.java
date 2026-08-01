@@ -378,7 +378,7 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
             "cr.numero_autorizacion_retencion as autorizacion, " +
             "cr.fecha_emision_retencion  as fechaRetencion " +
             "from cp_retenciones cr " +
-            "where cr.id_retencion in (:idRetenciones) and cr.id_data = : idData and cr.id_empresa = :idEmpresa;",
+            "where cr.id_retencion in (:idRetenciones) and cr.id_data = : idData and cr.id_empresa = :idEmpresa ",
             nativeQuery = true)
     List<CpRetencionesProjection> findAllCpRetenciones(@Param("idData") Long idData,
                                                        @Param("idEmpresa") Long idEmpresa,
