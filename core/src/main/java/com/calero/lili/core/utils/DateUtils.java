@@ -32,12 +32,20 @@ public class DateUtils {
 
     public static LocalDateTime toLocalDateTime(String date) {
 
+
         if (date.contains("T")) {
             return OffsetDateTime.parse(date).toLocalDateTime();
-        } else {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        }
+
+        if (date.contains("-")) {
+            DateTimeFormatter formatter =
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
             return LocalDateTime.parse(date, formatter);
         }
+
+        DateTimeFormatter formatter =
+                DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        return LocalDateTime.parse(date, formatter);
     }
 
     public static LocalDateTime toLocalDateTimeFechaDesde(String date) {

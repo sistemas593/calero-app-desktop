@@ -602,6 +602,10 @@ public class AutorizacionBuilder {
                                              Factura documento,
                                              GeTerceroEntity cliente,
                                              String sucursal, String xmlComprobante) {
+
+        BigDecimal subtotal = new BigDecimal(documento.getInfoFactura().getTotalSinImpuestos());
+        BigDecimal totalDescuento = new BigDecimal(documento.getInfoFactura().getTotalDescuento());
+
         return VtVentaEntity.builder()
                 .idVenta(UUID.randomUUID())
                 .idData(idData)
@@ -624,8 +628,8 @@ public class AutorizacionBuilder {
                 .tipoIngreso(TipoIngreso.VL.name())
                 .formatoDocumento(FormatoDocumento.E)
                 .emailEstado(EmailEstado.NO_ENTREGADO.getTipo())
-                .subtotal(new BigDecimal(documento.getInfoFactura().getTotalSinImpuestos()))
-                .totalDescuento(new BigDecimal(documento.getInfoFactura().getTotalDescuento()))
+                .subtotal(subtotal.add(totalDescuento))
+                .totalDescuento(totalDescuento)
                 .total(new BigDecimal(documento.getInfoFactura().getImporteTotal()))
                 .valoresEntity(builderListValoresFactura(documento.getInfoFactura().getTotalImpuesto(), idData, idEmpresa))
                 .detalle(builderListDetalleFactura(documento.getDetalle(), idData, idEmpresa))

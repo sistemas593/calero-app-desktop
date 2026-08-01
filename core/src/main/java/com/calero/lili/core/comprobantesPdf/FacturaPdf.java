@@ -2,9 +2,11 @@ package com.calero.lili.core.comprobantesPdf;
 
 import com.calero.lili.core.comprobantes.objetosXml.TotalImpuesto;
 import com.calero.lili.core.comprobantes.objetosXml.factura.CampoAdicional;
+import com.calero.lili.core.comprobantes.objetosXml.factura.Destino;
 import com.calero.lili.core.comprobantes.objetosXml.factura.Detalle;
 import com.calero.lili.core.comprobantes.objetosXml.factura.Factura;
 import com.calero.lili.core.comprobantes.objetosXml.factura.InfoFactura;
+import com.calero.lili.core.comprobantes.objetosXml.factura.InfoSustitutivaGuiaRemision;
 import com.calero.lili.core.comprobantes.objetosXml.factura.Pago;
 import com.calero.lili.core.enums.FormaPagoSriEnum;
 import com.itextpdf.text.BaseColor;
@@ -355,6 +357,69 @@ public class FacturaPdf {
             table_datos.setSpacingAfter(5);
 
             document.add(table_datos);
+
+            /// // TABLA 2 SUSTITUTIVA GUIA REMISION
+            InfoSustitutivaGuiaRemision guia = factura.getInfoSustitutivaGuiaRemision();
+
+            if (guia != null) {
+
+                PdfPTable tableGuia = new PdfPTable(4);
+                tableGuia.setWidthPercentage(100);
+                tableGuia.setTableEvent(new BorderEventWithoutRadius());
+                tableGuia.setSpacingAfter(5);
+
+                PdfPCell celdaGuia;
+
+                // Título
+                celdaGuia = new PdfPCell(new Phrase("Sustitutiva de Guía de Remisión", title));
+                celdaGuia.setColspan(4);
+                celdaGuia.setHorizontalAlignment(Element.ALIGN_CENTER);
+                tableGuia.addCell(celdaGuia);
+
+                // Transportista
+                tableGuia.addCell(new PdfPCell(new Phrase("RUC / CI (Transportista):", title)));
+                tableGuia.addCell(new PdfPCell(new Phrase(guia.getRucTransportista(), fuente)));
+
+                tableGuia.addCell(new PdfPCell(new Phrase("Razón Social / Nombres:", title)));
+                tableGuia.addCell(new PdfPCell(new Phrase(guia.getRazonSocialTransportista(), fuente)));
+
+                // Placa
+                tableGuia.addCell(new PdfPCell(new Phrase("Placa:", title)));
+                tableGuia.addCell(new PdfPCell(new Phrase(guia.getPlaca(), fuente)));
+
+                tableGuia.addCell(new PdfPCell(new Phrase("Punto de partida:", title)));
+                tableGuia.addCell(new PdfPCell(new Phrase(guia.getDirPartida(), fuente)));
+
+                tableGuia.addCell(new PdfPCell(new Phrase("Fecha inicio transporte:", title)));
+                tableGuia.addCell(new PdfPCell(new Phrase(guia.getFechaIniTransporte(), fuente)));
+
+                tableGuia.addCell(new PdfPCell(new Phrase("Fecha fin transporte:", title)));
+                tableGuia.addCell(new PdfPCell(new Phrase(guia.getFechaFinTransporte(), fuente)));
+
+                // Destinos
+                if (guia.getDestino() != null) {
+
+                    for (Destino destino : guia.getDestino()) {
+
+                        tableGuia.addCell(new PdfPCell(new Phrase("Destino:", title)));
+                        tableGuia.addCell(new PdfPCell(new Phrase(guia.getDirDestinatario(), fuente)));
+
+                        tableGuia.addCell(new PdfPCell(new Phrase("Motivo traslado:", title)));
+                        tableGuia.addCell(new PdfPCell(new Phrase(destino.getMotivoTraslado(), fuente)));
+
+                        tableGuia.addCell(new PdfPCell(new Phrase("Cod. Establecimiento destino:", title)));
+                        tableGuia.addCell(new PdfPCell(new Phrase(destino.getCodEstabDestino(), fuente)));
+
+                        tableGuia.addCell(new PdfPCell(new Phrase("Ruta:", title)));
+                        tableGuia.addCell(new PdfPCell(new Phrase(destino.getRuta(), fuente)));
+                    }
+                }
+
+                document.add(tableGuia);
+            }
+
+
+
 
             /////////////////DETALLE TABLE 3
 
