@@ -2,6 +2,7 @@ package com.calero.lili.api.controllers;
 
 import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.core.comprobantes.services.DeEmitidasServiceImpl;
+import com.calero.lili.core.comprobantes.services.dto.FilterEmitidosDto;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirListCreationResponseDto;
 import com.calero.lili.api.utils.IdDataServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -32,9 +33,10 @@ public class ImpuestosEmitidosController {
     @PostMapping("files/{idEmpresa}")
     @ResponseStatus(HttpStatus.CREATED)
     public CpImpuestosRecibirListCreationResponseDto createFiles(@PathVariable("idEmpresa") Long idEmpresa,
-                                                                 @RequestBody List<MultipartFile> documentos) {
+                                                                 @RequestBody List<MultipartFile> documentos,
+                                                                 FilterEmitidosDto filter) {
         return deEmitidasService.createFiles(idDataService.getIdData(), idEmpresa, documentos,
-                auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+                auditorAware.getCurrentAuditor().orElse("SYSTEM"), filter);
     }
 
 }

@@ -11,10 +11,12 @@ import com.calero.lili.core.comprobantes.objetosXml.notaDebito.NotaDebito;
 import com.calero.lili.core.comprobantes.services.builder.CampoAutorizacionBuilder;
 import com.calero.lili.core.comprobantes.services.dto.CampoAutorizacionDto;
 import com.calero.lili.core.comprobantes.services.dto.DocumentoDto;
+import com.calero.lili.core.comprobantes.services.dto.FilterEmitidosDto;
 import com.calero.lili.core.comprobantes.utils.XmlUtils;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirListCreationResponseDto;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirResponseDto;
 import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.core.modAdminEmpresasSucursales.AdEmpresasSucursalesRepository;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +27,7 @@ import org.w3c.dom.Document;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.InputStream;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -38,11 +41,22 @@ public class DeEmitidasServiceImpl {
     private final DeEmitidasComponentsServiceImpl deEmitidasComponentsService;
     private final CpImpuestoRecibirBuilder cpImpuestoRecibirBuilder;
     private final CampoAutorizacionBuilder campoAutorizacionBuilder;
-
+    private final AdEmpresasSucursalesRepository adEmpresasSucursalesRepository;
 
     public CpImpuestosRecibirListCreationResponseDto createFiles(Long idData, Long idEmpresa,
-                                                                 List<MultipartFile> files, String usuario) {
-        String sucursal = "001";
+                                                                 List<MultipartFile> files, String usuario, FilterEmitidosDto filter) {
+
+
+        String sucursal = null;
+        if (filter.getSucursal() == null || filter.getSucursal().isEmpty()) {
+            throw new GeneralException("La sucursal es requerida");
+        } else {
+
+            sucursal = filter.getSucursal();
+            adEmpresasSucursalesRepository.findfirstByIdDataAndIdEmpresaAAndSucursal(idData, idEmpresa, filter.getSucursal())
+                    .orElseThrow(() -> new GeneralException("La sucursal " + filter.getSucursal() + " no existe para la empresa con id: " + idEmpresa));
+        }
+
         List<CpImpuestosRecibirResponseDto> listaRespuestas = new ArrayList<>();
 
         for (MultipartFile file : files) {
@@ -66,7 +80,6 @@ public class DeEmitidasServiceImpl {
             String tipoFormato = XmlUtils.validarTipoFormatoDoc(file);
             CpImpuestosRecibirResponseDto res = cpImpuestoRecibirBuilder
                     .builder(nameFile, MensajeComprobante.NOT_ERROR, Boolean.TRUE, "");
-
 
 
             try {

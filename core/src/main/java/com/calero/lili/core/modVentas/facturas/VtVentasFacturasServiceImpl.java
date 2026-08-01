@@ -1009,7 +1009,7 @@ public class VtVentasFacturasServiceImpl {
 
         switch (tipoBusqueda) {
             case TODAS -> {
-                return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
+                return vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
                         filters.getFechaEmisionHasta(), filters.getIdTercero(), filters.getTipoVenta(), filters.getSerie(),
                         filters.getSecuencial(), filters.getNumeroAutorizacion(), null, OrigenEnum.VTS, pageable);
             }
@@ -1026,7 +1026,7 @@ public class VtVentasFacturasServiceImpl {
             }
 
             case PROPIAS -> {
-                return vtVentaRepository.findAllPaginate(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
+                return vtVentaRepository.findAllPaginate(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
                         filters.getFechaEmisionHasta(), filters.getIdTercero(), filters.getTipoVenta(), filters.getSerie(),
                         filters.getSecuencial(), filters.getNumeroAutorizacion(), usuario, OrigenEnum.VTS, pageable);
             }
@@ -1041,7 +1041,7 @@ public class VtVentasFacturasServiceImpl {
 
         switch (tipoBusqueda) {
             case TODAS -> {
-                return vtVentaRepository.findAllPaginateTotalizado(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
+                return vtVentaRepository.findAllPaginateTotalizado(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
                         filters.getFechaEmisionHasta(), filters.getIdTercero(), filters.getTipoVenta(), filters.getSerie(),
                         filters.getSecuencial(), filters.getNumeroAutorizacion(), null, pageable);
             }
@@ -1058,7 +1058,7 @@ public class VtVentasFacturasServiceImpl {
             }
 
             case PROPIAS -> {
-                return vtVentaRepository.findAllPaginateTotalizado(idData, idEmpresa, null, filters.getFechaEmisionDesde(),
+                return vtVentaRepository.findAllPaginateTotalizado(idData, idEmpresa, filters.getSucursal(), filters.getFechaEmisionDesde(),
                         filters.getFechaEmisionHasta(), filters.getIdTercero(), filters.getTipoVenta(), filters.getSerie(),
                         filters.getSecuencial(), filters.getNumeroAutorizacion(), usuario, pageable);
             }
