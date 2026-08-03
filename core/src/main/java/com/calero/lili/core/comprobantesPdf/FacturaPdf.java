@@ -465,8 +465,6 @@ public class FacturaPdf {
             }
 
 
-
-
             /////////////////DETALLE TABLE 3
 
             PdfPTable table_detalle = new PdfPTable(7);
@@ -597,7 +595,7 @@ public class FacturaPdf {
                 for (Pago pag : lstFormasPago) {
                     String nombrePago;
                     try {
-                        nombrePago = FormaPagoSriEnum.getNombrePago(pag.getFormaPago());
+                        nombrePago = pag.getFormaPago() + "-" + FormaPagoSriEnum.getNombrePago(pag.getFormaPago());
                     } catch (Exception e) {
                         nombrePago = pag.getFormaPago().toUpperCase();
                     }

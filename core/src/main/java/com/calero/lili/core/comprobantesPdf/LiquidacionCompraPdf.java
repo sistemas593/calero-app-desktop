@@ -494,7 +494,7 @@ public class LiquidacionCompraPdf {
                 for (Pago pag : lstFormasPago) {
                     String nombrePago;
                     try {
-                        nombrePago = FormaPagoSriEnum.getNombrePago(pag.getFormaPago());
+                        nombrePago = pag.getFormaPago() + "-" + FormaPagoSriEnum.getNombrePago(pag.getFormaPago());
                     } catch (Exception e) {
                         nombrePago = pag.getFormaPago().toUpperCase();
                     }
@@ -768,8 +768,14 @@ public class LiquidacionCompraPdf {
                                 if ("0".equals(codPct)) {
                                     base0 = imp.getBaseImponibleReembolso() != null ? imp.getBaseImponibleReembolso() : "0.00";
                                 } else if ("4".equals(codPct) || "5".equals(codPct) || "8".equals(codPct)) {
-                                    try { baseGravSum += Double.parseDouble(imp.getBaseImponibleReembolso()); } catch (Exception ignored) {}
-                                    try { ivaSum += Double.parseDouble(imp.getImpuestoReembolso()); } catch (Exception ignored) {}
+                                    try {
+                                        baseGravSum += Double.parseDouble(imp.getBaseImponibleReembolso());
+                                    } catch (Exception ignored) {
+                                    }
+                                    try {
+                                        ivaSum += Double.parseDouble(imp.getImpuestoReembolso());
+                                    } catch (Exception ignored) {
+                                    }
                                 } else if ("6".equals(codPct)) {
                                     noObjeto = imp.getBaseImponibleReembolso() != null ? imp.getBaseImponibleReembolso() : "0.00";
                                 } else if ("7".equals(codPct)) {
@@ -781,9 +787,18 @@ public class LiquidacionCompraPdf {
                         String iva = String.format("%.2f", ivaSum);
 
                         double base0d = 0, noObjetod = 0, exentod = 0;
-                        try { base0d = Double.parseDouble(base0); } catch (Exception ignored) {}
-                        try { noObjetod = Double.parseDouble(noObjeto); } catch (Exception ignored) {}
-                        try { exentod = Double.parseDouble(exento); } catch (Exception ignored) {}
+                        try {
+                            base0d = Double.parseDouble(base0);
+                        } catch (Exception ignored) {
+                        }
+                        try {
+                            noObjetod = Double.parseDouble(noObjeto);
+                        } catch (Exception ignored) {
+                        }
+                        try {
+                            exentod = Double.parseDouble(exento);
+                        } catch (Exception ignored) {
+                        }
                         double total = base0d + baseGravSum + ivaSum + noObjetod + exentod;
                         String totalStr = String.format("%.2f", total);
 
