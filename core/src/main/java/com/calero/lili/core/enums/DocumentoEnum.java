@@ -28,7 +28,7 @@ public enum DocumentoEnum {
     D42("Documento retención presuntiva y retención emitida por propio vendedor o por intermediario", "42"),
     D43("Liquidación para Explotación y Exploración de Hidrocarburos", "43"),
     D45("Liquidación por reclamos de aseguradoras", "45"),
-   // D47("Nota de Crédito por Reembolso Emitida por Intermediario", "47"),
+    D47("Nota de Crédito por Reembolso Emitida por Intermediario", "47"),
     D48("Nota de Débito por Reembolso Emitida por Intermediario", "48"),
     D294("Liquidación de compra de Bienes Muebles Usados", "294"),
     D344("Liquidación de compra de vehículos usados", "344"),

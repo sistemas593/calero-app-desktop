@@ -10,6 +10,7 @@ import com.calero.lili.core.comprobantes.objetosXml.liquidacionCompras.DetalleIm
 import com.calero.lili.core.comprobantes.objetosXml.liquidacionCompras.InfoLiquidacionCompra;
 import com.calero.lili.core.comprobantes.objetosXml.liquidacionCompras.LiquidacionCompra;
 import com.calero.lili.core.comprobantes.objetosXml.liquidacionCompras.ReembolsoDetalle;
+import com.calero.lili.core.enums.TipoDocumentoPdf;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
@@ -110,7 +111,13 @@ public class LiquidacionCompraPdf {
             celda = generateCell(new Paragraph("No:", title), LEFT_PADDING_DOCUMENTO);
             table_datos_documento.addCell(celda);
 
-            celda = generateCell(new Paragraph(factura.getInfoTributaria().getEstab() + "-" + factura.getInfoTributaria().getPtoEmi() + "-" + factura.getInfoTributaria().getSecuencial(), fuente), PADDING_NONE);
+
+            String tipo = factura.getInfoTributaria().getCodDoc();
+            TipoDocumentoPdf tipoDocumento = TipoDocumentoPdf.getTipoDocumento(tipo);
+
+            celda = generateCell(new Paragraph(tipoDocumento.getNombre() + "-" + factura.getInfoTributaria().getEstab() +
+                    "-" + factura.getInfoTributaria().getPtoEmi() + "-" + factura.getInfoTributaria().getSecuencial(),
+                    fuente), PADDING_NONE);
             celda.setPaddingLeft(-50);
             table_datos_documento.addCell(celda);
 

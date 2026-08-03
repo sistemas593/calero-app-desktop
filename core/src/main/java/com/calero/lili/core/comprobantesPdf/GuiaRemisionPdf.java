@@ -5,6 +5,7 @@ import com.calero.lili.core.comprobantes.objetosXml.factura.DetAdicional;
 import com.calero.lili.core.comprobantes.objetosXml.guiaRemision.Destinatario;
 import com.calero.lili.core.comprobantes.objetosXml.guiaRemision.Detalle;
 import com.calero.lili.core.comprobantes.objetosXml.guiaRemision.GuiaRemision;
+import com.calero.lili.core.enums.TipoDocumentoPdf;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
@@ -37,7 +38,7 @@ public class GuiaRemisionPdf {
         try {
 
             Document document = new Document(PageSize.A4);
-            document.setMargins(15,15,10,10);
+            document.setMargins(15, 15, 10, 10);
             //PdfWriter pdfWriter = PdfWriter.getInstance(document, new FileOutputStream(carpetaPdf + claveAcceso + ".pdf"));
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             PdfWriter pdfWriter = PdfWriter.getInstance(document, byteArrayOutputStream);
@@ -102,7 +103,14 @@ public class GuiaRemisionPdf {
             celda = generateCell(new Paragraph("No:", title), LEFT_PADDING_DOCUMENTO);
             table_datos_documento.addCell(celda);
 
-            celda = generateCell(new Paragraph(factura.getInfoTributaria().getEstab() + "-" + factura.getInfoTributaria().getPtoEmi() + "-" + factura.getInfoTributaria().getSecuencial(), fuente), PADDING_NONE);
+
+            String tipo = factura.getInfoTributaria().getCodDoc();
+            TipoDocumentoPdf tipoDocumento = TipoDocumentoPdf.getTipoDocumento(tipo);
+
+            celda = generateCell(new Paragraph(tipoDocumento.getNombre() + "-" + factura.getInfoTributaria().getEstab() + "-" +
+                    factura.getInfoTributaria().getPtoEmi() + "-" + factura.getInfoTributaria().getSecuencial(),
+                    fuente), PADDING_NONE);
+
             celda.setPaddingLeft(-50);
             table_datos_documento.addCell(celda);
 
@@ -127,12 +135,12 @@ public class GuiaRemisionPdf {
             celda = generateCell(new Paragraph("AMBIENTE: ", title), LEFT_PADDING_DOCUMENTO);
             table_datos_documento.addCell(celda);
 
-            String Ambiente="";
-            if (factura.getInfoTributaria().getAmbiente().equals("1")){
-                Ambiente="PRUEBAS";
+            String Ambiente = "";
+            if (factura.getInfoTributaria().getAmbiente().equals("1")) {
+                Ambiente = "PRUEBAS";
             }
-            if (factura.getInfoTributaria().getAmbiente().equals("2")){
-                Ambiente="PRODUCCIÓN";
+            if (factura.getInfoTributaria().getAmbiente().equals("2")) {
+                Ambiente = "PRODUCCIÓN";
             }
 
             celda = generateCell(new Paragraph(Ambiente, fuente), PADDING_NONE);
@@ -141,9 +149,9 @@ public class GuiaRemisionPdf {
             celda = generateCell(new Paragraph("EMISION:", title), LEFT_PADDING_DOCUMENTO);
             table_datos_documento.addCell(celda);
 
-            String Emision="";
-            if (factura.getInfoTributaria().getTipoEmision().equals("1")){
-                Emision="NORMAL";
+            String Emision = "";
+            if (factura.getInfoTributaria().getTipoEmision().equals("1")) {
+                Emision = "NORMAL";
             }
 
             celda = generateCell(new Paragraph(Emision, fuente), PADDING_NONE);

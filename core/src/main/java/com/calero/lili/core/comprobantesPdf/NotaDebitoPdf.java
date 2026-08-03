@@ -5,6 +5,7 @@ import com.calero.lili.core.comprobantes.objetosXml.notaDebito.Impuesto;
 import com.calero.lili.core.comprobantes.objetosXml.notaDebito.InfoNotaDebito;
 import com.calero.lili.core.comprobantes.objetosXml.notaDebito.Motivo;
 import com.calero.lili.core.comprobantes.objetosXml.notaDebito.NotaDebito;
+import com.calero.lili.core.enums.TipoDocumentoPdf;
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Element;
@@ -39,7 +40,7 @@ public class NotaDebitoPdf {
         try {
 
             Document document = new Document(PageSize.A4);
-            document.setMargins(15,15,10,10);
+            document.setMargins(15, 15, 10, 10);
             //PdfWriter pdfWriter = PdfWriter.getInstance(document, new FileOutputStream(carpetaPdf + claveAcceso + ".pdf"));
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             PdfWriter pdfWriter = PdfWriter.getInstance(document, byteArrayOutputStream);
@@ -114,7 +115,15 @@ public class NotaDebitoPdf {
             celda = generateCell(new Paragraph("No:", title), LEFT_PADDING_DOCUMENTO);
             table_datos_documento.addCell(celda);
 
-            celda = generateCell(new Paragraph(factura.getInfoTributaria().getEstab() + "-" + factura.getInfoTributaria().getPtoEmi() + "-" + factura.getInfoTributaria().getSecuencial(), fuente), PADDING_NONE);
+
+            String tipo = factura.getInfoNotaDebito().getCodDocModificado();
+            TipoDocumentoPdf tipoDocumento = TipoDocumentoPdf.getTipoDocumento(tipo);
+
+            celda = generateCell(new Paragraph(tipoDocumento.getNombre() + "-" +
+                    factura.getInfoTributaria().getEstab() + "-" +
+                    factura.getInfoTributaria().getPtoEmi() + "-" +
+                    factura.getInfoTributaria().getSecuencial(), fuente), PADDING_NONE);
+
             celda.setPaddingLeft(-50);
             table_datos_documento.addCell(celda);
 
@@ -139,12 +148,12 @@ public class NotaDebitoPdf {
             celda = generateCell(new Paragraph("AMBIENTE: ", title), LEFT_PADDING_DOCUMENTO);
             table_datos_documento.addCell(celda);
 
-            String Ambiente="";
-            if (factura.getInfoTributaria().getAmbiente().equals("1")){
-                Ambiente="PRUEBAS";
+            String Ambiente = "";
+            if (factura.getInfoTributaria().getAmbiente().equals("1")) {
+                Ambiente = "PRUEBAS";
             }
-            if (factura.getInfoTributaria().getAmbiente().equals("2")){
-                Ambiente="PRODUCCIÓN";
+            if (factura.getInfoTributaria().getAmbiente().equals("2")) {
+                Ambiente = "PRODUCCIÓN";
             }
 
             celda = generateCell(new Paragraph(Ambiente, fuente), PADDING_NONE);
@@ -153,9 +162,9 @@ public class NotaDebitoPdf {
             celda = generateCell(new Paragraph("EMISION:", title), LEFT_PADDING_DOCUMENTO);
             table_datos_documento.addCell(celda);
 
-            String Emision="";
-            if (factura.getInfoTributaria().getTipoEmision().equals("1")){
-                Emision="NORMAL";
+            String Emision = "";
+            if (factura.getInfoTributaria().getTipoEmision().equals("1")) {
+                Emision = "NORMAL";
             }
 
             celda = generateCell(new Paragraph(Emision, fuente), PADDING_NONE);
@@ -322,7 +331,11 @@ public class NotaDebitoPdf {
             table_datos.addCell(cell);
 
             String nombreDocumento = factura.getInfoNotaDebito().getCodDocModificado();
-            cell = generateCell(new Paragraph(nombreDocumento +"-"+factura.getInfoNotaDebito().getNumDocModificado(), fuente), PADDING_NONE);
+            TipoDocumentoPdf tipoDocumento1 = TipoDocumentoPdf.getTipoDocumento(nombreDocumento);
+
+            cell = generateCell(new Paragraph(tipoDocumento1.getNombre() + "-" +
+                    factura.getInfoNotaDebito().getNumDocModificado(), fuente), PADDING_NONE);
+
             cell.setColspan(5);
             cell.setPaddingBottom(5);
             cell.setPaddingLeft(5);
@@ -339,7 +352,6 @@ public class NotaDebitoPdf {
             cell.setPaddingBottom(10);
             cell.setPaddingLeft(5);
             table_datos.addCell(cell);
-
 
 
             table_datos.setSpacingBefore(5);
@@ -381,8 +393,6 @@ public class NotaDebitoPdf {
             }
 
 
-
-
             document.add(table_detalle);
 
 
@@ -406,7 +416,7 @@ public class NotaDebitoPdf {
                 for (int pos = 0; pos < lstCamposAdicionales.size(); pos++) {
                     if (lstCamposAdicionales.get(pos).getNombre() != null && lstCamposAdicionales.get(pos).getValor() != null) {
                         //cell = generateCell(new Paragraph(lstCamposAdicionales.get(pos).getNombre() + ":", title), LEFT_PADDING_EMPRESA);
-                        cell = new PdfPCell(new Paragraph(lstCamposAdicionales.get(pos).getNombre()+":", title));
+                        cell = new PdfPCell(new Paragraph(lstCamposAdicionales.get(pos).getNombre() + ":", title));
                         cell.setBorder(0);
                         cell.setPaddingLeft(LEFT_PADDING_EMPRESA);
 
@@ -415,7 +425,7 @@ public class NotaDebitoPdf {
                         table_info_adic.addCell(cell);
 
                         //cell = generateCell(new Paragraph(lstCamposAdicionales.get(pos).getValor(), fuente), PADDING_NONE);
-                        cell = new PdfPCell(new Paragraph(lstCamposAdicionales.get(pos).getValor(),fuente));
+                        cell = new PdfPCell(new Paragraph(lstCamposAdicionales.get(pos).getValor(), fuente));
                         cell.setBorder(0);
                         cell.setPaddingLeft(-100);
                         table_info_adic.addCell(cell);
@@ -449,7 +459,7 @@ public class NotaDebitoPdf {
             cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
             table_pagos.addCell(cell);
 
-           // List<Pago> lstFormasPago = factura.getInfoNotaDebito().getPago();
+            // List<Pago> lstFormasPago = factura.getInfoNotaDebito().getPago();
 
            /* if (lstFormasPago != null) {
                 for (Pago pag : lstFormasPago) {
@@ -496,11 +506,10 @@ public class NotaDebitoPdf {
             InfoNotaDebito infoFactura = factura.getInfoNotaDebito();
             List<Impuesto> totalImpuestos = infoFactura.getImpuesto();
             Impuesto subTotal0 = null;
-           // Impuesto subTotal12 = null;
+            // Impuesto subTotal12 = null;
             Impuesto subTotal15 = null;
             Impuesto subTotal8 = null;
             Impuesto subTotal5 = null;
-
 
 
             // IVA CODIGO 2
@@ -514,7 +523,7 @@ public class NotaDebitoPdf {
             if (totalImpuestos != null && !totalImpuestos.isEmpty()) {
 
                 subTotal0 = totalImpuestos.stream()
-                        .filter(imp -> imp.getCodigo().equals("2") && imp.getCodigoPorcentaje().equals("0") )
+                        .filter(imp -> imp.getCodigo().equals("2") && imp.getCodigoPorcentaje().equals("0"))
                         .findAny()
                         .orElse(null);
 
@@ -534,8 +543,6 @@ public class NotaDebitoPdf {
                         .orElse(null);
 
             }
-
-
 
 
             cell = new PdfPCell(new Phrase("SUBTOTAL SIN IMPUESTOS:", title));
@@ -636,7 +643,6 @@ public class NotaDebitoPdf {
             }
 
 
-
             cell = new PdfPCell(new Phrase("VALOR TOTAL:", title));
             cell.setPaddingBottom(5);
             cell.setColspan(2);
@@ -651,7 +657,6 @@ public class NotaDebitoPdf {
             cell.setPaddingRight(0);
 
             table3.addCell(cell);
-
 
 
             document.add(table3);

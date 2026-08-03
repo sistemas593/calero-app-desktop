@@ -4,20 +4,9 @@ import com.calero.lili.core.comprobantes.objetosXml.TotalImpuesto;
 import com.calero.lili.core.comprobantes.objetosXml.notaCredito.Detalle;
 import com.calero.lili.core.comprobantes.objetosXml.notaCredito.InfoNotaCredito;
 import com.calero.lili.core.comprobantes.objetosXml.notaCredito.NotaCredito;
-import com.itextpdf.text.BaseColor;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.Element;
-import com.itextpdf.text.Font;
-import com.itextpdf.text.Image;
-import com.itextpdf.text.PageSize;
-import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.Phrase;
-import com.itextpdf.text.pdf.Barcode128;
-import com.itextpdf.text.pdf.PdfContentByte;
-import com.itextpdf.text.pdf.PdfPCell;
-import com.itextpdf.text.pdf.PdfPTable;
-import com.itextpdf.text.pdf.PdfPTableEvent;
-import com.itextpdf.text.pdf.PdfWriter;
+import com.calero.lili.core.enums.TipoDocumentoPdf;
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.*;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -113,7 +102,14 @@ public class NotaCreditoPdf {
             celda = generateCell(new Paragraph("No:", title), LEFT_PADDING_DOCUMENTO);
             table_datos_documento.addCell(celda);
 
-            celda = generateCell(new Paragraph(factura.getInfoTributaria().getEstab() + "-" + factura.getInfoTributaria().getPtoEmi() + "-" + factura.getInfoTributaria().getSecuencial(), fuente), PADDING_NONE);
+
+            String tipo = factura.getInfoTributaria().getCodDoc();
+            TipoDocumentoPdf tipoDocumento = TipoDocumentoPdf.getTipoDocumento(tipo);
+
+            celda = generateCell(new Paragraph(tipoDocumento.getNombre() + "-" +
+                    factura.getInfoTributaria().getEstab() + "-" + factura.getInfoTributaria().getPtoEmi() +
+                    "-" + factura.getInfoTributaria().getSecuencial(), fuente), PADDING_NONE);
+
             celda.setPaddingLeft(-50);
             table_datos_documento.addCell(celda);
 
@@ -344,7 +340,10 @@ public class NotaCreditoPdf {
             table_datos.addCell(cell);
 
             String nombreDocumento = factura.getInfoNotaCredito().getCodDocModificado();
-            cell = generateCell(new Paragraph(nombreDocumento + "-" + factura.getInfoNotaCredito().getNumDocModificado(), fuente), PADDING_NONE);
+            TipoDocumentoPdf tipoDocumento1 = TipoDocumentoPdf.getTipoDocumento(nombreDocumento);
+
+            cell = generateCell(new Paragraph(tipoDocumento1.getNombre() + "-" +
+                    factura.getInfoNotaCredito().getNumDocModificado(), fuente), PADDING_NONE);
             cell.setColspan(5);
             cell.setPaddingBottom(3);
             cell.setPaddingLeft(5);

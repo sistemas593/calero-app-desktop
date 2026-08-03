@@ -3,6 +3,7 @@ package com.calero.lili.core.comprobantesPdf;
 import com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencion.ComprobanteRetencion;
 import com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencion.DocSustento;
 import com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencion.Retencion;
+import com.calero.lili.core.enums.TipoDocumentoPdf;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
 import org.springframework.stereotype.Service;
@@ -100,7 +101,14 @@ public class ComprobanteRetencionPdf {
             celda = generateCell(new Paragraph("No:", title), LEFT_PADDING_DOCUMENTO);
             table_datos_documento.addCell(celda);
 
-            celda = generateCell(new Paragraph(factura.getInfoTributaria().getEstab() + "-" + factura.getInfoTributaria().getPtoEmi() + "-" + factura.getInfoTributaria().getSecuencial(), fuente), PADDING_NONE);
+
+            String tipo = factura.getInfoTributaria().getCodDoc();
+            TipoDocumentoPdf tipoDocumento = TipoDocumentoPdf.getTipoDocumento(tipo);
+
+            celda = generateCell(new Paragraph(tipoDocumento.getNombre() + "-" +
+                    factura.getInfoTributaria().getEstab() + "-" + factura.getInfoTributaria().getPtoEmi() + "-" +
+                    factura.getInfoTributaria().getSecuencial(), fuente), PADDING_NONE);
+
             celda.setPaddingLeft(-50);
             table_datos_documento.addCell(celda);
 
@@ -346,6 +354,8 @@ public class ComprobanteRetencionPdf {
 
             List<DocSustento> lista1 = factura.getDocSustento();
             for (DocSustento det : lista1) {
+
+
 
                 String nombreDocumento = "";
                 if (det.getCodDocSustento().equals("01")) {

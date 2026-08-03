@@ -9,6 +9,7 @@ import com.calero.lili.core.comprobantes.objetosXml.factura.InfoFactura;
 import com.calero.lili.core.comprobantes.objetosXml.factura.InfoSustitutivaGuiaRemision;
 import com.calero.lili.core.comprobantes.objetosXml.factura.Pago;
 import com.calero.lili.core.enums.FormaPagoSriEnum;
+import com.calero.lili.core.enums.TipoDocumentoPdf;
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Element;
@@ -133,7 +134,14 @@ public class FacturaPdf {
             celda = generateCell(new Paragraph("No:", title), LEFT_PADDING_DOCUMENTO);
             table_datos_documento.addCell(celda);
 
-            celda = generateCell(new Paragraph(factura.getInfoTributaria().getEstab() + "-" + factura.getInfoTributaria().getPtoEmi() + "-" + factura.getInfoTributaria().getSecuencial(), fuente), PADDING_NONE);
+
+            String nombreDocumento = factura.getInfoTributaria().getCodDoc();
+            TipoDocumentoPdf tipoDocumento = TipoDocumentoPdf.getTipoDocumento(nombreDocumento);
+
+            celda = generateCell(new Paragraph(tipoDocumento.getNombre() + "-" + factura.getInfoTributaria().getEstab() + "-" +
+                    factura.getInfoTributaria().getPtoEmi() + "-" + factura.getInfoTributaria().getSecuencial(),
+                    fuente), PADDING_NONE);
+
             celda.setPaddingLeft(-50);
             table_datos_documento.addCell(celda);
 

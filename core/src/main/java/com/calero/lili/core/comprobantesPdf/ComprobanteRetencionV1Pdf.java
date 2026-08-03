@@ -2,6 +2,7 @@ package com.calero.lili.core.comprobantesPdf;
 
 import com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencionV1.ComprobanteRetencion;
 import com.calero.lili.core.comprobantes.objetosXml.factura.CampoAdicional;
+import com.calero.lili.core.enums.TipoDocumentoPdf;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
 
@@ -19,12 +20,12 @@ public class ComprobanteRetencionV1Pdf {
     public void generarPdf(ComprobanteRetencion factura, String AutorizacionSRI, String fechaAutorizacion, byte[] imageBytes) {
 
         String carpetaPdf = "C:\\java\\workspace\\caleroApp\\pdfs\\";
-        String claveAcceso = factura.getInfoTributaria().getClaveAcceso()+"v1";
+        String claveAcceso = factura.getInfoTributaria().getClaveAcceso() + "v1";
 
         try {
 
             Document document = new Document(PageSize.A4);
-            document.setMargins(15,15,10,10);
+            document.setMargins(15, 15, 10, 10);
             PdfWriter pdfWriter = PdfWriter.getInstance(document, new FileOutputStream(carpetaPdf + claveAcceso + ".pdf"));
             document.open();
 
@@ -86,7 +87,14 @@ public class ComprobanteRetencionV1Pdf {
             celda = generateCell(new Paragraph("No:", title), LEFT_PADDING_DOCUMENTO);
             table_datos_documento.addCell(celda);
 
-            celda = generateCell(new Paragraph(factura.getInfoTributaria().getEstab() + "-" + factura.getInfoTributaria().getPtoEmi() + "-" + factura.getInfoTributaria().getSecuencial(), fuente), PADDING_NONE);
+
+            String tipo = factura.getInfoTributaria().getCodDoc();
+            TipoDocumentoPdf tipoDocumento = TipoDocumentoPdf.getTipoDocumento(tipo);
+
+            celda = generateCell(new Paragraph(tipoDocumento.getNombre() + "-" +
+                    factura.getInfoTributaria().getEstab() + "-" + factura.getInfoTributaria().getPtoEmi() + "-" +
+                    factura.getInfoTributaria().getSecuencial(), fuente), PADDING_NONE);
+
             celda.setPaddingLeft(-50);
             table_datos_documento.addCell(celda);
 
@@ -111,12 +119,12 @@ public class ComprobanteRetencionV1Pdf {
             celda = generateCell(new Paragraph("AMBIENTE: ", title), LEFT_PADDING_DOCUMENTO);
             table_datos_documento.addCell(celda);
 
-            String Ambiente="";
-            if (factura.getInfoTributaria().getAmbiente().equals("1")){
-                Ambiente="PRUEBAS";
+            String Ambiente = "";
+            if (factura.getInfoTributaria().getAmbiente().equals("1")) {
+                Ambiente = "PRUEBAS";
             }
-            if (factura.getInfoTributaria().getAmbiente().equals("2")){
-                Ambiente="PRODUCCIÓN";
+            if (factura.getInfoTributaria().getAmbiente().equals("2")) {
+                Ambiente = "PRODUCCIÓN";
             }
 
             celda = generateCell(new Paragraph(Ambiente, fuente), PADDING_NONE);
@@ -125,9 +133,9 @@ public class ComprobanteRetencionV1Pdf {
             celda = generateCell(new Paragraph("EMISION:", title), LEFT_PADDING_DOCUMENTO);
             table_datos_documento.addCell(celda);
 
-            String Emision="";
-            if (factura.getInfoTributaria().getTipoEmision().equals("1")){
-                Emision="NORMAL";
+            String Emision = "";
+            if (factura.getInfoTributaria().getTipoEmision().equals("1")) {
+                Emision = "NORMAL";
             }
 
             celda = generateCell(new Paragraph(Emision, fuente), PADDING_NONE);
@@ -404,7 +412,6 @@ public class ComprobanteRetencionV1Pdf {
             table_info_adic.setSpacingAfter(5);
             cell = new PdfPCell(new Paragraph("Información Adicional", title));
             cell.setPaddingLeft(LEFT_PADDING_DOCUMENTO);
-
 
 
             cell.setColspan(2);

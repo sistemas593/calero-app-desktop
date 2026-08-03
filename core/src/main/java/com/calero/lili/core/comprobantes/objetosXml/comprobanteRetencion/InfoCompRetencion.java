@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 
 public class InfoCompRetencion {
+
     private String fechaEmision;
     private String dirEstablecimiento;
     private String contribuyenteEspecial;
