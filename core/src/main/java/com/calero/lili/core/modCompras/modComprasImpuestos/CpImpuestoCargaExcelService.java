@@ -13,6 +13,7 @@ import com.calero.lili.core.modAdminEmpresasSucursales.AdEmpresasSucursalesEntit
 import com.calero.lili.core.modAdminEmpresasSucursales.AdEmpresasSucursalesRepository;
 import com.calero.lili.core.modCompras.modComprasImpuestos.builder.CpImpuestoDetalleErrorBuilder;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CpImpuestoDetalleError;
+import com.calero.lili.core.modCompras.modComprasImpuestos.dto.FilterListCompraImpuestoDto;
 import com.calero.lili.core.modImpuestosAnexos.ats.DetalleCompras;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
@@ -56,10 +57,14 @@ public class CpImpuestoCargaExcelService {
 
 
     public void cargarExcelCompraImpuestos(Long idData, Long idEmpresa,
-                                           MultipartFile file, String usuario, String sucursal) throws IOException {
+                                           MultipartFile file, String usuario, FilterListCompraImpuestoDto filter) throws IOException {
 
         if (!ValidarTipoArchivo.validarTipoExcel(file)) {
             throw new GeneralException("El archivo debe ser Excel (.xls o .xlsx)");
+        }
+
+        if (Objects.nonNull(filter.getSucursal())) {
+            throw new GeneralException("La sucursal no puede ser nula");
         }
 
         List<DetalleError> detalleErrores = new ArrayList<>();
@@ -70,11 +75,11 @@ public class CpImpuestoCargaExcelService {
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Data {0} Empresa {1} no existe", idData, idEmpresa)));
 
         Optional<AdEmpresasSucursalesEntity> sucursalEntity = adEmpresasSucursalesRepository
-                .findfirstByIdDataAndIdEmpresaAAndSucursal(idData, idEmpresa, sucursal);
+                .findfirstByIdDataAndIdEmpresaAAndSucursal(idData, idEmpresa, filter.getSucursal());
 
 
         if (sucursalEntity.isEmpty()) {
-            throw new GeneralException(MessageFormat.format("La sucursal {0} no existe ", sucursal));
+            throw new GeneralException(MessageFormat.format("La sucursal {0} no existe ", filter.getSucursal()));
         }
 
         /*
@@ -132,7 +137,7 @@ public class CpImpuestoCargaExcelService {
             cpImpuestos.setIdImpuestos(UUID.randomUUID());
             cpImpuestos.setIdData(idData);
             cpImpuestos.setIdEmpresa(empresa.getIdEmpresa());
-            cpImpuestos.setSucursal(sucursal);
+            cpImpuestos.setSucursal(filter.getSucursal());
             cpImpuestos.setCreatedBy(usuario);
             cpImpuestos.setCreatedDate(LocalDateTime.now());
 

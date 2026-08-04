@@ -18,6 +18,7 @@ import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +34,9 @@ import java.util.UUID;
 @Slf4j
 public class GetXmlLiquidacionesServiceImpl {
 
+    @Value("${app.origen}")
+    private String origenCertificado;
+
 
     private final LiquidacionesRepository vtVentaRepository;
     private final DocumentosElectronicosComprobanteBuilder documentosElectronicosComprobanteBuilder;
@@ -46,7 +50,7 @@ public class GetXmlLiquidacionesServiceImpl {
     }
 
 
-    public ArchivoDto findPDFLiquidacionById(Long idData, Long idEmpresa, UUID id, String origenCertificado) {
+    public ArchivoDto findPDFLiquidacionById(Long idData, Long idEmpresa, UUID id) {
 
         System.out.println("Obtener PDF");
 

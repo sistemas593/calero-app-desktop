@@ -188,10 +188,10 @@ public class CpImpuestosController {
     @PostMapping("/excel/{idEmpresa}")
     public void uploadCpImpuestoExcel(@RequestParam("file") MultipartFile file,
                                       @PathVariable("idEmpresa") Long idEmpresa,
-                                      @PathVariable("sucursal") String sucursal) {
+                                      FilterListCompraImpuestoDto filter) {
         try {
             cpImpuestoCargaExcelService.cargarExcelCompraImpuestos(idDataService.getIdData(), idEmpresa,
-                    file, auditorAware.getCurrentAuditor().orElse("SYSTEM"), sucursal);
+                    file, auditorAware.getCurrentAuditor().orElse("SYSTEM"), filter);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

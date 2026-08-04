@@ -29,7 +29,7 @@ public class ProcesarDocumentosController {
     @ResponseStatus(HttpStatus.CREATED)
     public RespuestaProcesoGetDto procesarFacNcNd(@PathVariable("idEmpresa") Long idEmpresa,
                                                   @PathVariable("id") UUID id) {
-        return documentosService.procesarDocumentoVenta(idDataService.getIdData(), idEmpresa, id, "WEB");
+        return documentosService.procesarDocumentoVenta(idDataService.getIdData(), idEmpresa, id);
 
     }
 
@@ -37,14 +37,14 @@ public class ProcesarDocumentosController {
     @ResponseStatus(HttpStatus.CREATED)
     public RespuestaProcesoGetDto procesarGuiaRemision(@PathVariable("idEmpresa") Long idEmpresa,
                                                        @PathVariable("id") UUID id) {
-        return documentosService.procesarGuiaRemision(idDataService.getIdData(), idEmpresa, id, "WEB");
+        return documentosService.procesarGuiaRemision(idDataService.getIdData(), idEmpresa, id);
     }
 
     @PostMapping("liquidaciones/{idEmpresa}/{id}")
     @ResponseStatus(HttpStatus.CREATED)
     public RespuestaProcesoGetDto procesarLiquidacion(@PathVariable("idEmpresa") Long idEmpresa,
                                                       @PathVariable("id") UUID id) {
-        return documentosService.procesarLiquidacion(idDataService.getIdData(), idEmpresa, id, "WEB");
+        return documentosService.procesarLiquidacion(idDataService.getIdData(), idEmpresa, id);
     }
 
 
@@ -52,7 +52,7 @@ public class ProcesarDocumentosController {
     @ResponseStatus(HttpStatus.CREATED)
     public RespuestaProcesoGetDto procesarComprobanteRetencion(@PathVariable("idEmpresa") Long idEmpresa,
                                                                @PathVariable("id") UUID id) {
-        return documentosService.procesarComprobanteRetencion(idDataService.getIdData(), idEmpresa, id, "WEB");
+        return documentosService.procesarComprobanteRetencion(idDataService.getIdData(), idEmpresa, id);
     }
 
 //    @PostMapping()

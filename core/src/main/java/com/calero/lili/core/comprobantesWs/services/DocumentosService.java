@@ -13,14 +13,20 @@ import com.calero.lili.core.modVentas.VtVentasRepository;
 import com.calero.lili.core.modVentasGuias.VtGuiaEntity;
 import com.calero.lili.core.modVentasGuias.VtGuiasRepository;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
 import java.util.UUID;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class DocumentosService {
+
+
+    @Value("${app.origen}")
+    private String origenCertificado;
 
 
     private final VtVentasRepository vtVentasRepository;
@@ -32,7 +38,7 @@ public class DocumentosService {
     private final ComprasRetencionesRepository comprasRetencionesRepository;
 
 
-    public RespuestaProcesoGetDto procesarDocumentoVenta(Long idData, Long idEmpresa, UUID idVenta, String origenCertificado) {
+    public RespuestaProcesoGetDto procesarDocumentoVenta(Long idData, Long idEmpresa, UUID idVenta) {
 
         VtVentaEntity documento = vtVentasRepository.findByIdEntity(idData, idEmpresa, idVenta, null, null).
                 orElseThrow(() -> new GeneralException(MessageFormat.format("Documento de venta {0} no exists", idVenta)));
@@ -60,7 +66,7 @@ public class DocumentosService {
     }
 
 
-    public RespuestaProcesoGetDto procesarGuiaRemision(Long idData, Long idEmpresa, UUID idGuiaRemision, String origenCertificado) {
+    public RespuestaProcesoGetDto procesarGuiaRemision(Long idData, Long idEmpresa, UUID idGuiaRemision) {
 
 
         VtGuiaEntity guiaRemision = vtGuiasRepository.findByIdEntity(idData, idEmpresa, idGuiaRemision, null, null).
@@ -88,7 +94,7 @@ public class DocumentosService {
     }
 
 
-    public RespuestaProcesoGetDto procesarLiquidacion(Long idData, Long idEmpresa, UUID idLiquidacion, String origenCertificado) {
+    public RespuestaProcesoGetDto procesarLiquidacion(Long idData, Long idEmpresa, UUID idLiquidacion) {
 
 
         CpLiquidacionesEntity liquidacion = liquidacionesRepository.findByIdEntity(idData, idEmpresa, idLiquidacion, null, null).
@@ -115,7 +121,7 @@ public class DocumentosService {
 
     }
 
-    public RespuestaProcesoGetDto procesarComprobanteRetencion(Long idData, Long idEmpresa, UUID idComprobante, String origenCertificado) {
+    public RespuestaProcesoGetDto procesarComprobanteRetencion(Long idData, Long idEmpresa, UUID idComprobante) {
 
 
         CpRetencionesEntity comprobante = comprasRetencionesRepository.findByIdEntity(idData, idEmpresa, idComprobante, null, null).

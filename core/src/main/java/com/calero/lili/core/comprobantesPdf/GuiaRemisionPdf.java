@@ -346,7 +346,11 @@ public class GuiaRemisionPdf {
                     cell.setColspan(1);
                     table_destinatario.addCell(cell);
 
-                    cell = generateCell(new Paragraph(dest.getNumDocSustento() != null ? dest.getNumDocSustento() : "", fuente), PADDING_NONE);
+
+                    String codigoSustento = dest.getCodDocSustento();
+                    TipoDocumentoPdf documentoPdf = TipoDocumentoPdf.getTipoDocumento(codigoSustento);
+
+                    cell = generateCell(new Paragraph(dest.getNumDocSustento() != null ? documentoPdf.getNombre() + "-" + dest.getNumDocSustento() : "", fuente), PADDING_NONE);
                     cell.setColspan(1);
                     table_destinatario.addCell(cell);
 

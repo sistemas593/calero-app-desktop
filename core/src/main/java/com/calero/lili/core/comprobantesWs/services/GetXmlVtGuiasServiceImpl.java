@@ -18,6 +18,7 @@ import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +35,9 @@ import java.util.UUID;
 public class GetXmlVtGuiasServiceImpl {
 
 
+    @Value("${app.origen}")
+    private String origenCertificado;
+
     private final VtGuiasRepository guiasRepository;
     private final DocumentosElectronicosComprobanteBuilder documentosElectronicosComprobanteBuilder;
     private final BuscarDatosEmpresa buscarDatosEmpresa;
@@ -47,7 +51,7 @@ public class GetXmlVtGuiasServiceImpl {
     }
 
 
-    public ArchivoDto findPDFGuiaById(Long idData, Long idEmpresa, UUID id, String origenCertificado) {
+    public ArchivoDto findPDFGuiaById(Long idData, Long idEmpresa, UUID id) {
 
         System.out.println("Obtener PDF");
 
