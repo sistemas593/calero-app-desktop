@@ -1,6 +1,7 @@
 package com.calero.lili.core.comprobantesPdf;
 
 import com.calero.lili.core.comprobantes.objetosXml.factura.Factura;
+import com.calero.lili.core.enums.TipoPdfFactura;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
@@ -30,7 +31,7 @@ public class UnmarshallingFacturaGenerarPdf {
         Factura fc = (Factura) jaxbUnmarshaller.unmarshal(fileXml);
 
         FacturaPdf facturaPdf = new FacturaPdf();
-        byte[] pdf = facturaPdf.generarPdf(fc, "121212121212", "01/01/2023", imageBytes);
+        byte[] pdf = facturaPdf.generarPdf(fc, "121212121212", "01/01/2023", imageBytes, TipoPdfFactura.A4);
 
         Path path = Paths.get("factura.pdf");
         try {

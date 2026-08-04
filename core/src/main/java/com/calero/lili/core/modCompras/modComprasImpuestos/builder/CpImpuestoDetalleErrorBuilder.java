@@ -34,8 +34,6 @@ public class CpImpuestoDetalleErrorBuilder {
 
 
 
-
-
     public CpImpuestoDetalleError builder(String message) {
         return CpImpuestoDetalleError.builder()
                 .detalle(message)

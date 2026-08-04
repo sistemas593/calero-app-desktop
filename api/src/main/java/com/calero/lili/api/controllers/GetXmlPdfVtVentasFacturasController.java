@@ -3,6 +3,7 @@ package com.calero.lili.api.controllers;
 import com.calero.lili.api.utils.IdDataServiceImpl;
 import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.VtVentasXMLFacturaGetDto;
 import com.calero.lili.core.comprobantesWs.dto.ArchivoDto;
+import com.calero.lili.core.comprobantesWs.dto.FilterFacturaPdfDto;
 import com.calero.lili.core.comprobantesWs.services.GetXmlVtVentasFacturasServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,9 +40,11 @@ public class GetXmlPdfVtVentasFacturasController {
 
     @GetMapping("facturas/descargar-pdf/{idEmpresa}/{idRecibida}")
     public ResponseEntity<byte[]> descargarPdfFactura(@PathVariable("idEmpresa") Long idEmpresa,
-                                                      @PathVariable("idRecibida") UUID idRecibida) {
+                                                      @PathVariable("idRecibida") UUID idRecibida,
+                                                      FilterFacturaPdfDto filter) {
 
-            ArchivoDto datos = vtVentasService.findPDFFacturaById(idDataService.getIdData(), idEmpresa, idRecibida); // tu byte[]
+        ArchivoDto datos = vtVentasService.findPDFFacturaById(idDataService.getIdData(),
+                idEmpresa, idRecibida, filter); // tu byte[]
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + datos.getNombre())

@@ -10,12 +10,12 @@ import com.calero.lili.core.comprobantes.objetosXml.factura.InfoSustitutivaGuiaR
 import com.calero.lili.core.comprobantes.objetosXml.factura.Pago;
 import com.calero.lili.core.enums.FormaPagoSriEnum;
 import com.calero.lili.core.enums.TipoDocumentoPdf;
+import com.calero.lili.core.enums.TipoPdfFactura;
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Image;
-import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.pdf.Barcode128;
@@ -43,12 +43,12 @@ public class FacturaPdf {
 //    private static String projectId = "caleroapp";
 //    private static String bucketName = "caleroapp-bucket-sgn";
 
-    public byte[] generarPdf(Factura factura, String AutorizacionSRI, String fechaAutorizacion, byte[] imageBytes) {
+
+    public byte[] generarPdf(Factura factura, String AutorizacionSRI, String fechaAutorizacion, byte[] imageBytes, TipoPdfFactura tipo) {
 
         try {
 
-            Document document = new Document(PageSize.A4);
-            document.setMargins(15, 15, 10, 10);
+            Document document = PdfPageSizeUtil.crearDocumento(tipo);
 //            PdfWriter pdfWriter = PdfWriter.getInstance(document, new FileOutputStream(carpetaPdf + claveAcceso + ".pdf"));
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             PdfWriter pdfWriter = PdfWriter.getInstance(document, byteArrayOutputStream);

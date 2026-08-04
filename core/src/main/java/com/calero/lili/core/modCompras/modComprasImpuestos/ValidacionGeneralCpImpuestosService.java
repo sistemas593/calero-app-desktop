@@ -62,34 +62,9 @@ public class ValidacionGeneralCpImpuestosService {
             detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("En el documento " + mensajeNumeroAut));
         }
 
-
-        if (Objects.nonNull(model.getCodSustento())) {
-            if (!comprobanteSustentoService.validacionCodigos(model.getTipoComprobante(), model.getCodSustento())) {
-                detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("La combinación de código de documento: " + model.getTipoComprobante() +
-                        " y código de sustento: " + model.getCodSustento() + " es inválida."));
-            }
-        }
-
-
-        if (Objects.nonNull(model.getTipoComprobante())) {
-            if (model.getTipoComprobante().equals("41")) {
-                if (Objects.isNull(model.getReembolso()) || model.getReembolso().isEmpty()) {
-                    throw new GeneralException("No existe lista de reembolsos, y es requerida");
-                }
-            }
-        }
-
-
         if (Objects.nonNull(model.getPagoExterior())) {
             validacionGeneralPagoExterior(model.getPagoExterior().getPagoLocExt(), model.getPagoExterior(), detalleErrores);
         }
-        // validarValoresImpuestos(model, detalleErrores);
-
-        // validarValoresRetenciones(model.getCompraImpuestos(), detalleErrores);
-
-
-        // validateIvaPorcentaje(getIntegerTarifaIva(model.getValores()), DateUtils.toLocalDate(model.getFechaEmision()), detalleErrores);
-
 
         if (Objects.nonNull(model.getEstabRetencion1()) && Objects.nonNull(model.getPtoEmiRetencion1())) {
             String serieRetencion = model.getEstabRetencion1() + model.getPtoEmiRetencion1();
@@ -137,6 +112,15 @@ public class ValidacionGeneralCpImpuestosService {
 
     }
 
+
+    public void validarExisteReembolso(DetalleCompras model, List<CpImpuestoDetalleError> detalleErrores) {
+        if (Objects.nonNull(model.getCodSustento())) {
+            if (!comprobanteSustentoService.validacionCodigos(model.getTipoComprobante(), model.getCodSustento())) {
+                detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("La combinación de código de documento: " + model.getTipoComprobante() +
+                        " y código de sustento: " + model.getCodSustento() + " es inválida."));
+            }
+        }
+    }
 
     private void validacionGeneralPagoExterior(String pagoLocExt, PagoExterior request, List<CpImpuestoDetalleError> detalleErrores) {
 

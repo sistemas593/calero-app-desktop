@@ -14,6 +14,7 @@ import com.calero.lili.core.comprobantesPdf.LiquidacionCompraPdf;
 import com.calero.lili.core.comprobantesPdf.NotaCreditoPdf;
 import com.calero.lili.core.comprobantesPdf.NotaDebitoPdf;
 import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.EnvioCorreoDto;
+import com.calero.lili.core.enums.TipoPdfFactura;
 import com.calero.lili.core.modAdDatasConfiguraciones.dto.StCorreoRequestDto;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
@@ -63,7 +64,8 @@ public class SetearCorreoServiceImpl {
             }
 
             // GENERANDO EL PDF
-            byte[] bytes = facturaPdf.generarPdf(documento, envioCorreoDto.getNumeroAutorizacion(), envioCorreoDto.getFechaAutorizacion(), imageBytes);
+            byte[] bytes = facturaPdf.generarPdf(documento, envioCorreoDto.getNumeroAutorizacion(),
+                    envioCorreoDto.getFechaAutorizacion(), imageBytes, TipoPdfFactura.A4);
             request.setPdf(Base64.getEncoder().encodeToString(bytes));
             request.setNombreEmisor(documento.getInfoTributaria().getRazonSocial());
             request.setRucEmisor(documento.getInfoTributaria().getRuc());

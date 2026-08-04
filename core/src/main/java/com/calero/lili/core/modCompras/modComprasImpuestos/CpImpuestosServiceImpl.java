@@ -33,6 +33,7 @@ import com.calero.lili.core.modCompras.modComprasImpuestos.projection.TotalesPro
 import com.calero.lili.core.modCompras.modComprasRetenciones.CpRetencionesEntity;
 import com.calero.lili.core.modCompras.modComprasRetenciones.dto.CodigoImpuestoResponseDto;
 import com.calero.lili.core.modCompras.modComprasRetenciones.dto.CompraImpuestoResponseDto;
+import com.calero.lili.core.modImpuestosAnexos.ats.DetalleCompras;
 import com.calero.lili.core.modImpuestosAnexos.ats.Reembolso;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
@@ -111,8 +112,11 @@ public class CpImpuestosServiceImpl {
 
     public ResponseDto create(Long idData, Long idEmpresa, CreationCompraImpuestoRequestDto request, String usuario) {
 
-        List<CpImpuestoDetalleError> detalleErrors = validacionGeneralService.validacionGeneral(cpImpuestoDetalleErrorBuilder
-                .builderValidacion(request));
+
+        DetalleCompras detalleCompras = cpImpuestoDetalleErrorBuilder.builderValidacion(request);
+
+        List<CpImpuestoDetalleError> detalleErrors = validacionGeneralService.validacionGeneral(detalleCompras);
+        validacionGeneralService.validarExisteReembolso(detalleCompras, detalleErrors);
 
         List<Reembolso> reembolsoList = cpImpuestoReembolsoValidacionBuilder
                 .builderListReembolsos(request.getReembolsos());
@@ -173,9 +177,9 @@ public class CpImpuestosServiceImpl {
                               String usuario, FilterListCompraImpuestoDto filters, TipoPermiso tipoBusqueda) {
 
 
-        List<CpImpuestoDetalleError> detalleErrors = validacionGeneralService.validacionGeneral(cpImpuestoDetalleErrorBuilder
-                .builderValidacion(request));
-
+        DetalleCompras detalleCompras = cpImpuestoDetalleErrorBuilder.builderValidacion(request);
+        List<CpImpuestoDetalleError> detalleErrors = validacionGeneralService.validacionGeneral(detalleCompras);
+        validacionGeneralService.validarExisteReembolso(detalleCompras, detalleErrors);
 
         CpImpuestosEntity vtVentaEntity = validacionTipoBusqueda(idData, idEmpresa, idVenta, filters, tipoBusqueda, usuario);
 

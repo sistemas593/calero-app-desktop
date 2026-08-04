@@ -4,6 +4,7 @@ import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.dtos.ResponseDto;
+import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.enums.OrigenEnum;
 import com.calero.lili.core.enums.TipoPermiso;
 import com.calero.lili.core.enums.TipoVenta;
@@ -18,6 +19,7 @@ import com.calero.lili.core.modVentas.facturas.dto.FilterListVentasDto;
 import com.calero.lili.core.modVentas.modVentasImpuestos.builder.VtVentasImpuestoBuilder;
 import com.calero.lili.core.modVentas.modVentasImpuestos.dto.CreationVentaImpuestoRequestDto;
 import com.calero.lili.core.modVentas.modVentasImpuestos.dto.VentaImpuestoResponseDto;
+import com.calero.lili.core.modVentas.notasCredito.dto.CreationNotaCreditoRequestDto;
 import com.calero.lili.core.modVentas.projection.OneProjection;
 import com.calero.lili.core.utils.ValidacionDocumentosGeneral;
 import lombok.RequiredArgsConstructor;
@@ -66,6 +68,8 @@ public class VtVentasImpuestoService {
 
         GeTerceroEntity tercero = validacionTercero(idData, request);
 
+
+        comprobarValoresNegativos(request);
         VtVentaEntity entity = vtVentasImpuestoBuilder.builderEntity(request, idData, idEmpresa);
         entity.setCreatedBy(usuario);
         entity.setCreatedDate(LocalDateTime.now());
@@ -100,6 +104,8 @@ public class VtVentasImpuestoService {
 
         GeTerceroEntity tercero = geTercerosRepository.findByIdCliente(idData, request.getIdTercero())
                 .orElseThrow(() -> new GeneralException("No existe tercero"));
+
+        comprobarValoresNegativos(request);
 
         VtVentaEntity update = vtVentasImpuestoBuilder.builderUpdateEntity(request, entity);
         update.setModifiedBy(usuario);
@@ -341,6 +347,29 @@ public class VtVentasImpuestoService {
             }
 
 
+        }
+
+    }
+
+    private void comprobarValoresNegativos(CreationVentaImpuestoRequestDto request) {
+
+        if (request.getCodigoDocumento().equals(DocumentoEnum.D04)) {
+
+            if (request.getTotal().compareTo(BigDecimal.ZERO) >= 0) {
+                throw new GeneralException("El total no pude ser positivo");
+            }
+
+
+            if (request.getSubtotal().compareTo(BigDecimal.ZERO) >= 0) {
+                throw new GeneralException("El subtotal no puede ser positivo");
+            }
+
+            boolean todosNegativos = request.getValores().stream()
+                    .allMatch(detalle -> detalle.getValor().compareTo(BigDecimal.ZERO) < 0);
+
+            if (!todosNegativos) {
+                throw new GeneralException("Los valores de precio unitario deben ser negativos");
+            }
         }
 
     }

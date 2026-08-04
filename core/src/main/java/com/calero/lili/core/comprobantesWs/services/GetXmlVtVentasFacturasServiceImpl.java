@@ -7,7 +7,10 @@ import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.VtVentasXMLFac
 import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.builder.DocumentosElectronicosComprobanteBuilder;
 import com.calero.lili.core.comprobantesWs.dto.ArchivoDto;
 import com.calero.lili.core.comprobantesWs.dto.DatosEmpresaDto;
+import com.calero.lili.core.comprobantesWs.dto.FilterFacturaPdfDto;
 import com.calero.lili.core.enums.EstadoDocumento;
+import com.calero.lili.core.enums.TipoDocumentoPdf;
+import com.calero.lili.core.enums.TipoPdfFactura;
 import com.calero.lili.core.enums.TipoVenta;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modCompras.impuestosXml.VtVentasFacturaOneProjection;
@@ -58,7 +61,16 @@ public class GetXmlVtVentasFacturasServiceImpl {
 
     }
 
-    public ArchivoDto findPDFFacturaById(Long idData, Long idEmpresa, UUID id) {
+    public ArchivoDto findPDFFacturaById(Long idData, Long idEmpresa, UUID id, FilterFacturaPdfDto filter) {
+
+
+        if (Objects.isNull(filter.getTipo())) {
+            filter.setTipo(TipoPdfFactura.A4);
+        }
+
+
+
+
 
         System.out.println("Obtener PDF");
 
@@ -100,7 +112,8 @@ public class GetXmlVtVentasFacturasServiceImpl {
                         documento,
                         entidad.getNumeroAutorizacion() == null ? "" : entidad.getNumeroAutorizacion(),
                         entidad.getFechaAutorizacion() == null ? "" : entidad.getFechaAutorizacion(),
-                        datosEmpresaDto.getImageBytes()))
+                        datosEmpresaDto.getImageBytes(),
+                        filter.getTipo()))
                 .build();
     }
 

@@ -10,6 +10,7 @@ import com.calero.lili.core.comprobantesPdf.NotaCreditoPdf;
 import com.calero.lili.core.comprobantesPdf.NotaDebitoPdf;
 import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.builder.DocumentosElectronicosComprobanteBuilder;
 import com.calero.lili.core.comprobantesWs.dto.ArchivoDto;
+import com.calero.lili.core.enums.TipoPdfFactura;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modCompras.impuestosXml.CpImpuestosFacturasOneProjection;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosRepository;
@@ -96,7 +97,7 @@ public class GetXmlCpImpuestosServiceImpl {
                         documento,
                         entidad.getNumeroAutorizacion() == null ? "" : entidad.getNumeroAutorizacion(),
                         entidad.getFechaAutorizacion() == null ? "" : entidad.getFechaAutorizacion(),
-                        null))
+                        null, TipoPdfFactura.A4))
                 .build();
     }
 

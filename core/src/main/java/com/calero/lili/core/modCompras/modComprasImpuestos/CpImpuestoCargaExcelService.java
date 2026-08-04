@@ -13,7 +13,6 @@ import com.calero.lili.core.modAdminEmpresasSucursales.AdEmpresasSucursalesEntit
 import com.calero.lili.core.modAdminEmpresasSucursales.AdEmpresasSucursalesRepository;
 import com.calero.lili.core.modCompras.modComprasImpuestos.builder.CpImpuestoDetalleErrorBuilder;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CpImpuestoDetalleError;
-import com.calero.lili.core.modCompras.modComprasImpuestos.dto.FilterListCompraImpuestoDto;
 import com.calero.lili.core.modImpuestosAnexos.ats.DetalleCompras;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
@@ -54,17 +53,14 @@ public class CpImpuestoCargaExcelService {
     private final CpImpuestoDetalleErrorBuilder cpImpuestoDetalleError;
     private final ValidacionGeneralCpImpuestosService service;
     private final CpImpuestosRepository cpImpuestosRepository;
+    private final ValidacionValoresCpImpuestosService serviceValores;
 
 
     public void cargarExcelCompraImpuestos(Long idData, Long idEmpresa,
-                                           MultipartFile file, String usuario, FilterListCompraImpuestoDto filter) throws IOException {
+                                           MultipartFile file, String usuario, String sucursal) throws IOException {
 
         if (!ValidarTipoArchivo.validarTipoExcel(file)) {
             throw new GeneralException("El archivo debe ser Excel (.xls o .xlsx)");
-        }
-
-        if (Objects.nonNull(filter.getSucursal())) {
-            throw new GeneralException("La sucursal no puede ser nula");
         }
 
         List<DetalleError> detalleErrores = new ArrayList<>();
@@ -75,11 +71,11 @@ public class CpImpuestoCargaExcelService {
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("Data {0} Empresa {1} no existe", idData, idEmpresa)));
 
         Optional<AdEmpresasSucursalesEntity> sucursalEntity = adEmpresasSucursalesRepository
-                .findfirstByIdDataAndIdEmpresaAAndSucursal(idData, idEmpresa, filter.getSucursal());
+                .findfirstByIdDataAndIdEmpresaAAndSucursal(idData, idEmpresa, sucursal);
 
 
         if (sucursalEntity.isEmpty()) {
-            throw new GeneralException(MessageFormat.format("La sucursal {0} no existe ", filter.getSucursal()));
+            throw new GeneralException(MessageFormat.format("La sucursal {0} no existe ", sucursal));
         }
 
         /*
@@ -125,7 +121,6 @@ public class CpImpuestoCargaExcelService {
           y la entidad de tercero para posterior asignarse a cada registro en el detalle.
          */
 
-        CpImpuestosEntity cpImpuestos = new CpImpuestosEntity();
 
         Map<String, GeTerceroEntity> mapTercero =
                 geTercerosRepository.findAllNumeroIdentifiacion(idData, new ArrayList<>(numerosIdentifiacion))
@@ -134,10 +129,12 @@ public class CpImpuestoCargaExcelService {
 
         for (FilaExcel fila : filas) {
 
+            CpImpuestosEntity cpImpuestos = new CpImpuestosEntity();
+
             cpImpuestos.setIdImpuestos(UUID.randomUUID());
             cpImpuestos.setIdData(idData);
             cpImpuestos.setIdEmpresa(empresa.getIdEmpresa());
-            cpImpuestos.setSucursal(filter.getSucursal());
+            cpImpuestos.setSucursal(sucursal);
             cpImpuestos.setCreatedBy(usuario);
             cpImpuestos.setCreatedDate(LocalDateTime.now());
 
@@ -152,7 +149,7 @@ public class CpImpuestoCargaExcelService {
                     terceroEntity.setIdTercero(UUID.randomUUID());
                     terceroEntity.setTercero(Objects.nonNull(nombreTercero) ? nombreTercero : null);
                     terceroEntity.setNumeroIdentificacion(numeroIdentifiacion);
-                    geTercerosRepository.save(terceroEntity);
+                    cpImpuestos.setTercero(geTercerosRepository.save(terceroEntity));
 
                 }
             } else {
@@ -307,6 +304,12 @@ public class CpImpuestoCargaExcelService {
 
             if (Objects.nonNull(baseCero)) {
                 CpImpuestosValoresEntity valoresEntity = new CpImpuestosValoresEntity();
+
+                valoresEntity.setIdImpuestosValores(UUID.randomUUID());
+                valoresEntity.setIdData(idData);
+                valoresEntity.setIdEmpresa(idEmpresa);
+
+
                 valoresEntity.setBaseImponible(convetirValor(baseCero));
                 valoresEntity.setValor(BigDecimal.ZERO);
                 valoresEntity.setTarifa(BigDecimal.ZERO);
@@ -319,6 +322,10 @@ public class CpImpuestoCargaExcelService {
 
             if (Objects.nonNull(baseGravada1)) {
                 CpImpuestosValoresEntity valoresEntity = new CpImpuestosValoresEntity();
+
+                valoresEntity.setIdImpuestosValores(UUID.randomUUID());
+                valoresEntity.setIdData(idData);
+                valoresEntity.setIdEmpresa(idEmpresa);
 
                 String tarifa = celda(fila.celdas(), 18);
 
@@ -355,7 +362,12 @@ public class CpImpuestoCargaExcelService {
             String baseGravada2 = celda(fila.celdas(), 20);
 
             if (Objects.nonNull(baseGravada2)) {
+
                 CpImpuestosValoresEntity valoresEntity = new CpImpuestosValoresEntity();
+
+                valoresEntity.setIdImpuestosValores(UUID.randomUUID());
+                valoresEntity.setIdData(idData);
+                valoresEntity.setIdEmpresa(idEmpresa);
 
                 String tarifa = celda(fila.celdas(), 21);
 
@@ -384,6 +396,8 @@ public class CpImpuestoCargaExcelService {
                 }
                 valores.add(valoresEntity);
             }
+
+            setearTotales(cpImpuestos, valores);
             cpImpuestos.setValoresEntity(valores);
             cpImpuestosEntities.add(cpImpuestos);
         }
@@ -395,6 +409,10 @@ public class CpImpuestoCargaExcelService {
 
             for (DetalleCompras dto : listaComprobacion) {
                 listaErroresValidacion.addAll(service.validacionGeneral(dto));
+            }
+
+            for (CpImpuestosEntity entity : cpImpuestosEntities) {
+                serviceValores.validacionValoresGeneral(entity, listaErroresValidacion);
             }
 
             if (listaErroresValidacion.isEmpty()) {
@@ -411,6 +429,7 @@ public class CpImpuestoCargaExcelService {
         }
 
     }
+
 
     /**
      * Metodo para obtener la información en formato de String de cada celda del excel, mediante el indíce de la celda
@@ -456,6 +475,24 @@ public class CpImpuestoCargaExcelService {
                 .map(detalleError -> detalleError.getLinea() + "   " + detalleError.getType().getDescription() + " " + detalleError.getDetalle())
                 .toList();
         throw new ListErrorException(list);
+    }
+
+
+    private void setearTotales(CpImpuestosEntity cpImpuestos, List<CpImpuestosValoresEntity> valores) {
+
+        BigDecimal subtotal = valores.stream()
+                .map(CpImpuestosValoresEntity::getBaseImponible)
+                .filter(Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal totalImpuesto = valores.stream()
+                .map(CpImpuestosValoresEntity::getValor)
+                .filter(Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        cpImpuestos.setSubtotal(subtotal);
+        cpImpuestos.setTotalImpuesto(totalImpuesto);
+        cpImpuestos.setTotal(subtotal.add(totalImpuesto));
     }
 
 }

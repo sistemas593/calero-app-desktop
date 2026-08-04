@@ -4,6 +4,7 @@ import com.calero.lili.core.comprobantes.objetosXml.autorizacionFile.Autorizacio
 import com.calero.lili.core.comprobantes.objetosXml.factura.Factura;
 import com.calero.lili.core.comprobantesPdf.FacturaPdf;
 import com.calero.lili.core.comprobantesWs.dto.ArchivoDto;
+import com.calero.lili.core.enums.TipoPdfFactura;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modVentas.reembolsos.projection.VtVentasReembolsoProjection;
 import jakarta.xml.bind.JAXBContext;
@@ -59,7 +60,7 @@ public class VtVentasReembolsoPdfXmlServiceImpl {
                         documento,
                         entidad.getNumeroAutorizacion() == null ? "" : entidad.getNumeroAutorizacion(),
                         entidad.getFechaAutorizacion() == null ? "" : entidad.getFechaAutorizacion(),
-                        null))
+                        null, TipoPdfFactura.A4))
                 .build();
     }
 
