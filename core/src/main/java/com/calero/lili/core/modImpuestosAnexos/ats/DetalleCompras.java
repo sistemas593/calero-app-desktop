@@ -16,7 +16,7 @@ import java.util.List;
         "baseImponible", "baseImpGrav", "baseImpExe",
         "montoIce", "montoIva", "valRetBien10", "valRetServ20",
         "valorRetBienes", "valRetServ50", "valorRetServicios",
-        "valRetServ100", "totbasesImpReemb", "pagoExterior", "formasDePago", "reembolsos", "detalleAir",
+        "valRetServ100", "totbasesImpReemb", "pagoExterior", "formasDePago", "reembolso", "detalleAir",
         "estabRetencion1", "ptoEmiRetencion1", "secRetencion1", "autRetencion1", "fechaEmiRet1"})
 @Builder
 @Data

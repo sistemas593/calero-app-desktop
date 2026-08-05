@@ -11,17 +11,11 @@ import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
-import com.itextpdf.text.Image;
 import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.Phrase;
 import com.itextpdf.text.Rectangle;
-import com.itextpdf.text.pdf.Barcode128;
 import com.itextpdf.text.pdf.PdfArray;
-import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfDictionary;
 import com.itextpdf.text.pdf.PdfName;
-import com.itextpdf.text.pdf.PdfPCell;
-import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfStamper;
 import com.itextpdf.text.pdf.PdfWriter;
@@ -35,11 +29,14 @@ import java.util.Objects;
  * Genera el PDF de la factura en formato ticket para impresoras térmicas de
  * 58mm y 80mm ({@link TipoPdfFactura#TICKET_58} / {@link TipoPdfFactura#TICKET_80}).
  * <p>
- * A diferencia de {@link FacturaPdf} (A4/A5, donde solo cambia el tamaño de
- * hoja pero el layout de tablas es el mismo), el ticket necesita un layout
- * propio: una sola columna angosta y alto variable según la cantidad de
- * ítems/pagos que tenga la factura. Por eso es un servicio aparte y no un
- * "case" más dentro de {@code FacturaPdf}.
+ * El formato sigue el modelo de un ticket real impreso (texto plano en
+ * fuente monoespaciada, columnas alineadas a mano, separadores hechos con
+ * "=", sin logo ni código de barras): encabezado de la empresa, datos del
+ * documento y del cliente, detalle en una sola línea por ítem
+ * (cant/producto/P.U./P.Total), desglose de subtotales e IVA, total y forma
+ * de pago. TICKET_58 y TICKET_80 comparten exactamente la misma lógica; solo
+ * cambia el ancho de página y, por lo tanto, cuántos caracteres entran por
+ * línea.
  * <p>
  * Como iText necesita el alto de página al crear el {@link Document}, se
  * arma primero con un alto "provisional" generoso y, una vez escrito todo el
@@ -51,55 +48,72 @@ public class TicktesFacturaServicePdf {
 
     private static final float MM_A_PT = 2.83465f;
     private static final float MARGEN = 6f;
+    private static final float TAMANO_FUENTE = 7f;
 
     public byte[] generarPdf(Factura factura, String autorizacionSri, String fechaAutorizacion, byte[] imageBytes, TipoPdfFactura tipo) {
 
         try {
             float ancho = resolverAncho(tipo);
-            float anchoUtil = ancho - (2 * MARGEN);
-            float altoProvisional = calcularAltoProvisional(factura);
+            float altoIntento = calcularAltoProvisional(factura);
 
-            Rectangle pageSize = new Rectangle(ancho, altoProvisional);
-            Document document = new Document(pageSize, MARGEN, MARGEN, MARGEN, MARGEN);
+            // El alto "provisional" es solo una estimación de partida: si algún texto
+            // envuelve más líneas de las previstas (nombres largos, direcciones, etc.)
+            // el contenido no entra en una sola página y iText agrega una segunda
+            // página, lo que rompe el recorte final (que solo ajusta la página 1).
+            // Por eso se valida cuántas páginas resultaron y, si fue más de una, se
+            // duplica el alto y se vuelve a generar — como de todas formas se recorta
+            // al final, no cuesta nada partir de un alto generoso.
+            ResultadoGeneracion resultado = construirDocumento(factura, ancho, altoIntento);
+            int intentos = 0;
+            while (resultado.numeroDePaginas() > 1 && intentos < 4) {
+                altoIntento *= 2f;
+                resultado = construirDocumento(factura, ancho, altoIntento);
+                intentos++;
+            }
 
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            PdfWriter pdfWriter = PdfWriter.getInstance(document, byteArrayOutputStream);
-            document.open();
-
-            Font fuenteEmpresa = new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD);
-            Font fuenteTitulo = new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD);
-            Font fuenteNormal = new Font(Font.FontFamily.HELVETICA, 7, Font.NORMAL);
-            Font fuenteChica = new Font(Font.FontFamily.HELVETICA, 6, Font.NORMAL);
-            Font fuenteTotal = new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD);
-
-            agregarEncabezadoEmpresa(document, factura, imageBytes, fuenteEmpresa, fuenteChica);
-            agregarLineaSeparadora(document, pdfWriter);
-
-            agregarDatosDocumento(document, factura, autorizacionSri, fechaAutorizacion, fuenteTitulo, fuenteChica);
-            agregarLineaSeparadora(document, pdfWriter);
-
-            agregarDatosCliente(document, factura, fuenteChica);
-            agregarLineaSeparadora(document, pdfWriter);
-
-            agregarDetalle(document, factura, fuenteNormal, fuenteChica);
-            agregarLineaSeparadora(document, pdfWriter);
-
-            agregarTotales(document, factura, fuenteNormal, fuenteTotal);
-            agregarFormasPago(document, factura, fuenteChica);
-            agregarLineaSeparadora(document, pdfWriter);
-
-            agregarClaveAcceso(document, pdfWriter, factura, anchoUtil, fuenteChica);
-            agregarPie(document, fuenteChica);
-
-            float posicionFinalContenido = pdfWriter.getVerticalPosition(false);
-            document.close();
-
-            return recortarAlto(byteArrayOutputStream.toByteArray(), ancho, posicionFinalContenido);
+            return recortarAlto(resultado.bytes(), ancho, resultado.posicionFinalContenido());
 
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
+    }
+
+    private ResultadoGeneracion construirDocumento(Factura factura, float ancho, float altoIntento) throws Exception {
+
+        float anchoUtil = ancho - (2 * MARGEN);
+
+        Rectangle pageSize = new Rectangle(ancho, altoIntento);
+        Document document = new Document(pageSize, MARGEN, MARGEN, MARGEN, MARGEN);
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        PdfWriter pdfWriter = PdfWriter.getInstance(document, byteArrayOutputStream);
+        document.open();
+
+        // Fuente monoespaciada: permite alinear columnas (CANT/PRODUCTO/P.U./P.TOT)
+        // a mano con espacios, igual que en un ticket impreso por una impresora térmica.
+        Font fuenteEmpresa = new Font(Font.FontFamily.COURIER, TAMANO_FUENTE + 1, Font.BOLD);
+        Font fuenteNormal = new Font(Font.FontFamily.COURIER, TAMANO_FUENTE, Font.NORMAL);
+        Font fuenteTotal = new Font(Font.FontFamily.COURIER, TAMANO_FUENTE, Font.BOLD);
+
+        int caracteresPorLinea = caracteresPorLinea(anchoUtil, TAMANO_FUENTE);
+
+        agregarEncabezado(document, factura, fuenteEmpresa, fuenteNormal);
+        agregarDivisor(document, fuenteNormal, caracteresPorLinea);
+        agregarDetalle(document, factura, fuenteNormal, caracteresPorLinea);
+        agregarDivisor(document, fuenteNormal, caracteresPorLinea);
+        agregarTotales(document, factura, fuenteNormal, fuenteTotal, caracteresPorLinea);
+        agregarFormasPago(document, factura, fuenteNormal, caracteresPorLinea);
+        agregarPie(document, fuenteNormal);
+
+        float posicionFinalContenido = pdfWriter.getVerticalPosition(false);
+        int numeroDePaginas = pdfWriter.getPageNumber();
+        document.close();
+
+        return new ResultadoGeneracion(byteArrayOutputStream.toByteArray(), numeroDePaginas, posicionFinalContenido);
+    }
+
+    private record ResultadoGeneracion(byte[] bytes, int numeroDePaginas, float posicionFinalContenido) {
     }
 
     private float resolverAncho(TipoPdfFactura tipo) {
@@ -115,88 +129,85 @@ public class TicktesFacturaServicePdf {
         int cantidadPagos = (factura.getInfoFactura() != null && factura.getInfoFactura().getPago() != null)
                 ? factura.getInfoFactura().getPago().size() : 0;
 
-        // Alto "de sobra": encabezado + datos doc + cliente + detalle + totales +
-        // pagos + barcode + pie. Es solo un punto de partida, al final se recorta
-        // al alto real ocupado (ver recortarAlto).
-        return 320f + (cantidadItems * 26f) + (cantidadPagos * 14f);
+        // Alto "de sobra": encabezado + detalle + totales + pagos + pie. Es solo un
+        // punto de partida (el que realmente evita una segunda página es el
+        // reintento en generarPdf); al final se recorta al alto real ocupado
+        // (ver recortarAlto).
+        return 450f + (cantidadItems * 20f) + (cantidadPagos * 15f);
     }
 
-    private void agregarEncabezadoEmpresa(Document document, Factura factura, byte[] imageBytes,
-                                           Font fuenteEmpresa, Font fuenteChica) throws DocumentException {
+    /**
+     * Cuántos caracteres de la fuente monoespaciada entran en el ancho útil de
+     * la página. En Courier cada carácter mide aprox. 0.6 * tamaño de fuente,
+     * sin importar cuál sea (a diferencia de Helvetica, donde el ancho varía
+     * según la letra) — por eso se puede alinear "a mano" con espacios.
+     */
+    private int caracteresPorLinea(float anchoUtil, float tamanoFuente) {
+        float anchoCaracter = tamanoFuente * 0.6f;
+        return Math.max(20, (int) Math.floor(anchoUtil / anchoCaracter));
+    }
 
-        if (imageBytes != null) {
-            try {
-                Image logo = Image.getInstance(imageBytes);
-                logo.scaleToFit(document.getPageSize().getWidth() * 0.5f, 35f);
-                logo.setAlignment(Element.ALIGN_CENTER);
-                document.add(logo);
-            } catch (Exception e) {
-                // Si el logo no se puede leer, se continúa el ticket sin imagen.
-            }
-        }
+    private void agregarEncabezado(Document document, Factura factura, Font fuenteEmpresa, Font fuenteNormal) throws DocumentException {
 
-        Paragraph razonSocial = new Paragraph(
-                Objects.toString(factura.getInfoTributaria().getRazonSocial(), "").toUpperCase(), fuenteEmpresa);
-        razonSocial.setAlignment(Element.ALIGN_CENTER);
-        document.add(razonSocial);
+        Paragraph empresa = new Paragraph(nombreEmpresa(factura).toUpperCase(), fuenteEmpresa);
+        empresa.setAlignment(Element.ALIGN_CENTER);
+        document.add(empresa);
 
-        if (factura.getInfoTributaria().getNombreComercial() != null) {
-            Paragraph nombreComercial = new Paragraph(factura.getInfoTributaria().getNombreComercial(), fuenteChica);
-            nombreComercial.setAlignment(Element.ALIGN_CENTER);
-            document.add(nombreComercial);
-        }
-
-        Paragraph direccion = new Paragraph(Objects.toString(factura.getInfoTributaria().getDirMatriz(), ""), fuenteChica);
+        Paragraph direccion = new Paragraph(Objects.toString(factura.getInfoTributaria().getDirMatriz(), ""), fuenteNormal);
         direccion.setAlignment(Element.ALIGN_CENTER);
         document.add(direccion);
 
-        Paragraph ruc = new Paragraph("RUC: " + Objects.toString(factura.getInfoTributaria().getRuc(), ""), fuenteChica);
-        ruc.setAlignment(Element.ALIGN_CENTER);
-        document.add(ruc);
-    }
+        document.add(new Paragraph("RUC NRO : " + Objects.toString(factura.getInfoTributaria().getRuc(), ""), fuenteNormal));
+        document.add(new Paragraph("OBLIGADO A LLEVAR CONTABILIDAD: " +
+                Objects.toString(factura.getInfoFactura().getObligadoContabilidad(), ""), fuenteNormal));
+        document.add(new Paragraph("AGENTE DE RETENCION   RESOLUCION No.: " +
+                Objects.toString(factura.getInfoTributaria().getAgenteRetencion(), ""), fuenteNormal));
 
-    private void agregarDatosDocumento(Document document, Factura factura, String autorizacionSri,
-                                        String fechaAutorizacion, Font fuenteTitulo, Font fuenteNormal) throws DocumentException {
+        document.add(new Paragraph(" ", fuenteNormal));
 
         TipoDocumentoPdf tipoDocumento = TipoDocumentoPdf.getTipoDocumento(factura.getInfoTributaria().getCodDoc());
+        document.add(new Paragraph("NO. " + tipoDocumento.getNombre() + "   " +
+                Objects.toString(factura.getInfoTributaria().getEstab(), "") + "   " +
+                Objects.toString(factura.getInfoTributaria().getPtoEmi(), "") + "   " +
+                Objects.toString(factura.getInfoTributaria().getSecuencial(), ""), fuenteNormal));
 
-        Paragraph tipo = new Paragraph(tipoDocumento.getNombre(), fuenteTitulo);
-        tipo.setAlignment(Element.ALIGN_CENTER);
-        document.add(tipo);
+        // La "clave de acceso" es, una vez autorizado el comprobante, el mismo
+        // número de autorización del SRI; por eso el ticket no repite un campo
+        // aparte de autorización (a diferencia del PDF A4/A5).
+        document.add(new Paragraph("CLAVE DE ACCESO :   " +
+                Objects.toString(factura.getInfoTributaria().getClaveAcceso(), ""), fuenteNormal));
 
-        String numero = factura.getInfoTributaria().getEstab() + "-" + factura.getInfoTributaria().getPtoEmi()
-                + "-" + factura.getInfoTributaria().getSecuencial();
-        Paragraph numeroParrafo = new Paragraph("No: " + numero, fuenteNormal);
-        numeroParrafo.setAlignment(Element.ALIGN_CENTER);
-        document.add(numeroParrafo);
+        String ambienteTexto = "1".equals(factura.getInfoTributaria().getAmbiente()) ? "PRUEBAS" : "PRODUCCION";
+        String emisionTexto = "1".equals(factura.getInfoTributaria().getTipoEmision()) ? "NORMAL" : "";
+        document.add(new Paragraph("AMBIENTE: " + ambienteTexto + "   EMISION: " + emisionTexto, fuenteNormal));
 
-        Paragraph autorizacion = new Paragraph("Aut: " + Objects.toString(autorizacionSri, ""), fuenteNormal);
-        autorizacion.setAlignment(Element.ALIGN_CENTER);
-        document.add(autorizacion);
+        document.add(new Paragraph("FECHA :   " + Objects.toString(factura.getInfoFactura().getFechaEmision(), ""), fuenteNormal));
+        document.add(new Paragraph("CLIENTE :   " + Objects.toString(factura.getInfoFactura().getRazonSocialComprador(), ""), fuenteNormal));
+        document.add(new Paragraph("RUC / CI :   " + Objects.toString(factura.getInfoFactura().getIdentificacionComprador(), ""), fuenteNormal));
+        document.add(new Paragraph("DIRECCION : " + Objects.toString(factura.getInfoFactura().getDireccionComprador(), ""), fuenteNormal));
 
-        Paragraph fecha = new Paragraph("Fecha aut: " + Objects.toString(fechaAutorizacion, ""), fuenteNormal);
-        fecha.setAlignment(Element.ALIGN_CENTER);
-        document.add(fecha);
-
-        String ambiente = "1".equals(factura.getInfoTributaria().getAmbiente()) ? "PRUEBAS" : "PRODUCCIÓN";
-        Paragraph ambienteParrafo = new Paragraph("Ambiente: " + ambiente, fuenteNormal);
-        ambienteParrafo.setAlignment(Element.ALIGN_CENTER);
-        document.add(ambienteParrafo);
+        document.add(new Paragraph(" ", fuenteNormal));
     }
 
-    private void agregarDatosCliente(Document document, Factura factura, Font font) throws DocumentException {
-        InfoFactura infoFactura = factura.getInfoFactura();
-
-        document.add(new Paragraph("Cliente: " + Objects.toString(infoFactura.getRazonSocialComprador(), ""), font));
-        document.add(new Paragraph("Identificación: " + Objects.toString(infoFactura.getIdentificacionComprador(), ""), font));
-        document.add(new Paragraph("Fecha: " + Objects.toString(infoFactura.getFechaEmision(), ""), font));
+    private String nombreEmpresa(Factura factura) {
+        String nombreComercial = factura.getInfoTributaria().getNombreComercial();
+        if (nombreComercial != null && !nombreComercial.isBlank()) {
+            return nombreComercial;
+        }
+        return Objects.toString(factura.getInfoTributaria().getRazonSocial(), "");
     }
 
-    private void agregarDetalle(Document document, Factura factura, Font fuenteDescripcion, Font fuenteDato) throws DocumentException {
+    private void agregarDetalle(Document document, Factura factura, Font fuenteNormal, int caracteresPorLinea) throws DocumentException {
 
-        Paragraph titulo = new Paragraph("DETALLE", fuenteDato);
-        titulo.setAlignment(Element.ALIGN_CENTER);
-        document.add(titulo);
+        int colCantidad = 6;
+        int colPrecioUnitario = 8;
+        int colPrecioTotal = 9;
+        int colDescripcion = Math.max(8, caracteresPorLinea - colCantidad - colPrecioUnitario - colPrecioTotal);
+
+        document.add(new Paragraph(
+                pad("CANT", colCantidad) + pad("PRODUCTO", colDescripcion) +
+                        padIzquierda("P.U", colPrecioUnitario) + padIzquierda("P.TOT", colPrecioTotal),
+                fuenteNormal));
 
         List<Detalle> detalles = factura.getDetalle();
         if (detalles == null) {
@@ -204,177 +215,125 @@ public class TicktesFacturaServicePdf {
         }
 
         for (Detalle detalle : detalles) {
-
-            Paragraph descripcion = new Paragraph(
-                    Objects.toString(detalle.getDescripcion(), "").toUpperCase(), fuenteDescripcion);
-            document.add(descripcion);
-
-            PdfPTable filaCantidadPrecio = new PdfPTable(2);
-            filaCantidadPrecio.setWidthPercentage(100);
-            filaCantidadPrecio.setWidths(new float[]{6, 4});
-
-            String cantidadPrecio = Objects.toString(detalle.getCantidad(), "0") + " x " +
-                    Objects.toString(detalle.getPrecioUnitario(), "0.00");
-            PdfPCell celdaCantidad = new PdfPCell(new Phrase(cantidadPrecio, fuenteDato));
-            celdaCantidad.setBorder(Rectangle.NO_BORDER);
-            celdaCantidad.setPaddingBottom(3f);
-            filaCantidadPrecio.addCell(celdaCantidad);
-
-            PdfPCell celdaTotal = new PdfPCell(new Phrase(
-                    Objects.toString(detalle.getPrecioTotalSinImpuesto(), "0.00"), fuenteDato));
-            celdaTotal.setBorder(Rectangle.NO_BORDER);
-            celdaTotal.setHorizontalAlignment(Element.ALIGN_RIGHT);
-            celdaTotal.setPaddingBottom(3f);
-            filaCantidadPrecio.addCell(celdaTotal);
-
-            document.add(filaCantidadPrecio);
+            String linea = pad(formatoMonto(detalle.getCantidad()), colCantidad) +
+                    pad(Objects.toString(detalle.getDescripcion(), "").toUpperCase(), colDescripcion) +
+                    padIzquierda(formatoMonto(detalle.getPrecioUnitario()), colPrecioUnitario) +
+                    padIzquierda(formatoMonto(detalle.getPrecioTotalSinImpuesto()), colPrecioTotal);
+            document.add(new Paragraph(linea, fuenteNormal));
         }
     }
 
-    private void agregarTotales(Document document, Factura factura, Font fuenteEtiqueta, Font fuenteTotal) throws DocumentException {
+    private void agregarTotales(Document document, Factura factura, Font fuenteNormal, Font fuenteTotal, int caracteresPorLinea) throws DocumentException {
 
         InfoFactura infoFactura = factura.getInfoFactura();
-        FacturaImpuestosUtil.SubtotalesFactura subtotales =
-                FacturaImpuestosUtil.resolverSubtotales(infoFactura.getTotalImpuesto());
-
-        agregarFilaTotal(document, "SUBTOTAL SIN IMPUESTOS:", infoFactura.getTotalSinImpuestos(), fuenteEtiqueta);
-        agregarFilaTotal(document, "TOTAL DESCUENTO:", infoFactura.getTotalDescuento(), fuenteEtiqueta);
-
-        if (subtotales.getSubTotal0() != null) {
-            agregarFilaTotal(document, "SUBTOTAL 0%:", subtotales.getSubTotal0().getBaseImponible(), fuenteEtiqueta);
-        }
+        FacturaImpuestosUtil.SubtotalesFactura subtotales = FacturaImpuestosUtil.resolverSubtotales(infoFactura.getTotalImpuesto());
 
         if (subtotales.getSubTotal15() != null) {
-            agregarFilaTotal(document, "SUBTOTAL 15%:", subtotales.getSubTotal15().getBaseImponible(), fuenteEtiqueta);
-            agregarFilaTotal(document, "IVA 15%:", subtotales.getSubTotal15().getValor(), fuenteEtiqueta);
+            agregarLineaTotal(document, "SUBTOTAL 15%:", subtotales.getSubTotal15().getBaseImponible(), fuenteNormal, caracteresPorLinea);
         }
-
+        if (subtotales.getSubTotal0() != null) {
+            agregarLineaTotal(document, "SUBTOTAL 0%:", subtotales.getSubTotal0().getBaseImponible(), fuenteNormal, caracteresPorLinea);
+        }
         if (subtotales.getSubTotal8() != null) {
-            agregarFilaTotal(document, "SUBTOTAL 8%:", subtotales.getSubTotal8().getBaseImponible(), fuenteEtiqueta);
-            agregarFilaTotal(document, "IVA 8%:", subtotales.getSubTotal8().getValor(), fuenteEtiqueta);
+            agregarLineaTotal(document, "SUBTOTAL 8%:", subtotales.getSubTotal8().getBaseImponible(), fuenteNormal, caracteresPorLinea);
         }
-
         if (subtotales.getSubTotal5() != null) {
-            agregarFilaTotal(document, "SUBTOTAL 5%:", subtotales.getSubTotal5().getBaseImponible(), fuenteEtiqueta);
-            agregarFilaTotal(document, "IVA 5%:", subtotales.getSubTotal5().getValor(), fuenteEtiqueta);
+            agregarLineaTotal(document, "SUBTOTAL 5%:", subtotales.getSubTotal5().getBaseImponible(), fuenteNormal, caracteresPorLinea);
         }
 
-        if (subtotales.getSubTotalNoObjeto() != null) {
-            agregarFilaTotal(document, "NO OBJETO DE IVA:", subtotales.getSubTotalNoObjeto().getBaseImponible(), fuenteEtiqueta);
+        agregarLineaTotal(document, "DESCUENTO:", infoFactura.getTotalDescuento(), fuenteNormal, caracteresPorLinea);
+        agregarLineaTotal(document, "SUBTOTAL:", infoFactura.getTotalSinImpuestos(), fuenteNormal, caracteresPorLinea);
+
+        if (subtotales.getSubTotal15() != null) {
+            agregarLineaTotal(document, "IVA 15%:", subtotales.getSubTotal15().getValor(), fuenteNormal, caracteresPorLinea);
+        }
+        if (subtotales.getSubTotal8() != null) {
+            agregarLineaTotal(document, "IVA 8%:", subtotales.getSubTotal8().getValor(), fuenteNormal, caracteresPorLinea);
+        }
+        if (subtotales.getSubTotal5() != null) {
+            agregarLineaTotal(document, "IVA 5%:", subtotales.getSubTotal5().getValor(), fuenteNormal, caracteresPorLinea);
         }
 
-        if (subtotales.getSubTotalExenta() != null) {
-            agregarFilaTotal(document, "EXENTO DE IVA:", subtotales.getSubTotalExenta().getBaseImponible(), fuenteEtiqueta);
-        }
-
-        agregarFilaTotal(document, "VALOR TOTAL:", infoFactura.getImporteTotal(), fuenteTotal);
+        agregarDivisor(document, fuenteNormal, caracteresPorLinea);
+        agregarLineaTotal(document, "TOTAL:", infoFactura.getImporteTotal(), fuenteTotal, caracteresPorLinea);
     }
 
-    private void agregarFilaTotal(Document document, String etiqueta, String valor, Font font) throws DocumentException {
-        PdfPTable fila = new PdfPTable(2);
-        fila.setWidthPercentage(100);
-        fila.setWidths(new float[]{6, 4});
-
-        PdfPCell celdaEtiqueta = new PdfPCell(new Phrase(etiqueta, font));
-        celdaEtiqueta.setBorder(Rectangle.NO_BORDER);
-        fila.addCell(celdaEtiqueta);
-
-        PdfPCell celdaValor = new PdfPCell(new Phrase(Objects.toString(valor, "0.00"), font));
-        celdaValor.setBorder(Rectangle.NO_BORDER);
-        celdaValor.setHorizontalAlignment(Element.ALIGN_RIGHT);
-        fila.addCell(celdaValor);
-
-        document.add(fila);
+    private void agregarLineaTotal(Document document, String etiqueta, String valor, Font font, int caracteresPorLinea) throws DocumentException {
+        int anchoValor = 9;
+        int anchoEtiqueta = Math.max(8, caracteresPorLinea - anchoValor);
+        String linea = pad(etiqueta, anchoEtiqueta) + padIzquierda(formatoMonto(valor), anchoValor);
+        document.add(new Paragraph(linea, font));
     }
 
-    private void agregarFormasPago(Document document, Factura factura, Font font) throws DocumentException {
+    private void agregarFormasPago(Document document, Factura factura, Font fuenteNormal, int caracteresPorLinea) throws DocumentException {
         List<Pago> pagos = factura.getInfoFactura().getPago();
         if (pagos == null || pagos.isEmpty()) {
             return;
         }
 
-        Paragraph titulo = new Paragraph("FORMA DE PAGO", font);
-        titulo.setAlignment(Element.ALIGN_CENTER);
-        document.add(titulo);
-
         for (Pago pago : pagos) {
             String nombrePago;
             try {
-                nombrePago = pago.getFormaPago() + "-" + FormaPagoSriEnum.getNombrePago(pago.getFormaPago());
+                nombrePago = FormaPagoSriEnum.getNombrePago(pago.getFormaPago());
             } catch (Exception e) {
                 nombrePago = pago.getFormaPago() == null ? "" : pago.getFormaPago().toUpperCase();
             }
-
-            PdfPTable fila = new PdfPTable(2);
-            fila.setWidthPercentage(100);
-            fila.setWidths(new float[]{7, 3});
-
-            PdfPCell celdaNombre = new PdfPCell(new Phrase(nombrePago, font));
-            celdaNombre.setBorder(Rectangle.NO_BORDER);
-            fila.addCell(celdaNombre);
-
-            PdfPCell celdaValor = new PdfPCell(new Phrase(Objects.toString(pago.getTotal(), "0.00"), font));
-            celdaValor.setBorder(Rectangle.NO_BORDER);
-            celdaValor.setHorizontalAlignment(Element.ALIGN_RIGHT);
-            fila.addCell(celdaValor);
-
-            document.add(fila);
+            agregarLineaTotal(document, nombrePago + ":", pago.getTotal(), fuenteNormal, caracteresPorLinea);
         }
-    }
-
-    private void agregarClaveAcceso(Document document, PdfWriter writer, Factura factura,
-                                     float anchoUtil, Font font) throws DocumentException {
-
-        String claveAcceso = factura.getInfoTributaria().getClaveAcceso();
-        if (claveAcceso == null || claveAcceso.isBlank()) {
-            return;
-        }
-
-        Paragraph etiqueta = new Paragraph("CLAVE DE ACCESO", font);
-        etiqueta.setAlignment(Element.ALIGN_CENTER);
-        document.add(etiqueta);
-
-        Barcode128 codigoBarra = new Barcode128();
-        codigoBarra.setCode(claveAcceso);
-        codigoBarra.setCodeType(Barcode128.CODE128);
-        codigoBarra.setBarHeight(28f);
-        // El texto legible ya se imprime aparte (más abajo); se omite el de la
-        // barra para no duplicarlo y para dejarle más espacio a las barras.
-        codigoBarra.setFont(null);
-
-        PdfContentByte cb = writer.getDirectContent();
-        Image imagenBarcode = codigoBarra.createImageWithBarcode(cb, null, null);
-        imagenBarcode.scaleToFit(anchoUtil, 30f);
-        imagenBarcode.setAlignment(Element.ALIGN_CENTER);
-        document.add(imagenBarcode);
-
-        Paragraph textoClave = new Paragraph(claveAcceso, font);
-        textoClave.setAlignment(Element.ALIGN_CENTER);
-        document.add(textoClave);
     }
 
     private void agregarPie(Document document, Font font) throws DocumentException {
-        Paragraph pie = new Paragraph("¡GRACIAS POR SU COMPRA!", font);
-        pie.setAlignment(Element.ALIGN_CENTER);
-        pie.setSpacingBefore(6f);
-        document.add(pie);
+        document.add(new Paragraph(" ", font));
+
+        Paragraph aviso = new Paragraph("PARA CONSULTAR SU FACTURA INGRESE A WWW.SRI.GOB.EC", font);
+        aviso.setAlignment(Element.ALIGN_CENTER);
+        document.add(aviso);
+
+        Paragraph gracias = new Paragraph("GRACIAS POR SU COMPRA!", font);
+        gracias.setAlignment(Element.ALIGN_CENTER);
+        gracias.setSpacingBefore(4f);
+        document.add(gracias);
     }
 
-    private void agregarLineaSeparadora(Document document, PdfWriter writer) throws DocumentException {
-        Paragraph espacioAntes = new Paragraph();
-        espacioAntes.setSpacingAfter(2f);
-        document.add(espacioAntes);
+    private void agregarDivisor(Document document, Font font, int caracteresPorLinea) throws DocumentException {
+        document.add(new Paragraph("=".repeat(caracteresPorLinea), font));
+    }
 
-        PdfContentByte cb = writer.getDirectContent();
-        float y = writer.getVerticalPosition(true);
-        cb.setLineWidth(0.5f);
-        cb.moveTo(document.leftMargin(), y);
-        cb.lineTo(document.getPageSize().getWidth() - document.rightMargin(), y);
-        cb.stroke();
+    /**
+     * Corta o rellena {@code texto} a la derecha hasta {@code ancho}
+     * caracteres, para que quede a la izquierda de la columna (etiquetas,
+     * descripciones).
+     */
+    private String pad(String texto, int ancho) {
+        String valor = Objects.toString(texto, "");
+        if (valor.length() >= ancho) {
+            return valor.substring(0, ancho);
+        }
+        return valor + " ".repeat(ancho - valor.length());
+    }
 
-        Paragraph espacioDespues = new Paragraph();
-        espacioDespues.setSpacingAfter(2f);
-        document.add(espacioDespues);
+    /**
+     * Rellena {@code texto} a la izquierda hasta {@code ancho} caracteres,
+     * para que quede alineado a la derecha de la columna (montos).
+     */
+    private String padIzquierda(String texto, int ancho) {
+        String valor = Objects.toString(texto, "");
+        if (valor.length() >= ancho) {
+            return valor.substring(valor.length() - ancho);
+        }
+        return " ".repeat(ancho - valor.length()) + valor;
+    }
+
+    /**
+     * Los montos vienen del XML con punto decimal ("200.00"); para que el
+     * ticket se vea igual que uno impreso localmente se muestran con coma
+     * ("200,00").
+     */
+    private String formatoMonto(String valor) {
+        if (valor == null || valor.isBlank()) {
+            return "0,00";
+        }
+        return valor.replace('.', ',');
     }
 
     /**

@@ -1,9 +1,12 @@
 package com.calero.lili.core.modImpuestosAnexos.ats;
 
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @XmlType(propOrder = {"tipoComprobanteReemb", "tpIdProvReemb", "idProvReemb",
         "establecimientoReemb", "puntoEmisionReemb", "secuencialReemb", "",
@@ -12,6 +15,8 @@ import lombok.Data;
 @Builder
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Reembolso {
 
     private String tipoComprobanteReemb;

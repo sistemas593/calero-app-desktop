@@ -6,17 +6,23 @@ import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CpImpuestoDetalle
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CreationCompraImpuestoRequestDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.ValoresCompraImpuestoDto;
 import com.calero.lili.core.modCompras.modComprasRetenciones.CpRetencionesEntity;
+import com.calero.lili.core.modCompras.service.CpImpuestoAtsProjection;
 import com.calero.lili.core.modImpuestosAnexos.ats.DetalleCompras;
 import com.calero.lili.core.modImpuestosAnexos.ats.PagoExterior;
 import com.calero.lili.core.utils.DateUtils;
+import com.calero.lili.core.utils.JsonUtils;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Objects;
 
 @Component
+@AllArgsConstructor
 public class CpImpuestoDetalleErrorBuilder {
 
+
+    private final JsonUtils jsonUtils;
 
     public DetalleCompras builderValidacion(CreationCompraImpuestoRequestDto request) {
         return DetalleCompras.builder()
@@ -31,7 +37,6 @@ public class CpImpuestoDetalleErrorBuilder {
                 .fechaRegistro(request.getFechaRegistro())
                 .build();
     }
-
 
 
     public CpImpuestoDetalleError builder(String message) {

@@ -345,8 +345,8 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
             "FROM cp_impuestos ci JOIN cp_impuestos_valores civ ON civ.id_impuestos = ci.id_impuestos" +
             " JOIN ge_terceros gt ON gt.id_tercero = ci.id_proveedor " +
             "WHERE ci.id_data = :idData AND ci.id_empresa = :idEmpresa " +
-            "AND (:fechaRegistroDesde IS NULL OR ci.fecha_registro >= :fechaRegistroDesde) " +
-            "AND (:fechaRegistroHasta IS NULL OR ci.fecha_registro <= :fechaRegistroHasta) " +
+            "AND (cast(:fechaRegistroDesde as date) IS NULL OR ci.fecha_registro >= :fechaRegistroDesde) " +
+            "AND (cast(:fechaRegistroHasta as date) IS NULL OR ci.fecha_registro <= :fechaRegistroHasta) " +
             "GROUP BY ci.id_impuestos, ci.codigo_sustento, gt.tipo_identificacion, " +
             "gt.numero_identificacion, ci.documento, ci.fecha_registro, ci.serie, ci.secuencial," +
             " ci.fecha_emision, ci.numero_autorizacion, ci.pago_exterior," +
@@ -361,13 +361,13 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
     @Query(value = "select " +
             "cic.id_impuestos, " +
             "cic.base_imponible, " +
-            "cic.porcentaje_retener" +
+            "cic.porcentaje_retener, " +
             "cic.codigo as codigo, " +
             "cic.codigo_retencion as codigoRetencion, " +
             "cic.valor_retenido as valorRetenido " +
             "from cp_impuestos_codigos cic " +
-            "where cic.id_impuestos in (:idCpImpuestos) " +
-            "cic.cic.id_data = :idData and cic.cic.id_empresa = :idEmpresa",
+            "where cic.id_impuestos in (:idCpImpuestos) and " +
+            "cic.id_data = :idData and cic.id_empresa = :idEmpresa",
             nativeQuery = true)
     List<CpImpuestosCodigosAtsProjection> findAllCpImpuestosCodigos(@Param("idData") Long idData,
                                                                     @Param("idEmpresa") Long idEmpresa,

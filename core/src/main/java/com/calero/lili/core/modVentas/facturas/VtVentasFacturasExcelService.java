@@ -22,10 +22,14 @@ import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesEntity;
 import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesRepository;
 import com.calero.lili.core.modAdminEmpresasSucursales.AdEmpresasSucursalesEntity;
 import com.calero.lili.core.modAdminEmpresasSucursales.AdEmpresasSucursalesRepository;
+import com.calero.lili.core.modCompras.modComprasImpuestos.ValidacionValoresCpImpuestosService;
+import com.calero.lili.core.modCompras.modComprasImpuestos.builder.CpImpuestoDetalleErrorBuilder;
+import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CpImpuestoDetalleError;
 import com.calero.lili.core.modComprasItems.GeItemEntity;
 import com.calero.lili.core.modComprasItems.GeItemsRepository;
 import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosEntity;
 import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosItemsRepository;
+import com.calero.lili.core.modImpuestosAnexos.ats.DetalleCompras;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
 import com.calero.lili.core.modTerceros.GeTercerosTipoRepository;
@@ -34,6 +38,7 @@ import com.calero.lili.core.modVentas.VtVentaDetalleEntity;
 import com.calero.lili.core.modVentas.VtVentaEntity;
 import com.calero.lili.core.modVentas.VtVentaValoresEntity;
 import com.calero.lili.core.modVentas.VtVentasRepository;
+import com.calero.lili.core.modVentas.dto.DetallesErrorVentasDto;
 import com.calero.lili.core.modVentas.projection.OneProjection;
 import com.calero.lili.core.utils.DateUtils;
 import com.calero.lili.core.utils.ValidarTipoArchivo;
@@ -75,6 +80,7 @@ public class VtVentasFacturasExcelService {
     private final ComprobanteServiceImpl vtComprobanteService;
     private final AdEmpresasRepository adEmpresasRepository;
     private final AdEmpresasSeriesRepository adEmpresasSeriesRepository;
+    private final ValidacionValoresVtVentasService serviceValores;
 
 
     public void cargarExcelFacturas(Long idData, Long idEmpresa,
@@ -170,6 +176,8 @@ public class VtVentasFacturasExcelService {
         }
 
         if (detalleErrores.isEmpty()) {
+
+
             vtVentasRepository.saveAll(facturas);
         } else {
             throwErrors(detalleErrores);
@@ -717,7 +725,23 @@ public class VtVentasFacturasExcelService {
             }
 
             if (detalleErrores.isEmpty()) {
-                vtVentasRepository.saveAll(facturas);
+
+                List<DetallesErrorVentasDto> detallesErrorVentasDtos = new ArrayList<>();
+
+                for (VtVentaEntity factura : facturas) {
+                    serviceValores.validacionValoresVtVentasGeneral(factura, detallesErrorVentasDtos);
+                }
+
+                if (detallesErrorVentasDtos.isEmpty()) {
+                    vtVentasRepository.saveAll(facturas);
+
+                } else {
+                    List<String> list = detallesErrorVentasDtos.stream()
+                            .map(DetallesErrorVentasDto::getDetalle)
+                            .toList();
+                    throw new ListErrorException(list);
+                }
+
             } else {
                 throwErrors(detalleErrores);
             }

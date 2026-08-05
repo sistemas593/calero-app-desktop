@@ -6,6 +6,8 @@ import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajesEntity;
 import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajesRepository;
 import com.calero.lili.core.modCompras.modComprasImpuestos.builder.CpImpuestoDetalleErrorBuilder;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CpImpuestoDetalleError;
+import com.calero.lili.core.modVentas.VtVentaEntity;
+import com.calero.lili.core.modVentas.VtVentaValoresEntity;
 import com.calero.lili.core.utils.ValidacionDocumentosGeneral;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,7 +34,6 @@ public class ValidacionValoresCpImpuestosService {
         validateIvaPorcentaje(getIntegerTarifaIva(model.getValoresEntity()), model.getFechaEmision(),
                 detalleErrores);
 
-
         validarValoresImpuestos(model.getValoresEntity(), detalleErrores);
 
         setearValoresNegativosNotasCredito(model);
@@ -56,6 +57,9 @@ public class ValidacionValoresCpImpuestosService {
             });
         }
     }
+
+
+
 
     private void validateIvaPorcentaje(List<Integer> valores, LocalDate fechaFactura,
                                        List<CpImpuestoDetalleError> detalleErrores) {
@@ -125,6 +129,9 @@ public class ValidacionValoresCpImpuestosService {
         });
     }
 
+
+
+
     private List<Integer> getIntegerTarifaIva(List<CpImpuestosValoresEntity> valores) {
         return valores.stream()
                 .map(CpImpuestosValoresEntity::getTarifa)
@@ -132,6 +139,9 @@ public class ValidacionValoresCpImpuestosService {
                 .map(BigDecimal::intValue)
                 .toList();
     }
+
+
+
 
 
     /*private void validarValoresRetenciones(List<CompraImpuestosDto> listCompraImpuesto, List<CpImpuestoDetalleError> detalleErrores) {

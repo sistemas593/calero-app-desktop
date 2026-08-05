@@ -4,11 +4,14 @@ import com.calero.lili.core.comprobantes.builder.documentos.FormatoValores;
 import com.calero.lili.core.enums.CodigoDocumento;
 import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.core.errors.exceptions.ListErrorException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
 import com.calero.lili.core.modCompras.builder.AtsBuilder;
 import com.calero.lili.core.modCompras.dto.FilterDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosRepository;
+import com.calero.lili.core.modCompras.modComprasImpuestos.ValidacionGeneralCpImpuestosService;
+import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CpImpuestoDetalleError;
 import com.calero.lili.core.modCompras.projection.AtsProjection;
 import com.calero.lili.core.modCompras.projection.AtsRetencionResumenProjection;
 import com.calero.lili.core.modImpuestosAnexos.ats.DetalleAir;
@@ -61,14 +64,13 @@ public class AtsService {
     private final AdEmpresasRepository adEmpresasRepository;
     private final FormatoValores formatoValores;
     private final Formulario104Repository compraRetencion;
+    private final ValidacionGeneralCpImpuestosService validacionGeneralService;
 
 
     public void generateDocumentoAtsXml(Long idData, Long idEmpresa, FilterDto model, HttpServletResponse response) {
 
-        try {
-
             List<DetalleCompras> detalleComprasList = new ArrayList<>();
-
+            List<CpImpuestoDetalleError> detalleErrores = new ArrayList<>();
 
             List<CpImpuestoAtsProjection> comprasImpuesto = cpImpuestosRepository
                     .findAllByDates(idData, idEmpresa, model.getFechaRegistroDesde(), model.getFechaRegistroHasta());
@@ -97,6 +99,9 @@ public class AtsService {
 
 
                     DetalleCompras detalleCompra = atsBuilder.builderDetalleCompra(cpImpuestosEntity);
+
+                    detalleErrores.addAll(validacionGeneralService.validacionGeneral(detalleCompra));
+
                     validarFormasDePagoSri(detalleCompra, cpImpuestosEntity.getFormasPago());
 
                     if (Objects.nonNull(compraImpuestoCodigos)) {
@@ -130,15 +135,23 @@ public class AtsService {
                     detalleComprasList.add(detalleCompra);
                 });
             }
+
             AdEmpresaEntity adEmpresaEntity = adEmpresasRepository.findById(idData, idEmpresa)
                     .orElseThrow(() -> new GeneralException("No existe informacion de la empresa"));
 
-            generarXml(atsBuilder.builderAtsWithRetencion(detalleComprasList, adEmpresaEntity,
-                    getPeriodo(DateUtils.toString(model.getFechaRegistroDesde()))), response, model.getFechaRegistroHasta());
+            if (detalleErrores.isEmpty()) {
+                generarXml(atsBuilder.builderAtsWithRetencion(detalleComprasList, adEmpresaEntity,
+                        getPeriodo(DateUtils.toString(model.getFechaRegistroDesde()))), response, model.getFechaRegistroHasta());
 
-        } catch (Exception exception) {
-            throw new GeneralException(exception.getMessage());
-        }
+            } else {
+                List<String> list = detalleErrores.stream()
+                        .map(CpImpuestoDetalleError::getDetalle)
+                        .toList();
+
+                System.out.println(list);
+                throw new ListErrorException(list);
+            }
+
 
     }
 
@@ -164,55 +177,54 @@ public class AtsService {
     private void validateRetencionesIva(DetalleCompras detalleCompra,
                                         List<CpImpuestosCodigosAtsProjection> listCodigos) {
 
+        if (Objects.nonNull(listCodigos)) {
+            if (!listCodigos.isEmpty()) {
+                for (CpImpuestosCodigosAtsProjection impuesto : listCodigos) {
 
-        if (!listCodigos.isEmpty()) {
-            for (CpImpuestosCodigosAtsProjection impuesto : listCodigos) {
+                    if (impuesto.getCodigo().getCodigo().equals("2")
+                            && impuesto.getCodigoRetencion().equals("9")) {
 
-                if (impuesto.getCodigo().getCodigo().equals("2")
-                        && impuesto.getCodigoRetencion().equals("9")) {
+                        detalleCompra.setValRetBien10(formatoValores.convertirBigDecimalToString(impuesto.getValorRetenido()));
 
-                    detalleCompra.setValRetBien10(formatoValores.convertirBigDecimalToString(impuesto.getValorRetenido()));
+                    }
 
-                }
-
-                if (impuesto.getCodigo().getCodigo().equals("2")
-                        && impuesto.getCodigoRetencion().equals("10")) {
-                    detalleCompra.setValRetServ20(formatoValores.convertirBigDecimalToString(impuesto.getValorRetenido()));
-                }
-
-
-                if (impuesto.getCodigo().getCodigo().equals("2")
-                        && impuesto.getCodigoRetencion().equals("1")) {
-
-                    detalleCompra.setValorRetBienes(formatoValores.convertirBigDecimalToStringPDF(impuesto.getValorRetenido()));
-
-                }
+                    if (impuesto.getCodigo().getCodigo().equals("2")
+                            && impuesto.getCodigoRetencion().equals("10")) {
+                        detalleCompra.setValRetServ20(formatoValores.convertirBigDecimalToString(impuesto.getValorRetenido()));
+                    }
 
 
-                if (impuesto.getCodigo().getCodigo().equals("2")
-                        && impuesto.getCodigoRetencion().equals("11")) {
+                    if (impuesto.getCodigo().getCodigo().equals("2")
+                            && impuesto.getCodigoRetencion().equals("1")) {
 
-                    detalleCompra.setValRetServ50(formatoValores.convertirBigDecimalToString(impuesto.getValorRetenido()));
+                        detalleCompra.setValorRetBienes(formatoValores.convertirBigDecimalToStringPDF(impuesto.getValorRetenido()));
 
-                }
+                    }
 
-                if (impuesto.getCodigo().getCodigo().equals("2")
-                        && impuesto.getCodigoRetencion().equals("2")) {
 
-                    detalleCompra.setValorRetServicios(formatoValores.convertirBigDecimalToString(impuesto.getValorRetenido()));
+                    if (impuesto.getCodigo().getCodigo().equals("2")
+                            && impuesto.getCodigoRetencion().equals("11")) {
 
-                }
+                        detalleCompra.setValRetServ50(formatoValores.convertirBigDecimalToString(impuesto.getValorRetenido()));
 
-                if (impuesto.getCodigo().getCodigo().equals("2")
-                        && impuesto.getCodigoRetencion().equals("3")) {
+                    }
 
-                    detalleCompra.setValRetServ100(formatoValores.convertirBigDecimalToString(impuesto.getValorRetenido()));
+                    if (impuesto.getCodigo().getCodigo().equals("2")
+                            && impuesto.getCodigoRetencion().equals("2")) {
 
+                        detalleCompra.setValorRetServicios(formatoValores.convertirBigDecimalToString(impuesto.getValorRetenido()));
+
+                    }
+
+                    if (impuesto.getCodigo().getCodigo().equals("2")
+                            && impuesto.getCodigoRetencion().equals("3")) {
+
+                        detalleCompra.setValRetServ100(formatoValores.convertirBigDecimalToString(impuesto.getValorRetenido()));
+
+                    }
                 }
             }
         }
-
-
     }
 
     private void validateRetencionesRenta(DetalleCompras detalleCompra,

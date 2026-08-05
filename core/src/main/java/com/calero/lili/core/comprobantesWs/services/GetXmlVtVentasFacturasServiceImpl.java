@@ -3,13 +3,13 @@ package com.calero.lili.core.comprobantesWs.services;
 import com.calero.lili.core.comprobantes.objetosXml.autorizacionFile.Autorizacion;
 import com.calero.lili.core.comprobantes.objetosXml.factura.Factura;
 import com.calero.lili.core.comprobantesPdf.FacturaPdf;
+import com.calero.lili.core.comprobantesPdf.TicktesFacturaServicePdf;
 import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.VtVentasXMLFacturaGetDto;
 import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.builder.DocumentosElectronicosComprobanteBuilder;
 import com.calero.lili.core.comprobantesWs.dto.ArchivoDto;
 import com.calero.lili.core.comprobantesWs.dto.DatosEmpresaDto;
 import com.calero.lili.core.comprobantesWs.dto.FilterFacturaPdfDto;
 import com.calero.lili.core.enums.EstadoDocumento;
-import com.calero.lili.core.enums.TipoDocumentoPdf;
 import com.calero.lili.core.enums.TipoPdfFactura;
 import com.calero.lili.core.enums.TipoVenta;
 import com.calero.lili.core.errors.exceptions.GeneralException;
@@ -44,6 +44,7 @@ public class GetXmlVtVentasFacturasServiceImpl {
     private final DocumentosElectronicosComprobanteBuilder documentosElectronicosComprobanteBuilder;
     private final BuscarDatosEmpresa buscarDatosEmpresa;
     private final FacturaPdf facturaPdf;
+    private final TicktesFacturaServicePdf ticktesFacturaServicePdf;
 
     public VtVentasXMLFacturaGetDto findXMLFacturaById(Long idData, Long idEmpresa, UUID id) {
 
@@ -67,10 +68,6 @@ public class GetXmlVtVentasFacturasServiceImpl {
         if (Objects.isNull(filter.getTipo())) {
             filter.setTipo(TipoPdfFactura.A4);
         }
-
-
-
-
 
         System.out.println("Obtener PDF");
 
@@ -106,15 +103,39 @@ public class GetXmlVtVentasFacturasServiceImpl {
         }
 
 
-        return ArchivoDto.builder()
-                .nombre(nombreArchivo)
-                .contenido(facturaPdf.generarPdf(
-                        documento,
-                        entidad.getNumeroAutorizacion() == null ? "" : entidad.getNumeroAutorizacion(),
-                        entidad.getFechaAutorizacion() == null ? "" : entidad.getFechaAutorizacion(),
-                        datosEmpresaDto.getImageBytes(),
-                        filter.getTipo()))
-                .build();
+        switch (filter.getTipo()) {
+
+            case A4, A5: {
+
+                return ArchivoDto.builder()
+                        .nombre(nombreArchivo)
+                        .contenido(facturaPdf.generarPdf(
+                                documento,
+                                entidad.getNumeroAutorizacion() == null ? "" : entidad.getNumeroAutorizacion(),
+                                entidad.getFechaAutorizacion() == null ? "" : entidad.getFechaAutorizacion(),
+                                datosEmpresaDto.getImageBytes(),
+                                filter.getTipo()))
+                        .build();
+
+            }
+
+            case TICKET_58, TICKET_80: {
+
+                return ArchivoDto.builder()
+                        .nombre(nombreArchivo)
+                        .contenido(ticktesFacturaServicePdf.generarPdf(
+                                documento,
+                                entidad.getNumeroAutorizacion() == null ? "" : entidad.getNumeroAutorizacion(),
+                                entidad.getFechaAutorizacion() == null ? "" : entidad.getFechaAutorizacion(),
+                                datosEmpresaDto.getImageBytes(),
+                                filter.getTipo()))
+                        .build();
+            }
+
+        }
+
+
+        return null;
     }
 
 

@@ -4,7 +4,6 @@ import com.calero.lili.core.comprobantes.builder.documentos.FormatoValores;
 import com.calero.lili.core.dtos.FormasPagoSri;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
-import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosCodigosEntity;
 import com.calero.lili.core.modCompras.service.CpImpuestoAtsProjection;
 import com.calero.lili.core.modCompras.service.CpImpuestosCodigosAtsProjection;
 import com.calero.lili.core.modImpuestosAnexos.ats.Air;
@@ -14,21 +13,21 @@ import com.calero.lili.core.modImpuestosAnexos.ats.Iva;
 import com.calero.lili.core.modImpuestosAnexos.ats.Pago;
 import com.calero.lili.core.modImpuestosAnexos.ats.PagoExterior;
 import com.calero.lili.core.utils.DateUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.calero.lili.core.utils.JsonUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @AllArgsConstructor
 public class AtsBuilder {
 
     private final FormatoValores formatoValores;
-    private final ObjectMapper objectMapper;
+    private final JsonUtils jsonUtils;
 
     public Iva builderAtsWithRetencion(List<DetalleCompras> detalleCompras, AdEmpresaEntity model, String periodo) {
 
@@ -93,49 +92,54 @@ public class AtsBuilder {
 
 
     public Pago builderFormaPago(String jsonPagos) {
-        List<FormasPagoSri> formasPagoSri = getFormaPagoSri(jsonPagos, new TypeReference<List<FormasPagoSri>>() {
-        });
-        return Pago.builder()
-                .formaPago(formasPagoSri.stream()
-                        .map(fp -> fp.getFormaPago().getCodigo())
-                        .toList())
-                .build();
 
+        if (Objects.nonNull(jsonPagos)) {
+            List<FormasPagoSri> formasPagoSri = jsonUtils
+                    .convetirStringObjecto(jsonPagos, new TypeReference<List<FormasPagoSri>>() {
+                    });
+            return Pago.builder()
+                    .formaPago(formasPagoSri.stream()
+                            .map(fp -> fp.getFormaPago().getCodigo())
+                            .toList())
+                    .build();
+        }
+        return null;
     }
 
     private PagoExterior builderPagoExterior(String pagoCode, String json) {
 
-        com.calero.lili.core.modCompras.modComprasImpuestos.dto.PagoExterior model = getFormaPagoExterior(json,
-                com.calero.lili.core.modCompras.modComprasImpuestos.dto.PagoExterior.class);
-
-        if (pagoCode.equals("01")) {
-
-            return PagoExterior.builder()
-                    .pagoLocExt(pagoCode)
-                    .aplicConvDobTrib("NA")
-                    .paisEfecPago("NA")
-                    .pagExtSujRetNorLeg("NA")
-                    .build();
-        } else {
+        if (Objects.nonNull(pagoCode) && Objects.nonNull(json)) {
+            com.calero.lili.core.modCompras.modComprasImpuestos.dto.PagoExterior model = jsonUtils.convertirListStringObjecto(json,
+                    com.calero.lili.core.modCompras.modComprasImpuestos.dto.PagoExterior.class);
 
             PagoExterior pagoExterior = new PagoExterior();
-            pagoExterior.setPagoLocExt(pagoCode);
-            pagoExterior.setTipoRegi(model.getTipoRegi());
-            pagoExterior.setAplicConvDobTrib(model.getAplicConvDobTrib());
-            pagoExterior.setPagExtSujRetNorLeg(model.getPagExtSujRetNorLeg());
-            pagoExterior.setPaisEfecPago(model.getPaisEfecPago());
 
-            switch (model.getTipoRegi()) {
-                case "01" -> pagoExterior.setPaisEfecPagoGen(model.getPaisEfecPagoGen());
+            if (pagoCode.equals("01")) {
+                pagoExterior.setPagoLocExt(pagoCode);
+                pagoExterior.setAplicConvDobTrib("NA");
+                pagoExterior.setPaisEfecPago("NA");
+                pagoExterior.setPagExtSujRetNorLeg("NA");
 
-                case "02" -> pagoExterior.setPaisEfecPagoParFis(model.getPaisEfecPagoParFis());
+            } else {
 
-                case "03" -> pagoExterior.setDenopagoRegFis(model.getDenopagoRegFis());
+                pagoExterior.setPagoLocExt(pagoCode);
+                pagoExterior.setTipoRegi(model.getTipoRegi());
+                pagoExterior.setAplicConvDobTrib(model.getAplicConvDobTrib());
+                pagoExterior.setPagExtSujRetNorLeg(model.getPagExtSujRetNorLeg());
+                pagoExterior.setPaisEfecPago(model.getPaisEfecPago());
+
+                switch (model.getTipoRegi()) {
+                    case "01" -> pagoExterior.setPaisEfecPagoGen(model.getPaisEfecPagoGen());
+
+                    case "02" -> pagoExterior.setPaisEfecPagoParFis(model.getPaisEfecPagoParFis());
+
+                    case "03" -> pagoExterior.setDenopagoRegFis(model.getDenopagoRegFis());
+                }
             }
 
             return pagoExterior;
         }
-
+        return null;
     }
 
 
@@ -153,29 +157,4 @@ public class AtsBuilder {
                 .valRetAir(model.getValorRetenido())
                 .build();
     }
-
-    private <T> T getFormaPagoExterior(String json, Class<T> clazz) {
-        if (json == null || json.isBlank()) {
-            return null;
-        }
-        try {
-            return objectMapper.readValue(json, clazz);
-        } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException(
-                    "Error al convertir el JSON a " + clazz.getSimpleName(), e);
-        }
-    }
-
-    private <T> T getFormaPagoSri(String json, TypeReference<T> typeReference) {
-        if (json == null || json.isBlank()) {
-            return null;
-        }
-
-        try {
-            return objectMapper.readValue(json, typeReference);
-        } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException("Error al convertir el JSON.", e);
-        }
-    }
-
 }
