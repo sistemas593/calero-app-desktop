@@ -9,6 +9,7 @@ import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.enums.FormaPago;
 import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.Liquidar;
+import com.calero.lili.core.enums.MotivoTranslado;
 import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.enums.TipoIncoTerm;
 import com.calero.lili.core.enums.TipoIngreso;
@@ -152,7 +153,7 @@ public class CreationFacturaRequestDto {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class Destino {
-        private String motivoTraslado;
+        private MotivoTranslado motivoTraslado;
         private String ruta;
         private String docAduaneroUnico;
         private String codEstabDestino;

@@ -52,7 +52,7 @@ public class GuiaRemisionBuilder {
                 .identificacionDestinatario(guiaRemision.getDestinatario().getNumeroIdentificacion())
                 .razonSocialDestinatario(guiaRemision.getDestinatario().getTercero())
                 .dirDestinatario(guiaRemision.getDirDestinatario())
-                .motivoTraslado(guiaRemision.getMotivoTraslado())
+                .motivoTraslado(guiaRemision.getMotivoTraslado().getNombre())
                 .docAduaneroUnico(guiaRemision.getDocAduaneroUnico())
                 .codEstabDestino(guiaRemision.getCodEstabDestino())
                 .detalle(builderListDetalle(guiaRemision.getDetalle()))

@@ -3,6 +3,7 @@ package com.calero.lili.core.modVentasGuias.dto;
 import com.calero.lili.core.dtos.InformacionAdicionalDto;
 import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.enums.FormatoDocumento;
+import com.calero.lili.core.enums.MotivoTranslado;
 import jakarta.persistence.Column;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
@@ -53,8 +54,8 @@ public class CreationRequestGuiaRemisionDto {
     private String dirDestinatario;
 
 
-    @NotBlank(message = "No existe motivo del traslado")
-    private String motivoTraslado;
+    @NotNull(message = "No existe motivo del traslado")
+    private MotivoTranslado motivoTraslado;
 
     private String docAduaneroUnico;
 

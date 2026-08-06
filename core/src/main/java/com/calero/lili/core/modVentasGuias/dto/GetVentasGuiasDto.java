@@ -4,6 +4,7 @@ import com.calero.lili.core.dtos.InformacionAdicionalDto;
 import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormatoDocumento;
+import com.calero.lili.core.enums.MotivoTranslado;
 import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.modVentasGuias.dto.detalles.DetalleGetDto;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -57,7 +58,7 @@ public class GetVentasGuiasDto {
 
     private String dirPartida;
 
-    private String motivoTraslado;
+    private MotivoTranslado motivoTraslado;
     private String ruta;
 
     private Transportista transportista;

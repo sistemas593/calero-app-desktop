@@ -45,7 +45,7 @@ public class FacturaGuiaRemisionBuilder {
 
     private Destino builderDestino(VtVentaEntity.Destino destino) {
         return Destino.builder()
-                .motivoTraslado(destino.getMotivoTraslado())
+                .motivoTraslado(destino.getMotivoTraslado().getNombre())
                 .codEstabDestino(destino.getCodEstabDestino())
                 .ruta(destino.getRuta())
                 .build();

@@ -7,6 +7,7 @@ import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.enums.FormaPago;
 import com.calero.lili.core.enums.FormatoDocumento;
+import com.calero.lili.core.enums.MotivoTranslado;
 import com.calero.lili.core.enums.TipoIncoTerm;
 import com.calero.lili.core.enums.TipoTerceroPerSoc;
 import com.calero.lili.core.modVentas.facturas.dto.detalles.DetalleGetDto;
@@ -167,7 +168,7 @@ public class GetFacturaDto {
     @NoArgsConstructor
     @Builder
     public static class Destino {
-        private String motivoTraslado;
+        private MotivoTranslado motivoTraslado;
         private String ruta;
         private String docAduaneroUnico;
         private String codEstabDestino;

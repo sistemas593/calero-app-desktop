@@ -1,6 +1,5 @@
 package com.calero.lili.core.modVentas.reporteCredito;
 
-import com.calero.lili.core.adConfiguracion.dto.AdMailEnviadosResponseDto;
 import com.calero.lili.core.builder.DetalleErrorBuilder;
 import com.calero.lili.core.comprobantes.builder.documentos.FormatoValores;
 import com.calero.lili.core.dtos.PaginatedDto;
@@ -22,15 +21,20 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.text.MessageFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Service
 @AllArgsConstructor
@@ -45,8 +49,8 @@ public class ReporteDatosCrediticiosServiceImpl {
     private final DatosCrediticiosBuilder datosCrediticiosBuilder;
 
 
-    public byte[] generarTxt(Long idData, AdEmpresaEntity empresa, PeriodoProjection entidad,
-                             UUID idDatosCrediticios, LocalDate fechaPeriodo) {
+    public byte[] generarReporteDatosCrediticios(Long idData, AdEmpresaEntity empresa, PeriodoProjection entidad,
+                                                 UUID idDatosCrediticios, LocalDate fechaPeriodo) throws IOException {
 
 
         List<DetalleError> detalleErrores = new ArrayList<>();
@@ -74,23 +78,35 @@ public class ReporteDatosCrediticiosServiceImpl {
 
         for (DatosCrediticiosProjection cabecera : lista) {
             sb.append(construirLinea(cabecera, empresa, detalleErrores, fechaPeriodo)).append("\r\n");
-
         }
 
-        if (detalleErrores.isEmpty()) {
+        if (!detalleErrores.isEmpty()) {
 
-            Charset charset = Charset.forName("windows-1252");
-            byte[] bytes = sb.toString().getBytes(charset);
-            return bytes;
-
-            //return sb.toString().getBytes(StandardCharsets.UTF_8);
-        } else {
             List<String> list = detalleErrores.stream()
                     .map(detalleError -> detalleError.getLinea() + "   " + detalleError.getType().getDescription() + " " + detalleError.getDetalle())
                     .toList();
             throw new ListErrorException(list);
         }
 
+
+        Charset charset = Charset.forName("windows-1252");
+        byte[] bytes = sb.toString().getBytes(charset);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (ZipOutputStream zos = new ZipOutputStream(baos)) {
+
+            String periodo = DateUtils.toStringPeriodoFiscal(fechaPeriodo);
+
+            String nombreArchivo = empresa.getRuc() + periodo + ".txt";
+
+            ZipEntry entry = new ZipEntry(nombreArchivo);
+            zos.putNextEntry(entry);
+            zos.write(bytes);
+
+            zos.closeEntry();
+        }
+
+        return baos.toByteArray();
     }
 
 
@@ -136,11 +152,11 @@ public class ReporteDatosCrediticiosServiceImpl {
                                   AdEmpresaEntity empresa, List<DetalleError> detalleErrores, LocalDate fechaPeriodo) {
 
 
-        long dias =  Math.abs(ChronoUnit.DAYS.between(f.getFechaVencimiento(), f.getFechaConcesion()));
+        long dias = Math.abs(ChronoUnit.DAYS.between(f.getFechaVencimiento(), f.getFechaConcesion()));
 
         if (dias != f.getPlazoOperacion()) {
             DetalleError detalleError = detalleErrorBuilder.builderDetalleError(0, EnumError.DOCUMENTO_ERROR);
-            detalleError.setDetalle("Fecha Vencimiento: " + f.getFechaVencimiento() + " y Fecha Concesion: " + f.getFechaConcesion() +" diferencia de días: "
+            detalleError.setDetalle("Fecha Vencimiento: " + f.getFechaVencimiento() + " y Fecha Concesion: " + f.getFechaConcesion() + " diferencia de días: "
                     + dias + " plazo operacion "
                     + f.getPlazoOperacion() + " para la operación: " + f.getNumeroOperacion());
             detalleErrores.add(detalleError);

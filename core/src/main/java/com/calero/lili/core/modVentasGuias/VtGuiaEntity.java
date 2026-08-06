@@ -1,6 +1,7 @@
 package com.calero.lili.core.modVentasGuias;
 
 import com.calero.lili.core.enums.DocumentoEnum;
+import com.calero.lili.core.enums.MotivoTranslado;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.dtos.InformacionAdicional;
 import com.calero.lili.core.dtos.Mensajes;
@@ -71,7 +72,9 @@ public class VtGuiaEntity extends Auditable {
     @Column(name = "fecha_fin_transporte")
     private LocalDate fechaFinTransporte;
 
-    private String motivoTraslado;
+    @Enumerated(EnumType.STRING)
+    private MotivoTranslado motivoTraslado;
+
     private String ruta;
     private String docAduaneroUnico;
     private String codEstabDestino;

@@ -96,14 +96,18 @@ public class DatosCrediticiosController {
         String periodo = DateUtils.toStringPeriodoFiscal(fechaPeriodo);
 
 
-        byte[] txt = reporteDatosCrediticiosService.generarTxt(idData, empresa, entidad, idDatosCrediticios, fechaPeriodo);
-        String nombre = empresa.getRuc() + periodo + ".txt";
+        try {
+            byte[] txt = reporteDatosCrediticiosService.generarReporteDatosCrediticios(idData, empresa, entidad, idDatosCrediticios, fechaPeriodo);
+            String nombre = empresa.getRuc() + periodo + ".zip";
 
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + nombre)
-                .contentType(new MediaType(MediaType.TEXT_PLAIN, Charset.forName("windows-1252")))
-                .contentLength(txt.length)
-                .body(txt);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + nombre)
+                    .contentType(MediaType.parseMediaType("application/zip"))
+                    .body(txt);
+
+        } catch (Exception exception) {
+            throw new GeneralException("Error al generar el reporte de datos crediticios: " + exception.getMessage());
+        }
     }
 
     @GetMapping("listar/{idEmpresa}")
@@ -114,7 +118,8 @@ public class DatosCrediticiosController {
 
         int pageSize = pageable.getPageSize();
         if (pageSize > 100) {
-            pageSize = 100;}
+            pageSize = 100;
+        }
         Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
 
         return reporteDatosCrediticiosService.getAll(idDataService.getIdData(), idEmpresa, pageableConSort);

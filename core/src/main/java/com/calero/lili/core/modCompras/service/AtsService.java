@@ -69,88 +69,91 @@ public class AtsService {
 
     public void generateDocumentoAtsXml(Long idData, Long idEmpresa, FilterDto model, HttpServletResponse response) {
 
-            List<DetalleCompras> detalleComprasList = new ArrayList<>();
-            List<CpImpuestoDetalleError> detalleErrores = new ArrayList<>();
+        List<DetalleCompras> detalleComprasList = new ArrayList<>();
+        List<CpImpuestoDetalleError> detalleErrores = new ArrayList<>();
 
-            List<CpImpuestoAtsProjection> comprasImpuesto = cpImpuestosRepository
-                    .findAllByDates(idData, idEmpresa, model.getFechaRegistroDesde(), model.getFechaRegistroHasta());
-
-
-            if (Objects.nonNull(comprasImpuesto)) {
-
-                List<UUID> listaUuidsCompraImpuesto = comprasImpuesto.stream()
-                        .map(CpImpuestoAtsProjection::getIdImpuestos)
-                        .toList();
-
-                List<UUID> listaUuidsRetenciones = comprasImpuesto.stream()
-                        .map(CpImpuestoAtsProjection::getIdRetencion)
-                        .filter(Objects::nonNull)
-                        .toList();
+        List<CpImpuestoAtsProjection> comprasImpuesto = cpImpuestosRepository
+                .findAllByDates(idData, idEmpresa, model.getFechaRegistroDesde(), model.getFechaRegistroHasta());
 
 
-                List<CpImpuestosCodigosAtsProjection> compraImpuestoCodigos = cpImpuestosRepository
-                        .findAllCpImpuestosCodigos(idData, idEmpresa, listaUuidsCompraImpuesto);
+        if (Objects.nonNull(comprasImpuesto)) {
 
-                List<CpRetencionesProjection> cpRetencionesList = cpImpuestosRepository
-                        .findAllCpRetenciones(idData, idEmpresa, listaUuidsRetenciones);
+            List<UUID> listaUuidsCompraImpuesto = comprasImpuesto.stream()
+                    .map(CpImpuestoAtsProjection::getIdImpuestos)
+                    .toList();
 
-
-                comprasImpuesto.forEach(cpImpuestosEntity -> {
-
-
-                    DetalleCompras detalleCompra = atsBuilder.builderDetalleCompra(cpImpuestosEntity);
-
-                    detalleErrores.addAll(validacionGeneralService.validacionGeneral(detalleCompra));
-
-                    validarFormasDePagoSri(detalleCompra, cpImpuestosEntity.getFormasPago());
-
-                    if (Objects.nonNull(compraImpuestoCodigos)) {
-
-                        Map<UUID, List<CpImpuestosCodigosAtsProjection>> codigosPorImpuesto =
-                                compraImpuestoCodigos.stream()
-                                        .collect(Collectors.groupingBy(CpImpuestosCodigosAtsProjection::getIdImpuestos));
-                        List<CpImpuestosCodigosAtsProjection> listCodigos = codigosPorImpuesto.get(cpImpuestosEntity.getIdImpuestos());
+            List<UUID> listaUuidsRetenciones = comprasImpuesto.stream()
+                    .map(CpImpuestoAtsProjection::getIdRetencion)
+                    .filter(Objects::nonNull)
+                    .toList();
 
 
-                        validateRetencionesIva(detalleCompra, listCodigos);
+            List<CpImpuestosCodigosAtsProjection> compraImpuestoCodigos = cpImpuestosRepository
+                    .findAllCpImpuestosCodigos(idData, idEmpresa, listaUuidsCompraImpuesto);
 
+            List<CpRetencionesProjection> cpRetencionesList = cpImpuestosRepository
+                    .findAllCpRetenciones(idData, idEmpresa, listaUuidsRetenciones);
+
+
+            Map<UUID, List<CpImpuestosCodigosAtsProjection>> codigosImpuestoObtenido =
+                    compraImpuestoCodigos.stream()
+                            .collect(Collectors.groupingBy(CpImpuestosCodigosAtsProjection::getIdImpuestos));
+
+
+            Map<UUID, CpRetencionesProjection> cpRetencionesMap =
+                    cpRetencionesList.stream()
+                            .collect(Collectors.toMap(
+                                    CpRetencionesProjection::getIdRetencion,
+                                    Function.identity()
+                            ));
+
+            comprasImpuesto.forEach(cpImpuestosEntity -> {
+
+
+                DetalleCompras detalleCompra = atsBuilder.builderDetalleCompra(cpImpuestosEntity);
+
+
+                detalleErrores.addAll(validacionGeneralService.validacionGeneral(detalleCompra));
+
+                validarFormasDePagoSri(detalleCompra, cpImpuestosEntity.getFormasPago());
+
+
+                List<CpImpuestosCodigosAtsProjection> listCodigos = codigosImpuestoObtenido
+                        .get(cpImpuestosEntity.getIdImpuestos());
+
+                if (Objects.nonNull(listCodigos) && !listCodigos.isEmpty()) {
+                    validateRetencionesIva(detalleCompra, listCodigos);
+                }
+
+
+                if (Objects.nonNull(cpImpuestosEntity.getIdRetencion())) {
+                    CpRetencionesProjection retencion = cpRetencionesMap.get(cpImpuestosEntity.getIdRetencion());
+                    if (Objects.nonNull(retencion)) {
+                        validateRetencionesRenta(detalleCompra, compraImpuestoCodigos, retencion);
                     }
 
-                    if (Objects.nonNull(cpRetencionesList)) {
-
-                        Map<UUID, CpRetencionesProjection> cpRetencionesMap =
-                                cpRetencionesList.stream()
-                                        .collect(Collectors.toMap(
-                                                CpRetencionesProjection::getIdRetencion,
-                                                Function.identity()
-                                        ));
-
-                        if (Objects.nonNull(cpImpuestosEntity.getIdRetencion())) {
-                            CpRetencionesProjection retencion = cpRetencionesMap.get(cpImpuestosEntity.getIdRetencion());
-                            validateRetencionesRenta(detalleCompra, compraImpuestoCodigos, retencion);
-                        }
-                    }
+                }
 
 
-                    detalleComprasList.add(detalleCompra);
-                });
-            }
+                detalleComprasList.add(detalleCompra);
+            });
+        }
 
-            AdEmpresaEntity adEmpresaEntity = adEmpresasRepository.findById(idData, idEmpresa)
-                    .orElseThrow(() -> new GeneralException("No existe informacion de la empresa"));
+        AdEmpresaEntity adEmpresaEntity = adEmpresasRepository.findById(idData, idEmpresa)
+                .orElseThrow(() -> new GeneralException("No existe informacion de la empresa"));
 
-            if (detalleErrores.isEmpty()) {
-                generarXml(atsBuilder.builderAtsWithRetencion(detalleComprasList, adEmpresaEntity,
-                        getPeriodo(DateUtils.toString(model.getFechaRegistroDesde()))), response, model.getFechaRegistroHasta());
+        if (detalleErrores.isEmpty()) {
+            generarXml(atsBuilder.builderAtsWithRetencion(detalleComprasList, adEmpresaEntity,
+                    getPeriodo(DateUtils.toString(model.getFechaRegistroDesde()))), response, model.getFechaRegistroHasta());
 
-            } else {
-                List<String> list = detalleErrores.stream()
-                        .map(CpImpuestoDetalleError::getDetalle)
-                        .toList();
+        } else {
+            List<String> list = detalleErrores.stream()
+                    .map(CpImpuestoDetalleError::getDetalle)
+                    .toList();
 
-                System.out.println(list);
-                throw new ListErrorException(list);
-            }
+            System.out.println(list);
+            throw new ListErrorException(list);
+        }
 
 
     }
@@ -176,6 +179,7 @@ public class AtsService {
 
     private void validateRetencionesIva(DetalleCompras detalleCompra,
                                         List<CpImpuestosCodigosAtsProjection> listCodigos) {
+
 
         if (Objects.nonNull(listCodigos)) {
             if (!listCodigos.isEmpty()) {
@@ -218,13 +222,22 @@ public class AtsService {
 
                     if (impuesto.getCodigo().getCodigo().equals("2")
                             && impuesto.getCodigoRetencion().equals("3")) {
-
                         detalleCompra.setValRetServ100(formatoValores.convertirBigDecimalToString(impuesto.getValorRetenido()));
 
                     }
                 }
             }
+
+            List<DetalleAir> detalleAirs = new ArrayList<>();
+            listCodigos.forEach(item -> {
+                if (item.getCodigo().getCodigo().equals("1")) {
+                    detalleAirs.add(atsBuilder.builderDetalleAir(item));
+                }
+            });
+            detalleCompra.setDetalleAir(detalleAirs);
         }
+
+
     }
 
     private void validateRetencionesRenta(DetalleCompras detalleCompra,
