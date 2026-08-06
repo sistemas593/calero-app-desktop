@@ -34,7 +34,6 @@ public class VtFacturasBuilder {
 
     public VtVentaEntity builderEntity(CreationFacturaRequestDto model, Long idData, Long idEmpresa) {
         return VtVentaEntity.builder()
-                .idVenta(UUID.randomUUID())
                 .idData(idData)
                 .idEmpresa(idEmpresa)
                 .valoresEntity(vtVentaValoresBuilder.builderList(model.getValores(), idData, idEmpresa))

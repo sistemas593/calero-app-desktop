@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.MessageFormat;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -41,21 +42,37 @@ public class VtVentasPersistenceService {
                                         Long idData, Long idEmpresa, GeTerceroEntity tercero) {
 
         try {
-            if (Objects.isNull(vtVentaEntity.getSecuencial())) {
+
+            if (Objects.nonNull(request.getIdVenta()) && Objects.isNull(request.getSecuencial()) || request.getSecuencial().isEmpty()) {
+
+                Optional<VtVentaEntity> existingFactura = vtVentaRepository.findById(idData, idEmpresa, request.getIdVenta());
+                if (existingFactura.isPresent()) {
+                    throw new GeneralException(MessageFormat.format("El documento con id: {0} ya existe", request.getIdVenta()));
+                }
+
                 String secuencial = validacionDocumentosGeneral.generarSecuencial(idData, idEmpresa, serie.getIdSerie(), TipoDocumentoSerie.FAC);
                 request.setSecuencial(secuencial);
                 vtVentaEntity.setSecuencial(secuencial);
+                vtVentaEntity.setIdVenta(request.getIdVenta());
             }
 
-            Optional<OneProjection> existingFactura = vtVentaRepository
-                    .findExistBySecuencial(idData, idEmpresa, TipoVenta.FAC.name(), request.getSerie(), request.getSecuencial());
-            if (existingFactura.isPresent()) {
-                throw new GeneralException(MessageFormat.format("El documento ya existe TipoIngreso:" +
-                        " {0} Serie: {1} Secuencia: {2}", TipoVenta.FAC.name(), request.getSerie(), request.getSecuencial()));
+            if (Objects.nonNull(request.getSecuencial()) && Objects.isNull(request.getIdVenta())) {
+
+                Optional<OneProjection> existingFactura = vtVentaRepository
+                        .findExistBySecuencial(idData, idEmpresa, TipoVenta.FAC.name(), request.getSerie(), request.getSecuencial());
+
+                if (existingFactura.isPresent()) {
+                    throw new GeneralException(MessageFormat.format("El documento ya existe TipoIngreso:" +
+                            " {0} Serie: {1} Secuencia: {2}", TipoVenta.FAC.name(), request.getSerie(), request.getSecuencial()));
+                }
+                vtVentaEntity.setSecuencial(request.getSecuencial());
+                vtVentaEntity.setIdVenta(UUID.randomUUID());
             }
 
 
             vtComprobanteService.getComprobanteXmlFactura(idData, vtVentaEntity, empresa, serie);
+
+
             VtVentaEntity saved = vtVentaRepository.save(vtVentaEntity);
             if (request.getCuentaPorCobrar()) {
                 xcFacturasRepository.save(

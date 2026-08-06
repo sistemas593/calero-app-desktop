@@ -316,7 +316,7 @@ public class ComprobanteRetencionPdf {
 
             /////////////////DETALLE TABLE 3
 
-            PdfPTable table_detalle = new PdfPTable(8);
+            PdfPTable table_detalle = new PdfPTable(9);
             table_detalle.setWidthPercentage(100);
             table_detalle.setTableEvent(new BorderEventWithoutRadius());
 
@@ -343,6 +343,11 @@ public class ComprobanteRetencionPdf {
             cell = new PdfPCell(new Phrase("Impuesto", title));
             //cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
             table_detalle.addCell(cell);
+
+            cell = new PdfPCell(new Phrase("Codigo Retención", title));
+            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+            table_detalle.addCell(cell);
+
 
             cell = new PdfPCell(new Phrase("Porcentaje Retención", title));
             cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -400,6 +405,11 @@ public class ComprobanteRetencionPdf {
                     //cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
                     table_detalle.addCell(cell);
                     table_detalle.setSpacingAfter(10);
+
+                    cell = new PdfPCell(new Phrase(listaRetencion1.getCodigoRetencion(), fuente));
+                    cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                    table_detalle.setSpacingAfter(10);
+                    table_detalle.addCell(cell);
 
                     cell = new PdfPCell(new Phrase(listaRetencion1.getPorcentajeRetener(), fuente));
                     cell.setHorizontalAlignment(Element.ALIGN_RIGHT);

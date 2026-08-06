@@ -22,6 +22,16 @@ import java.util.UUID;
 @org.springframework.stereotype.Repository
 public interface VtVentasRepository extends JpaRepository<VtVentaEntity, UUID>, JpaSpecificationExecutor<VtVentaEntity> {
 
+
+    @Query(value = "SELECT vtVentasEntity " +
+            "FROM VtVentaEntity vtVentasEntity " +
+            "WHERE vtVentasEntity.idData = :idData  AND " +
+            "vtVentasEntity.idEmpresa = :idEmpresa AND " +
+            "vtVentasEntity.idVenta = :idVenta")
+    Optional<VtVentaEntity> findById(@Param("idData") Long idData,
+                                     @Param("idEmpresa") Long idEmpresa,
+                                     @Param("idVenta") UUID idVenta);
+
     @Query(value = "SELECT vtVentasEntity " +
             "FROM VtVentaEntity vtVentasEntity " +
             "WHERE vtVentasEntity.idData = :idData  AND " +

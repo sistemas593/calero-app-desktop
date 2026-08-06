@@ -21,7 +21,7 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.time.LocalDate;
-import java.time.YearMonth;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -270,8 +270,8 @@ public class DatosCrediticiosExcelServiceImpl {
         listaDetalles.add(detalle);
     }
 
-    private LocalDate obtenerFechaVencimientoYExigible(String[] celdas) {
-        String celda4 = celda(celdas, 7);
+    private LocalDate obtenerFechas(String[] celdas, int index) {
+        String celda4 = celda(celdas, index);
         if (celda4 != null) {
             return DateUtils.toLocalDate(celda4);
         }
@@ -314,8 +314,8 @@ public class DatosCrediticiosExcelServiceImpl {
     private void validacionTerminoPago(String[] celdas, int linea, List<DetalleError> detalleErrores, DatosCrediticiosDetalleEntity detalle) {
 
         Integer diasMorosidad = obtenerDiasMorosidad(celdas);
-        LocalDate fechaVencimientoExigible = obtenerFechaVencimientoYExigible(celdas);
-
+        LocalDate fechaVencimientoExigible = obtenerFechas(celdas, 7);
+        LocalDate fechaConcesion = obtenerFechas(celdas, 6);
 
         String celda5 = celda(celdas, 5);
         if (celda5 != null) {
@@ -325,7 +325,8 @@ public class DatosCrediticiosExcelServiceImpl {
                 if (celda11.equals(DinarapPlazoOperacionEnum.I0.getCodigo())) {
                     setearInformacionTerminoPagoI0(linea, detalleErrores, detalle, diasMorosidad, fechaVencimientoExigible);
                 } else {
-                    setearInformacionCuandoExisteTerminoPago(linea, detalleErrores, detalle, celda11, diasMorosidad, fechaVencimientoExigible);
+                    setearInformacionCuandoExisteTerminoPago(linea, detalleErrores, detalle, celda11,
+                            diasMorosidad, fechaVencimientoExigible, fechaConcesion);
                 }
 
 
@@ -467,13 +468,23 @@ public class DatosCrediticiosExcelServiceImpl {
      */
     private void setearInformacionCuandoExisteTerminoPago(int linea, List<DetalleError> detalleErrores,
                                                           DatosCrediticiosDetalleEntity detalle, String celda11,
-                                                          Integer diasMorosidad, LocalDate fechaVencimientoExigible) {
-
+                                                          Integer diasMorosidad, LocalDate fechaVencimientoExigible,
+                                                          LocalDate fechaConcesion) {
         try {
+
+            // Se obtiene la diferencia de días entre la fecha de vencimiento exigible y la fecha de concesión
+            // Esto se hace para calcular el plazo de operación, que es la cantidad de días entre estas dos fechas.
+            // El valor de periodicidad de pago se obtiene del enumerador DinarapPlazoOperacionEnum, que contiene los días correspondientes a cada código.
+            // ESTO POR EL MOMENTO HASTA CONFIRMAR LA INFORMACIÓN
+
+            long diferenciaDias = Math.abs(ChronoUnit.DAYS.between(fechaVencimientoExigible, fechaConcesion));
             Integer dias = DinarapPlazoOperacionEnum.getDiasCredito(celda11);
+
             detalle.setPeriodicidadPago(dias);
-            detalle.setPlazoOperacion(dias);
+            detalle.setPlazoOperacion(Math.toIntExact(diferenciaDias));
+
             detalle.setEstaLegal(Boolean.FALSE);
+
             if (Objects.nonNull(diasMorosidad)) {
                 detalle.setDiasMorosidad(diasMorosidad);
             } else {

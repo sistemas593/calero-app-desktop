@@ -33,6 +33,8 @@ import java.util.UUID;
 @NoArgsConstructor
 public class CreationFacturaRequestDto {
 
+    private UUID idVenta;
+
     @NotEmpty(message = "No existe la sucursal")
     private String sucursal;
 

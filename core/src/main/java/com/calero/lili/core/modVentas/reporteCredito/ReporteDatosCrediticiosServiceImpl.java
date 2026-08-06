@@ -135,6 +135,17 @@ public class ReporteDatosCrediticiosServiceImpl {
     private String construirLinea(DatosCrediticiosProjection f,
                                   AdEmpresaEntity empresa, List<DetalleError> detalleErrores, LocalDate fechaPeriodo) {
 
+
+        long dias =  Math.abs(ChronoUnit.DAYS.between(f.getFechaVencimiento(), f.getFechaConcesion()));
+
+        if (dias != f.getPlazoOperacion()) {
+            DetalleError detalleError = detalleErrorBuilder.builderDetalleError(0, EnumError.DOCUMENTO_ERROR);
+            detalleError.setDetalle("Fecha Vencimiento: " + f.getFechaVencimiento() + " y Fecha Concesion: " + f.getFechaConcesion() +" diferencia de días: "
+                    + dias + " plazo operacion "
+                    + f.getPlazoOperacion() + " para la operación: " + f.getNumeroOperacion());
+            detalleErrores.add(detalleError);
+        }
+
         String parroquia = "";
         String canton = "";
         String provincia = "";

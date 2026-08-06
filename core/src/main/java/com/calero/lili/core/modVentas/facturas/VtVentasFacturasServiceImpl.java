@@ -60,7 +60,6 @@ import com.calero.lili.core.modVentas.service.ValidarServiceImpl;
 import com.calero.lili.core.tablas.tbPaises.TbPaisEntity;
 import com.calero.lili.core.tablas.tbPaises.TbPaisesRepository;
 import com.calero.lili.core.utils.DateUtils;
-import com.calero.lili.core.utils.ValidacionDocumentosGeneral;
 import com.calero.lili.core.utils.calcularValores.CalcularValoresDocumentos;
 import com.calero.lili.core.utils.validaciones.ValidarCampoAscii;
 import com.lowagie.text.Document;
@@ -126,6 +125,7 @@ public class VtVentasFacturasServiceImpl {
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa,
                                          CreationFacturaRequestDto request, String usuario, String origenCertificado) {
 
+        validacionIdVentaSecuencial(request);
 
         AdEmpresaEntity empresa = adEmpresasRepository
                 .findById(idData, idEmpresa)
@@ -1244,6 +1244,20 @@ public class VtVentasFacturasServiceImpl {
         }
     }
 
+
+    private void validacionIdVentaSecuencial(CreationFacturaRequestDto request) {
+
+        boolean tieneIdVenta = Objects.nonNull(request.getIdVenta());
+        boolean tieneSecuencial = Objects.nonNull(request.getSecuencial());
+
+        if (tieneIdVenta && tieneSecuencial) {
+            throw new GeneralException("Se debe enviar únicamente el id venta o el secuencial, no ambos.");
+        }
+
+        if (!tieneIdVenta && !tieneSecuencial) {
+            throw new GeneralException("Debe enviar el id venta o el secuencial.");
+        }
+    }
 
 }
 
