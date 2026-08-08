@@ -1,5 +1,6 @@
 package com.calero.lili.core.comprobantesWs.services;
 
+import com.calero.lili.core.apiSitac.dtos.EnvioCorreoModeloDto;
 import com.calero.lili.core.apiSitac.repositories.AdMailsConfigRepository;
 import com.calero.lili.core.apiSitac.repositories.entities.AdMailConfigEntity;
 import com.calero.lili.core.apiSitac.services.EmailSender;
@@ -73,8 +74,8 @@ public class ProcesarReenvioCorreoServiceImpl {
 
         StCorreoRequestDto request = procesarEnvioCorreoService.seterarRequestCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
         AdMailConfigEntity adConfigMailEntity = adConfigRepository.findByIdConfig(Long.valueOf(1));
-        String jsonBody = generarBody.generarBodyCorreo(request, adConfigMailEntity);
-        emailSender.send(jsonBody, adConfigMailEntity);
+        EnvioCorreoModeloDto envioCorreoModeloDto = generarBody.generarModelCorreoDocumentos(request, adConfigMailEntity);
+        emailSender.send(envioCorreoModeloDto);
         System.out.println("Correo reenviado");
 
     }
@@ -101,8 +102,8 @@ public class ProcesarReenvioCorreoServiceImpl {
 
         StCorreoRequestDto request = procesarEnvioCorreoService.seterarRequestCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
         AdMailConfigEntity adConfigMailEntity = adConfigRepository.findByIdConfig(Long.valueOf(1));
-        String jsonBody = generarBody.generarBodyCorreo(request, adConfigMailEntity);
-        emailSender.send(jsonBody, adConfigMailEntity);
+        EnvioCorreoModeloDto envioCorreoModeloDto = generarBody.generarModelCorreoDocumentos(request, adConfigMailEntity);
+        emailSender.send(envioCorreoModeloDto);
         System.out.println("Correo reenviado");
 
     }
@@ -129,8 +130,8 @@ public class ProcesarReenvioCorreoServiceImpl {
 
         StCorreoRequestDto request = procesarEnvioCorreoService.seterarRequestCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
         AdMailConfigEntity adConfigMailEntity = adConfigRepository.findByIdConfig(Long.valueOf(1));
-        String jsonBody = generarBody.generarBodyCorreo(request, adConfigMailEntity);
-        emailSender.send(jsonBody, adConfigMailEntity);
+        EnvioCorreoModeloDto envioCorreoModeloDto = generarBody.generarModelCorreoDocumentos(request, adConfigMailEntity);
+        emailSender.send(envioCorreoModeloDto);
         System.out.println("Correo reenviado");
 
     }
@@ -157,8 +158,8 @@ public class ProcesarReenvioCorreoServiceImpl {
 
         StCorreoRequestDto request = procesarEnvioCorreoService.seterarRequestCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
         AdMailConfigEntity adConfigMailEntity = adConfigRepository.findByIdConfig(Long.valueOf(1));
-        String jsonBody = generarBody.generarBodyCorreo(request, adConfigMailEntity);
-        emailSender.send(jsonBody, adConfigMailEntity);
+        EnvioCorreoModeloDto envioCorreoModeloDto = generarBody.generarModelCorreoDocumentos(request, adConfigMailEntity);
+        emailSender.send(envioCorreoModeloDto);
         System.out.println("Correo reenviado");
 
     }

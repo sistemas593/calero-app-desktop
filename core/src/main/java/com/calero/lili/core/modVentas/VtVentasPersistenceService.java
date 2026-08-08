@@ -65,13 +65,23 @@ public class VtVentasPersistenceService {
                     throw new GeneralException(MessageFormat.format("El documento ya existe TipoIngreso:" +
                             " {0} Serie: {1} Secuencia: {2}", TipoVenta.FAC.name(), request.getSerie(), request.getSecuencial()));
                 }
+
+
+                AdEmpresasSeriesDocumentosEntity documentosEntity = adEmpresasSeriesDocumentosRepository
+                        .findBySerieAndDocumento(idData, vtVentaEntity.getIdEmpresa(), vtVentaEntity.getSerie(), TipoDocumentoSerie.FAC.name())
+                        .orElseThrow(() -> new GeneralException(MessageFormat.format("Serie {0}, documento {1} no existe",
+                                vtVentaEntity.getSerie(), vtVentaEntity.getSecuencial())));
+
                 vtVentaEntity.setSecuencial(request.getSecuencial());
                 vtVentaEntity.setIdVenta(UUID.randomUUID());
+
+                int nuevo = Integer.parseInt(vtVentaEntity.getSecuencial());
+                documentosEntity.setSecuencial(nuevo);
+
             }
 
 
             vtComprobanteService.getComprobanteXmlFactura(idData, vtVentaEntity, empresa, serie);
-
 
             VtVentaEntity saved = vtVentaRepository.save(vtVentaEntity);
             if (request.getCuentaPorCobrar()) {

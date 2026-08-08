@@ -1,5 +1,6 @@
 package com.calero.lili.core.apiSitac.services;
 
+import com.calero.lili.core.apiSitac.dtos.EnvioCorreoModeloDto;
 import com.calero.lili.core.apiSitac.repositories.AdMailsConfigRepository;
 import com.calero.lili.core.adConfiguracion.AdMailsEnviadosRepository;
 import com.calero.lili.core.adConfiguracion.AdMailsEnviadosTotalRepository;
@@ -74,8 +75,8 @@ public class StEnviarCorreoSitacServiceImpl {
 
             if (!request.getTo().isEmpty()) {
                 AdMailConfigEntity adConfigMailEntity = adConfigRepository.findByIdConfig(Long.valueOf(1));
-                String jsonBody = generarBody.generarBodyCorreo(request, adConfigMailEntity);
-                emailSender.send(jsonBody, adConfigMailEntity);
+                EnvioCorreoModeloDto dtoEmailSend = generarBody.generarModelCorreoDocumentos(request, adConfigMailEntity);
+                emailSender.send(dtoEmailSend);
                 //if (clave.equals("1920274511419") || clave.equals("1409223410397") || clave.equals("1215204110011") ){
                 //if (request.getCodigoDocumento().equals("01") && request.getSerie().equals("001002") ){
                 long numeroCorreos = request.getTo().chars().filter(ch -> ch == ',').count() + 1;

@@ -1254,8 +1254,10 @@ public class VtVentasFacturasServiceImpl {
             throw new GeneralException("Se debe enviar únicamente el id venta o el secuencial, no ambos.");
         }
 
-        if (!tieneIdVenta && !tieneSecuencial) {
-            throw new GeneralException("Debe enviar el id venta o el secuencial.");
+        if (!tieneIdVenta) {
+            if (!tieneSecuencial || request.getSecuencial().isEmpty()) {
+                throw new GeneralException("Debe enviar el id venta o el secuencial.");
+            }
         }
     }
 

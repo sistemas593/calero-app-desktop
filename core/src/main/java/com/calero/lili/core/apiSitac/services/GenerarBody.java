@@ -1,58 +1,133 @@
 package com.calero.lili.core.apiSitac.services;
 
+import com.calero.lili.core.apiSitac.dtos.EnvioCorreoModeloDto;
+import com.calero.lili.core.apiSitac.dtos.contacto.ContactoRequestDto;
 import com.calero.lili.core.apiSitac.repositories.entities.AdMailConfigEntity;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdDatasConfiguraciones.dto.StCorreoRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
+
+import java.nio.charset.StandardCharsets;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class GenerarBody {
 
-    public String generarBodyCorreo(StCorreoRequestDto request, AdMailConfigEntity adConfigMailEntity) {
+    public EnvioCorreoModeloDto generarModelCorreoDocumentos(StCorreoRequestDto request, AdMailConfigEntity adConfigMailEntity) {
 
 
-        //log.info("Correos a enviar: {}", emailsValidos);
-        String nombreDocumento = request.getCodigoDocumento();
-        String inicialesDocumento = request.getCodigoDocumento();
-        switch (request.getCodigoDocumento()) {
-            case "01":
-                nombreDocumento = "Factura";
-                inicialesDocumento = "FC";
-                break;
-            case "03":
-                nombreDocumento = "Liquidación de compras";
-                inicialesDocumento = "LC";
-                break;
-            case "04":
-                nombreDocumento = "Nota de crédito";
-                inicialesDocumento = "NC";
-                break;
-            case "05":
-                nombreDocumento = "Nota de débito";
-                inicialesDocumento = "ND";
-                break;
-            case "06":
-                nombreDocumento = "Guía de remisión";
-                inicialesDocumento = "ND";
-                break;
-            case "07":
-                nombreDocumento = "Comprobante de retención";
-                inicialesDocumento = "CR";
-                break;
+        try {
+
+            Resource resource = new ClassPathResource("templates/documento-electronico.html");
+
+            //log.info("Correos a enviar: {}", emailsValidos);
+
+            EnvioCorreoModeloDto email = new EnvioCorreoModeloDto();
+            setearInicialesYNombreDocumento(request.getCodigoDocumento(), email);
+            email.setSubject("Adjunto documento electrónico: " + email.getInicialesDocumento() + "-" + request.getSerie() + "-" + request.getSecuencia());
+
+            String html = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+
+            html = html.replace("{{nombreReceptor}}", request.getNombreReceptor())
+                    .replace("{{nombreEmisor}}", request.getNombreEmisor())
+                    .replace("{{rucEmisor}}", request.getRucEmisor())
+                    .replace("{{nombreDocumento}}", email.getNombreDocumento())
+                    .replace("{{serie}}", request.getSerie())
+                    .replace("{{secuencia}}", request.getSecuencia())
+                    .replace("{{fechaEmision}}", String.valueOf(request.getFechaEmision()))
+                    .replace("{{claveAcceso}}", request.getClaveAcceso())
+                    .replace("{{mailFrom}}", request.getMailFrom());
+
+            email.setBody(html);
+            email.setPdf(request.getPdf());
+            email.setXml(request.getXml());
+            email.setEmailFrom(adConfigMailEntity.getEmailFrom());
+            email.setTokenApi(adConfigMailEntity.getConsumerKey());
+            email.setEmailTo(request.getTo());
+            email.setClaveAcceso(request.getClaveAcceso());
+            return email;
+
+        } catch (Exception exception) {
+            throw new GeneralException("Error al generar el body del correo: " + exception.getMessage());
         }
 
-        // TODO PENDIENTE REVISAR COMO ENVIAR EL CORREO EN API Y DESKTOP
 
-        //String user = adConfigMailEntity.getUsuario();
-        //String password = adConfigMailEntity.getPassword();
-        //https://api.turbo-smtp.com/api/mail/send
+    }
 
-        String mailFrom = adConfigMailEntity.getEmailFrom();
+    public EnvioCorreoModeloDto generarModelCorreoNuevoContacto(ContactoRequestDto request, AdMailConfigEntity adConfigMailEntity) {
 
-        // Specify Credentials
+
+        try {
+
+            Resource resource = new ClassPathResource("templates/nuevo-contacto.html");
+
+            //log.info("Correos a enviar: {}", emailsValidos);
+
+            EnvioCorreoModeloDto email = new EnvioCorreoModeloDto();
+            email.setSubject("");
+
+            String html = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+
+            html = html
+                    .replace("{{name}}", request.getName())
+                    .replace("{{email}}", request.getEmail())
+                    .replace("{{number}}", request.getNumber())
+                    .replace("{{message}}", request.getMessage());
+
+
+            email.setEmailTo(request.getEmail());
+            email.setEmailFrom(adConfigMailEntity.getEmailFrom());
+            email.setTokenApi(adConfigMailEntity.getConsumerKey());
+            email.setBody(html);
+            return email;
+
+        } catch (Exception exception) {
+            throw new GeneralException("Error al generar el body del correo: " + exception.getMessage());
+        }
+
+
+    }
+
+
+    private void setearInicialesYNombreDocumento(String codigoDocumento, EnvioCorreoModeloDto email) {
+        String inicialesDocumento = switch (codigoDocumento) {
+            case "01" -> "FC";
+            case "03" -> "LC";
+            case "04" -> "NC";
+            case "05" -> "ND";
+            case "06" -> "GR";
+            case "07" -> "CR";
+            default -> "";
+        };
+
+        String nombreDocumento = switch (codigoDocumento) {
+            case "01" -> "Factura";
+            case "03" -> "Liquidación de compras";
+            case "04" -> "Nota de crédito";
+            case "05" -> "Nota de débito";
+            case "06" -> "Guía de remisión";
+            case "07" -> "Comprobante de retención";
+            default -> "";
+        };
+
+        email.setInicialesDocumento(inicialesDocumento);
+        email.setNombreDocumento(nombreDocumento);
+    }
+
+
+    // TODO PENDIENTE REVISAR COMO ENVIAR EL CORREO EN API Y DESKTOP
+
+    //String user = adConfigMailEntity.getUsuario();
+    //String password = adConfigMailEntity.getPassword();
+    //https://api.turbo-smtp.com/api/mail/send
+
+
+    // Specify Credentials
 
 //            String BODY_HTML = "<html>"
 //                    + "<head></head>"
@@ -128,40 +203,5 @@ public class GenerarBody {
 //            String html_content = htmlTemplate.render();
 //            System.out.println(html_content);
 
-        String subject = "  \"subject\":\"Adjunto documento electrónico: " + inicialesDocumento + "-" + request.getSerie() + "-" + request.getSecuencia() + ".\",\n";
-        String jsonBody = "{\n" +
-                "  \"from\":\"" + mailFrom + "\",\n" +
-                "  \"to\":\"" + request.getTo() + "\",\n" +
-                subject +
-                "  \"html_content\":\"------Adjunto documento electronico------\\n " +
-                "  <p>Para: " + request.getNombreReceptor() + "</p>" +
-                "  <p>De: " + request.getNombreEmisor() + "</p>" +
-                "  <p>RUC: " + request.getRucEmisor() + "</p>" +
-                "  <p>Tipo: " + nombreDocumento + "</p>" +
-                "  <p>Serie: " + request.getSerie() + "</p>" +
-                "  <p>Secuencial: " + request.getSecuencia() + "</p>" +
-                "  <p>Fecha emision: " + request.getFechaEmision() + "</p>" +
-                "  <p>Clave de acceso: " + request.getClaveAcceso() + "</p>" +
-                "  <p>Responder al correo: " + request.getMailFrom() + "</p>" +
-                "  <p>--------------------------------------------</p>" +
-                "  <p>Factura electronica por : SITAC Plus </p>" +
-                "  <p>--------------------------------------------</p>\",\n" +
-                "  \"attachments\": [\n" +
-                "    {\n" +
-                "      \"content\": \"" + request.getPdf() + "\",\n" +
-                "      \"name\": \"" + request.getClaveAcceso() + ".pdf\",\n" +
-                "      \"type\": \"pdf\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"content\": \"" + request.getXml() + "\",\n" +
-                "      \"name\": \"" + request.getClaveAcceso() + ".xml\",\n" +
-                "      \"type\": \"xml\"\n" +
-                "    }\n" +
-                "  ]\n" +
-                "}";
 
-        return jsonBody;
-
-
-    }
 }

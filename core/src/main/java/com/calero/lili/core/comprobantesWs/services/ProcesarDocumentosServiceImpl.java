@@ -5,6 +5,7 @@ import autorizacion.ws.sri.gob.ec.RespuestaComprobante;
 import com.calero.lili.core.adLogs.AdLogsServiceImpl;
 import com.calero.lili.core.adLogs.dto.AdLogsRequestDto;
 import com.calero.lili.core.adProcesoAutorizacion.AdProcesoAutorizacionService;
+import com.calero.lili.core.apiSitac.dtos.EnvioCorreoModeloDto;
 import com.calero.lili.core.apiSitac.repositories.AdMailsConfigRepository;
 import com.calero.lili.core.apiSitac.repositories.entities.AdMailConfigEntity;
 import com.calero.lili.core.apiSitac.services.EmailSender;
@@ -183,8 +184,8 @@ public class ProcesarDocumentosServiceImpl {
                             if (!informacionCorreo.getTo().isEmpty()) {
                                 if (datosEmpresaDto.getOrigenDatos().equals("WEB")) {
                                     AdMailConfigEntity adConfigMailEntity = adConfigRepository.findByIdConfig(Long.valueOf(1));
-                                    String jsonBody = generarBody.generarBodyCorreo(informacionCorreo, adConfigMailEntity);
-                                    emailSender.send(jsonBody, adConfigMailEntity);
+                                    EnvioCorreoModeloDto envioCorreoModeloDto = generarBody.generarModelCorreoDocumentos(informacionCorreo, adConfigMailEntity);
+                                    emailSender.send(envioCorreoModeloDto);
                                 }
                             }
 
@@ -274,8 +275,8 @@ public class ProcesarDocumentosServiceImpl {
                             if (!informacionCorreo.getTo().isEmpty()) {
                                 if (datosEmpresaDto.getOrigenDatos().equals("WEB")) {
                                     AdMailConfigEntity adConfigMailEntity = adConfigRepository.findByIdConfig(Long.valueOf(1));
-                                    String jsonBody = generarBody.generarBodyCorreo(informacionCorreo, adConfigMailEntity);
-                                    emailSender.send(jsonBody, adConfigMailEntity);
+                                    EnvioCorreoModeloDto envioCorreoModeloDto = generarBody.generarModelCorreoDocumentos(informacionCorreo, adConfigMailEntity);
+                                    emailSender.send(envioCorreoModeloDto);
                                 }
                             }
                         }
@@ -362,8 +363,8 @@ public class ProcesarDocumentosServiceImpl {
                             if (!informacionCorreo.getTo().isEmpty()) {
                                 if (datosEmpresaDto.getOrigenDatos().equals("WEB")) {
                                     AdMailConfigEntity adConfigMailEntity = adConfigRepository.findByIdConfig(Long.valueOf(1));
-                                    String jsonBody = generarBody.generarBodyCorreo(informacionCorreo, adConfigMailEntity);
-                                    emailSender.send(jsonBody, adConfigMailEntity);
+                                    EnvioCorreoModeloDto envioCorreoModeloDto = generarBody.generarModelCorreoDocumentos(informacionCorreo, adConfigMailEntity);
+                                    emailSender.send(envioCorreoModeloDto);
                                 }
                             }
                         }
@@ -443,8 +444,8 @@ public class ProcesarDocumentosServiceImpl {
                             if (!informacionCorreo.getTo().isEmpty()) {
                                 if (datosEmpresaDto.getOrigenDatos().equals("WEB")) {
                                     AdMailConfigEntity adConfigMailEntity = adConfigRepository.findByIdConfig(Long.valueOf(1));
-                                    String jsonBody = generarBody.generarBodyCorreo(informacionCorreo, adConfigMailEntity);
-                                    emailSender.send(jsonBody, adConfigMailEntity);
+                                    EnvioCorreoModeloDto envioCorreoModeloDto = generarBody.generarModelCorreoDocumentos(informacionCorreo, adConfigMailEntity);
+                                    emailSender.send(envioCorreoModeloDto);
                                 }
                             }
                         }

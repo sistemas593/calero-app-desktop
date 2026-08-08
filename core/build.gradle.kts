@@ -104,6 +104,8 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:5.13.4")
     testImplementation("org.slf4j:slf4j-simple:2.0.17")
 
+
+    implementation("com.resend:resend-java:+")
 }
 
 tasks.withType<JavaCompile>().configureEach {
