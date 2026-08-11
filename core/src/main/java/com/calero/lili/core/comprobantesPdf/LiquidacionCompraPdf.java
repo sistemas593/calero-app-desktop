@@ -4,20 +4,19 @@ import com.calero.lili.core.comprobantes.objetosXml.TotalImpuesto;
 import com.calero.lili.core.comprobantes.objetosXml.factura.CampoAdicional;
 import com.calero.lili.core.comprobantes.objetosXml.factura.DetAdicional;
 import com.calero.lili.core.comprobantes.objetosXml.factura.Pago;
-import com.calero.lili.core.enums.FormaPagoSriEnum;
 import com.calero.lili.core.comprobantes.objetosXml.liquidacionCompras.Detalle;
 import com.calero.lili.core.comprobantes.objetosXml.liquidacionCompras.DetalleImpuesto;
 import com.calero.lili.core.comprobantes.objetosXml.liquidacionCompras.InfoLiquidacionCompra;
 import com.calero.lili.core.comprobantes.objetosXml.liquidacionCompras.LiquidacionCompra;
 import com.calero.lili.core.comprobantes.objetosXml.liquidacionCompras.ReembolsoDetalle;
-import com.calero.lili.core.enums.TipoDocumentoPdf;
+import com.calero.lili.core.enums.FormaPagoSriEnum;
+import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.pdf.Barcode128;
 import com.itextpdf.text.pdf.PdfContentByte;
@@ -112,10 +111,7 @@ public class LiquidacionCompraPdf {
             table_datos_documento.addCell(celda);
 
 
-            String tipo = factura.getInfoTributaria().getCodDoc();
-            TipoDocumentoPdf tipoDocumento = TipoDocumentoPdf.getTipoDocumento(tipo);
-
-            celda = generateCell(new Paragraph(tipoDocumento.getNombre() + "-" + factura.getInfoTributaria().getEstab() +
+            celda = generateCell(new Paragraph( factura.getInfoTributaria().getEstab() +
                     "-" + factura.getInfoTributaria().getPtoEmi() + "-" + factura.getInfoTributaria().getSecuencial(),
                     fuente), PADDING_NONE);
             celda.setPaddingLeft(-50);

@@ -32,10 +32,9 @@ public class AdMailsListaNegraBuilder {
                 .build();
     }
 
-    public AdMailListaNegraEntity builderDesdeWebhook(String email, String motivo) {
+    public AdMailListaNegraEntity builderDesdeWebhook(String email) {
         return AdMailListaNegraEntity.builder()
                 .email(email)
-                .motivo(motivo)
                 .fecha(LocalDate.now())
                 .build();
     }

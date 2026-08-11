@@ -42,6 +42,9 @@ public class ResendWebhookService {
 
     public void procesarEvento(String payload, String svixId, String svixTimestamp, String svixSignature) {
 
+        log.info("Recibido webhook de Resend: svix-id={}, svix-timestamp={}, svix-signature={}",
+                svixId, svixTimestamp, svixSignature);
+
         resendWebhookSignatureVerifier.verificar(payload, svixId, svixTimestamp, svixSignature);
 
         ResendWebhookEventDto evento = parsearEvento(payload);
@@ -80,8 +83,10 @@ public class ResendWebhookService {
 
         data.getTo().forEach(correo -> {
             String correoNormalizado = correo.trim();
-            adMailsListaNegraRepository.save(
-                    adMailsListaNegraBuilder.builderDesdeWebhook(correoNormalizado, motivo));
+            log.info("Correo guardar en lista negrea: {}", correoNormalizado);
+            log.info("Motivo: {}", motivo);
+
+            adMailsListaNegraRepository.save(adMailsListaNegraBuilder.builderDesdeWebhook(correoNormalizado));
             log.info("Correo {} agregado/actualizado en lista negra por evento {}", correoNormalizado, evento.getType());
         });
     }

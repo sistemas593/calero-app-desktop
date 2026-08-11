@@ -115,12 +115,7 @@ public class NotaDebitoPdf {
             celda = generateCell(new Paragraph("No:", title), LEFT_PADDING_DOCUMENTO);
             table_datos_documento.addCell(celda);
 
-
-            String tipo = factura.getInfoNotaDebito().getCodDocModificado();
-            TipoDocumentoPdf tipoDocumento = TipoDocumentoPdf.getTipoDocumento(tipo);
-
-            celda = generateCell(new Paragraph(tipoDocumento.getNombre() + "-" +
-                    factura.getInfoTributaria().getEstab() + "-" +
+            celda = generateCell(new Paragraph(factura.getInfoTributaria().getEstab() + "-" +
                     factura.getInfoTributaria().getPtoEmi() + "-" +
                     factura.getInfoTributaria().getSecuencial(), fuente), PADDING_NONE);
 

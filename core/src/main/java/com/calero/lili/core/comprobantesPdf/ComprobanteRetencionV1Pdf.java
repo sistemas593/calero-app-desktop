@@ -2,9 +2,19 @@ package com.calero.lili.core.comprobantesPdf;
 
 import com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencionV1.ComprobanteRetencion;
 import com.calero.lili.core.comprobantes.objetosXml.factura.CampoAdicional;
-import com.calero.lili.core.enums.TipoDocumentoPdf;
-import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.*;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.pdf.Barcode128;
+import com.itextpdf.text.pdf.PdfContentByte;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfPTableEvent;
+import com.itextpdf.text.pdf.PdfWriter;
 
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
@@ -88,11 +98,7 @@ public class ComprobanteRetencionV1Pdf {
             table_datos_documento.addCell(celda);
 
 
-            String tipo = factura.getInfoTributaria().getCodDoc();
-            TipoDocumentoPdf tipoDocumento = TipoDocumentoPdf.getTipoDocumento(tipo);
-
-            celda = generateCell(new Paragraph(tipoDocumento.getNombre() + "-" +
-                    factura.getInfoTributaria().getEstab() + "-" + factura.getInfoTributaria().getPtoEmi() + "-" +
+            celda = generateCell(new Paragraph(factura.getInfoTributaria().getEstab() + "-" + factura.getInfoTributaria().getPtoEmi() + "-" +
                     factura.getInfoTributaria().getSecuencial(), fuente), PADDING_NONE);
 
             celda.setPaddingLeft(-50);

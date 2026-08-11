@@ -3,9 +3,20 @@ package com.calero.lili.core.comprobantesPdf;
 import com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencion.ComprobanteRetencion;
 import com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencion.DocSustento;
 import com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencion.Retencion;
-import com.calero.lili.core.enums.TipoDocumentoPdf;
-import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.*;
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.pdf.Barcode128;
+import com.itextpdf.text.pdf.PdfContentByte;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfPTableEvent;
+import com.itextpdf.text.pdf.PdfWriter;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -101,12 +112,7 @@ public class ComprobanteRetencionPdf {
             celda = generateCell(new Paragraph("No:", title), LEFT_PADDING_DOCUMENTO);
             table_datos_documento.addCell(celda);
 
-
-            String tipo = factura.getInfoTributaria().getCodDoc();
-            TipoDocumentoPdf tipoDocumento = TipoDocumentoPdf.getTipoDocumento(tipo);
-
-            celda = generateCell(new Paragraph(tipoDocumento.getNombre() + "-" +
-                    factura.getInfoTributaria().getEstab() + "-" + factura.getInfoTributaria().getPtoEmi() + "-" +
+            celda = generateCell(new Paragraph(factura.getInfoTributaria().getEstab() + "-" + factura.getInfoTributaria().getPtoEmi() + "-" +
                     factura.getInfoTributaria().getSecuencial(), fuente), PADDING_NONE);
 
             celda.setPaddingLeft(-50);
@@ -359,7 +365,6 @@ public class ComprobanteRetencionPdf {
 
             List<DocSustento> lista1 = factura.getDocSustento();
             for (DocSustento det : lista1) {
-
 
 
                 String nombreDocumento = "";

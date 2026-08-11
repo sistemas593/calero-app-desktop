@@ -10,11 +10,11 @@ import java.util.Objects;
 public enum TipoDocumentoPdf {
 
     FAC("FACTURA", "01"),
-    NDB("NDB", "05"),
-    NCR("NCR", "04"),
-    GRM("GRM", "06"),
-    LIQ("LIQ", "03"),
-    CRT("CRT", "07");
+    NDB("NOTA DE DÉBITO", "05"),
+    NCR("NOTA DE CRÉDITO", "04"),
+    GRM("GUIA DE REMISIÓN", "06"),
+    LIQ("LIQUIDACIÓN COMPRA", "03"),
+    CRT("COMPROBANTE DE RETENCIÓN", "07");
 
     private final String nombre;
     private final String codigo;

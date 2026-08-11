@@ -103,11 +103,7 @@ public class GuiaRemisionPdf {
             celda = generateCell(new Paragraph("No:", title), LEFT_PADDING_DOCUMENTO);
             table_datos_documento.addCell(celda);
 
-
-            String tipo = factura.getInfoTributaria().getCodDoc();
-            TipoDocumentoPdf tipoDocumento = TipoDocumentoPdf.getTipoDocumento(tipo);
-
-            celda = generateCell(new Paragraph(tipoDocumento.getNombre() + "-" + factura.getInfoTributaria().getEstab() + "-" +
+            celda = generateCell(new Paragraph(factura.getInfoTributaria().getEstab() + "-" +
                     factura.getInfoTributaria().getPtoEmi() + "-" + factura.getInfoTributaria().getSecuencial(),
                     fuente), PADDING_NONE);
 
