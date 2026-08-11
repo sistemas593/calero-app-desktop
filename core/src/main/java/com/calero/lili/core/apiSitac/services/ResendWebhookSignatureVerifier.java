@@ -37,7 +37,7 @@ public class ResendWebhookSignatureVerifier {
     private static final String PREFIJO_SECRETO = "whsec_";
     private static final long TOLERANCIA_SEGUNDOS = 300; // 5 minutos, evita ataques de repetición (replay)
 
-    @Value("${resend.webhook.secret:}")
+    @Value("${resend.webhook.secret}")
     private String webhookSecret;
 
     public void verificar(String payload, String svixId, String svixTimestamp, String svixSignature) {
