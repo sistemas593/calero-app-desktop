@@ -3,6 +3,7 @@ package com.calero.lili.core.comprobantesWs.services;
 import com.calero.lili.core.adLogs.builder.AdLogsBuilder;
 import com.calero.lili.core.comprobantesWs.RespuestaProcesoGetDto;
 import com.calero.lili.core.comprobantesWs.dto.DatosEmpresaDto;
+import com.calero.lili.core.comprobantesWs.dto.EmailDto;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.CpLiquidacionesEntity;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.LiquidacionesRepository;
@@ -38,7 +39,8 @@ public class DocumentosService {
     private final ComprasRetencionesRepository comprasRetencionesRepository;
 
 
-    public RespuestaProcesoGetDto procesarDocumentoVenta(Long idData, Long idEmpresa, UUID idVenta) {
+    public RespuestaProcesoGetDto procesarDocumentoVenta(Long idData,
+                                                         Long idEmpresa, UUID idVenta, EmailDto emailDto) {
 
         VtVentaEntity documento = vtVentasRepository.findByIdEntity(idData, idEmpresa, idVenta, null, null).
                 orElseThrow(() -> new GeneralException(MessageFormat.format("Documento de venta {0} no exists", idVenta)));
@@ -61,7 +63,7 @@ public class DocumentosService {
         }
 
         return procesarDocumentosService.procesarFacNcNd(documento,
-                adLogsBuilder.builderVentasDocumentos(documento, Boolean.TRUE), datosEmpresaDto);
+                adLogsBuilder.builderVentasDocumentos(documento, Boolean.TRUE), datosEmpresaDto, emailDto.getCorreos());
 
     }
 

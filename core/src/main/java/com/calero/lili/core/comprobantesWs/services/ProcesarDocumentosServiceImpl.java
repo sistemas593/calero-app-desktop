@@ -8,6 +8,7 @@ import com.calero.lili.core.adProcesoAutorizacion.AdProcesoAutorizacionService;
 import com.calero.lili.core.apiSitac.dtos.EnvioCorreoModeloDto;
 import com.calero.lili.core.apiSitac.repositories.AdMailsConfigRepository;
 import com.calero.lili.core.apiSitac.repositories.entities.AdMailConfigEntity;
+import com.calero.lili.core.apiSitac.repositories.entities.AdMailEnviadosEntity;
 import com.calero.lili.core.apiSitac.services.EmailSender;
 import com.calero.lili.core.apiSitac.services.GenerarBody;
 import com.calero.lili.core.comprobantesPdf.comprobantesGetXmlDto.EnvioCorreoDto;
@@ -47,6 +48,7 @@ import xades4j.SignXmlString;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -115,7 +117,9 @@ public class ProcesarDocumentosServiceImpl {
 //
 //    }
 
-    public RespuestaProcesoGetDto procesarFacNcNd(VtVentaEntity documento, AdLogsRequestDto logs, DatosEmpresaDto datosEmpresaDto) {
+    public RespuestaProcesoGetDto procesarFacNcNd(VtVentaEntity documento, AdLogsRequestDto logs,
+                                                  DatosEmpresaDto datosEmpresaDto, String correos) {
+
 
         System.out.println("Inicio del proceso");
 
@@ -175,7 +179,7 @@ public class ProcesarDocumentosServiceImpl {
                             envioCorreoDto.setSerie(documento.getSerie());
                             envioCorreoDto.setFechaEmision(DateUtils.toStringFechaEmision(documento.getFechaEmision()));
                             envioCorreoDto.setClaveAcceso(documento.getClaveAcceso());
-                            envioCorreoDto.setEmail(documento.getEmail());
+                            envioCorreoDto.setEmail(correos);
                             System.out.println("Enviar correo con la siguiente informacion: " + envioCorreoDto.toString());
                             StCorreoRequestDto informacionCorreo = procesarEnvioCorreo.seterarRequestCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
                             documento.setEmailEstado(2);
@@ -183,9 +187,18 @@ public class ProcesarDocumentosServiceImpl {
                             excluirCorreosListaNegraService.validarCorreosEnvio(informacionCorreo);
                             if (!informacionCorreo.getTo().isEmpty()) {
                                 if (datosEmpresaDto.getOrigenDatos().equals("WEB")) {
+
                                     AdMailConfigEntity adConfigMailEntity = adConfigRepository.findByIdConfig(Long.valueOf(1));
-                                    EnvioCorreoModeloDto envioCorreoModeloDto = generarBody.generarModelCorreoDocumentos(informacionCorreo, adConfigMailEntity);
-                                    emailSender.send(envioCorreoModeloDto);
+                                    List<EnvioCorreoModeloDto> envioCorreoModeloDto = generarBody.generarModelCorreoDocumentos(informacionCorreo, adConfigMailEntity);
+
+                                    for (EnvioCorreoModeloDto dto : envioCorreoModeloDto) {
+
+
+
+                                        emailSender.send(dto);
+                                    }
+
+
                                 }
                             }
 
@@ -275,8 +288,12 @@ public class ProcesarDocumentosServiceImpl {
                             if (!informacionCorreo.getTo().isEmpty()) {
                                 if (datosEmpresaDto.getOrigenDatos().equals("WEB")) {
                                     AdMailConfigEntity adConfigMailEntity = adConfigRepository.findByIdConfig(Long.valueOf(1));
-                                    EnvioCorreoModeloDto envioCorreoModeloDto = generarBody.generarModelCorreoDocumentos(informacionCorreo, adConfigMailEntity);
-                                    emailSender.send(envioCorreoModeloDto);
+                                    List<EnvioCorreoModeloDto> envioCorreoModeloDto = generarBody.generarModelCorreoDocumentos(informacionCorreo, adConfigMailEntity);
+
+                                    for (EnvioCorreoModeloDto dto : envioCorreoModeloDto) {
+                                        emailSender.send(dto);
+                                    }
+
                                 }
                             }
                         }
@@ -363,8 +380,10 @@ public class ProcesarDocumentosServiceImpl {
                             if (!informacionCorreo.getTo().isEmpty()) {
                                 if (datosEmpresaDto.getOrigenDatos().equals("WEB")) {
                                     AdMailConfigEntity adConfigMailEntity = adConfigRepository.findByIdConfig(Long.valueOf(1));
-                                    EnvioCorreoModeloDto envioCorreoModeloDto = generarBody.generarModelCorreoDocumentos(informacionCorreo, adConfigMailEntity);
-                                    emailSender.send(envioCorreoModeloDto);
+                                    List<EnvioCorreoModeloDto> envioCorreoModeloDto = generarBody.generarModelCorreoDocumentos(informacionCorreo, adConfigMailEntity);
+                                    for (EnvioCorreoModeloDto dto : envioCorreoModeloDto) {
+                                        emailSender.send(dto);
+                                    }
                                 }
                             }
                         }
@@ -444,8 +463,10 @@ public class ProcesarDocumentosServiceImpl {
                             if (!informacionCorreo.getTo().isEmpty()) {
                                 if (datosEmpresaDto.getOrigenDatos().equals("WEB")) {
                                     AdMailConfigEntity adConfigMailEntity = adConfigRepository.findByIdConfig(Long.valueOf(1));
-                                    EnvioCorreoModeloDto envioCorreoModeloDto = generarBody.generarModelCorreoDocumentos(informacionCorreo, adConfigMailEntity);
-                                    emailSender.send(envioCorreoModeloDto);
+                                    List<EnvioCorreoModeloDto> envioCorreoModeloDto = generarBody.generarModelCorreoDocumentos(informacionCorreo, adConfigMailEntity);
+                                    for (EnvioCorreoModeloDto dto : envioCorreoModeloDto) {
+                                        emailSender.send(dto);
+                                    }
                                 }
                             }
                         }

@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Optional;
 
 
 @Repository
@@ -48,5 +48,14 @@ public interface AdMailsEnviadosRepository extends JpaRepository<AdMailEnviadosE
                                                @Param("fechaInicial") LocalDateTime fechaInicial,
                                                @Param("fechaFinal") LocalDateTime fechaFinal,
                                                Pageable pageable);
+
+
+    @Query("SELECT entity FROM AdMailEnviadosEntity entity where entity.mailTo = :correo and entity.serie =:serie" +
+            " and entity.secuencial = :secuencial and entity.clave1 =:clave")
+    Optional<AdMailEnviadosEntity> findByEmailAndSecuencialAndSerie(@Param("correo") String correo,
+                                                                    @Param("serie") String serie,
+                                                                    @Param("secuencial") String secuencial,
+                                                                    @Param("clave") String clave);
+
 
 }

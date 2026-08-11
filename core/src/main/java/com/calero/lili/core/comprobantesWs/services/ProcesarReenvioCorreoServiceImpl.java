@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -74,8 +75,10 @@ public class ProcesarReenvioCorreoServiceImpl {
 
         StCorreoRequestDto request = procesarEnvioCorreoService.seterarRequestCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
         AdMailConfigEntity adConfigMailEntity = adConfigRepository.findByIdConfig(Long.valueOf(1));
-        EnvioCorreoModeloDto envioCorreoModeloDto = generarBody.generarModelCorreoDocumentos(request, adConfigMailEntity);
-        emailSender.send(envioCorreoModeloDto);
+        List<EnvioCorreoModeloDto> envioCorreoModeloDto = generarBody.generarModelCorreoDocumentos(request, adConfigMailEntity);
+        for (EnvioCorreoModeloDto dto : envioCorreoModeloDto) {
+            emailSender.send(dto);
+        }
         System.out.println("Correo reenviado");
 
     }
@@ -102,8 +105,10 @@ public class ProcesarReenvioCorreoServiceImpl {
 
         StCorreoRequestDto request = procesarEnvioCorreoService.seterarRequestCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
         AdMailConfigEntity adConfigMailEntity = adConfigRepository.findByIdConfig(Long.valueOf(1));
-        EnvioCorreoModeloDto envioCorreoModeloDto = generarBody.generarModelCorreoDocumentos(request, adConfigMailEntity);
-        emailSender.send(envioCorreoModeloDto);
+        List<EnvioCorreoModeloDto> envioCorreoModeloDto = generarBody.generarModelCorreoDocumentos(request, adConfigMailEntity);
+        for (EnvioCorreoModeloDto dto : envioCorreoModeloDto) {
+            emailSender.send(dto);
+        }
         System.out.println("Correo reenviado");
 
     }
@@ -130,8 +135,10 @@ public class ProcesarReenvioCorreoServiceImpl {
 
         StCorreoRequestDto request = procesarEnvioCorreoService.seterarRequestCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
         AdMailConfigEntity adConfigMailEntity = adConfigRepository.findByIdConfig(Long.valueOf(1));
-        EnvioCorreoModeloDto envioCorreoModeloDto = generarBody.generarModelCorreoDocumentos(request, adConfigMailEntity);
-        emailSender.send(envioCorreoModeloDto);
+        List<EnvioCorreoModeloDto> envioCorreoModeloDto = generarBody.generarModelCorreoDocumentos(request, adConfigMailEntity);
+        for (EnvioCorreoModeloDto dto : envioCorreoModeloDto) {
+            emailSender.send(dto);
+        }
         System.out.println("Correo reenviado");
 
     }
@@ -158,8 +165,10 @@ public class ProcesarReenvioCorreoServiceImpl {
 
         StCorreoRequestDto request = procesarEnvioCorreoService.seterarRequestCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
         AdMailConfigEntity adConfigMailEntity = adConfigRepository.findByIdConfig(Long.valueOf(1));
-        EnvioCorreoModeloDto envioCorreoModeloDto = generarBody.generarModelCorreoDocumentos(request, adConfigMailEntity);
-        emailSender.send(envioCorreoModeloDto);
+        List<EnvioCorreoModeloDto> envioCorreoModeloDto = generarBody.generarModelCorreoDocumentos(request, adConfigMailEntity);
+        for (EnvioCorreoModeloDto dto : envioCorreoModeloDto) {
+            emailSender.send(dto);
+        }
         System.out.println("Correo reenviado");
 
     }

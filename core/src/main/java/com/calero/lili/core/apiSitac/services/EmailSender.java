@@ -1,6 +1,7 @@
 package com.calero.lili.core.apiSitac.services;
 
 import com.calero.lili.core.apiSitac.dtos.EnvioCorreoModeloDto;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.resend.Resend;
 import com.resend.core.exception.ResendException;
 import com.resend.services.emails.model.Attachment;
@@ -18,7 +19,7 @@ import java.util.Objects;
 @Slf4j
 public class EmailSender {
 
-    public void send(EnvioCorreoModeloDto dto) {
+    public String send(EnvioCorreoModeloDto dto) {
 
         Resend resend = new Resend(dto.getTokenApi());
 
@@ -52,9 +53,16 @@ public class EmailSender {
 
         try {
             CreateEmailResponse data = resend.emails().send(params);
+
             System.out.println(data.getId());
+
+            return data.getId();
+
         } catch (ResendException e) {
+
             e.printStackTrace();
+            throw new GeneralException("Error al enviar el correo");
+
         }
 
 

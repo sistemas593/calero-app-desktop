@@ -153,7 +153,7 @@ public class VtVentasNotasDebitoServiceImpl {
             }
 
             respuestaProcesoGetDto = procesarDocumentosService.procesarFacNcNd(saved,
-                    adLogsBuilder.builderVentasDocumentos(saved, Boolean.FALSE), datosEmpresaDto);
+                    adLogsBuilder.builderVentasDocumentos(saved, Boolean.FALSE), datosEmpresaDto, "");
             respuestaProcesoGetDto.setIdDocumento(saved.getIdVenta());
         }
 

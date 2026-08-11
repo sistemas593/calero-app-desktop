@@ -18,6 +18,8 @@ public class EnvioCorreoModeloDto {
     private String xml;
     private String pdf;
     private String claveAcceso;
+    private String secuencial;
+    private String serie;
 
     private String tokenApi;
     private String emailFrom;

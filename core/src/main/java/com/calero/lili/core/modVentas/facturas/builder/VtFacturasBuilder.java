@@ -61,8 +61,6 @@ public class VtFacturasBuilder {
                 .guiaRemisionSerie(model.getGuiaRemisionSerie())
                 .guiaRemisionSecuencial(model.getGuiaRemisionSecuencial())
                 .formatoDocumento(model.getFormatoDocumento())
-                .emailEstado(EmailEstado.NO_ENTREGADO.getTipo())
-                .email(model.getEmail())
                 .numeroItems(model.getNumeroItems())
                 .subtotal(model.getSubtotal())
                 .totalDescuento(model.getTotalDescuento())
@@ -120,8 +118,7 @@ public class VtFacturasBuilder {
                 .guiaRemisionSerie(model.getGuiaRemisionSerie())
                 .guiaRemisionSecuencial(model.getGuiaRemisionSecuencial())
                 .formatoDocumento(model.getFormatoDocumento())
-                .emailEstado(EmailEstado.NO_ENTREGADO.getTipo())
-                .email(model.getEmail())
+
                 .numeroItems(model.getNumeroItems())
                 .subtotal(model.getSubtotal())
                 .totalDescuento(model.getTotalDescuento())
@@ -267,7 +264,7 @@ public class VtFacturasBuilder {
                 .guiaRemisionSerie(model.getGuiaRemisionSerie())
                 .guiaRemisionSecuencial(model.getGuiaRemisionSecuencial())
                 .relacionado(model.getRelacionado())
-                .email(model.getEmail())
+
                 .subtotal(model.getSubtotal())
                 .totalDescuento(model.getTotalDescuento())
                 .total(model.getTotal())
@@ -299,7 +296,6 @@ public class VtFacturasBuilder {
                 .totalImpuesto(model.getTotalImpuesto())
                 .existeComprobante(model.getExisteComprobante())
                 .estadoDocumento(model.getEstadoDocumento())
-                .emailEstado(model.getEmailEstado())
                 .build();
     }
 
@@ -322,7 +318,6 @@ public class VtFacturasBuilder {
                 .guiaRemisionSerie(model.getGuiaRemisionSerie())
                 .guiaRemisionSecuencial(model.getGuiaRemisionSecuencial())
                 .relacionado(model.getRelacionado())
-                .email(model.getEmail())
                 .subtotal(model.getSubtotal())
                 .totalDescuento(model.getTotalDescuento())
                 .total(model.getTotal())

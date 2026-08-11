@@ -627,7 +627,6 @@ public class AutorizacionBuilder {
                         : null)
                 .tipoIngreso(TipoIngreso.VL.name())
                 .formatoDocumento(FormatoDocumento.E)
-                .emailEstado(EmailEstado.NO_ENTREGADO.getTipo())
                 .subtotal(subtotal.add(totalDescuento))
                 .totalDescuento(totalDescuento)
                 .total(new BigDecimal(documento.getInfoFactura().getImporteTotal()))
@@ -742,7 +741,6 @@ public class AutorizacionBuilder {
                 .seguroInternacional(BigDecimal.ZERO)
                 .gastosAduaneros(BigDecimal.ZERO)
                 .gastosTransporteOtros(BigDecimal.ZERO)
-                .emailEstado(1)
                 .build();
 
     }

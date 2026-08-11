@@ -55,6 +55,7 @@ public class ResendWebhookService {
                 svixId);
 
         if (!EVENTOS_CON_PROBLEMA.contains(evento.getType())) {
+            log.warn("Evento de Resend que representan un problema con el envío del correo:  {}", evento.getType());
             // email.sent, email.delivered, email.opened, email.clicked, etc. no representan un problema
             return;
         }
@@ -63,6 +64,9 @@ public class ResendWebhookService {
     }
 
     private ResendWebhookEventDto parsearEvento(String payload) {
+
+        log.info("Convetir el payload de String a un objecto ResendWebhookEventDto");
+
         try {
             return objectMapper.readValue(payload, ResendWebhookEventDto.class);
         } catch (Exception e) {
@@ -82,10 +86,11 @@ public class ResendWebhookService {
         String motivo = construirMotivo(evento);
 
         data.getTo().forEach(correo -> {
+
+            log.info("Inicia proceso de registro en lista negra en caso de ser necesario");
             String correoNormalizado = correo.trim();
             log.info("Correo guardar en lista negrea: {}", correoNormalizado);
             log.info("Motivo: {}", motivo);
-
             adMailsListaNegraRepository.save(adMailsListaNegraBuilder.builderDesdeWebhook(correoNormalizado));
             log.info("Correo {} agregado/actualizado en lista negra por evento {}", correoNormalizado, evento.getType());
         });

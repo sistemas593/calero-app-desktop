@@ -29,7 +29,7 @@ public class AutorizarFacNcrService {
         DatosEmpresaDto datosEmpresaDto = buscarDatosEmpresa.obtenerLocalDatosEmpresa(idData, idEmpresa);
         datosEmpresaDto.setOrigenDatos("LOC");
         AdLogsRequestDto log = adLogsBuilder.builderVentasDocumentos(factura, Boolean.FALSE);
-        procesarDocumentosService.procesarFacNcNd(factura, log, datosEmpresaDto);
+        procesarDocumentosService.procesarFacNcNd(factura, log, datosEmpresaDto, "");
     }
 
 }

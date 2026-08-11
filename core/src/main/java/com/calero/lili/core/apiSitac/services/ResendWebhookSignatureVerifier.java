@@ -42,6 +42,8 @@ public class ResendWebhookSignatureVerifier {
 
     public void verificar(String payload, String svixId, String svixTimestamp, String svixSignature) {
 
+        log.info("Inicia proceso de verificación");
+
         if (webhookSecret == null || webhookSecret.isBlank()) {
             throw new GeneralException("No se ha configurado el secreto del webhook de Resend (propiedad resend.webhook.secret)");
         }
@@ -64,6 +66,9 @@ public class ResendWebhookSignatureVerifier {
     }
 
     private void validarAntiguedad(String svixTimestamp) {
+
+        log.info("Validación de antigüedad del timestamp");
+
         try {
             long timestampEvento = Long.parseLong(svixTimestamp);
             long ahora = Instant.now().getEpochSecond();
@@ -76,7 +81,11 @@ public class ResendWebhookSignatureVerifier {
     }
 
     private String calcularFirma(String svixId, String svixTimestamp, String payload) {
+
+        log.info("Cálculo de la firma, validación de la firma");
+
         try {
+
             String contenidoFirmado = svixId + "." + svixTimestamp + "." + payload;
 
             String secretoSinPrefijo = webhookSecret.startsWith(PREFIJO_SECRETO)
@@ -99,6 +108,8 @@ public class ResendWebhookSignatureVerifier {
     }
 
     private List<String> extraerFirmas(String svixSignature) {
+
+        log.info("Extracción de firmas");
         return Arrays.stream(svixSignature.trim().split(" "))
                 .map(token -> {
                     int indiceComa = token.indexOf(',');

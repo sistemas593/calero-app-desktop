@@ -256,7 +256,8 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
             "  AND vv.deleted = false  " +
             "  AND vv.documento NOT IN ('D04', 'D47')   " +
             " AND vv.codigo_sustento IN ('S01', 'S06') " +
-            " AND (cpr.id_retencion IS NULL OR cpr.estado_documento = 'AUT') ", nativeQuery = true)
+            " AND (cpr.id_retencion IS NULL OR (cpr.formato_documento = 'F' OR (cpr.formato_documento = 'E' AND cpr.ambiente = '2' AND cpr.estado_documento = 'AUT'))) ",
+            nativeQuery = true)
     Optional<ImpuestosF104Projection> valorCompraBrutoBaseGravadaCreditoTributarioExcluyeActivosFijos(@Param("idData") Long idData,
                                                                                                       @Param("idEmpresa") Long idEmpresa,
                                                                                                       @Param("fechaDesde") LocalDate fechaDesde,
@@ -299,7 +300,8 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
             "  AND vv.deleted = false   " +
             "  AND vv.documento NOT IN ('D04', 'D47')    " +
             " AND  vv.codigo_sustento = 'S03' " +
-            " AND (cpr.id_retencion IS NULL OR cpr.estado_documento = 'AUT') ", nativeQuery = true)
+            " AND (cpr.id_retencion IS NULL OR (cpr.formato_documento = 'F' OR (cpr.formato_documento = 'E' AND cpr.ambiente = '2' AND cpr.estado_documento = 'AUT'))) ",
+            nativeQuery = true)
     Optional<ImpuestosF104Projection> valorCompraBrutoBaseGravadaCreditoTributarioActivosFijos(@Param("idData") Long idData,
                                                                                                @Param("idEmpresa") Long idEmpresa,
                                                                                                @Param("fechaDesde") LocalDate fechaDesde,
@@ -342,7 +344,7 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
             "  AND vv.deleted = false   " +
             "  AND vv.documento NOT IN ('D04', 'D47')    " +
             " AND  vv.codigo_sustento IN ('S01', 'S06') " +
-            " AND (cpr.id_retencion IS NULL OR cpr.estado_documento = 'AUT') ", nativeQuery = true)
+            " AND (cpr.id_retencion IS NULL OR (cpr.formato_documento = 'F' OR (cpr.formato_documento = 'E' AND cpr.ambiente = '2' AND cpr.estado_documento = 'AUT'))) ", nativeQuery = true)
     Optional<ImpuestosF104Projection> valorCompraBrutoBase5CreditoTributarioExcluyeActivosFijos(@Param("idData") Long idData,
                                                                                                 @Param("idEmpresa") Long idEmpresa,
                                                                                                 @Param("fechaDesde") LocalDate fechaDesde,
@@ -385,7 +387,7 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
             "  AND vv.deleted = false   " +
             "  AND vv.documento NOT IN ('D04', 'D47')    " +
             " AND  vv.codigo_sustento IN ('S02', 'S04' , 'S05', 'S07') " +
-            " AND (cpr.id_retencion IS NULL OR cpr.estado_documento = 'AUT') ", nativeQuery = true)
+            " AND (cpr.id_retencion IS NULL OR (cpr.formato_documento = 'F' OR (cpr.formato_documento = 'E' AND cpr.ambiente = '2' AND cpr.estado_documento = 'AUT'))) ", nativeQuery = true)
     Optional<ImpuestosF104Projection> valorCompraBrutoBaseGravadaSinCreditoTributario(@Param("idData") Long idData,
                                                                                       @Param("idEmpresa") Long idEmpresa,
                                                                                       @Param("fechaDesde") LocalDate fechaDesde,
@@ -428,7 +430,7 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
             "  AND vv.deleted = false   " +
             "  AND vv.documento NOT IN ('D04', 'D47')    " +
             " AND  vv.codigo_sustento NOT IN ('S08', 'S09', 'S14') " +
-            " AND (cpr.id_retencion IS NULL OR cpr.estado_documento = 'AUT') ", nativeQuery = true)
+            " AND (cpr.id_retencion IS NULL OR (cpr.formato_documento = 'F' OR (cpr.formato_documento = 'E' AND cpr.ambiente = '2' AND cpr.estado_documento = 'AUT'))) ", nativeQuery = true)
     Optional<ImpuestosF104Projection> valorCompraBrutoBaseCero(@Param("idData") Long idData,
                                                                @Param("idEmpresa") Long idEmpresa,
                                                                @Param("fechaDesde") LocalDate fechaDesde,
@@ -471,7 +473,7 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
             "  AND vv.deleted = false   " +
             "  AND vv.documento NOT IN ('D04', 'D47')    " +
             " AND  vv.codigo_sustento NOT IN ('S08', 'S09', 'S14') " +
-            " AND (cpr.id_retencion IS NULL OR cpr.estado_documento = 'AUT') ", nativeQuery = true)
+            " AND (cpr.id_retencion IS NULL OR (cpr.formato_documento = 'F' OR (cpr.formato_documento = 'E' AND cpr.ambiente = '2' AND cpr.estado_documento = 'AUT'))) ", nativeQuery = true)
     Optional<ImpuestosF104Projection> valorCompraBrutoNoObjecto(@Param("idData") Long idData,
                                                                 @Param("idEmpresa") Long idEmpresa,
                                                                 @Param("fechaDesde") LocalDate fechaDesde,
@@ -514,7 +516,7 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
             "  AND vv.deleted = false   " +
             "  AND vv.documento NOT IN ('D04', 'D47')    " +
             " AND  vv.codigo_sustento NOT IN ('S08', 'S09', 'S14') " +
-            " AND (cpr.id_retencion IS NULL OR cpr.estado_documento = 'AUT') ", nativeQuery = true)
+            " AND (cpr.id_retencion IS NULL OR (cpr.formato_documento = 'F' OR (cpr.formato_documento = 'E' AND cpr.ambiente = '2' AND cpr.estado_documento = 'AUT'))) ", nativeQuery = true)
     Optional<ImpuestosF104Projection> valorCompraBrutoExento(@Param("idData") Long idData,
                                                              @Param("idEmpresa") Long idEmpresa,
                                                              @Param("fechaDesde") LocalDate fechaDesde,

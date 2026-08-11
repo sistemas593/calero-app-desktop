@@ -1,6 +1,8 @@
 package com.calero.lili.core.modVentas.facturas;
 
+import com.calero.lili.core.adConfiguracion.AdMailsEnviadosRepository;
 import com.calero.lili.core.adLogs.builder.AdLogsBuilder;
+import com.calero.lili.core.apiSitac.repositories.entities.AdMailEnviadosEntity;
 import com.calero.lili.core.builder.ResponseApiBuilder;
 import com.calero.lili.core.comprobantes.services.ComprobanteServiceImpl;
 import com.calero.lili.core.comprobantesWs.RespuestaProcesoGetDto;
@@ -120,6 +122,7 @@ public class VtVentasFacturasServiceImpl {
     private final CalcularValoresDocumentos calcularValoresDocumentos;
     private final AdEmpresasRepository adEmpresasRepository;
     private final AdEmpresasSeriesRepository adEmpresasSeriesRepository;
+    private final AdMailsEnviadosRepository adMailsEnviadosRepository;
 
 
     public RespuestaProcesoGetDto create(Long idData, Long idEmpresa,
@@ -163,12 +166,11 @@ public class VtVentasFacturasServiceImpl {
         vtVentaEntity.setCreatedDate(LocalDateTime.now());
 
         vtVentaEntity.setTercero(tercero);
-        vtVentaEntity.setEmail(tercero.getEmail());
-        vtVentaEntity.setTipoEmision(getTipoEmision(request));
-
 
         validateReembolso(request, vtVentaEntity);
         VtVentaEntity saved = facturasPersistenceService.guardarFactura(vtVentaEntity, empresa, serie, request, idData, idEmpresa, tercero);
+
+        guardarCorreosEnviados(request);
 
         RespuestaProcesoGetDto respuestaProcesoGetDto = new RespuestaProcesoGetDto();
 
@@ -190,7 +192,7 @@ public class VtVentasFacturasServiceImpl {
             }
 
             respuestaProcesoGetDto = procesarDocumentosService.procesarFacNcNd(saved,
-                    adLogsBuilder.builderVentasDocumentos(saved, Boolean.FALSE), datosEmpresaDto);
+                    adLogsBuilder.builderVentasDocumentos(saved, Boolean.FALSE), datosEmpresaDto, request.getEmail());
             respuestaProcesoGetDto.setIdDocumento(saved.getIdVenta());
         }
 
@@ -198,7 +200,6 @@ public class VtVentasFacturasServiceImpl {
         if (Objects.isNull(respuestaProcesoGetDto.getNumeroAutorizacion())) {
             respuestaProcesoGetDto.setIdDocumento(saved.getIdVenta());
             respuestaProcesoGetDto.setNumeroAutorizacion("");
-            respuestaProcesoGetDto.setEmailEstado(saved.getEmailEstado());
             respuestaProcesoGetDto.setEstadoDocumento(saved.getEstadoDocumento().getEstadoDocumento());
         }
 
@@ -279,13 +280,15 @@ public class VtVentasFacturasServiceImpl {
         update.setModifiedDate(LocalDateTime.now());
 
         update.setTercero(tercero);
-        update.setEmail(tercero.getEmail());
 
         update.setTipoEmision(getTipoEmision(request));
 
         validarReembolsoUpdate(request, update);
         vtComprobanteService.getComprobanteXmlFactura(idData, update, empresa, serie);
         VtVentaEntity vtVentaEntityDto = vtVentaRepository.save(update);
+
+
+        guardarCorreosEnviados(request);
 
         if (request.getCuentaPorCobrar()) {
 
@@ -1257,6 +1260,25 @@ public class VtVentasFacturasServiceImpl {
         if (!tieneIdVenta) {
             if (!tieneSecuencial || request.getSecuencial().isEmpty()) {
                 throw new GeneralException("Debe enviar el id venta o el secuencial.");
+            }
+        }
+    }
+
+    private void guardarCorreosEnviados(CreationFacturaRequestDto request) {
+
+        if (Objects.nonNull(request.getEmail()) && !request.getEmail().isEmpty()) {
+
+            String[] listaCorreos = request.getEmail().split(";");
+
+            for (String correo : listaCorreos) {
+                AdMailEnviadosEntity enviado = new AdMailEnviadosEntity();
+                enviado.setCodigoDocumento(request.getCodigoDocumento().getCodigo());
+                enviado.setSerie(request.getSerie());
+                enviado.setSecuencial(request.getSecuencial());
+                enviado.setMailTo(correo);
+                enviado.setTotal(1L);
+                enviado.setFecha(LocalDateTime.now());
+                adMailsEnviadosRepository.save(enviado);
             }
         }
     }

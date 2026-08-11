@@ -126,8 +126,6 @@ public class VtVentaEntity extends Auditable {
     private String email;
 
     private Integer tipoEmision;
-
-
     private Integer ambiente;
     private LocalDateTime fechaAutorizacion;
     private String claveAcceso;

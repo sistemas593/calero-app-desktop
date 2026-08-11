@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @Entity
@@ -28,4 +29,5 @@ public class AdMailEnviadosEntity {
     private String mailTo;
     private LocalDateTime fecha;
     private Long total;
+    private String idResend;
 }

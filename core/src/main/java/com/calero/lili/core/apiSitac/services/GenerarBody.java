@@ -12,51 +12,59 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class GenerarBody {
 
-    public EnvioCorreoModeloDto generarModelCorreoDocumentos(StCorreoRequestDto request, AdMailConfigEntity adConfigMailEntity) {
+    public List<EnvioCorreoModeloDto> generarModelCorreoDocumentos(StCorreoRequestDto request, AdMailConfigEntity adConfigMailEntity) {
 
 
         try {
 
+            List<EnvioCorreoModeloDto> listaCorreosEnviar = new ArrayList<>();
             Resource resource = new ClassPathResource("templates/documento-electronico.html");
+            String[] listaCorreos = request.getTo().split(";");
 
-            //log.info("Correos a enviar: {}", emailsValidos);
+            for (String correo : listaCorreos) {
 
-            EnvioCorreoModeloDto email = new EnvioCorreoModeloDto();
-            setearInicialesYNombreDocumento(request.getCodigoDocumento(), email);
-            email.setSubject("Adjunto documento electrónico: " + email.getInicialesDocumento() + "-" + request.getSerie() + "-" + request.getSecuencia());
+                EnvioCorreoModeloDto email = new EnvioCorreoModeloDto();
+                setearInicialesYNombreDocumento(request.getCodigoDocumento(), email);
+                email.setSubject("Adjunto documento electrónico: " + email.getInicialesDocumento() + "-" + request.getSerie() + "-" + request.getSecuencia());
 
-            String html = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+                String html = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
 
-            html = html.replace("{{nombreReceptor}}", request.getNombreReceptor())
-                    .replace("{{nombreEmisor}}", request.getNombreEmisor())
-                    .replace("{{rucEmisor}}", request.getRucEmisor())
-                    .replace("{{nombreDocumento}}", email.getNombreDocumento())
-                    .replace("{{serie}}", request.getSerie())
-                    .replace("{{secuencia}}", request.getSecuencia())
-                    .replace("{{fechaEmision}}", String.valueOf(request.getFechaEmision()))
-                    .replace("{{claveAcceso}}", request.getClaveAcceso())
-                    .replace("{{mailFrom}}", request.getMailFrom());
+                html = html.replace("{{nombreReceptor}}", request.getNombreReceptor())
+                        .replace("{{nombreEmisor}}", request.getNombreEmisor())
+                        .replace("{{rucEmisor}}", request.getRucEmisor())
+                        .replace("{{nombreDocumento}}", email.getNombreDocumento())
+                        .replace("{{serie}}", request.getSerie())
+                        .replace("{{secuencia}}", request.getSecuencia())
+                        .replace("{{fechaEmision}}", String.valueOf(request.getFechaEmision()))
+                        .replace("{{claveAcceso}}", request.getClaveAcceso())
+                        .replace("{{mailFrom}}", request.getMailFrom());
 
-            email.setBody(html);
-            email.setPdf(request.getPdf());
-            email.setXml(request.getXml());
-            email.setEmailFrom(adConfigMailEntity.getEmailFrom());
-            email.setTokenApi(adConfigMailEntity.getConsumerKey());
-            email.setEmailTo(request.getTo());
-            email.setClaveAcceso(request.getClaveAcceso());
-            return email;
+                email.setBody(html);
+                email.setPdf(request.getPdf());
+                email.setXml(request.getXml());
+                email.setEmailFrom(adConfigMailEntity.getEmailFrom());
+                email.setTokenApi(adConfigMailEntity.getConsumerKey());
+                email.setEmailTo(correo);
+                email.setClaveAcceso(request.getClaveAcceso());
+                email.setSerie(request.getSerie());
+                email.setSecuencial(request.getSecuencia());
+
+                listaCorreosEnviar.add(email);
+            }
+
+            return listaCorreosEnviar;
 
         } catch (Exception exception) {
             throw new GeneralException("Error al generar el body del correo: " + exception.getMessage());
         }
-
-
     }
 
     public EnvioCorreoModeloDto generarModelCorreoNuevoContacto(ContactoRequestDto request, AdMailConfigEntity adConfigMailEntity) {

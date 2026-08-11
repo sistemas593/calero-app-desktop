@@ -7,6 +7,7 @@ import com.calero.lili.core.adConfiguracion.AdMailsEnviadosTotalRepository;
 import com.calero.lili.core.apiSitac.repositories.entities.AdMailConfigEntity;
 import com.calero.lili.core.apiSitac.repositories.entities.AdMailEnviadosEntity;
 import com.calero.lili.core.apiSitac.repositories.entities.AdMailEnviadosTotalEntity;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdDatasConfiguraciones.VtClientesConfiguracionesEntity;
 import com.calero.lili.core.modAdDatasConfiguraciones.VtClientesConfiguracionesRepository;
 import com.calero.lili.core.modAdDatasConfiguraciones.dto.StCorreoRequestDto;
@@ -75,21 +76,33 @@ public class StEnviarCorreoSitacServiceImpl {
 
             if (!request.getTo().isEmpty()) {
                 AdMailConfigEntity adConfigMailEntity = adConfigRepository.findByIdConfig(Long.valueOf(1));
-                EnvioCorreoModeloDto dtoEmailSend = generarBody.generarModelCorreoDocumentos(request, adConfigMailEntity);
-                emailSender.send(dtoEmailSend);
+                List<EnvioCorreoModeloDto> dtoEmailSend = generarBody.generarModelCorreoDocumentos(request, adConfigMailEntity);
+
+                for (EnvioCorreoModeloDto dtoEmail : dtoEmailSend) {
+
+                    long numeroCorreos = request.getTo().chars().filter(ch -> ch == ',').count() + 1;
+
+                    String idEmailReSend = emailSender.send(dtoEmail);
+
+                    AdMailEnviadosEntity enviado = adMailsEnviadosRepository.findByEmailAndSecuencialAndSerie(dtoEmail.getEmailTo(),
+                            request.getSerie(), request.getSecuencia(), clave).orElseThrow(() -> new GeneralException("No existe correo enviado"));
+
+                    enviado.setClave1(clave);
+                    enviado.setCodigoDocumento(request.getCodigoDocumento());
+                    enviado.setSerie(request.getSerie());
+                    enviado.setSecuencial(request.getSecuencia());
+                    enviado.setMailTo(request.getTo());
+                    enviado.setTotal(numeroCorreos);
+                    enviado.setFecha(LocalDateTime.now());
+                    enviado.setIdResend(idEmailReSend);
+                    adMailsEnviadosRepository.save(enviado);
+
+                }
+
                 //if (clave.equals("1920274511419") || clave.equals("1409223410397") || clave.equals("1215204110011") ){
                 //if (request.getCodigoDocumento().equals("01") && request.getSerie().equals("001002") ){
-                long numeroCorreos = request.getTo().chars().filter(ch -> ch == ',').count() + 1;
 
-                AdMailEnviadosEntity enviado = new AdMailEnviadosEntity();
-                enviado.setClave1(clave);
-                enviado.setCodigoDocumento(request.getCodigoDocumento());
-                enviado.setSerie(request.getSerie());
-                enviado.setSecuencial(request.getSecuencia());
-                enviado.setMailTo(request.getTo());
-                enviado.setTotal(numeroCorreos);
-                enviado.setFecha(LocalDateTime.now());
-                adMailsEnviadosRepository.save(enviado);
+                long numeroCorreos = request.getTo().chars().filter(ch -> ch == ',').count() + 1;
 
                 String periodo = String.valueOf(LocalDate.now().getYear()) + '-' + StringUtils.leftPad(String.valueOf(LocalDate.now().getMonthValue()), 2, '0');
                 System.out.println(periodo);
