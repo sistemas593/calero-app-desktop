@@ -363,13 +363,12 @@ public class FacturaPdf {
      * la misma línea. Funcionan bien en A4 porque esos números están
      * calibrados a mano para su ancho; por eso NO se reutilizan en A5.
      * <p>
-     * Fecha / Identificación / Guía / Placa van en una tabla anidada de 4
-     * columnas (label/valor x2), con 2 pares por fila: Fecha + Identificación
-     * en la primera línea, Guía + Placa en la segunda (Placa al final,
-     * después de Guía). El ancho de cada columna de etiqueta (17.5% del
-     * ancho de la tabla) alcanza para que ningún título salte de línea, y al
-     * ser un ancho real de columna (no un padding negativo) las etiquetas y
-     * valores no se sobreponen.
+     * Fecha / Identificación / Guía / Placa van los 4 en una sola fila, en
+     * una tabla anidada de 8 columnas con anchos calibrados según el largo
+     * de cada etiqueta/valor (no un reparto parejo): así ninguna etiqueta
+     * salta de línea y, al ser ancho real de columna (no padding negativo),
+     * etiqueta y valor no se sobreponen. Placa queda al final, después de
+     * Guía.
      */
     private void agregarDatosComprador(Document document, Factura factura, Fuentes fuentes) throws DocumentException {
 
@@ -403,10 +402,11 @@ public class FacturaPdf {
         cell.setPaddingLeft(-80);
         table_datos.addCell(cell);
 
-        // Fecha + Identificación en una línea, Guía + Placa en la siguiente (Placa al
-        // final, después de Guía). Columnas anchas de verdad (17.5% etiqueta / 32.5%
-        // valor) para que ningún título salte de línea ni se sobreponga con su valor.
-        PdfPTable filaFechaIdGuiaPlaca = new PdfPTable(new float[]{17.5f, 32.5f, 17.5f, 32.5f});
+        // Los 4 pares (Fecha, Identificación, Guía, Placa) en una sola fila. Anchos
+        // calibrados según el largo de cada etiqueta/valor (Identificación y Guía
+        // necesitan más espacio que Placa) para que ningún título salte de línea ni
+        // se sobreponga con su valor.
+        PdfPTable filaFechaIdGuiaPlaca = new PdfPTable(new float[]{14f, 11f, 15f, 12f, 7f, 16f, 8f, 9f});
         filaFechaIdGuiaPlaca.setWidthPercentage(100);
 
         agregarFilaEtiquetaValor(filaFechaIdGuiaPlaca, "Fecha emisión:", factura.getInfoFactura().getFechaEmision(), fuentes);

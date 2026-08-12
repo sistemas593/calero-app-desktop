@@ -80,7 +80,6 @@ public class StEnviarCorreoSitacServiceImpl {
 
                 for (EnvioCorreoModeloDto dtoEmail : dtoEmailSend) {
 
-                    long numeroCorreos = request.getTo().chars().filter(ch -> ch == ',').count() + 1;
 
                     String idEmailReSend = emailSender.send(dtoEmail);
 
@@ -90,7 +89,7 @@ public class StEnviarCorreoSitacServiceImpl {
                     enviado.setSerie(dtoEmail.getSerie());
                     enviado.setSecuencial(dtoEmail.getSecuencial());
                     enviado.setMailTo(dtoEmail.getEmailTo());
-                    enviado.setTotal(numeroCorreos);
+                    enviado.setTotal(1L);
                     enviado.setFecha(LocalDateTime.now());
                     enviado.setIdResend(idEmailReSend);
                     adMailsEnviadosRepository.save(enviado);

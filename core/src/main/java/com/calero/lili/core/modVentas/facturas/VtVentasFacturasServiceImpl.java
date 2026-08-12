@@ -1268,7 +1268,7 @@ public class VtVentasFacturasServiceImpl {
 
         if (Objects.nonNull(request.getEmail()) && !request.getEmail().isEmpty()) {
 
-            String[] listaCorreos = request.getEmail().split(";");
+            String[] listaCorreos = request.getEmail().split(",");
 
             for (String correo : listaCorreos) {
                 AdMailEnviadosEntity enviado = new AdMailEnviadosEntity();
