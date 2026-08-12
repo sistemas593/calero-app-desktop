@@ -27,7 +27,7 @@ public class GenerarBody {
 
             List<EnvioCorreoModeloDto> listaCorreosEnviar = new ArrayList<>();
             Resource resource = new ClassPathResource("templates/documento-electronico.html");
-            String[] listaCorreos = request.getTo().split(";");
+            String[] listaCorreos = request.getTo().split(",");
 
             for (String correo : listaCorreos) {
 

@@ -54,7 +54,7 @@ public class StFechaActualizacionServiceImpl {
 
         dto.setLink(entidad.getLink());
         if (!clave.equals("XXXXXXXXXX")) {
-            System.out.println(clave);
+            //System.out.println(clave);
             Long idData = Long.valueOf(1);
             Optional<VtClientesConfiguracionesEntity> usuario = adStEmpresas.findByClave(clave);
             if (usuario.isPresent()) {

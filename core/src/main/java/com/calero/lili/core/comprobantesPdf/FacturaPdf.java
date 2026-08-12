@@ -357,11 +357,19 @@ public class FacturaPdf {
     // ==================== DATOS DEL COMPRADOR ====================
 
     /**
-     * Versión A4 (sin cambios respecto a la original): usa colspans que no
+     * Versión A4: las filas de Razón Social / Dirección usan colspans que no
      * calzan exacto con las 6 columnas de la tabla, más paddings negativos
-     * grandes (-120, -80, -20) para simular que la etiqueta y el valor
-     * quedan en la misma línea. Funciona bien en A4 porque esos números
-     * están calibrados a mano para su ancho; por eso NO se reutiliza en A5.
+     * grandes (-120, -80) para simular que la etiqueta y el valor quedan en
+     * la misma línea. Funcionan bien en A4 porque esos números están
+     * calibrados a mano para su ancho; por eso NO se reutilizan en A5.
+     * <p>
+     * Fecha / Identificación / Guía / Placa van en una tabla anidada de 4
+     * columnas (label/valor x2), con 2 pares por fila: Fecha + Identificación
+     * en la primera línea, Guía + Placa en la segunda (Placa al final,
+     * después de Guía). El ancho de cada columna de etiqueta (17.5% del
+     * ancho de la tabla) alcanza para que ningún título salte de línea, y al
+     * ser un ancho real de columna (no un padding negativo) las etiquetas y
+     * valores no se sobreponen.
      */
     private void agregarDatosComprador(Document document, Factura factura, Fuentes fuentes) throws DocumentException {
 
@@ -395,37 +403,23 @@ public class FacturaPdf {
         cell.setPaddingLeft(-80);
         table_datos.addCell(cell);
 
-        cell = generateCell(new Paragraph("Fecha emision: ", title), LEFT_PADDING_EMPRESA);
-        cell.setPaddingBottom(15);
-        cell.setColspan(1);
-        table_datos.addCell(cell);
+        // Fecha + Identificación en una línea, Guía + Placa en la siguiente (Placa al
+        // final, después de Guía). Columnas anchas de verdad (17.5% etiqueta / 32.5%
+        // valor) para que ningún título salte de línea ni se sobreponga con su valor.
+        PdfPTable filaFechaIdGuiaPlaca = new PdfPTable(new float[]{17.5f, 32.5f, 17.5f, 32.5f});
+        filaFechaIdGuiaPlaca.setWidthPercentage(100);
 
-        cell = generateCell(new Paragraph(factura.getInfoFactura().getFechaEmision(), fuente), PADDING_NONE);
-        cell.setColspan(1);
-        cell.setPaddingBottom(15);
-        cell.setPaddingLeft(-20);
-        table_datos.addCell(cell);
+        agregarFilaEtiquetaValor(filaFechaIdGuiaPlaca, "Fecha emisión:", factura.getInfoFactura().getFechaEmision(), fuentes);
+        agregarFilaEtiquetaValor(filaFechaIdGuiaPlaca, "Identificación:", factura.getInfoFactura().getIdentificacionComprador(), fuentes);
+        agregarFilaEtiquetaValor(filaFechaIdGuiaPlaca, "Guía:", factura.getInfoFactura().getGuiaRemision(), fuentes);
+        agregarFilaEtiquetaValor(filaFechaIdGuiaPlaca, "Placa:", factura.getInfoFactura().getPlaca(), fuentes);
 
-        cell = generateCell(new Paragraph("Identificación:", title), LEFT_PADDING_EMPRESA);
-        cell.setPaddingBottom(5);
-        cell.setColspan(1);
-        table_datos.addCell(cell);
-
-        cell = generateCell(new Paragraph(factura.getInfoFactura().getIdentificacionComprador(), fuente), PADDING_NONE);
-        cell.setColspan(1);
-        cell.setPaddingBottom(5);
-        cell.setPaddingLeft(-20);
-        table_datos.addCell(cell);
-
-        cell = generateCell(new Paragraph("Guia Remision: ", title), LEFT_PADDING_EMPRESA);
-        cell.setColspan(1);
-        cell.setPaddingBottom(15);
-        table_datos.addCell(cell);
-
-        cell = generateCell(new Paragraph(factura.getInfoFactura().getGuiaRemision(), fuente), PADDING_NONE);
-        cell.setColspan(1);
-        cell.setPaddingBottom(15);
-        cell.setPaddingLeft(-20);
+        cell = new PdfPCell();
+        cell.addElement(filaFechaIdGuiaPlaca);
+        cell.setColspan(6);
+        cell.setBorder(0);
+        cell.setPadding(0);
+        cell.setPaddingBottom(10);
         table_datos.addCell(cell);
 
         table_datos.setSpacingBefore(5);
@@ -454,7 +448,8 @@ public class FacturaPdf {
         agregarFilaEtiquetaValor(tabla, "Dirección Comprador:", infoFactura.getDireccionComprador(), fuentes);
         agregarFilaEtiquetaValor(tabla, "Fecha emisión:", infoFactura.getFechaEmision(), fuentes);
         agregarFilaEtiquetaValor(tabla, "Identificación:", infoFactura.getIdentificacionComprador(), fuentes);
-        agregarFilaEtiquetaValor(tabla, "Guía Remisión:", infoFactura.getGuiaRemision(), fuentes);
+        agregarFilaEtiquetaValor(tabla, "Guía:", infoFactura.getGuiaRemision(), fuentes);
+        agregarFilaEtiquetaValor(tabla, "Placa:", infoFactura.getPlaca(), fuentes);
 
         document.add(tabla);
     }

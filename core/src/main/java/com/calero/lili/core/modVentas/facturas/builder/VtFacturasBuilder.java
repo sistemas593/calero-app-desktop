@@ -3,7 +3,6 @@ package com.calero.lili.core.modVentas.facturas.builder;
 import com.calero.lili.core.builder.FormasPagoBuilder;
 import com.calero.lili.core.builder.InformacionAdicionalBuilder;
 import com.calero.lili.core.enums.Ambiente;
-import com.calero.lili.core.enums.EmailEstado;
 import com.calero.lili.core.enums.Liquidar;
 import com.calero.lili.core.enums.OrigenEnum;
 import com.calero.lili.core.enums.TipoVenta;
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 @Component
 @AllArgsConstructor
@@ -83,6 +81,7 @@ public class VtFacturasBuilder {
                 .existeComprobante(Boolean.TRUE)
                 .origen(OrigenEnum.VTS)
                 .placa(model.getPlaca())
+                .tipoEmision(1)
                 .build();
     }
 

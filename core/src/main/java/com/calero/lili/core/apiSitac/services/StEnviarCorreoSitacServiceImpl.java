@@ -84,9 +84,7 @@ public class StEnviarCorreoSitacServiceImpl {
 
                     String idEmailReSend = emailSender.send(dtoEmail);
 
-                    AdMailEnviadosEntity enviado = adMailsEnviadosRepository.findByEmailAndSecuencialAndSerie(dtoEmail.getEmailTo(),
-                            request.getSerie(), request.getSecuencia()).orElseThrow(() -> new GeneralException("No existe correo enviado"));
-
+                    AdMailEnviadosEntity enviado = new AdMailEnviadosEntity();
                     enviado.setClave1(clave);
                     enviado.setCodigoDocumento(request.getCodigoDocumento());
                     enviado.setSerie(request.getSerie());
