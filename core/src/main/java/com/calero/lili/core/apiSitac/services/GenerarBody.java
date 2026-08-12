@@ -30,7 +30,7 @@ public class GenerarBody {
             String[] listaCorreos = request.getTo().split(",");
 
             for (String correo : listaCorreos) {
-
+                correo = correo.trim();
                 EnvioCorreoModeloDto email = new EnvioCorreoModeloDto();
                 setearInicialesYNombreDocumento(request.getCodigoDocumento(), email);
                 email.setSubject("Adjunto documento electrónico: " + email.getInicialesDocumento() + "-" + request.getSerie() + "-" + request.getSecuencia());

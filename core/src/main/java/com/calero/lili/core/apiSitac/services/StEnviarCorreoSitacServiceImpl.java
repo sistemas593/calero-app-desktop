@@ -87,9 +87,9 @@ public class StEnviarCorreoSitacServiceImpl {
                     AdMailEnviadosEntity enviado = new AdMailEnviadosEntity();
                     enviado.setClave1(clave);
                     enviado.setCodigoDocumento(request.getCodigoDocumento());
-                    enviado.setSerie(request.getSerie());
-                    enviado.setSecuencial(request.getSecuencia());
-                    enviado.setMailTo(request.getTo());
+                    enviado.setSerie(dtoEmail.getSerie());
+                    enviado.setSecuencial(dtoEmail.getSecuencial());
+                    enviado.setMailTo(dtoEmail.getEmailTo());
                     enviado.setTotal(numeroCorreos);
                     enviado.setFecha(LocalDateTime.now());
                     enviado.setIdResend(idEmailReSend);
