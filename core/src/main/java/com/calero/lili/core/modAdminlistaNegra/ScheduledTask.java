@@ -9,11 +9,11 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class ScheduledTask {
 
-    private final EmailProcesarRechazados emailProcesarListaNegra;
+   /* private final EmailProcesarRechazados emailProcesarListaNegra;
     //@Scheduled(fixedRate = 6000000) // 1000 1 segundos // 600000 10 minutos
     @Scheduled(cron = "0 0 12,20 * * *", zone = "America/Guayaquil")
     public void performTask() {
         log.info("Procesando correos rechazados");
         emailProcesarListaNegra.procesarRechazados();
-    }
+    }*/
 }

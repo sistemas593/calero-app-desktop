@@ -197,18 +197,20 @@ public class ProcesarDocumentosServiceImpl {
 
                                         String idReSend = emailSender.send(dto);
 
-                                        AdMailEnviadosEntity enviado = adMailsEnviadosRepository.findByEmailAndSecuencialAndSerie(dto.getEmailTo(),
-                                                documento.getSerie(), documento.getSecuencial()).orElseThrow(() -> new GeneralException("No existe correo enviado"));
-
-                                        enviado.setCodigoDocumento(documento.getCodigoDocumento().getCodigo());
-                                        enviado.setSerie(documento.getSerie());
-                                        enviado.setSecuencial(documento.getSecuencial());
-                                        enviado.setMailTo(dto.getEmailTo());
-                                        enviado.setTotal(1L);
-                                        enviado.setFecha(LocalDateTime.now());
-                                        enviado.setIdResend(idReSend);
-                                        adMailsEnviadosRepository.save(enviado);
-
+                                        List<AdMailEnviadosEntity> listaMailEnviados = adMailsEnviadosRepository
+                                                .findByIdDocumento(documento.getIdVenta());
+                                        if (!listaMailEnviados.isEmpty()) {
+                                            listaMailEnviados.forEach(enviado -> {
+                                                enviado.setCodigoDocumento(documento.getCodigoDocumento().getCodigo());
+                                                enviado.setSerie(documento.getSerie());
+                                                enviado.setSecuencial(documento.getSecuencial());
+                                                enviado.setMailTo(dto.getEmailTo());
+                                                enviado.setTotal(1L);
+                                                enviado.setFecha(LocalDateTime.now());
+                                                enviado.setIdResend(idReSend);
+                                            });
+                                            adMailsEnviadosRepository.saveAll(listaMailEnviados);
+                                        }
                                     }
 
 

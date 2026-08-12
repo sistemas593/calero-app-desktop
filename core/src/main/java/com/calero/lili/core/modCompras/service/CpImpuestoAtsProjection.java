@@ -2,6 +2,7 @@ package com.calero.lili.core.modCompras.service;
 
 
 import com.calero.lili.core.enums.DocumentoEnum;
+import com.calero.lili.core.enums.PagoLocalExterior;
 import com.calero.lili.core.enums.SustentoCodigos;
 
 import java.math.BigDecimal;
@@ -40,7 +41,7 @@ public interface CpImpuestoAtsProjection {
 
     BigDecimal getMontoIva();
 
-    String getPagoLocExt();
+    PagoLocalExterior getPagoLocExt();
 
     String getPagoExterior();
 

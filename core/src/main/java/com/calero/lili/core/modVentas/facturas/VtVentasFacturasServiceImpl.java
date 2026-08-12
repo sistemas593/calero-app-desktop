@@ -88,6 +88,7 @@ import java.math.RoundingMode;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -170,7 +171,7 @@ public class VtVentasFacturasServiceImpl {
         validateReembolso(request, vtVentaEntity);
         VtVentaEntity saved = facturasPersistenceService.guardarFactura(vtVentaEntity, empresa, serie, request, idData, idEmpresa, tercero);
 
-        guardarCorreosEnviados(request);
+        guardarCorreosEnviados(request, saved.getIdVenta());
 
         RespuestaProcesoGetDto respuestaProcesoGetDto = new RespuestaProcesoGetDto();
 
@@ -288,7 +289,7 @@ public class VtVentasFacturasServiceImpl {
         VtVentaEntity vtVentaEntityDto = vtVentaRepository.save(update);
 
 
-        guardarCorreosEnviados(request);
+        guardarCorreosEnviados(request, vtVentaEntityDto.getIdVenta());
 
         if (request.getCuentaPorCobrar()) {
 
@@ -1179,7 +1180,6 @@ public class VtVentasFacturasServiceImpl {
         request.setNumeroIdentificacion(null);
         request.setTerceroNombre(null);
         request.setDireccion(null);
-        request.setEmail(null);
     }
 
     private void validarNumeroAutorizacion(CreationFacturaRequestDto request) {
@@ -1264,8 +1264,9 @@ public class VtVentasFacturasServiceImpl {
         }
     }
 
-    private void guardarCorreosEnviados(CreationFacturaRequestDto request) {
+    private void guardarCorreosEnviados(CreationFacturaRequestDto request, UUID idVenta) {
 
+        List<AdMailEnviadosEntity> lista = new ArrayList<>();
         if (Objects.nonNull(request.getEmail()) && !request.getEmail().isEmpty()) {
 
             String[] listaCorreos = request.getEmail().split(",");
@@ -1278,10 +1279,13 @@ public class VtVentasFacturasServiceImpl {
                 enviado.setMailTo(correo);
                 enviado.setTotal(1L);
                 enviado.setFecha(LocalDateTime.now());
-                adMailsEnviadosRepository.save(enviado);
+                enviado.setIdDocumento(idVenta);
+                lista.add(enviado);
             }
+            adMailsEnviadosRepository.saveAll(lista);
         }
     }
+
 
 }
 

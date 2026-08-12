@@ -42,8 +42,7 @@ public class ResendWebhookService {
 
     public void procesarEvento(String payload, String svixId, String svixTimestamp, String svixSignature) {
 
-        log.info("Recibido webhook de Resend: svix-id={}, svix-timestamp={}, svix-signature={}",
-                svixId, svixTimestamp, svixSignature);
+       // log.info("Recibido webhook de Resend: svix-id={}, svix-timestamp={}, svix-signature={}", svixId, svixTimestamp, svixSignature);
 
         resendWebhookSignatureVerifier.verificar(payload, svixId, svixTimestamp, svixSignature);
 

@@ -5,6 +5,7 @@ import com.calero.lili.core.dtos.FormasPagoSri;
 import com.calero.lili.core.dtos.InformacionAdicional;
 import com.calero.lili.core.dtos.Mensajes;
 import com.calero.lili.core.enums.DocumentoEnum;
+import com.calero.lili.core.enums.PagoLocalExterior;
 import com.calero.lili.core.enums.SustentoCodigos;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.PagoExterior;
 import com.calero.lili.core.modCompras.modComprasRetenciones.CpRetencionesEntity;
@@ -119,7 +120,8 @@ public class CpImpuestosEntity extends Auditable {
     @Column(name = "fecha_vencimiento")
     private LocalDate fechaVencimiento;
 
-    private String pagoLocExt; // si es 01, no vendria el objeto y si es 02 deberia a ver objeto, igual en el dto
+    @Enumerated(EnumType.STRING)
+    private PagoLocalExterior pagoLocExt; // si es 01, no vendria el objeto y si es 02 deberia a ver objeto, igual en el dto
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")

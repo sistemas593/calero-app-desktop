@@ -330,6 +330,7 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
             " ci.serie AS serie, ci.secuencial AS secuencial," +
             " ci.fecha_emision AS fechaEmision, ci.numero_autorizacion AS autorizacion," +
             " ci.pago_exterior as pagoExterior," +
+            " ci.pago_loc_ext as pagoLocExt," +
             " ci.formas_pago_sri as formasPago," +
             " ci.id_retencion as idRetencion, " +
             " COALESCE(SUM(CASE WHEN civ.codigo = '2' AND " +

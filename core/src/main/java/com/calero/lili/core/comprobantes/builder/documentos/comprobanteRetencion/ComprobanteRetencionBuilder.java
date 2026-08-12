@@ -9,6 +9,7 @@ import com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencion.DocSust
 import com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencion.ImpuestoDocSustento;
 import com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencion.InfoCompRetencion;
 import com.calero.lili.core.comprobantes.objetosXml.comprobanteRetencion.Retencion;
+import com.calero.lili.core.enums.PagoLocalExterior;
 import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresasSeries.AdEmpresasSeriesEntity;
@@ -106,7 +107,7 @@ public class ComprobanteRetencionBuilder {
                 .fechaEmisionDocSustento(DateUtils.toString(impuesto.getFechaEmision()))
                 .fechaRegistroContable(DateUtils.toString(impuesto.getFechaRegistro()))
                 .numAutDocSustento(impuesto.getNumeroAutorizacion())
-                .pagoLocExt(impuesto.getPagoLocExt())
+                .pagoLocExt(impuesto.getPagoLocExt().getCodigo())
                 .totalComprobantesReembolso(formatoValores.convertirBigDecimalToString(new BigDecimal("0.00")))
                 .totalBaseImponibleReembolso(formatoValores.convertirBigDecimalToString(new BigDecimal("0.00")))
                 .totalImpuestoReembolso(formatoValores.convertirBigDecimalToString(new BigDecimal("0.00")))
@@ -117,10 +118,10 @@ public class ComprobanteRetencionBuilder {
                 .build();
 
         switch (impuesto.getPagoLocExt()) {
-            case "01" -> {
+            case PagoLocalExterior.L -> {
                 docSustento.setPaisEfecPago("593");
             }
-            case "02" -> {
+            case PagoLocalExterior.E -> {
                 docSustento.setTipoRegi(impuesto.getPagoExterior().getTipoRegi());
                 docSustento.setPaisEfecPago(impuesto.getPagoExterior().getPaisEfecPago());
                 docSustento.setAplicConvDobTrib(impuesto.getPagoExterior().getAplicConvDobTrib());

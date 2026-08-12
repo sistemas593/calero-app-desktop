@@ -3,12 +3,14 @@ package com.calero.lili.core.modCompras.modComprasImpuestos.dto;
 import com.calero.lili.core.dtos.FormasPagoDto;
 import com.calero.lili.core.dtos.InformacionAdicionalDto;
 import com.calero.lili.core.enums.DocumentoEnum;
+import com.calero.lili.core.enums.PagoLocalExterior;
 import com.calero.lili.core.enums.SustentoCodigos;
 import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.modCompras.dto.ImpuestoCodigoDto;
 import jakarta.persistence.Column;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -80,7 +82,8 @@ public class CreationCompraImpuestoRequestDto {
     private String liquidar;
     private String devolucionIva;
 
-    private String pagoLocExt;
+    @NotNull(message = "El pago local exterior es requerido")
+    private PagoLocalExterior pagoLocExt;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")

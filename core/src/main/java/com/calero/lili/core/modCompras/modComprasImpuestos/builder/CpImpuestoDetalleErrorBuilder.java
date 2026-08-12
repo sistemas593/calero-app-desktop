@@ -1,12 +1,12 @@
 package com.calero.lili.core.modCompras.modComprasImpuestos.builder;
 
+import com.calero.lili.core.enums.PagoLocalExterior;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosValoresEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CpImpuestoDetalleError;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CreationCompraImpuestoRequestDto;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.ValoresCompraImpuestoDto;
 import com.calero.lili.core.modCompras.modComprasRetenciones.CpRetencionesEntity;
-import com.calero.lili.core.modCompras.service.CpImpuestoAtsProjection;
 import com.calero.lili.core.modImpuestosAnexos.ats.DetalleCompras;
 import com.calero.lili.core.modImpuestosAnexos.ats.PagoExterior;
 import com.calero.lili.core.utils.DateUtils;
@@ -103,10 +103,11 @@ public class CpImpuestoDetalleErrorBuilder {
                 .build();
     }
 
-    private PagoExterior builderPagoExterior(com.calero.lili.core.modCompras.modComprasImpuestos.dto.PagoExterior model, String pagoLocExt) {
+    private PagoExterior builderPagoExterior(com.calero.lili.core.modCompras.modComprasImpuestos.dto.PagoExterior model,
+                                             PagoLocalExterior pagoLocExt) {
         if (Objects.isNull(model)) return null;
         return PagoExterior.builder()
-                .pagoLocExt(pagoLocExt)
+                .pagoLocExt(pagoLocExt.getCodigo())
                 .paisEfecPago(model.getPaisEfecPago())
                 .aplicConvDobTrib(model.getAplicConvDobTrib())
                 .pagExtSujRetNorLeg(model.getPagExtSujRetNorLeg())

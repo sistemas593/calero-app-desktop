@@ -3,6 +3,7 @@ package com.calero.lili.core.modCompras.modComprasImpuestos.dto;
 import com.calero.lili.core.dtos.InformacionAdicionalDto;
 import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.enums.FormaPagoSriEnum;
+import com.calero.lili.core.enums.PagoLocalExterior;
 import com.calero.lili.core.enums.SustentoCodigos;
 import com.calero.lili.core.modCompras.dto.ImpuestoCodigoDto;
 import jakarta.persistence.Column;
@@ -71,7 +72,7 @@ public class GetDto {
     private String liquidar;
     private String devolucionIva;
 
-    private String pagoLocExt;
+    private PagoLocalExterior pagoLocExt;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")

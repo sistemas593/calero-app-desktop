@@ -28,6 +28,7 @@ import com.calero.lili.core.enums.FormatoDocumento;
 import com.calero.lili.core.enums.Liquidar;
 import com.calero.lili.core.enums.OrigenEnum;
 import com.calero.lili.core.enums.OrigenImpuestos;
+import com.calero.lili.core.enums.PagoLocalExterior;
 import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.enums.TipoIncoTerm;
 import com.calero.lili.core.enums.TipoIngreso;
@@ -80,7 +81,7 @@ public class AutorizacionBuilder {
                 .fechaEmision(DateUtils.toLocalDate(documento.getInfoFactura().getFechaEmision()))
                 .tercero(proveedor)
                 .formasPagoSri(builderListFormasPagoSri(documento.getInfoFactura().getPago()))
-                .pagoLocExt("01")
+                .pagoLocExt(PagoLocalExterior.L)
                 .existeComprobante(Boolean.TRUE)
                 .origen(OrigenImpuestos.XDF.name())
                 .build();

@@ -30,4 +30,5 @@ public class AdMailEnviadosEntity {
     private LocalDateTime fecha;
     private Long total;
     private String idResend;
+    private UUID idDocumento;
 }

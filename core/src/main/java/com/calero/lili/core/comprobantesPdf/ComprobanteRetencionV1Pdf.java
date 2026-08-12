@@ -9,9 +9,11 @@ import com.itextpdf.text.Image;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
+import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.Barcode128;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPCellEvent;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfPTableEvent;
 import com.itextpdf.text.pdf.PdfWriter;
@@ -75,7 +77,6 @@ public class ComprobanteRetencionV1Pdf {
             ///// TABLA1 DATOS DOCUMENTO
 
             PdfPTable table_datos_documento = new PdfPTable(2);
-            table_datos_documento.setTableEvent(new BorderEvent());
 
             table_datos_documento.setWidthPercentage(100);
 
@@ -176,6 +177,7 @@ public class ComprobanteRetencionV1Pdf {
             cell_tabla.setPaddingBottom(0);
             cell_tabla.setPaddingLeft(0);
             cell_tabla.setPaddingRight(0);
+            cell_tabla.setCellEvent(new BorderCellEvent());
 
             tabla1.addCell(cell_tabla);
 
@@ -183,7 +185,6 @@ public class ComprobanteRetencionV1Pdf {
 
             PdfPTable table_datos_empresa = new PdfPTable(5);
             table_datos_empresa.setWidthPercentage(100);
-            table_datos_empresa.setTableEvent(new BorderEvent());
 
             cell = generateCell(new Paragraph(factura.getInfoTributaria().getRazonSocial().toUpperCase(), title), PADDING_NONE);
             cell.setColspan(5);
@@ -248,12 +249,23 @@ public class ComprobanteRetencionV1Pdf {
             cell.setPaddingBottom(15); // estaba 15 para no dejar linea
             table_datos_empresa.addCell(cell);
 
+            String contribuyenteRimpe = factura.getInfoTributaria().getContribuyenteRimpe();
+            String textoContribuyenteRimpe = (contribuyenteRimpe == null || contribuyenteRimpe.isEmpty())
+                    ? "CONTRIBUYENTE REGIMEN GENERAL"
+                    : contribuyenteRimpe.toUpperCase();
+
+            cell = generateCell(new Paragraph(textoContribuyenteRimpe, title), LEFT_PADDING_EMPRESA);
+            cell.setColspan(5);
+            cell.setPaddingTop(15);
+            cell.setPaddingBottom(15);
+            table_datos_empresa.addCell(cell);
+
             cell_tabla = new PdfPCell();
             cell_tabla.addElement(table_datos_empresa);
             cell_tabla.setBorder(0);
             cell_tabla.setPaddingRight(10);
             cell_tabla.setPaddingLeft(0);
-            cell_tabla.setVerticalAlignment(Element.ALIGN_BOTTOM);
+            cell_tabla.setCellEvent(new BorderCellEvent());
 
             tabla1.addCell(cell_tabla);
 
@@ -638,6 +650,28 @@ public class ComprobanteRetencionV1Pdf {
             float y2 = height[height.length - 1];
             PdfContentByte cb = canvas[PdfPTable.LINECANVAS];
             cb.roundRectangle(x1, y1, x2 - x1, y2 - y1, 8);
+            cb.stroke();
+            cb.resetRGBColorStroke();
+        }
+    }
+
+    /**
+     * Dibuja el borde redondeado usando el rectángulo REAL de la celda contenedora
+     * (el que iText calcula en el render final), no el alto natural de la tabla
+     * anidada que va adentro. Se usa en los dos cuadros del encabezado (RUC/COMPROBANTE
+     * DE RETENCIÓN y datos de empresa) para que, sin importar cuál de los dos tenga
+     * más contenido, ambos terminen exactamente a la misma altura abajo: como los dos
+     * están en la misma fila/rowspan de "tabla1", el borde inferior de esa fila es
+     * el mismo para ambas celdas por definición.
+     */
+    public class BorderCellEvent implements PdfPCellEvent {
+        public void cellLayout(PdfPCell cell, Rectangle position, PdfContentByte[] canvases) {
+            float x1 = position.getLeft() + cell.getPaddingLeft();
+            float x2 = position.getRight() - cell.getPaddingRight();
+            float y1 = position.getTop() - cell.getPaddingTop();
+            float y2 = position.getBottom();
+            PdfContentByte cb = canvases[PdfPTable.LINECANVAS];
+            cb.roundRectangle(x1, y2, x2 - x1, y1 - y2, 8);
             cb.stroke();
             cb.resetRGBColorStroke();
         }

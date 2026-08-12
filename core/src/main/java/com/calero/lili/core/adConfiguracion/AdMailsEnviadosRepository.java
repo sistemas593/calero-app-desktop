@@ -9,7 +9,9 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 
 @Repository
@@ -50,11 +52,8 @@ public interface AdMailsEnviadosRepository extends JpaRepository<AdMailEnviadosE
                                                Pageable pageable);
 
 
-    @Query("SELECT entity FROM AdMailEnviadosEntity entity where entity.mailTo = :correo and entity.serie =:serie" +
-            " and entity.secuencial = :secuencial")
-    Optional<AdMailEnviadosEntity> findByEmailAndSecuencialAndSerie(@Param("correo") String correo,
-                                                                    @Param("serie") String serie,
-                                                                    @Param("secuencial") String secuencial);
+    @Query("SELECT entity FROM AdMailEnviadosEntity entity where entity.idDocumento in (:idDocumento)")
+    List<AdMailEnviadosEntity> findByIdDocumento(@Param("idDocumento") UUID idDocumento);
 
 
 }
