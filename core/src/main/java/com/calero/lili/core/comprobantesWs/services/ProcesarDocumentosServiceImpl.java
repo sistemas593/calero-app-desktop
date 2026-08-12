@@ -2,6 +2,7 @@ package com.calero.lili.core.comprobantesWs.services;
 
 import autorizacion.ws.sri.gob.ec.Autorizacion;
 import autorizacion.ws.sri.gob.ec.RespuestaComprobante;
+import com.calero.lili.core.adConfiguracion.AdMailsEnviadosRepository;
 import com.calero.lili.core.adLogs.AdLogsServiceImpl;
 import com.calero.lili.core.adLogs.dto.AdLogsRequestDto;
 import com.calero.lili.core.adProcesoAutorizacion.AdProcesoAutorizacionService;
@@ -24,8 +25,8 @@ import com.calero.lili.core.comprobantesWs.ws.services.RecepcionServiceImpl;
 import com.calero.lili.core.dtos.Mensajes;
 import com.calero.lili.core.enums.EstadoDocumento;
 import com.calero.lili.core.errors.exceptions.GeneralException;
-import com.calero.lili.core.modAdminlistaNegra.ExcluirCorreosListaNegraServiceImpl;
 import com.calero.lili.core.modAdDatasConfiguraciones.dto.StCorreoRequestDto;
+import com.calero.lili.core.modAdminlistaNegra.ExcluirCorreosListaNegraServiceImpl;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.CpLiquidacionesEntity;
 import com.calero.lili.core.modCompras.modComprasLiquidaciones.LiquidacionesRepository;
 import com.calero.lili.core.modCompras.modComprasRetenciones.ComprasRetencionesRepository;
@@ -80,6 +81,7 @@ public class ProcesarDocumentosServiceImpl {
     private final ExcluirCorreosListaNegraServiceImpl excluirCorreosListaNegraService;
     private final AdMailsConfigRepository adConfigRepository;
     private final EmailSender emailSender;
+    private final AdMailsEnviadosRepository adMailsEnviadosRepository;
 
 //    private static String projectId = "caleroapp";
 //    private static String bucketName = "caleroapp-bucket-sgn";
@@ -193,9 +195,20 @@ public class ProcesarDocumentosServiceImpl {
 
                                     for (EnvioCorreoModeloDto dto : envioCorreoModeloDto) {
 
+                                        String idReSend = emailSender.send(dto);
 
+                                        AdMailEnviadosEntity enviado = adMailsEnviadosRepository.findByEmailAndSecuencialAndSerie(dto.getEmailTo(),
+                                                documento.getSerie(), documento.getSecuencial()).orElseThrow(() -> new GeneralException("No existe correo enviado"));
 
-                                        emailSender.send(dto);
+                                        enviado.setCodigoDocumento(documento.getCodigoDocumento().getCodigo());
+                                        enviado.setSerie(documento.getSerie());
+                                        enviado.setSecuencial(documento.getSecuencial());
+                                        enviado.setMailTo(dto.getEmailTo());
+                                        enviado.setTotal(1L);
+                                        enviado.setFecha(LocalDateTime.now());
+                                        enviado.setIdResend(idReSend);
+                                        adMailsEnviadosRepository.save(enviado);
+
                                     }
 
 

@@ -51,11 +51,10 @@ public interface AdMailsEnviadosRepository extends JpaRepository<AdMailEnviadosE
 
 
     @Query("SELECT entity FROM AdMailEnviadosEntity entity where entity.mailTo = :correo and entity.serie =:serie" +
-            " and entity.secuencial = :secuencial and entity.clave1 =:clave")
+            " and entity.secuencial = :secuencial")
     Optional<AdMailEnviadosEntity> findByEmailAndSecuencialAndSerie(@Param("correo") String correo,
                                                                     @Param("serie") String serie,
-                                                                    @Param("secuencial") String secuencial,
-                                                                    @Param("clave") String clave);
+                                                                    @Param("secuencial") String secuencial);
 
 
 }
