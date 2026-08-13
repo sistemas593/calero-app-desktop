@@ -31,6 +31,7 @@ import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosEntity;
 import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosItemsRepository;
 import com.calero.lili.core.modImpuestosAnexos.ats.DetalleCompras;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
+import com.calero.lili.core.modTerceros.GeTerceroLoteHelper;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
 import com.calero.lili.core.modTerceros.GeTercerosTipoRepository;
 import com.calero.lili.core.modTerceros.builder.GeTercerosTipoBuilder;
@@ -59,7 +60,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -81,6 +84,7 @@ public class VtVentasFacturasExcelService {
     private final AdEmpresasRepository adEmpresasRepository;
     private final AdEmpresasSeriesRepository adEmpresasSeriesRepository;
     private final ValidacionValoresVtVentasService serviceValores;
+    private final GeTerceroLoteHelper geTerceroLoteHelper;
 
 
     public void cargarExcelFacturas(Long idData, Long idEmpresa,
@@ -98,6 +102,7 @@ public class VtVentasFacturasExcelService {
 
         List<DetalleError> detalleErrores = new ArrayList<>();
         List<VtVentaEntity> facturas = new ArrayList<>();
+        Map<String, GeTerceroEntity> terceroCacheLote = new HashMap<>();
 
 
         AdEmpresaEntity empresa = adEmpresasRepository
@@ -155,7 +160,7 @@ public class VtVentasFacturasExcelService {
                 factura.setEmailEstado(1);
                 factura.setExisteComprobante(Boolean.TRUE);
 
-                cabeceraFactura(idData, idEmpresa, row, factura, detalleErrores, linea);
+                cabeceraFactura(idData, idEmpresa, row, factura, detalleErrores, linea, terceroCacheLote);
                 detalleFactura(idData, idEmpresa, row, factura, detalleErrores, linea);
                 setearFormaDePagoSri(factura, row, linea, detalleErrores);
 
@@ -293,7 +298,7 @@ public class VtVentasFacturasExcelService {
     }
 
     private void cabeceraFactura(Long idData, Long idEmpresa, Row row, VtVentaEntity
-            factura, List<DetalleError> detalleErrores, int linea) {
+            factura, List<DetalleError> detalleErrores, int linea, Map<String, GeTerceroEntity> terceroCacheLote) {
 
         factura.setSubtotal(BigDecimal.ZERO);
         factura.setTotalDescuento(BigDecimal.ZERO);
@@ -343,7 +348,7 @@ public class VtVentasFacturasExcelService {
         }
 
 
-        guardarInfoCliente(idData, row, factura, detalleErrores, linea);
+        guardarInfoCliente(idData, row, factura, detalleErrores, linea, terceroCacheLote);
         guardarInfoAdicional(row, factura, detalleErrores, linea);
 
 
@@ -351,7 +356,7 @@ public class VtVentasFacturasExcelService {
 
 
     private void guardarInfoCliente(Long idData, Row row, VtVentaEntity
-            factura, List<DetalleError> detalleErrores, int linea) {
+            factura, List<DetalleError> detalleErrores, int linea, Map<String, GeTerceroEntity> terceroCacheLote) {
 
         if (Objects.nonNull(row.getCell(4)) && Objects.nonNull(row.getCell(3)) &&
                 Objects.nonNull(row.getCell(5)) && Objects.nonNull(row.getCell(7)) &&
@@ -359,30 +364,30 @@ public class VtVentasFacturasExcelService {
 
             factura.setEmail(row.getCell(10).getStringCellValue());
 
-            Optional<GeTerceroEntity> cliente = geTercerosRepository
-                    .getFindExistByNumeroIdentificacion(idData, row.getCell(4).getStringCellValue());
+            String numeroIdentificacion = row.getCell(4).getStringCellValue();
 
-            if (cliente.isPresent()) {
-                factura.setTercero(cliente.get());
-            } else {
-                GeTerceroEntity tercero = new GeTerceroEntity();
+            GeTerceroEntity terceroEntity = geTerceroLoteHelper.obtenerOCrearEnLote(terceroCacheLote, idData, numeroIdentificacion,
+                    () -> {
+                        GeTerceroEntity tercero = new GeTerceroEntity();
 
-                tercero.setIdData(idData);
-                tercero.setIdTercero(UUID.randomUUID());
-                tercero.setNumeroIdentificacion(row.getCell(4).getStringCellValue());
-                tercero.setTipoIdentificacion(TipoIdentificacion.obtenerTipoIdentificacion(row.getCell(3).getStringCellValue()).name());
-                tercero.setTercero(row.getCell(7).getStringCellValue());
-                tercero.setDireccion(row.getCell(8).getStringCellValue());
-                tercero.setEmail(row.getCell(10).getStringCellValue());
-                tercero.setTelefonos(row.getCell(9).getStringCellValue());
-                tercero.setTipoPersoneria(TipoPersoneria.valueOf(row.getCell(5).getStringCellValue()));
-                tercero.setCreatedBy(factura.getCreatedBy());
-                tercero.setCreatedDate(LocalDateTime.now());
+                        tercero.setIdData(idData);
+                        tercero.setIdTercero(UUID.randomUUID());
+                        tercero.setNumeroIdentificacion(numeroIdentificacion);
+                        tercero.setTipoIdentificacion(TipoIdentificacion.obtenerTipoIdentificacion(row.getCell(3).getStringCellValue()).name());
+                        tercero.setTercero(row.getCell(7).getStringCellValue());
+                        tercero.setDireccion(row.getCell(8).getStringCellValue());
+                        tercero.setEmail(row.getCell(10).getStringCellValue());
+                        tercero.setTelefonos(row.getCell(9).getStringCellValue());
+                        tercero.setTipoPersoneria(TipoPersoneria.valueOf(row.getCell(5).getStringCellValue()));
+                        tercero.setCreatedBy(factura.getCreatedBy());
+                        tercero.setCreatedDate(LocalDateTime.now());
 
-                GeTerceroEntity terceroEntity = geTercerosRepository.save(tercero);
-                saveTipoTercero(terceroEntity);
-                factura.setTercero(terceroEntity);
-            }
+                        GeTerceroEntity guardado = geTercerosRepository.save(tercero);
+                        saveTipoTercero(guardado);
+                        return guardado;
+                    });
+
+            factura.setTercero(terceroEntity);
         } else {
             detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.FACTURA_INFORMACION_CLIENTE_NOT_FOUND));
         }
@@ -548,6 +553,7 @@ public class VtVentasFacturasExcelService {
 
         List<DetalleError> detalleErrores = new ArrayList<>();
         List<VtVentaEntity> facturas = new ArrayList<>();
+        Map<String, GeTerceroEntity> terceroCacheLoteImpuestos = new HashMap<>();
 
 
         Optional<AdEmpresasSucursalesEntity> sucursalEntity = adEmpresasSucursalesRepository
@@ -652,41 +658,40 @@ public class VtVentasFacturasExcelService {
                 if (Objects.nonNull(row.getCell(5)) && Objects.nonNull(row.getCell(6))
                         && Objects.nonNull(row.getCell(7)) && Objects.nonNull(row.getCell(9))) {
 
-                    Optional<GeTerceroEntity> cliente = geTercerosRepository
-                            .getFindExistByNumeroIdentificacion(idData, row.getCell(5).getStringCellValue());
+                    String numeroIdentificacionImpuesto = row.getCell(5).getStringCellValue();
 
-                    if (cliente.isPresent()) {
-                        factura.setTercero(cliente.get());
-                    } else {
-                        GeTerceroEntity tercero = new GeTerceroEntity();
+                    GeTerceroEntity terceroEntity = geTerceroLoteHelper.obtenerOCrearEnLote(terceroCacheLoteImpuestos, idData, numeroIdentificacionImpuesto,
+                            () -> {
+                                GeTerceroEntity tercero = new GeTerceroEntity();
 
-                        String tipoIdentificacion = row.getCell(7).getStringCellValue();
-                        if (!tipoIdentificacion.contains("0")) {
-                            tipoIdentificacion = "0" + tipoIdentificacion;
-                        }
+                                String tipoIdentificacion = row.getCell(7).getStringCellValue();
+                                if (!tipoIdentificacion.contains("0")) {
+                                    tipoIdentificacion = "0" + tipoIdentificacion;
+                                }
 
-                        String tipoCliente = row.getCell(9).getStringCellValue();
-                        if (!tipoCliente.isEmpty()) {
-                            tercero.setTipoPersoneria(TipoPersoneria.valueOf(tipoCliente));
-                        } else {
-                            tercero.setTipoPersoneria(null);
-                        }
-                        tercero.setIdData(idData);
-                        tercero.setIdTercero(UUID.randomUUID());
-                        tercero.setNumeroIdentificacion(row.getCell(5).getStringCellValue());
-                        tercero.setTipoIdentificacion(TipoIdentificacion.obtenerTipoIdentificacion(tipoIdentificacion).name());
-                        tercero.setTercero(row.getCell(6).getStringCellValue());
-                        tercero.setDireccion("");
-                        tercero.setEmail("");
-                        tercero.setTelefonos("");
-                        tercero.setCreatedBy(factura.getCreatedBy());
-                        tercero.setCreatedDate(LocalDateTime.now());
+                                String tipoCliente = row.getCell(9).getStringCellValue();
+                                if (!tipoCliente.isEmpty()) {
+                                    tercero.setTipoPersoneria(TipoPersoneria.valueOf(tipoCliente));
+                                } else {
+                                    tercero.setTipoPersoneria(null);
+                                }
+                                tercero.setIdData(idData);
+                                tercero.setIdTercero(UUID.randomUUID());
+                                tercero.setNumeroIdentificacion(numeroIdentificacionImpuesto);
+                                tercero.setTipoIdentificacion(TipoIdentificacion.obtenerTipoIdentificacion(tipoIdentificacion).name());
+                                tercero.setTercero(row.getCell(6).getStringCellValue());
+                                tercero.setDireccion("");
+                                tercero.setEmail("");
+                                tercero.setTelefonos("");
+                                tercero.setCreatedBy(factura.getCreatedBy());
+                                tercero.setCreatedDate(LocalDateTime.now());
 
-                        GeTerceroEntity terceroEntity = geTercerosRepository.save(tercero);
-                        saveTipoTercero(terceroEntity);
-                        factura.setTercero(terceroEntity);
+                                GeTerceroEntity guardado = geTercerosRepository.save(tercero);
+                                saveTipoTercero(guardado);
+                                return guardado;
+                            });
 
-                    }
+                    factura.setTercero(terceroEntity);
                 } else {
                     detalleErrores.add(detalleErrorBuilder.builderDetalleError(linea, EnumError.FACTURA_IMPUESTO_INFORMACION_CLIENTE_NOT_FOUND));
                 }

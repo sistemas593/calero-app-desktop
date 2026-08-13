@@ -39,6 +39,8 @@ import com.calero.lili.core.modCxC.XcFacturas.XcFacturasRepository;
 import com.calero.lili.core.modCxC.XcFacturas.builder.XcFacturasBuilder;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
+import com.calero.lili.core.modTerceros.GeTercerosTipoRepository;
+import com.calero.lili.core.modTerceros.builder.GeTercerosTipoBuilder;
 import com.calero.lili.core.modVentas.GenerarAsientoServiceImpl;
 import com.calero.lili.core.modVentas.VtVentaEntity;
 import com.calero.lili.core.modVentas.VtVentaValoresEntity;
@@ -109,6 +111,8 @@ public class VtVentasFacturasServiceImpl {
     private final XcFacturasRepository xcFacturasRepository;
     private final XcFacturasBuilder xcFacturasBuilder;
     private final GeTercerosRepository geTercerosRepository;
+    private final GeTercerosTipoRepository geTercerosTipoRepository;
+    private final GeTercerosTipoBuilder geTercerosTipoBuilder;
     private final TbPaisesRepository tbPaisesRepository;
     private final GeItemsRepository geItemsRepository;
     private final CnCentroCostosRepository cnCentroCostosRepository;
@@ -1164,7 +1168,9 @@ public class VtVentasFacturasServiceImpl {
                         terceroEntity.setDireccion(request.getDireccion());
                         terceroEntity.setEmail(request.getEmail());
 
-                        return geTercerosRepository.save(terceroEntity);
+                        GeTerceroEntity guardado = geTercerosRepository.save(terceroEntity);
+                        geTercerosTipoRepository.save(geTercerosTipoBuilder.builderClienteEntity(guardado));
+                        return guardado;
                     });
 
         } else {

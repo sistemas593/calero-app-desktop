@@ -11,6 +11,8 @@ import com.calero.lili.core.enums.TipoVenta;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
+import com.calero.lili.core.modTerceros.GeTercerosTipoRepository;
+import com.calero.lili.core.modTerceros.builder.GeTercerosTipoBuilder;
 import com.calero.lili.core.modVentas.VtVentaEntity;
 import com.calero.lili.core.modVentas.VtVentasRepository;
 import com.calero.lili.core.modVentas.builder.GetListResponseBuilder;
@@ -48,6 +50,8 @@ public class VtVentasImpuestoService {
     private final VtVentasImpuestoBuilder vtVentasImpuestoBuilder;
     private final GetListResponseBuilder getListResponseBuilder;
     private final GeTercerosRepository geTercerosRepository;
+    private final GeTercerosTipoRepository geTercerosTipoRepository;
+    private final GeTercerosTipoBuilder geTercerosTipoBuilder;
 
     @Transactional
     public ResponseDto create(Long idData, Long idEmpresa,
@@ -223,7 +227,9 @@ public class VtVentasImpuestoService {
                         nuevo.setTercero(request.getTerceroNombre());
                         nuevo.setDireccion(request.getDireccion());
                         nuevo.setEmail(request.getEmail());
-                        return geTercerosRepository.save(nuevo);
+                        GeTerceroEntity guardado = geTercerosRepository.save(nuevo);
+                        geTercerosTipoRepository.save(geTercerosTipoBuilder.builderClienteEntity(guardado));
+                        return guardado;
                     });
 
         } else {

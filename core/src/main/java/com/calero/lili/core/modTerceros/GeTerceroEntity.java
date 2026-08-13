@@ -58,7 +58,12 @@ public class GeTerceroEntity extends Auditable implements Serializable {
 //    @Enumerated(EnumType.STRING)
     private String tipoIdentificacion;
 
-    @Column(name = "numero_identificacion", length = 15) //unique=true
+    // Unicidad real garantizada por el indice parcial uk_ge_terceros_iddata_numident
+    // (ver api/src/main/resources/SQL-UNIQUE-GE-TERCEROS.sql). No se declara como
+    // @UniqueConstraint aqui porque ese indice es PARCIAL (WHERE deleted = false): debe
+    // permitir reutilizar el numero de identificacion despues de un soft-delete, algo que
+    // un @UniqueConstraint normal (que Hibernate si podria generar via ddl-auto) rompería.
+    @Column(name = "numero_identificacion", length = 15)
     private String numeroIdentificacion;
 
     @NotNull

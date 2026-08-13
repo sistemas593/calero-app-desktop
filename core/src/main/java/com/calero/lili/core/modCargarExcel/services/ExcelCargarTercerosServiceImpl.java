@@ -122,6 +122,13 @@ public class ExcelCargarTercerosServiceImpl {
         Set<String> codigosTerceroExistentes = codigosTercero.isEmpty() ? Set.of() :
                 new HashSet<>(clientesRepository.findAllExistByCodigoTercero(idData, new ArrayList<>(codigosTercero)));
 
+        // A diferencia de los sets de arriba (que solo saben lo que ya existia en BD antes de
+        // esta carga), estos detectan numeros/codigos repetidos ENTRE FILAS del mismo archivo
+        // que todavia no existen en BD (el bug original: dos filas nuevas con el mismo numero
+        // de identificacion pasaban sin error y se guardaban ambas como duplicados).
+        Set<String> identificacionesVistasEnArchivo = new HashSet<>();
+        Set<String> codigosTerceroVistosEnArchivo = new HashSet<>();
+
         // Procesar filas desde memoria
         List<DetalleError> listaErrores = new ArrayList<>();
         List<GeTerceroEntity> tercerosLista = new ArrayList<>();
@@ -182,9 +189,12 @@ public class ExcelCargarTercerosServiceImpl {
                         }
                     }
 
-                    if (identificacionesExistentes.contains(numId)) {
+                    boolean identificacionDuplicadaEnArchivo = !identificacionesVistasEnArchivo.add(numId);
+                    if (identificacionesExistentes.contains(numId) || identificacionDuplicadaEnArchivo) {
                         DetalleError detalle = detalleErrorBuilder.builderDetalleError(linea, EnumError.NUMERO_IDENTIFICACION_YA_EXISTE);
-                        detalle.setDetalle("Identificación: " + numId);
+                        detalle.setDetalle(identificacionDuplicadaEnArchivo && !identificacionesExistentes.contains(numId)
+                                ? "Identificación: " + numId + " está repetida en el archivo"
+                                : "Identificación: " + numId);
                         listaErrores.add(detalle);
                     }
                 }
@@ -194,9 +204,12 @@ public class ExcelCargarTercerosServiceImpl {
             if (codTercero == null) {
                 cliente.setCodigoTercero(null);
             } else {
-                if (codigosTerceroExistentes.contains(codTercero)) {
+                boolean codigoDuplicadoEnArchivo = !codigosTerceroVistosEnArchivo.add(codTercero);
+                if (codigosTerceroExistentes.contains(codTercero) || codigoDuplicadoEnArchivo) {
                     DetalleError detalle = detalleErrorBuilder.builderDetalleError(linea, EnumError.CODIGO_TERCERO_YA_EXISTE);
-                    detalle.setDetalle("El código tercero: " + codTercero);
+                    detalle.setDetalle(codigoDuplicadoEnArchivo && !codigosTerceroExistentes.contains(codTercero)
+                            ? "El código tercero: " + codTercero + " está repetido en el archivo"
+                            : "El código tercero: " + codTercero);
                     listaErrores.add(detalle);
                 }
                 cliente.setCodigoTercero(codTercero);

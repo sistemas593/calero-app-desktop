@@ -15,6 +15,7 @@ import com.calero.lili.core.modCompras.modComprasImpuestos.builder.CpImpuestoDet
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CpImpuestoDetalleError;
 import com.calero.lili.core.modImpuestosAnexos.ats.DetalleCompras;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
+import com.calero.lili.core.modTerceros.GeTerceroLoteHelper;
 import com.calero.lili.core.modTerceros.GeTercerosRepository;
 import com.calero.lili.core.utils.DateUtils;
 import com.calero.lili.core.utils.ValidarTipoArchivo;
@@ -47,6 +48,7 @@ import java.util.stream.Collectors;
 public class CpImpuestoCargaExcelService {
 
     private final GeTercerosRepository geTercerosRepository;
+    private final GeTerceroLoteHelper geTerceroLoteHelper;
     private final AdEmpresasRepository adEmpresasRepository;
     private final AdEmpresasSucursalesRepository adEmpresasSucursalesRepository;
     private final DetalleErrorBuilder detalleErrorBuilder;
@@ -141,17 +143,17 @@ public class CpImpuestoCargaExcelService {
             String numeroIdentifiacion = celda(fila.celdas(), 0);
 
             if (numeroIdentifiacion != null) {
-                GeTerceroEntity tercero = mapTercero.get(numeroIdentifiacion);
+                String nombreTercero = celda(fila.celdas(), 1);
+                GeTerceroEntity tercero = geTerceroLoteHelper.obtenerOCrearEnLote(mapTercero, idData, numeroIdentifiacion,
+                        () -> {
+                            GeTerceroEntity terceroEntity = new GeTerceroEntity();
+                            terceroEntity.setIdTercero(UUID.randomUUID());
+                            terceroEntity.setIdData(idData);
+                            terceroEntity.setTercero(Objects.nonNull(nombreTercero) ? nombreTercero : null);
+                            terceroEntity.setNumeroIdentificacion(numeroIdentifiacion);
+                            return geTercerosRepository.save(terceroEntity);
+                        });
                 cpImpuestos.setTercero(tercero);
-                if (tercero == null) {
-                    String nombreTercero = celda(fila.celdas(), 1);
-                    GeTerceroEntity terceroEntity = new GeTerceroEntity();
-                    terceroEntity.setIdTercero(UUID.randomUUID());
-                    terceroEntity.setTercero(Objects.nonNull(nombreTercero) ? nombreTercero : null);
-                    terceroEntity.setNumeroIdentificacion(numeroIdentifiacion);
-                    cpImpuestos.setTercero(geTercerosRepository.save(terceroEntity));
-
-                }
             } else {
                 DetalleError detalleError = detalleErrorBuilder.builderDetalleError(fila.linea(), EnumError.DOCUMENTO_ERROR);
                 detalleError.setDetalle("La identificación del tercero no se encuentra");

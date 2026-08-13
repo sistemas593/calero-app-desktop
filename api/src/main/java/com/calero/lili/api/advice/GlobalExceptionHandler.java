@@ -64,6 +64,27 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(apiErrorResponse, HttpStatus.BAD_REQUEST);
     }
 
+    // Red de seguridad para condiciones de carrera que ningun chequeo previo en codigo
+    // pudo atrapar (dos requests casi simultaneos creando el mismo registro): la BD rechaza
+    // el insert/update por violar un indice/constraint unico, y esto lo traduce a un mensaje
+    // legible en vez del 500 generico de handleException.
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiErrorResponse> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
+        ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
+        apiErrorResponse.setStatus(HttpStatus.BAD_REQUEST.value());
+
+        String causaMensaje = ex.getMostSpecificCause() != null ? ex.getMostSpecificCause().getMessage() : null;
+
+        String mensaje = (causaMensaje != null && causaMensaje.contains("uk_ge_terceros_iddata_numident"))
+                ? "Ya existe un tercero con ese número de identificación"
+                : "El registro ya existe o entra en conflicto con datos existentes";
+
+        apiErrorResponse.setMessage(mensaje);
+        log.info("DataIntegrityViolationException: {}", causaMensaje);
+        apiErrorResponse.setErrors(Collections.singletonList(mensaje));
+        return new ResponseEntity<>(apiErrorResponse, HttpStatus.BAD_REQUEST);
+    }
+
     // TODOS LOS ERRORES NO CONTROLADOS INGRESAN POR AQUI Y DEVUELVE UN ERROR 500
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleException(Exception ex) {
