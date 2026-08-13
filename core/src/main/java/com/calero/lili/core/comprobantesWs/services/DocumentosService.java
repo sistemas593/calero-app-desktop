@@ -40,7 +40,7 @@ public class DocumentosService {
 
 
     public RespuestaProcesoGetDto procesarDocumentoVenta(Long idData,
-                                                         Long idEmpresa, UUID idVenta, EmailDto emailDto) {
+                                                         Long idEmpresa, UUID idVenta) {
 
         VtVentaEntity documento = vtVentasRepository.findByIdEntity(idData, idEmpresa, idVenta, null, null).
                 orElseThrow(() -> new GeneralException(MessageFormat.format("Documento de venta {0} no exists", idVenta)));
@@ -63,7 +63,7 @@ public class DocumentosService {
         }
 
         return procesarDocumentosService.procesarFacNcNd(documento,
-                adLogsBuilder.builderVentasDocumentos(documento, Boolean.TRUE), datosEmpresaDto, emailDto.getCorreos());
+                adLogsBuilder.builderVentasDocumentos(documento, Boolean.TRUE), datosEmpresaDto);
 
     }
 

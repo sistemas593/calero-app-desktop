@@ -193,7 +193,7 @@ public class VtVentasFacturasServiceImpl {
             }
 
             respuestaProcesoGetDto = procesarDocumentosService.procesarFacNcNd(saved,
-                    adLogsBuilder.builderVentasDocumentos(saved, Boolean.FALSE), datosEmpresaDto, request.getEmail());
+                    adLogsBuilder.builderVentasDocumentos(saved, Boolean.FALSE), datosEmpresaDto);
             respuestaProcesoGetDto.setIdDocumento(saved.getIdVenta());
         }
 

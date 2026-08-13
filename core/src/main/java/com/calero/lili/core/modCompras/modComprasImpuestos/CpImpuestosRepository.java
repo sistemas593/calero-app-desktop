@@ -304,7 +304,7 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
               AND ci.id_data = :idData
               AND ci.id_empresa = :idEmpresa
               AND ci.deleted = false
-              AND cic.codigo = '1'
+              AND cic.codigo = 'RTA'
             GROUP BY cic.codigo_retencion, trc.nombre_retencion
             """, nativeQuery = true)
     List<AtsRetencionResumenProjection> obtenerRetencionesRenta(@Param("idData") Long idData,

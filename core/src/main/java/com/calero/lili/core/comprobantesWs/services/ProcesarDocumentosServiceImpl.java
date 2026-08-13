@@ -120,7 +120,7 @@ public class ProcesarDocumentosServiceImpl {
 //    }
 
     public RespuestaProcesoGetDto procesarFacNcNd(VtVentaEntity documento, AdLogsRequestDto logs,
-                                                  DatosEmpresaDto datosEmpresaDto, String correos) {
+                                                  DatosEmpresaDto datosEmpresaDto) {
 
 
         System.out.println("Inicio del proceso");
@@ -157,59 +157,62 @@ public class ProcesarDocumentosServiceImpl {
                     documento.setComprobante(respuestaProceso.getComprobante());
                     documento.setFechaAutorizacion(DateUtils.toLocalDateTime(respuestaProceso.getFechaAutorizacion()));
                     adLogsService.saveLog(logs, "Documento autorizado con numero de autorizacion: " + respuestaProceso.getNumeroAutorizacion(), "I");
-                    if (!Objects.isNull(documento.getEmail())) {
 
-                        if (!documento.getEmail().isEmpty()) {
-                            EnvioCorreoDto envioCorreoDto = new EnvioCorreoDto();
-                            envioCorreoDto.setComprobante(documento.getComprobante());
-                            envioCorreoDto.setNumeroAutorizacion(documento.getNumeroAutorizacion());
-                            envioCorreoDto.setFechaAutorizacion(DateUtils.toLocalDateTimeString(documento.getFechaAutorizacion()));
-                            envioCorreoDto.setNombreReceptor(documento.getTercero().getTercero());
+                    List<AdMailEnviadosEntity> listaMailEnviados = adMailsEnviadosRepository
+                            .findByIdDocumento(documento.getIdVenta());
 
-                            switch (documento.getTipoVenta()) {
-                                case "FAC":
-                                    envioCorreoDto.setCodigoDocumento("01");
-                                    break;
-                                case "NCR":
-                                    envioCorreoDto.setCodigoDocumento("04");
-                                    break;
-                                case "NDB":
-                                    envioCorreoDto.setCodigoDocumento("05");
-                            }
+                    if (Objects.nonNull(listaMailEnviados) && !listaMailEnviados.isEmpty()) {
 
-                            envioCorreoDto.setSecuencial(documento.getSecuencial());
-                            envioCorreoDto.setSerie(documento.getSerie());
-                            envioCorreoDto.setFechaEmision(DateUtils.toStringFechaEmision(documento.getFechaEmision()));
-                            envioCorreoDto.setClaveAcceso(documento.getClaveAcceso());
-                            envioCorreoDto.setEmail(correos);
-                            System.out.println("Enviar correo con la siguiente informacion: " + envioCorreoDto.toString());
-                            StCorreoRequestDto informacionCorreo = procesarEnvioCorreo.seterarRequestCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
-                            documento.setEmailEstado(2);
-                            respuestaProceso.setEmailEstado(2);
-                            excluirCorreosListaNegraService.validarCorreosEnvio(informacionCorreo);
-                            if (!informacionCorreo.getTo().isEmpty()) {
-                                if (datosEmpresaDto.getOrigenDatos().equals("WEB")) {
+                        for (AdMailEnviadosEntity correo : listaMailEnviados) {
 
-                                    AdMailConfigEntity adConfigMailEntity = adConfigRepository.findByIdConfig(Long.valueOf(1));
-                                    List<EnvioCorreoModeloDto> envioCorreoModeloDto = generarBody.generarModelCorreoDocumentos(informacionCorreo, adConfigMailEntity);
+                            if (!correo.getMailTo().isEmpty()) {
 
-                                    for (EnvioCorreoModeloDto dto : envioCorreoModeloDto) {
+                                EnvioCorreoDto envioCorreoDto = new EnvioCorreoDto();
+                                envioCorreoDto.setComprobante(documento.getComprobante());
+                                envioCorreoDto.setNumeroAutorizacion(documento.getNumeroAutorizacion());
+                                envioCorreoDto.setFechaAutorizacion(DateUtils.toLocalDateTimeString(documento.getFechaAutorizacion()));
+                                envioCorreoDto.setNombreReceptor(documento.getTercero().getTercero());
 
-                                        String idReSend = emailSender.send(dto);
+                                switch (documento.getTipoVenta()) {
+                                    case "FAC":
+                                        envioCorreoDto.setCodigoDocumento("01");
+                                        break;
+                                    case "NCR":
+                                        envioCorreoDto.setCodigoDocumento("04");
+                                        break;
+                                    case "NDB":
+                                        envioCorreoDto.setCodigoDocumento("05");
+                                }
 
-                                        List<AdMailEnviadosEntity> listaMailEnviados = adMailsEnviadosRepository
-                                                .findByIdDocumento(documento.getIdVenta());
-                                        if (!listaMailEnviados.isEmpty()) {
-                                            listaMailEnviados.forEach(enviado -> {
-                                                enviado.setCodigoDocumento(documento.getCodigoDocumento().getCodigo());
-                                                enviado.setSerie(documento.getSerie());
-                                                enviado.setSecuencial(documento.getSecuencial());
-                                                enviado.setMailTo(dto.getEmailTo());
-                                                enviado.setTotal(1L);
-                                                enviado.setFecha(LocalDateTime.now());
-                                                enviado.setIdResend(idReSend);
-                                            });
-                                            adMailsEnviadosRepository.saveAll(listaMailEnviados);
+                                envioCorreoDto.setSecuencial(documento.getSecuencial());
+                                envioCorreoDto.setSerie(documento.getSerie());
+                                envioCorreoDto.setFechaEmision(DateUtils.toStringFechaEmision(documento.getFechaEmision()));
+                                envioCorreoDto.setClaveAcceso(documento.getClaveAcceso());
+                                envioCorreoDto.setEmail(correo.getMailTo());
+                                System.out.println("Enviar correo con la siguiente informacion: " + envioCorreoDto.toString());
+                                StCorreoRequestDto informacionCorreo = procesarEnvioCorreo.seterarRequestCorreo(envioCorreoDto, datosEmpresaDto.getImageBytes());
+                                respuestaProceso.setEmailEstado(2);
+
+                                excluirCorreosListaNegraService.validarCorreosEnvio(informacionCorreo);
+                                if (!informacionCorreo.getTo().isEmpty()) {
+                                    if (datosEmpresaDto.getOrigenDatos().equals("WEB")) {
+
+                                        AdMailConfigEntity adConfigMailEntity = adConfigRepository.findByIdConfig(Long.valueOf(1));
+                                        List<EnvioCorreoModeloDto> envioCorreoModeloDto = generarBody.generarModelCorreoDocumentos(informacionCorreo, adConfigMailEntity);
+
+                                        for (EnvioCorreoModeloDto dto : envioCorreoModeloDto) {
+
+                                            String idReSend = emailSender.send(dto);
+
+                                            correo.setCodigoDocumento(documento.getCodigoDocumento().getCodigo());
+                                            correo.setSerie(documento.getSerie());
+                                            correo.setSecuencial(documento.getSecuencial());
+                                            correo.setMailTo(dto.getEmailTo());
+                                            correo.setTotal(1L);
+                                            correo.setFecha(LocalDateTime.now());
+                                            correo.setIdResend(idReSend);
+
+                                            adMailsEnviadosRepository.save(correo);
                                         }
                                     }
 
@@ -219,6 +222,8 @@ public class ProcesarDocumentosServiceImpl {
 
                         }
                     }
+
+
                 }
 
                 if (respuestaProceso.getEstadoAutorizacion().equals("NOA")) {
@@ -244,7 +249,10 @@ public class ProcesarDocumentosServiceImpl {
                 break;
         }
 
-        return responderProceso(respuestaProceso, documento.getIdVenta());
+        return
+
+                responderProceso(respuestaProceso, documento.getIdVenta());
+
 
     }
 
@@ -859,7 +867,7 @@ public class ProcesarDocumentosServiceImpl {
 
 
     //public static final String ESTADO_RECIBIDA = "RECIBIDA";
-    //public static final String ESTADO_DEVUELTA = "DEVUELTA";
+//public static final String ESTADO_DEVUELTA = "DEVUELTA";
     public static final String ESTADO_AUTORIZADO = "AUTORIZADO";
     public static final String ESTADO_NO_AUTORIZADO = "NO AUTORIZADO";
 

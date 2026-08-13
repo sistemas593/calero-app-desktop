@@ -30,8 +30,8 @@ public class ProcesarDocumentosController {
     @PostMapping("ventas/{idEmpresa}/{id}")
     @ResponseStatus(HttpStatus.CREATED)
     public RespuestaProcesoGetDto procesarFacNcNd(@PathVariable("idEmpresa") Long idEmpresa,
-                                                  @PathVariable("id") UUID id, @RequestBody EmailDto request) {
-        return documentosService.procesarDocumentoVenta(idDataService.getIdData(), idEmpresa, id, request);
+                                                  @PathVariable("id") UUID id) {
+        return documentosService.procesarDocumentoVenta(idDataService.getIdData(), idEmpresa, id);
 
     }
 

@@ -1,5 +1,6 @@
 package com.calero.lili.core.enums;
 
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -13,5 +14,14 @@ public enum CodigoRetencion {
     ISD("3");
 
     private final String codigo;
+
+    public static CodigoRetencion fromCodigo(String codigo) {
+        for (CodigoRetencion nombre : CodigoRetencion.values()) {
+            if (nombre.getCodigo().equals(codigo)) {
+                return nombre;
+            }
+        }
+        throw new GeneralException("Código de retención no  es válido: " + codigo);
+    }
 
 }
