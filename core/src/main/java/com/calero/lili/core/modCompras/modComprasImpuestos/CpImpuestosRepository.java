@@ -298,7 +298,7 @@ public interface CpImpuestosRepository extends JpaRepository<CpImpuestosEntity, 
                 COUNT(*) AS registros
             FROM cp_impuestos ci
             JOIN cp_impuestos_codigos cic ON ci.id_impuestos = cic.id_impuestos
-            JOIN tb_retenciones_codigos trc ON trc.codigo_retencion = cic.codigo_retencion
+            LEFT JOIN tb_retenciones_codigos trc ON trc.codigo_retencion = cic.codigo_retencion
             WHERE ci.fecha_registro >= :fechaInicio
               AND ci.fecha_registro <= :fechaFin
               AND ci.id_data = :idData

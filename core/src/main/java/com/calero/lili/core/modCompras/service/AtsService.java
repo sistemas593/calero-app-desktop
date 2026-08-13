@@ -391,12 +391,22 @@ public class AtsService {
             comprasTable.setWidthPercentage(100);
             comprasTable.setSpacingBefore(10f);
 
-            String[] comprasHeader = {"Cod. Transacción", "Tipo Doc.", "No. Registros", "BI tarifa 0%", "BI tarifa diferente 0%", "BI No Objeto IVA", "Valor IVA"};
+            String[] comprasHeader = {"Cod", "Tipo Doc.", "N. Reg", "BI tarifa 0%", "BI tarifa diferente 0%", "BI No Objeto IVA", "Valor IVA"};
             for (String header : comprasHeader) {
                 PdfPCell cell = new PdfPCell(new Phrase(header, boldFont));
                 cell.setBackgroundColor(BaseColor.LIGHT_GRAY);
                 comprasTable.addCell(cell);
             }
+
+            comprasTable.setWidths(new float[]{
+                    0.6f,  // Cod
+                    1.5f,  // Tipo Doc.
+                    0.8f,  // N. Reg
+                    1.5f,  // BI tarifa 0%
+                    2.0f,  // BI tarifa diferente 0%
+                    1.8f,  // BI No Objeto IVA
+                    1.3f   // Valor IVA
+            });
 
             BigDecimal total0 = BigDecimal.ZERO, totalDif = BigDecimal.ZERO, totalNoObj = BigDecimal.ZERO, totalIVA = BigDecimal.ZERO;
 
@@ -407,7 +417,7 @@ public class AtsService {
                 comprasTable.addCell(cellCodigo);
 
                 PdfPCell cellNombreDocumento = new PdfPCell(new Phrase(CodigoDocumento.fromCodigo(factura.getDocumento().getCodigo()).getNombreDocumento(), valoresFont));
-                cellNombreDocumento.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                cellNombreDocumento.setHorizontalAlignment(Element.ALIGN_LEFT);
                 comprasTable.addCell(cellNombreDocumento);
 
                 PdfPCell cellTotalRegistros = new PdfPCell(new Phrase(factura.getTotalRegistros().toString(), valoresFont));

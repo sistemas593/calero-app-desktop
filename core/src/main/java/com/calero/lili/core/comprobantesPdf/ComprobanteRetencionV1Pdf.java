@@ -66,7 +66,7 @@ public class ComprobanteRetencionV1Pdf {
             ////1 IMAGEN
 
             Image image = Image.getInstance(imageBytes);
-            image.scaleToFit(100f, 77f);
+            image.scaleToFit(160f, 120f);
             PdfPCell cell_img = new PdfPCell(image);
             cell_img.setRowspan(2); // define cuantas filas utiliza
             cell_img.setBorder(0);
@@ -240,13 +240,13 @@ public class ComprobanteRetencionV1Pdf {
             cell = generateCell(new Paragraph(("Agente de Retención Resolución No.:").toUpperCase(), title), LEFT_PADDING_EMPRESA);
             cell.setColspan(4);
             cell.setPaddingTop(15);
-            cell.setPaddingBottom(15); // estaba 15 para no dejar linea
+            cell.setPaddingBottom(5); // se achicó: ya no es la última fila (sigue Contribuyente Régimen)
             table_datos_empresa.addCell(cell);
 
             cell = generateCell(new Paragraph(factura.getInfoTributaria().getAgenteRetencion(), fuente), LEFT_PADDING_EMPRESA);
             cell.setColspan(1);
             cell.setPaddingTop(15);
-            cell.setPaddingBottom(15); // estaba 15 para no dejar linea
+            cell.setPaddingBottom(5); // se achicó: ya no es la última fila (sigue Contribuyente Régimen)
             table_datos_empresa.addCell(cell);
 
             String contribuyenteRimpe = factura.getInfoTributaria().getContribuyenteRimpe();
