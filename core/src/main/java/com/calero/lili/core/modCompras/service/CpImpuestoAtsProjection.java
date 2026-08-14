@@ -19,7 +19,7 @@ public interface CpImpuestoAtsProjection {
 
     String getIdProv();
 
-    DocumentoEnum getTipoComprobante();
+    DocumentoEnum getCodigoDocumento();
 
     LocalDate getFechaRegistro();
 

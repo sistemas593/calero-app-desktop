@@ -254,7 +254,7 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
             "  AND vvv.codigo = '2' " +
             "  AND vvv.codigo_porcentaje IN ('4', '8') " +
             "  AND vv.deleted = false  " +
-            "  AND vv.documento NOT IN ('D04', 'D47')   " +
+            "  AND vv.codigo_documento NOT IN ('D04', 'D47')   " +
             " AND vv.codigo_sustento IN ('S01', 'S06') " +
             " AND (cpr.id_retencion IS NULL OR (cpr.formato_documento = 'F' OR (cpr.formato_documento = 'E' AND cpr.ambiente = '2' AND cpr.estado_documento = 'AUT'))) ",
             nativeQuery = true)
@@ -276,7 +276,7 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
             "  AND vvv.codigo = '2'  " +
             "  AND vvv.codigo_porcentaje IN ('4', '8')  " +
             "  AND vv.deleted = false   " +
-            "  AND vv.documento IN ('D04', 'D47') " +
+            "  AND vv.codigo_documento IN ('D04', 'D47') " +
             "  AND  vv.codigo_sustento IN ('S01', 'S06') " +
             "  AND vv.liquidar = 'S' ", nativeQuery = true)
     Optional<ImpuestosF104Projection> valorCompraNotaCreditoBaseGravadaCreditoTributarioExcluyeActivosFijos(@Param("idData") Long idData,
@@ -298,7 +298,7 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
             "  AND vvv.codigo = '2'  " +
             "  AND vvv.codigo_porcentaje IN ('4', '8')  " +
             "  AND vv.deleted = false   " +
-            "  AND vv.documento NOT IN ('D04', 'D47')    " +
+            "  AND vv.codigo_documento NOT IN ('D04', 'D47')    " +
             " AND  vv.codigo_sustento = 'S03' " +
             " AND (cpr.id_retencion IS NULL OR (cpr.formato_documento = 'F' OR (cpr.formato_documento = 'E' AND cpr.ambiente = '2' AND cpr.estado_documento = 'AUT'))) ",
             nativeQuery = true)
@@ -320,7 +320,7 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
             "  AND vvv.codigo = '2'  " +
             "  AND vvv.codigo_porcentaje IN ('4', '8')  " +
             "  AND vv.deleted = false   " +
-            "  AND vv.documento IN ('D04', 'D47') " +
+            "  AND vv.codigo_documento IN ('D04', 'D47') " +
             "  AND  vv.codigo_sustento = 'S03' " +
             "  AND vv.liquidar = 'S' ", nativeQuery = true)
     Optional<ImpuestosF104Projection> valorCompraNotaCreditoBaseGravadaCreditoTributarioActivosFijos(@Param("idData") Long idData,
@@ -342,7 +342,7 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
             "  AND vvv.codigo = '2'  " +
             "  AND vvv.codigo_porcentaje = '5'  " +
             "  AND vv.deleted = false   " +
-            "  AND vv.documento NOT IN ('D04', 'D47')    " +
+            "  AND vv.codigo_documento NOT IN ('D04', 'D47')    " +
             " AND  vv.codigo_sustento IN ('S01', 'S06') " +
             " AND (cpr.id_retencion IS NULL OR (cpr.formato_documento = 'F' OR (cpr.formato_documento = 'E' AND cpr.ambiente = '2' AND cpr.estado_documento = 'AUT'))) ", nativeQuery = true)
     Optional<ImpuestosF104Projection> valorCompraBrutoBase5CreditoTributarioExcluyeActivosFijos(@Param("idData") Long idData,
@@ -363,7 +363,7 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
             "  AND vvv.codigo = '2'  " +
             "  AND vvv.codigo_porcentaje = '5'  " +
             "  AND vv.deleted = false   " +
-            "  AND vv.documento IN ('D04', 'D47') " +
+            "  AND vv.codigo_documento IN ('D04', 'D47') " +
             "  AND  vv.codigo_sustento IN ('S01', 'S06') " +
             "  AND vv.liquidar = 'S' ", nativeQuery = true)
     Optional<ImpuestosF104Projection> valorCompraNotaCreditoBase5CreditoTributarioExcluyeActivosFijos(@Param("idData") Long idData,
@@ -385,7 +385,7 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
             "  AND vvv.codigo = '2'  " +
             "  AND vvv.codigo_porcentaje in ('2', '4', '8','5')  " +
             "  AND vv.deleted = false   " +
-            "  AND vv.documento NOT IN ('D04', 'D47')    " +
+            "  AND vv.codigo_documento NOT IN ('D04', 'D47')    " +
             " AND  vv.codigo_sustento IN ('S02', 'S04' , 'S05', 'S07') " +
             " AND (cpr.id_retencion IS NULL OR (cpr.formato_documento = 'F' OR (cpr.formato_documento = 'E' AND cpr.ambiente = '2' AND cpr.estado_documento = 'AUT'))) ", nativeQuery = true)
     Optional<ImpuestosF104Projection> valorCompraBrutoBaseGravadaSinCreditoTributario(@Param("idData") Long idData,
@@ -406,7 +406,7 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
             "  AND vvv.codigo = '2'  " +
             "  AND vvv.codigo_porcentaje in ('2', '4', '8','5')   " +
             "  AND vv.deleted = false   " +
-            "  AND vv.documento IN ('D04', 'D47') " +
+            "  AND vv.codigo_documento IN ('D04', 'D47') " +
             "  AND  vv.codigo_sustento IN ('S02', 'S04' , 'S05', 'S07') " +
             "  AND vv.liquidar = 'S' ", nativeQuery = true)
     Optional<ImpuestosF104Projection> valorCompraNotaCreditoBaseGravadaSinCreditoTributario(@Param("idData") Long idData,
@@ -428,7 +428,7 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
             "  AND vvv.codigo = '2'  " +
             "  AND vvv.codigo_porcentaje = '0'  " +
             "  AND vv.deleted = false   " +
-            "  AND vv.documento NOT IN ('D04', 'D47')    " +
+            "  AND vv.codigo_documento NOT IN ('D04', 'D47')    " +
             " AND  vv.codigo_sustento NOT IN ('S08', 'S09', 'S14') " +
             " AND (cpr.id_retencion IS NULL OR (cpr.formato_documento = 'F' OR (cpr.formato_documento = 'E' AND cpr.ambiente = '2' AND cpr.estado_documento = 'AUT'))) ", nativeQuery = true)
     Optional<ImpuestosF104Projection> valorCompraBrutoBaseCero(@Param("idData") Long idData,
@@ -449,7 +449,7 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
             "  AND vvv.codigo = '2'  " +
             "  AND vvv.codigo_porcentaje = '0'  " +
             "  AND vv.deleted = false   " +
-            "  AND vv.documento IN ('D04', 'D47') " +
+            "  AND vv.codigo_documento IN ('D04', 'D47') " +
             "  AND  vv.codigo_sustento NOT IN ('S08', 'S09', 'S14') " +
             "  AND vv.liquidar = 'S' ", nativeQuery = true)
     Optional<ImpuestosF104Projection> valorCompraNotaCreditoBaseCero(@Param("idData") Long idData,
@@ -471,7 +471,7 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
             "  AND vvv.codigo = '2'  " +
             "  AND vvv.codigo_porcentaje = '6'  " +
             "  AND vv.deleted = false   " +
-            "  AND vv.documento NOT IN ('D04', 'D47')    " +
+            "  AND vv.codigo_documento NOT IN ('D04', 'D47')    " +
             " AND  vv.codigo_sustento NOT IN ('S08', 'S09', 'S14') " +
             " AND (cpr.id_retencion IS NULL OR (cpr.formato_documento = 'F' OR (cpr.formato_documento = 'E' AND cpr.ambiente = '2' AND cpr.estado_documento = 'AUT'))) ", nativeQuery = true)
     Optional<ImpuestosF104Projection> valorCompraBrutoNoObjecto(@Param("idData") Long idData,
@@ -492,7 +492,7 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
             "  AND vvv.codigo = '2'  " +
             "  AND vvv.codigo_porcentaje = '6'  " +
             "  AND vv.deleted = false   " +
-            "  AND vv.documento IN ('D04', 'D47') " +
+            "  AND vv.codigo_documento IN ('D04', 'D47') " +
             "  AND  vv.codigo_sustento NOT IN ('S08', 'S09', 'S14') " +
             "  AND vv.liquidar = 'S' ", nativeQuery = true)
     Optional<ImpuestosF104Projection> valorCompraNotaCreditoNoObjecto(@Param("idData") Long idData,
@@ -514,7 +514,7 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
             "  AND vvv.codigo = '2'  " +
             "  AND vvv.codigo_porcentaje = '7'  " +
             "  AND vv.deleted = false   " +
-            "  AND vv.documento NOT IN ('D04', 'D47')    " +
+            "  AND vv.codigo_documento NOT IN ('D04', 'D47')    " +
             " AND  vv.codigo_sustento NOT IN ('S08', 'S09', 'S14') " +
             " AND (cpr.id_retencion IS NULL OR (cpr.formato_documento = 'F' OR (cpr.formato_documento = 'E' AND cpr.ambiente = '2' AND cpr.estado_documento = 'AUT'))) ", nativeQuery = true)
     Optional<ImpuestosF104Projection> valorCompraBrutoExento(@Param("idData") Long idData,
@@ -535,7 +535,7 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
             "  AND vvv.codigo = '2'  " +
             "  AND vvv.codigo_porcentaje = '7'  " +
             "  AND vv.deleted = false   " +
-            "  AND vv.documento IN ('D04', 'D47') " +
+            "  AND vv.codigo_documento IN ('D04', 'D47') " +
             "  AND  vv.codigo_sustento NOT IN ('S08', 'S09', 'S14') " +
             "  AND vv.liquidar = 'S' ", nativeQuery = true)
     Optional<ImpuestosF104Projection> valorCompraNotaCreditoExento(@Param("idData") Long idData,
@@ -556,7 +556,7 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
             "  AND vvv.codigo = '2'  " +
             "  AND vvv.codigo_porcentaje IN ('7', '6','0')  " +
             "  AND vv.deleted = false   " +
-            "  AND vv.documento IN ('D04', 'D47') " +
+            "  AND vv.codigo_documento IN ('D04', 'D47') " +
             "  AND  vv.codigo_sustento NOT IN ('S08', 'S09', 'S14') " +
             "  AND vv.liquidar = 'N' ", nativeQuery = true)
     Optional<ImpuestosF104Projection> valorCompraNotaCreditoCeroPorLiquidar(@Param("idData") Long idData,
@@ -577,7 +577,7 @@ public interface Formulario104Repository extends JpaRepository<VtVentaEntity, UU
             "  AND vvv.codigo = '2'  " +
             "  AND vvv.codigo_porcentaje IN ('2', '3','4','5','8')  " +
             "  AND vv.deleted = false   " +
-            "  AND vv.documento IN ('D04', 'D47') " +
+            "  AND vv.codigo_documento IN ('D04', 'D47') " +
             "  AND  vv.codigo_sustento NOT IN ('S08', 'S09', 'S14') " +
             "  AND vv.liquidar = 'N' ", nativeQuery = true)
     Optional<ImpuestosF104Projection> valorCompraNotaCreditoGravadaPorLiquidar(@Param("idData") Long idData,

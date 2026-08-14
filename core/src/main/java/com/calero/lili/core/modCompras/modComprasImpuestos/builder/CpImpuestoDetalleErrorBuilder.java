@@ -27,7 +27,7 @@ public class CpImpuestoDetalleErrorBuilder {
     public DetalleCompras builderValidacion(CreationCompraImpuestoRequestDto request) {
         return DetalleCompras.builder()
                 .codSustento(request.getCodigoSustento().getCodigo())
-                .tipoComprobante(request.getDocumento().getCodigo())
+                .tipoComprobante(request.getCodigoDocumento().getCodigo())
                 .establecimiento(request.getSerie().substring(0, 3))
                 .puntoEmision(request.getSerie().substring(3, 6))
                 .secuencial(request.getSecuencial())
@@ -55,7 +55,7 @@ public class CpImpuestoDetalleErrorBuilder {
     public DetalleCompras builderValidacionExcel(CpImpuestosEntity request) {
         return DetalleCompras.builder()
                 .codSustento(request.getCodigoSustento().getCodigo())
-                .tipoComprobante(request.getDocumento().getCodigo())
+                .tipoComprobante(request.getCodigoDocumento().getCodigo())
                 .establecimiento(request.getSerie().substring(0, 3))
                 .puntoEmision(request.getSerie().substring(3, 6))
                 .secuencial(request.getSecuencial())
@@ -70,7 +70,7 @@ public class CpImpuestoDetalleErrorBuilder {
                                                              CpRetencionesEntity retencion) {
         return DetalleCompras.builder()
                 .codSustento(request.getCodigoSustento().getCodigo())
-                .tipoComprobante(request.getDocumento().getCodigo())
+                .tipoComprobante(request.getCodigoDocumento().getCodigo())
                 .establecimiento(request.getSerie().substring(0, 3))
                 .puntoEmision(request.getSerie().substring(3, 6))
                 .secuencial(request.getSecuencial())

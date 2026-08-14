@@ -48,8 +48,8 @@ public interface CpImpuestosFacturasOneProjection {
     LocalDate getFechaRegistro();
     void setFechaRegistro(LocalDate fechaRegistro);
 
-    DocumentoEnum getDocumento();
-    void setDocumento(DocumentoEnum codigoDocumento);
+    DocumentoEnum getCodigoDocumento();
+    void setCodigoDocumento(DocumentoEnum codigoDocumento);
 
     String getNumeroAutorizacion();
     void setNumeroAutorizacion(String numeroAutorizacion);

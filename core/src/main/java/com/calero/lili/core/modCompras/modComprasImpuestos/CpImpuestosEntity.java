@@ -61,7 +61,7 @@ public class CpImpuestosEntity extends Auditable {
     private UUID idImpuestos;
 
     @Enumerated(EnumType.STRING)
-    private DocumentoEnum documento;
+    private DocumentoEnum codigoDocumento;
 
     @Column(name = "serie")
     private String serie;

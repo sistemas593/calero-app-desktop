@@ -6,8 +6,6 @@ import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajesEntity;
 import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajesRepository;
 import com.calero.lili.core.modCompras.modComprasImpuestos.builder.CpImpuestoDetalleErrorBuilder;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CpImpuestoDetalleError;
-import com.calero.lili.core.modVentas.VtVentaEntity;
-import com.calero.lili.core.modVentas.VtVentaValoresEntity;
 import com.calero.lili.core.utils.ValidacionDocumentosGeneral;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -45,7 +43,7 @@ public class ValidacionValoresCpImpuestosService {
     }
 
     private void setearValoresNegativosNotasCredito(CpImpuestosEntity model) {
-        if (model.getDocumento().equals(DocumentoEnum.D04)) {
+        if (model.getCodigoDocumento().equals(DocumentoEnum.D04)) {
 
             model.setTotal(model.getTotal().negate());
             model.setSubtotal(model.getSubtotal().negate());

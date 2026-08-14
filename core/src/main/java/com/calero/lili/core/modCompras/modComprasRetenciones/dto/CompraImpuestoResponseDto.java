@@ -1,5 +1,6 @@
 package com.calero.lili.core.modCompras.modComprasRetenciones.dto;
 
+import com.calero.lili.core.enums.DocumentoEnum;
 import com.calero.lili.core.enums.SustentoCodigos;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,8 +24,7 @@ public class CompraImpuestoResponseDto {
     private String secuencial;
     private String numeroAutorizacion;
     private String fechaEmision;
-    private String codigoDocumento;
-    private String documento;
+    private DocumentoEnum codigoDocumento;
     private SustentoCodigos codigoSustento;
     private String sustento;
     private BigDecimal subtotal;

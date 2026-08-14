@@ -83,8 +83,7 @@ public class GetDto {
 
     private String fechaRegistro;
 
-    private String codigoDocumento;
-    private DocumentoEnum documento;
+    private DocumentoEnum codigoDocumento;
 
     private SustentoCodigos codigoSustento;
     private String sustento;

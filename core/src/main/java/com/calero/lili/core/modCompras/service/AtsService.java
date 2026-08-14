@@ -412,11 +412,11 @@ public class AtsService {
 
             for (AtsProjection factura : listPfds) {
 
-                PdfPCell cellCodigo = new PdfPCell(new Phrase(factura.getDocumento().getCodigo(), valoresFont));
+                PdfPCell cellCodigo = new PdfPCell(new Phrase(factura.getCodigoDocumento().getCodigo(), valoresFont));
                 cellCodigo.setHorizontalAlignment(Element.ALIGN_RIGHT);
                 comprasTable.addCell(cellCodigo);
 
-                PdfPCell cellNombreDocumento = new PdfPCell(new Phrase(CodigoDocumento.fromCodigo(factura.getDocumento().getCodigo()).getNombreDocumento(), valoresFont));
+                PdfPCell cellNombreDocumento = new PdfPCell(new Phrase(CodigoDocumento.fromCodigo(factura.getCodigoDocumento().getCodigo()).getNombreDocumento(), valoresFont));
                 cellNombreDocumento.setHorizontalAlignment(Element.ALIGN_LEFT);
                 comprasTable.addCell(cellNombreDocumento);
 
@@ -633,7 +633,7 @@ public class AtsService {
 
         AtsProjection atsProjection = new AtsProjection() {
             @Override
-            public DocumentoEnum getDocumento() {
+            public DocumentoEnum getCodigoDocumento() {
                 return DocumentoEnum.D01;
             }
 

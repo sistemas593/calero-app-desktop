@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 
 
 @Data
-public class ImpuestosF103Dto {
+    public class ImpuestosF103Dto {
     private String ano;
     private String mes;
 
@@ -191,5 +191,10 @@ public class ImpuestosF103Dto {
     private BigDecimal c398;
     private BigDecimal c3481;
     private BigDecimal c3981;
+    private BigDecimal c3480;
+    private BigDecimal c3483;
+    private BigDecimal c3484;
+    private BigDecimal c3485;
+    private BigDecimal c3980;
 
 }

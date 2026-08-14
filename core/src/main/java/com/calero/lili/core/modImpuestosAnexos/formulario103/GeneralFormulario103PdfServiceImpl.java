@@ -137,8 +137,8 @@ public class GeneralFormulario103PdfServiceImpl {
 
 
         tabla.addCell(celdaService.crearCelda("En relación de dependencia que supera o no la base desgravada", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("302", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("352", validarValoresComprobantesPdf.getValor(model.getC423()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("302", validarValoresComprobantesPdf.getValor(model.getC302()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("352", validarValoresComprobantesPdf.getValor(model.getC352()), bold, normal));
 
 
         tabla.addCell(celdaService.crearCelda("Servicios", normal));
@@ -147,39 +147,39 @@ public class GeneralFormulario103PdfServiceImpl {
 
 
         tabla.addCell(celdaService.crearCelda("Honorarios profesionales", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("303", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("353", validarValoresComprobantesPdf.getValor(model.getC423()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("303", validarValoresComprobantesPdf.getValor(model.getC303()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("353", validarValoresComprobantesPdf.getValor(model.getC353()), bold, normal));
 
 
         tabla.addCell(celdaService.crearCelda("Servicios profesionales prestados por sociedades residentes", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("3030", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("3530", validarValoresComprobantesPdf.getValor(model.getC423()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("3030", validarValoresComprobantesPdf.getValor(model.getC3030()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("3530", validarValoresComprobantesPdf.getValor(model.getC3530()), bold, normal));
 
         tabla.addCell(celdaService.crearCelda("Predomina el intelecto ", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("304", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("354", validarValoresComprobantesPdf.getValor(model.getC423()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("304", validarValoresComprobantesPdf.getValor(model.getC304()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("354", validarValoresComprobantesPdf.getValor(model.getC354()), bold, normal));
 
         tabla.addCell(celdaService.crearCelda("Predomina la mano de obra", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("307", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("357", validarValoresComprobantesPdf.getValor(model.getC423()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("307", validarValoresComprobantesPdf.getValor(model.getC307()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("357", validarValoresComprobantesPdf.getValor(model.getC357()), bold, normal));
 
         tabla.addCell(celdaService.crearCelda("Utilización o aprovechamiento de la imagen o renombre (personas naturales, sociedades, influencers)", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("308", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("358", validarValoresComprobantesPdf.getValor(model.getC423()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("308", validarValoresComprobantesPdf.getValor(model.getC308()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("358", validarValoresComprobantesPdf.getValor(model.getC358()), bold, normal));
 
         tabla.addCell(celdaService.crearCelda("Publicidad y comunicación", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("309", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("359", validarValoresComprobantesPdf.getValor(model.getC423()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("309", validarValoresComprobantesPdf.getValor(model.getC309()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("359", validarValoresComprobantesPdf.getValor(model.getC359()), bold, normal));
 
 
         tabla.addCell(celdaService.crearCelda("Transporte privado de pasajeros o servicio público o privado de carga ", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("310", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("360", validarValoresComprobantesPdf.getValor(model.getC423()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("310", validarValoresComprobantesPdf.getValor(model.getC310()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("360", validarValoresComprobantesPdf.getValor(model.getC360()), bold, normal));
 
 
         tabla.addCell(celdaService.crearCelda("A través de liquidaciones de compra (nivel cultural o rusticidad) ", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("311", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("361", validarValoresComprobantesPdf.getValor(model.getC423()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("311", validarValoresComprobantesPdf.getValor(model.getC311()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("361", validarValoresComprobantesPdf.getValor(model.getC361()), bold, normal));
 
 
         PdfPCell celdaPbs1 = celdaService.crearCelda("POR BIENES Y SERVICIOS", normal);
@@ -195,39 +195,39 @@ public class GeneralFormulario103PdfServiceImpl {
         tabla.addCell(celdaPbs3);
 
         tabla.addCell(celdaService.crearCelda("Transferencia de bienes muebles de naturaleza corporal", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("312", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("362", validarValoresComprobantesPdf.getValor(model.getC423()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("312", validarValoresComprobantesPdf.getValor(model.getC312()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("362", validarValoresComprobantesPdf.getValor(model.getC362()), bold, normal));
 
         tabla.addCell(celdaService.crearCelda("Seguros y reaseguros (primas y cesiones) ", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("322", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("372", validarValoresComprobantesPdf.getValor(model.getC423()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("322", validarValoresComprobantesPdf.getValor(model.getC322()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("372", validarValoresComprobantesPdf.getValor(model.getC372()), bold, normal));
 
         tabla.addCell(celdaService.crearCelda("COMPRAS AL PRODUCTOR: de bienes de origen agrícola, avícola, pecuario, apícola, cunícola, bioacuático, forestal y carnes en estado natural y\n" +
                 "los descritos en el art.27.1 de LRTI.", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("3120", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("3620", validarValoresComprobantesPdf.getValor(model.getC423()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("3120", validarValoresComprobantesPdf.getValor(model.getC3120()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("3620", validarValoresComprobantesPdf.getValor(model.getC3620()), bold, normal));
 
         tabla.addCell(celdaService.crearCelda("COMPRAS AL COMERCIALIZADOR: de bienes de origen agrícola, avícola, pecuario, apícola, cunícola, bioacuático, forestal y carnes en estado\n" +
                 "natural y los descritos en el art.27.1 de LRTI.", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("3121", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("3621", validarValoresComprobantesPdf.getValor(model.getC423()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("3121", validarValoresComprobantesPdf.getValor(model.getC3121()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("3621", validarValoresComprobantesPdf.getValor(model.getC3621()), bold, normal));
 
         tabla.addCell(celdaService.crearCelda("Actividades de construcción de obra material inmueble, urbanización, lotización o actividades similares", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("3430", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("3450", validarValoresComprobantesPdf.getValor(model.getC423()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("3430", validarValoresComprobantesPdf.getValor(model.getC3430()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("3450", validarValoresComprobantesPdf.getValor(model.getC3450()), bold, normal));
 
         tabla.addCell(celdaService.crearCelda("Pagos aplicables el 1% (Energía Eléctrica y régimen RIMPE - Emprendedores, para este caso aplica con cualquier forma de pago inclusive los\n" +
                 "pagos que deban realizar las tarjetas de crédito/débito", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("343", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("393", validarValoresComprobantesPdf.getValor(model.getC423()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("343", validarValoresComprobantesPdf.getValor(model.getC343()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("393", validarValoresComprobantesPdf.getValor(model.getC393()), bold, normal));
 
         tabla.addCell(celdaService.crearCelda("Pagos aplicables el 2% (incluye Pago local tarjeta de crédito /débito reportada por la Emisora de tarjeta de crédito / entidades del sistema\n" +
                 "financiero; adquisición de sustancias minerales dentro del territorio nacional; Recepción de botellas plásticas no retornables de PET)\n", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("344", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("394", validarValoresComprobantesPdf.getValor(model.getC423()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("344", validarValoresComprobantesPdf.getValor(model.getC344()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("394", validarValoresComprobantesPdf.getValor(model.getC394()), bold, normal));
 
         tabla.addCell(celdaService.crearCelda("Pagos de bienes y servicios no sujetos a retención o con 0% (distintos de rendimientos financieros)", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("322", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("322", validarValoresComprobantesPdf.getValor(model.getC322()), bold, normal));
         tabla.addCell(celdaService.crearCeldaConCodigo("", "", bold, normal));
 
 
@@ -245,12 +245,12 @@ public class GeneralFormulario103PdfServiceImpl {
 
 
         tabla.addCell(celdaService.crearCelda("Por regalías, derechos de autor, marcas, patentes y similares", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("314", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("364", validarValoresComprobantesPdf.getValor(model.getC423()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("314", validarValoresComprobantesPdf.getValor(model.getC314()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("364", validarValoresComprobantesPdf.getValor(model.getC364()), bold, normal));
 
         tabla.addCell(celdaService.crearCelda("Comisiones pagadas a sociedades, nacionales o extranjeras residentes en el Ecuador y establecimientos permanentes domiciliados en el país", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("3140", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("3640", validarValoresComprobantesPdf.getValor(model.getC423()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("3140", validarValoresComprobantesPdf.getValor(model.getC3140()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("3640", validarValoresComprobantesPdf.getValor(model.getC3640()), bold, normal));
 
         tabla.addCell(celdaService.crearCelda("Arrendamiento", normal));
         tabla.addCell(celdaService.crearCelda("", normal));
@@ -258,12 +258,12 @@ public class GeneralFormulario103PdfServiceImpl {
 
 
         tabla.addCell(celdaService.crearCelda("Mercantil", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("319", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("369", validarValoresComprobantesPdf.getValor(model.getC423()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("319", validarValoresComprobantesPdf.getValor(model.getC319()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("369", validarValoresComprobantesPdf.getValor(model.getC369()), bold, normal));
 
         tabla.addCell(celdaService.crearCelda("Bienes inmuebles", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("320", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("370", validarValoresComprobantesPdf.getValor(model.getC423()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("320", validarValoresComprobantesPdf.getValor(model.getC320()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("370", validarValoresComprobantesPdf.getValor(model.getC370()), bold, normal));
 
 
         PdfPCell celdaRcc1 = celdaService.crearCelda("RELACIONADAS CON EL CAPITAL ( RENDIMIENTOS, GANANCIAS, DIVIDENDOS Y OTROS)", normal);
@@ -280,26 +280,26 @@ public class GeneralFormulario103PdfServiceImpl {
 
 
         tabla.addCell(celdaService.crearCelda("Rendimientos financieros", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("323", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("373", validarValoresComprobantesPdf.getValor(model.getC423()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("323", validarValoresComprobantesPdf.getValor(model.getC323()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("373", validarValoresComprobantesPdf.getValor(model.getC373()), bold, normal));
 
         tabla.addCell(celdaService.crearCelda("Rendimientos financieros entre instituciones del sistema financiero y entidades economía popular y solidaria", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("324", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("374", validarValoresComprobantesPdf.getValor(model.getC423()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("324", validarValoresComprobantesPdf.getValor(model.getC324()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("374", validarValoresComprobantesPdf.getValor(model.getC374()), bold, normal));
 
         tabla.addCell(celdaService.crearCelda("Otros Rendimientos financieros 0%", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("3230", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("3230", validarValoresComprobantesPdf.getValor(model.getC3230()), bold, normal));
         tabla.addCell(celdaService.crearCeldaConCodigo("", "", bold, normal));
 
         tabla.addCell(celdaService.crearCelda("Ganancia en la enajenación de derechos representativos de capital u otros derechos que permitan la exploración, explotación, concesión o\n" +
                 "similares de sociedades, que se coticen en las bolsas de valores del Ecuador", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("333", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("383", validarValoresComprobantesPdf.getValor(model.getC423()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("333", validarValoresComprobantesPdf.getValor(model.getC333()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("383", validarValoresComprobantesPdf.getValor(model.getC383()), bold, normal));
 
         tabla.addCell(celdaService.crearCelda("Contraprestación en la enajenación de derechos representativos de capital u otros derechos que permitan la exploración, explotación, concesión o\n" +
                 "similares de sociedades, no cotizados en las bolsas de valores del Ecuador", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("334", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("384", validarValoresComprobantesPdf.getValor(model.getC423()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("334", validarValoresComprobantesPdf.getValor(model.getC334()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("384", validarValoresComprobantesPdf.getValor(model.getC384()), bold, normal));
 
 
         PdfPCell celdaLP1 = celdaService.crearCelda("POR LOTERIAS Y PREMIOS", normal);
@@ -316,8 +316,8 @@ public class GeneralFormulario103PdfServiceImpl {
 
 
         tabla.addCell(celdaService.crearCelda("Loterías, rifas, apuestas, pronósticos deportivos y similares", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("335", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("385", validarValoresComprobantesPdf.getValor(model.getC423()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("335", validarValoresComprobantesPdf.getValor(model.getC335()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("385", validarValoresComprobantesPdf.getValor(model.getC385()), bold, normal));
 
         PdfPCell celdaAOR1 = celdaService.crearCelda("AUTORRETENCIONES Y OTRAS RETENCIONES", normal);
         PdfPCell celdaAOR2 = celdaService.crearCelda("", titleTb);
@@ -338,35 +338,35 @@ public class GeneralFormulario103PdfServiceImpl {
 
 
         tabla.addCell(celdaService.crearCelda("A comercializadoras", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("336", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("386", validarValoresComprobantesPdf.getValor(model.getC423()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("336", validarValoresComprobantesPdf.getValor(model.getC336()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("386", validarValoresComprobantesPdf.getValor(model.getC386()), bold, normal));
 
 
         tabla.addCell(celdaService.crearCelda("A distribuidores", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("337", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("387", validarValoresComprobantesPdf.getValor(model.getC423()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("337", validarValoresComprobantesPdf.getValor(model.getC337()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("387", validarValoresComprobantesPdf.getValor(model.getC387()), bold, normal));
 
 
         tabla.addCell(celdaService.crearCelda("Retención a cargo del propio sujeto pasivo por la comercialización de productos forestales", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("3370", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("3870", validarValoresComprobantesPdf.getValor(model.getC423()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("3370", validarValoresComprobantesPdf.getValor(model.getC3370()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("3870", validarValoresComprobantesPdf.getValor(model.getC3870()), bold, normal));
 
 
         tabla.addCell(celdaService.crearCelda("Otras autorretenciones (inciso 1 y 2 Art.92.1 RLRTI) ", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("350", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("400", validarValoresComprobantesPdf.getValor(model.getC423()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("350", validarValoresComprobantesPdf.getValor(model.getC350()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("400", validarValoresComprobantesPdf.getValor(model.getC400()), bold, normal));
 
         tabla.addCell(celdaService.crearCelda("Otras retenciones", normal));
         tabla.addCell(celdaService.crearCelda("", normal));
         tabla.addCell(celdaService.crearCelda("", normal));
 
         tabla.addCell(celdaService.crearCelda("Aplicables el 2,75%", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("3440", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("3940", validarValoresComprobantesPdf.getValor(model.getC423()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("3440", validarValoresComprobantesPdf.getValor(model.getC3440()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("3940", validarValoresComprobantesPdf.getValor(model.getC3940()), bold, normal));
 
         tabla.addCell(celdaService.crearCelda("Aplicables a otros porcentajes ( Por Donaciones en dinero -Impuesto a las donaciones )", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("346", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("396", validarValoresComprobantesPdf.getValor(model.getC423()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("346", validarValoresComprobantesPdf.getValor(model.getC346()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("396", validarValoresComprobantesPdf.getValor(model.getC396()), bold, normal));
 
 
         PdfPCell celdaLiru1 = celdaService.crearCelda("LIQUIDACIÓN DE IMPUESTO A LA RENTA ÚNICO", normal);
@@ -387,20 +387,20 @@ public class GeneralFormulario103PdfServiceImpl {
         tabla.addCell(celdaService.crearCelda("", normal));
 
         tabla.addCell(celdaService.crearCelda("(+) Ingresos generados por la actividad económica de pronósticos deportivos", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("3483", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("3483", validarValoresComprobantesPdf.getValor(model.getC3483()), bold, normal));
         tabla.addCell(celdaService.crearCelda("", normal));
 
         tabla.addCell(celdaService.crearCelda("(+) Comisiones derivadas de la actividad de pronósticos deportivos", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("3484", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("3484", validarValoresComprobantesPdf.getValor(model.getC3484()), bold, normal));
         tabla.addCell(celdaService.crearCelda("", normal));
 
         tabla.addCell(celdaService.crearCelda("(-) Premios pagados por pronósticos deportivos", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("3485", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("3485", validarValoresComprobantesPdf.getValor(model.getC3485()), bold, normal));
         tabla.addCell(celdaService.crearCelda("", normal));
 
         tabla.addCell(celdaService.crearCelda("Impuesto a la renta único sobre los ingresos percibidos por los operadores de pronósticos deportivos", normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("3480", validarValoresComprobantesPdf.getValor(model.getC422()), bold, normal));
-        tabla.addCell(celdaService.crearCeldaConCodigo("3980", validarValoresComprobantesPdf.getValor(model.getC423()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("3480", validarValoresComprobantesPdf.getValor(model.getC3480()), bold, normal));
+        tabla.addCell(celdaService.crearCeldaConCodigo("3980", validarValoresComprobantesPdf.getValor(model.getC3980()), bold, normal));
 
 
         PdfPCell celdaSoe1 = celdaService.crearCelda("SUBTOTAL OPERACIONES EFECTUADAS EN EL PAÍS", bold);

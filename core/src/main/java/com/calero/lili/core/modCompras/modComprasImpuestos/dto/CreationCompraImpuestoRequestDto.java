@@ -77,7 +77,7 @@ public class CreationCompraImpuestoRequestDto {
     private List<Reembolso> reembolsos;
 
     private String tipoContribuyente;
-    private DocumentoEnum documento;
+    private DocumentoEnum codigoDocumento;
     private String referencia;
     private String liquidar;
     private String devolucionIva;

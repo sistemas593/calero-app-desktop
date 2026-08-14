@@ -6,7 +6,7 @@ import com.calero.lili.core.enums.DocumentoEnum;
 import java.math.BigDecimal;
 
 public interface AtsProjection {
-    DocumentoEnum getDocumento();
+    DocumentoEnum getCodigoDocumento();
     BigDecimal getBiTarifaCero();
     BigDecimal getBiBaseDiferenteCero();
     BigDecimal getBiBaseNoObjectoIva();

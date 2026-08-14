@@ -212,7 +212,7 @@ public class CpImpuestoCargaExcelService {
             if (Objects.nonNull(tipoDocumento)) {
                 try {
                     DocumentoEnum documentoEnum = DocumentoEnum.getCodigoDocumento(tipoDocumento);
-                    cpImpuestos.setDocumento(documentoEnum);
+                    cpImpuestos.setCodigoDocumento(documentoEnum);
                 } catch (Exception exception) {
                     DetalleError detalleError = detalleErrorBuilder.builderDetalleError(fila.linea(), EnumError.DOCUMENTO_ERROR);
                     detalleError.setDetalle(exception.getMessage());

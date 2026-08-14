@@ -78,7 +78,7 @@ public class ImpuestoProcesoBuilder {
                 .serie(model.getSerie())
                 .sucursal(model.getSucursal())
                 .tipoProveedor(model.getTipoProveedor())
-                .documento(model.getDocumento())
+                .codigoDocumento(model.getCodigoDocumento())
                 .tercero(model.getTercero())
                 .codigoSustento(model.getCodigoSustento())
                 .formasPagoSri(model.getFormasPagoSri())

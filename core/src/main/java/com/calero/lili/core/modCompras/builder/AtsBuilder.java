@@ -55,7 +55,7 @@ public class AtsBuilder {
                 .codSustento(model.getCodigoSustento().getCodigo())
                 .tpIdProv(validacionTipoId(model.getTipoIdProv()))
                 .idProv(model.getIdProv())
-                .tipoComprobante(model.getTipoComprobante().getCodigo())
+                .tipoComprobante(model.getCodigoDocumento().getCodigo())
                 .parteRel("NO")
                 .fechaRegistro(DateUtils.toString(model.getFechaRegistro()))
                 .establecimiento(model.getSerie().substring(0, 3))

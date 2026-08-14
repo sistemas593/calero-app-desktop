@@ -102,7 +102,7 @@ public class ComprobanteRetencionBuilder {
 
         DocSustento docSustento = DocSustento.builder()
                 .codSustento(impuesto.getCodigoSustento().name().replace("S", ""))
-                .codDocSustento(impuesto.getDocumento().getCodigo())
+                .codDocSustento(impuesto.getCodigoDocumento().getCodigo())
                 .numDocSustento(impuesto.getSerie() + impuesto.getSecuencial())
                 .fechaEmisionDocSustento(DateUtils.toString(impuesto.getFechaEmision()))
                 .fechaRegistroContable(DateUtils.toString(impuesto.getFechaRegistro()))

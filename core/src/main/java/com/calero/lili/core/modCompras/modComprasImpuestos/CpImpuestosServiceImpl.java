@@ -316,7 +316,7 @@ public class CpImpuestosServiceImpl {
 
         GetDto dto = cpImpuestosBuilder.builderDto(entity);
 
-        if (dto.getDocumento().equals(DocumentoEnum.D04)) {
+        if (dto.getCodigoDocumento().equals(DocumentoEnum.D04)) {
 
             dto.getValores().forEach(item -> {
                 item.setBaseImponible(item.getBaseImponible().abs());
@@ -425,7 +425,7 @@ public class CpImpuestosServiceImpl {
                 .findByIdEntity(idData, idEmpresa, id, null, null)
                 .orElseThrow(() -> new GeneralException(MessageFormat.format("La factura con ID {0} no existe", id)));
 
-        String codigoDocumento = impuesto.getDocumento().getCodigo();
+        String codigoDocumento = impuesto.getCodigoDocumento().getCodigo();
 
         if (Objects.nonNull(request.getDestino())) {
             if (DateUtils.toLocalDate(request.getFechaRegistro()).isAfter(impuesto.getFechaEmision())
