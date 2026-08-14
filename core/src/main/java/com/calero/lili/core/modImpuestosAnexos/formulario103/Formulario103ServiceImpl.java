@@ -1,31 +1,55 @@
 package com.calero.lili.core.modImpuestosAnexos.formulario103;
 
 
+import com.calero.lili.core.dtos.FilterImpuestoDto;
+import com.calero.lili.core.errors.exceptions.GeneralException;
+import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
+import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
+import com.calero.lili.core.modImpuestosAnexos.formulario103.projection.Formulario103Projection;
 import com.calero.lili.core.modImpuestosProcesos.dto.impuestos.ImpuestosF103Dto;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class Formulario103ServiceImpl {
 
+    private final AdEmpresasRepository adEmpresasRepository;
     private final Formulario103Repository formulario103Repository;
 
-    public ImpuestosF103Dto setearFImpuestosF103() {
-
-        // TODO LLENAR EL FORMULARIO SOLO CON LAS RETENCIONES
+    public ImpuestosF103Dto setearFImpuestosF103(Long idData, Long idEmpresa, FilterImpuestoDto request) {
 
 
-       // formulario103Repository.obtenerRetencionesRenta()
+
+        AdEmpresaEntity empresa = adEmpresasRepository.findById(idData, idEmpresa)
+                .orElseThrow(() -> new GeneralException("No existe empresa con id: " + idEmpresa));
+
+
+
+        int anio = request.getFechaHasta().getYear();
+        int mes = request.getFechaDesde().getMonthValue();
+
+
+        List<Formulario103Projection> lista = formulario103Repository.obtenerRetencionesFormulario103(idData, idEmpresa,
+                request.getFechaDesde(), request.getFechaHasta());
+
+
 
 
         ImpuestosF103Dto f103 = new ImpuestosF103Dto();
-        f103.setAno("2025");
-        f103.setMes("01");
-        f103.setRuc("1717740441001");
-        f103.setRazonSocial("CALERO ANDRADE RICARDO JAVIER");
+
+        f103.setAno(String.valueOf(anio));
+        f103.setMes(String.valueOf(mes));
+        f103.setRuc(empresa.getRuc());
+        f103.setRazonSocial(empresa.getRazonSocial());
 
         f103.setC302(BigDecimal.ZERO);
         f103.setC352(BigDecimal.ZERO);
@@ -205,7 +229,91 @@ public class Formulario103ServiceImpl {
         f103.setC3481(BigDecimal.ZERO);
         f103.setC3981(BigDecimal.ZERO);
 
+        lista.forEach(retencion -> setValores(f103, retencion.getCodigoFormulario(), retencion.getBaseImponible(), retencion.getValorRetenido()));
+
         return f103;
+    }
+
+
+    // Mapa código base imponible -> código valor retenido, según el layout oficial del Formulario 103
+    // (no existe una fórmula fija de offset entre ambos códigos, por eso va explícito).
+    // Los códigos que no aparecen aquí (ej. 3230, 3483, 3484, 3485) solo tienen columna de base imponible en el formulario.
+    private static final Map<String, String> CODIGOS_RETENIDO_POR_BASE = Map.ofEntries(
+            Map.entry("302", "352"),
+            Map.entry("303", "353"),
+            Map.entry("3030", "3530"),
+            Map.entry("304", "354"),
+            Map.entry("307", "357"),
+            Map.entry("308", "358"),
+            Map.entry("309", "359"),
+            Map.entry("310", "360"),
+            Map.entry("311", "361"),
+            Map.entry("312", "362"),
+            Map.entry("322", "372"),
+            Map.entry("3120", "3620"),
+            Map.entry("3121", "3621"),
+            Map.entry("3430", "3450"),
+            Map.entry("343", "393"),
+            Map.entry("344", "394"),
+            Map.entry("314", "364"),
+            Map.entry("3140", "3640"),
+            Map.entry("319", "369"),
+            Map.entry("320", "370"),
+            Map.entry("323", "373"),
+            Map.entry("324", "374"),
+            Map.entry("333", "383"),
+            Map.entry("334", "384"),
+            Map.entry("335", "385"),
+            Map.entry("336", "386"),
+            Map.entry("337", "387"),
+            Map.entry("3370", "3870"),
+            Map.entry("350", "400"),
+            Map.entry("3440", "3940"),
+            Map.entry("346", "396"),
+            Map.entry("3480", "3980")
+    );
+
+
+    private void setValores(ImpuestosF103Dto f103, String codigoFormulario, BigDecimal baseImponible, BigDecimal valorRetenido) {
+
+        if (codigoFormulario == null) {
+            return;
+        }
+
+        for (String codigo : codigoFormulario.split(",")) {
+
+            String codigoBase = codigo.trim();
+
+            if (codigoBase.isEmpty()) {
+                continue;
+            }
+
+            setValor(f103, codigoBase, baseImponible);
+
+            String codigoRetenido = CODIGOS_RETENIDO_POR_BASE.get(codigoBase);
+            if (codigoRetenido != null) {
+                setValor(f103, codigoRetenido, valorRetenido);
+            } else {
+                log.debug("El código {} no tiene código de valor retenido asociado, solo se setea la base imponible", codigoBase);
+            }
+        }
+    }
+
+
+    private void setValor(ImpuestosF103Dto f103, String codigo, BigDecimal valor) {
+
+        if (valor == null) {
+            return;
+        }
+
+        try {
+            Method setter = ImpuestosF103Dto.class.getMethod("setC" + codigo, BigDecimal.class);
+            setter.invoke(f103, valor);
+        } catch (NoSuchMethodException e) {
+            log.debug("Código de formulario 103 sin campo correspondiente en el DTO, se ignora: {}", codigo);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new GeneralException("Error al setear el código " + codigo + " del formulario 103: " + e.getMessage());
+        }
     }
 
 }

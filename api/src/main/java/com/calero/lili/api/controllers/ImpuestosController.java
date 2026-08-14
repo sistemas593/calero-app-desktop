@@ -42,7 +42,6 @@ import java.util.UUID;
 public class ImpuestosController {
 
 
-
     private final IdDataServiceImpl idDataService;
 
     private final AtsService atsService;
@@ -63,7 +62,7 @@ public class ImpuestosController {
     @PreAuthorize("hasAuthority('IM_F103_VR')")
     public ImpuestosF103Dto generarF103(@PathVariable("idEmpresa") Long idEmpresa,
                                         FilterImpuestoDto request) {
-        return formulario103Service.setearFImpuestosF103();
+        return formulario103Service.setearFImpuestosF103(idDataService.getIdData(), idEmpresa, request);
     }
 
 
@@ -73,8 +72,8 @@ public class ImpuestosController {
     public void generarFormularioPdfF103(HttpServletResponse response,
                                          @PathVariable("idEmpresa") Long idEmpresa,
                                          FilterImpuestoDto request) {
-        generalFormulario103PdfService.generarPdfDeclaracionRetenciones(formulario103Service.setearFImpuestosF103(),
-                response, idEmpresa, request);
+        generalFormulario103PdfService.generarPdfDeclaracionRetenciones(formulario103Service.setearFImpuestosF103(
+                idDataService.getIdData(), idEmpresa, request), response);
     }
 
     @GetMapping("formulario104/{idEmpresa}")

@@ -21,6 +21,9 @@ import org.springframework.stereotype.Service;
 
 import java.awt.*;
 import java.time.LocalDate;
+import java.time.Month;
+import java.time.format.TextStyle;
+import java.util.Locale;
 
 @Service
 @AllArgsConstructor
@@ -35,7 +38,7 @@ public class GeneralFormulario103PdfServiceImpl {
     private final Color colorResaltar = new Color(255, 253, 208);
     private final Color colorEncabezadosTablas = new Color(0, 85, 237);
 
-    public void generarPdfDeclaracionRetenciones(ImpuestosF103Dto model, HttpServletResponse response, Long idEmpresa, FilterImpuestoDto filter) {
+    public void generarPdfDeclaracionRetenciones(ImpuestosF103Dto model, HttpServletResponse response) {
 
         try {
 
@@ -56,7 +59,7 @@ public class GeneralFormulario103PdfServiceImpl {
             Font small = new Font(Font.HELVETICA, 9);
 
 
-            agregarEncabezadoRetencion(document, titleFont, normalFont);
+            agregarEncabezadoRetencion(document, titleFont, normalFont, model);
             agregarTablaEncabezadoPagosRetencionesDeImpuesto(document, smallBold, small, titleFontTb, model);
             agregarDetallePagosRetencionesDeImpuesto(document, smallBold, small, titleFontTb, model);
             agregarTotalPagosRetencionesDeImpuesto(document, smallBold, small, titleFontTb, model);
@@ -72,14 +75,21 @@ public class GeneralFormulario103PdfServiceImpl {
     }
 
 
-    private void agregarEncabezadoRetencion(Document document, Font titleFont, Font normalFont) {
+    private void agregarEncabezadoRetencion(Document document, Font titleFont, Font normalFont, ImpuestosF103Dto model) {
 
         Paragraph title = new Paragraph("Sistema de declaración\nde impuestos\na través de internet", titleFont);
         title.setAlignment(com.itextpdf.text.Element.ALIGN_CENTER);
         document.add(title);
 
+        String periodoFiscal = Month.of(Integer.parseInt(model.getMes()))
+                .getDisplayName(TextStyle.FULL, new Locale("es"))
+                .toUpperCase() + " " + model.getAno();
+
         Paragraph info = new Paragraph(
-                "Obligación Tributaria:  1031 - DECLARACIÓN DE RETENCIONES EN LA FUENTE\n Identificación: 1793203185001\nRazón Social: EOFERTIL S.A.S.\nPeríodo Fiscal: AGOSTO 2025\nTipo Declaración: ORIGINAL\nFormulario Sustituye: ",
+                "Obligación Tributaria:  1031 - DECLARACIÓN DE RETENCIONES EN LA FUENTE\n Identificación: " + model.getRuc()
+                        + "\nRazón Social: " + model.getRazonSocial()
+                        + "\nPeríodo Fiscal: " + periodoFiscal
+                        + "\nTipo Declaración: ORIGINAL\nFormulario Sustituye: ",
                 normalFont);
         info.setSpacingBefore(10f);
         document.add(info);
