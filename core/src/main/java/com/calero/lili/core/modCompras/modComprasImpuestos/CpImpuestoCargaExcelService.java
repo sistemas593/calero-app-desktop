@@ -1,9 +1,12 @@
 package com.calero.lili.core.modCompras.modComprasImpuestos;
 
 import com.calero.lili.core.builder.DetalleErrorBuilder;
+import com.calero.lili.core.dtos.FormasPagoSri;
 import com.calero.lili.core.dtos.errors.DetalleError;
 import com.calero.lili.core.dtos.errors.EnumError;
 import com.calero.lili.core.enums.DocumentoEnum;
+import com.calero.lili.core.enums.FormaPagoSriEnum;
+import com.calero.lili.core.enums.PagoLocalExterior;
 import com.calero.lili.core.enums.SustentoCodigos;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.errors.exceptions.ListErrorException;
@@ -13,6 +16,7 @@ import com.calero.lili.core.modAdminEmpresasSucursales.AdEmpresasSucursalesEntit
 import com.calero.lili.core.modAdminEmpresasSucursales.AdEmpresasSucursalesRepository;
 import com.calero.lili.core.modCompras.modComprasImpuestos.builder.CpImpuestoDetalleErrorBuilder;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CpImpuestoDetalleError;
+import com.calero.lili.core.modCompras.modComprasImpuestos.dto.PagoExterior;
 import com.calero.lili.core.modImpuestosAnexos.ats.DetalleCompras;
 import com.calero.lili.core.modTerceros.GeTerceroEntity;
 import com.calero.lili.core.modTerceros.GeTerceroLoteHelper;
@@ -42,6 +46,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @AllArgsConstructor
@@ -89,6 +94,7 @@ public class CpImpuestoCargaExcelService {
         }
         List<FilaExcel> filas = new ArrayList<>();
         Set<String> numerosIdentifiacion = new HashSet<>();
+        Set<String> clavesDuplicados = new HashSet<>();
 
         try (InputStream is = file.getInputStream();
              Workbook wb = StreamingReader.builder()
@@ -109,7 +115,22 @@ public class CpImpuestoCargaExcelService {
                     for (int i = 0; i < lastCell; i++) {
                         celdas[i] = row.getCell(i) != null ? row.getCell(i).getStringCellValue() : null;
                     }
-                    filas.add(new FilaExcel(row.getRowNum() + 1, celdas));
+
+                    int lineaActual = row.getRowNum() + 1;
+
+                    if (esClaveDuplicadaCompleta(celdas)) {
+                        String claveDuplicado = claveDuplicado(celdas);
+                        if (!clavesDuplicados.add(claveDuplicado)) {
+                            DetalleError detalleError = detalleErrorBuilder.builderDetalleError(lineaActual, EnumError.DOCUMENTO_ERROR);
+                            detalleError.setDetalle(MessageFormat.format(
+                                    "Registro duplicado: ya existe una fila con identificación {0}, serie {1}, secuencial {2} y número de autorización {3}",
+                                    celda(celdas, 0), celda(celdas, 9), celda(celdas, 10), celda(celdas, 11)));
+                            detalleErrores.add(detalleError);
+                            continue;
+                        }
+                    }
+
+                    filas.add(new FilaExcel(lineaActual, celdas));
 
                     if (celdas[0] != null && !celdas[0].isBlank()) {
                         numerosIdentifiacion.add(celdas[0]);
@@ -151,6 +172,7 @@ public class CpImpuestoCargaExcelService {
                             terceroEntity.setIdData(idData);
                             terceroEntity.setTercero(Objects.nonNull(nombreTercero) ? nombreTercero : null);
                             terceroEntity.setNumeroIdentificacion(numeroIdentifiacion);
+
                             return geTercerosRepository.save(terceroEntity);
                         });
                 cpImpuestos.setTercero(tercero);
@@ -257,7 +279,7 @@ public class CpImpuestoCargaExcelService {
                 cpImpuestos.setNumeroAutorizacion(numeroAutorizacion);
             } else {
                 DetalleError detalleError = detalleErrorBuilder.builderDetalleError(fila.linea(), EnumError.DOCUMENTO_ERROR);
-                detalleError.setDetalle("El número de autorización");
+                detalleError.setDetalle("El número de autorización no se encuentra");
                 detalleErrores.add(detalleError);
             }
 
@@ -282,7 +304,7 @@ public class CpImpuestoCargaExcelService {
 
             } else {
                 DetalleError detalleError = detalleErrorBuilder.builderDetalleError(fila.linea(), EnumError.DOCUMENTO_ERROR);
-                detalleError.setDetalle("La fecha de registro se encuentra");
+                detalleError.setDetalle("La fecha de registro no se encuentra");
                 detalleErrores.add(detalleError);
             }
 
@@ -299,6 +321,32 @@ public class CpImpuestoCargaExcelService {
                 cpImpuestos.setConcepto(concepto);
             } else {
                 cpImpuestos.setDevolucionIva(null);
+            }
+
+
+            String docModificado = celda(fila.celdas(), 45);
+            if (Objects.nonNull(concepto)) {
+                cpImpuestos.setModCodigoDocumento(DocumentoEnum.getCodigoDocumento(docModificado));
+            }
+
+            String serieModificado = celda(fila.celdas(), 46);
+            if (Objects.nonNull(serieModificado)) {
+                cpImpuestos.setModSerie(serieModificado);
+            }
+
+            String secuencialModificado = celda(fila.celdas(), 47);
+            if (Objects.nonNull(secuencialModificado)) {
+
+                if (secuencialModificado.matches("\\d{9}")) {
+                    cpImpuestos.setModSecuencial(secuencialModificado);
+                } else {
+                    cpImpuestos.setModSecuencial(String.format("%09d", Integer.parseInt(secuencialModificado)));
+                }
+            }
+
+            String numAutMod = celda(fila.celdas(), 48);
+            if (Objects.nonNull(numAutMod)) {
+                cpImpuestos.setModNumAutorizacion(numAutMod);
             }
 
             List<CpImpuestosValoresEntity> valores = new ArrayList<>();
@@ -399,7 +447,8 @@ public class CpImpuestoCargaExcelService {
                 valores.add(valoresEntity);
             }
 
-            setearTotales(cpImpuestos, valores);
+            setearPagoLocalExterior(cpImpuestos, fila.celdas(), fila.linea(), detalleErrores);
+            setearTotales(cpImpuestos, valores, fila.celdas(), fila.linea(), detalleErrores);
             cpImpuestos.setValoresEntity(valores);
             cpImpuestosEntities.add(cpImpuestos);
         }
@@ -447,6 +496,23 @@ public class CpImpuestoCargaExcelService {
         return (v != null && !v.isBlank()) ? v : null;
     }
 
+    /**
+     * Verifica que las columnas utilizadas para detectar duplicados (identificacion, serie,
+     * secuencial y numero de autorizacion) vengan todas completas en la fila.
+     */
+    private boolean esClaveDuplicadaCompleta(String[] celdas) {
+        return celda(celdas, 0) != null && celda(celdas, 9) != null
+                && celda(celdas, 10) != null && celda(celdas, 11) != null;
+    }
+
+    /**
+     * Construye la clave utilizada para detectar registros duplicados en el excel,
+     * combinando las columnas 0 (identificacion), 9 (serie), 10 (secuencial) y 11 (numero de autorizacion).
+     */
+    private String claveDuplicado(String[] celdas) {
+        return celda(celdas, 0) + "|" + celda(celdas, 9) + "|" + celda(celdas, 10) + "|" + celda(celdas, 11);
+    }
+
     private boolean isRowEmpty(Row row) {
         if (row == null) return true;
 
@@ -480,7 +546,9 @@ public class CpImpuestoCargaExcelService {
     }
 
 
-    private void setearTotales(CpImpuestosEntity cpImpuestos, List<CpImpuestosValoresEntity> valores) {
+    private void setearTotales(CpImpuestosEntity cpImpuestos, List<CpImpuestosValoresEntity> valores,
+                               String[] celdas, int linea, List<DetalleError> detalleErrores) {
+
 
         BigDecimal subtotal = valores.stream()
                 .map(CpImpuestosValoresEntity::getBaseImponible)
@@ -492,9 +560,82 @@ public class CpImpuestoCargaExcelService {
                 .filter(Objects::nonNull)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+        String formaPagoSri = celda(celdas, 60);
+
         cpImpuestos.setSubtotal(subtotal);
         cpImpuestos.setTotalImpuesto(totalImpuesto);
         cpImpuestos.setTotal(subtotal.add(totalImpuesto));
+
+        if (Objects.nonNull(formaPagoSri)) {
+
+            try {
+                FormaPagoSriEnum formaPagoSriEnum = FormaPagoSriEnum.getFormaPagoSri(formaPagoSri);
+                List<FormasPagoSri> listFormaPago = new ArrayList<>();
+                FormasPagoSri formaPago = new FormasPagoSri();
+                formaPago.setTotal(cpImpuestos.getTotal());
+                formaPago.setFormaPago(formaPagoSriEnum);
+                listFormaPago.add(formaPago);
+                cpImpuestos.setFormasPagoSri(listFormaPago);
+
+            } catch (Exception exception) {
+                DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DOCUMENTO_ERROR);
+                detalleError.setDetalle(exception.getMessage());
+                detalleErrores.add(detalleError);
+            }
+
+        }
+
+
+    }
+
+
+    private void setearPagoLocalExterior(CpImpuestosEntity cpImpuestos, String[] celdas, int linea, List<DetalleError> detalleErrores) {
+
+        String pagoLocExt = celda(celdas, 51);
+        if (Objects.nonNull(pagoLocExt)) {
+            try {
+
+                PagoLocalExterior pago = PagoLocalExterior.getFormaPagoLocExt(pagoLocExt);
+
+                if (pago.equals(PagoLocalExterior.L)) {
+                    cpImpuestos.setPagoLocExt(PagoLocalExterior.L);
+                }
+
+                if (pago.equals(PagoLocalExterior.E)) {
+                    cpImpuestos.setPagoLocExt(PagoLocalExterior.E);
+
+                    String paisEfecPago = celda(celdas, 52);
+                    String pagoRegFis = celda(celdas, 53);
+                    String aplicConvDobTrib = celda(celdas, 54);
+                    String pagExtSujRetNorLeg = celda(celdas, 55);
+                    String tipoRegi = celda(celdas, 56);
+                    String paisEfecPagoGen = celda(celdas, 57);
+                    String paisEfecPagoParFis = celda(celdas, 58);
+                    String denopagoRegFis = celda(celdas, 59);
+
+                    PagoExterior pagoExterior = new PagoExterior();
+
+                    pagoExterior.setPaisEfecPago(paisEfecPago);
+                    pagoExterior.setPagoRegFis(pagoRegFis);
+                    pagoExterior.setAplicConvDobTrib(aplicConvDobTrib);
+                    pagoExterior.setPagExtSujRetNorLeg(pagExtSujRetNorLeg);
+                    pagoExterior.setTipoRegi(tipoRegi);
+                    pagoExterior.setPaisEfecPagoGen(paisEfecPagoGen);
+                    pagoExterior.setPaisEfecPagoParFis(paisEfecPagoParFis);
+                    pagoExterior.setDenopagoRegFis(denopagoRegFis);
+                    cpImpuestos.setPagoExterior(pagoExterior);
+
+                }
+            } catch (Exception exception) {
+                DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DOCUMENTO_ERROR);
+                detalleError.setDetalle(exception.getMessage());
+                detalleErrores.add(detalleError);
+            }
+        } else {
+            DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DOCUMENTO_ERROR);
+            detalleError.setDetalle("El codigo de pago local o exterior no se encuentra");
+            detalleErrores.add(detalleError);
+        }
     }
 
 }

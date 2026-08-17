@@ -169,4 +169,11 @@ public class CpImpuestosEntity extends Auditable {
     private BigDecimal subtotal;
     private BigDecimal total;
 
+    @Enumerated(EnumType.STRING)
+    private DocumentoEnum modCodigoDocumento;
+    private String modSerie;
+    private String modSecuencial;
+    private LocalDate modFechaEmision;
+    private String modNumAutorizacion;
+
 }

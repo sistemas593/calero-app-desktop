@@ -33,7 +33,7 @@ public enum SustentoCodigos {
                 return documento;
             }
         }
-        throw new IllegalArgumentException("Los códigos de sustento: " + codigoDocumento);
+        throw new IllegalArgumentException("No existe codigo de sustento: " + codigoDocumento);
 
 
     }

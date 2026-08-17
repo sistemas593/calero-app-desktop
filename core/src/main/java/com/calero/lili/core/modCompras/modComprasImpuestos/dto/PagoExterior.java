@@ -26,7 +26,7 @@ public class PagoExterior {
     private String paisEfecPago;
     private String nombrePaisEfecPago;
 
-   
+   // No va en el ats
     private String pagoRegFis;
     private String aplicConvDobTrib;
     private String pagExtSujRetNorLeg;

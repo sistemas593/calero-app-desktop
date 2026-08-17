@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-@XmlType(propOrder = {"pagoLocExt", "tipoRegi" ,"paisEfecPagoGen", "paisEfecPagoParFis", "denopagoRegFis", "paisEfecPago", "aplicConvDobTrib", "pagExtSujRetNorLeg", "pagoRegFis"})
+@XmlType(propOrder = {"pagoLocExt", "paisEfecPago", "aplicConvDobTrib", "pagExtSujRetNorLeg", "pagoRegFis", "tipoRegi", "paisEfecPagoGen", "paisEfecPagoParFis", "denopagoRegFis"})
 @Builder
 @Data
 @AllArgsConstructor

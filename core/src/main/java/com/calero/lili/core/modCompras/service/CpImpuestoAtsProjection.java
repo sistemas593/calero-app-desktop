@@ -49,4 +49,17 @@ public interface CpImpuestoAtsProjection {
 
     UUID getIdRetencion();
 
+    DocumentoEnum getModCodigoDocumento();
+
+    String getModSerie();
+
+    String getModSecuencial();
+
+    LocalDate getModFechaEmision();
+
+    String getModNumAutorizacion();
+
+
+
+
 }

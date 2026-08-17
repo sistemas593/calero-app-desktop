@@ -16,7 +16,8 @@ import java.util.List;
         "baseImponible", "baseImpGrav", "baseImpExe",
         "montoIce", "montoIva", "valRetBien10", "valRetServ20",
         "valorRetBienes", "valRetServ50", "valorRetServicios",
-        "valRetServ100", "totbasesImpReemb", "pagoExterior", "formasDePago", "reembolso", "detalleAir",
+        "valRetServ100", "totbasesImpReemb", "pagoExterior",
+        "docModificado", "estabModificado", "ptoEmiModificado", "secModificado", "autModificado", "formasDePago", "reembolso", "detalleAir",
         "estabRetencion1", "ptoEmiRetencion1", "secRetencion1", "autRetencion1", "fechaEmiRet1"})
 @Builder
 @Data
@@ -55,6 +56,11 @@ public class DetalleCompras {
     private String fechaEmiRet1;
     private Pago formasDePago;
     private List<Reembolso> reembolso;
+    private String docModificado;
+    private String estabModificado;
+    private String ptoEmiModificado;
+    private String secModificado;
+    private String autModificado;
 
 
     @XmlElement(name = "pagoExterior") // envoltorio

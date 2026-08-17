@@ -1,5 +1,6 @@
 package com.calero.lili.core.enums;
 
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -31,7 +32,7 @@ public enum FormaPagoSriEnum {
                 return formaPago.getNombre();
             }
         }
-        throw new IllegalArgumentException("El codigo de la forma de pago del SRI, no existe " + codigoPago);
+        throw new GeneralException("El codigo de la forma de pago del SRI, no existe " + codigoPago);
     }
 
     public static FormaPagoSriEnum getFormaPagoSri(String codigoPago) {
@@ -45,7 +46,7 @@ public enum FormaPagoSriEnum {
                 return formaPago;
             }
         }
-        throw new IllegalArgumentException("El codigo de la forma de pago del SRI, no existe " + codigoPago);
+        throw new GeneralException("El codigo de la forma de pago del SRI, no existe " + codigoPago);
     }
 
 }

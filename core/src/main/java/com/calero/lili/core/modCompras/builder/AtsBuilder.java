@@ -54,7 +54,7 @@ public class AtsBuilder {
         DetalleCompras detalleCompras = DetalleCompras.builder()
                 .codSustento(model.getCodigoSustento().getCodigo())
                 .tpIdProv(validacionTipoId(model.getTipoIdProv()))
-                .idProv(model.getIdProv())
+                .idProv(model.getIdProv().trim())
                 .tipoComprobante(model.getCodigoDocumento().getCodigo())
                 .parteRel("NO")
                 .fechaRegistro(DateUtils.toString(model.getFechaRegistro()))
@@ -77,6 +77,11 @@ public class AtsBuilder {
                 .valorRetServicios(formatoValores.convertirBigDecimalToString(new BigDecimal("0.00")))
                 .valRetServ100(formatoValores.convertirBigDecimalToString(new BigDecimal("0.00")))
                 .totbasesImpReemb(formatoValores.convertirBigDecimalToString(new BigDecimal("0.00")))
+                .docModificado(Objects.nonNull(model.getModCodigoDocumento()) ? model.getModCodigoDocumento().getCodigo() : null)
+                .autModificado(Objects.nonNull(model.getModNumAutorizacion()) ? model.getModNumAutorizacion() : null)
+                .estabModificado(Objects.nonNull(model.getModSerie()) ? model.getModSerie().substring(0, 3) : null)
+                .ptoEmiModificado(Objects.nonNull(model.getModSerie()) ? model.getModSerie().substring(3, 6) : null)
+                .secModificado(Objects.nonNull(model.getModSecuencial()) ? model.getModSecuencial() : null)
                 .build();
 
         if (total.compareTo(new BigDecimal("500")) > 0) {
@@ -119,45 +124,48 @@ public class AtsBuilder {
 
     private PagoExterior builderPagoExterior(PagoLocalExterior pagoLocExt, String json) {
 
-
-        if (pagoLocExt.equals(PagoLocalExterior.L)) {
-            PagoExterior pagoExterior01 = new PagoExterior();
-            pagoExterior01.setPagoLocExt(pagoLocExt.getCodigo());
-            pagoExterior01.setAplicConvDobTrib("NA");
-            pagoExterior01.setPaisEfecPago("NA");
-            pagoExterior01.setPagExtSujRetNorLeg("NA");
-            return pagoExterior01;
-
-        } else {
-
-            if (Objects.nonNull(json)) {
+        if (Objects.nonNull(pagoLocExt)) {
 
 
-                PagoExterior pagoExteriorOtroCodigo = new PagoExterior();
+            if (pagoLocExt.equals(PagoLocalExterior.L)) {
+                PagoExterior pagoExterior01 = new PagoExterior();
+                pagoExterior01.setPagoLocExt(pagoLocExt.getCodigo());
+                pagoExterior01.setAplicConvDobTrib("NA");
+                pagoExterior01.setPaisEfecPago("NA");
+                pagoExterior01.setPagExtSujRetNorLeg("NA");
+                return pagoExterior01;
 
-                com.calero.lili.core.modCompras.modComprasImpuestos.dto.PagoExterior model = jsonUtils.convertirListStringObjecto(json,
-                        com.calero.lili.core.modCompras.modComprasImpuestos.dto.PagoExterior.class);
+            } else {
+
+                if (Objects.nonNull(json)) {
 
 
-                pagoExteriorOtroCodigo.setPagoLocExt(pagoLocExt.getCodigo());
-                pagoExteriorOtroCodigo.setTipoRegi(model.getTipoRegi());
-                pagoExteriorOtroCodigo.setAplicConvDobTrib(model.getAplicConvDobTrib());
-                pagoExteriorOtroCodigo.setPagExtSujRetNorLeg(model.getPagExtSujRetNorLeg());
-                pagoExteriorOtroCodigo.setPaisEfecPago(model.getPaisEfecPago());
+                    PagoExterior pagoExteriorOtroCodigo = new PagoExterior();
 
-                switch (model.getTipoRegi()) {
-                    case "01" -> pagoExteriorOtroCodigo.setPaisEfecPagoGen(model.getPaisEfecPagoGen());
+                    com.calero.lili.core.modCompras.modComprasImpuestos.dto.PagoExterior model = jsonUtils.convertirListStringObjecto(json,
+                            com.calero.lili.core.modCompras.modComprasImpuestos.dto.PagoExterior.class);
 
-                    case "02" -> pagoExteriorOtroCodigo.setPaisEfecPagoParFis(model.getPaisEfecPagoParFis());
 
-                    case "03" -> pagoExteriorOtroCodigo.setDenopagoRegFis(model.getDenopagoRegFis());
+                    pagoExteriorOtroCodigo.setPagoLocExt(pagoLocExt.getCodigo());
+                    pagoExteriorOtroCodigo.setTipoRegi(model.getTipoRegi());
+                    pagoExteriorOtroCodigo.setAplicConvDobTrib(model.getAplicConvDobTrib());
+                    pagoExteriorOtroCodigo.setPagExtSujRetNorLeg(model.getPagExtSujRetNorLeg());
+                    pagoExteriorOtroCodigo.setPagoRegFis(model.getPagoRegFis());
+                    pagoExteriorOtroCodigo.setPaisEfecPago(model.getPaisEfecPago());
+
+                    switch (model.getTipoRegi()) {
+                        case "01" -> pagoExteriorOtroCodigo.setPaisEfecPagoGen(model.getPaisEfecPagoGen());
+
+                        case "02" -> pagoExteriorOtroCodigo.setPaisEfecPagoParFis(model.getPaisEfecPagoParFis());
+
+                        case "03" -> pagoExteriorOtroCodigo.setDenopagoRegFis(model.getDenopagoRegFis());
+                    }
+
+                    return pagoExteriorOtroCodigo;
                 }
 
-                return pagoExteriorOtroCodigo;
             }
-
         }
-
 
         return null;
 
