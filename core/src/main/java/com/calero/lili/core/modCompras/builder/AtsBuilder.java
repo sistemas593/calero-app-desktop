@@ -150,7 +150,6 @@ public class AtsBuilder {
                     pagoExteriorOtroCodigo.setTipoRegi(model.getTipoRegi());
                     pagoExteriorOtroCodigo.setAplicConvDobTrib(model.getAplicConvDobTrib());
                     pagoExteriorOtroCodigo.setPagExtSujRetNorLeg(model.getPagExtSujRetNorLeg());
-                    pagoExteriorOtroCodigo.setPagoRegFis(model.getPagoRegFis());
                     pagoExteriorOtroCodigo.setPaisEfecPago(model.getPaisEfecPago());
 
                     switch (model.getTipoRegi()) {

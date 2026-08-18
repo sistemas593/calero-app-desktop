@@ -172,6 +172,7 @@ public class CpImpuestoCargaExcelService {
                             terceroEntity.setIdData(idData);
                             terceroEntity.setTercero(Objects.nonNull(nombreTercero) ? nombreTercero : null);
                             terceroEntity.setNumeroIdentificacion(numeroIdentifiacion);
+                            validarTipoIdentifiacion(terceroEntity, numeroIdentifiacion);
 
                             return geTercerosRepository.save(terceroEntity);
                         });
@@ -325,7 +326,7 @@ public class CpImpuestoCargaExcelService {
 
 
             String docModificado = celda(fila.celdas(), 45);
-            if (Objects.nonNull(concepto)) {
+            if (Objects.nonNull(docModificado)) {
                 cpImpuestos.setModCodigoDocumento(DocumentoEnum.getCodigoDocumento(docModificado));
             }
 
@@ -635,6 +636,22 @@ public class CpImpuestoCargaExcelService {
             DetalleError detalleError = detalleErrorBuilder.builderDetalleError(linea, EnumError.DOCUMENTO_ERROR);
             detalleError.setDetalle("El codigo de pago local o exterior no se encuentra");
             detalleErrores.add(detalleError);
+        }
+    }
+
+    private void validarTipoIdentifiacion(GeTerceroEntity terceroEntity, String numeroIdentifiacion) {
+
+        int valor = numeroIdentifiacion.trim().length();
+
+        switch (valor) {
+            case 13:
+                terceroEntity.setTipoIdentificacion("R");
+                break;
+            case 10:
+                terceroEntity.setTipoIdentificacion("C");
+                break;
+            default:
+                terceroEntity.setTipoIdentificacion("P");
         }
     }
 

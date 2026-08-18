@@ -1,6 +1,7 @@
 package com.calero.lili.core.modCompras.modComprasImpuestos.builder;
 
 import com.calero.lili.core.enums.PagoLocalExterior;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.CpImpuestosValoresEntity;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CpImpuestoDetalleError;
@@ -63,6 +64,8 @@ public class CpImpuestoDetalleErrorBuilder {
                 .autorizacion(request.getNumeroAutorizacion())
                 .pagoExterior(builderPagoExterior(request.getPagoExterior(), request.getPagoLocExt()))
                 .fechaRegistro(DateUtils.toString(request.getFechaRegistro()))
+                .tpIdProv(validacionTipoId(request.getTercero().getTipoIdentificacion()))
+                .idProv(request.getTercero().getNumeroIdentificacion())
                 .build();
     }
 
@@ -117,5 +120,20 @@ public class CpImpuestoDetalleErrorBuilder {
                 .denopagoRegFis(model.getDenopagoRegFis())
                 .pagoRegFis(model.getPagoRegFis())
                 .build();
+    }
+
+    private String validacionTipoId(String tipoIdentificacion) {
+        switch (tipoIdentificacion) {
+            case "R" -> {
+                return "01";
+            }
+            case "C" -> {
+                return "02";
+            }
+            case "P" -> {
+                return "03";
+            }
+            case null, default -> throw new GeneralException("No existe tipo de identificación para el proveedor");
+        }
     }
 }

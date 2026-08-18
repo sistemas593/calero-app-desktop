@@ -3,8 +3,6 @@ package com.calero.lili.core.enums;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Objects;
-
 @RequiredArgsConstructor
 @Getter
 public enum DocumentoEnum {
@@ -37,11 +35,6 @@ public enum DocumentoEnum {
 
 
     public static DocumentoEnum getCodigoDocumento(String codigoDocumento) {
-        if (Objects.isNull(codigoDocumento) || codigoDocumento.isEmpty()) {
-            return D01;
-        }
-
-
         for (DocumentoEnum documento : DocumentoEnum.values()) {
             if (documento.getCodigo().equals(codigoDocumento)) {
                 return documento;

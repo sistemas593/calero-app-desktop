@@ -1,5 +1,7 @@
 package com.calero.lili.core.modCompras.modComprasImpuestos;
 
+import com.calero.lili.core.enums.DocumentoEnum;
+import com.calero.lili.core.enums.TipoIdentificacion;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modCompras.modComprasImpuestos.builder.CpImpuestoDetalleErrorBuilder;
 import com.calero.lili.core.modCompras.modComprasImpuestos.dto.CpImpuestoDetalleError;
@@ -11,6 +13,7 @@ import com.calero.lili.core.tablas.tbPaises.tbParaisosFiscales.TbParaisoFiscalEn
 import com.calero.lili.core.tablas.tbPaises.tbParaisosFiscales.TbParaisoFiscalRepository;
 import com.calero.lili.core.utils.ComprobanteSustentoService;
 import com.calero.lili.core.utils.DateUtils;
+import com.calero.lili.core.utils.TipoIdentificacionDocumentoValidacionService;
 import com.calero.lili.core.utils.ValidacionDocumentosGeneral;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,6 +34,7 @@ public class ValidacionGeneralCpImpuestosService {
     private final TbPaisesRepository tbPaisesRepository;
     private final TbParaisoFiscalRepository tbParaisoFiscalRepository;
     private final ValidacionDocumentosGeneral validacionDocumentosGeneral;
+    private final TipoIdentificacionDocumentoValidacionService tpIdentDocValidacion;
 
     public List<CpImpuestoDetalleError> validacionGeneral(DetalleCompras model) {
 
@@ -40,6 +44,11 @@ public class ValidacionGeneralCpImpuestosService {
         LocalDate fechaEmisionRet = null;
         LocalDate fechaRegistro = null;
 
+        if (!tpIdentDocValidacion.validacionIdentDoc(model.getTpIdProv(), model.getTipoComprobante())) {
+            System.out.println(model.getIdProv());
+            detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("El tipo de identificacion: "
+                    + TipoIdentificacion.valueOf(model.getTpIdProv()).getIdentificacion() + " no se puede relacionar con el documento: " + DocumentoEnum.getCodigoDocumento(model.getTipoComprobante()).getNombre()));
+        }
 
         if (Objects.nonNull(model.getEstablecimiento()) && Objects.nonNull(model.getPuntoEmision())) {
             String serie = model.getEstablecimiento() + model.getPuntoEmision();
