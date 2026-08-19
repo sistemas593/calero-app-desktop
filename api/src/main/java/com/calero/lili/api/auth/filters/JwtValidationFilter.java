@@ -69,13 +69,16 @@ public class JwtValidationFilter extends BasicAuthenticationFilter {
 
             Long random = Long.valueOf((Integer) claims.get("rn"));
 
+            Boolean cambioPasswordRequerido = claims.get("cambioPasswordRequerido") != null
+                    ? (Boolean) claims.get("cambioPasswordRequerido")
+                    : Boolean.FALSE;
 
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
 
             // AQUI GENERA UN OBJETO AUTHENTICATION CON LOS DATOS DEL TOKEN, SE PASA EL USUARIO, LA CONTRASE;A Y LOS PERMISOS
 
-            UsuarioSecurity usuarioSecurity = new UsuarioSecurity(username, null, dt, nv, userDetails.getAuthorities(), random);
+            UsuarioSecurity usuarioSecurity = new UsuarioSecurity(username, null, dt, nv, userDetails.getAuthorities(), random, cambioPasswordRequerido);
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(usuarioSecurity, null,
                     userDetails.getAuthorities());
 

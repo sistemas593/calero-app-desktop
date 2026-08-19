@@ -99,6 +99,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         claims.put("dt", dt);
         claims.put("nv", nv);
         claims.put("rn", user.getRandom());
+        claims.put("cambioPasswordRequerido", user.isCambioPasswordRequerido());
 
         // 3600000 EXPIRA EN 1 HORA MAS 0 10 HORAS
 
@@ -115,6 +116,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         body.put("token", token);
         body.put("message", String.format("Hola %s, has iniciado sesion con exito!", username));
         body.put("username", username);
+        body.put("cambioPasswordRequerido", user.isCambioPasswordRequerido());
 
         // ASIGNO EL body en el response, convirtiendo el map a un json
 

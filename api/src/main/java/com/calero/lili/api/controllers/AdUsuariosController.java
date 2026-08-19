@@ -1,11 +1,13 @@
 package com.calero.lili.api.controllers;
 
+import com.calero.lili.api.auth.SecurityUtils;
 import com.calero.lili.api.modAdminUsuarios.AdUsuarioServiceImpl;
 import com.calero.lili.api.modAdminUsuarios.dto.AdUsuarioCreationResponseDto;
 import com.calero.lili.api.modAdminUsuarios.dto.AdUsuarioListFilterDto;
 import com.calero.lili.api.modAdminUsuarios.dto.AdUsuarioPermisosDtoResponse;
 import com.calero.lili.api.modAdminUsuarios.dto.AdUsuarioReportDto;
 import com.calero.lili.api.modAdminUsuarios.dto.AdUsuarioRequestDto;
+import com.calero.lili.api.modAdminUsuarios.dto.CambiarPasswordRequestDto;
 import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.api.utils.IdDataServiceImpl;
 import com.calero.lili.core.dtos.PaginatedDto;
@@ -14,7 +16,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,12 +36,22 @@ public class AdUsuariosController {
     private final AdUsuarioServiceImpl adUsuarioService;
     private final IdDataServiceImpl idDataService;
     private final AuditorAwareImpl auditorAware;
+    private final SecurityUtils securityUtils;
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     // @PreAuthorize("hasAuthority('US_US_CR')")
     public AdUsuarioCreationResponseDto create(@RequestBody AdUsuarioRequestDto request) {
         return adUsuarioService.create(request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+    }
+
+    // Cualquier usuario autenticado cambia SU PROPIA contraseña (username tomado del token, no del body).
+    // Habilitado explícitamente en SpringSecurityConfig para no exigir rol SUPER.
+    @PutMapping("cambiar-password")
+    @ResponseStatus(HttpStatus.OK)
+    public void cambiarPassword(@RequestBody CambiarPasswordRequestDto request) {
+        String username = securityUtils.getUser().getUsername();
+        adUsuarioService.cambiarPassword(username, request);
     }
 
     @PutMapping("{idUsuario}")

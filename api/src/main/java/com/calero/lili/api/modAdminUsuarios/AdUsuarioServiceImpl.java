@@ -10,7 +10,9 @@ import com.calero.lili.api.modAdminUsuarios.dto.AdUsuarioListFilterDto;
 import com.calero.lili.api.modAdminUsuarios.dto.AdUsuarioPermisosDtoResponse;
 import com.calero.lili.api.modAdminUsuarios.dto.AdUsuarioReportDto;
 import com.calero.lili.api.modAdminUsuarios.dto.AdUsuarioRequestDto;
+import com.calero.lili.api.modAdminUsuarios.dto.CambiarPasswordRequestDto;
 import com.calero.lili.api.modAdminUsuarios.enums.TipoUsuario;
+import com.calero.lili.core.apiSitac.services.GenerarBody;
 import com.calero.lili.core.dtos.PaginatedDto;
 import com.calero.lili.core.dtos.Paginator;
 import com.calero.lili.core.errors.exceptions.GeneralException;
@@ -29,6 +31,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,6 +53,8 @@ public class AdUsuarioServiceImpl {
     @Autowired
     private AdGruposRepository adGruposRepository;
 
+    @Autowired
+    private AdUsuarioEnvioCorreoService adUsuarioEnvioCorreoService;
 
     @Transactional
     // ESTA INCORRECTO ESTOY RECIBIENTO DIRECTAMENTE LA ENTIDAD, CAMBIAR Y RECIBIR DTO
@@ -71,11 +76,14 @@ public class AdUsuarioServiceImpl {
 
         AdUsuarioEntity adUsuario = new AdUsuarioEntity();
 
+        String password = UUID.randomUUID().toString().substring(0, 8);
+
         adUsuario = toEntity(request, adUsuario);
         adUsuario.setUsername(request.getUsername());
-        adUsuario.setPassword(passwordEncoder.encode(request.getPassword()));
+        adUsuario.setPassword(passwordEncoder.encode(password));
         adUsuario.setCreatedBy(usuario);
         adUsuario.setCreatedDate(LocalDateTime.now());
+        adUsuario.setCambioPasswordRequerido(true);
 
 //        List<AdRolEntity> rolesNuevosEntity = request
 //                .getRoles()
@@ -108,11 +116,13 @@ public class AdUsuarioServiceImpl {
 //        }
 //        adUsuario.setRoles(rolesEntity);
 
-        adUsuarioRepository.save(adUsuario);
+        AdUsuarioEntity saved = adUsuarioRepository.save(adUsuario);
 
         AdUsuarioCreationResponseDto responseDto = new AdUsuarioCreationResponseDto();
         responseDto.setIdUsuario(adUsuario.getIdUsuario());
         responseDto.setUsername(request.getUsername());
+
+        adUsuarioEnvioCorreoService.enviarCorreo(saved, password);
         return responseDto;
     }
 
@@ -147,6 +157,30 @@ public class AdUsuarioServiceImpl {
         responseDto.setIdUsuario(entidad.getIdUsuario());
         responseDto.setUsername(entidad.getUsername());
         return responseDto;
+    }
+
+    @Transactional
+    public void cambiarPassword(String username, CambiarPasswordRequestDto request) {
+
+        if (request.getPasswordNueva() == null || request.getPasswordNueva().isBlank()) {
+            throw new GeneralException("La nueva contraseña no puede estar vacía");
+        }
+
+        AdUsuarioEntity usuario = adUsuarioRepository.findByUsername(username);
+        if (usuario == null) {
+            throw new GeneralException(MessageFormat.format("El username {0} no existe", username));
+        }
+
+        if (!passwordEncoder.matches(request.getPasswordActual(), usuario.getPassword())) {
+            throw new GeneralException("La contraseña actual no es correcta");
+        }
+
+        usuario.setPassword(passwordEncoder.encode(request.getPasswordNueva()));
+        usuario.setCambioPasswordRequerido(false);
+        usuario.setModifiedBy(username);
+        usuario.setModifiedDate(LocalDateTime.now());
+
+        adUsuarioRepository.save(usuario);
     }
 
     public AdUsuarioReportDto findByIdUsuario(Long idUsuario) {

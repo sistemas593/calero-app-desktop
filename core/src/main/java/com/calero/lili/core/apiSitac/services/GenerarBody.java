@@ -5,6 +5,7 @@ import com.calero.lili.core.apiSitac.dtos.contacto.ContactoRequestDto;
 import com.calero.lili.core.apiSitac.repositories.entities.AdMailConfigEntity;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdDatasConfiguraciones.dto.StCorreoRequestDto;
+import com.calero.lili.core.utils.DateUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
@@ -12,6 +13,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -101,6 +103,37 @@ public class GenerarBody {
 
     }
 
+
+    public EnvioCorreoModeloDto generarModelCorreoNuevoUsuario(AdMailConfigEntity adConfigMailEntity, String usuario, String clave, String correo) {
+
+        try {
+
+            Resource resource = new ClassPathResource("templates/bienvenida-usuario.html");
+
+            EnvioCorreoModeloDto email = new EnvioCorreoModeloDto();
+            email.setSubject("Bienvenido");
+
+            String html = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+
+            html = html
+                    .replace("{{username}}", usuario)
+                    .replace("{{passwordTemporal}}", clave)
+                    .replace(" {{anio}}", String.valueOf(LocalDate.now().getYear()))
+                    .replace("{{fechaCreacion}}", DateUtils.toString(LocalDate.now()));
+
+            email.setEmailTo(correo);
+            email.setEmailFrom(adConfigMailEntity.getEmailFrom());
+            email.setTokenApi(adConfigMailEntity.getConsumerKey());
+            email.setBody(html);
+
+            return email;
+
+        } catch (Exception exception) {
+            throw new GeneralException("Error al generar el body del correo: " + exception.getMessage());
+        }
+
+
+    }
 
     private void setearInicialesYNombreDocumento(String codigoDocumento, EnvioCorreoModeloDto email) {
         String inicialesDocumento = switch (codigoDocumento) {

@@ -58,7 +58,8 @@ public class JpaUserDetailsService implements UserDetailsService {
                 user.getIdData(),
                 user.getTipoUsuario().name(),
                 authorities,
-                0L
+                0L,
+                user.isCambioPasswordRequerido()
         );
     }
 

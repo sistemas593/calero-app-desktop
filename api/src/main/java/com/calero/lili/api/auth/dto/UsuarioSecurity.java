@@ -21,6 +21,9 @@ public class UsuarioSecurity implements UserDetails {
     }
 
     private Long random;
+
+    private boolean cambioPasswordRequerido;
+
     private final Collection<? extends GrantedAuthority> authorities;
 
     @Override
@@ -58,13 +61,14 @@ public class UsuarioSecurity implements UserDetails {
         return true;
     }
 
-    public UsuarioSecurity(String username, String password, Long data, String nivel, Collection<? extends GrantedAuthority> authorities, Long random) {
+    public UsuarioSecurity(String username, String password, Long data, String nivel, Collection<? extends GrantedAuthority> authorities, Long random, boolean cambioPasswordRequerido) {
         this.username = username;
         this.password = password;
         this.data = data;
         this.nivel = nivel;
         this.authorities = authorities;
         this.random = random;
+        this.cambioPasswordRequerido = cambioPasswordRequerido;
     }
 
 
@@ -84,5 +88,12 @@ public class UsuarioSecurity implements UserDetails {
         this.nivel = nivel;
     }
 
+    public boolean isCambioPasswordRequerido() {
+        return cambioPasswordRequerido;
+    }
+
+    public void setCambioPasswordRequerido(boolean cambioPasswordRequerido) {
+        this.cambioPasswordRequerido = cambioPasswordRequerido;
+    }
 
 }

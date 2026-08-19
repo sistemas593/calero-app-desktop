@@ -74,6 +74,9 @@ public class SpringSecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/v1.0/datas/**").hasRole("SUPER")
                         .requestMatchers(HttpMethod.PUT, "/api/v1.0/datas/**").hasRole("SUPER")
 
+                        // REQUEST PARA QUE CUALQUIER USUARIO AUTENTICADO PUEDA CAMBIAR SU CONTRASEÑA ESTO SE HACE ASI PORQUE,
+                        // LOS ENDPOINTS DE USUARIOS ESTÁN SOLO PARA LOS USUARIOS SUPER
+                        .requestMatchers(HttpMethod.PUT, "/api/v1.0/usuarios/cambiar-password").authenticated()
 
                         // PERMISOS PARA LA DOCUMENTACIÓN DE SWAGGER.
 

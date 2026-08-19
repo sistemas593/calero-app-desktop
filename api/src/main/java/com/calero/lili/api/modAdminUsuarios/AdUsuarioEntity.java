@@ -20,6 +20,7 @@ import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import org.hibernate.annotations.ColumnDefault;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -60,6 +61,14 @@ public class AdUsuarioEntity extends Auditable implements IUser {
 
     @Transient
     private boolean admin;
+
+    // Indica si la contraseña actual es temporal y debe cambiarse antes de operar en el sistema.
+    // Mientras este valor sea true, el usuario solo debe poder acceder al endpoint de cambio de password.
+    // @ColumnDefault hace que el ALTER TABLE incluya "default false", para que no falle
+    // al agregar la columna NOT NULL en una tabla que ya tiene usuarios registrados.
+    @ColumnDefault("false")
+    @Column(nullable = false)
+    private boolean cambioPasswordRequerido;
 
 
 //    private int siguienteIdEmpresa;
