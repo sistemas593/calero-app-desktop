@@ -13,7 +13,7 @@ import com.google.cloud.storage.StorageOptions;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.io.FileInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.Channels;
@@ -126,26 +126,14 @@ public class BuscarDatosEmpresa {
 
         String pwd = AESUtils.decrypt(empresa.getContraseniaFirma());
 
-        String rutaFirma = empresa.getRutaArchivoFirma();
-        if (rutaFirma == null || rutaFirma.isBlank()) {
+        byte[] archivoFirma = empresa.getArchivoFirma();
+        if (archivoFirma == null || archivoFirma.length == 0) {
             throw new GeneralException(
-                    "La empresa no tiene configurada la ruta del archivo de firma (.p12). " +
-                            "Configure la ruta en la sección 'Firma y Envío' del formulario de empresa.");
+                    "La empresa no tiene configurado el archivo de firma (.p12). " +
+                            "Súbalo en la sección 'Firma y Envío' del formulario de empresa.");
         }
 
-        Path pathP12 = Paths.get(rutaFirma);
-        if (!Files.exists(pathP12)) {
-            throw new GeneralException(MessageFormat.format(
-                    "El archivo .p12 no existe en la ruta configurada: {0}", pathP12.toAbsolutePath()));
-        }
-
-        InputStream inputStreamFirma;
-        try {
-            inputStreamFirma = new FileInputStream(pathP12.toFile());
-        } catch (Exception e) {
-            throw new GeneralException(MessageFormat.format(
-                    "Error al leer el archivo .p12: {0}", e.getMessage()));
-        }
+        InputStream inputStreamFirma = new ByteArrayInputStream(archivoFirma);
 
         // ── 4. Leer logo desde la ruta guardada en BD (opcional) ──────────────
         byte[] imageBytes = null;

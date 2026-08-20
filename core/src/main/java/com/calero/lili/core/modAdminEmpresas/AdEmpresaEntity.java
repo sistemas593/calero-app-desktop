@@ -98,6 +98,12 @@ public class AdEmpresaEntity extends Auditable {
     // Ejemplo Linux   : /home/ismael/firmas/empresa.p12
     private String rutaArchivoFirma;
 
+    // Contenido binario del archivo .p12 subido y almacenado en la base de datos
+    private byte[] archivoFirma;
+
+    // Nombre original del archivo .p12 subido (ej: firma_empresa.p12)
+    private String nombreArchivoFirma;
+
     // Ruta absoluta del logo en el sistema local (modo LOC, opcional)
     private String rutaLogo;
 

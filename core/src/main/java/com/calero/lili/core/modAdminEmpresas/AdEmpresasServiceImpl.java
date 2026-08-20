@@ -21,7 +21,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -138,4 +140,44 @@ public class AdEmpresasServiceImpl {
         return adEmpresaBuilder.builderRucResponse(entidad);
 
     }
+
+    private static final String EXTENSION_ARCHIVO_FIRMA = ".p12";
+    private static final long TAMANIO_MAXIMO_ARCHIVO_FIRMA = 5L * 1024 * 1024; // 5 MB
+
+    @Transactional
+    public AdEmpresaCreationResponseDto subirArchivoFirma(Long idData, Long idEmpresa, MultipartFile archivo) {
+
+        AdEmpresaEntity empresa = adEmpresasRepository.findById(idData, idEmpresa)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Data {0}, Empresa {1} no existe", idData, idEmpresa)));
+
+        validarArchivoFirma(archivo);
+
+        try {
+            empresa.setArchivoFirma(archivo.getBytes());
+        } catch (IOException e) {
+            throw new GeneralException(MessageFormat.format("Error al leer el archivo .p12: {0}", e.getMessage()));
+        }
+        empresa.setNombreArchivoFirma(archivo.getOriginalFilename());
+
+        empresa = adEmpresasRepository.save(empresa);
+
+        return adEmpresaBuilder.builderResponseDto(empresa);
+    }
+
+    private void validarArchivoFirma(MultipartFile archivo) {
+
+        if (archivo == null || archivo.isEmpty()) {
+            throw new GeneralException("Debe adjuntar el archivo de firma (.p12)");
+        }
+
+        String nombreOriginal = archivo.getOriginalFilename();
+        if (nombreOriginal == null || !nombreOriginal.toLowerCase().endsWith(EXTENSION_ARCHIVO_FIRMA)) {
+            throw new GeneralException("El archivo de firma debe tener extensión .p12");
+        }
+
+        if (archivo.getSize() > TAMANIO_MAXIMO_ARCHIVO_FIRMA) {
+            throw new GeneralException("El archivo de firma supera el tamaño máximo permitido (5MB)");
+        }
+    }
+
 }

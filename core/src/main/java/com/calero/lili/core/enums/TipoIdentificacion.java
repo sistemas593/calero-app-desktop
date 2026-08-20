@@ -1,5 +1,6 @@
 package com.calero.lili.core.enums;
 
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -21,5 +22,24 @@ public enum TipoIdentificacion {
             }
         }
         return R;
+    }
+
+    public static TipoIdentificacion obtenerTipoIdentifiacionPorCodigoCompra(String codigoCompra) {
+        for (TipoIdentificacion tipo : TipoIdentificacion.values()) {
+            if (tipo.getCodigoCompra().equals(codigoCompra)) {
+                return tipo;
+            }
+        }
+        throw new GeneralException("El codigo de identifiacion:" + codigoCompra + " no existe");
+    }
+
+
+    public static String obtenerNombrePorCodigoCompra(String codigoCompra) {
+        for (TipoIdentificacion tipo : TipoIdentificacion.values()) {
+            if (tipo.getCodigoCompra().equals(codigoCompra)) {
+                return tipo.getIdentificacion();
+            }
+        }
+        return codigoCompra;
     }
 }

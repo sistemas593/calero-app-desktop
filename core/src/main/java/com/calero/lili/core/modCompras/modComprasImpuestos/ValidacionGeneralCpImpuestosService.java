@@ -45,9 +45,16 @@ public class ValidacionGeneralCpImpuestosService {
         LocalDate fechaRegistro = null;
 
         if (!tpIdentDocValidacion.validacionIdentDoc(model.getTpIdProv(), model.getTipoComprobante())) {
-            System.out.println(model.getIdProv());
-            detalleErrores.add(cpImpuestoDetalleErrorBuilder.builder("El tipo de identificacion: "
-                    + TipoIdentificacion.valueOf(model.getTpIdProv()).getIdentificacion() + " no se puede relacionar con el documento: " + DocumentoEnum.getCodigoDocumento(model.getTipoComprobante()).getNombre()));
+            detalleErrores.add(
+                    cpImpuestoDetalleErrorBuilder.builder(
+                            "El tipo de identificación '" +
+                                    TipoIdentificacion.obtenerNombrePorCodigoCompra(model.getTpIdProv()) +
+                                    "' con código '" + model.getTpIdProv() +
+                                    "' no se puede relacionar con el documento '" +
+                                    DocumentoEnum.getCodigoDocumento(model.getTipoComprobante()).getNombre() +
+                                    "' con código '" + model.getTipoComprobante() + "'."
+                    )
+            );
         }
 
         if (Objects.nonNull(model.getEstablecimiento()) && Objects.nonNull(model.getPuntoEmision())) {

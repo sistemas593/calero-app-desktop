@@ -197,6 +197,18 @@ public class CpImpuestosController {
         }
     }
 
+    @PostMapping("/excel-formato-dos/{idEmpresa}/{sucursal}")
+    public void uploadCpImpuestoExcelFormatoDos(@RequestParam("file") MultipartFile file,
+                                                @PathVariable("idEmpresa") Long idEmpresa,
+                                                @PathVariable("sucursal") String sucursal) {
+        try {
+            cpImpuestoCargaExcelService.cargarExcelCompraImpuestosFormatoDos(idDataService.getIdData(), idEmpresa,
+                    file, auditorAware.getCurrentAuditor().orElse("SYSTEM"), sucursal);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @PostMapping("/excel/reembolsos/{idEmpresa}")
     public void uploadCpImpuestoReembolsoExcel(@RequestParam("file") MultipartFile file,
                                                @PathVariable("idEmpresa") Long idEmpresa) {
