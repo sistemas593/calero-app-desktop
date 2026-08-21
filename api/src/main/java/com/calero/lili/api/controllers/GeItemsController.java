@@ -1,14 +1,14 @@
 package com.calero.lili.api.controllers;
 
+import com.calero.lili.api.utils.IdDataServiceImpl;
+import com.calero.lili.core.dtos.PaginatedDto;
+import com.calero.lili.core.dtos.errors.ListCreationResponseDto;
 import com.calero.lili.core.modComprasItems.GeItemsServiceImpl;
 import com.calero.lili.core.modComprasItems.dto.GeItemGetListDto;
 import com.calero.lili.core.modComprasItems.dto.GeItemGetOneDto;
 import com.calero.lili.core.modComprasItems.dto.GeItemListFilterDto;
 import com.calero.lili.core.modComprasItems.dto.GeItemRequestDto;
 import com.calero.lili.core.modComprasItems.dto.GeItemRequestListDto;
-import com.calero.lili.api.utils.IdDataServiceImpl;
-import com.calero.lili.core.dtos.PaginatedDto;
-import com.calero.lili.core.dtos.errors.ListCreationResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
@@ -46,7 +46,7 @@ public class GeItemsController {
     @PreAuthorize("hasAuthority('GE_IT_CR')")
     public GeItemGetListDto create(@Valid @PathVariable("idEmpresa") Long idEmpresa,
                                    @Valid @RequestBody GeItemRequestDto request) {
-        return geItemsService.create(idDataService.getIdData(), idEmpresa, request,auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        return geItemsService.create(idDataService.getIdData(), idEmpresa, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PostMapping("/createList/{idEmpresa}")
@@ -54,7 +54,7 @@ public class GeItemsController {
     @PreAuthorize("hasAuthority('GE_IT_CR')")
     public ListCreationResponseDto createList(@PathVariable("idEmpresa") Long idEmpresa,
                                               @Valid @RequestBody GeItemRequestListDto request) {
-        return geItemsService.createListItems(idDataService.getIdData(), idEmpresa, request,auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        return geItemsService.createListItems(idDataService.getIdData(), idEmpresa, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @PutMapping("{idEmpresa}/{id}")
@@ -63,7 +63,7 @@ public class GeItemsController {
     public GeItemGetListDto update(@PathVariable("idEmpresa") Long idEmpresa,
                                    @PathVariable("id") UUID id,
                                    @Valid @RequestBody GeItemRequestDto request) {
-        return geItemsService.update(idDataService.getIdData(), idEmpresa, id, request,auditorAware.getCurrentAuditor().orElse("SYSTEM"));
+        return geItemsService.update(idDataService.getIdData(), idEmpresa, id, request, auditorAware.getCurrentAuditor().orElse("SYSTEM"));
     }
 
     @DeleteMapping("{idEmpresa}/{id}")
@@ -93,9 +93,20 @@ public class GeItemsController {
 
         int pageSize = pageable.getPageSize();
         if (pageSize > 100) {
-            pageSize = 100;}
+            pageSize = 100;
+        }
         Pageable pageableConSort = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
         return geItemsService.findAllPaginate(idDataService.getIdData(), idEmpresa, filters, pageableConSort);
+    }
+
+    @GetMapping("/tarifa-vigente/{idEmpresa}/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAuthority('GE_IT_VR')")
+    public GeItemGetOneDto obtenerTarifaIvaVigente(@PathVariable("idEmpresa") Long idEmpresa,
+                                                   @PathVariable("id") UUID id,
+                                                   GeItemListFilterDto filters) {
+        System.out.println("aa");
+        return geItemsService.obtenerTarifaIvaVigente(idDataService.getIdData(), idEmpresa, id, filters);
     }
 
 }

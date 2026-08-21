@@ -101,21 +101,21 @@ public class ValidacionValoresVtVentasService {
 
         Set<Integer> tarifasVigentes = new HashSet<>();
 
-        if (Objects.nonNull(porcentaje.get().getIva1()))
+        if (Objects.nonNull(porcentaje.get().getTarifaGeneral()))
 
-            if (porcentaje.get().getIva1() != 0) {
-                tarifasVigentes.add(porcentaje.get().getIva1());
+            if (porcentaje.get().getTarifaGeneral() != 0) {
+                tarifasVigentes.add(porcentaje.get().getTarifaGeneral());
             }
 
-        if (Objects.nonNull(porcentaje.get().getIva2())) {
-            if (porcentaje.get().getIva2() != 0) {
-                tarifasVigentes.add(porcentaje.get().getIva2());
+        if (Objects.nonNull(porcentaje.get().getTarifaReducida())) {
+            if (porcentaje.get().getTarifaReducida() != 0) {
+                tarifasVigentes.add(porcentaje.get().getTarifaReducida());
             }
         }
 
-        if (Objects.nonNull(porcentaje.get().getIva3())) {
-            if (porcentaje.get().getIva3() != 0) {
-                tarifasVigentes.add(porcentaje.get().getIva3());
+        if (Objects.nonNull(porcentaje.get().getTarifaConstruccion())) {
+            if (porcentaje.get().getTarifaConstruccion() != 0) {
+                tarifasVigentes.add(porcentaje.get().getTarifaConstruccion());
             }
         }
 

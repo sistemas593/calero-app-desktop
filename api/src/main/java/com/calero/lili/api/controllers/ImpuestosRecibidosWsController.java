@@ -3,18 +3,20 @@ package com.calero.lili.api.controllers;
 import com.calero.lili.api.modAuditoria.AuditorAwareImpl;
 import com.calero.lili.api.utils.IdDataServiceImpl;
 import com.calero.lili.core.comprobantesWs.services.DeRecibidasWsServiceImpl;
-import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirListCreationRequestDto;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirListCreationResponseDto;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirListExistRequestResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -39,12 +41,13 @@ public class ImpuestosRecibidosWsController {
 
     }
 
-    @PostMapping("list/{idEmpresa}")
+    // Recibe un archivo tabulado (TAB) con la columna CLAVE_ACCESO, del cual se extraen las claves a procesar
+    @PostMapping(value = "list/{idEmpresa}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public CpImpuestosRecibirListCreationResponseDto createListClavesAcceso(
             @PathVariable("idEmpresa") Long idEmpresa,
-            @RequestBody CpImpuestosRecibirListCreationRequestDto request) {
-        return deRecibidasWsService.createListClavesAcceso(idDataService.getIdData(), idEmpresa, request,
+            @RequestParam("file") MultipartFile file) {
+        return deRecibidasWsService.createListClavesAcceso(idDataService.getIdData(), idEmpresa, file,
                 auditorAware.getCurrentAuditor().orElse("SYSTEM"));
 
     }

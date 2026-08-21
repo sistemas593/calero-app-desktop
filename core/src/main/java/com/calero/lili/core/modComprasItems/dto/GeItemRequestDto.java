@@ -80,4 +80,5 @@ public class GeItemRequestDto {
     private List<GeMedidasItemsDto> medidas;
 
     private String caracteristicas;
+    private Boolean aplicaTarifaReducida;
 }

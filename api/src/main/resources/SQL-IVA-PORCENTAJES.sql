@@ -1,6 +1,6 @@
 
 INSERT INTO public.ad_iva_porcentajes
-(id_iva_porcentaje, deleted, fecha_desde, iva1, iva2, iva3)
+(id_iva_porcentaje, deleted, fecha_desde, tarifa_general, tarifa_reducida, tarifa_construccion)
 VALUES
 (1, false, '1995-01-01', 10, 0, 0),
 (2, false, '2000-01-01', 12, 0, 0),

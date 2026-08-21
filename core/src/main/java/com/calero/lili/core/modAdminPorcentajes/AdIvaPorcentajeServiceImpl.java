@@ -57,6 +57,7 @@ public class AdIvaPorcentajeServiceImpl {
         return adIvaPorcentajeBuilder.builderResponse(entidad);
     }
 
+
     public void delete(Long idPorcentaje, String usuario) {
 
         AdIvaPorcentajesEntity entidad = adIvaPorcentajesRepository.findByIdPorcentaje(idPorcentaje)
@@ -108,21 +109,21 @@ public class AdIvaPorcentajeServiceImpl {
 
         Set<Integer> tarifasVigentes = new HashSet<>();
 
-        if (Objects.nonNull(porcentaje.getIva1()))
+        if (Objects.nonNull(porcentaje.getTarifaGeneral()))
 
-            if (porcentaje.getIva1() != 0) {
-                tarifasVigentes.add(porcentaje.getIva1());
+            if (porcentaje.getTarifaGeneral() != 0) {
+                tarifasVigentes.add(porcentaje.getTarifaGeneral());
             }
 
-        if (Objects.nonNull(porcentaje.getIva2())) {
-            if (porcentaje.getIva2() != 0) {
-                tarifasVigentes.add(porcentaje.getIva2());
+        if (Objects.nonNull(porcentaje.getTarifaReducida())) {
+            if (porcentaje.getTarifaReducida() != 0) {
+                tarifasVigentes.add(porcentaje.getTarifaReducida());
             }
         }
 
-        if (Objects.nonNull(porcentaje.getIva3())) {
-            if (porcentaje.getIva3() != 0) {
-                tarifasVigentes.add(porcentaje.getIva3());
+        if (Objects.nonNull(porcentaje.getTarifaConstruccion())) {
+            if (porcentaje.getTarifaConstruccion() != 0) {
+                tarifasVigentes.add(porcentaje.getTarifaConstruccion());
             }
         }
 

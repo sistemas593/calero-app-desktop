@@ -40,6 +40,7 @@ public class GetItemBuilder {
                 .impuestos(builderListImpuestos(model.getImpuestos()))
                 .geItemsPreciosEntities(geItemsPreciosBuilder.builderListPrecios(model.getPrecios(), idData, idEmpresa))
                 .caracteristicas(model.getCaracteristicas())
+                .aplicaTarifaReducida(model.getAplicaTarifaReducida())
                 .build();
     }
 
@@ -50,6 +51,7 @@ public class GetItemBuilder {
         item.setDescripcion(model.getDescripcion());
         item.setTipoItem(model.getTipoItem());
         item.setCaracteristicas(model.getCaracteristicas());
+        item.setAplicaTarifaReducida(model.getAplicaTarifaReducida());
         List<GeItemEntity.DetalleAdicional> nuevosDetalles = builderListDetalles(model.getDetallesAdicionales());
         if (item.getDetallesAdicionales() != null) {
             item.getDetallesAdicionales().clear();

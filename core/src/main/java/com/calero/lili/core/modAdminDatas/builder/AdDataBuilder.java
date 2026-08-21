@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Component
 public class AdDataBuilder {
@@ -24,10 +25,12 @@ public class AdDataBuilder {
     public AdDataEntity builderUpdateEntity(AdDatasCreationRequestDto model, AdDataEntity entidad) {
         return AdDataEntity.builder()
                 .idData(entidad.getIdData())
-                .siguienteIdEmpresa(1L)
+                .siguienteIdEmpresa(Objects.nonNull(model.getSiguienteIdEmpresa())
+                        ? model.getSiguienteIdEmpresa() : entidad.getSiguienteIdEmpresa())
                 .fechaCreacion(LocalDate.from(LocalDateTime.now()))
                 .data(model.getData())
-                .idConfiguracion(model.getIdConfiguracion())
+                .idConfiguracion(Objects.nonNull(model.getIdConfiguracion()) ? model.getIdConfiguracion()
+                        : entidad.getIdConfiguracion())
                 .build();
     }
 
@@ -41,7 +44,7 @@ public class AdDataBuilder {
     }
 
 
-    public AdDataResponseConfiguracionDto builderResponseConfiguracion(AdDataEntity entity){
+    public AdDataResponseConfiguracionDto builderResponseConfiguracion(AdDataEntity entity) {
         return AdDataResponseConfiguracionDto.builder()
                 .idData(entity.getIdData())
                 .idConfiguracion(entity.getIdConfiguracion())

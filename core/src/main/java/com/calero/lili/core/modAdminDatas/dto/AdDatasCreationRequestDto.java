@@ -10,4 +10,7 @@ public class AdDatasCreationRequestDto {
 
     private String data;
     private UUID idConfiguracion;
+    private Long siguienteIdEmpresa;
+
+
 }

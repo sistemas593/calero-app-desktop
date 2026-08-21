@@ -12,9 +12,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AdIvaPorcentajesDto {
 
-    private Integer iva1;
-    private Integer iva2;
-    private Integer iva3;
+    private Integer tarifaGeneral;
+    private Integer tarifaReducida;
+    private Integer tarifaConstruccion;
     private String fechaDesde;
 
 }

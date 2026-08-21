@@ -31,9 +31,9 @@ public class AdIvaPorcentajesEntity extends Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idIvaPorcentaje;
 
-    private Integer iva1;
-    private Integer iva2;
-    private Integer iva3;
+    private Integer tarifaGeneral;
+    private Integer tarifaReducida;
+    private Integer tarifaConstruccion;
     private LocalDate fechaDesde;
 
 

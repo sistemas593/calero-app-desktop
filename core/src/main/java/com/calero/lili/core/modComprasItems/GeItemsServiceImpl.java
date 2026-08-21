@@ -7,6 +7,8 @@ import com.calero.lili.core.dtos.errors.ListCreationResponseDto;
 import com.calero.lili.core.errors.exceptions.GeneralException;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresaEntity;
 import com.calero.lili.core.modAdminEmpresas.AdEmpresasRepository;
+import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajesEntity;
+import com.calero.lili.core.modAdminPorcentajes.AdIvaPorcentajesRepository;
 import com.calero.lili.core.modComprasItems.builder.GetItemBuilder;
 import com.calero.lili.core.modComprasItems.dto.GeItemGetListDto;
 import com.calero.lili.core.modComprasItems.dto.GeItemGetOneDto;
@@ -19,6 +21,7 @@ import com.calero.lili.core.modComprasItemsCategorias.GeItemsCategoriaEntity;
 import com.calero.lili.core.modComprasItemsCategorias.GeItemsCategoriaRepository;
 import com.calero.lili.core.modComprasItemsGrupos.GeItemGrupoEntity;
 import com.calero.lili.core.modComprasItemsGrupos.GeItemsGruposRepository;
+import com.calero.lili.core.modComprasItemsImpuesto.GeImpuestosEntity;
 import com.calero.lili.core.modComprasItemsMarcas.GeItemsMarcasEntity;
 import com.calero.lili.core.modComprasItemsMarcas.GeItemsMarcasRepository;
 import com.calero.lili.core.modComprasItemsMedidas.GeItemsMedidasEntity;
@@ -30,6 +33,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -43,6 +47,8 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor
 public class GeItemsServiceImpl {
 
+    private static final BigDecimal TARIFA_GENERAL_IVA = BigDecimal.valueOf(15);
+
     private final GeItemsRepository geItemsRepository;
     private final AdEmpresasRepository adEmpresasRepository;
     private final GetItemBuilder getItemBuilder;
@@ -50,6 +56,7 @@ public class GeItemsServiceImpl {
     private final GeItemsMarcasRepository geItemsMarcasRepository;
     private final GeItemsGruposRepository geItemsGruposRepository;
     private final GeItemsCategoriaRepository geItemsCategoriaRepository;
+    private final AdIvaPorcentajesRepository adIvaPorcentajesRepository;
 
 
     @Transactional
@@ -339,5 +346,56 @@ public class GeItemsServiceImpl {
         } else {
             entity.setMedidas(null);
         }
+    }
+
+    // Igual que findById, pero con la tarifa de IVA del item ajustada segun la fecha enviada.
+    // Reglas:
+    // - Si la tarifa del item no es 15%, el dto se devuelve tal cual (0%, 5%, exento, etc., sin cambios).
+    // - Si es 15% y el item no aplica tarifa reducida, el dto se devuelve tal cual (queda en 15%).
+    // - Si es 15% y el item aplica tarifa reducida, se busca la tarifa vigente para la fecha enviada:
+    //   - Si la tarifa reducida no aplica para esa fecha (no hay registro vigente, o no tiene tarifa
+    //     reducida configurada), el dto se devuelve tal cual (queda en 15%).
+    //   - Si la tarifa reducida si aplica para esa fecha, se reemplaza la tarifa del impuesto en el dto
+    //     por el valor de esa tarifa reducida.
+    @Transactional(readOnly = true)
+    public GeItemGetOneDto obtenerTarifaIvaVigente(Long idData, Long idEmpresa, UUID idItem, GeItemListFilterDto filters) {
+
+        GeItemEntity entidad = geItemsRepository.findByIdItem(idData, idEmpresa, idItem)
+                .orElseThrow(() -> new GeneralException(MessageFormat.format("Item con id {0} no existe", idItem)));
+
+        GeItemGetOneDto model = getItemBuilder.builderResponse(entidad);
+        model.setMedidas(getMedidas(entidad, idData));
+
+        BigDecimal tarifaItem = obtenerTarifaIvaItem(entidad);
+
+        boolean esTarifaGeneralConReduccion = Objects.nonNull(tarifaItem)
+                && tarifaItem.compareTo(TARIFA_GENERAL_IVA) == 0
+                && Boolean.TRUE.equals(entidad.getAplicaTarifaReducida());
+
+        if (!esTarifaGeneralConReduccion || Objects.isNull(model.getImpuestos()) || model.getImpuestos().isEmpty()) {
+            return model;
+        }
+
+        Optional<AdIvaPorcentajesEntity> vigente = adIvaPorcentajesRepository.findVigente(filters.getFechaTarifaIva());
+
+        boolean tarifaReducidaAplicaFecha = vigente.isPresent()
+                && Objects.nonNull(vigente.get().getTarifaReducida())
+                && vigente.get().getTarifaReducida() != 0;
+
+        if (tarifaReducidaAplicaFecha) {
+            model.getImpuestos().get(0).setTarifa(BigDecimal.valueOf(vigente.get().getTarifaReducida()));
+        }
+
+        return model;
+    }
+
+    // Toma la tarifa de IVA del item. Asume el primer impuesto asociado al item como su IVA
+    // (a ajustar si un item puede tener mas de un impuesto asociado y hay que distinguir cual es el IVA).
+    private BigDecimal obtenerTarifaIvaItem(GeItemEntity item) {
+        if (Objects.isNull(item.getImpuestos()) || item.getImpuestos().isEmpty()) {
+            return null;
+        }
+        GeImpuestosEntity impuesto = item.getImpuestos().get(0);
+        return impuesto.getTarifa();
     }
 }

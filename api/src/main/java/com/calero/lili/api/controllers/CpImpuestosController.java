@@ -197,7 +197,7 @@ public class CpImpuestosController {
         }
     }
 
-    @PostMapping("/excel-formato-dos/{idEmpresa}/{sucursal}")
+    @PostMapping("/excel-formato-reducido/{idEmpresa}/{sucursal}")
     public void uploadCpImpuestoExcelFormatoDos(@RequestParam("file") MultipartFile file,
                                                 @PathVariable("idEmpresa") Long idEmpresa,
                                                 @PathVariable("sucursal") String sucursal) {

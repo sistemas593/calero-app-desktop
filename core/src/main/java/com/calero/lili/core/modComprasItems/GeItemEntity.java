@@ -85,6 +85,12 @@ public class GeItemEntity extends Auditable {
     @Column(name = "estado")
     private Long estado;
 
+    // Indica si el item participa de la tarifa de IVA reducida cuando esta se encuentre vigente
+    // (ej. feriados/promociones definidos en ad_iva_porcentajes). Si es null o false, el item
+    // siempre conserva su tarifa general (15%).
+    @Column(name = "aplica_tarifa_reducida")
+    private Boolean aplicaTarifaReducida;
+
     @Builder.Default
     @JoinColumn(name = "id_item", referencedColumnName = "idItem")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)

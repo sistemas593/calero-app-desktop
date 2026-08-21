@@ -13,9 +13,9 @@ public class AdIvaPorcentajeBuilder {
 
     public AdIvaPorcentajesEntity builderEntity(AdIvaPorcentajesDto model) {
         return AdIvaPorcentajesEntity.builder()
-                .iva1(model.getIva1())
-                .iva2(model.getIva2())
-                .iva3(model.getIva3())
+                .tarifaGeneral(model.getTarifaGeneral())
+                .tarifaReducida(model.getTarifaReducida())
+                .tarifaConstruccion(model.getTarifaConstruccion())
                 .fechaDesde(Objects.nonNull(model.getFechaDesde())
                         ? DateUtils.toLocalDate(model.getFechaDesde())
                         : null)
@@ -25,9 +25,9 @@ public class AdIvaPorcentajeBuilder {
     public AdIvaPorcentajesEntity builderUpdateEntity(AdIvaPorcentajesDto model, AdIvaPorcentajesEntity item) {
         return AdIvaPorcentajesEntity.builder()
                 .idIvaPorcentaje(item.getIdIvaPorcentaje())
-                .iva1(model.getIva1())
-                .iva2(model.getIva2())
-                .iva3(model.getIva3())
+                .tarifaGeneral(model.getTarifaGeneral())
+                .tarifaReducida(model.getTarifaReducida())
+                .tarifaConstruccion(model.getTarifaConstruccion())
                 .fechaDesde(Objects.nonNull(model.getFechaDesde())
                         ? DateUtils.toLocalDate(model.getFechaDesde())
                         : null)
@@ -37,9 +37,9 @@ public class AdIvaPorcentajeBuilder {
 
     public AdIvaPorcentajesResponseDto builderResponse(AdIvaPorcentajesEntity model) {
         return AdIvaPorcentajesResponseDto.builder()
-                .iva1(model.getIva1())
-                .iva2(model.getIva2())
-                .iva3(model.getIva3())
+                .iva1(model.getTarifaGeneral())
+                .iva2(model.getTarifaReducida())
+                .iva3(model.getTarifaConstruccion())
                 .fechaDesde(Objects.nonNull(model.getFechaDesde())
                         ? DateUtils.toString(model.getFechaDesde())
                         : null)

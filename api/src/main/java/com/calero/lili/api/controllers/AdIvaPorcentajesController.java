@@ -71,7 +71,6 @@ public class AdIvaPorcentajesController {
         return adIvaPorcentajeService.findAllPaginate(filters, pageableConSort);
     }
 
-
     @DeleteMapping("{idPermiso}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasAuthority('US_PE_EL')")

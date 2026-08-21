@@ -6,26 +6,35 @@ import com.calero.lili.core.comprobantes.objetosXml.autorizacionFile.Autorizacio
 import com.calero.lili.core.comprobantes.objetosXml.autorizacionFile.Mensaje;
 import com.calero.lili.core.comprobantes.services.DeRecibidasComponentsServiceImpl;
 import com.calero.lili.core.comprobantes.services.dto.CampoAutorizacionDto;
-import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirListCreationRequestDto;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirListCreationResponseDto;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirListExistRequestResponseDto;
 import com.calero.lili.core.dtos.deRecibidos.CpImpuestosRecibirResponseDto;
 import com.calero.lili.core.comprobantesWs.ws.dtos.autorizacion.AutorizacionRequestDto;
 import com.calero.lili.core.comprobantesWs.ws.services.AutorizacionServiceImpl;
+import com.calero.lili.core.errors.exceptions.GeneralException;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 @XmlRootElement
 @Slf4j
 public class DeRecibidasWsServiceImpl {
+
+    private static final String COLUMNA_CLAVE_ACCESO = "CLAVE_ACCESO";
 
     private final AutorizacionServiceImpl autorizacionService;
     private final DeRecibidasComponentsServiceImpl deRecibidasComponentsService;
@@ -78,17 +87,20 @@ public class DeRecibidasWsServiceImpl {
 
 
     public CpImpuestosRecibirListCreationResponseDto createListClavesAcceso(Long idData, Long idEmpresa,
-                                                                            CpImpuestosRecibirListCreationRequestDto request, String usuario) {
+                                                                            MultipartFile file, String usuario) {
         log.info("xxxxxx");
+
+        List<String> listaClavesAcceso = extraerClavesAccesoDeArchivo(file);
+
         List<CpImpuestosRecibirResponseDto> listaRespuestas = new ArrayList<>();
 
-        request.getListaClavesAcceso().stream().forEach((c) -> {
+        listaClavesAcceso.stream().forEach((claveAcceso) -> {
 
-            if (c.getClaveAcceso().length() == 49) {
-                Boolean existeBdd = deRecibidasComponentsService.verificarExisteDocumentoElectronicoBdd(idData, idEmpresa, c.getClaveAcceso());
+            if (claveAcceso.length() == 49) {
+                Boolean existeBdd = deRecibidasComponentsService.verificarExisteDocumentoElectronicoBdd(idData, idEmpresa, claveAcceso);
                 if (existeBdd.equals(Boolean.FALSE)) {
                     AutorizacionRequestDto autorizacion = new AutorizacionRequestDto();
-                    autorizacion.setClaveAcceso(c.getClaveAcceso());
+                    autorizacion.setClaveAcceso(claveAcceso);
                     autorizacion.setAmbiente("2");
 
                     RespuestaComprobante result = null;
@@ -107,7 +119,7 @@ public class DeRecibidasWsServiceImpl {
                     if (result.getNumeroComprobantes() == null) {
 
                         listaRespuestas.add(CpImpuestosRecibirResponseDto.builder()
-                                .claveAcceso(c.getClaveAcceso())
+                                .claveAcceso(claveAcceso)
                                 .exitoso("N")
                                 .error("Clave de acceso no encontrada")
                                 .build());
@@ -124,7 +136,7 @@ public class DeRecibidasWsServiceImpl {
                             if (!message.isEmpty()) {
 
                                 listaRespuestas.add(CpImpuestosRecibirResponseDto.builder()
-                                        .claveAcceso(c.getClaveAcceso())
+                                        .claveAcceso(claveAcceso)
                                         .exitoso("N")
                                         .error(message)
                                         .build());
@@ -132,7 +144,7 @@ public class DeRecibidasWsServiceImpl {
                             } else {
 
                                 listaRespuestas.add(CpImpuestosRecibirResponseDto.builder()
-                                        .claveAcceso(c.getClaveAcceso())
+                                        .claveAcceso(claveAcceso)
                                         .exitoso("S")
                                         .error("")
                                         .build());
@@ -142,7 +154,7 @@ public class DeRecibidasWsServiceImpl {
                     }
                 } else {
                     listaRespuestas.add(CpImpuestosRecibirResponseDto.builder()
-                            .claveAcceso(c.getClaveAcceso())
+                            .claveAcceso(claveAcceso)
                             .exitoso("S")
                             .error("Ya existe el documento en la base de datos")
                             .build());
@@ -150,7 +162,7 @@ public class DeRecibidasWsServiceImpl {
 
             } else {
                 listaRespuestas.add(CpImpuestosRecibirResponseDto.builder()
-                        .claveAcceso(c.getClaveAcceso())
+                        .claveAcceso(claveAcceso)
                         .exitoso("N")
                         .error("Clave de acceso incorrecta")
                         .build());
@@ -161,6 +173,61 @@ public class DeRecibidasWsServiceImpl {
         return CpImpuestosRecibirListCreationResponseDto.builder()
                 .resultados(listaRespuestas)
                 .build();
+    }
+
+    /**
+     * Lee el archivo tabulado (formato de exportacion del SRI: cabecera + filas separadas por TAB)
+     * y extrae los valores de la columna CLAVE_ACCESO, sin duplicados y en el orden en que aparecen.
+     */
+    private List<String> extraerClavesAccesoDeArchivo(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new GeneralException("El archivo con las claves de acceso es requerido");
+        }
+
+        Set<String> clavesAcceso = new LinkedHashSet<>();
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
+            String encabezado = reader.readLine();
+            if (encabezado == null || encabezado.trim().isEmpty()) {
+                throw new GeneralException("El archivo esta vacio");
+            }
+
+            String[] columnas = encabezado.split("\t", -1);
+            int indiceClaveAcceso = -1;
+            for (int i = 0; i < columnas.length; i++) {
+                if (COLUMNA_CLAVE_ACCESO.equalsIgnoreCase(columnas[i].trim())) {
+                    indiceClaveAcceso = i;
+                    break;
+                }
+            }
+
+            if (indiceClaveAcceso == -1) {
+                throw new GeneralException("El archivo no contiene la columna " + COLUMNA_CLAVE_ACCESO);
+            }
+
+            String linea;
+            while ((linea = reader.readLine()) != null) {
+                if (linea.trim().isEmpty()) {
+                    continue;
+                }
+
+                String[] campos = linea.split("\t", -1);
+                if (campos.length > indiceClaveAcceso) {
+                    String claveAcceso = campos[indiceClaveAcceso].trim();
+                    if (!claveAcceso.isEmpty()) {
+                        clavesAcceso.add(claveAcceso);
+                    }
+                }
+            }
+        } catch (IOException exception) {
+            throw new GeneralException("Error al leer el archivo con las claves de acceso: " + exception.getMessage());
+        }
+
+        if (clavesAcceso.isEmpty()) {
+            throw new GeneralException("No se encontraron claves de acceso en el archivo");
+        }
+
+        return new ArrayList<>(clavesAcceso);
     }
 
 
